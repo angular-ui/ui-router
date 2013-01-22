@@ -2,4 +2,8 @@
 
 **Finally a defacto solution to nested routing**
 
-#### We are looking for team members! Post in the issue tracker if you want to join!
+### [Join the Team!](https://github.com/angular-ui/router/issues/2)
+
+### [Follow the Discussion](https://github.com/angular-ui/router/issues/1)
+
+### [Design specifications](https://github.com/angular-ui/router/wiki)
