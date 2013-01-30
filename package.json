@@ -1,0 +1,7 @@
+{
+  "name": "AngularJS-Extras",
+  "version": "0.0.0",
+  "dependencies" : {
+    "connect" : "*"
+  }
+}

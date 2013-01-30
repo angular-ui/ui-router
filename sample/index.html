@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en" ng-app="sample"><head>
+  <meta charset="utf-8">
+  <title>angular-states sample</title>
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap.min.css"> 
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.min.js"></script>
+  <script src="../src/angular-states.js"></script>
+</head><body>
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner"><div class="container">
+    <a class="brand" href="#">ngStates</a>
+    <ul class="nav">
+      <li ng-class="{ active: $state.includes('contacts') }"><a href="#/contacts">Contacts</a></li>
+      <li ng-class="{ active: $state.includes('about') }"><a href="#/about">About</a></li>
+    </ul>
+  </div></div>
+</div>
+<div class="container" style="margin-top:60px" ng-state-view></div>
+<hr>
+<pre>
+  $state = {{$state.current.name}}
+  $stateParams = {{$stateParams}}
+</pre>
+</body><script>
+
+function findById(a, id) {
+  for (var i=0; i<a.length; i++) {
+    if (a[i].id == id) return a[i];
+  }
+}
+
+angular.module('sample', ['ngStates'])
+  .config([ '$stateProvider',
+    function ($stateProvider) {
+      $stateProvider
+        .state('contacts', {
+          url: '/contacts',
+          abstract: true,
+          templateUrl: 'contacts.html',
+          controller:
+            [        '$scope',
+            function ($scope) {
+              $scope.contacts = [{
+                id: 1,
+                name: "Alice",
+                items: [{
+                  id: 'a',
+                  type: 'phone number',
+                  value: '555-1234-1234',
+                },{
+                  id: 'b',
+                  type: 'email',
+                  value: 'alice@mailinator.com',
+                }],
+              }, {
+                id: 42,
+                name: "Bob",
+                items: [{
+                  id: 'a',
+                  type: 'blog',
+                  value: 'http://bob.blogger.com',
+                },{
+                  id: 'b',
+                  type: 'fax',
+                  value: '555-999-9999',
+                }],
+              }, {
+                id: 123,
+                name: "Eve",
+                items: [{
+                  id: 'a',
+                  type: 'full name',
+                  value: 'Eve Adamsdottir',
+                }],
+              }];
+            }],
+        })
+        .state('contacts.list', {
+          templateUrl: 'contacts.list.html',
+        })
+        .state('contacts.detail', {
+          url: '/:contactId',
+          templateUrl: 'contacts.detail.html',
+          controller:
+            [        '$scope', '$stateParams',
+            function ($scope,   $stateParams) {
+              $scope.contact = findById($scope.contacts, $stateParams.contactId);
+            }],
+        })
+        .state('contacts.detail.response', {
+          url: '/item/:itemId',
+          templateUrl: 'contacts.detail.item.html',
+          controller:
+            [        '$scope', '$stateParams',
+            function ($scope,   $stateParams) {
+              $scope.item = findById($scope.contact.items, $stateParams.itemId);
+            }],
+        })
+        .state('about', {
+          url: '/about',
+          templateProvider:
+            [        '$timeout',
+            function ($timeout) {
+              return $timeout(function () { return "Hello world" }, 100);
+            }],
+        });
+    }])
+    .run(
+      [        '$rootScope', '$state', '$stateParams',
+      function ($rootScope,   $state,   $stateParams) {
+        $rootScope.$state = $state;
+        $rootScope.$stateParams = $stateParams;
+      }]);
+</script></html>
