@@ -30,8 +30,12 @@ function findById(a, id) {
 }
 
 angular.module('sample', ['ngStates'])
-  .config([ '$stateProvider',
-    function ($stateProvider) {
+  .config([ '$stateProvider', '$urlRouterProvider',
+    function ($stateProvider, $urlRouterProvider) {
+      $urlRouterProvider
+        .when('/c?id', '/contacts/:id')
+        .otherwise('/');
+
       $stateProvider
         .state('contacts', {
           url: '/contacts',
@@ -76,9 +80,12 @@ angular.module('sample', ['ngStates'])
             }],
         })
         .state('contacts.list', {
+          parent: 'contacts',
+          url: '',
           templateUrl: 'contacts.list.html',
         })
         .state('contacts.detail', {
+          parent: 'contacts',
           url: '/:contactId',
           templateUrl: 'contacts.detail.html',
           controller:
@@ -87,7 +94,8 @@ angular.module('sample', ['ngStates'])
               $scope.contact = findById($scope.contacts, $stateParams.contactId);
             }],
         })
-        .state('contacts.detail.response', {
+        .state('contacts.detail.item', {
+          parent: 'contacts.detail',
           url: '/item/:itemId',
           templateUrl: 'contacts.detail.item.html',
           controller:
@@ -106,7 +114,7 @@ angular.module('sample', ['ngStates'])
         });
     }])
     .run(
-      [        '$rootScope', '$state', '$stateParams',
+      [        '$rootScope', '$state', '$stateParams', '$urlRouter',
       function ($rootScope,   $state,   $stateParams) {
         $rootScope.$state = $state;
         $rootScope.$stateParams = $stateParams;
