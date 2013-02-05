@@ -51,10 +51,10 @@
               .get(url, { cache: $templateCache })
               .then(function(response) { return response.data; });
         };
-        this.fromProvider = function (provider, params) {
-          return $injector.invoke(provider, null, { params: params });
+        this.fromProvider = function (provider, params, locals) {
+          return $injector.invoke(provider, null, locals || { params: params });
         };
-        this.fromConfig = function (config, params) {
+        this.fromConfig = function (config, params, locals) {
           return (
             isDefined(config.template) ? this.fromString(config.template, params) :
             isDefined(config.templateUrl) ? this.fromUrl(config.templateUrl, params) :
@@ -265,6 +265,7 @@
       }])
 
     .value('$stateParams', {})
+
     .provider('$state',
       [        '$urlRouterProvider', '$urlMatcherFactoryProvider',
       function ($urlRouterProvider,   $urlMatcherFactory) {
@@ -370,6 +371,7 @@
               current: root.self,
               $current: root,
               $locals: [],
+              $transition: $q.when(root.self),
 
               transitionTo: transitionTo,
 
@@ -406,7 +408,12 @@
               }
 
               // Once everything is resolved, we are ready to perform the actual transition
-              return $q.all(resolving).then(function () {
+              // and return a promise for the new state. We also keep track of what the
+              // current promise is, so that we can detect overlapping transitions and
+              // keep only the outcome of the last transition.
+              var transition = $state.transition = $q.all(resolving).then(function () {
+                if ($state.transition !== transition) return; // superseded by a new transition
+
                 // Exit 'from' states not kept
                 for (var l=fromPath.length-1; l>=keep; l--) {
                   var exiting = fromPath[l].self;
@@ -421,32 +428,33 @@
                   if (entering.onEnter) entering.onEnter();
                 }
 
+                // Update global $state
                 $state.current = to.self;
                 $state.params = toParams;
                 $state.$current = to;
                 $state.$locals = toLocals;
-
                 copy(toParams, $stateParams);
-
                 $rootScope.$broadcast('$stateChangeSuccess', to.self, from.self);
 
-                return to.self;
+                return $state.current;
               }, function (error) {
+                if ($state.transition !== transition) return; // superseded by a new transition
                 $rootScope.$broadcast('$stateChangeError', to.self, from.self, error);
+                return $q.reject(error);
               });
+
+              return transition;
             }
 
-            function resolve(state, locals, $stateParams) {
-              var keys = [], values = [];
+            function resolve(state, dst, $stateParams) {
+              var keys = [], values = [], locals = { $stateParams: $stateParams };
 
               forEach(state.resolve || {}, function (value, key) {
                 keys.push(key);
-                values.push(isString(value)
-                    ? $injector.get(value)
-                    : $injector.invoke(value, { $stateParams: $stateParams }));
+                values.push(isString(value) ? $injector.get(value) : $injector.invoke(value, locals));
               });
 
-              var template = $templateFactory.fromConfig(state, $stateParams);
+              var template = $templateFactory.fromConfig(state, $stateParams, locals);
               if (template != null) {
                 keys.push('$template');
                 values.push(template);
@@ -454,9 +462,9 @@
 
               return $q.all(values).then(function(values) {
                 forEach(values, function(value, index) {
-                  locals[keys[index]] = value;
+                  dst[keys[index]] = value;
                 });
-                return locals;
+                return dst;
               });
             }
 
@@ -480,9 +488,14 @@
           terminal: true,
           link: function(scope, element, attr) {
             var lastScope, lastLocals,
-              level = attr.level || 0, // TODO: Find a better mechanism for this, either implicit or a name, not a numeric level
               onloadExp = attr.onload || '';
-              
+            
+            var parent = element.parent().inheritedData('$ngStateView');
+            var level = parent ? parent.level+1 : 0;
+            element.data('$ngStateView', {
+              level: level,
+            });
+
             scope.$on('$stateChangeSuccess', update);
             update();
 
@@ -532,8 +545,8 @@
                     return;
                   }
                 }
-                clearContent();
               }
+              clearContent();
             }
           },
         };
