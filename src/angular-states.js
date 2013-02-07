@@ -288,10 +288,6 @@
           return this.name;
         }
 
-        function qualifyViewName(name, state) {
-          return (name.indexOf('@') >= 0) ? name : name + '@' + state.parent.name;
-        }
-
         function registerState(state) {
           // Wrap a new object around the state so we can store our private details easily.
           state = inherit(state, { self: state, toString: stateToString });
@@ -343,7 +339,8 @@
           // straight lookup at link time.
           var views = {};
           forEach(!isDefined(state.views) ? { '': state } : state.views, function (view, name) {
-            views[qualifyViewName(name, state)] = view;
+            if (name.indexOf('@') < 0) name = name + '@' + state.parent.name;
+            views[name] = view;
           });
           state.views = views;
 
@@ -564,6 +561,7 @@
                 view.state = locals.$$state;
 
                 element.html(locals.$template);
+                // element.html('<div style="height:0;position:relative;z-index:999"><span style="background:red;color:white;font-size:12px;padding:1px">' + name + '</span></div>' + locals.$template);
                 var link = $compile(element.contents());
                 viewScope = scope.$new();
                 if (locals.$$controller) {
