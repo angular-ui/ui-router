@@ -58,7 +58,7 @@
           return (
             isDefined(config.template) ? this.fromString(config.template, params) :
             isDefined(config.templateUrl) ? this.fromUrl(config.templateUrl, params) :
-            isDefined(config.templateProvider) ? this.fromProvider(config.templateProvider, params) :
+            isDefined(config.templateProvider) ? this.fromProvider(config.templateProvider, params, locals) :
             null
           );
         };
@@ -288,6 +288,10 @@
           return this.name;
         }
 
+        function qualifyViewName(name, state) {
+          return (name.indexOf('@') >= 0) ? name : name + '@' + state.parent.name;
+        }
+
         function registerState(state) {
           // Wrap a new object around the state so we can store our private details easily.
           state = inherit(state, { self: state, toString: stateToString });
@@ -295,8 +299,20 @@
           var name = state.name;
           if (!isString(name)) throw new Error("State must have a name");
           if (states[name]) throw new Error("State '" + name + "'' is already defined");
-          var parent = state.parent = state.parent ? findState(state.parent) : root;
 
+          // Derive parent state from a hierarchical name only if 'parent' is not explicitly defined.
+          var parent = root;
+          if (!isDefined(state.parent)) {
+            var compositeName = /^(.+)\.[^.]+$/.exec(name);
+            if (compositeName != null) {
+              parent = findState(compositeName[1]);
+            }
+          } else if (state.parent != null) {
+            parent = findState(state.parent);
+          }
+          state.parent = parent;
+
+          // Build a URLMatcher if necessary, either via  ar relative or absolute URL
           if (!state.urlMatcher && state.url != null) { // empty url is valid!
             if (state.url.charAt(0) == '^') {
               state.urlMatcher = $urlMatcherFactory.compile(state.url.substring(1));
@@ -320,14 +336,22 @@
             state.ownParams = params;
           }
 
+          // If there is no explicit multi-view configuration, make one up so we don't have
+          // to handle both cases in the view directive later. Note that having an explicit
+          // 'views' property will mean the default unnamed view properties are ignored. This
+          // is also a good time to resolve view names to absolute names, so everything is a
+          // straight lookup at link time.
+          var views = {};
+          forEach(!isDefined(state.views) ? { '': state } : state.views, function (view, name) {
+            views[qualifyViewName(name, state)] = view;
+          });
+          state.views = views;
+
           // Also keep a full path from the root down to this state as this is needed for state activation,
           // as well as a set of all state names for fast lookup via $state.contains()
           state.path = parent ? parent.path.concat(state) : []; // exclude root from path
           var includes = state.includes = parent ? extend({}, parent.includes) : {}; includes[name] = true;
           if (!state.resolve) state.resolve = {};
-
-          // 'locals' is the only property we add to the existing state object directly.
-          state.self.locals = null;
 
           // Register the state in the global state list and with $urlRouter if necessary.
           if (!state.abstract && state.urlMatcher) {
@@ -335,16 +359,17 @@
               $state.transitionTo(state, params);
             });
           }
-
           return states[name] = state;
         }
 
-        // Implicit root state
+        // Implicit root state that is always active
         root = registerState({
           name: '',
           url: '^',
+          views: null,
           abstract: true,
         });
+        root.locals = {};
 
         // .state(state)
         // .state(name, state)
@@ -370,7 +395,6 @@
               params: {},
               current: root.self,
               $current: root,
-              $locals: [],
               $transition: $q.when(root.self),
 
               transitionTo: transitionTo,
@@ -387,9 +411,6 @@
               to = findState(to); if (to.abstract) throw new Error("Cannot transition to abstract state '" + to + "'");
               var toPath = to.path, from = findState($state.current), fromParams = $state.params, fromPath = from.path;
 
-              // TODO: Handle concurrent transitions -- either the earlier transition is aborted, or additional
-              // transitions are rejected while a transition is in progress.
-
               $rootScope.$broadcast('$stateChangeStart', to.self, from.self);
 
               // Starting from the root of the path, keep all levels that haven't changed
@@ -400,11 +421,12 @@
                 locals = toLocals[keep] = state.locals;
               }
 
-              // Resolve locals for the remaining states, but don't update any states just yet
+              // Resolve locals for the remaining states, but don't update any states just yet.
+              // This is also where we establish the inheritance chain of state locals.
               var resolving = [];
               for (var l=keep; l<toPath.length; l++, state=toPath[l]) {
-                toLocals[l] = locals = (locals ? inherit(locals, {}) : {});
-                resolving.push(resolve(state, locals, toParams));
+                toLocals[l] = locals = (locals ? inherit(locals) : {});
+                resolving.push(resolveState(state, locals, toParams));
               }
 
               // Once everything is resolved, we are ready to perform the actual transition
@@ -416,23 +438,26 @@
 
                 // Exit 'from' states not kept
                 for (var l=fromPath.length-1; l>=keep; l--) {
-                  var exiting = fromPath[l].self;
-                  if (exiting.onExit) exiting.onExit();
+                  var exiting = fromPath[l];
+                  if (exiting.self.onExit) {
+                    $injector.invoke(exiting.self.onExit, exiting.self, exiting.locals);
+                  } 
                   exiting.locals = null;
                 }
 
                 // Enter 'to' states not kept
                 for (var l=keep; l<toPath.length; l++) {
-                  var entering = toPath[l].self;
+                  var entering = toPath[l];
                   entering.locals = toLocals[l];
-                  if (entering.onEnter) entering.onEnter();
+                  if (entering.self.onEnter) {
+                    $injector.invoke(entering.self.onEnter, entering.self, entering.locals);
+                  }
                 }
 
                 // Update global $state
+                $state.$current = to;
                 $state.current = to.self;
                 $state.params = toParams;
-                $state.$current = to;
-                $state.$locals = toLocals;
                 copy(toParams, $stateParams);
                 $rootScope.$broadcast('$stateChangeSuccess', to.self, from.self);
 
@@ -446,26 +471,48 @@
               return transition;
             }
 
-            function resolve(state, dst, $stateParams) {
-              var keys = [], values = [], locals = { $stateParams: $stateParams };
+            function resolveState(state, dst, $stateParams) {
+              var locals = { $stateParams: $stateParams };
 
-              forEach(state.resolve || {}, function (value, key) {
-                keys.push(key);
-                values.push(isString(value) ? $injector.get(value) : $injector.invoke(value, locals));
+              // Resolve dependencies for the state itself
+              var promises = resolve(state.resolve, dst, locals);
+
+              // Resolve template and dependencies for all views. Each view receives
+              // its own dependencies, which are set up to inherit from the state's deps,
+              // and are accessible from the state locals as '$$view$<name>'.
+              forEach(state.views, function (view, name) {
+                var $view = dst['$$view$' + name] = inherit(dst);
+
+                // Dependencies
+                promises.push.apply(promises, resolve(view.resolve, $view, locals));
+
+                // Template
+                promises.push($q
+                  .when($templateFactory.fromConfig(view, $stateParams, locals) || '')
+                  .then(function (result) {
+                    $view.$template = result;
+                  }));
+
+                // References to the controller (only instantiated at link time)
+                // and the state itself to simplify lookup in the view directive.
+                $view.$$controller = view.controller;
+                $view.$$state = state;
               });
 
-              var template = $templateFactory.fromConfig(state, $stateParams, locals);
-              if (template != null) {
-                keys.push('$template');
-                values.push(template);
-              }
+              // Return a promise for the fully populated target object
+              return $q.all(promises).then(function () { return dst });
+            }
 
-              return $q.all(values).then(function(values) {
-                forEach(values, function(value, index) {
-                  dst[keys[index]] = value;
-                });
-                return dst;
+            function resolve(deps, dst, locals) {
+              var promises = [];
+              forEach(deps, function (value, key) {
+                promises.push($q
+                  .when(isString(value) ? $injector.get(value) : $injector.invoke(value, locals))
+                  .then(function (result) {
+                    dst[key] = result;
+                  }));
               });
+              return promises;
             }
 
             function equalForKeys(a, b, keys) {
@@ -487,66 +534,55 @@
           restrict: 'ECA',
           terminal: true,
           link: function(scope, element, attr) {
-            var lastScope, lastLocals,
+            var viewScope, viewLocals,
+              name = attr.ngStateView || attr.name || '',
               onloadExp = attr.onload || '';
             
+            // Find the details of the parent view directive (if any) and use it
+            // to derive our own qualified view name, then hang our own details
+            // off the DOM so child directives can find it.
             var parent = element.parent().inheritedData('$ngStateView');
-            var level = parent ? parent.level+1 : 0;
-            element.data('$ngStateView', {
-              level: level,
-            });
+            name  = name + '@' + (parent ? parent.state.name : '');
+            var view = { name: name, state: null };
+            element.data('$ngStateView', view);
 
-            scope.$on('$stateChangeSuccess', update);
-            update();
+            scope.$on('$stateChangeSuccess', updateView);
+            updateView();
 
-            function destroyLastScope() {
-              if (lastScope) {
-                lastScope.$destroy();
-                lastScope = null;
+            function updateView() {
+              var locals = $state.$current && $state.$current.locals['$$view$' + name];
+              if (locals === viewLocals) return; // nothing to do
+
+              // Destroy previous view scope (if any)
+              if (viewScope) {
+                viewScope.$destroy();
+                viewScope = null;
               }
-            }
 
-            function clearContent() {
-              element.html('');
-              destroyLastScope();
-            }
+              if (locals) {
+                viewLocals = locals;
+                view.state = locals.$$state;
 
-            function update() {
-              if ($state.$current) {
-                var state = $state.$current.path[level];
-                var locals = $state.$locals[level];
-                if (state) {
-                  if (locals === lastLocals) return; // nothing to do
-                  lastLocals = locals;
-                  var template = locals.$template;
-                  if (template) {
-                    element.html(template);
-                    destroyLastScope();
-
-                    var link = $compile(element.contents());
-                    lastScope = scope.$new();
-                    if (state.controller) {
-                      locals.$scope = lastScope;
-                      var controller = $controller(state.controller, locals);
-                      element.contents().data('$ngControllerController', controller);
-                    }
-                    // TODO: Does it make sense to bind parameters in scope?
-                    // forEach(state.ownParamNames, function (name) {
-                    //   lastScope[name] = current.params[name];
-                    // });
-
-                    link(lastScope);
-                    lastScope.$emit('$viewContentLoaded');
-                    lastScope.$eval(onloadExp);
-
-                    // TODO: This seems strange, shouldn't $anchorScroll listen for $viewContentLoaded if necessary?
-                    // $anchorScroll might listen on event...
-                    $anchorScroll();
-                    return;
-                  }
+                element.html(locals.$template);
+                var link = $compile(element.contents());
+                viewScope = scope.$new();
+                if (locals.$$controller) {
+                  locals.$scope = viewScope;
+                  var controller = $controller(locals.$$controller, locals);
+                  element.contents().data('$ngControllerController', controller);
                 }
+                link(viewScope);
+                viewScope.$emit('$viewContentLoaded');
+                viewScope.$eval(onloadExp);
+
+                // TODO: This seems strange, shouldn't $anchorScroll listen for $viewContentLoaded if necessary?
+                // $anchorScroll might listen on event...
+                $anchorScroll();
+              } else {
+                viewLocals = null;
+                view.state = null;
+                element.html('');
               }
-              clearContent();
             }
           },
         };

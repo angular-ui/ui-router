@@ -3,7 +3,10 @@
   <meta charset="utf-8">
   <title>angular-states sample</title>
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap.min.css"> 
+  <!-- <link rel="stylesheet" href="bootstrap.min.css">  -->
+
   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.min.js"></script>
+  <!-- <script src="angular.js"></script> -->
   <script src="../src/angular-states.js"></script>
 </head><body>
 <div class="navbar navbar-fixed-top">
@@ -13,6 +16,7 @@
       <li ng-class="{ active: $state.includes('contacts') }"><a href="#/contacts">Contacts</a></li>
       <li ng-class="{ active: $state.includes('about') }"><a href="#/about">About</a></li>
     </ul>
+    <p class="navbar-text pull-right" ng-state-view="hint"></p>
   </div></div>
 </div>
 <div class="container" style="margin-top:60px" ng-state-view></div>
@@ -80,29 +84,61 @@ angular.module('sample', ['ngStates'])
             }],
         })
         .state('contacts.list', {
-          parent: 'contacts',
+          // parent: 'contacts',
           url: '',
           templateUrl: 'contacts.list.html',
         })
         .state('contacts.detail', {
-          parent: 'contacts',
+          // parent: 'contacts',
           url: '/:contactId',
-          templateUrl: 'contacts.detail.html',
-          controller:
-            [        '$scope', '$stateParams',
-            function ($scope,   $stateParams) {
-              $scope.contact = findById($scope.contacts, $stateParams.contactId);
-            }],
+          views: {
+            '': {
+              templateUrl: 'contacts.detail.html',
+              resolve: {
+                something:
+                  [        '$timeout',
+                  function ($timeout) {
+                    return $timeout(function () { return "Asynchronously resolved data" }, 10);
+                  }],
+              },
+              controller:
+                [        '$scope', '$stateParams', 'something',
+                function ($scope,   $stateParams,   something) {
+                  $scope.something = something;
+                  $scope.contact = findById($scope.contacts, $stateParams.contactId);
+                }],
+            },
+            'hint@': {
+              template: 'This is contacts.detail populating the view "hint@"',
+            },
+            'menu': {
+              templateProvider:
+                [ '$stateParams',
+                function ($stateParams){
+                  // This is just to demonstrate that $stateParams injection works for templateProvider
+                  // $stateParams are the parameters for the new state we're transitioning to, even
+                  // though the global '$stateParams' has not been updated yet.
+                  return '<hr><small class="muted">Contact ID: ' + $stateParams.contactId + '</small>';
+                }],
+            },
+          },
         })
         .state('contacts.detail.item', {
-          parent: 'contacts.detail',
+          // parent: 'contacts.detail',
           url: '/item/:itemId',
-          templateUrl: 'contacts.detail.item.html',
-          controller:
-            [        '$scope', '$stateParams',
-            function ($scope,   $stateParams) {
-              $scope.item = findById($scope.contact.items, $stateParams.itemId);
-            }],
+          views: {
+            '': {
+              templateUrl: 'contacts.detail.item.html',
+              controller:
+                [        '$scope', '$stateParams',
+                function ($scope,   $stateParams) {
+                  $scope.item = findById($scope.contact.items, $stateParams.itemId);
+                }],
+            },
+            'hint@': {
+              template: 'Overriding the view "hint@"',
+            },
+          },
         })
         .state('about', {
           url: '/about',
