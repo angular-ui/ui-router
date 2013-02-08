@@ -1,13 +1,15 @@
 <!doctype html>
 <html lang="en" ng-app="sample"><head>
   <meta charset="utf-8">
-  <title>angular-states sample</title>
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap.min.css"> 
   <!-- <link rel="stylesheet" href="bootstrap.min.css">  -->
 
   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.min.js"></script>
   <!-- <script src="angular.js"></script> -->
   <script src="../src/angular-states.js"></script>
+  
+  <!-- could easily use a custom property of the state here instead of 'name' -->
+  <title ng-bind="$state.current.name + ' - angular-states'">angular-states</title>
 </head><body>
 <div class="navbar navbar-fixed-top">
   <div class="navbar-inner"><div class="container">
