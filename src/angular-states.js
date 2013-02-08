@@ -76,7 +76,9 @@
         function UrlMatcher(pattern) {
           // Find all placeholders and create a compiled pattern
           var placeholder = /:(\w+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})*))?\}/g,
-              segments = [], names = {}, params = [], compiled = '^', last = 0, m;
+              names = {}, compiled = '^', last = 0, m,
+              segments = this.segments = [], 
+              params = this.params = [];
 
           function addParameter(id) {
             if (!/^\w+$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
@@ -85,33 +87,46 @@
             params.push(id);
           }
 
+          this.source = pattern;
+
+          // Split into static segments separated by path parameter placeholders.
+          // The number of segments is always 1 more than the number of parameters.
+          var id, regexp, segment;
           while ((m = placeholder.exec(pattern)) != null) {
-            var id = (m[1] != null) ? m[1] : m[2];
-            var regexp = (m[3] != null) ? m[3] : '[^//]*';
-            var segment = pattern.substring(last, m.index);
+            id = (m[1] != null) ? m[1] : m[2];
+            regexp = (m[3] != null) ? m[3] : '[^//]*';
+            segment = pattern.substring(last, m.index);
             if (segment.indexOf('?') >= 0) break; // we're into the search part
             compiled += quoteRegExp(segment) + '(' + regexp + ')';
             addParameter(id);
             segments.push(segment);
             last = placeholder.lastIndex;
           }
-          var segment = pattern.substring(last);
-          // Find any search parameter names
+          segment = pattern.substring(last);
+
+          // Find any search parameter names and remove them from the last segment
           var i = segment.indexOf('?');
           if (i >= 0) {
-            forEach(segment.substring(i+1).split(/&/), addParameter);
+            this.sourcePath = pattern.substring(0, last + i - 1);
+            var search = this.sourceSearch = segment.substring(i);
             segment = segment.substring(0, i);
+            // Allow parameters to be separated by '?' as well as '&' to make concat() easier
+            forEach(search.substring(1).split(/[&?]/), addParameter);
+          } else {
+            this.sourcePath = pattern;
+            this.sourceSearch = '';
           }
+
           compiled += quoteRegExp(segment) + '$';
           segments.push(segment);
           this.regexp = new RegExp(compiled);
-          this.params = params;
-          this.segments = segments;
-          this.source = pattern;
         }
 
         UrlMatcher.prototype.concat = function (pattern) {
-          return $urlMatcherFactory.compile(this.source + pattern); // TODO: Handle search parameters
+          // Because order of search parameters is irrelevant, we can add our own search
+          // parameters to the end of the new pattern. Parse the new pattern by itself
+          // and then join the bits together, but it's much easier to do this on a string level.
+          return $urlMatcherFactory.compile(this.sourcePath + pattern + this.sourceSearch);
         };
 
         UrlMatcher.prototype.toString = function () {
