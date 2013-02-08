@@ -41,6 +41,11 @@ angular.module('sample', ['ngStates'])
         .otherwise('/');
 
       $stateProvider
+        .state('dashboard', {
+          url: '/',
+          template: '<p class="lead">Welcome to the ngStates sample</p><p>Use the menu above to navigate</p>' +
+            '<p>Look at <a href="#/c?id=1">Alice</a> to see a URL with a redirect in action.</p>',
+        })
         .state('contacts', {
           url: '/contacts',
           abstract: true,
