@@ -43,10 +43,12 @@ angular.module('sample', ['ngStates'])
         .otherwise('/');
 
       $stateProvider
-        .state('dashboard', {
-          url: '/',
+        .when('/user/:id', {
+          redirectTo: '/contacts/:id',
+        })
+        .when('/', {
           template: '<p class="lead">Welcome to the ngStates sample</p><p>Use the menu above to navigate</p>' +
-            '<p>Look at <a href="#/c?id=1">Alice</a> to see a URL with a redirect in action.</p>',
+            '<p>Look at <a href="#/c?id=1">Alice</a> or <a href="#/user/42">Bob</a> to see a URL with a redirect in action.</p>',
         })
         .state('contacts', {
           url: '/contacts',

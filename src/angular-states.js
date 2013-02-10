@@ -405,12 +405,25 @@
         };
 
         this.when = function (path, route) {
-          if (route.redirectTo) {
-            // TODO: Map this directly onto $urlRouterProvider
+          if (route.redirectTo != null) {
+            // Redirect, configure directly on $urlRouterProvider
+            var redirect = route.redirectTo, handler;
+            if (isString(redirect)) {
+              handler = redirect;
+            } else if (isFunction(redirect)) {
+              handler = function (params, $location) {
+                return redirect(params, $location.path(), $location.search());
+              };
+            } else {
+              throw new Error("Invalid 'redirectTo' in when()");
+            }
+            $urlRouterProvider.when(path, handler);
+            return this;
           } else {
+            // Regular route, configure as state
             route.parent = null;
             route.url = '^' + path;
-            if (!route.name) route.name = 'route(' + path + ')';
+            if (!route.name) route.name = 'route:' + path;
             return this.state(route);
           }
         };
