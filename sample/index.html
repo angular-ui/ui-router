@@ -98,16 +98,16 @@ angular.module('sample', ['ngStates'])
         .state('contacts.detail', {
           // parent: 'contacts',
           url: '/:contactId',
+          resolve: {
+            something:
+              [        '$timeout',
+              function ($timeout) {
+                return $timeout(function () { return "Asynchronously resolved data" }, 10);
+              }],
+          },
           views: {
             '': {
               templateUrl: 'contacts.detail.html',
-              resolve: {
-                something:
-                  [        '$timeout',
-                  function ($timeout) {
-                    return $timeout(function () { return "Asynchronously resolved data" }, 10);
-                  }],
-              },
               controller:
                 [        '$scope', '$stateParams', 'something',
                 function ($scope,   $stateParams,   something) {
