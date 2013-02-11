@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "dependencies": {},
   "devDependencies": {
-    "testacular": "~0.4.0"
+    "testacular": "~0.4.0",
+    "jsdoc": "git://github.com/jsdoc3/jsdoc.git#v3.1.0"
   }
 }

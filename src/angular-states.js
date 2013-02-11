@@ -12,6 +12,15 @@ function inherit(parent, extra) {
   return extend(new (extend(function() {}, { prototype:parent }))(), extra);
 }
 
+/**
+ * Extends the destination object `dst` by copying all of the properties from the `src` object(s)
+ * to `dst` if the `dst` object has no own property of the same name. You can specify multiple
+ * `src` objects.
+ *
+ * @param {Object} dst Destination object.
+ * @param {...Object} src Source object(s).
+ * @see angular.extend
+ */
 function merge(dst) {
   forEach(arguments, function(obj) {
     if (obj !== dst) {
@@ -24,33 +33,95 @@ function merge(dst) {
 }
 
 
-angular.module('ngStates',  [ 'ng' ])
+/**
+ * Manages loading of templates.
+ * @constructor
+ * @name ui.$templateFactory
+ * @requires $http
+ * @requires $templateCache
+ * @requires $injector
+ */
+$TemplateFactory.inject = [ '$http', '$templateCache', '$injector' ];
+function $TemplateFactory(   $http,   $templateCache,   $injector) {
 
-  .service('$templateFactory',
-    [        '$http', '$templateCache', '$injector',
-    function ($http,   $templateCache,   $injector) {
-      this.fromString = function (template, params) {
-        return isFunction(template) ? template(params) : template;
-      };
-      this.fromUrl = function (url, params) {
-        if (isFunction(url)) url = url(params);
-        if (url == null) return null;
-        else return $http
-            .get(url, { cache: $templateCache })
-            .then(function(response) { return response.data; });
-      };
-      this.fromProvider = function (provider, params, locals) {
-        return $injector.invoke(provider, null, locals || { params: params });
-      };
-      this.fromConfig = function (config, params, locals) {
-        return (
-          isDefined(config.template) ? this.fromString(config.template, params) :
-          isDefined(config.templateUrl) ? this.fromUrl(config.templateUrl, params) :
-          isDefined(config.templateProvider) ? this.fromProvider(config.templateProvider, params, locals) :
-          null
-        );
-      };
-    }])
+  /**
+   * Creates a template from a configuration object. 
+   * @function
+   * @name ui.$templateFactory#fromConfig
+   * @methodOf ui.$templateFactory
+   * @param {Object} config  Configuration object for which to load a template. The following
+   *    properties are search in the specified order, and the first one that is defined is
+   *    used to create the template:
+   * @param {String|Function} config.template  html string template or function to load via
+   *    {@link ui.$templateFactory#fromString fromString}.
+   * @param {String|Function} config.templateUrl  url to load or a function returning the url
+   *    to load via {@link ui.$templateFactory#fromUrl fromUrl}.
+   * @param {Function} config.templateProvider  function to invoke via
+   *    {@link ui.$templateFactory#fromProvider fromProvider}.
+   * @param {Object} params  Parameters to pass to the template function.
+   * @param {Object} [locals] Locals to pass to `invoke` if the template is loaded via a
+   *      `templateProvider`. Defaults to `{ params: params }`.
+   * @return {String|promise(String)}  The template html as a string, or a promise for that string,
+   *      or `null` if no template is configured.
+   */
+  this.fromConfig = function (config, params, locals) {
+    return (
+      isDefined(config.template) ? this.fromString(config.template, params) :
+      isDefined(config.templateUrl) ? this.fromUrl(config.templateUrl, params) :
+      isDefined(config.templateProvider) ? this.fromProvider(config.templateProvider, params, locals) :
+      null
+    );
+  };
+
+  /**
+   * Creates a template from a string or a function returning a string.
+   * @function
+   * @name ui.$templateFactory#fromString
+   * @methodOf ui.$templateFactory
+   * @param {String|Function} template  html template as a string or function that returns an html
+   *      template as a string.
+   * @param {Object} params  Parameters to pass to the template function.
+   * @return {String|promise(String)}  The template html as a string, or a promise for that string.
+   */
+  this.fromString = function (template, params) {
+    return isFunction(template) ? template(params) : template;
+  };
+
+  /**
+   * Loads a template from the a URL via `$http` and `$templateCache`.
+   * @function
+   * @name ui.$templateFactory#fromUrl
+   * @methodOf ui.$templateFactory
+   * @param {String|Function} url  url of the template to load, or a function that returns a url.
+   * @param {Object} params  Parameters to pass to the url function.
+   * @return {String|promise(String)}  The template html as a string, or a promise for that string.
+   */
+  this.fromUrl = function (url, params) {
+    if (isFunction(url)) url = url(params);
+    if (url == null) return null;
+    else return $http
+        .get(url, { cache: $templateCache })
+        .then(function(response) { return response.data; });
+  };
+
+  /**
+   * Creates a template by invoking an injectable provider function.
+   * @function
+   * @name ui.$templateFactory#fromUrl
+   * @methodOf ui.$templateFactory
+   * @param {Function} provider Function to invoke via `$injector.invoke`
+   * @param {Object} params Parameters for the template.
+   * @param {Object} [locals] Locals to pass to `invoke`. Defaults to `{ params: params }`.
+   * @return {String|promise(String)} The template html as a string, or a promise for that string.
+   */
+  this.fromProvider = function (provider, params, locals) {
+    return $injector.invoke(provider, null, locals || { params: params });
+  };
+}
+
+
+angular.module('ngStates',  [ 'ng' ])
+  .service('$templateFactory', $TemplateFactory)
 
   // Make the factory available as a provider so that providers can use it during configuration
   // TODO: There should be a better way to do this

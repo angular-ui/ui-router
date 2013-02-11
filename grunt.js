@@ -71,4 +71,20 @@ module.exports = function (grunt) {
       }
     });
   });
+
+  grunt.registerTask('jsdoc', 'Generate documentation', function () {
+    var done = this.async();
+    grunt.utils.spawn({
+      cmd: 'node_modules/jsdoc/jsdoc',
+      args: [ '-c', 'jsdoc-conf.json', '-d', grunt.config('builddir') + '/doc', 'src' ]
+    }, function (error, result, code) {
+      if (error) {
+        grunt.log.write(error.stderr + '\n');
+        grunt.warn("jsdoc generation failed");
+      } else {
+        grunt.log.write(result.stderr + result.stdout);
+      }
+      done();
+    });
+  });
 };
