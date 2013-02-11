@@ -2,11 +2,8 @@
 <html lang="en" ng-app="sample"><head>
   <meta charset="utf-8">
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap.min.css"> 
-  <!-- <link rel="stylesheet" href="bootstrap.min.css">  -->
-
-  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.min.js"></script>
-  <!-- <script src="angular.js"></script> -->
-  <script src="../src/angular-states.js"></script>
+  <script src="../lib/angular-1.0.4.js"></script> -->
+  <script src="../build/angular-ui-states.js"></script>
   
   <!-- could easily use a custom property of the state here instead of 'name' -->
   <title ng-bind="$state.current.name + ' - angular-states'">angular-states</title>
@@ -43,9 +40,11 @@ angular.module('sample', ['ngStates'])
         .otherwise('/');
 
       $stateProvider
+        // $routeProvider style redirect
         .when('/user/:id', {
           redirectTo: '/contacts/:id',
         })
+        // $routeProvider style route/state
         .when('/', {
           template: '<p class="lead">Welcome to the ngStates sample</p><p>Use the menu above to navigate</p>' +
             '<p>Look at <a href="#/c?id=1">Alice</a> or <a href="#/user/42">Bob</a> to see a URL with a redirect in action.</p>',

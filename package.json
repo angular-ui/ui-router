@@ -1,7 +1,9 @@
 {
-  "name": "AngularJS-Extras",
-  "version": "0.0.0",
-  "dependencies" : {
-    "connect" : "*"
+  "name": "angular-ui-states",
+  "description": "State-based routing for AngularJS",
+  "version": "0.0.1",
+  "dependencies": {},
+  "devDependencies": {
+    "testacular": "~0.4.0"
   }
 }
