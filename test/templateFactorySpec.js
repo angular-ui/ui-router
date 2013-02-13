@@ -1,6 +1,6 @@
 describe('templateFactory', function () {
   
-  beforeEach(module('ngStates'));
+  beforeEach(module('ui.util'));
 
   it('exists', inject(function ($templateFactory) {
     expect($templateFactory).toBeDefined();

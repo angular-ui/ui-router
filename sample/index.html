@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en" ng-app="sample"><head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap.min.css"> 
-  <script src="../lib/angular-1.0.4.js"></script> -->
+  <link rel="stylesheet" href="bootstrap.min.css"> 
+  <script src="../lib/angular-1.0.4.js"></script>
   <script src="../build/angular-ui-states.js"></script>
   
   <!-- could easily use a custom property of the state here instead of 'name' -->
@@ -15,10 +15,10 @@
       <li ng-class="{ active: $state.includes('contacts') }"><a href="#/contacts">Contacts</a></li>
       <li ng-class="{ active: $state.includes('about') }"><a href="#/about">About</a></li>
     </ul>
-    <p class="navbar-text pull-right" ng-state-view="hint"></p>
+    <p class="navbar-text pull-right" ui-view="hint"></p>
   </div></div>
 </div>
-<div class="container" style="margin-top:60px" ng-state-view></div>
+<div class="container" style="margin-top:60px" ui-view></div>
 <hr>
 <pre>
   $state = {{$state.current.name}}
@@ -32,7 +32,7 @@ function findById(a, id) {
   }
 }
 
-angular.module('sample', ['ngStates'])
+angular.module('sample', ['ui.state'])
   .config([ '$stateProvider', '$urlRouterProvider',
     function ($stateProvider, $urlRouterProvider) {
       $urlRouterProvider
@@ -98,7 +98,7 @@ angular.module('sample', ['ngStates'])
         })
         .state('contacts.detail', {
           // parent: 'contacts',
-          url: '/:contactId',
+          url: '/{contactId}?q',
           resolve: {
             something:
               [        '$timeout',
@@ -158,7 +158,7 @@ angular.module('sample', ['ngStates'])
         });
     }])
     .run(
-      [        '$rootScope', '$state', '$stateParams', '$urlRouter',
+      [        '$rootScope', '$state', '$stateParams',
       function ($rootScope,   $state,   $stateParams) {
         $rootScope.$state = $state;
         $rootScope.$stateParams = $stateParams;

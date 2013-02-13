@@ -31,13 +31,13 @@ module.exports = function (grunt) {
       files: ['grunt.js', 'src/*.js']
     },
     watch: {
-      files: ['src/*.js'],
+      files: ['src/*.js', 'test/*.js'],
       tasks: 'build test'
     }
   });
 
   // Default task.
-  grunt.registerTask('default', 'build test');
+  grunt.registerTask('default', 'build jsdoc test');
   grunt.registerTask('build', 'concat min');
 
   grunt.registerTask('dist', 'Change dist location', function() {
