@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en" ng-app="sample"><head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="bootstrap.min.css"> 
+  <link rel="stylesheet" type="text/css" href="bootstrap.min.css"> 
   <script src="../lib/angular-1.0.4.js"></script>
   <script src="../build/angular-ui-states.js"></script>
   
@@ -54,8 +54,8 @@ angular.module('sample', ['ui.state'])
           abstract: true,
           templateUrl: 'contacts.html',
           controller:
-            [        '$scope',
-            function ($scope) {
+            [        '$scope', '$state',
+            function ($scope,   $state) {
               $scope.contacts = [{
                 id: 1,
                 name: "Alice",
@@ -89,6 +89,14 @@ angular.module('sample', ['ui.state'])
                   value: 'Eve Adamsdottir',
                 }],
               }];
+
+              $scope.goToRandom = function () {
+                var contacts = $scope.contacts, id;
+                do {
+                  id = contacts[Math.floor(contacts.length * Math.random())].id;
+                } while (id === $state.params.contactId);
+                $state.transitionTo('contacts.detail', { contactId: id });
+              };
             }],
         })
         .state('contacts.list', {
