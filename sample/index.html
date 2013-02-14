@@ -32,23 +32,24 @@ function findById(a, id) {
   }
 }
 
-angular.module('sample', ['ui.state'])
-  .config([ '$stateProvider', '$urlRouterProvider',
-    function ($stateProvider, $urlRouterProvider) {
+angular.module('sample', ['ui.compat'])
+  .config(
+    [        '$stateProvider', '$routeProvider', '$urlRouterProvider',
+    function ($stateProvider,   $routeProvider,   $urlRouterProvider) {
       $urlRouterProvider
         .when('/c?id', '/contacts/:id')
         .otherwise('/');
 
-      $stateProvider
-        // $routeProvider style redirect
+      $routeProvider
         .when('/user/:id', {
           redirectTo: '/contacts/:id',
         })
-        // $routeProvider style route/state
         .when('/', {
           template: '<p class="lead">Welcome to the ngStates sample</p><p>Use the menu above to navigate</p>' +
             '<p>Look at <a href="#/c?id=1">Alice</a> or <a href="#/user/42">Bob</a> to see a URL with a redirect in action.</p>',
-        })
+        });
+
+      $stateProvider
         .state('contacts', {
           url: '/contacts',
           abstract: true,

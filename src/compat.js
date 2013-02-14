@@ -1,38 +1,64 @@
-$RouterProvider.$inject = ['$stateProvider'];
-function $RouterProvider(  $stateProvider) {
+$RouteProvider.$inject = ['$stateProvider', '$urlRouterProvider'];
+function $RouteProvider(  $stateProvider,    $urlRouterProvider) {
+
+  var routes = [];
 
   onEnterRoute.$inject = ['$$state'];
   function onEnterRoute(   $$state) {
     this.locals = $$state.locals.globals;
   }
+  
   function onExitRoute() {
     this.locals = null;
   }
 
-  this.when = function (url, route) {
-    route.onEnter = onEnterRoute;
-    route.onExot = onExitRoute;
-    $stateProvider.when(url, route);
+  this.when = when;
+  function when(url, route) {
+    if (route.redirectTo != null) {
+      // Redirect, configure directly on $urlRouterProvider
+      var redirect = route.redirectTo, handler;
+      if (isString(redirect)) {
+        handler = redirect; // leave $urlRouteProvider to handle
+      } else if (isFunction(redirect)) {
+        // Adapt to $urlRouterProvider API
+        handler = function (params, $location) {
+          return redirect(params, $location.path(), $location.search());
+        };
+      } else {
+        throw new Error("Invalid 'redirectTo' in when()");
+      }
+      $urlRouterProvider.when(url, handler);
+    } else {
+      // Regular route, configure as state
+      $stateProvider.state(inherit(route, {
+        parent: null,
+        name: 'route:' + url,
+        url: url,
+        onEnter: onEnterRoute,
+        onExit: onExitRoute
+      }));
+    }
+    routes.push(route);
     return this;
-  };
+  }
 
-  this.$get =
-    [        '$state',
-    function ($state) {
-      return $state;
-    }];
+  this.$get = $get;
+  $get.$inject = ['$state'];
+  function $get(   $state) {
+    return inherit($state, { routes: routes });
+  }
 }
 
 function $RouteParamsProvider() {
-  this.$get =
-    [        '$stateParams',
-    function ($stateParams) {
-      return $stateParams;
-    }];
+  this.$get = $get;
+  $get.$inject = ['$stateParams'];
+  function $get(   $stateParams) {
+    return $stateParams;
+  }
 }
 
 var $ViewDirective; // forward reference
 angular.module('ui.compat')
   .directive('ngView', $ViewDirective)
-  .provider('$router', $RouterProvider)
+  .provider('$route', $RouteProvider)
   .provider('$routeParams', $RouteParamsProvider);
