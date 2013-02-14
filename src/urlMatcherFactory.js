@@ -1,5 +1,5 @@
 /**
- * Matches URL against patterns and extracts named parameters from the path or the search
+ * Matches URLs against patterns and extracts named parameters from the path or the search
  * part of the URL. A URL pattern consists of a path pattern, optionally followed by '?' and a list
  * of search parameters. Multiple search parameter names are separated by '&'. Search parameters
  * do not influence whether or not a URL is matched, but their values are passed through into

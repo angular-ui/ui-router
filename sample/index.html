@@ -94,7 +94,7 @@ angular.module('sample', ['ui.state'])
                 var contacts = $scope.contacts, id;
                 do {
                   id = contacts[Math.floor(contacts.length * Math.random())].id;
-                } while (id === $state.params.contactId);
+                } while (id == $state.params.contactId);
                 $state.transitionTo('contacts.detail', { contactId: id });
               };
             }],
@@ -106,7 +106,7 @@ angular.module('sample', ['ui.state'])
         })
         .state('contacts.detail', {
           // parent: 'contacts',
-          url: '/{contactId}?q',
+          url: '/{contactId}',
           resolve: {
             something:
               [        '$timeout',
@@ -146,13 +146,31 @@ angular.module('sample', ['ui.state'])
             '': {
               templateUrl: 'contacts.detail.item.html',
               controller:
-                [        '$scope', '$stateParams',
-                function ($scope,   $stateParams) {
+                [        '$scope', '$stateParams', '$state',
+                function ($scope,   $stateParams,   $state) {
                   $scope.item = findById($scope.contact.items, $stateParams.itemId);
+                  $scope.edit = function () {
+                    $state.transitionTo('contacts.detail.item.edit', $stateParams);
+                  };
                 }],
             },
             'hint@': {
               template: 'Overriding the view "hint@"',
+            },
+          },
+        })
+        .state('contacts.detail.item.edit', {
+          views: {
+            '@contacts.detail': {
+              templateUrl: 'contacts.detail.item.edit.html',
+              controller:
+                [        '$scope', '$stateParams', '$state',
+                function ($scope,   $stateParams,   $state) {
+                  $scope.item = findById($scope.contact.items, $stateParams.itemId);
+                  $scope.done = function () {
+                    $state.transitionTo('contacts.detail.item', $stateParams);
+                  };
+                }],
             },
           },
         })
