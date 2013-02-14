@@ -103,201 +103,205 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
   });
   root.locals = {};
 
+
   // .state(state)
   // .state(name, state)
-  this.state = function (name, state) {
+  this.state = state;
+  function state(name, state) {
     if (isObject(name)) state = name;
     else state.name = name;
     registerState(state);
     return this;
-  };
+  }
 
-  this.$get =
-    // We don't need access to $urlRouter directly but we need to ensure it gets instantiated.
-    [        '$stateParams', '$rootScope', '$q', '$templateFactory', '$injector', '$urlRouter', '$location',
-    function ($stateParams,   $rootScope,   $q,   $templateFactory,   $injector,   $urlRouter,   $location) {
-      $state = {
-        params: {},
-        current: root.self,
-        $current: root,
-        $transition: $q.when(root.self),
+  // $urlRouter is injected just to ensure it gets instantiated
+  this.$get = $get;
+  $get.$inject = ['$rootScope', '$q', '$templateFactory', '$injector', '$stateParams', '$location', '$urlRouter'];
+  function $get(   $rootScope,   $q,   $templateFactory,   $injector,   $stateParams,   $location,   $urlRouter) {
 
-        transitionTo: transitionTo,
+    $state = {
+      params: {},
+      current: root.self,
+      $current: root,
+      $transition: $q.when(root.self),
 
-        is: function (stateOrName) {
-          return $state.$current === findState(stateOrName);
-        },
-        includes: function (stateOrName) {
-          return $state.$current.includes[findState(stateOrName).name];
-        },
-      };
+      transitionTo: transitionTo,
 
-      function transitionTo(to, toParams, updateLocation) {
-        if (!isDefined(updateLocation)) updateLocation = true;
+      is: function (stateOrName) {
+        return $state.$current === findState(stateOrName);
+      },
+      includes: function (stateOrName) {
+        return $state.$current.includes[findState(stateOrName).name];
+      },
+    };
 
-        to = findState(to); if (to.abstract) throw new Error("Cannot transition to abstract state '" + to + "'");
-        var toPath = to.path, from = $state.$current, fromParams = $state.params, fromPath = from.path;
+    function transitionTo(to, toParams, updateLocation) {
+      if (!isDefined(updateLocation)) updateLocation = true;
 
-        // Starting from the root of the path, keep all levels that haven't changed
-        var keep, state, locals = root.locals, toLocals = [];
-        for (keep = 0, state = toPath[keep];
-             state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams);
-             keep++, state = toPath[keep]) {
-          locals = toLocals[keep] = state.locals;
-        }
+      to = findState(to); if (to.abstract) throw new Error("Cannot transition to abstract state '" + to + "'");
+      var toPath = to.path, from = $state.$current, fromParams = $state.params, fromPath = from.path;
 
-        // If we're going to the same state and all locals are kept, we've got nothing to do. But
-        // update 'transition' anyway, as we still want to cancel any other pending transitions.
-        // TODO: We may not want to bump 'transition' if we're called from a location change that we've initiated ourselves,
-        // because we might accidentally abort a legitimate transition initiated from code?
-        if (to === from && locals === from.locals) {
-          return $state.$transition = $q.when($state.current);
-        }
-
-        // TODO: should we be passing from and to $stateParams as well?
-        $rootScope.$broadcast('$stateChangeStart', to.self, from.self);
-
-        // Resolve locals for the remaining states, but don't update any global state just
-        // yet -- if anything fails to resolve the current state needs to remain untouched.
-        // We also set up an inheritance chain for the locals here. This allows the view directive
-        // to quickly look up the correct definition for each view in the current state. Even
-        // though we create the locals object itself outside resolveState(), it is initially
-        // empty and gets filled asynchronously. We need to keep track of the promise for the
-        // (fully resolved) current locals, and pass this down the chain.
-        var resolved = $q.when(locals);
-        for (var l=keep; l<toPath.length; l++, state=toPath[l]) {
-          locals = toLocals[l] = (locals ? inherit(locals) : {});
-          resolved = resolveState(state, toParams, resolved, locals);
-        }
-
-        // Once everything is resolved, we are ready to perform the actual transition
-        // and return a promise for the new state. We also keep track of what the
-        // current promise is, so that we can detect overlapping transitions and
-        // keep only the outcome of the last transition.
-        var transition = $state.transition = resolved.then(function () {
-          var l, entering, exiting;
-
-          if ($state.transition !== transition) return; // superseded by a new transition
-
-          // Exit 'from' states not kept
-          for (l=fromPath.length-1; l>=keep; l--) {
-            exiting = fromPath[l];
-            if (exiting.self.onExit) {
-              $injector.invoke(exiting.self.onExit, exiting.self, exiting.locals.globals);
-            } 
-            exiting.locals = null;
-          }
-
-          // Enter 'to' states not kept
-          // TODO: Should we be invoking onEnter in a separate pass after we've updated $state and $location?
-          for (l=keep; l<toPath.length; l++) {
-            entering = toPath[l];
-            entering.locals = toLocals[l];
-            if (entering.self.onEnter) {
-              $injector.invoke(entering.self.onEnter, entering.self, entering.locals.globals);
-            }
-          }
-
-          // Update globals in $state
-          $state.$current = to;
-          $state.current = to.self;
-          $state.params = locals.globals.$stateParams; // these are normalized, unlike toParams
-          copy($state.params, $stateParams);
-
-          // Update $location
-          var toNav = to.navigable;
-          if (updateLocation && toNav) {
-            $location.url(toNav.urlMatcher.format(toNav.locals.globals.$stateParams));
-          }
-
-          $rootScope.$broadcast('$stateChangeSuccess', to.self, from.self);
-          return $state.current;
-        }, function (error) {
-          if ($state.transition !== transition) return; // superseded by a new transition
-          $rootScope.$broadcast('$stateChangeError', to.self, from.self, error);
-          return $q.reject(error);
-        });
-
-        return transition;
+      // Starting from the root of the path, keep all levels that haven't changed
+      var keep, state, locals = root.locals, toLocals = [];
+      for (keep = 0, state = toPath[keep];
+           state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams);
+           keep++, state = toPath[keep]) {
+        locals = toLocals[keep] = state.locals;
       }
 
-      function resolveState(state, params, inherited, dst) {
-        // We need to track all the promises generated during the resolution process.
-        // The first of these is for the fully resolved parent locals.
-        var promises = [ inherited ];
+      // If we're going to the same state and all locals are kept, we've got nothing to do. But
+      // update 'transition' anyway, as we still want to cancel any other pending transitions.
+      // TODO: We may not want to bump 'transition' if we're called from a location change that we've initiated ourselves,
+      // because we might accidentally abort a legitimate transition initiated from code?
+      if (to === from && locals === from.locals) {
+        return $state.$transition = $q.when($state.current);
+      }
 
-        // Make a restricted $stateParams with only the parameters that apply to this state, and
-        // force them all to strings while we're at it. In addition to being available to the
-        // controller and onEnter/onExit callbacks, we also need $stateParams to be available
-        // for any $injector calls we make during the dependency resolution process.
-        var $stateParams = {};
-        var locals = { $stateParams: $stateParams };
-        forEach(state.params, function (name) {
-          var value = params[name];
-          $stateParams[name] = (params[name] != null) ? String(value) : null;
-        });
+      // TODO: should we be passing from and to $stateParams as well?
+      $rootScope.$broadcast('$stateChangeStart', to.self, from.self);
 
-        function resolve(deps, dst) {
-          forEach(deps, function (value, key) {
-            promises.push($q
-              .when(isString(value) ? $injector.get(value) : $injector.invoke(value, locals))
-              .then(function (result) {
-                dst[key] = result;
-              }));
-          });
+      // Resolve locals for the remaining states, but don't update any global state just
+      // yet -- if anything fails to resolve the current state needs to remain untouched.
+      // We also set up an inheritance chain for the locals here. This allows the view directive
+      // to quickly look up the correct definition for each view in the current state. Even
+      // though we create the locals object itself outside resolveState(), it is initially
+      // empty and gets filled asynchronously. We need to keep track of the promise for the
+      // (fully resolved) current locals, and pass this down the chain.
+      var resolved = $q.when(locals);
+      for (var l=keep; l<toPath.length; l++, state=toPath[l]) {
+        locals = toLocals[l] = (locals ? inherit(locals) : {});
+        resolved = resolveState(state, toParams, resolved, locals);
+      }
+
+      // Once everything is resolved, we are ready to perform the actual transition
+      // and return a promise for the new state. We also keep track of what the
+      // current promise is, so that we can detect overlapping transitions and
+      // keep only the outcome of the last transition.
+      var transition = $state.transition = resolved.then(function () {
+        var l, entering, exiting;
+
+        if ($state.transition !== transition) return; // superseded by a new transition
+
+        // Exit 'from' states not kept
+        for (l=fromPath.length-1; l>=keep; l--) {
+          exiting = fromPath[l];
+          if (exiting.self.onExit) {
+            $injector.invoke(exiting.self.onExit, exiting.self, exiting.locals.globals);
+          } 
+          exiting.locals = null;
         }
 
-        // Resolve 'global' dependencies for the state, i.e. those not specific to a view.
-        // We're also including $stateParams in this; that we're the parameters are restricted
-        // to the set that should be visible to the state, and are independent of when we update
-        // the global $state and $stateParams values.
-        var globals = dst.globals = { $stateParams: $stateParams };
-        resolve(state.resolve, globals);
-        globals.$$state = state; // Provide access to the state itself for internal use
+        // Enter 'to' states not kept
+        // TODO: Should we be invoking onEnter in a separate pass after we've updated $state and $location?
+        for (l=keep; l<toPath.length; l++) {
+          entering = toPath[l];
+          entering.locals = toLocals[l];
+          if (entering.self.onEnter) {
+            $injector.invoke(entering.self.onEnter, entering.self, entering.locals.globals);
+          }
+        }
 
-        // Resolve template and dependencies for all views. Each view receives
-        // its own dependencies, which are set up to inherit from the state's deps,
-        // and are accessible from the state locals as '$$view$<name>'.
-        forEach(state.views, function (view, name) {
-          // References to the controller (only instantiated at link time)
-          var $view = dst[name] = {
-            $$controller: view.controller
-          };
+        // Update globals in $state
+        $state.$current = to;
+        $state.current = to.self;
+        $state.params = locals.globals.$stateParams; // these are normalized, unlike toParams
+        copy($state.params, $stateParams);
 
-          // Template
+        // Update $location
+        var toNav = to.navigable;
+        if (updateLocation && toNav) {
+          $location.url(toNav.urlMatcher.format(toNav.locals.globals.$stateParams));
+        }
+
+        $rootScope.$broadcast('$stateChangeSuccess', to.self, from.self);
+        return $state.current;
+      }, function (error) {
+        if ($state.transition !== transition) return; // superseded by a new transition
+        $rootScope.$broadcast('$stateChangeError', to.self, from.self, error);
+        return $q.reject(error);
+      });
+
+      return transition;
+    }
+
+    function resolveState(state, params, inherited, dst) {
+      // We need to track all the promises generated during the resolution process.
+      // The first of these is for the fully resolved parent locals.
+      var promises = [ inherited ];
+
+      // Make a restricted $stateParams with only the parameters that apply to this state, and
+      // force them all to strings while we're at it. In addition to being available to the
+      // controller and onEnter/onExit callbacks, we also need $stateParams to be available
+      // for any $injector calls we make during the dependency resolution process.
+      var $stateParams = {};
+      var locals = { $stateParams: $stateParams };
+      forEach(state.params, function (name) {
+        var value = params[name];
+        $stateParams[name] = (params[name] != null) ? String(value) : null;
+      });
+
+      // Resolves the values from an individual 'resolve' dependency spec
+      function resolve(deps, dst) {
+        forEach(deps, function (value, key) {
           promises.push($q
-            .when($templateFactory.fromConfig(view, $stateParams, locals) || '')
+            .when(isString(value) ? $injector.get(value) : $injector.invoke(value, locals))
             .then(function (result) {
-              $view.$template = result;
+              dst[key] = result;
             }));
-
-          // View-local dependencies
-          resolve(view.resolve, $view);
-        });
-
-        // Once we've resolved all the dependencies for this state, merge
-        // in any inherited dependencies, and merge common state dependencies
-        // into the dependency set for each view. Finally return a promise
-        // for the fully popuplated state dependencies.
-        return $q.all(promises).then(function (values) {
-          merge(dst.globals, values[0].globals); // promises[0] === inherited
-          forEach(state.views, function (view, name) {
-            merge(dst[name], dst.globals);
-          });
-          return dst;
         });
       }
 
-      function equalForKeys(a, b, keys) {
-        for (var i=0; i<keys.length; i++) {
-          var k = keys[i];
-          if (a[k] != b[k]) return false; // Not '===', values aren't necessarily normalized
-        }
-        return true;
-      }
+      // Resolve 'global' dependencies for the state, i.e. those not specific to a view.
+      // We're also including $stateParams in this; that we're the parameters are restricted
+      // to the set that should be visible to the state, and are independent of when we update
+      // the global $state and $stateParams values.
+      var globals = dst.globals = { $stateParams: $stateParams };
+      resolve(state.resolve, globals);
+      globals.$$state = state; // Provide access to the state itself for internal use
 
-      return $state;
-    }];
+      // Resolve template and dependencies for all views. Each view receives
+      // its own dependencies, which are set up to inherit from the state's deps,
+      // and are accessible from the state locals as '$$view$<name>'.
+      forEach(state.views, function (view, name) {
+        // References to the controller (only instantiated at link time)
+        var $view = dst[name] = {
+          $$controller: view.controller
+        };
+
+        // Template
+        promises.push($q
+          .when($templateFactory.fromConfig(view, $stateParams, locals) || '')
+          .then(function (result) {
+            $view.$template = result;
+          }));
+
+        // View-local dependencies
+        resolve(view.resolve, $view);
+      });
+
+      // Once we've resolved all the dependencies for this state, merge
+      // in any inherited dependencies, and merge common state dependencies
+      // into the dependency set for each view. Finally return a promise
+      // for the fully popuplated state dependencies.
+      return $q.all(promises).then(function (values) {
+        merge(dst.globals, values[0].globals); // promises[0] === inherited
+        forEach(state.views, function (view, name) {
+          merge(dst[name], dst.globals);
+        });
+        return dst;
+      });
+    }
+
+    function equalForKeys(a, b, keys) {
+      for (var i=0; i<keys.length; i++) {
+        var k = keys[i];
+        if (a[k] != b[k]) return false; // Not '===', values aren't necessarily normalized
+      }
+      return true;
+    }
+
+    return $state;
+  }
 }
 
 angular.module('ui.state')
