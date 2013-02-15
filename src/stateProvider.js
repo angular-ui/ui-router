@@ -40,20 +40,25 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     state.parent = parent;
 
     // Build a URLMatcher if necessary, either via a relative or absolute URL
-    if (!state.urlMatcher && state.url != null) { // empty url is valid!
-      if (state.url.charAt(0) == '^') {
-        state.urlMatcher = $urlMatcherFactory.compile(state.url.substring(1));
+    var url = state.url;
+    if (isString(url)) {
+      if (url.charAt(0) == '^') {
+        url = state.url = $urlMatcherFactory.compile(url.substring(1));
       } else {
-        var relativeTo = parent; while (!relativeTo.urlMatcher) relativeTo = relativeTo.parent;
-        state.urlMatcher = relativeTo.urlMatcher.concat(state.url);
+        url = state.url = parent.navigable.url.concat(url);
       }
+    } else if (isObject(url) &&
+        isFunction(url.exec) && isFunction(url.format) && isFunction(url.concat)) {
+      /* use UrlMatcher (or compatible object) as is */
+    } else if (url != null) {
+      throw new Error("Invalid url '" + url + "' in state '" + state + "'");
     }
 
     // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
-    state.navigable = state.urlMatcher ? state : parent ? parent.navigable : null;
+    state.navigable = state.url ? state : parent ? parent.navigable : null;
 
     // Figure out the parameters for this state and ensure they're a super-set of parent's parameters
-    var params = state.params = state.urlMatcher ? state.urlMatcher.parameters() : state.parent.params;
+    var params = state.params = url ? url.parameters() : state.parent.params;
     var paramNames = {}; forEach(params, function (p) { paramNames[p] = true; });
     if (parent) {
       forEach(parent.params, function (p) {
@@ -91,8 +96,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     if (!state.resolve) state.resolve = {}; // prevent null checks later
 
     // Register the state in the global state list and with $urlRouter if necessary.
-    if (!state.abstract && state.urlMatcher) {
-      $urlRouterProvider.when(state.urlMatcher, function (params) {
+    if (!state.abstract && url) {
+      $urlRouterProvider.when(url, function (params) {
         $state.transitionTo(state, params, false);
       });
     }
@@ -215,7 +220,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         // Update $location
         var toNav = to.navigable;
         if (updateLocation && toNav) {
-          $location.url(toNav.urlMatcher.format(toNav.locals.globals.$stateParams));
+          $location.url(toNav.url.format(toNav.locals.globals.$stateParams));
         }
 
         $rootScope.$broadcast('$stateChangeSuccess', to.self, from.self);
