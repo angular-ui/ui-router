@@ -30,6 +30,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     // Derive parent state from a hierarchical name only if 'parent' is not explicitly defined.
     var parent = root;
     if (!isDefined(state.parent)) {
+      // regex matches any valid composite state name
+      // would match "contact.list" but not "contacts"
       var compositeName = /^(.+)\.[^.]+$/.exec(name);
       if (compositeName != null) {
         parent = findState(compositeName[1]);
