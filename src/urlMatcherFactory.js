@@ -31,9 +31,9 @@
  *   path into the parameter 'path'.
  *
  * @constructor
- * @param {String} pattern  the pattern to compile into a matcher.
+ * @param {string} pattern  the pattern to compile into a matcher.
  *
- * @property {String} prefix  A static prefix of this pattern. The matcher guarantees that any
+ * @property {string} prefix  A static prefix of this pattern. The matcher guarantees that any
  *   URL matching this matcher (i.e. any string for which {@link UrlMatcher#exec exec()} returns
  *   non-null) will start with this prefix.
  */
@@ -72,7 +72,7 @@ function UrlMatcher(pattern) {
   // Split into static segments separated by path parameter placeholders.
   // The number of segments is always 1 more than the number of parameters.
   var id, regexp, segment;
-  while ((m = placeholder.exec(pattern)) != null) {
+  while ((m = placeholder.exec(pattern))) {
     id = (m[1] != null) ? m[1] : m[2];
     regexp = (m[3] != null) ? m[3] : '[^/]*';
     segment = pattern.substring(last, m.index);
@@ -117,7 +117,7 @@ function UrlMatcher(pattern) {
  * new UrlMatcher('/user/{id}/details?q&date');
  * ```
  *
- * @param {String} pattern  The pattern to append.
+ * @param {string} pattern  The pattern to append.
  * @return {UrlMatcher}  A matcher for the concatenated pattern.
  */
 UrlMatcher.prototype.concat = function (pattern) {
@@ -144,13 +144,13 @@ UrlMatcher.prototype.toString = function () {
  * // returns { id:'bob', q:'hello', r:null }
  * ```
  *
- * @param {String} path  The URL path to match, e.g. `$location.path()`.
+ * @param {string} path  The URL path to match, e.g. `$location.path()`.
  * @param {Object} searchParams  URL search parameters, e.g. `$location.search()`.
  * @return {Object}  The captured parameter values.
  */
 UrlMatcher.prototype.exec = function (path, searchParams) {
   var m = this.regexp.exec(path);
-  if (m == null) return null;
+  if (!m) return null;
 
   var params = this.params, nTotal = params.length,
     nPath = this.segments.length-1,
@@ -164,7 +164,7 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
 
 /**
  * Returns the names of all path and search parameters of this pattern in an unspecified order.
- * @return {String[]}  An array of parameter names. Must be treated as read-only. If the
+ * @return {Array.<string>}  An array of parameter names. Must be treated as read-only. If the
  *    pattern has no parameters, an empty array is returned.
  */
 UrlMatcher.prototype.parameters = function () {
@@ -183,22 +183,23 @@ UrlMatcher.prototype.parameters = function () {
  * ```
  *
  * @param {Object} values  the values to substitute for the parameters in this pattern.
- * @return {String}  the formatted URL (path and optionally search part).
+ * @return {string}  the formatted URL (path and optionally search part).
  */
 UrlMatcher.prototype.format = function (values) {
   var segments = this.segments, params = this.params;
   if (!values) return segments.join('');
 
   var nPath = segments.length-1, nTotal = params.length,
-    result = segments[0], i, search;
+    result = segments[0], i, search, value;
 
   for (i=0; i<nPath; i++) {
-    var value = values[params[i]];
+    value = values[params[i]];
+    // TODO: Maybe we should throw on null here? It's not really good style to use '' and null interchangeabley
     if (value != null) result += value;
     result += segments[i+1];
   }
   for (/**/; i<nTotal; i++) {
-    var value = values[params[i]];
+    value = values[params[i]];
     if (value != null) {
       result += (search ? '&' : '?') + params[i] + '=' + encodeURIComponent(value);
       search = true;
@@ -220,7 +221,7 @@ function $UrlMatcherFactory() {
    * @function
    * @name $urlMatcherFactory#compile
    * @methodOf $urlMatcherFactory
-   * @param {String} pattern  The URL pattern.
+   * @param {string} pattern  The URL pattern.
    * @return {UrlMatcher}  The UrlMatcher.
    */
   this.compile = function (pattern) {
@@ -229,6 +230,9 @@ function $UrlMatcherFactory() {
 
   /**
    * Returns true if the specified object is a UrlMatcher, or false otherwise.
+   * @function
+   * @name $urlMatcherFactory#isMatcher
+   * @methodOf $urlMatcherFactory
    * @param {Object} o
    * @return {boolean}
    */

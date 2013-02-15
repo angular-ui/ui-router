@@ -56,7 +56,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $anchorScroll) {
           element.html('');
         }
       }
-    },
+    }
   };
   return directive;
 }

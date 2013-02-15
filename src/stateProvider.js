@@ -10,7 +10,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       if (!state) throw new Error("No such state '" + stateOrName + "'");
     } else {
       state = states[stateOrName.name];
-      if (!state || state !== stateOrName && state.self !== stateOrName) throw new Error("Invalid or unregistered state");
+      if (!state || state !== stateOrName && state.self !== stateOrName) 
+        throw new Error("Invalid or unregistered state");
     }
     return state;
   }
@@ -19,7 +20,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     // Wrap a new object around the state so we can store our private details easily.
     state = inherit(state, {
       self: state,
-      toString: function () { return this.name; },
+      toString: function () { return this.name; }
     });
 
     var name = state.name;
@@ -59,8 +60,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         if (!paramNames[p]) throw new Error("State '" + name + "' does not define parameter '" + p + "'");
         paramNames[p] = false;
       });
+
       var ownParams = state.ownParams = [];
-      forEach(paramNames, function (own, p) { if (own) ownParams.push(p); });
+      forEach(paramNames, function (own, p) {
+        if (own) ownParams.push(p);
+      });
     } else {
       state.ownParams = params;
     }
@@ -81,7 +85,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     state.path = parent ? parent.path.concat(state) : []; // exclude root from path
 
     // Speed up $state.contains() as it's used a lot
-    var includes = state.includes = parent ? extend({}, parent.includes) : {}; includes[name] = true;
+    var includes = state.includes = parent ? extend({}, parent.includes) : {};
+    includes[name] = true;
 
     if (!state.resolve) state.resolve = {}; // prevent null checks later
 
@@ -99,7 +104,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     name: '',
     url: '^',
     views: null,
-    abstract: true,
+    abstract: true
   });
   root.locals = {};
 
@@ -107,10 +112,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
   // .state(state)
   // .state(name, state)
   this.state = state;
-  function state(name, state) {
-    if (isObject(name)) state = name;
-    else state.name = name;
-    registerState(state);
+  function state(name, definition) {
+    if (isObject(name)) definition = name;
+    else definition.name = name;
+    registerState(definition);
     return this;
   }
 
@@ -132,7 +137,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       },
       includes: function (stateOrName) {
         return $state.$current.includes[findState(stateOrName).name];
-      },
+      }
     };
 
     function transitionTo(to, toParams, updateLocation) {
@@ -227,7 +232,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     function resolveState(state, params, inherited, dst) {
       // We need to track all the promises generated during the resolution process.
       // The first of these is for the fully resolved parent locals.
-      var promises = [ inherited ];
+      var promises = [inherited];
 
       // Make a restricted $stateParams with only the parameters that apply to this state, and
       // force them all to strings while we're at it. In addition to being available to the

@@ -7,7 +7,7 @@ function $RouteProvider(  $stateProvider,    $urlRouterProvider) {
   function onEnterRoute(   $$state) {
     this.locals = $$state.locals.globals;
   }
-  
+
   function onExitRoute() {
     this.locals = null;
   }
@@ -45,7 +45,9 @@ function $RouteProvider(  $stateProvider,    $urlRouterProvider) {
   this.$get = $get;
   $get.$inject = ['$state'];
   function $get(   $state) {
-    return inherit($state, { routes: routes });
+    return inherit($state, {
+      routes: routes
+    });
   }
 }
 
@@ -59,6 +61,6 @@ function $RouteParamsProvider() {
 
 var $ViewDirective; // forward reference
 angular.module('ui.compat')
-  .directive('ngView', $ViewDirective)
-  .provider('$route', $RouteProvider)
-  .provider('$routeParams', $RouteParamsProvider);
+    .directive('ngView', $ViewDirective)
+    .provider('$route', $RouteProvider)
+    .provider('$routeParams', $RouteParamsProvider);

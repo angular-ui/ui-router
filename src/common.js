@@ -1,15 +1,17 @@
+/*jshint globalstrict:true*/
+/*global angular:false*/
 'use strict';
 
 var isDefined = angular.isDefined,
-  isFunction = angular.isFunction,
-  isString = angular.isString,
-  isObject = angular.isObject,
-  forEach = angular.forEach,
-  extend = angular.extend,
-  copy = angular.copy;
+    isFunction = angular.isFunction,
+    isString = angular.isString,
+    isObject = angular.isObject,
+    forEach = angular.forEach,
+    extend = angular.extend,
+    copy = angular.copy;
 
 function inherit(parent, extra) {
-  return extend(new (extend(function() {}, { prototype:parent }))(), extra);
+  return extend(new (extend(function() {}, { prototype: parent }))(), extra);
 }
 
 /**

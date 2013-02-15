@@ -12,7 +12,7 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
   // Interpolates matched values into a String.replace()-style pattern
   function interpolate(pattern, match) {
     return pattern.replace(/\$(\$|\d{1,2})/, function (m, what) {
-      return match[what == '$' ? 0 : Number(what)];
+      return match[what === '$' ? 0 : Number(what)];
     });
   }
 
@@ -36,7 +36,7 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
 
 
   function handleIfMatch($location, handler, match) {
-    if (match == null) return false;
+    if (!match) return false;
     var result = handler(match, $location);
     return isDefined(result) ? result : true;
   }

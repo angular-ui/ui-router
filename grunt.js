@@ -13,22 +13,27 @@ module.exports = function (grunt) {
         ' * @link <%= pkg.homepage %>\n' +
         ' * @license MIT License, http://www.opensource.org/licenses/MIT\n' + ' */',
       prefix: '(function (window, angular, undefined) {',
-      suffix: '})(window, window.angular);',
+      suffix: '})(window, window.angular);'
     },
     concat: {
       build: {
         src: ['<banner:meta.banner>', '<banner:meta.prefix>', 'src/*.js', '<banner:meta.suffix>' ],
         dest: '<%= builddir %>/<%= pkg.name %>.js'
-      },
+      }
     },
     min: {
       build: {
         src: ['<banner:meta.banner>', '<config:concat.build.dest>'],
         dest: '<%= builddir %>/<%= pkg.name %>.min.js'
-      },
+      }
     },
     lint: {
       files: ['grunt.js', 'src/*.js']
+    },
+    jshint: {
+      options: {
+        eqnull: true
+      }
     },
     watch: {
       files: ['src/*.js', 'test/*.js'],
@@ -37,7 +42,7 @@ module.exports = function (grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', 'build jsdoc test');
+  grunt.registerTask('default', 'build lint jsdoc test');
   grunt.registerTask('build', 'concat min');
 
   grunt.registerTask('dist', 'Change dist location', function() {
