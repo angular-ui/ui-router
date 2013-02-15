@@ -2,14 +2,19 @@
 
 **Finally a defacto solution to nested routing**
 
-### [Read the Overview](https://github.com/angular-ui/router/tree/ui-states)
+## **Main Goal**
+To evolve the concept of an Angular "Route" into a more general concept of a "State" for managing coarse application UI states.
 
-### [View the Live Sample](http://filedrop.plukmobile.net/angular-states/sample/index.html)
+## **Main Features:**
+1. A state manager `$stateProvider` and `$state`, keeps state logic separate from routing logic.
+2. Nested states (parent/child relationships).
+3. Can set multiple views via named views. `ui-view` directive.
+4. URL Routing
+5. Backwards compatible with Angular v1 router
+6. Various other nuggets of goodness
 
-### [View the Sample Code](https://github.com/angular-ui/router/tree/ui-states/sample)
+### In-depth Overview: [Read It!](https://github.com/angular-ui/router/wiki)
 
-### [View the Source](https://github.com/angular-ui/router/tree/ui-states)
+### Sample App: [View It!](http://filedrop.plukmobile.net/angular-states/sample/index.html) | [Source](https://github.com/angular-ui/router/tree/ui-states/sample)
 
-### [Follow and Submit Issues](https://github.com/angular-ui/router/issues)
-
-### [Join the Team!](https://github.com/angular-ui/router/issues/2)
+### Nitty Gritty: [UI-Router Source](https://github.com/angular-ui/router/tree/ui-states) | [Follow and Submit Issues](https://github.com/angular-ui/router/issues)
