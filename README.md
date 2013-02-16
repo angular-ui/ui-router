@@ -1,4 +1,5 @@
-# UI-Router
+# UI-Router 
+(Currently in alpha, check back soon for stable version)
 
 **Finally a defacto solution to nested routing**
 
