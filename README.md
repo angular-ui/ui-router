@@ -1,7 +1,9 @@
 # UI-Router 
-(Currently in alpha, check back soon for stable version)
 
-**Finally a defacto solution to nested routing**
+**Finally a defacto solution to nested routing.**
+
+*Currently in alpha, check back soon for stable version*
+
 
 ## **Main Goal**
 To evolve the concept of an Angular "Route" into a more general concept of a "State" for managing coarse application UI states.
