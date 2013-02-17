@@ -1,0 +1,4 @@
+build/doc
+.DS_Store
+*~
+node_modules
