@@ -47,11 +47,11 @@ function UrlMatcher(pattern) {
   // inside the regular expression. The placeholder regexp breaks down as follows:
   //    :(\w+)                    colon placeholder ($1)
   //    \{(\w+)(?:\:( ... ))?\}   curly brace placeholder ($2) with optional regexp ... ($3)
-  //    (?: ... | ... | ... )*    the regexp consists of any number of atoms, an atom being either
+  //    (?: ... | ... | ... )+    the regexp consists of any number of atoms, an atom being either
   //    [^{}\\]+                  - anything other than curly braces or backslash
   //    \\.                       - a backslash escape
   //    \{(?:[^{}\\]+|\\.)*\}     - a matched set of curly braces containing other atoms
-  var placeholder = /:(\w+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})*))?\}/g,
+  var placeholder = /:(\w+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
       names = {}, compiled = '^', last = 0, m,
       segments = this.segments = [], 
       params = this.params = [];
@@ -73,8 +73,8 @@ function UrlMatcher(pattern) {
   // The number of segments is always 1 more than the number of parameters.
   var id, regexp, segment;
   while ((m = placeholder.exec(pattern))) {
-    id = (m[1] != null) ? m[1] : m[2];
-    regexp = (m[3] != null) ? m[3] : '[^/]*';
+    id = m[1] || m[2]; // IE[78] returns '' for unmatched groups instead of null
+    regexp = m[3] || '[^/]*';
     segment = pattern.substring(last, m.index);
     if (segment.indexOf('?') >= 0) break; // we're into the search part
     compiled += quoteRegExp(segment) + '(' + regexp + ')';

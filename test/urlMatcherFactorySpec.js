@@ -27,6 +27,13 @@ describe("UrlMatcher", function () {
       .toEqual({ id:'123', type:'', repeat:'0' });
   });
 
+  it(".exec() uses the optional regexp with curly brace placeholders", function () {
+    expect(
+      new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?from&to')
+        .exec('/users/123/details/what/thisShouldBeDigits', {}))
+      .toBeNull();
+  });
+
   it(".format() reconstitutes the URL", function () {
     expect(
       new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?from')
