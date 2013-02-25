@@ -249,14 +249,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       var locals = { $stateParams: $stateParams };
       forEach(state.params, function (name) {
         var value = params[name];
-        $stateParams[name] = (params[name] != null) ? String(value) : null;
+        $stateParams[name] = (value != null) ? String(value) : null;
       });
 
       // Resolves the values from an individual 'resolve' dependency spec
       function resolve(deps, dst) {
         forEach(deps, function (value, key) {
           promises.push($q
-            .when(isString(value) ? $injector.get(value) : $injector.invoke(value, locals))
+            .when(isString(value) ? $injector.get(value) : $injector.invoke(value, state.self, locals))
             .then(function (result) {
               dst[key] = result;
             }));

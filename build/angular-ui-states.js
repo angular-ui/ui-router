@@ -1,6 +1,6 @@
 /**
  * State-based routing for AngularJS
- * @version v0.0.1 - 2013-02-17
+ * @version v0.0.1 - 2013-02-25
  * @link 
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -366,14 +366,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       var locals = { $stateParams: $stateParams };
       forEach(state.params, function (name) {
         var value = params[name];
-        $stateParams[name] = (params[name] != null) ? String(value) : null;
+        $stateParams[name] = (value != null) ? String(value) : null;
       });
 
       // Resolves the values from an individual 'resolve' dependency spec
       function resolve(deps, dst) {
         forEach(deps, function (value, key) {
           promises.push($q
-            .when(isString(value) ? $injector.get(value) : $injector.invoke(value, locals))
+            .when(isString(value) ? $injector.get(value) : $injector.invoke(value, state.self, locals))
             .then(function (result) {
               dst[key] = result;
             }));
@@ -600,7 +600,7 @@ function UrlMatcher(pattern) {
   // The number of segments is always 1 more than the number of parameters.
   var id, regexp, segment;
   while ((m = placeholder.exec(pattern))) {
-    id = m[1] || m[2];
+    id = m[1] || m[2]; // IE[78] returns '' for unmatched groups instead of null
     regexp = m[3] || '[^/]*';
     segment = pattern.substring(last, m.index);
     if (segment.indexOf('?') >= 0) break; // we're into the search part
