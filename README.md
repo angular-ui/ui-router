@@ -16,8 +16,8 @@ To evolve the concept of an Angular "Route" into a more general concept of a "St
 5. Backwards compatible with Angular v1 router
 6. Various other nuggets of goodness
 
-### In-depth Overview: [Read It!](https://github.com/angular-ui/router/wiki)
+### In-depth Overview: [Read It!](https://github.com/angular-ui/ui-router/wiki)
 
-### Sample App: [View It!](http://filedrop.plukmobile.net/angular-states/sample/index.html) | [Source](https://github.com/angular-ui/router/tree/ui-states/sample)
+### Sample App: [View It!](http://filedrop.plukmobile.net/angular-states/sample/index.html) | [Source](https://github.com/angular-ui/ui-router/tree/ui-states/sample)
 
-### Nitty Gritty: [UI-Router Source](https://github.com/angular-ui/router/tree/ui-states) | [Follow and Submit Issues](https://github.com/angular-ui/router/issues)
+### Nitty Gritty: [UI-Router Source](https://github.com/angular-ui/ui-router/tree/ui-states) | [Follow and Submit Issues](https://github.com/angular-ui/ui-router/issues)
