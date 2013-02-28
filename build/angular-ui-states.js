@@ -1,6 +1,6 @@
 /**
  * State-based routing for AngularJS
- * @version v0.0.1 - 2013-02-25
+ * @version v0.0.1 - 2013-03-01
  * @link 
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -199,7 +199,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     // is also a good time to resolve view names to absolute names, so everything is a
     // straight lookup at link time.
     var views = {};
-    forEach(!isDefined(state.views) ? { '': state } : state.views, function (view, name) {
+    forEach(isDefined(state.views) ? state.views : { '': state }, function (view, name) {
       if (name.indexOf('@') < 0) name = name + '@' + state.parent.name;
       views[name] = view;
     });
@@ -388,9 +388,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       resolve(state.resolve, globals);
       globals.$$state = state; // Provide access to the state itself for internal use
 
-      // Resolve template and dependencies for all views. Each view receives
-      // its own dependencies, which are set up to inherit from the state's deps,
-      // and are accessible from the state locals as '$$view$<name>'.
+      // Resolve template and dependencies for all views.
       forEach(state.views, function (view, name) {
         // References to the controller (only instantiated at link time)
         var $view = dst[name] = {
@@ -404,8 +402,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
             $view.$template = result;
           }));
 
-        // View-local dependencies
-        resolve(view.resolve, $view);
+        // View-local dependencies. If we've reused the state definition as the default
+        // view definition in .state(), we can end up with state.resolve === view.resolve.
+        // Avoid resolving everything twice in that case.
+        if (view.resolve !== state.resolve) resolve(view.resolve, $view);
       });
 
       // Once we've resolved all the dependencies for this state, merge
