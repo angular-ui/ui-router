@@ -274,8 +274,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // Resolve template and dependencies for all views.
       forEach(state.views, function (view, name) {
         // References to the controller (only instantiated at link time)
+        // The controller can be either specified by the "controller" property (which should be a function 
+        // representing the controller) or by the "controllerFactory" property (which should be a factory
+        // function that will return the controller upon invocation). Using the "controllerFactory" one
+        // can choose the controller dynamically, based e.g. on the $stateParams.
         var $view = dst[name] = {
-          $$controller: view.controller
+          $$controller: view.controllerFactory ? view.controllerFactory($stateParams) : view.controller
         };
 
         // Template
