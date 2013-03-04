@@ -13,7 +13,8 @@ function $ViewDirective(   $state,   $compile,   $controller,   $anchorScroll) {
       // to derive our own qualified view name, then hang our own details
       // off the DOM so child directives can find it.
       var parent = element.parent().inheritedData('$uiView');
-      name  = name + '@' + (parent ? parent.state.name : '');
+      var parentStateName = attr.parentStateName || '';
+      name  = name + '@' + (parent ? parent.state.name : parentStateName);
       var view = { name: name, state: null };
       element.data('$uiView', view);
 
