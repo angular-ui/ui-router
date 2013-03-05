@@ -1,6 +1,6 @@
 /**
  * State-based routing for AngularJS
- * @version v0.0.1 - 2013-03-01
+ * @version v0.0.1 - 2013-03-05
  * @link 
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -888,7 +888,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $anchorScroll) {
       // to derive our own qualified view name, then hang our own details
       // off the DOM so child directives can find it.
       var parent = element.parent().inheritedData('$uiView');
-      name  = name + '@' + (parent ? parent.state.name : '');
+      if (name.indexOf('@') < 0) name  = name + '@' + (parent ? parent.state.name : '');
       var view = { name: name, state: null };
       element.data('$uiView', view);
 
