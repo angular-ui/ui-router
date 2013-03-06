@@ -42,13 +42,9 @@ module.exports = function (grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', 'build lint jsdoc test');
   grunt.registerTask('build', 'concat min');
-
-  grunt.registerTask('dist', 'Change dist location', function() {
-    var dir = this.args[0];
-    if (dir) { grunt.config('builddir', dir); }
-  });
+  grunt.registerTask('dist', 'build jsdoc');
+  grunt.registerTask('default', 'build lint test');
 
   grunt.registerTask('test-server', 'Start testacular server', function () {
     //Mark the task as async but never call done, so the server stays up
