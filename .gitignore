@@ -1,4 +1,7 @@
+# master only
 build
+
+# common
 node_modules
 .DS_Store
 *~
