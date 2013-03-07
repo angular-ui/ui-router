@@ -1,6 +1,6 @@
 /**
  * State-based routing for AngularJS
- * @version v0.0.1 - 2013-03-06
+ * @version v0.0.1 - 2013-03-08
  * @link 
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -230,7 +230,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     views: null,
     abstract: true
   });
-  root.locals = {};
+  root.locals = { globals: { $stateParams: {} } };
+  root.navigable = null;
 
 
   // .state(state)
@@ -252,7 +253,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       params: {},
       current: root.self,
       $current: root,
+
+      transition: null,
       $transition: $q.when(root.self),
+
 
       transitionTo: transitionTo,
 
@@ -298,7 +302,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // (fully resolved) current locals, and pass this down the chain.
       var resolved = $q.when(locals);
       for (var l=keep; l<toPath.length; l++, state=toPath[l]) {
-        locals = toLocals[l] = (locals ? inherit(locals) : {});
+        locals = toLocals[l] = inherit(locals);
         resolved = resolveState(state, toParams, resolved, locals);
       }
 
@@ -306,7 +310,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // and return a promise for the new state. We also keep track of what the
       // current promise is, so that we can detect overlapping transitions and
       // keep only the outcome of the last transition.
-      var transition = $state.transition = resolved.then(function () {
+      var transition = $state.transition = $state.$transition = resolved.then(function () {
         var l, entering, exiting;
 
         if ($state.transition !== transition) return; // superseded by a new transition
@@ -335,6 +339,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         $state.current = to.self;
         $state.params = locals.globals.$stateParams; // these are normalized, unlike toParams
         copy($state.params, $stateParams);
+        $state.transition = null;
 
         // Update $location
         var toNav = to.navigable;
@@ -343,9 +348,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         }
 
         $rootScope.$broadcast('$stateChangeSuccess', to.self, from.self);
+        
         return $state.current;
       }, function (error) {
         if ($state.transition !== transition) return; // superseded by a new transition
+
+        $state.transition = null;
+
         $rootScope.$broadcast('$stateChangeError', to.self, from.self, error);
         return $q.reject(error);
       });
@@ -532,30 +541,34 @@ angular.module('ui.util').service('$templateFactory', $TemplateFactory);
  * do not influence whether or not a URL is matched, but their values are passed through into
  * the matched parameters returned by {@link UrlMatcher#exec exec}.
  * 
- * Path parameter placeholders can be specified using simple colon syntax or curly brace syntax,
- * which optionally allows a regular expression for the parameter to be specified:
+ * Path parameter placeholders can be specified using simple colon/catch-all syntax or curly brace
+ * syntax, which optionally allows a regular expression for the parameter to be specified:
  *
  * * ':' name - colon placeholder
+ * * '*' name - catch-all placeholder
  * * '{' name '}' - curly placeholder
  * * '{' name ':' regexp '}' - curly placeholder with regexp. Should the regexp itself contain
  *   curly braces, they must be in matched pairs or escaped with a backslash.
  *
  * Parameter names may contain only word characters (latin letters, digits, and underscore) and
- * must be unique within the pattern (across both path and search parameters). In the absence of
- * a regular expression, a path parameter matches any number of characters other than '/'.
+ * must be unique within the pattern (across both path and search parameters). For colon 
+ * placeholders or curly placeholders without an explicit regexp, a path parameter matches any
+ * number of characters other than '/'. For catch-all placeholders the path parameter matches
+ * any number of characters.
  * 
  * ### Examples
  * 
  * * '/hello/' - Matches only if the path is exactly '/hello/'. There is no special treatment for
  *   trailing slashes, and patterns have to match the entire path, not just a prefix.
- * * '/user/:id' - Matches '/user/bob' or '/user/1234!!!' or even '/user/' but not '/user'. The
- *   second path segment will be captured as the parameter 'id'.
+ * * '/user/:id' - Matches '/user/bob' or '/user/1234!!!' or even '/user/' but not '/user' or
+ *   '/user/bob/details'. The second path segment will be captured as the parameter 'id'.
  * * '/user/{id}' - Same as the previous example, but using curly brace syntax.
  * * '/user/{id:[^/]*}' - Same as the previous example.
  * * '/user/{id:[0-9a-fA-F]{1,8}}' - Similar to the previous example, but only matches if the id
  *   parameter consists of 1 to 8 hex digits.
  * * '/files/{path:.*}' - Matches any URL starting with '/files/' and captures the rest of the
  *   path into the parameter 'path'.
+ * * '/files/*path' - ditto.
  *
  * @constructor
  * @param {string} pattern  the pattern to compile into a matcher.
@@ -566,19 +579,20 @@ angular.module('ui.util').service('$templateFactory', $TemplateFactory);
  */
 function UrlMatcher(pattern) {
 
-  // Find all placeholders and create a compiled pattern, using either colon or curly syntax:
+  // Find all placeholders and create a compiled pattern, using either classic or curly syntax:
+  //   '*' name
   //   ':' name
   //   '{' name '}'
   //   '{' name ':' regexp '}'
   // The regular expression is somewhat complicated due to the need to allow curly braces
   // inside the regular expression. The placeholder regexp breaks down as follows:
-  //    :(\w+)                    colon placeholder ($1)
-  //    \{(\w+)(?:\:( ... ))?\}   curly brace placeholder ($2) with optional regexp ... ($3)
+  //    ([:*])(\w+)               classic placeholder ($1 / $2)
+  //    \{(\w+)(?:\:( ... ))?\}   curly brace placeholder ($3) with optional regexp ... ($4)
   //    (?: ... | ... | ... )+    the regexp consists of any number of atoms, an atom being either
   //    [^{}\\]+                  - anything other than curly braces or backslash
   //    \\.                       - a backslash escape
   //    \{(?:[^{}\\]+|\\.)*\}     - a matched set of curly braces containing other atoms
-  var placeholder = /:(\w+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
+  var placeholder = /([:*])(\w+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
       names = {}, compiled = '^', last = 0, m,
       segments = this.segments = [], 
       params = this.params = [];
@@ -600,8 +614,8 @@ function UrlMatcher(pattern) {
   // The number of segments is always 1 more than the number of parameters.
   var id, regexp, segment;
   while ((m = placeholder.exec(pattern))) {
-    id = m[1] || m[2]; // IE[78] returns '' for unmatched groups instead of null
-    regexp = m[3] || '[^/]*';
+    id = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
+    regexp = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
     segment = pattern.substring(last, m.index);
     if (segment.indexOf('?') >= 0) break; // we're into the search part
     compiled += quoteRegExp(segment) + '(' + regexp + ')';
