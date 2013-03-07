@@ -113,7 +113,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     views: null,
     abstract: true
   });
-  root.locals = {};
+  root.locals = { globals: { $stateParams: {} } };
+  root.navigable = null;
 
 
   // .state(state)
@@ -135,7 +136,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       params: {},
       current: root.self,
       $current: root,
+
+      transition: null,
       $transition: $q.when(root.self),
+
 
       transitionTo: transitionTo,
 
@@ -181,7 +185,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // (fully resolved) current locals, and pass this down the chain.
       var resolved = $q.when(locals);
       for (var l=keep; l<toPath.length; l++, state=toPath[l]) {
-        locals = toLocals[l] = (locals ? inherit(locals) : {});
+        locals = toLocals[l] = inherit(locals);
         resolved = resolveState(state, toParams, resolved, locals);
       }
 
@@ -189,7 +193,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // and return a promise for the new state. We also keep track of what the
       // current promise is, so that we can detect overlapping transitions and
       // keep only the outcome of the last transition.
-      var transition = $state.transition = resolved.then(function () {
+      var transition = $state.transition = $state.$transition = resolved.then(function () {
         var l, entering, exiting;
 
         if ($state.transition !== transition) return; // superseded by a new transition
@@ -218,6 +222,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         $state.current = to.self;
         $state.params = locals.globals.$stateParams; // these are normalized, unlike toParams
         copy($state.params, $stateParams);
+        $state.transition = null;
 
         // Update $location
         var toNav = to.navigable;
@@ -226,9 +231,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         }
 
         $rootScope.$broadcast('$stateChangeSuccess', to.self, from.self);
+        
         return $state.current;
       }, function (error) {
         if ($state.transition !== transition) return; // superseded by a new transition
+
+        $state.transition = null;
+
         $rootScope.$broadcast('$stateChangeError', to.self, from.self, error);
         return $q.reject(error);
       });
