@@ -17,36 +17,40 @@ describe('state', function () {
       expect($state.$current).toBeDefined();
     }));
 
-    it('.$current wraps the raw state object', inject(function ($state) {
-      resolvedValue($state.transitionTo(A, {}));
+    it('.$current wraps the raw state object', inject(function ($state, $q) {
+      $state.transitionTo(A, {});
+      $q.flush();
       expect($state.$current.data).toBe(A.data); // 'data' is reserved for app use
     }));
 
-    it('.transitionTo() returns a promise for the target state', inject(function ($state) {
+    it('.transitionTo() returns a promise for the target state', inject(function ($state, $q) {
       var trans = $state.transitionTo(A, {});
+      $q.flush();
       expect(resolvedValue(trans)).toBe(A);
     }));
 
-    it('.current updates asynchronously as the transitionTo() promise is resolved', inject(function ($state) {
+    it('.current updates asynchronously as the transitionTo() promise is resolved', inject(function ($state, $q) {
       var trans = $state.transitionTo(A, {});
       expect($state.current).not.toBe(A);
-      resolvedValue(trans);
+      $q.flush();
       expect($state.current).toBe(A);
     }));
 
-    it('.$transition is always the current or last transition', inject(function ($state) {
+    it('.$transition is always the current or last transition', inject(function ($state, $q) {
       expect($state.$transition).toBeDefined();
+      $q.flush();
       expect(resolvedValue($state.$transition)).toBe($state.current);
       var trans = $state.transitionTo(A, {});
       expect($state.$transition).toBeDefined();
       expect($state.$transition).toBe(trans);
-      resolvedValue(trans);
+      $q.flush();
       expect($state.$transition).toBe(trans);
     }));
 
-    it('.transition is null when no transition is taking place', inject(function ($state) {
+    it('.transition is null when no transition is taking place', inject(function ($state, $q) {
       expect($state.transition).toBeNull();
-      resolvedValue($state.transitionTo(A, {}));
+      $state.transitionTo(A, {});
+      $q.flush();
       expect($state.transition).toBeNull();
     }));
   });
