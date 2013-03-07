@@ -27,6 +27,12 @@ describe("UrlMatcher", function () {
       .toEqual({ id:'123', type:'', repeat:'0' });
   });
 
+  it(".exec() captures catch-all parameters", function () {
+    var m = new UrlMatcher('/document/*path');
+    expect(m.exec('/document/a/b/c', {})).toEqual({ path: 'a/b/c' });
+    expect(m.exec('/document/', {})).toEqual({ path: '' });
+  });
+
   it(".exec() uses the optional regexp with curly brace placeholders", function () {
     expect(
       new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?from&to')
