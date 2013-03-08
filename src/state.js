@@ -136,10 +136,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       params: {},
       current: root.self,
       $current: root,
-
       transition: null,
-      $transition: $q.when(root.self),
-
 
       transitionTo: transitionTo,
 
@@ -165,12 +162,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         locals = toLocals[keep] = state.locals;
       }
 
-      // If we're going to the same state and all locals are kept, we've got nothing to do. But
-      // update 'transition' anyway, as we still want to cancel any other pending transitions.
+      // If we're going to the same state and all locals are kept, we've got nothing to do.
+      // But clear 'transition', as we still want to cancel any other pending transitions.
       // TODO: We may not want to bump 'transition' if we're called from a location change that we've initiated ourselves,
       // because we might accidentally abort a legitimate transition initiated from code?
       if (to === from && locals === from.locals) {
-        return $state.$transition = $q.when($state.current);
+        $state.transition = null;
+        return $q.when($state.current);
       }
 
       // TODO: should we be passing from and to $stateParams as well?
@@ -193,10 +191,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // and return a promise for the new state. We also keep track of what the
       // current promise is, so that we can detect overlapping transitions and
       // keep only the outcome of the last transition.
-      var transition = $state.transition = $state.$transition = resolved.then(function () {
+      var transition = $state.transition = resolved.then(function () {
         var l, entering, exiting;
 
-        if ($state.transition !== transition) return; // superseded by a new transition
+        if ($state.transition !== transition) return $q.reject(new Error('transition superseded'));
 
         // Exit 'from' states not kept
         for (l=fromPath.length-1; l>=keep; l--) {
