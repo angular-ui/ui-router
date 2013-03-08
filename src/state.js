@@ -47,7 +47,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       if (url.charAt(0) == '^') {
         url = state.url = $urlMatcherFactory.compile(url.substring(1));
       } else {
-        url = state.url = parent.navigable.url.concat(url);
+        url = state.url = (parent.navigable || root).url.concat(url);
       }
     } else if (isObject(url) &&
         isFunction(url.exec) && isFunction(url.format) && isFunction(url.concat)) {
@@ -57,7 +57,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     }
 
     // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
-    state.navigable = state.url ? state : parent ? parent.navigable : null;
+    state.navigable = url ? state : parent ? parent.navigable : null;
 
     // Derive parameters for this state and ensure they're a super-set of parent's parameters
     var params = state.params;
