@@ -24,7 +24,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     });
 
     var name = state.name;
-    if (!isString(name)) throw new Error("State must have a name");
+    if (!isString(name) || name.indexOf('@') >= 0) throw new Error("State must have a valid name");
     if (states[name]) throw new Error("State '" + name + "'' is already defined");
 
     // Derive parent state from a hierarchical name only if 'parent' is not explicitly defined.
@@ -59,12 +59,21 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
     state.navigable = state.url ? state : parent ? parent.navigable : null;
 
-    // Figure out the parameters for this state and ensure they're a super-set of parent's parameters
-    var params = state.params = url ? url.parameters() : state.parent.params;
+    // Derive parameters for this state and ensure they're a super-set of parent's parameters
+    var params = state.params;
+    if (params) {
+      if (!isArray(params)) throw new Error("Invalid params in state '" + state + "'");
+      if (url) throw new Error("Both params and url specicified in state '" + state + "'");
+    } else {
+      params = state.params = url ? url.parameters() : state.parent.params;
+    }
+    
     var paramNames = {}; forEach(params, function (p) { paramNames[p] = true; });
     if (parent) {
       forEach(parent.params, function (p) {
-        if (!paramNames[p]) throw new Error("State '" + name + "' does not define parameter '" + p + "'");
+        if (!paramNames[p]) {
+          throw new Error("Missing required parameter '" + p + "' in state '" + name + "'");
+        }
         paramNames[p] = false;
       });
 
@@ -148,6 +157,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       }
     };
 
+    var TransitionSuperseded = $q.reject(new Error('transition superseded'));
+    var TransitionPrevented = $q.reject(new Error('transition prevented'));
+
     function transitionTo(to, toParams, updateLocation) {
       if (!isDefined(updateLocation)) updateLocation = true;
 
@@ -171,8 +183,17 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         return $q.when($state.current);
       }
 
-      // TODO: should we be passing from and to $stateParams as well?
-      $rootScope.$broadcast('$stateChangeStart', to.self, from.self);
+      // Normalize parameters before we pass them to event handlers etc.
+      var normalizedToParams = {};
+      forEach(to.params, function (name) {
+        var value = toParams[name];
+        normalizedToParams[name] = (value != null) ? String(value) : null;
+      });
+      toParams = normalizedToParams;
+
+      // Broadcast start event and cancel the transition if requested
+      if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams)
+          .defaultPrevented) return TransitionPrevented;
 
       // Resolve locals for the remaining states, but don't update any global state just
       // yet -- if anything fails to resolve the current state needs to remain untouched.
@@ -184,7 +205,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       var resolved = $q.when(locals);
       for (var l=keep; l<toPath.length; l++, state=toPath[l]) {
         locals = toLocals[l] = inherit(locals);
-        resolved = resolveState(state, toParams, resolved, locals);
+        resolved = resolveState(state, toParams, state===to, resolved, locals);
       }
 
       // Once everything is resolved, we are ready to perform the actual transition
@@ -194,7 +215,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       var transition = $state.transition = resolved.then(function () {
         var l, entering, exiting;
 
-        if ($state.transition !== transition) return $q.reject(new Error('transition superseded'));
+        if ($state.transition !== transition) return TransitionSuperseded;
 
         // Exit 'from' states not kept
         for (l=fromPath.length-1; l>=keep; l--) {
@@ -218,7 +239,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         // Update globals in $state
         $state.$current = to;
         $state.current = to.self;
-        $state.params = locals.globals.$stateParams; // these are normalized, unlike toParams
+        $state.params = toParams
         copy($state.params, $stateParams);
         $state.transition = null;
 
@@ -228,36 +249,39 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
           $location.url(toNav.url.format(toNav.locals.globals.$stateParams));
         }
 
-        $rootScope.$broadcast('$stateChangeSuccess', to.self, from.self);
+        $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
         
         return $state.current;
       }, function (error) {
-        if ($state.transition !== transition) return; // superseded by a new transition
+        if ($state.transition !== transition) return TransitionSuperseded;
 
         $state.transition = null;
+        $rootScope.$broadcast('$stateChangeError', to.self, toParams, from.self, fromParams, error);
 
-        $rootScope.$broadcast('$stateChangeError', to.self, from.self, error);
         return $q.reject(error);
       });
 
       return transition;
     }
 
-    function resolveState(state, params, inherited, dst) {
+    function resolveState(state, params, paramsAreFiltered, inherited, dst) {
       // We need to track all the promises generated during the resolution process.
       // The first of these is for the fully resolved parent locals.
       var promises = [inherited];
 
-      // Make a restricted $stateParams with only the parameters that apply to this state, and
-      // force them all to strings while we're at it. In addition to being available to the
-      // controller and onEnter/onExit callbacks, we also need $stateParams to be available
-      // for any $injector calls we make during the dependency resolution process.
-      var $stateParams = {};
+      // Make a restricted $stateParams with only the parameters that apply to this state if
+      // necessary. In addition to being available to the controller and onEnter/onExit callbacks,
+      // we also need $stateParams to be available for any $injector calls we make during the
+      // dependency resolution process.
+      var $stateParams;
+      if (paramsAreFiltered) $stateParams = params;
+      else {
+        $stateParams = {};
+        forEach(state.params, function (name) {
+          $stateParams[name] = params[name];
+        });
+      }
       var locals = { $stateParams: $stateParams };
-      forEach(state.params, function (name) {
-        var value = params[name];
-        $stateParams[name] = (value != null) ? String(value) : null;
-      });
 
       // Resolves the values from an individual 'resolve' dependency spec
       function resolve(deps, dst) {
