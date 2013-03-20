@@ -130,6 +130,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
   // .state(name, state)
   this.state = state;
   function state(name, definition) {
+    /*jshint validthis: true */
     if (isObject(name)) definition = name;
     else definition.name = name;
     registerState(definition);
@@ -140,6 +141,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
   this.$get = $get;
   $get.$inject = ['$rootScope', '$q', '$templateFactory', '$injector', '$stateParams', '$location', '$urlRouter'];
   function $get(   $rootScope,   $q,   $templateFactory,   $injector,   $stateParams,   $location,   $urlRouter) {
+
+    var TransitionSuperseded = $q.reject(new Error('transition superseded'));
+    var TransitionPrevented = $q.reject(new Error('transition prevented'));
 
     $state = {
       params: {},
@@ -157,14 +161,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       }
     };
 
-    var TransitionSuperseded = $q.reject(new Error('transition superseded'));
-    var TransitionPrevented = $q.reject(new Error('transition prevented'));
-
     function transitionTo(to, toParams, updateLocation) {
       if (!isDefined(updateLocation)) updateLocation = true;
 
-      to = findState(to); if (to.abstract) throw new Error("Cannot transition to abstract state '" + to + "'");
-      var toPath = to.path, from = $state.$current, fromParams = $state.params, fromPath = from.path;
+      to = findState(to);
+      if (to.abstract) throw new Error("Cannot transition to abstract state '" + to + "'");
+      var toPath = to.path,
+          from = $state.$current, fromParams = $state.params, fromPath = from.path;
 
       // Starting from the root of the path, keep all levels that haven't changed
       var keep, state, locals = root.locals, toLocals = [];
@@ -183,7 +186,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         return $q.when($state.current);
       }
 
-      // Normalize parameters before we pass them to event handlers etc.
+      // Normalize/filter parameters before we pass them to event handlers etc.
       var normalizedToParams = {};
       forEach(to.params, function (name) {
         var value = toParams[name];
@@ -227,7 +230,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         }
 
         // Enter 'to' states not kept
-        // TODO: Should we be invoking onEnter in a separate pass after we've updated $state and $location?
         for (l=keep; l<toPath.length; l++) {
           entering = toPath[l];
           entering.locals = toLocals[l];
@@ -239,7 +241,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         // Update globals in $state
         $state.$current = to;
         $state.current = to.self;
-        $state.params = toParams
+        $state.params = toParams;
         copy($state.params, $stateParams);
         $state.transition = null;
 
@@ -287,7 +289,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       function resolve(deps, dst) {
         forEach(deps, function (value, key) {
           promises.push($q
-            .when(isString(value) ? $injector.get(value) : $injector.invoke(value, state.self, locals))
+            .when(isString(value) ?
+                $injector.get(value) :
+                $injector.invoke(value, state.self, locals))
             .then(function (result) {
               dst[key] = result;
             }));

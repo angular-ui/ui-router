@@ -5,15 +5,18 @@ function $RouteProvider(  $stateProvider,    $urlRouterProvider) {
 
   onEnterRoute.$inject = ['$$state'];
   function onEnterRoute(   $$state) {
+    /*jshint validthis: true */
     this.locals = $$state.locals.globals;
   }
 
   function onExitRoute() {
+    /*jshint validthis: true */
     this.locals = null;
   }
 
   this.when = when;
   function when(url, route) {
+    /*jshint validthis: true */
     if (route.redirectTo != null) {
       // Redirect, configure directly on $urlRouterProvider
       var redirect = route.redirectTo, handler;
@@ -59,8 +62,6 @@ function $RouteParamsProvider() {
   }
 }
 
-var $ViewDirective; // forward reference
 angular.module('ui.compat')
-    .directive('ngView', $ViewDirective)
-    .provider('$route', $RouteProvider)
-    .provider('$routeParams', $RouteParamsProvider);
+  .provider('$route', $RouteProvider)
+  .directive('ngView', $ViewDirective);

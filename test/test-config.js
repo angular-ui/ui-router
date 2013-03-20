@@ -10,8 +10,18 @@ files = [
   'lib/angular-1.0.4.js',
   'test/lib/angular-mocks-1.0.4.js',
   'test/testUtils.js',
-  'src/*.js',
+
+  'src/common.js',
+  'src/templateFactory.js',
+  'src/urlMatcherFactory.js',
+  'src/urlRouter.js',
+  'src/state.js',
+  'src/viewDirective.js',
+  'src/compat.js',
+  
   'test/*Spec.js',
+  // 'test/compat/matchers.js',
+  // 'test/compat/*Spec.js',
 ];
 
 // list of files to exclude
