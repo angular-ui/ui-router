@@ -1,3 +1,4 @@
+// Promise testing support
 angular.module('ngMock')
   .config(function ($provide) {
     $provide.decorator('$q', function ($delegate, $rootScope) {
@@ -65,3 +66,9 @@ function resolvedError(promise) {
   if (result.success) throw new Error('Promise was expected to fail but returned ' + jasmin.pp(res.value) + '.');
   return result.error;
 }
+
+
+// Utils for test from core angular
+var noop = angular.noop,
+    toJson = angular.toJson;
+beforeEach(module('ui.compat'));

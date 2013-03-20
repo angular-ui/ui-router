@@ -7,11 +7,13 @@ function $RouteProvider(  $stateProvider,    $urlRouterProvider) {
   function onEnterRoute(   $$state) {
     /*jshint validthis: true */
     this.locals = $$state.locals.globals;
+    this.params = this.locals.$stateParams;
   }
 
   function onExitRoute() {
     /*jshint validthis: true */
     this.locals = null;
+    this.params = null;
   }
 
   this.when = when;
@@ -21,7 +23,7 @@ function $RouteProvider(  $stateProvider,    $urlRouterProvider) {
       // Redirect, configure directly on $urlRouterProvider
       var redirect = route.redirectTo, handler;
       if (isString(redirect)) {
-        handler = redirect; // leave $urlRouteProvider to handle
+        handler = redirect; // leave $urlRouterProvider to handle
       } else if (isFunction(redirect)) {
         // Adapt to $urlRouterProvider API
         handler = function (params, $location) {
@@ -35,7 +37,7 @@ function $RouteProvider(  $stateProvider,    $urlRouterProvider) {
       // Regular route, configure as state
       $stateProvider.state(inherit(route, {
         parent: null,
-        name: 'route:' + url,
+        name: 'route:' + encodeURIComponent(url),
         url: url,
         onEnter: onEnterRoute,
         onExit: onExitRoute
@@ -46,19 +48,34 @@ function $RouteProvider(  $stateProvider,    $urlRouterProvider) {
   }
 
   this.$get = $get;
-  $get.$inject = ['$state'];
-  function $get(   $state) {
-    return inherit($state, {
-      routes: routes
-    });
-  }
-}
+  $get.$inject = ['$state', '$rootScope', '$routeParams'];
+  function $get(   $state,   $rootScope,   $routeParams) {
 
-function $RouteParamsProvider() {
-  this.$get = $get;
-  $get.$inject = ['$stateParams'];
-  function $get(   $stateParams) {
-    return $stateParams;
+    var $route = {
+      routes: routes,
+      params: $routeParams,
+      current: undefined
+    };
+
+    function stateAsRoute(state) {
+      return (state.name !== '') ? state : undefined;
+    }
+
+    $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$broadcast('$routeChangeStart', stateAsRoute(to), stateAsRoute(from));
+    });
+
+    $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {
+      $route.current = stateAsRoute(to);
+      $rootScope.$broadcast('$routeChangeSuccess', stateAsRoute(to), stateAsRoute(from));
+      copy(toParams, $route.params);
+    });
+
+    $rootScope.$on('$stateChangeError', function (ev, to, toParams, from, fromParams, error) {
+      $rootScope.$broadcast('$routeChangeError', stateAsRoute(to), stateAsRoute(from), error);
+    });
+
+    return $route;
   }
 }
 
