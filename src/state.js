@@ -40,6 +40,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       parent = findState(state.parent);
     }
     state.parent = parent;
+    // state.children = [];
+    // if (parent) parent.children.push(state);
 
     // Build a URLMatcher if necessary, either via a relative or absolute URL
     var url = state.url;
@@ -149,19 +151,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       params: {},
       current: root.self,
       $current: root,
-      transition: null,
-
-      transitionTo: transitionTo,
-
-      is: function (stateOrName) {
-        return $state.$current === findState(stateOrName);
-      },
-      includes: function (stateOrName) {
-        return $state.$current.includes[findState(stateOrName).name];
-      }
+      transition: null
     };
 
-    function transitionTo(to, toParams, updateLocation) {
+    // $state.go = function go(to, params) {
+    // };
+
+    $state.transitionTo = function transitionTo(to, toParams, updateLocation) {
       if (!isDefined(updateLocation)) updateLocation = true;
 
       to = findState(to);
@@ -264,7 +260,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       });
 
       return transition;
-    }
+    };
+
+    $state.is = function (stateOrName) {
+      return $state.$current === findState(stateOrName);
+    };
+
+    $state.includes = function (stateOrName) {
+      return $state.$current.includes[findState(stateOrName).name];
+    };
+
 
     function resolveState(state, params, paramsAreFiltered, inherited, dst) {
       // We need to track all the promises generated during the resolution process.
