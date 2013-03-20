@@ -17,7 +17,18 @@ module.exports = function (grunt) {
     },
     concat: {
       build: {
-        src: ['<banner:meta.banner>', '<banner:meta.prefix>', 'src/*.js', '<banner:meta.suffix>' ],
+        src: [
+          '<banner:meta.banner>',
+          '<banner:meta.prefix>',
+          'src/common.js',
+          'src/templateFactory.js',
+          'src/urlMatcherFactory.js',
+          'src/urlRouter.js',
+          'src/state.js',
+          'src/viewDirective.js',
+          'src/compat.js',
+          '<banner:meta.suffix>'
+        ],
         dest: '<%= builddir %>/<%= pkg.name %>.js'
       }
     },
@@ -28,7 +39,7 @@ module.exports = function (grunt) {
       }
     },
     lint: {
-      files: ['grunt.js', 'src/*.js']
+      files: ['grunt.js', 'src/*.js', '<%= builddir %>/<%= pkg.name %>.js']
     },
     jshint: {
       options: {
@@ -36,7 +47,7 @@ module.exports = function (grunt) {
       }
     },
     watch: {
-      files: ['src/*.js', 'test/*.js'],
+      files: ['src/*.js', 'test/**/*.js'],
       tasks: 'build test'
     }
   });
