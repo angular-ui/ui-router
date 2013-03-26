@@ -1,5 +1,8 @@
 # UI-Router
 
+**Attention**: UI-Router uses <code>grunt >= 0.4.x</code> make sure to upgrade your environment and read the
+[Migration Guide](http://gruntjs.com/upgrading-from-0.3-to-0.4).
+
 Finally a de-facto solution to nested views and routing.
 
 
