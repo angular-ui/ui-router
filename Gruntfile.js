@@ -3,10 +3,15 @@ var testacular = require('testacular');
 /*global module:false*/
 module.exports = function (grunt) {
 
+  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-watch');
+
   // Project configuration.
   grunt.initConfig({
     builddir: 'build',
-    pkg: '<json:package.json>',
+    pkg: grunt.file.readJSON('package.json'),
     meta: {
       banner: '/**\n' + ' * <%= pkg.description %>\n' +
         ' * @version v<%= pkg.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
@@ -32,16 +37,15 @@ module.exports = function (grunt) {
         dest: '<%= builddir %>/<%= pkg.name %>.js'
       }
     },
-    min: {
+    uglify: {
       build: {
-        src: ['<banner:meta.banner>', '<config:concat.build.dest>'],
-        dest: '<%= builddir %>/<%= pkg.name %>.min.js'
+        files: {
+          '<%= builddir %>/<%= pkg.name %>.min.js': ['<banner:meta.banner>', '<%= concat.build.dest %>']
+        }
       }
     },
-    lint: {
-      files: ['grunt.js', 'src/*.js', '<%= builddir %>/<%= pkg.name %>.js']
-    },
     jshint: {
+      all: ['Gruntfile.js', 'src/*.js', '<%= builddir %>/<%= pkg.name %>.js'],
       options: {
         eqnull: true
       }
@@ -53,9 +57,9 @@ module.exports = function (grunt) {
   });
 
   // Default task.
-  grunt.registerTask('build', 'concat min');
-  grunt.registerTask('dist', 'build jsdoc');
-  grunt.registerTask('default', 'build lint test');
+  grunt.registerTask('build', ['concat', 'uglify']);
+  grunt.registerTask('dist', ['build', 'jsdoc']);
+  grunt.registerTask('default', ['build', 'jshint', 'test']);
 
   grunt.registerTask('test-server', 'Start testacular server', function () {
     //Mark the task as async but never call done, so the server stays up
@@ -65,7 +69,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('test', 'Run tests (make sure test-server task is run first)', function () {
     var done = this.async();
-    grunt.utils.spawn({
+    grunt.util.spawn({
       cmd: process.platform === 'win32' ? 'testacular.cmd' : 'testacular',
       args: process.env.TRAVIS ? ['start', 'test/test-config.js', '--single-run', '--no-auto-watch', '--reporter=dots', '--browsers=Firefox'] : ['run']
     }, function (error, result, code) {
@@ -86,7 +90,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('jsdoc', 'Generate documentation', function () {
     var done = this.async();
-    grunt.utils.spawn({
+    grunt.util.spawn({
       cmd: 'node_modules/jsdoc/jsdoc',
       args: [ '-c', 'jsdoc-conf.json', '-d', grunt.config('builddir') + '/doc', 'src' ]
     }, function (error, result, code) {
