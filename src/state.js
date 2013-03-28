@@ -114,7 +114,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         $state.transitionTo(state, params, false);
       });
     }
-    return states[name] = state;
+    states[name] = state;
+    return state;
   }
 
   // Implicit root state that is always active
