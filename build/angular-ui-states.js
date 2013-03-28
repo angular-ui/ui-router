@@ -1,12 +1,3 @@
-/**
- * State-based routing for AngularJS
- * @version v0.0.1 - 2013-03-20
- * @link 
- * @license MIT License, http://www.opensource.org/licenses/MIT
- */
-
-(function (window, angular, undefined) {
-
 /*jshint globalstrict:true*/
 /*global angular:false*/
 'use strict';
@@ -606,7 +597,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         $state.transitionTo(state, params, false);
       });
     }
-    return states[name] = state;
+    states[name] = state;
+    return state;
   }
 
   // Implicit root state that is always active
@@ -1001,5 +993,3 @@ function $RouteProvider(  $stateProvider,    $urlRouterProvider) {
 angular.module('ui.compat')
   .provider('$route', $RouteProvider)
   .directive('ngView', $ViewDirective);
-
-})(window, window.angular);
