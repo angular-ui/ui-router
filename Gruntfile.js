@@ -3,10 +3,12 @@ var testacular = require('testacular');
 /*global module:false*/
 module.exports = function (grunt) {
 
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-connect');
 
   // Project configuration.
   grunt.initConfig({
@@ -20,6 +22,7 @@ module.exports = function (grunt) {
       prefix: '(function (window, angular, undefined) {',
       suffix: '})(window, window.angular);'
     },
+    clean: [ '<%= builddir %>' ],
     concat: {
       build: {
         src: [
@@ -52,14 +55,17 @@ module.exports = function (grunt) {
     },
     watch: {
       files: ['src/*.js', 'test/**/*.js'],
-      tasks: 'build test'
+      tasks: ['build', 'test']
+    },
+    connect: {
+      server: {}
     }
   });
 
-  // Default task.
-  grunt.registerTask('build', ['concat', 'uglify']);
-  grunt.registerTask('dist', ['build', 'jsdoc']);
   grunt.registerTask('default', ['build', 'jshint', 'test']);
+  grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
+  grunt.registerTask('dist', 'Perform a clean build and generate documentation', ['clean', 'build', 'jsdoc']);
+  grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect', 'watch']);
 
   grunt.registerTask('test-server', 'Start testacular server', function () {
     //Mark the task as async but never call done, so the server stays up
