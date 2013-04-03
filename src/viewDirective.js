@@ -40,8 +40,12 @@ function $ViewDirective(   $state,   $compile,   $controller,   $anchorScroll) {
           viewScope = scope.$new();
           if (locals.$$controller) {
             locals.$scope = viewScope;
+            // This is a 'directive controller'. need to allow element and attr injections (TBD: transcludeFn)
+            locals.$element = element;
+            locals.$attrs = attr;
+            //store directive controller with distinct name on the element.data as per angular.js convention
             var controller = $controller(locals.$$controller, locals);
-            element.contents().data('$ngControllerController', controller);
+            element.data('$' + name+'Controller', controller);
           }
           link(viewScope);
           viewScope.$emit('$viewContentLoaded');
