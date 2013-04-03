@@ -2,9 +2,31 @@
   "name": "angular-ui-states",
   "description": "State-based routing for AngularJS",
   "version": "0.0.1",
+  "homepage": "http://angular-ui.github.com/",
+  "author": {
+    "name": "Karsten Sperling",
+    "url": "https://github.com/ksperling"
+  },
+  "contributors": [{
+    "name": "AngularUI",
+    "url": "https://github.com/angular-ui?tab=members"  
+  }],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/angular-ui/ui-router.git"
+  },
+  "bugs": {
+    "url": "https://github.com/angular-ui/ui-router/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/angular-ui/ui-router/blob/master/LICENSE"
+    }
+  ],
   "dependencies": {},
   "devDependencies": {
-    "testacular": "~0.4.0",
+    "karma": "~0.8.3",
     "jsdoc": "git://github.com/jsdoc3/jsdoc.git#v3.1.0",
     "grunt": "~0.4.1",
     "grunt-contrib-concat": "~0.1.3",
