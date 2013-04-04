@@ -56,17 +56,23 @@ module.exports = function (grunt) {
     },
     watch: {
       files: ['src/*.js', 'test/**/*.js'],
-      tasks: ['build','karma:unit']
+      tasks: ['build','karma:debug']
     },
-    // connect: {
-      // server: {}
-    // },
+    connect: {
+      server: {}
+    },
 	karma: {
 		unit: {
 			configFile: 'test/test-config.js',
 			runnerPort: 9999,
 			singleRun: true,
 			browsers: ['PhantomJS']
+		},
+		
+		debug: {
+			configFile: 'test/test-config.js',
+			runnerPort: 9999,
+			singleRun: true
 		}
 	}
   });
@@ -74,7 +80,7 @@ module.exports = function (grunt) {
   grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
   grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
   grunt.registerTask('dist', 'Perform a clean build and generate documentation', ['clean', 'build', 'jsdoc']);
-  grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'watch']);
+  grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect', 'watch']);
 
   // grunt.registerTask('test-server', 'Start testacular server', function () {
     // //Mark the task as async but never call done, so the server stays up
