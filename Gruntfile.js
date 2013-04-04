@@ -72,7 +72,8 @@ module.exports = function (grunt) {
 		debug: {
 			configFile: 'test/test-config.js',
 			runnerPort: 9999,
-			singleRun: true
+			singleRun: true,
+			browsers: ['PhantomJS']
 		}
 	}
   });
