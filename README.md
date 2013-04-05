@@ -24,3 +24,19 @@ To evolve the concept of an Angular "Route" into a more general concept of a "St
 * [Generated Docs](http://angular-ui.github.com/ui-router/build/doc/)
 * Latest build: [angular-ui-states.min.js](http://angular-ui.github.com/ui-router/build/angular-ui-states.min.js)
   (uncompressed [angular-ui-states.js](http://angular-ui.github.com/ui-router/build/angular-ui-states.js))
+
+# Developing
+
+Dependencies for building the solution and running tests:
+
+* [karma](http://karma-runner.github.com/) - run: $ npm install karma -g
+* [grunt-cli](https://github.com/gruntjs/grunt-cli) - run: $npm install grunt-cli -g
+* Then install development dependencies with: $ npm install
+
+There is a number of targets in the gruntfile that is used to building the solution, documents etc.
+
+* `grunt`: Perform a normal build, runs jshint and karma tests
+* `grunt build`: Perform a normal build
+* `grunt dist`: Perform a clean build and generate documentation
+* `grunt dev`: Run dev server and watch for changes, builds and runs karma tests on changes.
+
