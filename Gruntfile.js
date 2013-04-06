@@ -35,7 +35,7 @@ module.exports = function (grunt) {
           'src/urlRouter.js',
           'src/state.js',
           'src/viewDirective.js',
-          'src/compat.js',
+          'src/compat.js'
         ],
         dest: '<%= builddir %>/<%= pkg.name %>.js'
       }
