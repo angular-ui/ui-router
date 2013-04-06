@@ -85,33 +85,6 @@ module.exports = function (grunt) {
   grunt.registerTask('dist', 'Perform a clean build and generate documentation', ['clean', 'build', 'jsdoc']);
   grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect', 'karma:debug', 'watch']);
 
-  // grunt.registerTask('test-server', 'Start testacular server', function () {
-    // //Mark the task as async but never call done, so the server stays up
-    // var done = this.async();
-    // testacular.server.start({ configFile: 'test/test-config.js'});
-  // });
-
-  // grunt.registerTask('test', 'Run tests (make sure test-server task is run first)', function () {
-    // var done = this.async();
-    // grunt.util.spawn({
-      // cmd: process.platform === 'win32' ? 'karma.cmd' : 'karma',
-      // args: process.env.TRAVIS ? ['start', 'test/test-config.js', '--single-run', '--no-auto-watch', '--reporter=dots', '--browsers=Firefox'] : ['run']
-    // }, function (error, result, code) {
-      // if (error) {
-        // grunt.warn("Make sure the testacular server is online: run `grunt test-server`.\n" +
-          // "Also make sure you have a browser open to http://localhost:8080/.\n" +
-          // error.stdout + error.stderr);
-        // //the testacular runner somehow modifies the files if it errors(??).
-        // //this causes grunt's watch task to re-fire itself constantly,
-        // //unless we wait for a sec
-        // setTimeout(done, 1000);
-      // } else {
-        // grunt.log.write(result.stdout);
-        // done();
-      // }
-    // });
-  // });
-
   grunt.registerTask('jsdoc', 'Generate documentation', function () {
     var done = this.async();
     grunt.util.spawn({
