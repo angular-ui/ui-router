@@ -19,12 +19,14 @@ module.exports = function (grunt) {
       banner: '/**\n' + ' * <%= pkg.description %>\n' +
         ' * @version v<%= pkg.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
         ' * @link <%= pkg.homepage %>\n' +
-        ' * @license MIT License, http://www.opensource.org/licenses/MIT\n' + ' */',
-      prefix: '(function (window, angular, undefined) {',
-      suffix: '})(window, window.angular);'
+        ' * @license MIT License, http://www.opensource.org/licenses/MIT\n' + ' */'
     },
     clean: [ '<%= builddir %>' ],
     concat: {
+      options: {
+        banner: '<%= meta.banner %>\n(function (window, angular, undefined) {\n',
+        footer: '})(window, window.angular);'
+      },
       build: {
         src: [
           '<banner:meta.banner>',
@@ -42,6 +44,9 @@ module.exports = function (grunt) {
       }
     },
     uglify: {
+      options: {
+        banner: '<%= meta.banner %>\n'
+      },
       build: {
         files: {
           '<%= builddir %>/<%= pkg.name %>.min.js': ['<banner:meta.banner>', '<%= concat.build.dest %>']
