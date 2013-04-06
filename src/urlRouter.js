@@ -1,7 +1,8 @@
 
 $UrlRouterProvider.$inject = ['$urlMatcherFactoryProvider'];
 function $UrlRouterProvider(  $urlMatcherFactory) {
-  var rules = [], otherwise = null;
+  var rules = [], 
+      otherwise = null;
 
   // Returns a string that is a prefix of all strings matching the RegExp
   function regExpPrefix(re) {
