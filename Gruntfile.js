@@ -29,8 +29,6 @@ module.exports = function (grunt) {
       },
       build: {
         src: [
-          '<banner:meta.banner>',
-          '<banner:meta.prefix>',
           'src/common.js',
           'src/templateFactory.js',
           'src/urlMatcherFactory.js',
@@ -38,7 +36,6 @@ module.exports = function (grunt) {
           'src/state.js',
           'src/viewDirective.js',
           'src/compat.js',
-          '<banner:meta.suffix>'
         ],
         dest: '<%= builddir %>/<%= pkg.name %>.js'
       }
