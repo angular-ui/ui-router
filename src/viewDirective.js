@@ -1,13 +1,14 @@
 
-$ViewDirective.$inject = ['$state', '$compile', '$controller', '$anchorScroll'];
-function $ViewDirective(   $state,   $compile,   $controller,   $anchorScroll) {
+$ViewDirective.$inject = ['$state', '$compile', '$controller', '$anchorScroll', '$animator'];
+function $ViewDirective(   $state,   $compile,   $controller,   $anchorScroll, $animator) {
   var directive = {
     restrict: 'ECA',
     terminal: true,
     link: function(scope, element, attr) {
       var viewScope, viewLocals,
         name = attr[directive.name] || attr.name || '',
-        onloadExp = attr.onload || '';
+        onloadExp = attr.onload || '',
+        animate = $animator(scope, attr);
       
       // Find the details of the parent view directive (if any) and use it
       // to derive our own qualified view name, then hang our own details
@@ -34,7 +35,8 @@ function $ViewDirective(   $state,   $compile,   $controller,   $anchorScroll) {
           viewLocals = locals;
           view.state = locals.$$state;
 
-          element.html(locals.$template);
+          animate.leave(element.contents(), element);
+          animate.enter(angular.element('<div></div>').html(locals.$template).contents(), element);
           // element.html('<div style="height:0;position:relative;z-index:999"><span style="background:red;color:white;font-size:12px;padding:1px">' + name + '</span></div>' + locals.$template);
           var link = $compile(element.contents());
           viewScope = scope.$new();
