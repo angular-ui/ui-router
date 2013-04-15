@@ -2,7 +2,20 @@
 <html lang="en" ng-app="sample"><head>
   <meta charset="utf-8">
   <link rel="stylesheet" type="text/css" href="bootstrap.min.css"> 
-  <script src="../lib/angular-1.0.4.js"></script>
+  <style type="text/css">
+    .fade-enter-setup, .fade-leave-setup {
+      transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s;
+    }
+    .fade-enter-setup,
+    .fade-leave-setup.fade-leave-start {
+      opacity: 0;
+    }
+    .fade-leave-setup,
+    .fade-enter-setup.fade-enter-start {
+      opacity: 1;
+    }
+  </style>
+  <script src="../lib/angular-1.1.4.js"></script>
   <script src="../build/angular-ui-states.js"></script>
   
   <!-- could easily use a custom property of the state here instead of 'name' -->
@@ -18,7 +31,7 @@
     <p class="navbar-text pull-right" ui-view="hint"></p>
   </div></div>
 </div>
-<div class="container" style="margin-top:60px" ui-view></div>
+<div class="container" style="margin-top:60px" ui-view ng-animate="{enter:'fade-enter'}"></div>
 <hr>
 <pre>
   $state = {{$state.current.name}}

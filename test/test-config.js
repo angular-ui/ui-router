@@ -7,8 +7,8 @@ basePath = '..';
 files = [
   JASMINE,
   JASMINE_ADAPTER,
-  'lib/angular-1.0.4.js',
-  'test/lib/angular-mocks-1.0.4.js',
+  'lib/angular-1.1.4.js',
+  'test/lib/angular-mocks-1.1.4.js',
   'test/testUtils.js',
 
   'src/common.js',
