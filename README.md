@@ -29,7 +29,6 @@ To evolve the concept of an Angular "Route" into a more general concept of a "St
 
 Dependencies for building the solution and running tests:
 
-* [karma](http://karma-runner.github.com/) - run: `$ npm install -g karma`
 * [grunt-cli](https://github.com/gruntjs/grunt-cli) - run: `$ npm install -g grunt-cli`
 * Then install development dependencies with: `$ npm install`
 
@@ -38,5 +37,5 @@ There is a number of targets in the gruntfile that is used to building the solut
 * `grunt`: Perform a normal build, runs jshint and karma tests
 * `grunt build`: Perform a normal build
 * `grunt dist`: Perform a clean build and generate documentation
-* `grunt dev`: Run dev server and watch for changes, builds and runs karma tests on changes.
+* `grunt dev`: Run dev server (sample app) and watch for changes, builds and runs karma tests on changes.
 
