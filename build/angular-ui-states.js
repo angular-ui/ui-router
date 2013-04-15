@@ -1,3 +1,10 @@
+/**
+ * State-based routing for AngularJS
+ * @version v0.0.1 - 2013-04-15
+ * @link http://angular-ui.github.com/
+ * @license MIT License, http://www.opensource.org/licenses/MIT
+ */
+(function (window, angular, undefined) {
 /*jshint globalstrict:true*/
 /*global angular:false*/
 'use strict';
@@ -386,7 +393,8 @@ angular.module('ui.util').provider('$urlMatcherFactory', $UrlMatcherFactory);
 
 $UrlRouterProvider.$inject = ['$urlMatcherFactoryProvider'];
 function $UrlRouterProvider(  $urlMatcherFactory) {
-  var rules = [], otherwise = null;
+  var rules = [], 
+      otherwise = null;
 
   // Returns a string that is a prefix of all strings matching the RegExp
   function regExpPrefix(re) {
@@ -845,15 +853,19 @@ angular.module('ui.state')
   .provider('$state', $StateProvider);
 
 
-$ViewDirective.$inject = ['$state', '$compile', '$controller', '$anchorScroll'];
-function $ViewDirective(   $state,   $compile,   $controller,   $anchorScroll) {
+$ViewDirective.$inject = ['$state', '$compile', '$controller', '$injector', '$anchorScroll'];
+function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $anchorScroll) {
+  // Unfortunately there is no neat way to ask $injector if a service exists
+  var $animator; try { $animator = $injector.get('$animator'); } catch (e) { /* do nothing */ }
+
   var directive = {
     restrict: 'ECA',
     terminal: true,
     link: function(scope, element, attr) {
       var viewScope, viewLocals,
         name = attr[directive.name] || attr.name || '',
-        onloadExp = attr.onload || '';
+        onloadExp = attr.onload || '',
+        animate = $animator && $animator(scope, attr);
       
       // Find the details of the parent view directive (if any) and use it
       // to derive our own qualified view name, then hang our own details
@@ -870,8 +882,11 @@ function $ViewDirective(   $state,   $compile,   $controller,   $anchorScroll) {
         var locals = $state.$current && $state.$current.locals[name];
         if (locals === viewLocals) return; // nothing to do
 
-        // Destroy previous view scope (if any)
+        // Destroy previous view scope and remove content (if any)
         if (viewScope) {
+          if (animate) animate.leave(element.contents(), element);
+          else element.html('');
+
           viewScope.$destroy();
           viewScope = null;
         }
@@ -880,14 +895,21 @@ function $ViewDirective(   $state,   $compile,   $controller,   $anchorScroll) {
           viewLocals = locals;
           view.state = locals.$$state;
 
-          element.html(locals.$template);
-          // element.html('<div style="height:0;position:relative;z-index:999"><span style="background:red;color:white;font-size:12px;padding:1px">' + name + '</span></div>' + locals.$template);
-          var link = $compile(element.contents());
+          var contents;
+          if (animate) {
+            contents = angular.element('<div></div>').html(locals.$template).contents();
+            animate.enter(contents, element);
+          } else {
+            element.html(locals.$template);
+            contents = element.contents();
+          }
+
+          var link = $compile(contents);
           viewScope = scope.$new();
           if (locals.$$controller) {
             locals.$scope = viewScope;
             var controller = $controller(locals.$$controller, locals);
-            element.contents().data('$ngControllerController', controller);
+            element.children().data('$ngControllerController', controller);
           }
           link(viewScope);
           viewScope.$emit('$viewContentLoaded');
@@ -899,7 +921,6 @@ function $ViewDirective(   $state,   $compile,   $controller,   $anchorScroll) {
         } else {
           viewLocals = null;
           view.state = null;
-          element.html('');
         }
       }
     }
@@ -993,3 +1014,4 @@ function $RouteProvider(  $stateProvider,    $urlRouterProvider) {
 angular.module('ui.compat')
   .provider('$route', $RouteProvider)
   .directive('ngView', $ViewDirective);
+})(window, window.angular);
