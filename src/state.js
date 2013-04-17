@@ -10,7 +10,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       if (!state) throw new Error("No such state '" + stateOrName + "'");
     } else {
       state = states[stateOrName.name];
-      if (!state || state !== stateOrName && state.self !== stateOrName) 
+      if (!state || state !== stateOrName && state.self !== stateOrName)
         throw new Error("Invalid or unregistered state");
     }
     return state;
@@ -69,7 +69,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     } else {
       params = state.params = url ? url.parameters() : state.parent.params;
     }
-    
+
     var paramNames = {}; forEach(params, function (p) { paramNames[p] = true; });
     if (parent) {
       forEach(parent.params, function (p) {
@@ -109,7 +109,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     if (!state.resolve) state.resolve = {}; // prevent null checks later
 
     // Register the state in the global state list and with $urlRouter if necessary.
-    if (!state.abstract && url) {
+    if (!state['abstract'] && url) {
       $urlRouterProvider.when(url, function (params) {
         $state.transitionTo(state, params, false);
       });
@@ -123,7 +123,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     name: '',
     url: '^',
     views: null,
-    abstract: true
+    'abstract': true
   });
   root.locals = { globals: { $stateParams: {} } };
   root.navigable = null;
@@ -222,7 +222,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
           exiting = fromPath[l];
           if (exiting.self.onExit) {
             $injector.invoke(exiting.self.onExit, exiting.self, exiting.locals.globals);
-          } 
+          }
           exiting.locals = null;
         }
 
@@ -249,7 +249,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         }
 
         $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
-        
+
         return $state.current;
       }, function (error) {
         if ($state.transition !== transition) return TransitionSuperseded;
