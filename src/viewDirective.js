@@ -10,8 +10,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
     link: function(scope, element, attr) {
       var viewScope, viewLocals,
         name = attr[directive.name] || attr.name || '',
-        onloadExp = attr.onload || '',
-        animate = $animator && $animator(scope, attr);
+        onloadExp = attr.onload || '';
       
       // Find the details of the parent view directive (if any) and use it
       // to derive our own qualified view name, then hang our own details
@@ -25,7 +24,8 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
       updateView();
 
       function updateView() {
-        var locals = $state.$current && $state.$current.locals[name];
+        var animate = $animator && $animator(scope, attr),
+          locals = $state.$current && $state.$current.locals[name];
         if (locals === viewLocals) return; // nothing to do
 
         // Destroy previous view scope and remove content (if any)
