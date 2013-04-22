@@ -110,9 +110,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
     // Register the state in the global state list and with $urlRouter if necessary.
     if (!state.abstract && url) {
-      $urlRouterProvider.when(url, function (params) {
-        $state.transitionTo(state, params, false);
-      });
+      $urlRouterProvider.when(url, ['$match', function ($match) {
+        $state.transitionTo(state, $match, false);
+      }]);
     }
     states[name] = state;
     return state;
