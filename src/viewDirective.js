@@ -11,8 +11,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
       var viewScope, viewLocals,
           name = attr[directive.name] || attr.name || '',
           onloadExp = attr.onload || '',
-          doAnimate = isDefined($animator),
-          animate = $animator(scope, attr);
+          animate = isDefined($animator) && $animator(scope, attr);
       
       // Find the details of the parent view directive (if any) and use it
       // to derive our own qualified view name, then hang our own details
@@ -22,7 +21,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
       var view = { name: name, state: null };
       element.data('$uiView', view);
 
-      scope.$on('$stateChangeSuccess', function() { updateView(doAnimate); });
+      scope.$on('$stateChangeSuccess', function() { updateView(true); });
       updateView(false);
 
       function updateView(doAnimate) {
@@ -31,7 +30,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
 
         // Destroy previous view scope and remove content (if any)
         if (viewScope) {
-          if (doAnimate) animate.leave(element.contents(), element);
+          if (animate && doAnimate) animate.leave(element.contents(), element);
           else element.html('');
 
           viewScope.$destroy();
@@ -43,7 +42,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
           view.state = locals.$$state;
 
           var contents;
-          if (doAnimate) {
+          if (animate && doAnimate) {
             contents = angular.element('<div></div>').html(locals.$template).contents();
             animate.enter(contents, element);
           } else {
