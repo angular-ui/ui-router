@@ -27,6 +27,13 @@ describe("UrlMatcher", function () {
       .toEqual({ id:'123', type:'', repeat:'0' });
   });
 
+  it(".exec() captures parameter values from wildcard", function () {
+    expect(
+      new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?*')
+        .exec('/users/123/details//0?match=&match2=wildcard', {}))
+      .toEqual({ id:'123', type:'', repeat:'0', match: '', match2: 'wildcard'});
+  });
+
   it(".exec() captures catch-all parameters", function () {
     var m = new UrlMatcher('/document/*path');
     expect(m.exec('/document/a/b/c', {})).toEqual({ path: 'a/b/c' });

@@ -62,7 +62,7 @@ function UrlMatcher(pattern) {
       params = this.params = [];
 
   function addParameter(id) {
-    if (!/^\w+$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
+    if (!/^(\w+|\*)$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (names[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
     names[id] = true;
     params.push(id);
@@ -71,6 +71,16 @@ function UrlMatcher(pattern) {
   function quoteRegExp(string) {
     return string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
   }
+
+  this.parseUrlVars = function(varset) {
+    var vars = {}, hash;
+    var hashes = varset.substring(1).split('&');
+    for (var i = 0; i < hashes.length; i++) {
+      hash = hashes[i].split('=');
+      vars[hash[0]] = decodeURIComponent(hash[1]);
+    }
+    return vars;
+  };
 
   this.source = pattern;
 
@@ -96,8 +106,15 @@ function UrlMatcher(pattern) {
     segment = segment.substring(0, i);
     this.sourcePath = pattern.substring(0, last+i);
 
-    // Allow parameters to be separated by '?' as well as '&' to make concat() easier
-    forEach(search.substring(1).split(/[&?]/), addParameter);
+    var searchString = search.substring(1);
+    if(searchString === '*'){
+      this.params.push('*');
+      compiled += '(\\?.*)?';
+    } else {
+      // Allow parameters to be separated by '?' as well as '&' to make concat() easier
+      forEach(searchString.split(/[&?]/), addParameter);
+    }
+
   } else {
     this.sourcePath = pattern;
     this.sourceSearch = '';
@@ -162,7 +179,16 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
     values = {}, i;
 
   for (i=0; i<nPath; i++) values[params[i]] = decodeURIComponent(m[i+1]);
-  for (/**/; i<nTotal; i++) values[params[i]] = searchParams[params[i]];
+  for (/**/; i<nTotal; i++) {
+      if(params[i] === '*'){
+        var urlVars = this.parseUrlVars(m[i+1]);
+        for(var key in urlVars){
+          values[key] = urlVars[key];
+        }
+      } else {
+        values[params[i]] = searchParams[params[i]];
+      }
+  }
 
   return values;
 };
