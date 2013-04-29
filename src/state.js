@@ -178,16 +178,21 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // But clear 'transition', as we still want to cancel any other pending transitions.
       // TODO: We may not want to bump 'transition' if we're called from a location change that we've initiated ourselves,
       // because we might accidentally abort a legitimate transition initiated from code?
-      if (to === from && locals === from.locals) {
+      if (to === from && locals === from.locals && to.params.indexOf('*') < 0) {
         $state.transition = null;
         return $q.when($state.current);
       }
-
       // Normalize/filter parameters before we pass them to event handlers etc.
       var normalizedToParams = {};
       forEach(to.params, function (name) {
-        var value = toParams[name];
-        normalizedToParams[name] = (value != null) ? String(value) : null;
+        if(name === '*'){
+          for(var key in toParams){
+            normalizedToParams[key] = toParams[key];
+          }
+        } else {
+          var value = toParams[name];
+          normalizedToParams[name] = (value != null) ? String(value) : null;
+        }
       });
       toParams = normalizedToParams;
 
@@ -282,11 +287,15 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // we also need $stateParams to be available for any $injector calls we make during the
       // dependency resolution process.
       var $stateParams;
-      if (paramsAreFiltered) $stateParams = params;
+      if (paramsAreFiltered && params['*'] === undefined) $stateParams = params;
       else {
         $stateParams = {};
         forEach(state.params, function (name) {
-          $stateParams[name] = params[name];
+          if(name === '*'){
+              // TODO ??? needed for transition but what...
+          } else {
+            $stateParams[name] = params[name];
+          }
         });
       }
       var locals = { $stateParams: $stateParams };

@@ -72,16 +72,6 @@ function UrlMatcher(pattern) {
     return string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
   }
 
-  this.parseUrlVars = function(varset) {
-    var vars = {}, hash;
-    var hashes = varset.substring(1).split('&');
-    for (var i = 0; i < hashes.length; i++) {
-      hash = hashes[i].split('=');
-      vars[hash[0]] = decodeURIComponent(hash[1]);
-    }
-    return vars;
-  };
-
   this.source = pattern;
 
   // Split into static segments separated by path parameter placeholders.
@@ -109,7 +99,6 @@ function UrlMatcher(pattern) {
     var searchString = search.substring(1);
     if(searchString === '*'){
       this.params.push('*');
-      compiled += '(\\?.*)?';
     } else {
       // Allow parameters to be separated by '?' as well as '&' to make concat() easier
       forEach(searchString.split(/[&?]/), addParameter);
@@ -181,9 +170,8 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
   for (i=0; i<nPath; i++) values[params[i]] = decodeURIComponent(m[i+1]);
   for (/**/; i<nTotal; i++) {
       if(params[i] === '*'){
-        var urlVars = this.parseUrlVars(m[i+1]);
-        for(var key in urlVars){
-          values[key] = urlVars[key];
+        for(var key in searchParams){
+          values[key] = searchParams[key];
         }
       } else {
         values[params[i]] = searchParams[params[i]];
