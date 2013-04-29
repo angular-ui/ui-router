@@ -22,6 +22,7 @@ To evolve the concept of an Angular "Route" into a more general concept of a "St
 ## Resources
 
 * [In-depth Overview](https://github.com/angular-ui/ui-router/wiki)
+* [FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions)
 * [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/ui-states/sample))
 * [Generated Docs](http://angular-ui.github.com/ui-router/build/doc/)
 * Latest build: [angular-ui-states.min.js](http://angular-ui.github.com/ui-router/build/angular-ui-states.min.js)
