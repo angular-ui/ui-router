@@ -178,7 +178,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // But clear 'transition', as we still want to cancel any other pending transitions.
       // TODO: We may not want to bump 'transition' if we're called from a location change that we've initiated ourselves,
       // because we might accidentally abort a legitimate transition initiated from code?
-      if (to === from && locals === from.locals && to.params.indexOf('*') < 0) {
+      if (to === from && locals === from.locals) {
         $state.transition = null;
         return $q.when($state.current);
       }
@@ -287,12 +287,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // we also need $stateParams to be available for any $injector calls we make during the
       // dependency resolution process.
       var $stateParams;
-      if (paramsAreFiltered && params['*'] === undefined) $stateParams = params;
+      if (paramsAreFiltered) $stateParams = params;
       else {
         $stateParams = {};
         forEach(state.params, function (name) {
           if(name === '*'){
-              // TODO ??? needed for transition but what...
+              for(var key in params){
+                  $stateParams[key] = params[key];
+              }
           } else {
             $stateParams[name] = params[name];
           }
@@ -355,6 +357,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     }
 
     function equalForKeys(a, b, keys) {
+      if(keys.indexOf('*') > 0 && a != b){
+          return false;
+      }
       for (var i=0; i<keys.length; i++) {
         var k = keys[i];
         if (a[k] != b[k]) return false; // Not '===', values aren't necessarily normalized
