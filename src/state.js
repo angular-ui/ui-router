@@ -166,10 +166,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       var toPath = to.path,
           from = $state.$current, fromParams = $state.params, fromPath = from.path;
 
+      var reloadWild = ($state.current.reloadWild === undefined || $state.current.reloadWild);
+
       // Starting from the root of the path, keep all levels that haven't changed
       var keep, state, locals = root.locals, toLocals = [];
       for (keep = 0, state = toPath[keep];
-           state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams);
+           state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams, reloadWild);
            keep++, state = toPath[keep]) {
         locals = toLocals[keep] = state.locals;
       }
@@ -186,7 +188,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       var normalizedToParams = {};
       forEach(to.params, function (name) {
         if(name === '*'){
-          for(var key in toParams){
+          for(var key in toParams) {
             normalizedToParams[key] = toParams[key];
           }
         } else {
@@ -356,8 +358,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       });
     }
 
-    function equalForKeys(a, b, keys) {
-      if(keys.indexOf('*') > 0 && a != b){
+    function equalForKeys(a, b, keys, reloadWild) {
+      if(keys.indexOf('*') > 0 && a != b && reloadWild){
           return false;
       }
       for (var i=0; i<keys.length; i++) {
