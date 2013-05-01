@@ -50,7 +50,7 @@ angular.module('sample', ['ui.compat'])
     [        '$stateProvider', '$routeProvider', '$urlRouterProvider',
     function ($stateProvider,   $routeProvider,   $urlRouterProvider) {
       $urlRouterProvider
-        .when('/c?id', '/contacts/:id')
+        .when('/c:id', '/contacts/:id')
         .otherwise('/');
 
       $routeProvider
