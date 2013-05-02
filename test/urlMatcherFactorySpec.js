@@ -30,7 +30,7 @@ describe("UrlMatcher", function () {
   it(".exec() captures parameter values from wildcard", function () {
     expect(
       new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?*')
-        .exec('/users/123/details//0?match=&match2=wildcard', {}))
+        .exec('/users/123/details//0', {match: '', match2: 'wildcard'}))
       .toEqual({ id:'123', type:'', repeat:'0', match: '', match2: 'wildcard'});
   });
 
