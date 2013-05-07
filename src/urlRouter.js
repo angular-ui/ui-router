@@ -1,7 +1,7 @@
 
 $UrlRouterProvider.$inject = ['$urlMatcherFactoryProvider'];
 function $UrlRouterProvider(  $urlMatcherFactory) {
-  var rules = [], 
+  var rules = [],
       otherwise = null;
 
   // Returns a string that is a prefix of all strings matching the RegExp
@@ -83,10 +83,33 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
       return this.rule(rule);
     };
 
+  //initializes the urlRouterProvider
+  var initialized = false;
+  function init() {
+    if (!initialized) {
+      if (otherwise) {
+        //there's an otherwise -- make it the last rule
+        rules.push(otherwise);
+      }
+      //
+      initialized = true;
+    }
+  }
+  this.init = function() {init(); return this;};
+
+  //clears the rules and clears "otherwise" if it is defined
+  function clearAll() {
+    rules = [];
+    otherwise = null;
+    initialized = false;
+  }
+  this.clearAll = function() {clearAll(); return this;};
+
   this.$get =
     [        '$location', '$rootScope', '$injector',
     function ($location,   $rootScope,   $injector) {
-      if (otherwise) rules.push(otherwise);
+      //initialize the router
+      init();
 
       // TODO: Optimize groups of rules with non-empty prefix into some sort of decision tree
       function update() {
