@@ -10,13 +10,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       if (!state) throw new Error("No such state '" + stateOrName + "'");
     } else {
       state = states[stateOrName.name];
-      if (!state || state !== stateOrName && state.self !== stateOrName) 
-        throw new Error("Invalid or unregistered state");
+      //scs: allow redefintion
+      //if (!state || state !== stateOrName && state.self !== stateOrName)
+      if (!state)
+        throw new Error("Unregistered state");
     }
     return state;
   }
 
   function registerState(state) {
+
     // Wrap a new object around the state so we can store our private details easily.
     state = inherit(state, {
       self: state,
@@ -25,7 +28,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
     var name = state.name;
     if (!isString(name) || name.indexOf('@') >= 0) throw new Error("State must have a valid name");
-    if (states[name]) throw new Error("State '" + name + "'' is already defined");
+
+    //if redefine is true, do not throw an error
+    if (states[name] && !state.reregister) throw new Error("State '" + name + "'' is already defined");
 
     // Derive parent state from a hierarchical name only if 'parent' is not explicitly defined.
     var parent = root;
@@ -69,7 +74,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     } else {
       params = state.params = url ? url.parameters() : state.parent.params;
     }
-    
+
     var paramNames = {}; forEach(params, function (p) { paramNames[p] = true; });
     if (parent) {
       forEach(parent.params, function (p) {
@@ -136,7 +141,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     /*jshint validthis: true */
     if (isObject(name)) definition = name;
     else definition.name = name;
-    registerState(definition);
+
+        //unregister the state if requested
+    if (definition.unregister) {
+      if (states[definition.name]){
+        delete states[definition.name];
+      }
+    }
+    else {
+      registerState(definition);
+    }
     return this;
   }
 
@@ -222,7 +236,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
           exiting = fromPath[l];
           if (exiting.self.onExit) {
             $injector.invoke(exiting.self.onExit, exiting.self, exiting.locals.globals);
-          } 
+          }
           exiting.locals = null;
         }
 
@@ -249,7 +263,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         }
 
         $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
-        
+
         return $state.current;
       }, function (error) {
         if ($state.transition !== transition) return TransitionSuperseded;
