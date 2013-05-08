@@ -47,32 +47,9 @@ function $RouteProvider(  $stateProvider,    $urlRouterProvider) {
     return this;
   }
 
-  //initializes the routeProvider
-  var initialized = false;
-  function init() {
-    if (!initialized) {
-      $stateProvider.init();
-      $urlRouterProvider.init();
-      initialized = true;
-    }
-  }
-  this.init = function() { init(); return this;};
-
-  //clears the routeProvider and asks the stateProvider and urlRouterProvider
-  //to do the same
-  function clearAll() {
-    routes = [];
-    $stateProvider.clearAll();
-    $urlRouterProvider.clearAll();
-    initialized = false;
-  }
-  this.clearAll = function() { clearAll(); return this;};
-
   this.$get = $get;
   $get.$inject = ['$state', '$rootScope', '$routeParams'];
   function $get(   $state,   $rootScope,   $routeParams) {
-    //initialize the router(s)
-    init();
 
     var $route = {
       routes: routes,

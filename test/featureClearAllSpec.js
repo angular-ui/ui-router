@@ -1,7 +1,7 @@
-describe('clearAll/init feature', function () {
+describe('clearAll feature', function () {
 
   (function() {
-    //a simple runtime configurer that uses reset to redefine ui-router
+    //a simple runtime configurer that uses clearAll to redefine ui-router
     //behavior at *runtime* (as opposed to config time).
     //
     //A note about this provider/service
@@ -13,31 +13,17 @@ describe('clearAll/init feature', function () {
     //In other words -- the ui-router services *could*
     //do this themselves; the features of this "test" provider/service
     //may show up as a pull for ui-router seperately :)
-    //for now, clearAll and init allow what it does to be possible
-    angular.module('uiRouterRuntimeConfigurer', ['ui.compat']);
-    UiRouterRuntimeConfigProvider.$inject = ['$stateProvider', '$routeProvider', '$urlRouterProvider'];
-    function UiRouterRuntimeConfigProvider($stateProvider, $routeProvider, $urlRouterProvider) {
-
-      //can call init and clearAll on the stateProvider
-
-      function init() {
-        //the routeProvider inits states and urlRoutes too since it uses them
-        //hence this shortcut works
-        $routeProvider.init();
-      }
-      this.init = function() { init(); return this; };
+    //for now, clearAll allows what it does to be possible
+    angular.module('uiRouterRuntimeConfigurer', ['ui.state']);
+    UiRouterRuntimeConfigProvider.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function UiRouterRuntimeConfigProvider($stateProvider, $urlRouterProvider) {
 
       function clearAll() {
-        //the routeProvider clears states and urlRoutes too since it uses them
+        //the stateProvider clears states and urlRoutes
         //hence this shortcut works
-        $routeProvider.clearAll();
+        $stateProvider.clearAll();
       }
       this.clearAll = function() { clearAll(); return this; };
-
-      function routeWhen(url, route) {
-        $routeProvider.when(url, route);
-      }
-      this.routeWhen = function(url, route) { routeWhen(url, route); return this; };
 
       function state(name, definition) {
         $stateProvider.state(name, definition);
@@ -45,28 +31,26 @@ describe('clearAll/init feature', function () {
       this.state = function(name, definition) { state(name, definition); return this; };
 
 
-      function urlWhen(what, handler) {
+      function when(what, handler) {
         $urlRouterProvider.when(what, handler);
       }
-      this.urlWhen = function(what, handler) { urlWhen(what, handler); return this; };
+      this.when = function(what, handler) { when(what, handler); return this; };
 
-      function urlOtherwise(rule) {
+      function otherwise(rule) {
         $urlRouterProvider.otherwise(rule);
       }
-      this.urlOtherwise = function(rule) { urlOtherwise(rule); return this; };
+      this.otherwise = function(rule) { otherwise(rule); return this; };
 
       this.$get = $get;
       function $get() {
         var uiRouterRuntimeConfig = {};
 
-        uiRouterRuntimeConfig.init = function() {init(); return this; };
         uiRouterRuntimeConfig.clearAll = function() { clearAll(); return this; };
-        uiRouterRuntimeConfig.routeWhen = function(url, route) { routeWhen(url, route); return this; };
         uiRouterRuntimeConfig.state = function(name, definition) { state(name, definition); return this; };
-        uiRouterRuntimeConfig.urlWhen = function(what, handler) { urlWhen(what, handler); return this; };
-        uiRouterRuntimeConfig.urlOtherwise = function(rule) { urlOtherwise(rule); return this; };
+        uiRouterRuntimeConfig.when = function(what, handler) { when(what, handler); return this; };
+        uiRouterRuntimeConfig.otherwise = function(rule) { otherwise(rule); return this; };
 
-        //this service can call clearAll and init from its provider
+        //this service can call the ui-router providers from its provider
         return uiRouterRuntimeConfig;
       }
     }
@@ -100,9 +84,9 @@ describe('clearAll/init feature', function () {
       .state('HOME', HOME)
       .state('FOUROHFOUR', FOUROHFOUR)
       .state('THEYWIN', THEYWIN)
-      .routeWhen('/northDakota', { redirectTo: '/about' } )
-      .urlWhen('/someoneGuessesThisUrl', '/theyWin' )
-      .urlOtherwise('/fourOhFour');
+      .when('/northDakota', '/about' )
+      .when('/someoneGuessesThisUrl', '/theyWin' )
+      .otherwise('/fourOhFour');
   }
 
   function configureAnon(uiRouterRuntimeConfigProviderOrService)
@@ -121,8 +105,6 @@ describe('clearAll/init feature', function () {
     ['uiRouterRuntimeConfigProvider',
       function(uiRouterRuntimeConfigProvider) {
         configureAnon(uiRouterRuntimeConfigProvider);
-        //no need to call init because we're working with the provider and
-        //the service will do it when it is instantiated
     }]
   );
 
@@ -161,7 +143,7 @@ describe('clearAll/init feature', function () {
       expect($state.current).toBe(FOUROHFOUR);
     }));
 
-    it('should support route/when', inject(function ($state, $rootScope, $q, $location) {
+    it('should support urlRouter/when', inject(function ($state, $rootScope, $q, $location) {
       $location.path("/northDakota");
       $rootScope.$apply();
       expect($state.current).toBe(ABOUT);
@@ -195,7 +177,6 @@ describe('clearAll/init feature', function () {
   describe('when the user logs in as admin', function() {
     it('the admin user will not have the login route but will have the admin route', inject(function (uiRouterRuntimeConfig, $state, $rootScope, $q, $location) {
       configureAdmin(uiRouterRuntimeConfig);
-      uiRouterRuntimeConfig.init();
       //this is kind of  dumb example because the admin should be able to change credentials but for demo purposes
       //this will have to do
       $location.path("/login");
@@ -212,7 +193,6 @@ describe('clearAll/init feature', function () {
       configureAdmin(uiRouterRuntimeConfig);
       var BLOG = {url: '/blog'};
       uiRouterRuntimeConfig.state('BLOG', BLOG);
-      uiRouterRuntimeConfig.init();
 
       //this is kind of  dumb example because the admin should be able to change credentials but for demo purposes
       //this will have to do

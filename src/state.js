@@ -141,22 +141,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
   }
 
 
-  //initializes the urlRouterProvider
-  var initialized = false;
-  function init() {
-    if (!initialized) {
-      $urlRouterProvider.init();
-      initialized = true;
-    }
-  }
-  this.init = function() { init(); return this; };
-
-
   //clears all the states and the urlRouterProvider
   function clearAll() {
     states = {};
     $urlRouterProvider.clearAll();
-    initialized = false;
   }
   this.clearAll = function() { clearAll(); return this; };
 
@@ -164,8 +152,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
   this.$get = $get;
   $get.$inject = ['$rootScope', '$q', '$templateFactory', '$injector', '$stateParams', '$location', '$urlRouter'];
   function $get(   $rootScope,   $q,   $templateFactory,   $injector,   $stateParams,   $location,   $urlRouter) {
-    //initialize the router(s)
-    init();
 
     var TransitionSuperseded = $q.reject(new Error('transition superseded'));
     var TransitionPrevented = $q.reject(new Error('transition prevented'));

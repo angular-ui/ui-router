@@ -83,33 +83,16 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
       return this.rule(rule);
     };
 
-  //initializes the urlRouterProvider
-  var initialized = false;
-  function init() {
-    if (!initialized) {
-      if (otherwise) {
-        //there's an otherwise -- make it the last rule
-        rules.push(otherwise);
-      }
-      //
-      initialized = true;
-    }
-  }
-  this.init = function() {init(); return this;};
-
   //clears the rules and clears "otherwise" if it is defined
   function clearAll() {
     rules = [];
     otherwise = null;
-    initialized = false;
   }
   this.clearAll = function() {clearAll(); return this;};
 
   this.$get =
     [        '$location', '$rootScope', '$injector',
     function ($location,   $rootScope,   $injector) {
-      //initialize the router
-      init();
 
       // TODO: Optimize groups of rules with non-empty prefix into some sort of decision tree
       function update() {
@@ -119,6 +102,12 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
           if (handled) {
             if (isString(handled)) $location.replace().url(handled);
             break;
+          }
+        }
+        if (!handled && otherwise) {
+          handled = otherwise($injector, $location);
+          if (handled) {
+            if (isString(handled)) $location.replace().url(handled);
           }
         }
       }
