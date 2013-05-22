@@ -114,13 +114,13 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('publish-pages', 'Publish a clean build, docs, and sample to github.io', function () {
-    promising(this, 
+    promising(this,
       exec('git symbolic-ref HEAD').then(function (result) {
-        if (result.stdout.trim() != 'refs/heads/master') throw 'Not on master branch, aborting';
+        if (result.stdout.trim() !== 'refs/heads/master') throw 'Not on master branch, aborting';
       }).then(function () {
         return exec('git status --porcelain');
       }).then(function (result) {
-        if (result.stdout.trim() != '') throw 'Working copy is dirty, aborting';
+        if (result.stdout.trim() !== '') throw 'Working copy is dirty, aborting';
       }).then(function () {
         shjs.rm('-rf', 'build');
         return system('git checkout gh-pages');
