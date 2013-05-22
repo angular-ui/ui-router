@@ -1,5 +1,3 @@
-//var testacular = require('testacular');
-
 /*global module:false*/
 module.exports = function (grunt) {
 
@@ -81,23 +79,58 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
+
   grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
   grunt.registerTask('dist', 'Perform a clean build and generate documentation', ['clean', 'build', 'jsdoc']);
   grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect', 'karma:debug', 'watch']);
 
-  grunt.registerTask('jsdoc', 'Generate documentation', function () {
-    var done = this.async();
-    grunt.util.spawn({
-      cmd: 'node_modules/jsdoc/jsdoc',
-      args: [ '-c', 'jsdoc-conf.json', '-d', grunt.config('builddir') + '/doc', 'src' ]
-    }, function (error, result, code) {
-      if (error) {
-        grunt.log.write(error.stderr + '\n');
-        grunt.warn("jsdoc generation failed");
-      } else {
-        grunt.log.write(result.stderr + result.stdout);
-      }
-      done();
+  // Helpers for custom tasks, mainly around promises / exec
+  var exec = require('faithful-exec'), shjs = require('shelljs');
+
+  function system(cmd) {
+    grunt.log.write('% ' + cmd + '\n');
+    return exec(cmd).then(function (result) {
+      grunt.log.write(result.stderr + result.stdout);
+    }, function (error) {
+      grunt.log.write(error.stderr + '\n');
+      throw 'Failed to run \'' + cmd + '\'';
     });
+  }
+
+  function promising(task, promise) {
+    var done = task.async();
+    promise.then(function () {
+      done();
+    }, function (error) {
+      grunt.log.write(error + '\n');
+      done(false);
+    });
+  }
+
+  grunt.registerTask('jsdoc', 'Generate documentation', function () {
+    promising(this,
+      system("node_modules/jsdoc/jsdoc -c jsdoc-conf.json -d '" + grunt.config('builddir') + "'/doc src")
+    );
+  });
+
+  grunt.registerTask('publish-pages', 'Publish a clean build, docs, and sample to github.io', function () {
+    promising(this, 
+      exec('git symbolic-ref HEAD').then(function (result) {
+        if (result.stdout.trim() != 'refs/heads/master') throw 'Not on master branch, aborting';
+      }).then(function () {
+        return exec('git status --porcelain');
+      }).then(function (result) {
+        if (result.stdout.trim() != '') throw 'Working copy is dirty, aborting';
+      }).then(function () {
+        shjs.rm('-rf', 'build');
+        return system('git checkout gh-pages');
+      }).then(function () {
+        return system('grunt dist');
+      }).then(function () {
+        return system('git commit -a -m "Automatic gh-pages build"');
+      }).then(function () {
+        return system('git checkout master');
+      })
+    );
   });
 };
