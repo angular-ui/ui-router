@@ -58,26 +58,26 @@ module.exports = function (grunt) {
     },
     watch: {
       files: ['src/*.js', 'test/**/*.js'],
-      tasks: ['build','karma:debug:run']
+      tasks: ['build', 'karma:debug:run']
     },
     connect: {
       server: {}
     },
-	karma: {
-		unit: {
-			configFile: 'test/test-config.js',
-			runnerPort: 9999,
-			singleRun: true,
-			browsers: ['PhantomJS']
-		},
-		
-		debug: {
-			configFile: 'test/test-config.js',
-			runnerPort: 9999,
-			background: true,
-			browsers: ['Chrome']
-		}
-	}
+  karma: {
+    unit: {
+      configFile: 'test/test-config.js',
+      runnerPort: 9999,
+      singleRun: true,
+      browsers: ['PhantomJS']
+    },
+    
+    debug: {
+      configFile: 'test/test-config.js',
+      runnerPort: 9999,
+      background: true,
+      browsers: ['Chrome']
+    }
+  }
   });
 
   grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
