@@ -184,12 +184,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       }
 
       // Normalize/filter parameters before we pass them to event handlers etc.
-      var normalizedToParams = {};
-      forEach(to.params, function (name) {
-        var value = toParams[name];
-        normalizedToParams[name] = (value != null) ? String(value) : null;
-      });
-      toParams = normalizedToParams;
+      toParams = normalize(to.params, toParams || {});
 
       // Broadcast start event and cancel the transition if requested
       if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams)
@@ -271,6 +266,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       return $state.$current.includes[findState(stateOrName).name];
     };
 
+    $state.href = function (stateOrName, params) {
+      var state = findState(stateOrName), nav = state.navigable;
+      if (!nav) throw new Error("State '" + state + "' is not navigable");
+      return nav.url.format(normalize(state.params, params || {}));
+    };
 
     function resolveState(state, params, paramsAreFiltered, inherited, dst) {
       // We need to track all the promises generated during the resolution process.
@@ -343,6 +343,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         });
         return dst;
       });
+    }
+
+    function normalize(keys, values) {
+      var normalized = {};
+
+      forEach(keys, function (name) {
+        var value = values[name];
+        normalized[name] = (value != null) ? String(value) : null;
+      });
+      return normalized;
     }
 
     function equalForKeys(a, b, keys) {
