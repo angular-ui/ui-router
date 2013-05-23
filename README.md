@@ -9,26 +9,112 @@ Finally a de-facto solution to nested views and routing.
 
 
 ## Main Goal
-To evolve the concept of an Angular "Route" into a more general concept of a "State" for managing coarse application UI states.
+To evolve the concept of an Angular "Route" into a more general concept of a "State" for managing complex application UI states.
 
 ## Main Features
-1. A state manager `$stateProvider` and `$state`, keeps state logic separate from routing logic.
-2. Nested states (parent/child relationships).
-3. Can set multiple views via named views. `ui-view` directive.
-4. URL Routing
-5. Backwards compatible with Angular v1 router
-6. Various other nuggets of goodness
+1. **Robust State Management**
+>`$state` and `$stateProvider`
+
+2. **More Powerful Views**
+>`ui-view` directive (used in place of `ng-view`)
+
+3. **Named Views**
+>`<div ui-view="chart">`
+
+4. **Multiple Parallel Views**
+>
+```
+<div ui-view="chart1">
+<div ui-view="chart2">
+```
+5. **Nested Views**
+>load templates that contain nested `ui-view`s as deep as you'd like.
+
+6. **Routing**
+>States can map to URLs (though it's not required)
+
+
+*Basically, do whatever you want with states and routes.*
+
 
 ## Resources
 
-* [In-depth Overview](https://github.com/angular-ui/ui-router/wiki)
+* [In-Depth Overview](https://github.com/angular-ui/ui-router/wiki)
 * [FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions)
 * [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/ui-states/sample))
 * [Generated Docs](http://angular-ui.github.com/ui-router/build/doc/)
 * Latest build: [angular-ui-states.min.js](http://angular-ui.github.com/ui-router/build/angular-ui-states.min.js)
   (uncompressed [angular-ui-states.js](http://angular-ui.github.com/ui-router/build/angular-ui-states.js))
 
-# Developing
+## Quick Start
+1. Add angular-ui-states.min.js to your index.html
+>
+```html
+<!doctype html>
+<html ng-app="myapp">
+<head>
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
+      <script src="angular-ui-states.js"></script>
+```
+
+2. Add one or more `ui-view` to your app, give them names.
+>
+```html
+<body>
+    <div ui-view="viewA"></div>
+    <div ui-view="viewB"></div>
+    <!-- Also a way to navigate -->
+    <a href="#/route1">Route 1</a>
+    <a href="#/route2">Route 2</a>
+</body>
+```
+
+3. Set up your states in the module config
+>
+```javascript
+var myapp = angular.module('myapp', [])
+myapp.config(function($stateProvider, $routeProvider){
+  $stateProvider
+		.state('index', {
+			url: "/",
+			views: {
+				"viewA": {
+					templateUrl: "index.viewA.html"
+				},
+				"viewB": {
+					templateUrl: "index.viewB.html"
+				}
+			}
+		})
+		.state('route1', {
+			url: "/route1",
+			views: {
+				"viewA": {
+					templateUrl: "route1.viewA.html"
+				},
+				"viewB": {
+					templateUrl: "route1.viewB.html"
+				}
+			}
+		})
+		.state('route2', {
+			url: "/route2",
+			views: {
+				"viewA": {
+					templateUrl: "route2.viewA.html"
+				},
+				"viewB": {
+					templateUrl: "route2.viewB.html"
+				}
+			}
+		})
+})
+```
+
+4. This only scratches the surface! Learn more about State options, Nested Views, Parallel Views. 
+>**[Dive Deeper!](https://github.com/angular)**
+
+## Developing
 
 Dependencies for building the solution and running tests:
 
