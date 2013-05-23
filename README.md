@@ -69,10 +69,15 @@ To evolve the concept of an Angular "Route" into a more general concept of a "St
 </body>
 ```
 
-3. Set up your states in the module config
+3. Set `ui.state` as a dependency in your module
 >
 ```javascript
-var myapp = angular.module('myapp', [])
+var myapp = angular.module('myapp', ['ui.state']) 
+```
+
+4. Set up your states in the module config
+>
+```javascript
 myapp.config(function($stateProvider, $routeProvider){
   $stateProvider
 		.state('index', {
@@ -111,10 +116,10 @@ myapp.config(function($stateProvider, $routeProvider){
 })
 ```
 
-4. See this quick start example working. 
+5. See this quick start example working. 
 >**[Go to Quick Start Plunker](http://plnkr.co/edit/vDURUN?p=preview)**
 
-5. This only scratches the surface! Learn more about State options, Nested Views, Parallel Views. 
+6. This only scratches the surface! Learn more about State options, Nested Views, Parallel Views. 
 >**[Dive Deeper!](https://github.com/angular)**
 
 ## Developing
