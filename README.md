@@ -76,7 +76,7 @@ var myapp = angular.module('myapp', [])
 myapp.config(function($stateProvider, $routeProvider){
   $stateProvider
 		.state('index', {
-			url: "/",
+			url: "", // root route
 			views: {
 				"viewA": {
 					templateUrl: "index.viewA.html"
@@ -111,7 +111,10 @@ myapp.config(function($stateProvider, $routeProvider){
 })
 ```
 
-4. This only scratches the surface! Learn more about State options, Nested Views, Parallel Views. 
+4. See this quick start example working. 
+>**[Visit Plunker](http://plnkr.co/edit/vDURUN?p=preview)**
+
+5. This only scratches the surface! Learn more about State options, Nested Views, Parallel Views. 
 >**[Dive Deeper!](https://github.com/angular)**
 
 ## Developing
