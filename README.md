@@ -120,7 +120,7 @@ myapp.config(function($stateProvider, $routeProvider){
 >**[Go to Quick Start Plunker](http://plnkr.co/edit/vDURUN?p=preview)**
 
 6. This only scratches the surface! You've only seen Named Views and Parallel Views. Learn more about `state()` options, Nested Views, URL routing options, backwards compatibility, and more! 
->**[Dive Deeper!](https://github.com/angular)**
+>**[Dive Deeper!](https://github.com/angular-ui/ui-router/wiki)**
 
 ## Developing
 
