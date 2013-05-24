@@ -9,10 +9,11 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
     terminal: true,
     link: function(scope, element, attr) {
       var viewScope, viewLocals,
+          initialContent = element.contents(),
           name = attr[directive.name] || attr.name || '',
           onloadExp = attr.onload || '',
           animate = isDefined($animator) && $animator(scope, attr);
-      
+
       // Find the details of the parent view directive (if any) and use it
       // to derive our own qualified view name, then hang our own details
       // off the DOM so child directives can find it.
@@ -28,11 +29,15 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
         var locals = $state.$current && $state.$current.locals[name];
         if (locals === viewLocals) return; // nothing to do
 
-        // Destroy previous view scope and remove content (if any)
-        if (viewScope) {
-          if (animate && doAnimate) animate.leave(element.contents(), element);
-          else element.html('');
+        // Remove existing content
+        if (animate && doAnimate) {
+          animate.leave(element.contents(), element);
+        } else {
+          element.html('');
+        }
 
+        // Destroy previous view scope
+        if (viewScope) {
           viewScope.$destroy();
           viewScope = null;
         }
@@ -67,6 +72,13 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
         } else {
           viewLocals = null;
           view.state = null;
+
+          // Restore initial view
+          if (doAnimate) {
+            animate.enter(initialContent, element);
+          } else {
+            element.html(initialContent);
+          }
         }
       }
     }
