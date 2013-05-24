@@ -13,11 +13,14 @@ module.exports = function (grunt) {
   grunt.initConfig({
     builddir: 'build',
     pkg: grunt.file.readJSON('package.json'),
+    buildtag: '-dev-' + grunt.template.today('yyyy-mm-dd'),
     meta: {
-      banner: '/**\n' + ' * <%= pkg.description %>\n' +
-        ' * @version v<%= pkg.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
+      banner: '/**\n' +
+        ' * <%= pkg.description %>\n' +
+        ' * @version v<%= pkg.version %><%= buildtag %>\n' +
         ' * @link <%= pkg.homepage %>\n' +
-        ' * @license MIT License, http://www.opensource.org/licenses/MIT\n' + ' */'
+        ' * @license MIT License, http://www.opensource.org/licenses/MIT\n' +
+        ' */'
     },
     clean: [ '<%= builddir %>' ],
     concat: {
@@ -47,6 +50,11 @@ module.exports = function (grunt) {
           '<%= builddir %>/<%= pkg.name %>.min.js': ['<banner:meta.banner>', '<%= concat.build.dest %>']
         }
       }
+    },
+    release: {
+      files: ['<%= pkg.name %>.js', '<%= pkg.name %>.min.js'],
+      src: '<%= builddir %>',
+      dest: 'release'
     },
     jshint: {
       all: ['Gruntfile.js', 'src/*.js', '<%= builddir %>/<%= pkg.name %>.js'],
@@ -79,10 +87,61 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
-
   grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
   grunt.registerTask('dist', 'Perform a clean build and generate documentation', ['clean', 'build', 'jsdoc']);
+  grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'dist', 'perform-release']);
   grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect', 'karma:debug', 'watch']);
+
+  grunt.registerTask('jsdoc', 'Generate documentation', function () {
+    promising(this,
+      system('node_modules/jsdoc/jsdoc -c jsdoc-conf.json -d \'' + grunt.config('builddir') + '\'/doc src')
+    );
+  });
+
+  grunt.registerTask('publish-pages', 'Publish a clean build, docs, and sample to github.io', function () {
+    promising(this,
+      ensureCleanMaster().then(function () {
+        shjs.rm('-rf', 'build');
+        return system('git checkout gh-pages');
+      }).then(function () {
+        return system('grunt dist');
+      }).then(function () {
+        return system('git commit -a -m \'Automatic gh-pages build\'');
+      }).then(function () {
+        return system('git checkout master');
+      })
+    );
+  });
+
+  grunt.registerTask('prepare-release', function () {
+    var bower = grunt.file.readJSON('bower.json'),
+        version = bower.version;
+    if (version != grunt.config('pkg.version')) throw 'Version mismatch in bower.json';
+
+    promising(this,
+      ensureCleanMaster().then(function () {
+        return exec('git tag -l \'' + version + '\'');
+      }).then(function (result) {
+        if (result.stdout.trim() !== '') throw 'Tag \'' + version + '\' already exists';
+        grunt.config('buildtag', '');
+        grunt.config('builddir', 'release');
+      })
+    );
+  });
+
+  grunt.registerTask('perform-release', function () {
+    grunt.task.requires([ 'prepare-release', 'dist' ]);
+
+    var version = grunt.config('pkg.version'), releasedir = grunt.config('builddir');
+    promising(this,
+      system('git add \'' + releasedir + '\'').then(function () {
+        return system('git commit -m \'release ' + version + '\'');  
+      }).then(function () {
+        return system('git tag \'' + version + '\'');
+      })
+    );
+  });
+
 
   // Helpers for custom tasks, mainly around promises / exec
   var exec = require('faithful-exec'), shjs = require('shelljs');
@@ -107,30 +166,12 @@ module.exports = function (grunt) {
     });
   }
 
-  grunt.registerTask('jsdoc', 'Generate documentation', function () {
-    promising(this,
-      system("node_modules/jsdoc/jsdoc -c jsdoc-conf.json -d '" + grunt.config('builddir') + "'/doc src")
-    );
-  });
-
-  grunt.registerTask('publish-pages', 'Publish a clean build, docs, and sample to github.io', function () {
-    promising(this,
-      exec('git symbolic-ref HEAD').then(function (result) {
-        if (result.stdout.trim() !== 'refs/heads/master') throw 'Not on master branch, aborting';
-      }).then(function () {
-        return exec('git status --porcelain');
-      }).then(function (result) {
-        if (result.stdout.trim() !== '') throw 'Working copy is dirty, aborting';
-      }).then(function () {
-        shjs.rm('-rf', 'build');
-        return system('git checkout gh-pages');
-      }).then(function () {
-        return system('grunt dist');
-      }).then(function () {
-        return system('git commit -a -m "Automatic gh-pages build"');
-      }).then(function () {
-        return system('git checkout master');
-      })
-    );
-  });
+  function ensureCleanMaster() {
+    return exec('git symbolic-ref HEAD').then(function (result) {
+      if (result.stdout.trim() !== 'refs/heads/master') throw 'Not on master branch, aborting';
+      return exec('git status --porcelain');
+    }).then(function (result) {
+      if (result.stdout.trim() !== '') throw 'Working copy is dirty, aborting';
+    });
+  }
 };
