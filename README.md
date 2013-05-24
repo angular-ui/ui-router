@@ -2,14 +2,10 @@
 
 # UI-Router
 
-**Attention**: UI-Router uses <code>grunt >= 0.4.x</code> make sure to upgrade your environment and read the
-[Migration Guide](http://gruntjs.com/upgrading-from-0.3-to-0.4).
-
-Finally a de-facto solution to nested views and routing.
-
+####Finally a de-facto solution to nested views and routing.
 
 ## Main Goal
-To evolve the concept of an Angular "Route" into a more general concept of a "State" for managing complex application UI states.
+To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](http://docs.angularjs.org/api/ng.$routeProvider) into a more general concept of a ***state*** for managing complex application UI states.
 
 ## Main Features
 1. **Robust State Management**
@@ -43,18 +39,23 @@ To evolve the concept of an Angular "Route" into a more general concept of a "St
 * [FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions)
 * [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/master/sample))
 * [Generated Docs](http://angular-ui.github.com/ui-router/build/doc/)
-* Latest build: [angular-ui-states.min.js](http://angular-ui.github.com/ui-router/build/angular-ui-states.min.js)
-  (uncompressed [angular-ui-states.js](http://angular-ui.github.com/ui-router/build/angular-ui-states.js))
+* Latest build: [angular-ui-states.min.js](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)
+  (uncompressed [angular-ui-states.js](http://angular-ui.github.io/ui-router/release/angular-ui-router.js))
 
 ## Quick Start
-1. Add angular-ui-states.min.js to your index.html
->
+1. Get ui-router:
+>* with bower: `bower install angular-ui-router`
+>* fork this repo
+>* download the latest build ([compressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js) | [uncompressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.js))
+
+1. Add angular-ui-router.js to your index.html
+> 
 ```html
 <!doctype html>
 <html ng-app="myapp">
 <head>
       <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
-      <script src="angular-ui-states.js"></script>
+      <script src="angular-ui-router.js"></script>
 ```
 
 2. Add one or more `ui-view` to your app, give them names.
@@ -123,6 +124,9 @@ myapp.config(function($stateProvider, $routeProvider){
 >**[Dive Deeper!](https://github.com/angular-ui/ui-router/wiki)**
 
 ## Developing
+
+**Attention**: UI-Router uses <code>grunt >= 0.4.x</code> make sure to upgrade your environment and read the
+[Migration Guide](http://gruntjs.com/upgrading-from-0.3-to-0.4).
 
 Dependencies for building the solution and running tests:
 
