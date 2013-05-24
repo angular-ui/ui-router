@@ -10,7 +10,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       if (!state) throw new Error("No such state '" + stateOrName + "'");
     } else {
       state = states[stateOrName.name];
-      if (!state || state !== stateOrName && state.self !== stateOrName) 
+      if (!state || state !== stateOrName && state.self !== stateOrName)
         throw new Error("Invalid or unregistered state");
     }
     return state;
@@ -69,7 +69,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     } else {
       params = state.params = url ? url.parameters() : state.parent.params;
     }
-    
+
     var paramNames = {}; forEach(params, function (p) { paramNames[p] = true; });
     if (parent) {
       forEach(parent.params, function (p) {
@@ -109,10 +109,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     if (!state.resolve) state.resolve = {}; // prevent null checks later
 
     // Register the state in the global state list and with $urlRouter if necessary.
-    if (!state.abstract && url) {
-      $urlRouterProvider.when(url, function (params) {
-        $state.transitionTo(state, params, false);
-      });
+    if (!state['abstract'] && url) {
+      $urlRouterProvider.when(url, ['$match', function ($match) {
+        $state.transitionTo(state, $match, false);
+      }]);
     }
     states[name] = state;
     return state;
@@ -123,7 +123,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     name: '',
     url: '^',
     views: null,
-    abstract: true
+    'abstract': true
   });
   root.locals = { globals: { $stateParams: {} } };
   root.navigable = null;
@@ -162,7 +162,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       if (!isDefined(updateLocation)) updateLocation = true;
 
       to = findState(to);
-      if (to.abstract) throw new Error("Cannot transition to abstract state '" + to + "'");
+      if (to['abstract']) throw new Error("Cannot transition to abstract state '" + to + "'");
       var toPath = to.path,
           from = $state.$current, fromParams = $state.params, fromPath = from.path;
 
@@ -184,12 +184,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       }
 
       // Normalize/filter parameters before we pass them to event handlers etc.
-      var normalizedToParams = {};
-      forEach(to.params, function (name) {
-        var value = toParams[name];
-        normalizedToParams[name] = (value != null) ? String(value) : null;
-      });
-      toParams = normalizedToParams;
+      toParams = normalize(to.params, toParams || {});
 
       // Broadcast start event and cancel the transition if requested
       if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams)
@@ -249,7 +244,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         }
 
         $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
-        
+
         return $state.current;
       }, function (error) {
         if ($state.transition !== transition) return TransitionSuperseded;
@@ -271,6 +266,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       return $state.$current.includes[findState(stateOrName).name];
     };
 
+    $state.href = function (stateOrName, params) {
+      var state = findState(stateOrName), nav = state.navigable;
+      if (!nav) throw new Error("State '" + state + "' is not navigable");
+      return nav.url.format(normalize(state.params, params || {}));
+    };
 
     function resolveState(state, params, paramsAreFiltered, inherited, dst) {
       // We need to track all the promises generated during the resolution process.
@@ -343,6 +343,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         });
         return dst;
       });
+    }
+
+    function normalize(keys, values) {
+      var normalized = {};
+
+      forEach(keys, function (name) {
+        var value = values[name];
+        normalized[name] = (value != null) ? String(value) : null;
+      });
+      return normalized;
     }
 
     function equalForKeys(a, b, keys) {
