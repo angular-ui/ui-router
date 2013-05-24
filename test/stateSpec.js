@@ -32,7 +32,13 @@ describe('state', function () {
       .state('C', C)
       .state('D', D)
       .state('DD', DD)
-      .state('E', E);
+      .state('E', E)
+
+      .state('home', { url: "/" })
+      .state('home.item', { url: "front/:id" })
+      .state('about', { url: "/about" })
+      .state('about.person', { url: "/:person" })
+      .state('about.person.item', { url: "/:id" });
 
     $provide.value('AppInjectable', AppInjectable);
   }));
@@ -226,7 +232,7 @@ describe('state', function () {
     }));
   });
 
-  
+
   describe('.transition', function () {
     it('is null when no transition is taking place', inject(function ($state, $q) {
       expect($state.transition).toBeNull();
@@ -238,6 +244,24 @@ describe('state', function () {
     it('is the current transition', inject(function ($state, $q) {
       var trans = $state.transitionTo(A, {});
       expect($state.transition).toBe(trans);
+    }));
+  });
+
+
+  describe('.href()', function () {
+    it('aborts on un-navigable states', inject(function ($state) {
+      expect(function() { $state.href("A"); }).toThrow("State 'A' is not navigable");
+    }));
+
+    it('generates a URL without parameters', inject(function ($state) {
+      expect($state.href("home")).toEqual("/");
+      expect($state.href("about", {})).toEqual("/about");
+      expect($state.href("about", { foo: "bar" })).toEqual("/about");
+    }));
+
+    it('generates a URL with parameters', inject(function ($state) {
+      expect($state.href("about.person", { person: "bob" })).toEqual("/about/bob");
+      expect($state.href("about.person.item", { person: "bob", id: null })).toEqual("/about/bob/");
     }));
   });
 });
