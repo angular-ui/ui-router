@@ -49,14 +49,14 @@ To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](htt
 >* fork this repo
 >* download the latest build ([compressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js) | [uncompressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.js))
 
-1. Add angular-ui-router.js to your index.html
+1. Add angular-ui-router.min.js to your index.html
 > 
 ```html
 <!doctype html>
 <html ng-app="myapp">
 <head>
       <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
-      <script src="angular-ui-router.js"></script>
+      <script src="angular-ui-router.min.js"></script>
 ```
 
 2. Add one or more `ui-view` to your app, give them names.
