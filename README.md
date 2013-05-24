@@ -1,5 +1,8 @@
 [![Build Status](https://travis-ci.org/angular-ui/ui-router.png?branch=master)](https://travis-ci.org/angular-ui/ui-router)
 
+* Latest release: [angular-ui-router.min.js](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js) / [angular-ui-router.js](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)
+* Latest snapshot: [angular-ui-router.min.js](http://angular-ui.github.io/ui-router/build/angular-ui-router.min.js) / [angular-ui-router.js](http://angular-ui.github.io/ui-router/build/angular-ui-router.js)
+
 # UI-Router
 
 ####Finally a de-facto solution to nested views and routing.
@@ -39,8 +42,6 @@ To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](htt
 * [FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions)
 * [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/master/sample))
 * [Generated Docs](http://angular-ui.github.com/ui-router/build/doc/)
-* Latest build: [angular-ui-states.min.js](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)
-  (uncompressed [angular-ui-states.js](http://angular-ui.github.io/ui-router/release/angular-ui-router.js))
 
 ## Quick Start
 1. Get ui-router:
@@ -125,10 +126,10 @@ myapp.config(function($stateProvider, $routeProvider){
 
 ## Developing
 
-**Attention**: UI-Router uses <code>grunt >= 0.4.x</code> make sure to upgrade your environment and read the
+UI-Router uses <code>grunt >= 0.4.x</code> make sure to upgrade your environment and read the
 [Migration Guide](http://gruntjs.com/upgrading-from-0.3-to-0.4).
 
-Dependencies for building the solution and running tests:
+Dependencies for building from source and running tests:
 
 * [grunt-cli](https://github.com/gruntjs/grunt-cli) - run: `$ npm install -g grunt-cli`
 * Then install development dependencies with: `$ npm install`
