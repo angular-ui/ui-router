@@ -118,7 +118,7 @@ myapp.config(function($stateProvider, $routeProvider){
 })
 ```
 
-5. See this quick start example working. 
+5. See this quick start example in action. 
 >**[Go to Quick Start Plunker](http://plnkr.co/edit/vDURUN?p=preview)**
 
 6. This only scratches the surface! You've only seen Named Views and Parallel Views. Learn more about `state()` options, Nested Views, URL routing options, backwards compatibility, and more! 
