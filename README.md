@@ -1,11 +1,11 @@
 [![Build Status](https://travis-ci.org/angular-ui/ui-router.png?branch=master)](https://travis-ci.org/angular-ui/ui-router)
 
-* Latest release: [angular-ui-router.min.js](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js) / [angular-ui-router.js](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)
-* Latest snapshot: [angular-ui-router.min.js](http://angular-ui.github.io/ui-router/build/angular-ui-router.min.js) / [angular-ui-router.js](http://angular-ui.github.io/ui-router/build/angular-ui-router.js)
-
 # UI-Router
 
 ####Finally a de-facto solution to nested views and routing.
+>* Latest release 0.0.1: [Compressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js) / [Uncompressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)
+>* Latest snapshot: [Compressed](http://angular-ui.github.io/ui-router/build/angular-ui-router.min.js) / [Uncompressed](http://angular-ui.github.io/ui-router/build/angular-ui-router.js)
+
 
 ## Main Goal
 To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](http://docs.angularjs.org/api/ng.$routeProvider) into a more general concept of a ***state*** for managing complex application UI states.
@@ -47,7 +47,7 @@ To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](htt
 1. Get ui-router:
 >* with bower: `bower install angular-ui-router`
 >* fork this repo
->* download the latest build ([compressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js) | [uncompressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.js))
+>* download the latest release ([compressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js) | [uncompressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.js))
 
 1. Add angular-ui-router.min.js to your index.html
 > 
