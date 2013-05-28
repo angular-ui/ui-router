@@ -56,10 +56,16 @@ To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](htt
 <html ng-app="myapp">
 <head>
       <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
-      <script src="angular-ui-router.min.js"></script>
+      <script src="angular-ui-router.min.js"></script> <!-- Insert after main angular.js file -->
 ```
 
-2. Add one or more `ui-view` to your app, give them names.
+2. Set `ui.state` as a dependency in your module
+>
+```javascript
+var myapp = angular.module('myapp', ['ui.state']) 
+```
+
+3. Add one or more `ui-view` to your app, give them names.
 >
 ```html
 <body>
@@ -69,12 +75,6 @@ To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](htt
     <a href="#/route1">Route 1</a>
     <a href="#/route2">Route 2</a>
 </body>
-```
-
-3. Set `ui.state` as a dependency in your module
->
-```javascript
-var myapp = angular.module('myapp', ['ui.state']) 
 ```
 
 4. Set up your states in the module config
