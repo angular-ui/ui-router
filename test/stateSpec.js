@@ -38,7 +38,8 @@ describe('state', function () {
       .state('home.item', { url: "front/:id" })
       .state('about', { url: "/about" })
       .state('about.person', { url: "/:person" })
-      .state('about.person.item', { url: "/:id" });
+      .state('about.person.item', { url: "/:id" })
+      .state('about.sidebar', {});
 
     $provide.value('AppInjectable', AppInjectable);
   }));
@@ -160,7 +161,7 @@ describe('state', function () {
         '$stateChangeSuccess(C,A);');
     }));
 
-    it('aborts pending transitions even when going back to the curren state', inject(function ($state, $q) {
+    it('aborts pending transitions even when going back to the current state', inject(function ($state, $q) {
       initStateTo(A);
       logEvents = true;
 
@@ -190,6 +191,11 @@ describe('state', function () {
         'DD.onExit;' +
         'D.onExit;' +
         'A.onEnter;');
+    }));
+
+    it('doesn\'t transition to parent state when child has no URL', inject(function ($state, $q) {
+      $state.transitionTo('about.sidebar'); $q.flush();
+      expect($state.current.name).toEqual('about.sidebar');
     }));
   });
 
