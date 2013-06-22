@@ -310,7 +310,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       }
 
       // Resolve 'global' dependencies for the state, i.e. those not specific to a view.
-      // We're also including $stateParams in this; that we're the parameters are restricted
+      // We're also including $stateParams in this; that way the parameters are restricted
       // to the set that should be visible to the state, and are independent of when we update
       // the global $state and $stateParams values.
       var globals = dst.globals = { $stateParams: $stateParams };
