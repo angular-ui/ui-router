@@ -17,8 +17,9 @@ files = [
   'src/urlRouter.js',
   'src/state.js',
   'src/viewDirective.js',
+  'src/stateDirectives.js',
   'src/compat.js',
-  
+
   'test/*Spec.js',
   // 'test/compat/matchers.js',
   // 'test/compat/*Spec.js',
