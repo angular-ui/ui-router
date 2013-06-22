@@ -266,9 +266,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       return $state.$current.includes[findState(stateOrName).name];
     };
 
-    $state.href = function (stateOrName, params) {
-      var state = findState(stateOrName), nav = state.navigable;
-      if (!nav) throw new Error("State '" + state + "' is not navigable");
+    $state.href = function (stateOrName, params, options) {
+      options = extend({ lossy: true }, options || {});
+      var state = findState(stateOrName);
+      var nav = options.lossy ? state.navigable : state;
+
+      if (!nav || !nav.url) throw new Error("State '" + state + "' " + (
+        options.lossy ? "does not have a URL or navigable parent" : "is not navigable"
+      ));
       return nav.url.format(normalize(state.params, params || {}));
     };
 
