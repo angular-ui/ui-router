@@ -3,6 +3,99 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
   var root, states = {}, $state;
 
+  // Builds state properties from definition passed to registerState()
+  var stateBuilder = {
+    // Derive parent state from a hierarchical name only if 'parent' is not explicitly defined.
+    // state.children = [];
+    // if (parent) parent.children.push(state);
+    parent: function(state) {
+      if (isDefined(state.parent) && state.parent) return findState(state.parent);
+      // regex matches any valid composite state name
+      // would match "contact.list" but not "contacts"
+      var compositeName = /^(.+)\.[^.]+$/.exec(state.name);
+      return compositeName ? findState(compositeName[1]) : root;
+    },
+
+    // Build a URLMatcher if necessary, either via a relative or absolute URL
+    url: function(state) {
+      var url = state.url;
+
+      if (isString(url)) {
+        if (url.charAt(0) == '^') {
+          return $urlMatcherFactory.compile(url.substring(1));
+        }
+        return (state.parent.navigable || root).url.concat(url);
+      }
+      var isMatcher = (
+        isObject(url) && isFunction(url.exec) && isFunction(url.format) && isFunction(url.concat)
+      );
+
+      if (isMatcher || url == null) {
+        return url;
+      }
+      throw new Error("Invalid url '" + url + "' in state '" + state + "'");
+    },
+
+    // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
+    navigable: function(state) {
+      return state.url ? state : (state.parent ? state.parent.navigable : null);
+    },
+
+    // Derive parameters for this state and ensure they're a super-set of parent's parameters
+    params: function(state) {
+      if (!state.params) {
+        return state.url ? state.url.parameters() : state.parent.params;
+      }
+      if (!isArray(state.params)) throw new Error("Invalid params in state '" + state + "'");
+      if (state.url) throw new Error("Both params and url specicified in state '" + state + "'");
+      return state.params;
+    },
+
+    // If there is no explicit multi-view configuration, make one up so we don't have
+    // to handle both cases in the view directive later. Note that having an explicit
+    // 'views' property will mean the default unnamed view properties are ignored. This
+    // is also a good time to resolve view names to absolute names, so everything is a
+    // straight lookup at link time.
+    views: function(state) {
+      var views = {};
+
+      forEach(isDefined(state.views) ? state.views : { '': state }, function (view, name) {
+        if (name.indexOf('@') < 0) name += '@' + state.parent.name;
+        views[name] = view;
+      });
+      return views;
+    },
+
+    ownParams: function(state) {
+      if (!state.parent) {
+        return state.params;
+      }
+      var paramNames = {}; forEach(state.params, function (p) { paramNames[p] = true; });
+
+      forEach(state.parent.params, function (p) {
+        if (!paramNames[p]) {
+          throw new Error("Missing required parameter '" + p + "' in state '" + state.name + "'");
+        }
+        paramNames[p] = false;
+      });
+      var ownParams = [];
+
+      forEach(paramNames, function (own, p) {
+        if (own) ownParams.push(p);
+      });
+      return ownParams;
+    },
+
+    data: function(state) {
+      // inherit 'data' from parent and override by own values (if any)
+      if (state.parent && state.parent.data) {
+        state.data = angular.extend({}, state.parent.data, state.data);
+        state.self.data = state.data;
+      }
+      return state.data;
+    }
+  };
+
   function findState(stateOrName) {
     var state;
     if (isString(stateOrName)) {
@@ -20,6 +113,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     // Wrap a new object around the state so we can store our private details easily.
     state = inherit(state, {
       self: state,
+      resolve: state.resolve || {},
       toString: function () { return this.name; }
     });
 
@@ -27,95 +121,20 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     if (!isString(name) || name.indexOf('@') >= 0) throw new Error("State must have a valid name");
     if (states[name]) throw new Error("State '" + name + "'' is already defined");
 
-    // Derive parent state from a hierarchical name only if 'parent' is not explicitly defined.
-    var parent = root;
-    if (!isDefined(state.parent)) {
-      // regex matches any valid composite state name
-      // would match "contact.list" but not "contacts"
-      var compositeName = /^(.+)\.[^.]+$/.exec(name);
-      if (compositeName != null) {
-        parent = findState(compositeName[1]);
-      }
-    } else if (state.parent != null) {
-      parent = findState(state.parent);
+    for (var key in stateBuilder) {
+      state[key] = stateBuilder[key](state);
     }
-    state.parent = parent;
-    // inherit 'data' from parent and override by own values (if any)
-    if (state.parent && state.parent.data) {
-        state.data = angular.extend({}, state.parent.data, state.data);
-        state.self.data = state.data;
-    }
-    // state.children = [];
-    // if (parent) parent.children.push(state);
-
-    // Build a URLMatcher if necessary, either via a relative or absolute URL
-    var url = state.url;
-    if (isString(url)) {
-      if (url.charAt(0) == '^') {
-        url = state.url = $urlMatcherFactory.compile(url.substring(1));
-      } else {
-        url = state.url = (parent.navigable || root).url.concat(url);
-      }
-    } else if (isObject(url) &&
-        isFunction(url.exec) && isFunction(url.format) && isFunction(url.concat)) {
-      /* use UrlMatcher (or compatible object) as is */
-    } else if (url != null) {
-      throw new Error("Invalid url '" + url + "' in state '" + state + "'");
-    }
-
-    // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
-    state.navigable = url ? state : parent ? parent.navigable : null;
-
-    // Derive parameters for this state and ensure they're a super-set of parent's parameters
-    var params = state.params;
-    if (params) {
-      if (!isArray(params)) throw new Error("Invalid params in state '" + state + "'");
-      if (url) throw new Error("Both params and url specicified in state '" + state + "'");
-    } else {
-      params = state.params = url ? url.parameters() : state.parent.params;
-    }
-
-    var paramNames = {}; forEach(params, function (p) { paramNames[p] = true; });
-    if (parent) {
-      forEach(parent.params, function (p) {
-        if (!paramNames[p]) {
-          throw new Error("Missing required parameter '" + p + "' in state '" + name + "'");
-        }
-        paramNames[p] = false;
-      });
-
-      var ownParams = state.ownParams = [];
-      forEach(paramNames, function (own, p) {
-        if (own) ownParams.push(p);
-      });
-    } else {
-      state.ownParams = params;
-    }
-
-    // If there is no explicit multi-view configuration, make one up so we don't have
-    // to handle both cases in the view directive later. Note that having an explicit
-    // 'views' property will mean the default unnamed view properties are ignored. This
-    // is also a good time to resolve view names to absolute names, so everything is a
-    // straight lookup at link time.
-    var views = {};
-    forEach(isDefined(state.views) ? state.views : { '': state }, function (view, name) {
-      if (name.indexOf('@') < 0) name = name + '@' + state.parent.name;
-      views[name] = view;
-    });
-    state.views = views;
 
     // Keep a full path from the root down to this state as this is needed for state activation.
-    state.path = parent ? parent.path.concat(state) : []; // exclude root from path
+    state.path = state.parent ? state.parent.path.concat(state) : []; // exclude root from path
 
     // Speed up $state.contains() as it's used a lot
-    var includes = state.includes = parent ? extend({}, parent.includes) : {};
+    var includes = state.includes = state.parent ? extend({}, state.parent.includes) : {};
     includes[name] = true;
 
-    if (!state.resolve) state.resolve = {}; // prevent null checks later
-
     // Register the state in the global state list and with $urlRouter if necessary.
-    if (!state['abstract'] && url) {
-      $urlRouterProvider.when(url, ['$match', '$stateParams', function ($match, $stateParams) {
+    if (!state['abstract'] && state.url) {
+      $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
         if ($state.$current.navigable != state || !equalForKeys($match, $stateParams)) {
           $state.transitionTo(state, $match, false);
         }
@@ -194,8 +213,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       toParams = normalize(to.params, toParams || {});
 
       // Broadcast start event and cancel the transition if requested
-      if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams)
-          .defaultPrevented) return TransitionPrevented;
+      var evt = $rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams);
+      if (evt.defaultPrevented) return TransitionPrevented;
 
       // Resolve locals for the remaining states, but don't update any global state just
       // yet -- if anything fails to resolve the current state needs to remain untouched.

@@ -17,6 +17,8 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
             onloadExp = attr.onload || '',
             animate = isDefined($animator) && $animator(scope, attr);
 
+        // Returns a set of DOM manipulation functions based on whether animation
+        // should be performed
         var renderer = function(doAnimate) {
           return ({
             "true": {

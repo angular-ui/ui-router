@@ -344,4 +344,17 @@ describe('state', function () {
       expect($state.params).toEqual({ person: "larry" });
     }));
   });
+
+  describe('default properties', function () {
+    it('should always have a name', inject(function ($state, $q) {
+      $state.transitionTo(A);
+      $q.flush();
+      expect($state.$current.name).toBe('A');
+      expect($state.$current.toString()).toBe('A');
+    }));
+
+    it('should always have a resolve object', inject(function ($state) {
+      expect($state.$current.resolve).toEqual({});
+    }));
+  });
 });
