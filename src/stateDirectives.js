@@ -39,6 +39,7 @@ function $StateRefDirective($state) {
 
       element.bind("click", function(e) {
         $state.transitionTo(ref.state, params);
+        scope.$apply();
         e.preventDefault();
       });
     }
