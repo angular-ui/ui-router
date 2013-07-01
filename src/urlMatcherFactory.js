@@ -161,6 +161,8 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
     nPath = this.segments.length-1,
     values = {}, i;
 
+  if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
+
   for (i=0; i<nPath; i++) values[params[i]] = decodeURIComponent(m[i+1]);
   for (/**/; i<nTotal; i++) values[params[i]] = searchParams[params[i]];
 
