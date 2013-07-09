@@ -71,7 +71,7 @@ var myapp = angular.module('myapp', ['ui.state'])
 
 ### Nested States & Views
 
-The great majority of the power of ui-router is its ability to nest states & views.
+The great majority of ui-router's power is its ability to nest states & views.
 
 1. Follow [Setup](https://github.com/angular-ui/ui-router#setup) instructions above.
 
