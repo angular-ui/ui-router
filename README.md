@@ -45,6 +45,9 @@ To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](htt
 * [Generated Docs](http://angular-ui.github.com/ui-router/build/doc/)
 
 ## Quick Start
+
+### Setup
+
 1. Get ui-router:
 >* with bower: `bower install angular-ui-router`
 >* fork this repo
@@ -66,9 +69,109 @@ To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](htt
 var myapp = angular.module('myapp', ['ui.state']) 
 ```
 
-3. Add one or more `ui-view` to your app, give them names.
+### Nested States & Views
+
+The great majority of the power of ui-router is its ability to nest states & views.
+
+1. Follow [Setup](https://github.com/angular-ui/ui-router#setup) instructions above.
+
+2. Add a `ui-view` to your app.
 >
 ```html
+<!-- index.html -->
+<body>
+    <div ui-view></div>
+    <!-- Also a way to navigate -->
+    <a href="#/route1">Route 1</a>
+    <a href="#/route2">Route 2</a>
+</body>
+```
+
+3. Add some templates. These will plug into the `ui-view` within index.html. Notice that they have their own `ui-view` as well! That is the key to nesting states and views.
+>
+```html
+<!-- route1.html -->
+<h1>Route 1</h1>
+<hr/>
+<a href="#/route1/list">Show List</a>
+<div ui-view></div>
+```
+```html
+<!-- route2.html -->
+<h1>Route 2</h1>
+<hr/>
+<a href="#/route2/list">Show List</a>
+<div ui-view></div>
+```
+
+4. Add some child templates. *These* will get plugged into the `ui-view` of their parent state templates.
+```html
+<!-- route1.list.html -->
+<h3>List of Route 1 Items</h3>
+<ul>
+  <li ng-repeat="item in items">{{item}}</li>
+</ul>
+```
+```html
+<!-- route2.list.html -->
+<h3>List of Route 2 Things</h3>
+<ul>
+  <li ng-repeat="thing in things">{{thing}}</li>
+</ul>
+```
+
+5. Now let's wire it all up. Set up your states in the module config:
+>
+```javascript
+myapp.config(function($stateProvider, $urlRouterProvider){
+      //
+      // For any unmatched url, send to /route1
+      $urlRouterProvider.otherwise("/route1") 
+      //
+      // Now set up the states
+      $stateProvider
+        .state('route1', {
+            url: "/route1",
+            templateUrl: "route1.html"
+        })
+          .state('route1.list', {
+              url: "/list",
+              templateUrl: "route1.list.html",
+              controller: function($scope){
+                $scope.items = ["A", "List", "Of", "Items"];
+              }
+          })          
+        .state('route2', {
+            url: "/route2",
+            templateUrl: "route2.html"
+        })
+          .state('route2.list', {
+              url: "/list",
+              templateUrl: "route2.list.html",
+              controller: function($scope){
+                $scope.things = ["A", "Set", "Of", "Things"];
+              }
+          })
+    })
+```
+
+4. See this quick start example in action. 
+>**[Go to Quick Start Plunker for Nested States & Views](http://plnkr.co/edit/u18KQc?p=preview)**
+
+5. This only scratches the surface! You've only seen Nested Views. 
+>**[Dive Deeper!](https://github.com/angular-ui/ui-router/wiki)**
+
+
+### Multiple & Named Views
+
+Another handy feature is the ability to have more than one view per template. Please note: 95% of the time Nested States & Views is the pattern you'll be looking for, opposed to using multiple views per template.
+
+1. Follow [Setup](https://github.com/angular-ui/ui-router#setup) instructions above.
+
+2. Add one or more `ui-view` to your app, give them names.
+>
+```html
+<!-- index.html -->
 <body>
     <div ui-view="viewA"></div>
     <div ui-view="viewB"></div>
@@ -78,7 +181,7 @@ var myapp = angular.module('myapp', ['ui.state'])
 </body>
 ```
 
-4. Set up your states in the module config
+3. Set up your states in the module config:
 >
 ```javascript
 myapp.config(function($stateProvider, $routeProvider){
@@ -119,10 +222,10 @@ myapp.config(function($stateProvider, $routeProvider){
 })
 ```
 
-5. See this quick start example in action. 
->**[Go to Quick Start Plunker](http://plnkr.co/edit/vDURUN?p=preview)**
+4. See this quick start example in action. 
+>**[Go to Quick Start Plunker for Multiple & Named Views](http://plnkr.co/edit/vDURUN?p=preview)**
 
-6. This only scratches the surface! You've only seen Named Views and Parallel Views. Learn more about `state()` options, Nested Views, URL routing options, backwards compatibility, and more! 
+5. This only scratches the surface! You've only seen Named Views and Parallel Views. 
 >**[Dive Deeper!](https://github.com/angular-ui/ui-router/wiki)**
 
 ## Developing
