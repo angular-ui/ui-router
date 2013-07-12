@@ -18,11 +18,13 @@ function $StateRefDirective($state) {
         if (newVal) params = newVal;
         if (!nav) return;
 
-        try {
-          element[0][attr] = $state.href(ref.state, params, { lossy: true });
-        } catch (e) {
+        var newHref = $state.href(ref.state, params, { lossy: true });
+
+        if (!newHref) {
           nav = false;
+          return false;
         }
+        element[0][attr] = newHref;
       };
 
       if (ref.paramExpr) {
@@ -37,6 +39,7 @@ function $StateRefDirective($state) {
 
       element.bind("click", function(e) {
         $state.transitionTo(ref.state, params);
+        scope.$apply();
         e.preventDefault();
       });
     }

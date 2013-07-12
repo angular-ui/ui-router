@@ -269,12 +269,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     $state.href = function (stateOrName, params, options) {
       options = extend({ lossy: true }, options || {});
       var state = findState(stateOrName);
-      var nav = options.lossy ? state.navigable : state;
-
-      if (!nav || !nav.url) throw new Error("State '" + state + "' " + (
-        options.lossy ? "does not have a URL or navigable parent" : "is not navigable"
-      ));
-      return nav.url.format(normalize(state.params, params || {}));
+      var nav = (state && options.lossy) ? state.navigable : state;
+      return (nav && nav.url) ? nav.url.format(normalize(state.params, params || {})) : null;
     };
 
     function resolveState(state, params, paramsAreFiltered, inherited, dst) {

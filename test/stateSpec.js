@@ -256,12 +256,8 @@ describe('state', function () {
 
   describe('.href()', function () {
     it('aborts on un-navigable states', inject(function ($state) {
-      expect(function() { $state.href("A"); }).toThrow(
-        "State 'A' does not have a URL or navigable parent"
-      );
-      expect(function() { $state.href("about.sidebar", null, { lossy: false }); }).toThrow(
-        "State 'about.sidebar' is not navigable"
-      );
+      expect($state.href("A")).toBeNull();
+      expect($state.href("about.sidebar", null, { lossy: false })).toBeNull();
     }));
 
     it('generates a parent state URL when lossy is true', inject(function ($state) {
