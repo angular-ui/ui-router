@@ -43,6 +43,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     // inherit 'data' from parent and override by own values (if any)
     if (state.parent && state.parent.data) {
         state.data = angular.extend({}, state.parent.data, state.data);
+        state.self.data = state.data;
     }
     // state.children = [];
     // if (parent) parent.children.push(state);
