@@ -259,6 +259,27 @@ describe('state', function () {
     }));
   });
 
+  describe('.href()', function () {
+    it('aborts on un-navigable states', inject(function ($state) {
+     expect($state.href("A")).toBeNull();
+     expect($state.href("about.sidebar", null, { lossy: false })).toBeNull();
+    }));
+
+    it('generates a parent state URL when lossy is true', inject(function ($state) {
+      expect($state.href("about.sidebar", null, { lossy: true })).toEqual("/about");
+    }));
+
+    it('generates a URL without parameters', inject(function ($state) {
+      expect($state.href("home")).toEqual("/");
+      expect($state.href("about", {})).toEqual("/about");
+      expect($state.href("about", { foo: "bar" })).toEqual("/about");
+    }));
+
+    it('generates a URL with parameters', inject(function ($state) {
+      expect($state.href("about.person", { person: "bob" })).toEqual("/about/bob");
+      expect($state.href("about.person.item", { person: "bob", id: null })).toEqual("/about/bob/");
+    }));
+  });
 
   describe(' "data" property inheritance/override', function () {
     it('"data" property should stay immutable for if state doesn\'t have parent', inject(function ($state) {
