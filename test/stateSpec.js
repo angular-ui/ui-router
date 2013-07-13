@@ -260,7 +260,7 @@ describe('state', function () {
   });
 
 
-  describe(' "data" property inheritance/overide', function () {
+  describe(' "data" property inheritance/override', function () {
     it('"data" property should stay immutable for if state doesn\'t have parent', inject(function ($state) {
         initStateTo(H);
         expect($state.current.name).toEqual('H');
