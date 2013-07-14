@@ -16,6 +16,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return compositeName ? findState(compositeName[1]) : root;
     },
 
+    // inherit 'data' from parent and override by own values (if any)
+    data: function(state) {
+      if (state.parent && state.parent.data) {
+        state.data = state.self.data = angular.extend({}, state.parent.data, state.data);
+      }
+      return state.data;
+    },
+
     // Build a URLMatcher if necessary, either via a relative or absolute URL
     url: function(state) {
       var url = state.url;
@@ -84,15 +92,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         if (own) ownParams.push(p);
       });
       return ownParams;
-    },
-
-    data: function(state) {
-      // inherit 'data' from parent and override by own values (if any)
-      if (state.parent && state.parent.data) {
-        state.data = angular.extend({}, state.parent.data, state.data);
-        state.self.data = state.data;
-      }
-      return state.data;
     }
   };
 

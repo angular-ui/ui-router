@@ -357,4 +357,30 @@ describe('state', function () {
       expect($state.$current.resolve).toEqual({});
     }));
   });
+
+  describe(' "data" property inheritance/override', function () {
+    it('"data" property should stay immutable for if state doesn\'t have parent', inject(function ($state) {
+      initStateTo(H);
+      expect($state.current.name).toEqual('H');
+      expect($state.current.data.propA).toEqual(H.data.propA);
+      expect($state.current.data.propB).toEqual(H.data.propB);
+    }));
+
+    it('"data" property should be inherited from parent if state doesn\'t define it', inject(function ($state) {
+      initStateTo(HH);
+      expect($state.current.name).toEqual('HH');
+      expect($state.current.data.propA).toEqual(H.data.propA);
+      expect($state.current.data.propB).toEqual(H.data.propB);
+    }));
+
+    it('"data" property should be overridden/extended if state defines it', inject(function ($state) {
+      initStateTo(HHH);
+      expect($state.current.name).toEqual('HHH');
+      expect($state.current.data.propA).toEqual(HHH.data.propA);
+      expect($state.current.data.propB).toEqual(H.data.propB);
+      expect($state.current.data.propB).toEqual(HH.data.propB);
+      expect($state.current.data.propC).toEqual(HHH.data.propC);
+    }));
+  });
+
 });
