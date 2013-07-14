@@ -18,10 +18,13 @@ describe('state', function () {
       D = { params: [ 'x', 'y' ] },
       DD = { parent: D, params: [ 'x', 'y', 'z' ] },
       E = { params: [ 'i' ] },
+      H = { data: {propA: 'propA', propB: 'propB'} },
+      HH = { parent: H },
+      HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} }
       AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
-    angular.forEach([ A, B, C, D, DD, E ], function (state) {
+    angular.forEach([ A, B, C, D, DD, E, H, HH, HHH ], function (state) {
       state.onEnter = callbackLogger('onEnter');
       state.onExit = callbackLogger('onExit');
     });
@@ -33,6 +36,9 @@ describe('state', function () {
       .state('D', D)
       .state('DD', DD)
       .state('E', E)
+      .state('H', H)
+      .state('HH', HH)
+      .state('HHH', HHH)
 
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
@@ -275,4 +281,30 @@ describe('state', function () {
       expect($state.href("about.person.item", { person: "bob", id: null })).toEqual("/about/bob/");
     }));
   });
+
+  describe(' "data" property inheritance/override', function () {
+    it('"data" property should stay immutable for if state doesn\'t have parent', inject(function ($state) {
+      initStateTo(H);
+      expect($state.current.name).toEqual('H');
+      expect($state.current.data.propA).toEqual(H.data.propA);
+      expect($state.current.data.propB).toEqual(H.data.propB);
+    }));
+
+    it('"data" property should be inherited from parent if state doesn\'t define it', inject(function ($state) {
+      initStateTo(HH);
+      expect($state.current.name).toEqual('HH');
+      expect($state.current.data.propA).toEqual(H.data.propA);
+      expect($state.current.data.propB).toEqual(H.data.propB);
+    }));
+
+    it('"data" property should be overridden/extended if state defines it', inject(function ($state) {
+      initStateTo(HHH);
+      expect($state.current.name).toEqual('HHH');
+      expect($state.current.data.propA).toEqual(HHH.data.propA);
+      expect($state.current.data.propB).toEqual(H.data.propB);
+      expect($state.current.data.propB).toEqual(HH.data.propB);
+      expect($state.current.data.propC).toEqual(HHH.data.propC);
+    }));
+  });
+
 });
