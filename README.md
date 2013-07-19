@@ -18,20 +18,21 @@ To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](htt
 2. **More Powerful Views**
 >`ui-view` directive (used in place of `ng-view`)
 
-3. **Named Views**
+3. **Nested Views**
+>load templates that contain nested `ui-view`s as deep as you'd like.
+
+4. **Routing**
+>States can map to URLs (though it's not required)
+
+5. **Named Views**
 >`<div ui-view="chart">`
 
-4. **Multiple Parallel Views**
+6. **Multiple Parallel Views**
 >
 ```
 <div ui-view="chart1">
 <div ui-view="chart2">
 ```
-5. **Nested Views**
->load templates that contain nested `ui-view`s as deep as you'd like.
-
-6. **Routing**
->States can map to URLs (though it's not required)
 
 
 *Basically, do whatever you want with states and routes.*
