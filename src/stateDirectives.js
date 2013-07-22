@@ -38,9 +38,11 @@ function $StateRefDirective($state) {
       if (isForm) return;
 
       element.bind("click", function(e) {
-        $state.transitionTo(ref.state, params);
-        scope.$apply();
-        e.preventDefault();
+        if ((e.which == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+          $state.transitionTo(ref.state, params);
+          scope.$apply();
+          e.preventDefault();
+        }
       });
     }
   };
