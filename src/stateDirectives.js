@@ -35,6 +35,12 @@ function $StateRefDirective($state) {
       }
       update();
 
+      /* 
+        We don't need to bind 'click' event to transitionTo here. Since user clicks a element, address and state
+        changes and user transitions to that state after all. 
+      
+        Also, using transitionTo here throws an exception with abstract states, however, changing url works.
+      
       if (isForm) return;
 
       element.bind("click", function(e) {
@@ -44,6 +50,7 @@ function $StateRefDirective($state) {
           e.preventDefault();
         }
       });
+      */
     }
   };
 }

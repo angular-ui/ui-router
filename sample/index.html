@@ -25,8 +25,10 @@
   <div class="navbar-inner"><div class="container">
     <a class="brand" href="#">ui-router</a>
     <ul class="nav">
-      <li ng-class="{ active: $state.includes('contacts') }"><a href="#/contacts">Contacts</a></li>
-      <li ng-class="{ active: $state.includes('about') }"><a href="#/about">About</a></li>
+      <!-- This is an example which shows usage of ui-sref without Html5Mode enabled -->
+      <li ng-class="{ active: $state.includes('contacts') }"><a ui-sref="contacts">Contacts</a></li>
+      <!-- This is an example which shows usage of state.gref without Html5Mode enabled -->
+      <li ng-class="{ active: $state.includes('about') }"><a ng-href="{{$state.href('about')}}">About</a></li>
     </ul>
     <p class="navbar-text pull-right" ui-view="hint"></p>
   </div></div>
