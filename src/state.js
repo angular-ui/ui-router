@@ -2,6 +2,8 @@ $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
   var root, states = {}, $state;
+  var isInHtml5Mode = false; /* We can get it like this, but another module may change it after we get $locationProvider.html5Mode() */
+  var hashPrefix = ""; /* Same applies as above. $locationProvider.hashPrefix() */
 
   function findState(stateOrName) {
     var state;
@@ -132,7 +134,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
   });
   root.locals = { globals: { $stateParams: {} } };
   root.navigable = null;
-
+  
+  this.html5Mode = function(status) { isInHtml5Mode = status; }
+  this.hashPrefix = function(prefix) { hashPrefix = prefix; }
 
   // .state(state)
   // .state(name, state)
@@ -275,7 +279,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       options = extend({ lossy: true }, options || {});
       var state = findState(stateOrName);
       var nav = (state && options.lossy) ? state.navigable : state;
-      return (nav && nav.url) ? nav.url.format(normalize(state.params, params || {})) : null;
+      return (nav && nav.url) ? ( (!isInHtml5Mode ? "#" + hashPrefix : "") + nav.url.format(normalize(state.params, params || {}))) : null;
     };
 
     function resolveState(state, params, paramsAreFiltered, inherited, dst) {

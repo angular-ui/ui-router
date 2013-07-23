@@ -10,6 +10,7 @@ describe('uiStateRef', function() {
     }).state('contacts.item', {
       url: '/:id'
     }).state('contacts.item.detail', {});
+    $stateProvider.html5Mode(true);
   }));
 
   describe('links', function() {
