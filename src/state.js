@@ -135,8 +135,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
   root.locals = { globals: { $stateParams: {} } };
   root.navigable = null;
   
-  this.html5Mode = function(status) { isInHtml5Mode = status; }
-  this.hashPrefix = function(prefix) { hashPrefix = prefix; }
+  this.html5Mode = function(status) { isInHtml5Mode = status; };
+  this.hashPrefix = function(prefix) { hashPrefix = prefix; };
 
   // .state(state)
   // .state(name, state)
