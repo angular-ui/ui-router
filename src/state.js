@@ -1,5 +1,5 @@
-$StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
-function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
+$StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider', '$locationProvider'];
+function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $locationProvider) {
 
   var root, states = {}, $state;
 
@@ -275,7 +275,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       options = extend({ lossy: true }, options || {});
       var state = findState(stateOrName);
       var nav = (state && options.lossy) ? state.navigable : state;
-      return (nav && nav.url) ? nav.url.format(normalize(state.params, params || {})) : null;
+      var url = (nav && nav.url) ? nav.url.format(normalize(state.params, params || {})) : null;
+      return !$locationProvider.html5Mode() && url ? "#" + url : url;
     };
 
     function resolveState(state, params, paramsAreFiltered, inherited, dst) {

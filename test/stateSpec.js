@@ -1,6 +1,11 @@
 describe('state', function () {
-  
-  beforeEach(module('ui.state'));
+
+  var locationProvider;
+
+  beforeEach(module('ui.state', function($locationProvider) {
+    locationProvider = $locationProvider;
+    $locationProvider.html5Mode(false);
+  }));
 
   var log, logEvents, logEnterExit;
   function eventLogger(event, to, toParams, from, fromParams) {
@@ -267,18 +272,18 @@ describe('state', function () {
     }));
 
     it('generates a parent state URL when lossy is true', inject(function ($state) {
-      expect($state.href("about.sidebar", null, { lossy: true })).toEqual("/about");
+      expect($state.href("about.sidebar", null, { lossy: true })).toEqual("#/about");
     }));
 
     it('generates a URL without parameters', inject(function ($state) {
-      expect($state.href("home")).toEqual("/");
-      expect($state.href("about", {})).toEqual("/about");
-      expect($state.href("about", { foo: "bar" })).toEqual("/about");
+      expect($state.href("home")).toEqual("#/");
+      expect($state.href("about", {})).toEqual("#/about");
+      expect($state.href("about", { foo: "bar" })).toEqual("#/about");
     }));
 
     it('generates a URL with parameters', inject(function ($state) {
-      expect($state.href("about.person", { person: "bob" })).toEqual("/about/bob");
-      expect($state.href("about.person.item", { person: "bob", id: null })).toEqual("/about/bob/");
+      expect($state.href("about.person", { person: "bob" })).toEqual("#/about/bob");
+      expect($state.href("about.person.item", { person: "bob", id: null })).toEqual("#/about/bob/");
     }));
   });
 
@@ -307,4 +312,12 @@ describe('state', function () {
     }));
   });
 
+  describe('html5Mode compatibility', function() {
+
+    it('should generate non-hashbang URLs in HTML5 mode', inject(function ($state) {
+      expect($state.href("about.person", { person: "bob" })).toEqual("#/about/bob");
+      locationProvider.html5Mode(true);
+      expect($state.href("about.person", { person: "bob" })).toEqual("/about/bob");
+    }));
+  });
 });
