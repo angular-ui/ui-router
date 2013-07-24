@@ -40,6 +40,10 @@ describe("UrlMatcher", function () {
       .toBeNull();
   });
 
+  it(".exec() treats the URL as already decoded and does not decode it further", function () {
+    expect(new UrlMatcher('/users/:id').exec('/users/100%25', {})).toEqual({ id: '100%25'});
+  });
+
   it('.exec() throws on unbalanced capture list', function () {
     var shouldThrow = {
       "/url/{matchedParam:([a-z]+)}/child/{childParam}": '/url/someword/child/childParam',
@@ -67,6 +71,10 @@ describe("UrlMatcher", function () {
       new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?from')
         .format({ id:'123', type:'default', repeat:444, ignored:'value', from:'1970' }))
       .toEqual('/users/123/details/default/444?from=1970');
+  });
+
+  it(".format() encodes URL parameters", function () {
+    expect(new UrlMatcher('/users/:id').format({ id:'100%'})).toEqual('/users/100%25');
   });
 
   it(".concat() concatenates matchers", function () {
