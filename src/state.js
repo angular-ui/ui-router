@@ -5,6 +5,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
   // Builds state properties from definition passed to registerState()
   var stateBuilder = {
+
     // Derive parent state from a hierarchical name only if 'parent' is not explicitly defined.
     // state.children = [];
     // if (parent) parent.children.push(state);
@@ -92,28 +93,52 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         if (own) ownParams.push(p);
       });
       return ownParams;
+    },
+
+    // Keep a full path from the root down to this state as this is needed for state activation.
+    path: function(state) {
+      return state.parent ? state.parent.path.concat(state) : []; // exclude root from path
+    },
+
+    // Speed up $state.contains() as it's used a lot
+    includes: function(state) {
+      var includes = state.parent ? extend({}, state.parent.includes) : {};
+      includes[state.name] = true;
+      return includes;
     }
   };
 
-  function findState(stateOrName) {
-    var state;
-    if (isString(stateOrName)) {
-      state = states[stateOrName];
-      if (!state) throw new Error("No such state '" + stateOrName + "'");
-    } else {
-      state = states[stateOrName.name];
-      if (!state || state !== stateOrName && state.self !== stateOrName)
-        throw new Error("Invalid or unregistered state");
+
+  function findState(stateOrName, base) {
+    var isStr = isString(stateOrName),
+        name = isStr ? stateOrName : stateOrName.name,
+        path = isStr ? name.match(/^((?:(?:\^)(?:\.)?){1,})(.+)/) : null;
+
+    if (path && path.length) {
+      if (!base) throw new Error("No reference point given for path '"  + stateOrName + "'");
+      var rel = path[1].split("."), i = 0, pathLength = rel.length - 1, current = base;
+
+      for (; i < pathLength; i++) {
+        if (rel[i] === "^") current = current.parent;
+        if (!current) throw new Error("Path '" + name + "' not valid for state '" + base.name + "'");
+      }
+      name = current.name + "." + path[2];
     }
-    return state;
+    var state = states[name];
+
+    if (state && (isStr || (!isStr && (state === stateOrName || state.self === stateOrName)))) {
+      return state;
+    }
+    throw new Error(isStr ? "No such state '" + name + "'" : "Invalid or unregistered state");
   }
+
 
   function registerState(state) {
     // Wrap a new object around the state so we can store our private details easily.
     state = inherit(state, {
       self: state,
       resolve: state.resolve || {},
-      toString: function () { return this.name; }
+      toString: function() { return this.name; }
     });
 
     var name = state.name;
@@ -123,13 +148,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     for (var key in stateBuilder) {
       state[key] = stateBuilder[key](state);
     }
-
-    // Keep a full path from the root down to this state as this is needed for state activation.
-    state.path = state.parent ? state.parent.path.concat(state) : []; // exclude root from path
-
-    // Speed up $state.contains() as it's used a lot
-    var includes = state.includes = state.parent ? extend({}, state.parent.includes) : {};
-    includes[name] = true;
+    states[name] = state;
 
     // Register the state in the global state list and with $urlRouter if necessary.
     if (!state['abstract'] && state.url) {
@@ -139,9 +158,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         }
       }]);
     }
-    states[name] = state;
     return state;
   }
+
 
   // Implicit root state that is always active
   root = registerState({
