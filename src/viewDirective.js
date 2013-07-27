@@ -4,7 +4,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
   // TODO: Change to $injector.has() when we version bump to Angular 1.1.5.
   // See: https://github.com/angular/angular.js/blob/master/CHANGELOG.md#115-triangle-squarification-2013-05-22
   var $animator; try { $animator = $injector.get('$animator'); } catch (e) { /* do nothing */ }
-
+  var viewIsUpdating = false;
 
   var directive = {
     restrict: 'ECA',
@@ -52,7 +52,19 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
         var view = { name: name, state: null };
         element.data('$uiView', view);
 
-        scope.$on('$stateChangeSuccess', function() { updateView(true); });
+        var eventHook = function() {
+          if (viewIsUpdating) return;
+          viewIsUpdating = true;
+
+          try { updateView(true); } catch (e) {
+            viewIsUpdating = false;
+            throw e;
+          }
+          viewIsUpdating = false;
+        };
+
+        scope.$on('$stateChangeSuccess', eventHook);
+        scope.$on('$viewContentLoading', eventHook);
         updateView(false);
 
         function updateView(doAnimate) {
@@ -80,8 +92,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
           viewLocals = locals;
           view.state = locals.$$state;
 
-          var contents = render.populate(locals.$template, element);
-          var link = $compile(contents);
+          var link = $compile(render.populate(locals.$template, element));
           viewScope = scope.$new();
 
           if (locals.$$controller) {

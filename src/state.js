@@ -185,8 +185,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
   // $urlRouter is injected just to ensure it gets instantiated
   this.$get = $get;
-  $get.$inject = ['$rootScope', '$q', '$templateFactory', '$injector', '$resolve', '$stateParams', '$location', '$urlRouter'];
-  function $get(   $rootScope,   $q,   $templateFactory,   $injector,   $resolve,   $stateParams,   $location,   $urlRouter) {
+  $get.$inject = ['$rootScope', '$q', '$view', '$injector', '$resolve', '$stateParams', '$location', '$urlRouter'];
+  function $get(   $rootScope,   $q,   $view,   $injector,   $resolve,   $stateParams,   $location,   $urlRouter) {
 
     var TransitionSuperseded = $q.reject(new Error('transition superseded'));
     var TransitionPrevented = $q.reject(new Error('transition prevented'));
@@ -325,14 +325,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // necessary. In addition to being available to the controller and onEnter/onExit callbacks,
       // we also need $stateParams to be available for any $injector calls we make during the
       // dependency resolution process.
-      var $stateParams;
-      if (paramsAreFiltered) $stateParams = params;
-      else {
-        $stateParams = {};
-        forEach(state.params, function (name) {
-          $stateParams[name] = params[name];
-        });
-      }
+      var $stateParams = (paramsAreFiltered) ? params : filterByKeys(state.params, params);
       var locals = { $stateParams: $stateParams };
 
       // Resolve 'global' dependencies for the state, i.e. those not specific to a view.
@@ -349,9 +342,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       forEach(state.views, function (view, name) {
         var injectables = (view.resolve && view.resolve !== state.resolve ? view.resolve : {});
         injectables.$template = [ function () {
-          return $templateFactory.fromConfig(view, $stateParams, locals) || '';
+          return $view.load(name, { view: view, locals: locals, notify: false }) || '';
         }];
-        
+
         promises.push($resolve.resolve(injectables, locals, dst.resolve, state).then(function (result) {
           // References to the controller (only instantiated at link time)
           result.$$controller = view.controller;
@@ -392,6 +385,15 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       if (a[k] != b[k]) return false; // Not '===', values aren't necessarily normalized
     }
     return true;
+  }
+
+  function filterByKeys(keys, values) {
+    var filtered = {};
+
+    forEach(keys, function (name) {
+      filtered[name] = values[name];
+    });
+    return filtered;
   }
 }
 
