@@ -36,6 +36,7 @@ module.exports = function (grunt) {
           'src/urlMatcherFactory.js',
           'src/urlRouter.js',
           'src/state.js',
+          'src/view.js',
           'src/viewDirective.js',
           'src/stateDirectives.js',
           'src/compat.js'

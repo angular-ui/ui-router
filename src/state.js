@@ -186,8 +186,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
   // $urlRouter is injected just to ensure it gets instantiated
   this.$get = $get;
-  $get.$inject = ['$rootScope', '$q', '$templateFactory', '$injector', '$stateParams', '$location', '$urlRouter'];
-  function $get(   $rootScope,   $q,   $templateFactory,   $injector,   $stateParams,   $location,   $urlRouter) {
+  $get.$inject = ['$rootScope', '$q', '$view', '$injector', '$stateParams', '$location', '$urlRouter'];
+  function $get(   $rootScope,   $q,   $view,   $injector,   $stateParams,   $location,   $urlRouter) {
 
     var TransitionSuperseded = $q.reject(new Error('transition superseded'));
     var TransitionPrevented = $q.reject(new Error('transition prevented'));
@@ -332,14 +332,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // necessary. In addition to being available to the controller and onEnter/onExit callbacks,
       // we also need $stateParams to be available for any $injector calls we make during the
       // dependency resolution process.
-      var $stateParams;
-      if (paramsAreFiltered) $stateParams = params;
-      else {
-        $stateParams = {};
-        forEach(state.params, function (name) {
-          $stateParams[name] = params[name];
-        });
-      }
+      var $stateParams = (paramsAreFiltered) ? params : filterByKeys(state.params, params);
       var locals = { $stateParams: $stateParams };
 
       // Resolves the values from an individual 'resolve' dependency spec
@@ -366,21 +359,21 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // Resolve template and dependencies for all views.
       forEach(state.views, function (view, name) {
         // References to the controller (only instantiated at link time)
-        var $view = dst[name] = {
+        var _$view = dst[name] = {
           $$controller: view.controller
         };
 
         // Template
         promises.push($q
-          .when($templateFactory.fromConfig(view, $stateParams, locals) || '')
+          .when($view.load(name, { view: view, locals: locals, notify: false }) || '')
           .then(function (result) {
-            $view.$template = result;
+            _$view.$template = result;
           }));
 
         // View-local dependencies. If we've reused the state definition as the default
         // view definition in .state(), we can end up with state.resolve === view.resolve.
         // Avoid resolving everything twice in that case.
-        if (view.resolve !== state.resolve) resolve(view.resolve, $view);
+        if (view.resolve !== state.resolve) resolve(view.resolve, _$view);
       });
 
       // Once we've resolved all the dependencies for this state, merge
@@ -421,6 +414,15 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       if (a[k] != b[k]) return false; // Not '===', values aren't necessarily normalized
     }
     return true;
+  }
+
+  function filterByKeys(keys, values) {
+    var filtered = {};
+
+    forEach(keys, function (name) {
+      filtered[name] = values[name];
+    });
+    return filtered;
   }
 }
 
