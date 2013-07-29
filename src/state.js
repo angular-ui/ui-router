@@ -199,8 +199,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       transition: null
     };
 
-    // $state.go = function go(to, params) {
-    // };
+    $state.go = function go(to, params, options) {
+      var toState = findState(to, $state.$current);
+      params = inheritParams($stateParams, params || {}, $state.$current, toState);
+      return this.transitionTo(toState, params, options);
+    };
 
     $state.transitionTo = function transitionTo(to, toParams, updateLocation) {
       if (!isDefined(updateLocation)) updateLocation = true;
