@@ -210,6 +210,30 @@ describe('state', function () {
     }));
   });
 
+  describe('.go()', function() {
+    it('transitions to a relative state', inject(function ($state, $q) {
+      $state.transitionTo('about.person.item', { id: 5 });
+      $q.flush();
+      $state.go('^.^.sidebar');
+      $q.flush();
+      expect($state.$current.name).toBe('about.sidebar');
+    }));
+
+    it('keeps parameters from common ancestor states', inject(function ($state, $stateParams, $q) {
+      $state.transitionTo('about.person', { person: 'bob' });
+      $q.flush();
+
+      $state.go('^item', { id: 5 });
+      $q.flush();
+
+      expect($state.$current.name).toBe('about.person.item');
+      expect($stateParams).toEqual({ person: 'bob', id: '5' });
+
+      $state.go('^.^.sidebar');
+      $q.flush();
+      expect($state.$current.name).toBe('about.sidebar');
+    }));
+  });
 
   describe('.current', function () {
     it('is always defined', inject(function ($state) {
@@ -345,7 +369,7 @@ describe('state', function () {
     }));
   });
 
-  describe('default properties', function () {
+  describe('default properties', function() {
     it('should always have a name', inject(function ($state, $q) {
       $state.transitionTo(A);
       $q.flush();
@@ -402,6 +426,12 @@ describe('state', function () {
 
     it('should always have a resolve object', inject(function ($state) {
       expect($state.$current.resolve).toEqual({});
+    }));
+
+    it('should include itself and parent states', inject(function ($state, $q) {
+      $state.transitionTo(DD);
+      $q.flush();
+      expect($state.$current.includes).toEqual({ '': true, D: true, DD: true });
     }));
   });
 });
