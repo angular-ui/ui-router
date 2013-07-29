@@ -205,11 +205,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return this.transitionTo(toState, params, options);
     };
 
-    $state.transitionTo = function transitionTo(to, toParams, updateLocation) {
-      if (!isDefined(updateLocation)) updateLocation = true;
+    $state.transitionTo = function transitionTo(to, toParams, options) {
+      if (!isDefined(options)) options = (options === true || options === false) ? { location: options } : {};
+      options = extend({ location: true, inherit: false });
 
       to = findState(to);
       if (to['abstract']) throw new Error("Cannot transition to abstract state '" + to + "'");
+
       var toPath = to.path,
           from = $state.$current, fromParams = $state.params, fromPath = from.path;
 
@@ -286,7 +288,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
         // Update $location
         var toNav = to.navigable;
-        if (updateLocation && toNav) {
+        if (options.location && toNav) {
           $location.url(toNav.url.format(toNav.locals.globals.$stateParams));
         }
 
