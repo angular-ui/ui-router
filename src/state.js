@@ -302,15 +302,15 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return transition;
     };
 
-    $state.is = function (stateOrName) {
+    $state.is = function is(stateOrName) {
       return $state.$current === findState(stateOrName);
     };
 
-    $state.includes = function (stateOrName) {
+    $state.includes = function includes(stateOrName) {
       return $state.$current.includes[findState(stateOrName).name];
     };
 
-    $state.href = function (stateOrName, params, options) {
+    $state.href = function href(stateOrName, params, options) {
       options = extend({ lossy: true }, options || {});
       var state = findState(stateOrName);
       var nav = (state && options.lossy) ? state.navigable : state;
