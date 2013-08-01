@@ -150,8 +150,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
   $get.$inject = ['$rootScope', '$q', '$templateFactory', '$injector', '$stateParams', '$location', '$urlRouter'];
   function $get(   $rootScope,   $q,   $templateFactory,   $injector,   $stateParams,   $location,   $urlRouter) {
 
-    var TransitionSuperseded = $q.reject(new Error('transition superseded'));
-    var TransitionPrevented = $q.reject(new Error('transition prevented'));
+    var TransitionSuperseded = new Error('transition superseded');
+    var TransitionPrevented = new Error('transition prevented');
+    var TransitionFailed = new Error('transition failed');
 
     $state = {
       params: {},
@@ -163,13 +164,19 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     // $state.go = function go(to, params) {
     // };
 
-    $state.transitionTo = function transitionTo(to, toParams, updateLocation) {
+    $state.transitionTo = function transitionTo(toName, toParams, updateLocation) {
       if (!isDefined(updateLocation)) updateLocation = true;
 
-      to = findState(to);
-      if (to['abstract']) throw new Error("Cannot transition to abstract state '" + to + "'");
-      var toPath = to.path,
-          from = $state.$current, fromParams = $state.params, fromPath = from.path;
+      var to, from = $state.$current, fromParams = $state.params, fromPath = from.path;
+      try {
+        to = findState(toName);
+      } catch(err) {
+        $state.transition = null;
+        $rootScope.$broadcast('$stateChangeError', toName, toParams, from.self, fromParams, TransitionFailed);
+        return $q.reject(TransitionFailed);
+      }
+      if (to['abstract']) throw new Error("Cannot transition to abstract state '" + to.self + "'");
+      var toPath = to.path;
 
       // Starting from the root of the path, keep all levels that haven't changed
       var keep, state, locals = root.locals, toLocals = [];
@@ -193,7 +200,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
       // Broadcast start event and cancel the transition if requested
       if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams)
-          .defaultPrevented) return TransitionPrevented;
+          .defaultPrevented) return $q.reject(TransitionPrevented);
 
       // Resolve locals for the remaining states, but don't update any global state just
       // yet -- if anything fails to resolve the current state needs to remain untouched.
@@ -215,7 +222,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       var transition = $state.transition = resolved.then(function () {
         var l, entering, exiting;
 
-        if ($state.transition !== transition) return TransitionSuperseded;
+        if ($state.transition !== transition) return $q.reject(TransitionSuperseded);
 
         // Exit 'from' states not kept
         for (l=fromPath.length-1; l>=keep; l--) {
@@ -252,7 +259,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
         return $state.current;
       }, function (error) {
-        if ($state.transition !== transition) return TransitionSuperseded;
+        if ($state.transition !== transition) return $q.reject(TransitionSuperseded);
 
         $state.transition = null;
         $rootScope.$broadcast('$stateChangeError', to.self, toParams, from.self, fromParams, error);

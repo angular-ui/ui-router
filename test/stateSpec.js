@@ -25,7 +25,16 @@ describe('state', function () {
       E = { params: [ 'i' ] },
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
-      HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} }
+      HHH = { parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
+      I = {
+        resolve: {
+          rejectedPromise: function () {
+            var deferred = $q.defer();
+            deferred.reject('failed');
+            return deferred.promise;
+          }
+        } 
+      },
       AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -145,6 +154,42 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(D);
+    }));
+
+    it('triggers $stateChangeError for unregistered states', inject(function ($state, $q, $rootScope) {
+      initStateTo(E, { i: 'iii' });
+      var called;
+      $rootScope.$on('$stateChangeError', function (ev, to, toParams, from, fromParams) {
+        expect(from).toBe(E);
+        expect(fromParams).toEqual({ i: 'iii' });
+        expect(to).toBe('unknown');
+
+        expect($state.current).toBe(from); // $state has not been updated
+        expect($state.params).toEqual(fromParams); // $stateParams have not been updated
+        called = true;
+      });
+      $state.transitionTo('unknown');
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current).toBe(E);
+    }));
+
+    it('triggers $stateChangeError for failed resolve', inject(function ($state, $q, $rootScope) {
+      initStateTo(E, { i: 'iii' });
+      var called;
+      $rootScope.$on('$stateChangeError', function (ev, to, toParams, from, fromParams) {
+        expect(from).toBe(E);
+        expect(fromParams).toEqual({ i: 'iii' });
+        expect(to).toBe(I);
+
+        expect($state.current).toBe(from); // $state has not been updated
+        expect($state.params).toEqual(fromParams); // $stateParams have not been updated
+        called = true;
+      });
+      $state.transitionTo(I);
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current).toBe(E);
     }));
 
     it('is a no-op when passing the current state and identical parameters', inject(function ($state, $q) {
