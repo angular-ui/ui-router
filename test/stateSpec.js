@@ -287,6 +287,13 @@ describe('state', function () {
     }));
   });
 
+  describe('.getConfig()', function () {
+    it("should return a copy of the state's config", inject(function ($state) {
+      expect($state.getConfig('home').url).toBe('/');
+      expect($state.getConfig('home.item').url).toBe('front/:id');
+    }));
+  });
+
   describe(' "data" property inheritance/override', function () {
     it('"data" property should stay immutable for if state doesn\'t have parent', inject(function ($state) {
       initStateTo(H);
