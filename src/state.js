@@ -219,7 +219,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
           exiting = fromPath[l];
           if (exiting.self.onExit) {
             $injector.invoke(exiting.self.onExit, exiting.self, exiting.locals.globals);
-          } 
+          }
           exiting.locals = null;
         }
 
@@ -274,6 +274,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       var nav = (state && options.lossy) ? state.navigable : state;
       var url = (nav && nav.url) ? nav.url.format(normalize(state.params, params || {})) : null;
       return !$locationProvider.html5Mode() && url ? "#" + url : url;
+    };
+
+    $state.getConfig = function (stateOrName) {
+      var state = findState(stateOrName);
+      return state.self ? angular.copy(state.self) : null;
     };
 
     function resolveState(state, params, paramsAreFiltered, inherited, dst) {
