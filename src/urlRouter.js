@@ -86,18 +86,22 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
   this.$get =
     [        '$location', '$rootScope', '$injector',
     function ($location,   $rootScope,   $injector) {
-      if (otherwise) rules.push(otherwise);
-
       // TODO: Optimize groups of rules with non-empty prefix into some sort of decision tree
       function update() {
-        var n=rules.length, i, handled;
-        for (i=0; i<n; i++) {
-          handled = rules[i]($injector, $location);
+        function check(rule) {
+          var handled = rule($injector, $location);
           if (handled) {
             if (isString(handled)) $location.replace().url(handled);
-            break;
+            return true;
           }
+          return false;
         }
+        var n=rules.length, i;
+        for (i=0; i<n; i++) {
+          if (check(rules[i])) return;
+        }
+        // always check otherwise last to allow dynamic updates to the set of rules
+        if (otherwise) check(otherwise);
       }
 
       $rootScope.$on('$locationChangeSuccess', update);
