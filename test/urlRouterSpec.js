@@ -7,13 +7,13 @@ describe("UrlRouter", function () {
       $urp = $urlRouterProvider;
 
       $urp.rule(function ($injector, $location) {
-        return $location.path().replace('baz', 'b4z');
+        var path = $location.path();
+        if (!/baz/.test(path)) return false;
+        return path.replace('baz', 'b4z');
       }).when('/foo/:param', function($match) {
         match = ['/foo/:param', $match];
       }).when('/bar', function($match) {
         match = ['/bar', $match];
-      }).when('/:param', function($match) {
-        match = ['/:param', $match];
       });
     });
 
@@ -44,6 +44,22 @@ describe("UrlRouter", function () {
       location.path("/baz");
       scope.$emit("$locationChangeSuccess");
       expect(location.path()).toBe("/b4z");
+    });
+
+    it("should keep otherwise last", function () {
+      $urp.otherwise('/otherwise');
+
+      location.path("/lastrule");
+      scope.$emit("$locationChangeSuccess");
+      expect(location.path()).toBe("/otherwise");
+
+      $urp.when('/lastrule', function($match) {
+        match = ['/lastrule', $match];
+      });
+
+      location.path("/lastrule");
+      scope.$emit("$locationChangeSuccess");
+      expect(location.path()).toBe("/lastrule");
     });
   });
 
