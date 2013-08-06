@@ -25,14 +25,29 @@ describe('state', function () {
       E = { params: [ 'i' ] },
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
-      HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} }
+      HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
+      I = { params: [ 'lazy' ] },
+      J = {
+        resolve: {
+          rejectedPromise: function () {
+            var $q = $get('$q');
+            var deferred = $q.defer();
+            deferred.reject('failed');
+            return deferred.promise;
+          }
+        } 
+      },
       AppInjectable = {};
 
+  var stashedStateProvider;
+  
   beforeEach(module(function ($stateProvider, $provide) {
     angular.forEach([ A, B, C, D, DD, E, H, HH, HHH ], function (state) {
       state.onEnter = callbackLogger('onEnter');
       state.onExit = callbackLogger('onExit');
     });
+
+    stashedStateProvider = $stateProvider;
 
     $stateProvider
       .state('A', A)
@@ -44,6 +59,8 @@ describe('state', function () {
       .state('H', H)
       .state('HH', HH)
       .state('HHH', HHH)
+      // state I gets added dynamically
+      .state('J', J)
 
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
@@ -61,8 +78,8 @@ describe('state', function () {
     $rootScope.$on('$stateChangeStart', eventLogger);
     $rootScope.$on('$stateChangeSuccess', eventLogger);
     $rootScope.$on('$stateChangeError', eventLogger);
+    $rootScope.$on('$stateNotFound', eventLogger);
   }));
-
 
   function $get(what) {
     return jasmine.getEnv().currentSpec.$injector.get(what);
@@ -145,6 +162,68 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(D);
+    }));
+
+    it('triggers $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(E, { i: 'iii' });
+      var called;
+      $rootScope.$on('$stateNotFound', function (ev, toName, from, fromParams) {
+        expect(from.name).toBe('E');
+        expect(fromParams).toEqual({ i: 'iii' });
+        expect(toName).toBe('not.found');
+
+        expect($state.current).toBe(from); // $state has not been updated
+        expect($state.params).toEqual(fromParams);
+        called = true;
+      });
+      try {
+        $state.transitionTo('not.found');
+      } catch(err) {
+        expect(err.message).toEqual("No such state 'not.found'");
+      }
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current).toBe(E);
+    }));
+
+    it('triggers $stateNotFound and defines new state', inject(function ($state, $q, $rootScope) {
+      initStateTo(E, { i: 'iii' });
+      var called;
+      $rootScope.$on('$stateNotFound', function (ev, toName, from, fromParams) {
+        ev.preventDefault();
+        stashedStateProvider.state('I', I);
+
+        expect(from.name).toBe('E');
+        expect(fromParams).toEqual({ i: 'iii' });
+        expect(toName).toBe('I');
+
+        expect($state.current).toBe(from); // $state has not been updated
+        expect($state.params).toEqual(fromParams);
+        called = true;
+      });
+      $state.transitionTo('I', { lazy: 'y' });
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current).toBe(I); // $state updated
+      expect($state.params).toEqual({ lazy: 'y' }); // $stateParams updated
+    }));
+
+    it('triggers $stateChangeError for failed resolve', inject(function ($state, $q, $rootScope) {
+      initStateTo(E, { i: 'iii' });
+      var called;
+      $rootScope.$on('$stateChangeError', function (ev, to, toParams, from, fromParams) {
+        expect(from).toBe(E);
+        expect(fromParams).toEqual({ i: 'iii' });
+        expect(to).toBe(J);
+
+        expect($state.current).toBe(from); // $state has not been updated
+        expect($state.params).toEqual(fromParams); // $stateParams have not been updated
+        called = true;
+      });
+      $state.transitionTo(J);
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current).toBe(E);
     }));
 
     it('is a no-op when passing the current state and identical parameters', inject(function ($state, $q) {
@@ -284,6 +363,19 @@ describe('state', function () {
     it('generates a URL with parameters', inject(function ($state) {
       expect($state.href("about.person", { person: "bob" })).toEqual("#/about/bob");
       expect($state.href("about.person.item", { person: "bob", id: null })).toEqual("#/about/bob/");
+    }));
+
+    it('triggers $stateNotFound and defines new state', inject(function ($state, $rootScope) {
+      var called;
+      $rootScope.$on('$stateNotFound', function (ev, toName, from, fromParams) {
+        ev.preventDefault();
+        stashedStateProvider.state('lazy', { url: '/lazy' });
+        expect($state.current).toBe(from); // $state has not been updated
+        expect($state.params).toEqual(fromParams);
+        called = true;
+      });
+      expect($state.href("lazy")).toEqual("#/lazy");
+      expect(called).toBeTruthy();
     }));
   });
 
