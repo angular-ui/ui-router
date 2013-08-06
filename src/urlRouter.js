@@ -54,7 +54,7 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
           handler = ['$match', function ($match) { return redirect.format($match); }];
         }
         else if (!isFunction(handler) && !isArray(handler))
-            throw new Error("invalid 'handler' in when()");
+          throw new Error("invalid 'handler' in when()");
 
         rule = function ($injector, $location) {
           return handleIfMatch($injector, handler, what.exec($location.path(), $location.search()));
@@ -67,10 +67,10 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
           handler = ['$match', function ($match) { return interpolate(redirect, $match); }];
         }
         else if (!isFunction(handler) && !isArray(handler))
-            throw new Error("invalid 'handler' in when()");
+          throw new Error("invalid 'handler' in when()");
 
         if (what.global || what.sticky)
-            throw new Error("when() RegExp must not be global or sticky");
+          throw new Error("when() RegExp must not be global or sticky");
 
         rule = function ($injector, $location) {
           return handleIfMatch($injector, handler, what.exec($location.path()));
@@ -78,7 +78,7 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
         rule.prefix = regExpPrefix(what);
       }
       else
-          throw new Error("invalid 'what' in when()");
+        throw new Error("invalid 'what' in when()");
 
       return this.rule(rule);
     };
