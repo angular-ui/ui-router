@@ -200,17 +200,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     };
 
     $state.go = function go(to, params, options) {
-      var toState = findState(to, $state.$current);
-      params = inheritParams($stateParams, params || {}, $state.$current, toState);
-      return this.transitionTo(toState, params, options);
+      return this.transitionTo(to, params, extend({ inherit: true, relative: $state.$current }, options));
     };
 
     $state.transitionTo = function transitionTo(to, toParams, options) {
       if (!isDefined(options)) options = (options === true || options === false) ? { location: options } : {};
-      options = extend({ location: true, inherit: false });
+      options = extend({ location: true, inherit: false, relative: null }, options);
 
-      to = findState(to);
+      to = findState(to, options.relative);
       if (to['abstract']) throw new Error("Cannot transition to abstract state '" + to + "'");
+      if (options.inherit) toParams = inheritParams($stateParams, toParams || {}, $state.$current, to);
 
       var toPath = to.path,
           from = $state.$current, fromParams = $state.params, fromPath = from.path;
