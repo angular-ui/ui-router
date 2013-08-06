@@ -160,13 +160,34 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       transition: null
     };
 
+    // Like findState, but allow a $stateNotFound handler to add the state dynamically
+    function findLoadableState(stateOrName) {
+      var name = isString(stateOrName) ? stateOrName : stateOrName.name;
+      var state = states[name];
+      function checkState() {
+        if (isString(stateOrName)) return;
+        if (!state || ((state !== stateOrName) && (state.self !== stateOrName))) {
+          state = undefined;
+        }
+      }
+      checkState();
+      if (state) return state;
+      if ($rootScope.$broadcast('$stateNotFound', name, $state.$current.self, $state.params).defaultPrevented) {
+        // retry to allow the $stateNotFound handler to dynamically add states
+        state = states[name];
+        checkState();
+        if (state) return state;
+      }
+      throw new Error("No such state '" + name + "'");
+    }
+
     // $state.go = function go(to, params) {
     // };
 
     $state.transitionTo = function transitionTo(to, toParams, updateLocation) {
       if (!isDefined(updateLocation)) updateLocation = true;
 
-      to = findState(to);
+      to = findLoadableState(to);
       if (to['abstract']) throw new Error("Cannot transition to abstract state '" + to + "'");
       var toPath = to.path,
           from = $state.$current, fromParams = $state.params, fromPath = from.path;
@@ -264,23 +285,23 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     };
 
     $state.is = function (stateOrName) {
-      return $state.$current === findState(stateOrName);
+      return $state.$current === findLoadableState(stateOrName);
     };
 
     $state.includes = function (stateOrName) {
-      return $state.$current.includes[findState(stateOrName).name];
+      return $state.$current.includes[findLoadableState(stateOrName).name];
     };
 
     $state.href = function (stateOrName, params, options) {
       options = extend({ lossy: true }, options || {});
-      var state = findState(stateOrName);
+      var state = findLoadableState(stateOrName);
       var nav = (state && options.lossy) ? state.navigable : state;
       var url = (nav && nav.url) ? nav.url.format(normalize(state.params, params || {})) : null;
       return !$locationProvider.html5Mode() && url ? "#" + url : url;
     };
 
     $state.getConfig = function (stateOrName) {
-      var state = findState(stateOrName);
+      var state = findLoadableState(stateOrName);
       return state.self ? angular.copy(state.self) : null;
     };
 
