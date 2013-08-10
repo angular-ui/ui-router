@@ -288,9 +288,11 @@ describe('state', function () {
   });
 
   describe('.getConfig()', function () {
-    it("should return a copy of the state's config", inject(function ($state) {
+    it("should return the state's config", inject(function ($state) {
       expect($state.getConfig('home').url).toBe('/');
       expect($state.getConfig('home.item').url).toBe('front/:id');
+      expect($state.getConfig('A')).toBe(A);
+      expect(function() { $state.getConfig('Z'); }).toThrow("No such state 'Z'");
     }));
   });
 
