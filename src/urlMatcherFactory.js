@@ -58,7 +58,7 @@ function UrlMatcher(pattern) {
   //    \{(?:[^{}\\]+|\\.)*\}     - a matched set of curly braces containing other atoms
   var placeholder = /([:*])(\w+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
       names = {}, compiled = '^', last = 0, m,
-      segments = this.segments = [], 
+      segments = this.segments = [],
       params = this.params = [];
 
   function addParameter(id) {
@@ -244,7 +244,7 @@ function $UrlMatcherFactory() {
    * @return {boolean}
    */
   this.isMatcher = function (o) {
-    return o instanceof UrlMatcher;
+    return isObject(o) && isFunction(o.exec) && isFunction(o.format) && isFunction(o.concat);
   };
 
   this.$get = function () {

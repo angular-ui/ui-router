@@ -35,11 +35,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         }
         return (state.parent.navigable || root).url.concat(url);
       }
-      var isMatcher = (
-        isObject(url) && isFunction(url.exec) && isFunction(url.format) && isFunction(url.concat)
-      );
 
-      if (isMatcher || url == null) {
+      if ($urlMatcherFactory.isMatcher(url) || url == null) {
         return url;
       }
       throw new Error("Invalid url '" + url + "' in state '" + state + "'");
