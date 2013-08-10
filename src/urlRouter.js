@@ -48,7 +48,9 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
       if (isString(what))
           what = $urlMatcherFactory.compile(what);
 
-      if ($urlMatcherFactory.isMatcher(what)) {
+      /* use UrlMatcher (or compatible object) as is */
+      if (isObject(what) &&
+          isFunction(what.exec) && isFunction(what.format) && isFunction(what.concat)) {
         if (isString(handler)) {
           redirect = $urlMatcherFactory.compile(handler);
           handler = ['$match', function ($match) { return redirect.format($match); }];
