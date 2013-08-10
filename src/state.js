@@ -175,7 +175,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     views: null,
     'abstract': true
   });
-  root.locals = { globals: { $stateParams: {} } };
   root.navigable = null;
 
 
@@ -192,12 +191,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
   // $urlRouter is injected just to ensure it gets instantiated
   this.$get = $get;
-  $get.$inject = ['$rootScope', '$q', '$view', '$injector', '$stateParams', '$location', '$urlRouter'];
-  function $get(   $rootScope,   $q,   $view,   $injector,   $stateParams,   $location,   $urlRouter) {
+  $get.$inject = ['$rootScope', '$q', '$view', '$injector', '$resolve', '$stateParams', '$location', '$urlRouter'];
+  function $get(   $rootScope,   $q,   $view,   $injector,   $resolve,   $stateParams,   $location,   $urlRouter) {
 
     var TransitionSuperseded = $q.reject(new Error('transition superseded'));
     var TransitionPrevented = $q.reject(new Error('transition prevented'));
 
+    root.locals = { resolve: null, globals: { $stateParams: {} } };
     $state = {
       params: {},
       current: root.self,
@@ -259,7 +259,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         resolved = resolveState(state, toParams, state===to, resolved, locals);
       }
 
-      // Once everything is resolved, we are ready to perform the actual transition
+      // Once everything is resolved, wer are ready to perform the actual transition
       // and return a promise for the new state. We also keep track of what the
       // current promise is, so that we can detect overlapping transitions and
       // keep only the outcome of the last transition.
@@ -341,10 +341,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     };
 
     function resolveState(state, params, paramsAreFiltered, inherited, dst) {
-      // We need to track all the promises generated during the resolution process.
-      // The first of these is for the fully resolved parent locals.
-      var promises = [inherited];
-
       // Make a restricted $stateParams with only the parameters that apply to this state if
       // necessary. In addition to being available to the controller and onEnter/onExit callbacks,
       // we also need $stateParams to be available for any $injector calls we make during the
@@ -352,56 +348,34 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       var $stateParams = (paramsAreFiltered) ? params : filterByKeys(state.params, params);
       var locals = { $stateParams: $stateParams };
 
-      // Resolves the values from an individual 'resolve' dependency spec
-      function resolve(deps, dst) {
-        forEach(deps, function (value, key) {
-          promises.push($q
-            .when(isString(value) ?
-                $injector.get(value) :
-                $injector.invoke(value, state.self, locals))
-            .then(function (result) {
-              dst[key] = result;
-            }));
-        });
-      }
-
       // Resolve 'global' dependencies for the state, i.e. those not specific to a view.
       // We're also including $stateParams in this; that way the parameters are restricted
       // to the set that should be visible to the state, and are independent of when we update
       // the global $state and $stateParams values.
-      var globals = dst.globals = { $stateParams: $stateParams };
-      resolve(state.resolve, globals);
-      globals.$$state = state; // Provide access to the state itself for internal use
+      dst.resolve = $resolve.resolve(state.resolve, locals, dst.resolve, state);
+      var promises = [ dst.resolve.then(function (globals) {
+        dst.globals = globals;
+      }) ];
+      if (inherited) promises.push(inherited);
 
       // Resolve template and dependencies for all views.
       forEach(state.views, function (view, name) {
-        // References to the controller (only instantiated at link time)
-        var _$view = dst[name] = {
-          $$controller: view.controller
-        };
+        var injectables = (view.resolve && view.resolve !== state.resolve ? view.resolve : {});
+        injectables.$template = [ function () {
+          return $view.load(name, { view: view, locals: locals, params: $stateParams, notify: false }) || '';
+        }];
 
-        // Template
-        promises.push($q
-          .when($view.load(name, { view: view, locals: locals, params: $stateParams, notify: false }) || '')
-          .then(function (result) {
-            _$view.$template = result;
-          }));
-
-        // View-local dependencies. If we've reused the state definition as the default
-        // view definition in .state(), we can end up with state.resolve === view.resolve.
-        // Avoid resolving everything twice in that case.
-        if (view.resolve !== state.resolve) resolve(view.resolve, _$view);
+        promises.push($resolve.resolve(injectables, locals, dst.resolve, state).then(function (result) {
+          // References to the controller (only instantiated at link time)
+          result.$$controller = view.controller;
+          // Provide access to the state itself for internal use
+          result.$$state = state;
+          dst[name] = result;
+        }));
       });
 
-      // Once we've resolved all the dependencies for this state, merge
-      // in any inherited dependencies, and merge common state dependencies
-      // into the dependency set for each view. Finally return a promise
-      // for the fully popuplated state dependencies.
+      // Wait for all the promises and then return the activation object
       return $q.all(promises).then(function (values) {
-        merge(dst.globals, values[0].globals); // promises[0] === inherited
-        forEach(state.views, function (view, name) {
-          merge(dst[name], dst.globals);
-        });
         return dst;
       });
     }

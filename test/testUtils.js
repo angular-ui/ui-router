@@ -45,12 +45,15 @@ angular.module('ngMock')
       return $delegate;
     });
   });
-
+  
+function testablePromise(promise) {
+  if (!promise || !promise.then) throw new Error('Expected a promise, but got ' + jasmine.pp(promise) + '.');
+  if (!isDefined(promise.$$resolved)) throw new Error('Promise has not been augmented by ngMock');
+  return promise;
+}
 
 function resolvedPromise(promise) {
-  if (!promise.then) throw new Error('Expected a promise, but got ' + jasmine.pp(promise) + '.');
-  var result = promise.$$resolved;
-  if (!isDefined(result)) throw new Error('Promise has not been augmented by ngMock');
+  var result = testablePromise(promise).$$resolved;
   if (!result) throw new Error('Promise is not resolved yet');
   return result;
 }
@@ -67,6 +70,23 @@ function resolvedError(promise) {
   return result.error;
 }
 
+beforeEach(function () {
+  this.addMatchers({
+    toBeResolved: function() {
+      return !!testablePromise(this.actual).$$resolved;
+    }
+  });
+});
+
+// Misc test utils
+function caught(fn) {
+  try {
+    fn();
+    return null;
+  } catch (e) {
+    return e;
+  }
+}
 
 // Utils for test from core angular
 var noop = angular.noop,
