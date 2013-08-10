@@ -165,6 +165,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
     $state.transitionTo = function transitionTo(to, toParams, updateLocation) {
       if (!isDefined(updateLocation)) updateLocation = true;
+      if(!isDefined(toParams)) toParams = {};
 
       to = findState(to);
       if (to['abstract']) throw new Error("Cannot transition to abstract state '" + to + "'");
