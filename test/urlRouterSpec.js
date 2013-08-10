@@ -61,6 +61,25 @@ describe("UrlRouter", function () {
       scope.$emit("$locationChangeSuccess");
       expect(location.path()).toBe("/lastrule");
     });
+
+    it("should allow custom URL matchers", function () {
+      var custom = {
+        url: { exec: function() {}, format: function() {}, concat: function() {} },
+        handler: function() {}
+      };
+
+      spyOn(custom.url, "exec").andReturn({});
+      spyOn(custom.url, "format").andReturn("/foo-bar");
+      spyOn(custom, "handler").andReturn(true);
+
+      $urp.when(custom.url, custom.handler);
+      scope.$broadcast("$locationChangeSuccess");
+      scope.$apply();
+
+      expect(custom.url.exec).toHaveBeenCalled();
+      expect(custom.url.format).not.toHaveBeenCalled();
+      expect(custom.handler).toHaveBeenCalled();
+    });
   });
 
 });

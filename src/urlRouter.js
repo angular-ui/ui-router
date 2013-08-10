@@ -44,43 +44,48 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
 
   this.when =
     function (what, handler) {
-      var rule, redirect;
-      if (isString(what))
-          what = $urlMatcherFactory.compile(what);
+      var redirect, handlerIsString = isString(handler);
+      if (isString(what)) what = $urlMatcherFactory.compile(what);
 
-      if ($urlMatcherFactory.isMatcher(what)) {
-        if (isString(handler)) {
-          redirect = $urlMatcherFactory.compile(handler);
-          handler = ['$match', function ($match) { return redirect.format($match); }];
+      if (!handlerIsString && !isFunction(handler) && !isArray(handler))
+        throw new Error("invalid 'handler' in when()");
+
+      var strategies = {
+        matcher: function (what, handler) {
+          if (handlerIsString) {
+            redirect = $urlMatcherFactory.compile(handler);
+            handler = ['$match', function ($match) { return redirect.format($match); }];
+          }
+          return extend(function ($injector, $location) {
+            return handleIfMatch($injector, handler, what.exec($location.path(), $location.search()));
+          }, {
+            prefix: isString(what.prefix) ? what.prefix : ''
+          });
+        },
+        regex: function (what, handler) {
+          if (what.global || what.sticky) throw new Error("when() RegExp must not be global or sticky");
+
+          if (handlerIsString) {
+            redirect = handler;
+            handler = ['$match', function ($match) { return interpolate(redirect, $match); }];
+          }
+          return extend(function ($injector, $location) {
+            return handleIfMatch($injector, handler, what.exec($location.path()));
+          }, {
+            prefix: regExpPrefix(what)
+          });
         }
-        else if (!isFunction(handler) && !isArray(handler))
-          throw new Error("invalid 'handler' in when()");
+      };
 
-        rule = function ($injector, $location) {
-          return handleIfMatch($injector, handler, what.exec($location.path(), $location.search()));
-        };
-        rule.prefix = isString(what.prefix) ? what.prefix : '';
-      }
-      else if (what instanceof RegExp) {
-        if (isString(handler)) {
-          redirect = handler;
-          handler = ['$match', function ($match) { return interpolate(redirect, $match); }];
+      var check = { matcher: $urlMatcherFactory.isMatcher(what), regex: what instanceof RegExp };
+
+      for (var n in check) {
+        if (check[n]) {
+          return this.rule(strategies[n](what, handler));
         }
-        else if (!isFunction(handler) && !isArray(handler))
-          throw new Error("invalid 'handler' in when()");
-
-        if (what.global || what.sticky)
-          throw new Error("when() RegExp must not be global or sticky");
-
-        rule = function ($injector, $location) {
-          return handleIfMatch($injector, handler, what.exec($location.path()));
-        };
-        rule.prefix = regExpPrefix(what);
       }
-      else
-        throw new Error("invalid 'what' in when()");
 
-      return this.rule(rule);
+      throw new Error("invalid 'what' in when()");
     };
 
   this.$get =
