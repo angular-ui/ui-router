@@ -281,7 +281,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
     $state.getConfig = function (stateOrName) {
       var state = findState(stateOrName);
-      return state.self ? angular.copy(state.self) : null;
+      return state.self || null;
     };
 
     function resolveState(state, params, paramsAreFiltered, inherited, dst) {
