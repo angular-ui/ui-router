@@ -212,10 +212,34 @@ describe('state', function () {
 
   describe('.go()', function() {
     it('transitions to a relative state', inject(function ($state, $q) {
-      $state.transitionTo('about.person.item', { id: 5 });
-      $q.flush();
-      $state.go('^.^.sidebar');
-      $q.flush();
+      $state.transitionTo('about.person.item', { id: 5 }); $q.flush();
+      $state.go('^.^.sidebar'); $q.flush();
+      expect($state.$current.name).toBe('about.sidebar');
+
+      // Transitions to absolute state
+      $state.go("home"); $q.flush();
+      expect($state.$current.name).toBe('home');
+
+
+      // Transition to a child state
+      $state.go(".item", { id: 5 }); $q.flush();
+      expect($state.$current.name).toBe('home.item');
+
+      // Transition to grandparent's sibling through root
+      // (Equivalent to absolute transition, assuming the root is known).
+      $state.go("^.^.about"); $q.flush();
+      expect($state.$current.name).toBe('about');
+
+      // Transition to grandchild
+      $state.go(".person.item", { person: "bob", id: 13 }); $q.flush();
+      expect($state.$current.name).toBe('about.person.item');
+
+      // Transition to immediate parent
+      $state.go("^"); $q.flush();
+      expect($state.$current.name).toBe('about.person');
+
+      // Transition to parent's sibling
+      $state.go("^.sidebar"); $q.flush();
       expect($state.$current.name).toBe('about.sidebar');
     }));
 
@@ -223,7 +247,7 @@ describe('state', function () {
       $state.transitionTo('about.person', { person: 'bob' });
       $q.flush();
 
-      $state.go('^item', { id: 5 });
+      $state.go('.item', { id: 5 });
       $q.flush();
 
       expect($state.$current.name).toBe('about.person.item');
