@@ -115,8 +115,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
     // Register the state in the global state list and with $urlRouter if necessary.
     if (!state['abstract'] && url) {
-      $urlRouterProvider.when(url, ['$match', function ($match) {
-        if ($state.$current.navigable != state) $state.transitionTo(state, $match, false);
+      $urlRouterProvider.when(url, ['$match', '$stateParams', function ($match, $stateParams) {
+        if ($state.$current.navigable != state || !equalForKeys($match, $stateParams)) {
+          $state.transitionTo(state, $match, false);
+        }
       }]);
     }
     states[name] = state;
@@ -357,25 +359,31 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       });
     }
 
-    function normalize(keys, values) {
-      var normalized = {};
-
-      forEach(keys, function (name) {
-        var value = values[name];
-        normalized[name] = (value != null) ? String(value) : null;
-      });
-      return normalized;
-    }
-
-    function equalForKeys(a, b, keys) {
-      for (var i=0; i<keys.length; i++) {
-        var k = keys[i];
-        if (a[k] != b[k]) return false; // Not '===', values aren't necessarily normalized
-      }
-      return true;
-    }
-
     return $state;
+  }
+
+  function normalize(keys, values) {
+    var normalized = {};
+
+    forEach(keys, function (name) {
+      var value = values[name];
+      normalized[name] = (value != null) ? String(value) : null;
+    });
+    return normalized;
+  }
+
+  function equalForKeys(a, b, keys) {
+    // If keys not provided, assume keys from object 'a'
+    if (!keys) {
+      keys = [];
+      for (var n in a) keys.push(n); // Used instead of Object.keys() for IE8 compatibility
+    }
+
+    for (var i=0; i<keys.length; i++) {
+      var k = keys[i];
+      if (a[k] != b[k]) return false; // Not '===', values aren't necessarily normalized
+    }
+    return true;
   }
 }
 
