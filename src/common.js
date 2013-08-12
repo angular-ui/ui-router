@@ -78,7 +78,9 @@ function inheritParams(currentParams, newParams, $current, $to) {
   return extend({}, inherited, newParams);
 }
 
-angular.module('ui.util', ['ng']);
-angular.module('ui.router', ['ui.util']);
-angular.module('ui.state', ['ui.router', 'ui.util']);
-angular.module('ui.compat', ['ui.state']);
+angular.module('ui.router.util', ['ng']);
+angular.module('ui.router.router', ['ui.router.util']);
+angular.module('ui.router.state', ['ui.router.router', 'ui.router.util']);
+angular.module('ui.router', ['ui.router.state']);
+angular.module('ui.router.compat', ['ui.router']);
+

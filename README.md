@@ -65,10 +65,10 @@ To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](htt
       <script src="angular-ui-router.min.js"></script> <!-- Insert after main angular.js file -->
 ```
 
-2. Set `ui.state` as a dependency in your module
+2. Set `ui.router` as a dependency in your module
 >
 ```javascript
-var myapp = angular.module('myapp', ['ui.state']) 
+var myapp = angular.module('myapp', ['ui.router'])
 ```
 
 ### Nested States & Views

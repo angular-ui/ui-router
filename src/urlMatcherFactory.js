@@ -253,4 +253,4 @@ function $UrlMatcherFactory() {
 }
 
 // Register as a provider so it's available to other providers
-angular.module('ui.util').provider('$urlMatcherFactory', $UrlMatcherFactory);
+angular.module('ui.router.util').provider('$urlMatcherFactory', $UrlMatcherFactory);

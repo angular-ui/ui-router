@@ -438,6 +438,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
   }
 }
 
-angular.module('ui.state')
+angular.module('ui.router.state')
   .value('$stateParams', {})
   .provider('$state', $StateProvider);

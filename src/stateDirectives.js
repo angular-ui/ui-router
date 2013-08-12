@@ -48,4 +48,4 @@ function $StateRefDirective($state) {
   };
 }
 
-angular.module('ui.state').directive('uiSref', $StateRefDirective);
+angular.module('ui.router.state').directive('uiSref', $StateRefDirective);

@@ -2,7 +2,7 @@ describe('state', function () {
 
   var locationProvider;
 
-  beforeEach(module('ui.state', function($locationProvider) {
+  beforeEach(module('ui.router', function($locationProvider) {
     locationProvider = $locationProvider;
     $locationProvider.html5Mode(false);
   }));

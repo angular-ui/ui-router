@@ -71,4 +71,4 @@ function resolvedError(promise) {
 // Utils for test from core angular
 var noop = angular.noop,
     toJson = angular.toJson;
-beforeEach(module('ui.compat'));
+beforeEach(module('ui.router.compat'));
