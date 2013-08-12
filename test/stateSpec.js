@@ -329,4 +329,19 @@ describe('state', function () {
       expect($state.href("about.person", { person: "bob" })).toEqual("/about/bob");
     }));
   });
+
+  describe('url handling', function () {
+
+    it('should transition to the same state with different parameters', inject(function ($state, $rootScope, $location) {
+      $location.path("/about/bob");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      expect($state.params).toEqual({ person: "bob" });
+
+      $location.path("/about/larry");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      expect($state.params).toEqual({ person: "larry" });
+    }));
+  });
 });
