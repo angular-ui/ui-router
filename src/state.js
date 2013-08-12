@@ -108,18 +108,27 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
   function findState(stateOrName, base) {
     var isStr = isString(stateOrName),
-        name = isStr ? stateOrName : stateOrName.name,
-        path = isStr ? name.match(/^((?:(?:\^)(?:\.)?){1,})(.+)/) : null;
+        name  = isStr ? stateOrName : stateOrName.name,
+        path  = name.indexOf(".") === 0 || name.indexOf("^") === 0;
 
-    if (path && path.length) {
-      if (!base) throw new Error("No reference point given for path '"  + stateOrName + "'");
-      var rel = path[1].split("."), i = 0, pathLength = rel.length - 1, current = base;
+    if (path) {
+      if (!base) throw new Error("No reference point given for path '"  + name + "'");
+      var rel = name.split("."), i = 0, pathLength = rel.length, current = base;
 
       for (; i < pathLength; i++) {
-        if (rel[i] === "^") current = current.parent;
-        if (!current) throw new Error("Path '" + name + "' not valid for state '" + base.name + "'");
+        if (rel[i] === "" && i === 0) {
+          current = base;
+          continue;
+        }
+        if (rel[i] === "^") {
+          if (!current.parent) throw new Error("Path '" + name + "' not valid for state '" + base.name + "'");
+          current = current.parent;
+          continue;
+        }
+        break;
       }
-      name = current.name + "." + path[2];
+      rel = rel.slice(i).join(".");
+      name = current.name + (current.name && rel ? "." : "") + rel;
     }
     var state = states[name];
 
