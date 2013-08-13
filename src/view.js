@@ -25,4 +25,4 @@ function $ViewProvider() {
   }
 }
 
-angular.module('ui.state').provider('$view', $ViewProvider);
+angular.module('ui.router.state').provider('$view', $ViewProvider);
