@@ -321,8 +321,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     };
 
     $state.href = function href(stateOrName, params, options) {
-      options = extend({ lossy: true }, options || {});
-      var state = findState(stateOrName);
+      options = extend({ lossy: true, inherit: false, relative: $state.$current }, options || {});
+      var state = findState(stateOrName, options.relative);
+
+      params = inheritParams($stateParams, params || {}, $state.$current, state);
       var nav = (state && options.lossy) ? state.navigable : state;
       var url = (nav && nav.url) ? nav.url.format(normalize(state.params, params || {})) : null;
       return !$locationProvider.html5Mode() && url ? "#" + url : url;
@@ -436,6 +438,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
   }
 }
 
-angular.module('ui.state')
+angular.module('ui.router.state')
   .value('$stateParams', {})
   .provider('$state', $StateProvider);
