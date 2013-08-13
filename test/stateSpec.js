@@ -1,6 +1,6 @@
 describe('state', function () {
 
-  var locationProvider;
+  var locationProvider, templateParams;
 
   beforeEach(module('ui.router', function($locationProvider) {
     locationProvider = $locationProvider;
@@ -50,7 +50,14 @@ describe('state', function () {
       .state('about', { url: "/about" })
       .state('about.person', { url: "/:person" })
       .state('about.person.item', { url: "/:id" })
-      .state('about.sidebar', {});
+      .state('about.sidebar', {})
+      .state('about.sidebar.item', {
+        url: "/:item",
+        templateUrl: function(params) {
+          templateParams = params;
+          return "/templates/" + params.item + ".html";
+        }
+      });
 
     $provide.value('AppInjectable', AppInjectable);
   }));
@@ -442,8 +449,7 @@ describe('state', function () {
 
   describe('default properties', function () {
     it('should always have a name', inject(function ($state, $q) {
-      $state.transitionTo(A);
-      $q.flush();
+      $state.transitionTo(A); $q.flush();
       expect($state.$current.name).toBe('A');
       expect($state.$current.toString()).toBe('A');
     }));
@@ -453,9 +459,16 @@ describe('state', function () {
     }));
 
     it('should include itself and parent states', inject(function ($state, $q) {
-      $state.transitionTo(DD);
-      $q.flush();
+      $state.transitionTo(DD); $q.flush();
       expect($state.$current.includes).toEqual({ '': true, D: true, DD: true });
+    }));
+  });
+
+  describe('template handling', function () {
+    it('should inject $stateParams into templateUrl function', inject(function ($state, $q, $httpBackend) {
+      $httpBackend.expectGET("/templates/foo.html").respond("200");
+      $state.transitionTo('about.sidebar.item', { item: "foo" }); $q.flush();
+      expect(templateParams).toEqual({ item: "foo" });
     }));
   });
 });

@@ -377,7 +377,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
         // Template
         promises.push($q
-          .when($view.load(name, { view: view, locals: locals, notify: false }) || '')
+          .when($view.load(name, { view: view, locals: locals, params: $stateParams, notify: false }) || '')
           .then(function (result) {
             _$view.$template = result;
           }));
