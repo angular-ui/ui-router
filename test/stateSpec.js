@@ -238,7 +238,7 @@ describe('state', function () {
       $state.go("^"); $q.flush();
       expect($state.$current.name).toBe('about.person');
 
-      // Transition to parent's sibling
+      // Transition to sibling
       $state.go("^.sidebar"); $q.flush();
       expect($state.$current.name).toBe('about.sidebar');
     }));
