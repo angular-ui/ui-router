@@ -185,7 +185,7 @@ Another handy feature is the ability to have more than one view per template. Pl
 3. Set up your states in the module config:
 >
 ```javascript
-myapp.config(function($stateProvider, $routeProvider){
+myapp.config(function($stateProvide){
   $stateProvider
 		.state('index', {
 			url: "", // root route
