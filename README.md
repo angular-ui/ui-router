@@ -40,6 +40,8 @@ To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](htt
 
 ## Resources
 
+**Note:** Guide and API Ref are pre-updated for v0.0.2 release. 
+
 * [In-Depth Overview](https://github.com/angular-ui/ui-router/wiki)
 * [API Quick Reference](https://github.com/angular-ui/ui-router/wiki/Quick-Reference)
 * [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/master/sample))
