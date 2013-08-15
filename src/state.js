@@ -135,7 +135,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     if (state && (isStr || (!isStr && (state === stateOrName || state.self === stateOrName)))) {
       return state;
     }
-    throw new Error(isStr ? "No such state '" + name + "'" : "Invalid or unregistered state");
+    return undefined;
   }
 
 
@@ -213,9 +213,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       if (!isDefined(options)) options = (options === true || options === false) ? { location: options } : {};
       options = extend({ location: true, inherit: false, relative: null }, options);
 
-      to = findState(to, options.relative);
-      if (to['abstract']) throw new Error("Cannot transition to abstract state '" + to + "'");
-      if (options.inherit) toParams = inheritParams($stateParams, toParams || {}, $state.$current, to);
+      var toState = findState(to, options.relative);
+      if (!isDefined(toState)) throw new Error("No such state " + toState);
+      if (toState['abstract']) throw new Error("Cannot transition to abstract state '" + to + "'");
+      if (options.inherit) toParams = inheritParams($stateParams, toParams || {}, $state.$current, toState);
+      to = toState;
 
       var toPath = to.path,
           from = $state.$current, fromParams = $state.params, fromPath = from.path;
@@ -313,16 +315,19 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     };
 
     $state.is = function is(stateOrName) {
-      return $state.$current === findState(stateOrName);
+      var state = findState(stateOrName);
+      return (isDefined(state)) ? $state.$current === state : undefined;
     };
 
     $state.includes = function includes(stateOrName) {
-      return $state.$current.includes[findState(stateOrName).name];
+      var state = findState(stateOrName);
+      return (isDefined(state)) ? isDefined($state.$current.includes[state.name]) : undefined;
     };
 
     $state.href = function href(stateOrName, params, options) {
       options = extend({ lossy: true, inherit: false, relative: $state.$current }, options || {});
       var state = findState(stateOrName, options.relative);
+      if (!isDefined(state)) return null;
 
       params = inheritParams($stateParams, params || {}, $state.$current, state);
       var nav = (state && options.lossy) ? state.navigable : state;
@@ -332,7 +337,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
     $state.getConfig = function (stateOrName) {
       var state = findState(stateOrName);
-      return state.self || null;
+      return (state && state.self) ? state.self : null;
     };
 
     function resolveState(state, params, paramsAreFiltered, inherited, dst) {

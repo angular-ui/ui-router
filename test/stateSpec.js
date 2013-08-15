@@ -217,7 +217,7 @@ describe('state', function () {
     }));
   });
 
-  describe('.go()', function() {
+  describe('.go()', function () {
     it('transitions to a relative state', inject(function ($state, $q) {
       $state.transitionTo('about.person.item', { id: 5 }); $q.flush();
       $state.go('^.^.sidebar'); $q.flush();
@@ -263,6 +263,39 @@ describe('state', function () {
       $state.go('^.^.sidebar');
       $q.flush();
       expect($state.$current.name).toBe('about.sidebar');
+    }));
+  });
+
+  describe('.is()', function () {
+    it('should return true when the current state is passed', inject(function ($state, $q) {
+      $state.transitionTo(A); $q.flush();
+      expect($state.is(A)).toBe(true);
+      expect($state.is('A')).toBe(true);
+      expect($state.is(B)).toBe(false);
+    }));
+
+    it('should return undefined when queried state does not exist', inject(function ($state) {
+      expect($state.is('Z')).toBeUndefined();
+    }));
+  });
+
+  describe('.includes()', function () {
+    it('should return true when the current state is passed', inject(function ($state, $q) {
+      $state.transitionTo(A); $q.flush();
+      expect($state.includes(A)).toBe(true);
+      expect($state.includes('A')).toBe(true);
+      expect($state.includes(B)).toBe(false);
+    }));
+
+    it('should return true when the current state\'s parent is passed', inject(function ($state, $q) {
+      $state.transitionTo('about.person.item'); $q.flush();
+      expect($state.includes('about')).toBe(true);
+      expect($state.includes('about.person')).toBe(true);
+      expect($state.includes('about.sidebar')).toBe(false);
+    }));
+
+    it('should return undefined when queried state does not exist', inject(function ($state) {
+      expect($state.is('Z')).toBeUndefined();
     }));
   });
 
@@ -347,7 +380,7 @@ describe('state', function () {
       expect($state.getConfig('home').url).toBe('/');
       expect($state.getConfig('home.item').url).toBe('front/:id');
       expect($state.getConfig('A')).toBe(A);
-      expect(function() { $state.getConfig('Z'); }).toThrow("No such state 'Z'");
+      expect($state.getConfig('Z')).toBeNull();
     }));
   });
 
