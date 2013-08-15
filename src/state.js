@@ -335,7 +335,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return !$locationProvider.html5Mode() && url ? "#" + url : url;
     };
 
-    $state.getConfig = function (stateOrName) {
+    $state.get = function (stateOrName) {
       var state = findState(stateOrName);
       return (state && state.self) ? state.self : null;
     };

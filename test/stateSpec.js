@@ -375,12 +375,12 @@ describe('state', function () {
     }));
   });
 
-  describe('.getConfig()', function () {
+  describe('.get()', function () {
     it("should return the state's config", inject(function ($state) {
-      expect($state.getConfig('home').url).toBe('/');
-      expect($state.getConfig('home.item').url).toBe('front/:id');
-      expect($state.getConfig('A')).toBe(A);
-      expect($state.getConfig('Z')).toBeNull();
+      expect($state.get('home').url).toBe('/');
+      expect($state.get('home.item').url).toBe('front/:id');
+      expect($state.get('A')).toBe(A);
+      expect($state.get('Z')).toBeNull();
     }));
   });
 
