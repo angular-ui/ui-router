@@ -41,7 +41,7 @@ To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](htt
 
 ## Resources
 
-**Note:** Guide and API Ref are pre-updated for v0.0.2 release. 
+**Note:** Quick Starts, Guide and API Ref are pre-updated for v0.0.2 release. 
 
 * [In-Depth Overview](https://github.com/angular-ui/ui-router/wiki)
 * [API Quick Reference](https://github.com/angular-ui/ui-router/wiki/Quick-Reference)
@@ -67,7 +67,7 @@ To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](htt
       <script src="angular-ui-router.min.js"></script> <!-- Insert after main angular.js file -->
 ```
 
-2. Set `ui.router` as a dependency in your module
+2. Set `ui.router` as a dependency in your module. Note: Use `ui.state` if using v0.0.1.
 >
 ```javascript
 var myapp = angular.module('myapp', ['ui.router'])
