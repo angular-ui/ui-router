@@ -18,7 +18,7 @@ function $StateRefDirective($state) {
         if (newVal) params = newVal;
         if (!nav) return;
 
-        var newHref = $state.href(ref.state, params, { lossy: true });
+        var newHref = $state.href(ref.state, params);
 
         if (!newHref) {
           nav = false;
