@@ -70,7 +70,13 @@ module.exports = function (grunt) {
       tasks: ['build', 'karma:background:run']
     },
     connect: {
-      server: {}
+      server: {},
+      sample: {
+        options:{
+          port: 5555,
+          keepalive: true
+        }
+      }
     },
   karma: {
     options: {
@@ -91,6 +97,7 @@ module.exports = function (grunt) {
   grunt.registerTask('dist', 'Perform a clean build and generate documentation', ['clean', 'build', 'jsdoc']);
   grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'dist', 'perform-release']);
   grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect', 'karma:background', 'watch']);
+  grunt.registerTask('sample', 'Run connect server with keepalive:true for sample app development', ['connect:sample']);
 
   grunt.registerTask('jsdoc', 'Generate documentation', function () {
     promising(this,
