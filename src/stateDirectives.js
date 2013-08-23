@@ -41,7 +41,7 @@ function $StateRefDirective($state) {
         if ((e.which == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
           $state.go(ref.state, params);
           scope.$apply();
-          e.preventDefault();
+          return false;
         }
       });
     }
