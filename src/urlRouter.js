@@ -44,60 +44,69 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
 
   this.when =
     function (what, handler) {
-      var rule, redirect;
-      if (isString(what))
-          what = $urlMatcherFactory.compile(what);
+      var redirect, handlerIsString = isString(handler);
+      if (isString(what)) what = $urlMatcherFactory.compile(what);
 
-      if ($urlMatcherFactory.isMatcher(what)) {
-        if (isString(handler)) {
-          redirect = $urlMatcherFactory.compile(handler);
-          handler = ['$match', function ($match) { return redirect.format($match); }];
+      if (!handlerIsString && !isFunction(handler) && !isArray(handler))
+        throw new Error("invalid 'handler' in when()");
+
+      var strategies = {
+        matcher: function (what, handler) {
+          if (handlerIsString) {
+            redirect = $urlMatcherFactory.compile(handler);
+            handler = ['$match', function ($match) { return redirect.format($match); }];
+          }
+          return extend(function ($injector, $location) {
+            return handleIfMatch($injector, handler, what.exec($location.path(), $location.search()));
+          }, {
+            prefix: isString(what.prefix) ? what.prefix : ''
+          });
+        },
+        regex: function (what, handler) {
+          if (what.global || what.sticky) throw new Error("when() RegExp must not be global or sticky");
+
+          if (handlerIsString) {
+            redirect = handler;
+            handler = ['$match', function ($match) { return interpolate(redirect, $match); }];
+          }
+          return extend(function ($injector, $location) {
+            return handleIfMatch($injector, handler, what.exec($location.path()));
+          }, {
+            prefix: regExpPrefix(what)
+          });
         }
-        else if (!isFunction(handler) && !isArray(handler))
-            throw new Error("invalid 'handler' in when()");
+      };
 
-        rule = function ($injector, $location) {
-          return handleIfMatch($injector, handler, what.exec($location.path(), $location.search()));
-        };
-        rule.prefix = isString(what.prefix) ? what.prefix : '';
-      }
-      else if (what instanceof RegExp) {
-        if (isString(handler)) {
-          redirect = handler;
-          handler = ['$match', function ($match) { return interpolate(redirect, $match); }];
+      var check = { matcher: $urlMatcherFactory.isMatcher(what), regex: what instanceof RegExp };
+
+      for (var n in check) {
+        if (check[n]) {
+          return this.rule(strategies[n](what, handler));
         }
-        else if (!isFunction(handler) && !isArray(handler))
-            throw new Error("invalid 'handler' in when()");
-
-        if (what.global || what.sticky)
-            throw new Error("when() RegExp must not be global or sticky");
-
-        rule = function ($injector, $location) {
-          return handleIfMatch($injector, handler, what.exec($location.path()));
-        };
-        rule.prefix = regExpPrefix(what);
       }
-      else
-          throw new Error("invalid 'what' in when()");
 
-      return this.rule(rule);
+      throw new Error("invalid 'what' in when()");
     };
 
   this.$get =
     [        '$location', '$rootScope', '$injector',
     function ($location,   $rootScope,   $injector) {
-      if (otherwise) rules.push(otherwise);
-
       // TODO: Optimize groups of rules with non-empty prefix into some sort of decision tree
       function update() {
-        var n=rules.length, i, handled;
-        for (i=0; i<n; i++) {
-          handled = rules[i]($injector, $location);
+        function check(rule) {
+          var handled = rule($injector, $location);
           if (handled) {
             if (isString(handled)) $location.replace().url(handled);
-            break;
+            return true;
           }
+          return false;
         }
+        var n=rules.length, i;
+        for (i=0; i<n; i++) {
+          if (check(rules[i])) return;
+        }
+        // always check otherwise last to allow dynamic updates to the set of rules
+        if (otherwise) check(otherwise);
       }
 
       $rootScope.$on('$locationChangeSuccess', update);
@@ -105,4 +114,4 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
     }];
 }
 
-angular.module('ui.router').provider('$urlRouter', $UrlRouterProvider);
+angular.module('ui.router.router').provider('$urlRouter', $UrlRouterProvider);

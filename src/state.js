@@ -1,122 +1,172 @@
-$StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
-function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
+$StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider', '$locationProvider'];
+function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $locationProvider) {
 
   var root, states = {}, $state;
 
-  function findState(stateOrName) {
-    var state;
-    if (isString(stateOrName)) {
-      state = states[stateOrName];
-      if (!state) throw new Error("No such state '" + stateOrName + "'");
-    } else {
-      state = states[stateOrName.name];
-      if (!state || state !== stateOrName && state.self !== stateOrName)
-        throw new Error("Invalid or unregistered state");
-    }
-    return state;
-  }
-
-  function registerState(state) {
-    // Wrap a new object around the state so we can store our private details easily.
-    state = inherit(state, {
-      self: state,
-      toString: function () { return this.name; }
-    });
-
-    var name = state.name;
-    if (!isString(name) || name.indexOf('@') >= 0) throw new Error("State must have a valid name");
-    if (states[name]) throw new Error("State '" + name + "'' is already defined");
+  // Builds state properties from definition passed to registerState()
+  var stateBuilder = {
 
     // Derive parent state from a hierarchical name only if 'parent' is not explicitly defined.
-    var parent = root;
-    if (!isDefined(state.parent)) {
-      // regex matches any valid composite state name
-      // would match "contact.list" but not "contacts"
-      var compositeName = /^(.+)\.[^.]+$/.exec(name);
-      if (compositeName != null) {
-        parent = findState(compositeName[1]);
-      }
-    } else if (state.parent != null) {
-      parent = findState(state.parent);
-    }
-    state.parent = parent;
     // state.children = [];
     // if (parent) parent.children.push(state);
+    parent: function(state) {
+      if (isDefined(state.parent) && state.parent) return findState(state.parent);
+      // regex matches any valid composite state name
+      // would match "contact.list" but not "contacts"
+      var compositeName = /^(.+)\.[^.]+$/.exec(state.name);
+      return compositeName ? findState(compositeName[1]) : root;
+    },
+
+    // inherit 'data' from parent and override by own values (if any)
+    data: function(state) {
+      if (state.parent && state.parent.data) {
+        state.data = state.self.data = angular.extend({}, state.parent.data, state.data);
+      }
+      return state.data;
+    },
 
     // Build a URLMatcher if necessary, either via a relative or absolute URL
-    var url = state.url;
-    if (isString(url)) {
-      if (url.charAt(0) == '^') {
-        url = state.url = $urlMatcherFactory.compile(url.substring(1));
-      } else {
-        url = state.url = (parent.navigable || root).url.concat(url);
+    url: function(state) {
+      var url = state.url;
+
+      if (isString(url)) {
+        if (url.charAt(0) == '^') {
+          return $urlMatcherFactory.compile(url.substring(1));
+        }
+        return (state.parent.navigable || root).url.concat(url);
       }
-    } else if (isObject(url) &&
-        isFunction(url.exec) && isFunction(url.format) && isFunction(url.concat)) {
-      /* use UrlMatcher (or compatible object) as is */
-    } else if (url != null) {
+
+      if ($urlMatcherFactory.isMatcher(url) || url == null) {
+        return url;
+      }
       throw new Error("Invalid url '" + url + "' in state '" + state + "'");
-    }
+    },
 
     // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
-    state.navigable = url ? state : parent ? parent.navigable : null;
+    navigable: function(state) {
+      return state.url ? state : (state.parent ? state.parent.navigable : null);
+    },
 
     // Derive parameters for this state and ensure they're a super-set of parent's parameters
-    var params = state.params;
-    if (params) {
-      if (!isArray(params)) throw new Error("Invalid params in state '" + state + "'");
-      if (url) throw new Error("Both params and url specicified in state '" + state + "'");
-    } else {
-      params = state.params = url ? url.parameters() : state.parent.params;
-    }
-
-    var paramNames = {}; forEach(params, function (p) { paramNames[p] = true; });
-    if (parent) {
-      forEach(parent.params, function (p) {
-        if (!paramNames[p]) {
-          throw new Error("Missing required parameter '" + p + "' in state '" + name + "'");
-        }
-        paramNames[p] = false;
-      });
-
-      var ownParams = state.ownParams = [];
-      forEach(paramNames, function (own, p) {
-        if (own) ownParams.push(p);
-      });
-    } else {
-      state.ownParams = params;
-    }
+    params: function(state) {
+      if (!state.params) {
+        return state.url ? state.url.parameters() : state.parent.params;
+      }
+      if (!isArray(state.params)) throw new Error("Invalid params in state '" + state + "'");
+      if (state.url) throw new Error("Both params and url specicified in state '" + state + "'");
+      return state.params;
+    },
 
     // If there is no explicit multi-view configuration, make one up so we don't have
     // to handle both cases in the view directive later. Note that having an explicit
     // 'views' property will mean the default unnamed view properties are ignored. This
     // is also a good time to resolve view names to absolute names, so everything is a
     // straight lookup at link time.
-    var views = {};
-    forEach(isDefined(state.views) ? state.views : { '': state }, function (view, name) {
-      if (name.indexOf('@') < 0) name = name + '@' + state.parent.name;
-      views[name] = view;
-    });
-    state.views = views;
+    views: function(state) {
+      var views = {};
+
+      forEach(isDefined(state.views) ? state.views : { '': state }, function (view, name) {
+        if (name.indexOf('@') < 0) name += '@' + state.parent.name;
+        views[name] = view;
+      });
+      return views;
+    },
+
+    ownParams: function(state) {
+      if (!state.parent) {
+        return state.params;
+      }
+      var paramNames = {}; forEach(state.params, function (p) { paramNames[p] = true; });
+
+      forEach(state.parent.params, function (p) {
+        if (!paramNames[p]) {
+          throw new Error("Missing required parameter '" + p + "' in state '" + state.name + "'");
+        }
+        paramNames[p] = false;
+      });
+      var ownParams = [];
+
+      forEach(paramNames, function (own, p) {
+        if (own) ownParams.push(p);
+      });
+      return ownParams;
+    },
 
     // Keep a full path from the root down to this state as this is needed for state activation.
-    state.path = parent ? parent.path.concat(state) : []; // exclude root from path
+    path: function(state) {
+      return state.parent ? state.parent.path.concat(state) : []; // exclude root from path
+    },
 
     // Speed up $state.contains() as it's used a lot
-    var includes = state.includes = parent ? extend({}, parent.includes) : {};
-    includes[name] = true;
+    includes: function(state) {
+      var includes = state.parent ? extend({}, state.parent.includes) : {};
+      includes[state.name] = true;
+      return includes;
+    }
+  };
 
-    if (!state.resolve) state.resolve = {}; // prevent null checks later
 
-    // Register the state in the global state list and with $urlRouter if necessary.
-    if (!state['abstract'] && url) {
-      $urlRouterProvider.when(url, ['$match', function ($match) {
-        $state.transitionTo(state, $match, false);
-      }]);
+  function findState(stateOrName, base) {
+    var isStr = isString(stateOrName),
+        name  = isStr ? stateOrName : stateOrName.name,
+        path  = name.indexOf(".") === 0 || name.indexOf("^") === 0;
+
+    if (path) {
+      if (!base) throw new Error("No reference point given for path '"  + name + "'");
+      var rel = name.split("."), i = 0, pathLength = rel.length, current = base;
+
+      for (; i < pathLength; i++) {
+        if (rel[i] === "" && i === 0) {
+          current = base;
+          continue;
+        }
+        if (rel[i] === "^") {
+          if (!current.parent) throw new Error("Path '" + name + "' not valid for state '" + base.name + "'");
+          current = current.parent;
+          continue;
+        }
+        break;
+      }
+      rel = rel.slice(i).join(".");
+      name = current.name + (current.name && rel ? "." : "") + rel;
+    }
+    var state = states[name];
+
+    if (state && (isStr || (!isStr && (state === stateOrName || state.self === stateOrName)))) {
+      return state;
+    }
+    return undefined;
+  }
+
+
+  function registerState(state) {
+    // Wrap a new object around the state so we can store our private details easily.
+    state = inherit(state, {
+      self: state,
+      resolve: state.resolve || {},
+      toString: function() { return this.name; }
+    });
+
+    var name = state.name;
+    if (!isString(name) || name.indexOf('@') >= 0) throw new Error("State must have a valid name");
+    if (states[name]) throw new Error("State '" + name + "'' is already defined");
+
+    for (var key in stateBuilder) {
+      state[key] = stateBuilder[key](state);
     }
     states[name] = state;
+
+    // Register the state in the global state list and with $urlRouter if necessary.
+    if (!state['abstract'] && state.url) {
+      $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
+        if ($state.$current.navigable != state || !equalForKeys($match, $stateParams)) {
+          $state.transitionTo(state, $match, false);
+        }
+      }]);
+    }
     return state;
   }
+
 
   // Implicit root state that is always active
   root = registerState({
@@ -142,8 +192,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
   // $urlRouter is injected just to ensure it gets instantiated
   this.$get = $get;
-  $get.$inject = ['$rootScope', '$q', '$templateFactory', '$injector', '$stateParams', '$location', '$urlRouter'];
-  function $get(   $rootScope,   $q,   $templateFactory,   $injector,   $stateParams,   $location,   $urlRouter) {
+  $get.$inject = ['$rootScope', '$q', '$view', '$injector', '$stateParams', '$location', '$urlRouter'];
+  function $get(   $rootScope,   $q,   $view,   $injector,   $stateParams,   $location,   $urlRouter) {
 
     var TransitionSuperseded = $q.reject(new Error('transition superseded'));
     var TransitionPrevented = $q.reject(new Error('transition prevented'));
@@ -155,14 +205,20 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       transition: null
     };
 
-    // $state.go = function go(to, params) {
-    // };
+    $state.go = function go(to, params, options) {
+      return this.transitionTo(to, params, extend({ inherit: true, relative: $state.$current }, options));
+    };
 
-    $state.transitionTo = function transitionTo(to, toParams, updateLocation) {
-      if (!isDefined(updateLocation)) updateLocation = true;
+    $state.transitionTo = function transitionTo(to, toParams, options) {
+      if (!isDefined(options)) options = (options === true || options === false) ? { location: options } : {};
+      options = extend({ location: true, inherit: false, relative: null }, options);
 
-      to = findState(to);
-      if (to['abstract']) throw new Error("Cannot transition to abstract state '" + to + "'");
+      var toState = findState(to, options.relative);
+      if (!isDefined(toState)) throw new Error("No such state " + toState);
+      if (toState['abstract']) throw new Error("Cannot transition to abstract state '" + to + "'");
+      if (options.inherit) toParams = inheritParams($stateParams, toParams || {}, $state.$current, toState);
+      to = toState;
+
       var toPath = to.path,
           from = $state.$current, fromParams = $state.params, fromPath = from.path;
 
@@ -187,8 +243,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       toParams = normalize(to.params, toParams || {});
 
       // Broadcast start event and cancel the transition if requested
-      if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams)
-          .defaultPrevented) return TransitionPrevented;
+      var evt = $rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams);
+      if (evt.defaultPrevented) return TransitionPrevented;
 
       // Resolve locals for the remaining states, but don't update any global state just
       // yet -- if anything fails to resolve the current state needs to remain untouched.
@@ -217,7 +273,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
           exiting = fromPath[l];
           if (exiting.self.onExit) {
             $injector.invoke(exiting.self.onExit, exiting.self, exiting.locals.globals);
-          } 
+          }
           exiting.locals = null;
         }
 
@@ -239,7 +295,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
         // Update $location
         var toNav = to.navigable;
-        if (updateLocation && toNav) {
+        if (options.location && toNav) {
           $location.url(toNav.url.format(toNav.locals.globals.$stateParams));
         }
 
@@ -258,18 +314,30 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       return transition;
     };
 
-    $state.is = function (stateOrName) {
-      return $state.$current === findState(stateOrName);
+    $state.is = function is(stateOrName) {
+      var state = findState(stateOrName);
+      return (isDefined(state)) ? $state.$current === state : undefined;
     };
 
-    $state.includes = function (stateOrName) {
-      return $state.$current.includes[findState(stateOrName).name];
+    $state.includes = function includes(stateOrName) {
+      var state = findState(stateOrName);
+      return (isDefined(state)) ? isDefined($state.$current.includes[state.name]) : undefined;
     };
 
-    $state.href = function (stateOrName, params) {
-      var state = findState(stateOrName), nav = state.navigable;
-      if (!nav) throw new Error("State '" + state + "' is not navigable");
-      return nav.url.format(normalize(state.params, params || {}));
+    $state.href = function href(stateOrName, params, options) {
+      options = extend({ lossy: true, inherit: false, relative: $state.$current }, options || {});
+      var state = findState(stateOrName, options.relative);
+      if (!isDefined(state)) return null;
+
+      params = inheritParams($stateParams, params || {}, $state.$current, state);
+      var nav = (state && options.lossy) ? state.navigable : state;
+      var url = (nav && nav.url) ? nav.url.format(normalize(state.params, params || {})) : null;
+      return !$locationProvider.html5Mode() && url ? "#" + url : url;
+    };
+
+    $state.get = function (stateOrName) {
+      var state = findState(stateOrName);
+      return (state && state.self) ? state.self : null;
     };
 
     function resolveState(state, params, paramsAreFiltered, inherited, dst) {
@@ -281,14 +349,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // necessary. In addition to being available to the controller and onEnter/onExit callbacks,
       // we also need $stateParams to be available for any $injector calls we make during the
       // dependency resolution process.
-      var $stateParams;
-      if (paramsAreFiltered) $stateParams = params;
-      else {
-        $stateParams = {};
-        forEach(state.params, function (name) {
-          $stateParams[name] = params[name];
-        });
-      }
+      var $stateParams = (paramsAreFiltered) ? params : filterByKeys(state.params, params);
       var locals = { $stateParams: $stateParams };
 
       // Resolves the values from an individual 'resolve' dependency spec
@@ -305,7 +366,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       }
 
       // Resolve 'global' dependencies for the state, i.e. those not specific to a view.
-      // We're also including $stateParams in this; that we're the parameters are restricted
+      // We're also including $stateParams in this; that way the parameters are restricted
       // to the set that should be visible to the state, and are independent of when we update
       // the global $state and $stateParams values.
       var globals = dst.globals = { $stateParams: $stateParams };
@@ -315,21 +376,21 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // Resolve template and dependencies for all views.
       forEach(state.views, function (view, name) {
         // References to the controller (only instantiated at link time)
-        var $view = dst[name] = {
+        var _$view = dst[name] = {
           $$controller: view.controller
         };
 
         // Template
         promises.push($q
-          .when($templateFactory.fromConfig(view, $stateParams, locals) || '')
+          .when($view.load(name, { view: view, locals: locals, params: $stateParams, notify: false }) || '')
           .then(function (result) {
-            $view.$template = result;
+            _$view.$template = result;
           }));
 
         // View-local dependencies. If we've reused the state definition as the default
         // view definition in .state(), we can end up with state.resolve === view.resolve.
         // Avoid resolving everything twice in that case.
-        if (view.resolve !== state.resolve) resolve(view.resolve, $view);
+        if (view.resolve !== state.resolve) resolve(view.resolve, _$view);
       });
 
       // Once we've resolved all the dependencies for this state, merge
@@ -345,28 +406,43 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       });
     }
 
-    function normalize(keys, values) {
-      var normalized = {};
-
-      forEach(keys, function (name) {
-        var value = values[name];
-        normalized[name] = (value != null) ? String(value) : null;
-      });
-      return normalized;
-    }
-
-    function equalForKeys(a, b, keys) {
-      for (var i=0; i<keys.length; i++) {
-        var k = keys[i];
-        if (a[k] != b[k]) return false; // Not '===', values aren't necessarily normalized
-      }
-      return true;
-    }
-
     return $state;
+  }
+
+  function normalize(keys, values) {
+    var normalized = {};
+
+    forEach(keys, function (name) {
+      var value = values[name];
+      normalized[name] = (value != null) ? String(value) : null;
+    });
+    return normalized;
+  }
+
+  function equalForKeys(a, b, keys) {
+    // If keys not provided, assume keys from object 'a'
+    if (!keys) {
+      keys = [];
+      for (var n in a) keys.push(n); // Used instead of Object.keys() for IE8 compatibility
+    }
+
+    for (var i=0; i<keys.length; i++) {
+      var k = keys[i];
+      if (a[k] != b[k]) return false; // Not '===', values aren't necessarily normalized
+    }
+    return true;
+  }
+
+  function filterByKeys(keys, values) {
+    var filtered = {};
+
+    forEach(keys, function (name) {
+      filtered[name] = values[name];
+    });
+    return filtered;
   }
 }
 
-angular.module('ui.state')
+angular.module('ui.router.state')
   .value('$stateParams', {})
   .provider('$state', $StateProvider);

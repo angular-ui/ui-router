@@ -1,57 +1,100 @@
 
 $ViewDirective.$inject = ['$state', '$compile', '$controller', '$injector', '$anchorScroll'];
 function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $anchorScroll) {
-  // Unfortunately there is no neat way to ask $injector if a service exists
+  // TODO: Change to $injector.has() when we version bump to Angular 1.1.5.
+  // See: https://github.com/angular/angular.js/blob/master/CHANGELOG.md#115-triangle-squarification-2013-05-22
   var $animator; try { $animator = $injector.get('$animator'); } catch (e) { /* do nothing */ }
+  var viewIsUpdating = false;
 
   var directive = {
     restrict: 'ECA',
     terminal: true,
-    link: function(scope, element, attr) {
-      var viewScope, viewLocals,
-          name = attr[directive.name] || attr.name || '',
-          onloadExp = attr.onload || '',
-          animate = isDefined($animator) && $animator(scope, attr);
-      
-      // Find the details of the parent view directive (if any) and use it
-      // to derive our own qualified view name, then hang our own details
-      // off the DOM so child directives can find it.
-      var parent = element.parent().inheritedData('$uiView');
-      if (name.indexOf('@') < 0) name  = name + '@' + (parent ? parent.state.name : '');
-      var view = { name: name, state: null };
-      element.data('$uiView', view);
+    transclude: true,
+    compile: function (element, attr, transclude) {
+      return function(scope, element, attr) {
+        var viewScope, viewLocals,
+            name = attr[directive.name] || attr.name || '',
+            onloadExp = attr.onload || '',
+            animate = isDefined($animator) && $animator(scope, attr);
 
-      scope.$on('$stateChangeSuccess', function() { updateView(true); });
-      updateView(false);
+        // Returns a set of DOM manipulation functions based on whether animation
+        // should be performed
+        var renderer = function(doAnimate) {
+          return ({
+            "true": {
+              remove: function(element) { animate.leave(element.contents(), element); },
+              restore: function(compiled, element) { animate.enter(compiled, element); },
+              populate: function(template, element) {
+                var contents = angular.element('<div></div>').html(template).contents();
+                animate.enter(contents, element);
+                return contents;
+              }
+            },
+            "false": {
+              remove: function(element) { element.html(''); },
+              restore: function(compiled, element) { element.append(compiled); },
+              populate: function(template, element) {
+                element.html(template);
+                return element.contents();
+              }
+            }
+          })[doAnimate.toString()];
+        };
 
-      function updateView(doAnimate) {
-        var locals = $state.$current && $state.$current.locals[name];
-        if (locals === viewLocals) return; // nothing to do
+        // Put back the compiled initial view
+        element.append(transclude(scope));
 
-        // Destroy previous view scope and remove content (if any)
-        if (viewScope) {
-          if (animate && doAnimate) animate.leave(element.contents(), element);
-          else element.html('');
+        // Find the details of the parent view directive (if any) and use it
+        // to derive our own qualified view name, then hang our own details
+        // off the DOM so child directives can find it.
+        var parent = element.parent().inheritedData('$uiView');
+        if (name.indexOf('@') < 0) name  = name + '@' + (parent ? parent.state.name : '');
+        var view = { name: name, state: null };
+        element.data('$uiView', view);
 
-          viewScope.$destroy();
-          viewScope = null;
-        }
+        var eventHook = function() {
+          if (viewIsUpdating) return;
+          viewIsUpdating = true;
 
-        if (locals) {
+          try { updateView(true); } catch (e) {
+            viewIsUpdating = false;
+            throw e;
+          }
+          viewIsUpdating = false;
+        };
+
+        scope.$on('$stateChangeSuccess', eventHook);
+        scope.$on('$viewContentLoading', eventHook);
+        updateView(false);
+
+        function updateView(doAnimate) {
+          var locals = $state.$current && $state.$current.locals[name];
+          if (locals === viewLocals) return; // nothing to do
+          var render = renderer(animate && doAnimate);
+
+          // Remove existing content
+          render.remove(element);
+
+          // Destroy previous view scope
+          if (viewScope) {
+            viewScope.$destroy();
+            viewScope = null;
+          }
+
+          if (!locals) {
+            viewLocals = null;
+            view.state = null;
+
+            // Restore the initial view
+            return render.restore(transclude(scope), element);
+          }
+
           viewLocals = locals;
           view.state = locals.$$state;
 
-          var contents;
-          if (animate && doAnimate) {
-            contents = angular.element('<div></div>').html(locals.$template).contents();
-            animate.enter(contents, element);
-          } else {
-            element.html(locals.$template);
-            contents = element.contents();
-          }
-
-          var link = $compile(contents);
+          var link = $compile(render.populate(locals.$template, element));
           viewScope = scope.$new();
+
           if (locals.$$controller) {
             locals.$scope = viewScope;
             var controller = $controller(locals.$$controller, locals);
@@ -59,19 +102,16 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
           }
           link(viewScope);
           viewScope.$emit('$viewContentLoaded');
-          viewScope.$eval(onloadExp);
+          if (onloadExp) viewScope.$eval(onloadExp);
 
           // TODO: This seems strange, shouldn't $anchorScroll listen for $viewContentLoaded if necessary?
           // $anchorScroll might listen on event...
           $anchorScroll();
-        } else {
-          viewLocals = null;
-          view.state = null;
         }
-      }
+      };
     }
   };
   return directive;
 }
 
-angular.module('ui.state').directive('uiView', $ViewDirective);
+angular.module('ui.router.state').directive('uiView', $ViewDirective);

@@ -84,4 +84,4 @@ function $TemplateFactory(  $http,   $templateCache,   $injector) {
   };
 }
 
-angular.module('ui.util').service('$templateFactory', $TemplateFactory);
+angular.module('ui.router.util').service('$templateFactory', $TemplateFactory);

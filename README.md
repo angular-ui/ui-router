@@ -2,14 +2,15 @@
 
 # UI-Router
 
-**Attention**: UI-Router uses <code>grunt >= 0.4.x</code> make sure to upgrade your environment and read the
-[Migration Guide](http://gruntjs.com/upgrading-from-0.3-to-0.4).
+####Finally a de-facto solution to nested views and routing.
+* We recommend the latest beta 0.0.2 (Guide and Docs are already updated to 0.0.2): [Build the Project Locally](https://github.com/angular-ui/ui-router#developing)
+* Last release 0.0.1: [Compressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js) / [Uncompressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)
 
-Finally a de-facto solution to nested views and routing.
 
+**Warning:** UI-Router is in active development. The API is highly subject to change. It is not recommended to use this library on projects that require guaranteed stability. 
 
 ## Main Goal
-To evolve the concept of an Angular "Route" into a more general concept of a "State" for managing complex application UI states.
+To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](http://docs.angularjs.org/api/ng.$routeProvider) into a more general concept of a ***state*** for managing complex application UI states.
 
 ## Main Features
 1. **Robust State Management**
@@ -18,20 +19,21 @@ To evolve the concept of an Angular "Route" into a more general concept of a "St
 2. **More Powerful Views**
 >`ui-view` directive (used in place of `ng-view`)
 
-3. **Named Views**
+3. **Nested Views**
+>load templates that contain nested `ui-view`s as deep as you'd like.
+
+4. **Routing**
+>States can map to URLs (though it's not required)
+
+5. **Named Views**
 >`<div ui-view="chart">`
 
-4. **Multiple Parallel Views**
+6. **Multiple Parallel Views**
 >
 ```
 <div ui-view="chart1">
 <div ui-view="chart2">
 ```
-5. **Nested Views**
->load templates that contain nested `ui-view`s as deep as you'd like.
-
-6. **Routing**
->States can map to URLs (though it's not required)
 
 
 *Basically, do whatever you want with states and routes.*
@@ -39,27 +41,141 @@ To evolve the concept of an Angular "Route" into a more general concept of a "St
 
 ## Resources
 
+**Note:** Quick Starts, Guide and API Ref are pre-updated for v0.0.2 release. 
+
 * [In-Depth Overview](https://github.com/angular-ui/ui-router/wiki)
-* [FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions)
+* [API Quick Reference](https://github.com/angular-ui/ui-router/wiki/Quick-Reference)
 * [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/master/sample))
-* [Generated Docs](http://angular-ui.github.com/ui-router/build/doc/)
-* Latest build: [angular-ui-states.min.js](http://angular-ui.github.com/ui-router/build/angular-ui-states.min.js)
-  (uncompressed [angular-ui-states.js](http://angular-ui.github.com/ui-router/build/angular-ui-states.js))
+* [FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions)
 
 ## Quick Start
-1. Add angular-ui-states.min.js to your index.html
->
+
+### Setup
+
+1. Get ui-router:
+>* with bower: `bower install angular-ui-router`
+>* fork this repo
+>* download the latest release ([compressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js) | [uncompressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.js))
+
+1. Add angular-ui-router.min.js to your index.html
+> 
 ```html
 <!doctype html>
 <html ng-app="myapp">
 <head>
       <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
-      <script src="angular-ui-states.js"></script>
+      <script src="angular-ui-router.min.js"></script> <!-- Insert after main angular.js file -->
 ```
+
+2. Set `ui.router` as a dependency in your module. Note: Use `ui.state` if using v0.0.1.
+>
+```javascript
+var myapp = angular.module('myapp', ['ui.router'])
+```
+
+### Nested States & Views
+
+The great majority of ui-router's power is its ability to nest states & views.
+
+1. Follow [Setup](https://github.com/angular-ui/ui-router#setup) instructions above.
+
+2. Add a `ui-view` to your app.
+>
+```html
+<!-- index.html -->
+<body>
+    <div ui-view></div>
+    <!-- Also a way to navigate -->
+    <a href="#/route1">Route 1</a>
+    <a href="#/route2">Route 2</a>
+</body>
+```
+
+3. Add some templates. These will plug into the `ui-view` within index.html. Notice that they have their own `ui-view` as well! That is the key to nesting states and views.
+>
+```html
+<!-- route1.html -->
+<h1>Route 1</h1>
+<hr/>
+<a href="#/route1/list">Show List</a>
+<div ui-view></div>
+```
+```html
+<!-- route2.html -->
+<h1>Route 2</h1>
+<hr/>
+<a href="#/route2/list">Show List</a>
+<div ui-view></div>
+```
+
+4. Add some child templates. *These* will get plugged into the `ui-view` of their parent state templates.
+```html
+<!-- route1.list.html -->
+<h3>List of Route 1 Items</h3>
+<ul>
+  <li ng-repeat="item in items">{{item}}</li>
+</ul>
+```
+```html
+<!-- route2.list.html -->
+<h3>List of Route 2 Things</h3>
+<ul>
+  <li ng-repeat="thing in things">{{thing}}</li>
+</ul>
+```
+
+5. Now let's wire it all up. Set up your states in the module config:
+>
+```javascript
+myapp.config(function($stateProvider, $urlRouterProvider){
+      //
+      // For any unmatched url, send to /route1
+      $urlRouterProvider.otherwise("/route1") 
+      //
+      // Now set up the states
+      $stateProvider
+        .state('route1', {
+            url: "/route1",
+            templateUrl: "route1.html"
+        })
+          .state('route1.list', {
+              url: "/list",
+              templateUrl: "route1.list.html",
+              controller: function($scope){
+                $scope.items = ["A", "List", "Of", "Items"];
+              }
+          })          
+        .state('route2', {
+            url: "/route2",
+            templateUrl: "route2.html"
+        })
+          .state('route2.list', {
+              url: "/list",
+              templateUrl: "route2.list.html",
+              controller: function($scope){
+                $scope.things = ["A", "Set", "Of", "Things"];
+              }
+          })
+    })
+```
+
+4. See this quick start example in action. 
+>**[Go to Quick Start Plunker for Nested States & Views](http://plnkr.co/edit/u18KQc?p=preview)**
+
+5. This only scratches the surface! You've only seen Nested Views. 
+>**[Dive Deeper!](https://github.com/angular-ui/ui-router/wiki)**
+
+
+### Multiple & Named Views
+
+Another handy feature is the ability to have more than one view per template. Please note: 95% of the time Nested States & Views is the pattern you'll be looking for, opposed to using multiple views per template.
+
+1. Follow [Setup](https://github.com/angular-ui/ui-router#setup) instructions above.
 
 2. Add one or more `ui-view` to your app, give them names.
 >
 ```html
+<!-- index.html -->
 <body>
     <div ui-view="viewA"></div>
     <div ui-view="viewB"></div>
@@ -69,16 +185,10 @@ To evolve the concept of an Angular "Route" into a more general concept of a "St
 </body>
 ```
 
-3. Set `ui.state` as a dependency in your module
+3. Set up your states in the module config:
 >
 ```javascript
-var myapp = angular.module('myapp', ['ui.state']) 
-```
-
-4. Set up your states in the module config
->
-```javascript
-myapp.config(function($stateProvider, $routeProvider){
+myapp.config(function($stateProvider){
   $stateProvider
 		.state('index', {
 			url: "", // root route
@@ -116,15 +226,18 @@ myapp.config(function($stateProvider, $routeProvider){
 })
 ```
 
-5. See this quick start example working. 
->**[Go to Quick Start Plunker](http://plnkr.co/edit/vDURUN?p=preview)**
+4. See this quick start example in action. 
+>**[Go to Quick Start Plunker for Multiple & Named Views](http://plnkr.co/edit/vDURUN?p=preview)**
 
-6. This only scratches the surface! You've only seen Named Views and Parallel Views. Learn more about `state()` options, Nested Views, URL routing options, backwards compatibility, and more! 
+5. This only scratches the surface! You've only seen Named Views and Parallel Views. 
 >**[Dive Deeper!](https://github.com/angular-ui/ui-router/wiki)**
 
 ## Developing
 
-Dependencies for building the solution and running tests:
+UI-Router uses <code>grunt >= 0.4.x</code> make sure to upgrade your environment and read the
+[Migration Guide](http://gruntjs.com/upgrading-from-0.3-to-0.4).
+
+Dependencies for building from source and running tests:
 
 * [grunt-cli](https://github.com/gruntjs/grunt-cli) - run: `$ npm install -g grunt-cli`
 * Then install development dependencies with: `$ npm install`

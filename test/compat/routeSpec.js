@@ -43,7 +43,6 @@ describe('$route', function() {
       $rootScope.$digest();
       $httpBackend.flush();
       expect(log).toEqual('before();after();');
-      debugger;
       expect($route.current.params).toEqual({book:'Moby', chapter:'Intro', p:'123'});
 
       log = '';
