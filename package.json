@@ -38,6 +38,15 @@
     "grunt-karma": "~0.4.3",
     "jsdoc": "git://github.com/jsdoc3/jsdoc.git#v3.1.1",
     "shelljs": "~0.1.4",
-    "faithful-exec": "~0.1.0"
+    "faithful-exec": "~0.1.0",
+    "karma-firefox-launcher": "~0.1.0",
+    "karma-chrome-launcher": "~0.1.0",
+    "karma-html2js-preprocessor": "~0.1.0",
+    "karma-jasmine": "~0.1.0",
+    "karma-requirejs": "~0.1.0",
+    "karma-script-launcher": "~0.1.0",
+    "karma-coffee-preprocessor": "~0.1.0",
+    "karma": "~0.10.1",
+    "karma-phantomjs-launcher": "~0.1.0"
   }
 }

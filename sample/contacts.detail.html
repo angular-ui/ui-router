@@ -1,10 +1,13 @@
 <div>
   <h2>{{contact.name}}</h2>
-  <p class="muted">{{something}}</p>
   <ul>
     <li ng-repeat="item in contact.items">
-      <a href="#/contacts/{{contact.id}}/item/{{item.id}}">{{item.type}}</a>
+      <a ui-sref="contacts.detail.item({contactId:contact.id, itemId:item.id})">{{item.type}}</a>
     </li>
   </ul>
-  <div ui-view ng-animate="{enter:'fade-enter'}"></div>
+  <div ui-view ng-animate="{enter:'fade-enter'}">
+    <!-- Example of default content. This content will be replace as soon as
+         this ui-view is populate with a template -->
+    <small class="muted">Click on a contact item to view and/or edit it.</small>
+  </div>
 </div>

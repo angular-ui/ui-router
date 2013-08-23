@@ -1,232 +1,39 @@
 <!doctype html>
-<html lang="en" ng-app="sample"><head>
-  <meta charset="utf-8">
-  <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
-  <style type="text/css">
-    .fade-enter-setup, .fade-leave-setup {
-      transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s;
-    }
-    .fade-enter-setup,
-    .fade-leave-setup.fade-leave-start {
-      opacity: 0;
-    }
-    .fade-leave-setup,
-    .fade-enter-setup.fade-enter-start {
-      opacity: 1;
-    }
-  </style>
-  <script src="../lib/angular-1.1.4.js"></script>
-  <script src="../build/angular-ui-router.js"></script>
+<html lang="en" ng-app="uiRouterSample">
+  <head>
+    <meta charset="utf-8">
 
-  <!-- could easily use a custom property of the state here instead of 'name' -->
-  <title ng-bind="$state.current.name + ' - ui-router'">ui-router</title>
-</head><body>
-<div class="navbar navbar-fixed-top">
-  <div class="navbar-inner"><div class="container">
-    <a class="brand" href="#">ui-router</a>
-    <ul class="nav">
-      <li ng-class="{ active: $state.includes('contacts') }"><a href="#/contacts">Contacts</a></li>
-      <li ng-class="{ active: $state.includes('about') }"><a href="#/about">About</a></li>
-    </ul>
-    <p class="navbar-text pull-right" ui-view="hint"></p>
-  </div></div>
-</div>
-<div class="container" style="margin-top:60px" ui-view ng-animate="{enter:'fade-enter'}"></div>
-<hr>
-<pre>
-  $state = {{$state.current.name}}
-  $stateParams = {{$stateParams}}
-</pre>
-</body><script>
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="styles.css">
 
-function findById(a, id) {
-  for (var i=0; i<a.length; i++) {
-    if (a[i].id == id) return a[i];
-  }
-}
+    <script src="../lib/angular-1.1.4.js"></script>
+    <script src="../build/angular-ui-router.js"></script>
+    <script src="module.js"></script>
+    <script src="factory.js"></script>
+    <script src="states.js"></script>
 
-angular.module('sample', ['ui.router.compat'])
-  .config(
-    [        '$stateProvider', '$routeProvider', '$urlRouterProvider',
-    function ($stateProvider,   $routeProvider,   $urlRouterProvider) {
-      $urlRouterProvider
-        .when('/c?id', '/contacts/:id')
-        .otherwise('/');
-
-      $routeProvider
-        .when('/user/:id', {
-          redirectTo: '/contacts/:id',
-        })
-        .when('/', {
-          template: '<p class="lead">Welcome to the ngStates sample</p><p>Use the menu above to navigate</p>' +
-            '<p>Look at <a href="#/c?id=1">Alice</a> or <a href="#/user/42">Bob</a> to see a URL with a redirect in action.</p>',
-        });
-
-      $stateProvider
-        .state('contacts', {
-          url: '/contacts',
-          abstract: true,
-          templateUrl: 'contacts.html',
-          controller:
-            [        '$scope', '$state',
-            function ($scope,   $state) {
-              $scope.contacts = [{
-                id: 1,
-                name: "Alice",
-                items: [{
-                  id: 'a',
-                  type: 'phone number',
-                  value: '555-1234-1234',
-                },{
-                  id: 'b',
-                  type: 'email',
-                  value: 'alice@mailinator.com',
-                }],
-              }, {
-                id: 42,
-                name: "Bob",
-                items: [{
-                  id: 'a',
-                  type: 'blog',
-                  value: 'http://bob.blogger.com',
-                },{
-                  id: 'b',
-                  type: 'fax',
-                  value: '555-999-9999',
-                }],
-              }, {
-                id: 123,
-                name: "Eve",
-                items: [{
-                  id: 'a',
-                  type: 'full name',
-                  value: 'Eve Adamsdottir',
-                }],
-              }];
-
-              $scope.goToRandom = function () {
-                var contacts = $scope.contacts, id;
-                do {
-                  id = contacts[Math.floor(contacts.length * Math.random())].id;
-                } while (id == $state.params.contactId);
-                $state.transitionTo('contacts.detail', { contactId: id });
-              };
-            }],
-        })
-        .state('contacts.list', {
-          // parent: 'contacts',
-          url: '',
-          templateUrl: 'contacts.list.html',
-        })
-        .state('contacts.detail', {
-          // parent: 'contacts',
-          url: '/{contactId}',
-          resolve: {
-            something:
-              [        '$timeout', '$stateParams',
-              function ($timeout,   $stateParams) {
-                return $timeout(function () { return "Asynchronously resolved data (" + $stateParams.contactId + ")" }, 10);
-              }],
-          },
-          views: {
-            '': {
-              templateUrl: 'contacts.detail.html',
-              controller:
-                [        '$scope', '$stateParams', 'something',
-                function ($scope,   $stateParams,   something) {
-                  $scope.something = something;
-                  $scope.contact = findById($scope.contacts, $stateParams.contactId);
-                }],
-            },
-            'hint@': {
-              template: 'This is contacts.detail populating the view "hint@"',
-            },
-            'menu': {
-              templateProvider:
-                [ '$stateParams',
-                function ($stateParams){
-                  // This is just to demonstrate that $stateParams injection works for templateProvider
-                  // $stateParams are the parameters for the new state we're transitioning to, even
-                  // though the global '$stateParams' has not been updated yet.
-                  return '<hr><small class="muted">Contact ID: ' + $stateParams.contactId + '</small>';
-                }],
-            },
-          },
-        })
-        .state('contacts.detail.item', {
-          // parent: 'contacts.detail',
-          url: '/item/:itemId',
-          views: {
-            '': {
-              templateUrl: 'contacts.detail.item.html',
-              controller:
-                [        '$scope', '$stateParams', '$state',
-                function ($scope,   $stateParams,   $state) {
-                  $scope.item = findById($scope.contact.items, $stateParams.itemId);
-                  $scope.edit = function () {
-                    $state.transitionTo('contacts.detail.item.edit', $stateParams);
-                  };
-                }],
-            },
-            'hint@': {
-              template: 'Overriding the view "hint@"',
-            },
-          },
-        })
-        .state('contacts.detail.item.edit', {
-          views: {
-            '@contacts.detail': {
-              templateUrl: 'contacts.detail.item.edit.html',
-              controller:
-                [        '$scope', '$stateParams', '$state',
-                function ($scope,   $stateParams,   $state) {
-                  $scope.item = findById($scope.contact.items, $stateParams.itemId);
-                  $scope.done = function () {
-                    $state.transitionTo('contacts.detail.item', $stateParams);
-                  };
-                }],
-            },
-          },
-        })
-        .state('about', {
-          url: '/about',
-          templateProvider:
-            [        '$timeout',
-            function ($timeout) {
-              return $timeout(function () { return "Hello world" }, 100);
-            }],
-        })
-        .state('empty', {
-          url: '/empty',
-          templateUrl: 'empty.html',
-          controller:
-            [        '$scope', '$state',
-            function ($scope,   $state) {
-              // Using an object to access it via ng-model from child scope
-              $scope.data = {
-                initialViewTitle: "I am an initial view"
-              }
-              $scope.changeInitialViewTitle = function($event) {
-                $state.transitionTo('empty.emptycontent');
-              };
-              $scope.showInitialView = function($event) {
-                $state.transitionTo('empty');
-              };
-          }]
-        })
-        .state('empty.emptycontent', {
-          url: '/content',
-          views: {
-            'emptycontent': {
-              templateUrl: 'empty.content.html'
-            }
-          }
-        });
-    }])
-    .run(
-      [        '$rootScope', '$state', '$stateParams',
-      function ($rootScope,   $state,   $stateParams) {
-        $rootScope.$state = $state;
-        $rootScope.$stateParams = $stateParams;
-      }]);
-</script></html>
+    <!-- could easily use a custom property of the state here instead of 'name' -->
+    <title ng-bind="$state.current.name + ' - ui-router'">ui-router</title>
+  </head>
+  <body>
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner"><div class="container">
+        <a class="brand" ui-sref="home">ui-router</a>
+        <ul class="nav">
+          <li ng-class="{ active: $state.includes('contacts') }"><a ui-sref="contacts.list">Contacts</a></li>
+          <li ng-class="{ active: $state.includes('about') }"><a ui-sref="about">About</a></li>
+        </ul>
+        <p class="navbar-text pull-right" ui-view="hint"></p>
+      </div></div>
+    </div>
+    <div class="container" style="margin-top:60px" ui-view ng-animate="{enter:'fade-enter'}"></div>
+    <hr>
+    <pre>
+      $state = {{$state.current.name}}
+      $stateParams = {{$stateParams}}
+      $state full url = {{ $state.$current.url.source }}
+      <!-- $state.$current is not a public api, we are using it to
+           display the full url for learning purposes-->
+    </pre>
+  </body>
+</html>
