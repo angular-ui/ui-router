@@ -11,7 +11,8 @@ describe('uiStateRef', function() {
       url: '/contacts'
     }).state('contacts.item', {
       url: '/:id'
-    }).state('contacts.item.detail', {});
+    }).state('contacts.item.detail', {
+    }).state('nourl', {});
   }));
 
   beforeEach(inject(function($document) {
@@ -71,53 +72,64 @@ describe('uiStateRef', function() {
       expect(el.attr('href')).toBe('#/contacts/6');
     });
 
-    it('should transition states when left-clicked', inject(function($state, $stateParams, $document, $q) {
+    it('should transition states when left-clicked', inject(function($state, $stateParams, $document, $q, $timeout) {
       expect($state.$current.name).toEqual('');
 
       triggerClick(el);
       $q.flush();
 
-      expect($state.current.name).toEqual('contacts.item.detail');
-      expect($stateParams).toEqual({ id: "5" });
+      $timeout(function() {
+        expect($state.current.name).toEqual('contacts.item.detail');
+        expect($stateParams).toEqual({ id: "5" });
+      }, 0);
     }));
 
-    it('should not transition states when ctrl-clicked', inject(function($state, $stateParams, $document, $q) {
+    it('should not transition states when ctrl-clicked', inject(function($state, $stateParams, $document, $q, $timeout) {
       expect($state.$current.name).toEqual('');
-      triggerClick(el, { ctrlKey: true });
 
+      triggerClick(el, { ctrlKey: true });
       $q.flush();
-      expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: "5" });
+
+      $timeout(function() {
+        expect($state.current.name).toEqual('');
+        expect($stateParams).toEqual({ id: "5" });
+      }, 0);
     }));
 
-    it('should not transition states when meta-clicked', inject(function($state, $stateParams, $document, $q) {
+    it('should not transition states when meta-clicked', inject(function($state, $stateParams, $document, $q, $timeout) {
       expect($state.$current.name).toEqual('');
 
       triggerClick(el, { metaKey: true });
       $q.flush();
-
-      expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: "5" });
+      
+      $timeout(function() {
+        expect($state.current.name).toEqual('');
+        expect($stateParams).toEqual({ id: "5" });
+      }, 0);
     }));
 
-    it('should not transition states when shift-clicked', inject(function($state, $stateParams, $document, $q) {
+    it('should not transition states when shift-clicked', inject(function($state, $stateParams, $document, $q, $timeout) {
       expect($state.$current.name).toEqual('');
 
       triggerClick(el, { shiftKey: true });
       $q.flush();
 
-      expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: "5" });
+      $timeout(function() {
+        expect($state.current.name).toEqual('');
+        expect($stateParams).toEqual({ id: "5" });
+      }, 0);
     }));
 
-    it('should not transition states when middle-clicked', inject(function($state, $stateParams, $document, $q) {
+    it('should not transition states when middle-clicked', inject(function($state, $stateParams, $document, $q, $timeout) {
       expect($state.$current.name).toEqual('');
 
       triggerClick(el, { button: 1 });
       $q.flush();
 
-      expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: "5" });
+      $timeout(function() {
+        expect($state.current.name).toEqual('');
+        expect($stateParams).toEqual({ id: "5" });
+      }, 0);
     }));
   });
 
@@ -151,12 +163,35 @@ describe('uiStateRef', function() {
       scope.$digest();
     }));
 
-    it('should work', inject(function ($state, $stateParams, $q) {
+    it('should work', inject(function ($state, $stateParams, $q, $timeout) {
       triggerClick(el);
       $q.flush();
 
-      expect($state.$current.name).toBe("contacts.item.detail");
-      expect($state.params).toEqual({ id: '5' });
+      $timeout(function() {
+        expect($state.$current.name).toBe("contacts.item.detail");
+        expect($state.params).toEqual({ id: '5' });
+      }, 0);
+    }));
+  });
+
+
+  describe('URL-less transitions', function() {
+
+    beforeEach(inject(function($rootScope, $compile, $state) {
+      $state.transitionTo("index");
+      el = angular.element('<a ui-sref="nourl">No HREF</a>');
+      scope = $rootScope;
+      scope.$apply();
+
+      $compile(el)(scope);
+      scope.$digest();
+    }));
+
+    it('should work', inject(function ($state, $stateParams, $q) {
+      triggerClick(el);
+      $q.flush();
+  
+      expect($state.$current.name).toBe("nourl");
     }));
   });
 });

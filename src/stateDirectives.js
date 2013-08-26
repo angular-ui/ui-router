@@ -19,7 +19,6 @@ function $StateRefDirective($state) {
         if (!nav) return;
 
         var newHref = $state.href(ref.state, params);
-
         if (!newHref) {
           nav = false;
           return false;
@@ -38,7 +37,7 @@ function $StateRefDirective($state) {
       if (isForm) return;
 
       element.bind("click", function(e) {
-        if ((e.which == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        if (!nav && (e.which == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
           $state.go(ref.state, params);
           scope.$apply();
           e.preventDefault();
