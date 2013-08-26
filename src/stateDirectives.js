@@ -35,7 +35,7 @@ function $StateRefDirective($state) {
       }
       update();
 
-      if (isForm) return;
+      if (isForm || nav) return;
 
       element.bind("click", function(e) {
         if ((e.which == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
