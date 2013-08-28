@@ -17,7 +17,7 @@ describe("UrlRouter", function () {
       });
     });
 
-    module('ui.router', 'ui.router.test');
+    module('ui.router.router', 'ui.router.test');
 
     inject(function($rootScope, $location, $injector) {
       scope = $rootScope.$new();

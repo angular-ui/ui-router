@@ -114,4 +114,4 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
   return directive;
 }
 
-angular.module('ui.state').directive('uiView', $ViewDirective);
+angular.module('ui.router.state').directive('uiView', $ViewDirective);

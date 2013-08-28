@@ -6,7 +6,7 @@ describe('uiView', function () {
 
   var scope, $compile, elem;
 
-  beforeEach(module('ui.state'));
+  beforeEach(module('ui.router.state'));
 
   var aState = {
     template: 'aState template'

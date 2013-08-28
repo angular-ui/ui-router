@@ -2,7 +2,7 @@ describe("resolve", function () {
   
   var $r, tick;
 
-  beforeEach(module('ui.util'));
+  beforeEach(module('ui.router.util'));
   beforeEach(inject(function($resolve, $q) {
     $r = $resolve;
     tick = $q.flush;
