@@ -13,6 +13,7 @@ function $StateRefDirective($state) {
       var params = null, url = null;
       var isForm = element[0].nodeName === "FORM";
       var attr = isForm ? "action" : "href", nav = true;
+      var allowEmptyState = true; // Use attribute to set this?
 
       var update = function(newVal) {
         if (newVal) params = newVal;
@@ -20,19 +21,28 @@ function $StateRefDirective($state) {
 
         var newHref = $state.href(ref.state, params);
 
-        if (!newHref) {
+        if (!newHref && !allowEmptyState) {
           nav = false;
           return false;
         }
         element[0][attr] = newHref;
       };
-
-      if (ref.paramExpr) {
-        scope.$watch(ref.paramExpr, function(newVal, oldVal) {
-          if (newVal !== oldVal) update(newVal);
-        }, true);
-        params = scope.$eval(ref.paramExpr);
-      }
+      
+      attrs.$observe('uiSref', function(newVal, oldVal) {
+        if (newVal !== oldVal) {
+          ref = parseStateRef(attrs.uiSref);
+          params = scope.$eval(ref.paramExpr);
+          update(params);
+          
+          if (ref) {
+            scope.$watch(ref.paramExpr, function(newVal, oldVal) {
+              if (newVal !== oldVal) update(newVal);
+            }, true);
+            params = scope.$eval(ref.paramExpr);
+          }
+        }
+      }, true);
+      
       update();
 
       if (isForm) return;
