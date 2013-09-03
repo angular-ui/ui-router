@@ -3,8 +3,7 @@
 # UI-Router
 
 ####Finally a de-facto solution to nested views and routing.
-* We recommend the latest beta 0.0.2 (Guide and Docs are already updated to 0.0.2): [Build the Project Locally](https://github.com/angular-ui/ui-router#developing)
-* Last release 0.0.1: [Compressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js) / [Uncompressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)
+* Last release 0.2.0: [Compressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js) / [Uncompressed](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)
 
 
 **Warning:** UI-Router is in active development. The API is highly subject to change. It is not recommended to use this library on projects that require guaranteed stability. 
@@ -40,8 +39,6 @@ To evolve the concept of an [angularjs](http://angularjs.org/) [***route***](htt
 
 
 ## Resources
-
-**Note:** Quick Starts, Guide and API Ref are pre-updated for v0.0.2 release. 
 
 * [In-Depth Overview](https://github.com/angular-ui/ui-router/wiki)
 * [API Quick Reference](https://github.com/angular-ui/ui-router/wiki/Quick-Reference)
