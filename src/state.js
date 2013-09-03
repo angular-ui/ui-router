@@ -211,6 +211,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
     $state.transitionTo = function transitionTo(to, toParams, options) {
       if (!isDefined(options)) options = (options === true || options === false) ? { location: options } : {};
+      toParams = toParams || {};
       options = extend({ location: true, inherit: false, relative: null }, options);
 
       var toState = findState(to, options.relative);
