@@ -11,7 +11,10 @@ describe('uiStateRef', function() {
       url: '/contacts'
     }).state('contacts.item', {
       url: '/:id'
-    }).state('contacts.item.detail', {});
+    }).state('contacts.item.detail', {
+    }).state('contacts.item.more', {
+        url: '/more'
+    });
   }));
 
   beforeEach(inject(function($document) {
@@ -51,8 +54,9 @@ describe('uiStateRef', function() {
   describe('links', function() {
 
     beforeEach(inject(function($rootScope, $compile) {
-      el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })">Details</a>');
+      el = angular.element('<a ui-sref="{{state}}({ id: contact.id })">Details</a>');
       scope = $rootScope;
+      scope.state = 'contacts.item.detail';
       scope.contact = { id: 5 };
       scope.$apply();
 
@@ -61,6 +65,16 @@ describe('uiStateRef', function() {
     }));
 
     it('should generate the correct href', function() {
+      expect(el.attr('href')).toBe('#/contacts/5');
+    });
+
+    it('should update the href when the state changes', function() {
+      expect(el.attr('href')).toBe('#/contacts/5');
+      scope.state = 'contacts.item.more';
+      scope.$apply();
+      expect(el.attr('href')).toBe('#/contacts/5/more');
+      scope.state = 'contacts.item.detail';
+      scope.$apply();
       expect(el.attr('href')).toBe('#/contacts/5');
     });
 
