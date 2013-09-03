@@ -10,15 +10,21 @@ function $StateRefDirective($state) {
     restrict: 'A',
     link: function(scope, element, attrs) {
       var ref = parseStateRef(attrs.uiSref);
-      var params = null, url = null;
+      var params = null, url = null, base = $state.$current;
       var isForm = element[0].nodeName === "FORM";
       var attr = isForm ? "action" : "href", nav = true;
+
+      var stateData = element.parent().inheritedData('$uiView');
+
+      if (stateData && stateData.state && stateData.state.name) {
+        base = stateData.state;
+      }
 
       var update = function(newVal) {
         if (newVal) params = newVal;
         if (!nav) return;
 
-        var newHref = $state.href(ref.state, params);
+        var newHref = $state.href(ref.state, params, { relative: base });
 
         if (!newHref) {
           nav = false;
@@ -39,7 +45,7 @@ function $StateRefDirective($state) {
 
       element.bind("click", function(e) {
         if ((e.which == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-          $state.go(ref.state, params);
+          $state.go(ref.state, params, { relative: base });
           scope.$apply();
           e.preventDefault();
         }

@@ -1,6 +1,6 @@
 {
   "name": "angular-ui-router",
-  "version": "0.0.2",
+  "version": "0.2.0",
   "main": "./release/angular-ui-router.min.js",
   "dependencies": {
     "angular": ">= 1.0.6"
