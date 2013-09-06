@@ -52,6 +52,21 @@ describe('uiStateRef', function() {
     el[0].dispatchEvent(e);
   }
 
+  describe('links with promises', function() {
+    it('should update the href when promises on parameters change before scope is applied', inject(function($rootScope, $compile, $q) {
+      promise = $q.defer()
+      el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })">Details</a>');
+      scope = $rootScope;
+      scope.contact = promise.promise;
+      promise.resolve({id: 6});
+      scope.$apply();
+      $compile(el)(scope);
+      scope.$digest();
+
+      expect(el.attr('href')).toBe('#/contacts/6');
+    }));
+  });
+
   describe('links', function() {
 
     beforeEach(inject(function($rootScope, $compile) {
