@@ -215,6 +215,14 @@ describe('state', function () {
       $state.transitionTo('about.sidebar'); $q.flush();
       expect($state.current.name).toEqual('about.sidebar');
     }));
+
+    it('notifies on failed relative state resolution', inject(function ($state, $q) {
+      $state.transitionTo(DD);
+      $q.flush();
+
+      var err = "Could not resolve '^.Z' from state 'DD'";
+      expect(function() { $state.transitionTo("^.Z", null, { relative: $state.$current }); }).toThrow(err);
+    }));
   });
 
   describe('.go()', function () {
