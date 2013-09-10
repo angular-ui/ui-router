@@ -63,11 +63,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     // is also a good time to resolve view names to absolute names, so everything is a
     // straight lookup at link time.
     views: function(state) {
-      var views = {};
+      var views = {}, keys = ['templateProvider', 'templateUrl', 'template', 'controller', 'notify', 'async'];
 
       forEach(isDefined(state.views) ? state.views : { '': state }, function (view, name) {
         if (name.indexOf('@') < 0) name += '@' + state.parent.name;
-        views[name] = view;
+        views[name] = filterByKeys(keys, view);
       });
       return views;
     },
@@ -453,7 +453,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       forEach(state.views, function (view, name) {
         var injectables = (view.resolve && view.resolve !== state.resolve ? view.resolve : {});
         injectables.$template = [ function () {
-          return $view.load(name, { view: view, locals: locals, params: $stateParams, notify: false }) || '';
+          return $view.load(name, extend({ notify: false }, view, { locals: locals, params: $stateParams })) || '';
         }];
 
         promises.push($resolve.resolve(injectables, locals, dst.resolve, state).then(function (result) {
@@ -502,7 +502,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     var filtered = {};
 
     forEach(keys, function (name) {
-      filtered[name] = values[name];
+      if (isDefined(values[name])) filtered[name] = values[name];
     });
     return filtered;
   }
