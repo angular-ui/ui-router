@@ -57,7 +57,10 @@ describe('state', function () {
           templateParams = params;
           return "/templates/" + params.item + ".html";
         }
-      });
+      })
+
+      .state('first', { url: '^/first/subpath' })
+      .state('second', { url: '^/second' });
 
     $provide.value('AppInjectable', AppInjectable);
   }));
@@ -393,17 +396,37 @@ describe('state', function () {
   });
 
   describe('url handling', function () {
-
     it('should transition to the same state with different parameters', inject(function ($state, $rootScope, $location) {
       $location.path("/about/bob");
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
       expect($state.params).toEqual({ person: "bob" });
+      expect($state.current.name).toBe('about.person');
 
       $location.path("/about/larry");
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
       expect($state.params).toEqual({ person: "larry" });
+      expect($state.current.name).toBe('about.person');
+    }));
+
+    it('should correctly handle absolute urls', inject(function ($state, $rootScope, $location) {
+      $location.path("/first/subpath");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      expect($state.current.name).toBe('first');
+
+      $state.transitionTo('second');
+      $rootScope.$apply();
+      expect($state.current.name).toBe('second');
+      expect($location.path()).toBe('/second');
+    }));
+
+    it('should ignore bad urls', inject(function ($state, $rootScope, $location) {
+      $location.path("/first/second");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      expect($state.current.name).toBe('');
     }));
   });
 
