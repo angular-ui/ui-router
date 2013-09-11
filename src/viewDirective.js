@@ -1,10 +1,33 @@
 
 $ViewDirective.$inject = ['$state', '$compile', '$controller', '$injector', '$anchorScroll'];
 function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $anchorScroll) {
-  // TODO: Change to $injector.has() when we version bump to Angular 1.1.5.
-  // See: https://github.com/angular/angular.js/blob/master/CHANGELOG.md#115-triangle-squarification-2013-05-22
-  var $animator; try { $animator = $injector.get('$animator'); } catch (e) { /* do nothing */ }
-  var viewIsUpdating = false;
+
+  var viewIsUpdating = false,
+      $animate = $injector.has('$animate') ? $injector.get('$animate') : null;
+
+  // Returns a set of DOM manipulation functions based on whether animation
+  // should be performed
+  var renderer = function(doAnimate) {
+    return ({
+      "true": {
+        remove: function(element) { $animate.leave(element.contents(), element); },
+        restore: function(compiled, element) { $animate.enter(compiled, element); },
+        populate: function(template, element) {
+          var contents = angular.element('<div></div>').html(template).contents();
+          $animate.enter(contents, element);
+          return contents;
+        }
+      },
+      "false": {
+        remove: function(element) { element.html(''); },
+        restore: function(compiled, element) { element.append(compiled); },
+        populate: function(template, element) {
+          element.html(template);
+          return element.contents();
+        }
+      }
+    })[($animate && doAnimate).toString()];
+  };
 
   var directive = {
     restrict: 'ECA',
@@ -14,32 +37,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
       return function(scope, element, attr) {
         var viewScope, viewLocals,
             name = attr[directive.name] || attr.name || '',
-            onloadExp = attr.onload || '',
-            animate = isDefined($animator) && $animator(scope, attr);
-
-        // Returns a set of DOM manipulation functions based on whether animation
-        // should be performed
-        var renderer = function(doAnimate) {
-          return ({
-            "true": {
-              remove: function(element) { animate.leave(element.contents(), element); },
-              restore: function(compiled, element) { animate.enter(compiled, element); },
-              populate: function(template, element) {
-                var contents = angular.element('<div></div>').html(template).contents();
-                animate.enter(contents, element);
-                return contents;
-              }
-            },
-            "false": {
-              remove: function(element) { element.html(''); },
-              restore: function(compiled, element) { element.append(compiled); },
-              populate: function(template, element) {
-                element.html(template);
-                return element.contents();
-              }
-            }
-          })[doAnimate.toString()];
-        };
+            onloadExp = attr.onload || '';
 
         // Put back the compiled initial view
         element.append(transclude(scope));
@@ -70,7 +68,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
         function updateView(doAnimate) {
           var locals = $state.$current && $state.$current.locals[name];
           if (locals === viewLocals) return; // nothing to do
-          var render = renderer(animate && doAnimate);
+          var render = renderer(doAnimate);
 
           // Remove existing content
           render.remove(element);
