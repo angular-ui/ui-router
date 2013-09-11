@@ -428,6 +428,38 @@ describe('state', function () {
       $rootScope.$apply();
       expect($state.current.name).toBe('');
     }));
+
+    it('should call $location.replace() to replace previous browser history entry when transitioning with "replacePreviousHistoryEntry" parameter true', inject(function ($state, $rootScope, $location, $q) {
+      var originalReplaceFn = $location.replace,
+          replaceWasCalled = false;
+
+      var decoratedReplaceFn = function() {
+          replaceWasCalled = true;
+          originalReplaceFn.call($location);
+      };
+      $location.replace = decoratedReplaceFn;
+
+      $state.transitionTo('about', {}, { replacePreviousHistoryEntry: true});
+      $q.flush();
+
+      expect(replaceWasCalled).toEqual(true);
+    }));
+
+    it('should NOT call $location.replace() to replace previous browser history entry when transitioning with default parameters', inject(function ($state, $rootScope, $location, $q) {
+      var originalReplaceFn = $location.replace,
+          replaceWasCalled = false;
+
+      var decoratedReplaceFn = function() {
+          replaceWasCalled = true;
+          originalReplaceFn.call($location);
+      };
+      $location.replace = decoratedReplaceFn;
+
+      $state.transitionTo('about');
+      $q.flush();
+
+      expect(replaceWasCalled).toEqual(false);
+    }));
   });
 
   describe('default properties', function() {
