@@ -1,0 +1,18 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/error/compile/multidir.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">Multiple Directive Resource Contention</code>
+<div><span class="hint">error in component <code ng:non-bindable="">$compile</code>
+</span>
+</div>
+</h1>
+<div><pre class="minerr-errmsg" error-display="Multiple directives [{0}, {1}] asking for {2} on: {3}">Multiple directives [{0}, {1}] asking for {2} on: {3}</pre>
+<h2 id="Description">Description</h2>
+<div class="description"><div class="-compile-page -compile-multidir-page"><p>This error occurs when multiple directives are applied to the same DOM element, and processing them would result in an collisions or unsupported configuration.</p>
+<p>To resolve this issue remove one of the directives which is causing the collision.</p>
+<p>Example scenarios of multiple incompatible directives applied to the same element include:</p>
+<ul>
+<li>Multiple directives requesting <code>isolated scope</code>.</li>
+<li>Multiple directives publishing a controller under the same name.</li>
+<li>Multiple directives declared with the <code>transclusion</code> option.</li>
+<li>Multiple directives attempting to define a <code>template</code> or <code>templateURL</code>.</li>
+</ul>
+</div></div>
+</div>

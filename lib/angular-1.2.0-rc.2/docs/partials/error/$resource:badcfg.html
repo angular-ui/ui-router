@@ -1,0 +1,13 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/error/resource/badcfg.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">Response does not match configured parameter</code>
+<div><span class="hint">error in component <code ng:non-bindable="">$resource</code>
+</span>
+</div>
+</h1>
+<div><pre class="minerr-errmsg" error-display="Error in resource configuration. Expected response to contain an {0} but got an {1}">Error in resource configuration. Expected response to contain an {0} but got an {1}</pre>
+<h2 id="Description">Description</h2>
+<div class="description"><div class="-resource-page -resource-badcfg-page"><p>This error occurs when the <a href="api/ngResource.$resource"><code>$resource</code></a> service expects a response that can be deserialized as an array, receives an object, or vice versa.
+By default, all resource actions expect objects, except <code>query</code> which expects arrays.</p>
+<p>To resolve this error, make sure your <code>$resource</code> configuration matches the actual format of the data returned from the server.</p>
+<p>For more information, see the <a href="api/ngResource.$resource"><code>$resource</code></a> API reference documentation.</p>
+</div></div>
+</div>

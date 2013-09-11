@@ -1,0 +1,46 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/compile.js#L143" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/compile.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$compileProvider</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"></div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="aHrefSanitizationWhitelist">aHrefSanitizationWhitelist(regexp)</h3>
+<div class="ahrefsanitizationwhitelist"><div class="ng-compileprovider-ahrefsanitizationwhitelist-page"><p>Retrieves or overrides the default regular expression that is used for whitelisting of safe
+urls during a[href] sanitization.</p>
+<p>The sanitization is a security measure aimed at prevent XSS attacks via html links.</p>
+<p>Any url about to be assigned to a[href] via data-binding is first normalized and turned into
+an absolute url. Afterwards, the url is matched against the <code>aHrefSanitizationWhitelist</code>
+regular expression. If a match is found, the original url is written into the dom. Otherwise,
+the absolute url is prefixed with <code>&#39;unsafe:&#39;</code> string and only then is it written into the DOM.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>regexp <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-regexp">RegExp</a></td><td><div class="ng-compileprovider-ahrefsanitizationwhitelist-page"><p>New regexp to whitelist urls with.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-regexp">RegExp|ng.$compileProvider</a></td><td><div class="ng-compileprovider-ahrefsanitizationwhitelist-page"><p>Current RegExp if called without value or self for
+chaining otherwise.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="directive">directive(name, directiveFactory)</h3>
+<div class="directive"><div class="ng-compileprovider-directive-page"><p>Register a new directive with the compiler.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-compileprovider-directive-page"><p>Name of the directive in camel-case. (ie <code>ngBind</code> which will match as
+<code>ng-bind</code>).</p>
+</div></td></tr><tr><td>directiveFactory</td><td><a href="" class="label type-hint type-hint-function">function</a><a href="" class="label type-hint type-hint-array">Array</a></td><td><div class="ng-compileprovider-directive-page"><p>An injectable directive factory function. See <a href="guide/directive">guide/directive</a> for more
+info.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-ng">ng.$compileProvider</a></td><td><div class="ng-compileprovider-directive-page"><p>Self for chaining.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="imgSrcSanitizationWhitelist">imgSrcSanitizationWhitelist(regexp)</h3>
+<div class="imgsrcsanitizationwhitelist"><div class="ng-compileprovider-imgsrcsanitizationwhitelist-page"><p>Retrieves or overrides the default regular expression that is used for whitelisting of safe
+urls during img[src] sanitization.</p>
+<p>The sanitization is a security measure aimed at prevent XSS attacks via html links.</p>
+<p>Any url about to be assigned to img[src] via data-binding is first normalized and turned into an
+absolute url. Afterwards, the url is matched against the <code>imgSrcSanitizationWhitelist</code> regular
+expression. If a match is found, the original url is written into the dom. Otherwise, the
+absolute url is prefixed with <code>&#39;unsafe:&#39;</code> string and only then is it written into the DOM.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>regexp <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-regexp">RegExp</a></td><td><div class="ng-compileprovider-imgsrcsanitizationwhitelist-page"><p>New regexp to whitelist urls with.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-regexp">RegExp|ng.$compileProvider</a></td><td><div class="ng-compileprovider-imgsrcsanitizationwhitelist-page"><p>Current RegExp if called without value or self for
+chaining otherwise.</p>
+</div></td></tr></table></div>
+</li>
+</ul>
+</div>
+</div>

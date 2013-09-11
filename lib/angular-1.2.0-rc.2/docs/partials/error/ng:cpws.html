@@ -1,0 +1,14 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/error/ng/cpws.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">Copying Window or Scope</code>
+<div><span class="hint">error in component <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><pre class="minerr-errmsg" error-display="Can't copy! Making copies of Window or Scope instances is not supported.">Can't copy! Making copies of Window or Scope instances is not supported.</pre>
+<h2 id="Description">Description</h2>
+<div class="description"><div class="ng-page ng-cpws-page"><p>Copying Window or Scope instances is not supported because of cyclical and self
+references. Avoid copying windows and scopes, as well as any other cyclical or
+self-referential structures. Note that trying to deep copy an object containing
+cyclical references that is neither a window nor a scope will cause infinite
+recursion and a stack overflow.</p>
+</div></div>
+</div>

@@ -1,0 +1,16 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/error/parse/isecfld.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">Referencing 'constructor' Field in Expression</code>
+<div><span class="hint">error in component <code ng:non-bindable="">$parse</code>
+</span>
+</div>
+</h1>
+<div><pre class="minerr-errmsg" error-display="Referencing &quot;constructor&quot; field in Angular expressions is disallowed! Expression: {0}">Referencing "constructor" field in Angular expressions is disallowed! Expression: {0}</pre>
+<h2 id="Description">Description</h2>
+<div class="description"><div class="-parse-page -parse-isecfld-page"><p>Occurs when an expression attempts to access an objects constructor field.</p>
+<p>AngularJS bans constructor access from within expressions since constructor
+access is a known way to execute arbitrary Javascript code.</p>
+<p>To resolve this error, avoid constructor access.  As a last resort, alias
+the constructor and access it through the alias instead.</p>
+<p>Example expression that would result in this error:</p>
+<pre><code>&lt;div&gt;{{user.constructor.name}}&lt;/div&gt;</code></pre>
+</div></div>
+</div>

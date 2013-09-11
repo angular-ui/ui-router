@@ -1,0 +1,75 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ngMock/angular-mocks.js#L301" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ngMock/angular-mocks.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$log</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ngMock</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ngmock-log-page"><p>Mock implementation of <a href="api/ng.$log"><code>ng.$log</code></a> that gathers all logged messages in arrays
+(one array per logging level). These arrays are exposed as <code>logs</code> property of each of the
+level-specific log function, e.g. for level <code>error</code> the array is exposed as <code>$log.error.logs</code>.</p>
+</div></div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="assertEmpty">assertEmpty()</h3>
+<div class="assertempty"><div class="ngmock-log-assertempty-page"><p>Assert that the all of the logging methods have no logged messages. If messages present, an exception is thrown.</p>
+</div></div>
+</li>
+<li><h3 id="reset">reset()</h3>
+<div class="reset"><div class="ngmock-log-reset-page"><p>Reset all of the logging arrays to empty.</p>
+</div></div>
+</li>
+</ul>
+</div>
+<div class="member property"><h2 id="Properties">Properties</h2>
+<ul class="properties"><li><h3 id="logs">logs</h3>
+<div class="logs"><div class="ngmock-log-debug-logs-page"><p>Array of messages logged using <a href="api/ngMock.$log#debug">ngMock.$log#debug</a>.</p>
+</div><h4 id="Example">Example</h4>
+<div class="example"><div class="ngmock-log-debug-logs-page"><pre class="prettyprint linenums">
+$log.debug('Some Error');
+var first = $log.debug.logs.unshift();
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="logs">logs</h3>
+<div class="logs"><div class="ngmock-log-error-logs-page"><p>Array of messages logged using <a href="api/ngMock.$log#error">ngMock.$log#error</a>.</p>
+</div><h4 id="Example">Example</h4>
+<div class="example"><div class="ngmock-log-error-logs-page"><pre class="prettyprint linenums">
+$log.log('Some Error');
+var first = $log.error.logs.unshift();
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="logs">logs</h3>
+<div class="logs"><div class="ngmock-log-info-logs-page"><p>Array of messages logged using <a href="api/ngMock.$log#info">ngMock.$log#info</a>.</p>
+</div><h4 id="Example">Example</h4>
+<div class="example"><div class="ngmock-log-info-logs-page"><pre class="prettyprint linenums">
+$log.info('Some Info');
+var first = $log.info.logs.unshift();
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="logs">logs</h3>
+<div class="logs"><div class="ngmock-log-log-logs-page"><p>Array of messages logged using <a href="api/ngMock.$log#log">ngMock.$log#log</a>.</p>
+</div><h4 id="Example">Example</h4>
+<div class="example"><div class="ngmock-log-log-logs-page"><pre class="prettyprint linenums">
+$log.log('Some Log');
+var first = $log.log.logs.unshift();
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="logs">logs</h3>
+<div class="logs"><div class="ngmock-log-warn-logs-page"><p>Array of messages logged using <a href="api/ngMock.$log#warn">ngMock.$log#warn</a>.</p>
+</div><h4 id="Example">Example</h4>
+<div class="example"><div class="ngmock-log-warn-logs-page"><pre class="prettyprint linenums">
+$log.warn('Some Warning');
+var first = $log.warn.logs.unshift();
+</pre>
+</div></div>
+</div>
+</li>
+</ul>
+</div>
+</div>

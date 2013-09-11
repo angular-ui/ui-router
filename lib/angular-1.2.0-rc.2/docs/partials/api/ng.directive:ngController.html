@@ -1,0 +1,193 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/directive/ngController.js#L3" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/directive/ngController.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">ngController</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-directive-page ng-directive-ngcontroller-page"><p>The <code>ngController</code> directive assigns behavior to a scope. This is a key aspect of how angular
+supports the principles behind the Model-View-Controller design pattern.</p>
+<p>MVC components in angular:</p>
+<ul>
+<li>Model — The Model is data in scope properties; scopes are attached to the DOM.</li>
+<li>View — The template (HTML with data bindings) is rendered into the View.</li>
+<li>Controller — The <code>ngController</code> directive specifies a Controller class; the class has
+methods that typically express the business logic behind the application.</li>
+</ul>
+<p>Note that an alternative way to define controllers is via the <a href="api/ngRoute.$route">$route</a> service.</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;ANY ng-controller="{expression}"&gt;
+   ...
+&lt;/ANY&gt;</pre>
+as class<pre class="prettyprint linenums">&lt;ANY class="ng-controller: {expression};"&gt;
+   ...
+&lt;/ANY&gt;</pre>
+<h3 id="Directive.info">Directive info</h3>
+<div class="directive-info"><ul><li>This directive creates new scope.</li>
+</ul>
+</div>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>ngController</td><td><a href="" class="label type-hint type-hint-expression">expression</a></td><td><div class="ng-directive-page ng-directive-ngcontroller-page"><p>Name of a globally accessible constructor function or an
+<a href="guide/expression">expression</a> that on the current scope evaluates to a
+constructor function. The controller instance can further be published into the scope
+by adding <code>as localName</code> the controller name attribute.</p>
+</div></td></tr></tbody></table></div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ng-directive-page ng-directive-ngcontroller-page"><p>Here is a simple form for editing user contact information. Adding, removing, clearing, and
+greeting are methods declared on the controller (see source tab). These methods can
+easily be called from the angular markup. Notice that the scope becomes the <code>this</code> for the
+controller&#39;s instance. This allows for easy access to the view data from the controller. Also
+notice that any changes to the data are automatically reflected in the View without the need
+for a manual update. The example is included in two different declaration styles based on
+your style preferences.
+   <h4>Source</h2>
+<div source-edit="" source-edit-deps="angular.js script.js" source-edit-html="index.html-67" source-edit-css="" source-edit-js="script.js-66" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-68"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-67" ng-html-wrap=" angular.js script.js"></pre>
+<script type="text/ng-template" id="index.html-67">
+      
+      <div id="ctrl-as-exmpl" ng-controller="SettingsController1 as settings">
+        Name: <input type="text" ng-model="settings.name"/>
+        [ <a href="" ng-click="settings.greet()">greet</a> ]<br/>
+        Contact:
+        <ul>
+          <li ng-repeat="contact in settings.contacts">
+            <select ng-model="contact.type">
+               <option>phone</option>
+               <option>email</option>
+            </select>
+            <input type="text" ng-model="contact.value"/>
+            [ <a href="" ng-click="settings.clearContact(contact)">clear</a>
+            | <a href="" ng-click="settings.removeContact(contact)">X</a> ]
+          </li>
+          <li>[ <a href="" ng-click="settings.addContact()">add</a> ]</li>
+       </ul>
+      </div>
+     </script>
+</div>
+<div class="tab-pane" title="script.js">
+<pre class="prettyprint linenums" ng-set-text="script.js-66"></pre>
+<script type="text/ng-template" id="script.js-66">
+        function SettingsController1() {
+          this.name = "John Smith";
+          this.contacts = [
+            {type: 'phone', value: '408 555 1212'},
+            {type: 'email', value: 'john.smith@example.org'} ];
+          };
+
+        SettingsController1.prototype.greet = function() {
+          alert(this.name);
+        };
+
+        SettingsController1.prototype.addContact = function() {
+          this.contacts.push({type: 'email', value: 'yourname@example.org'});
+        };
+
+        SettingsController1.prototype.removeContact = function(contactToRemove) {
+         var index = this.contacts.indexOf(contactToRemove);
+          this.contacts.splice(index, 1);
+        };
+
+        SettingsController1.prototype.clearContact = function(contact) {
+          contact.type = 'phone';
+          contact.value = '';
+        };
+      </script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-68"></pre>
+<script type="text/ng-template" id="scenario.js-68">
+       it('should check controller as', function() {
+         expect(element('#ctrl-as-exmpl>:input').val()).toBe('John Smith');
+         expect(element('#ctrl-as-exmpl li:nth-child(1) input').val())
+           .toBe('408 555 1212');
+         expect(element('#ctrl-as-exmpl li:nth-child(2) input').val())
+           .toBe('john.smith@example.org');
+
+         element('#ctrl-as-exmpl li:first a:contains("clear")').click();
+         expect(element('#ctrl-as-exmpl li:first input').val()).toBe('');
+
+         element('#ctrl-as-exmpl li:last a:contains("add")').click();
+         expect(element('#ctrl-as-exmpl li:nth-child(3) input').val())
+           .toBe('yourname@example.org');
+       });
+     </script>
+</div>
+</div><h2>Demo</h2>
+<div class="well doc-example-live animate-container" ng-embed-app="" ng-set-html="index.html-67" ng-eval-javascript="script.js-66"></div>
+    <h2>Source</h2>
+<div source-edit="" source-edit-deps="angular.js script.js" source-edit-html="index.html-70" source-edit-css="" source-edit-js="script.js-69" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-71"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-70" ng-html-wrap=" angular.js script.js"></pre>
+<script type="text/ng-template" id="index.html-70">
+      
+      <div id="ctrl-exmpl" ng-controller="SettingsController2">
+        Name: <input type="text" ng-model="name"/>
+        [ <a href="" ng-click="greet()">greet</a> ]<br/>
+        Contact:
+        <ul>
+          <li ng-repeat="contact in contacts">
+            <select ng-model="contact.type">
+               <option>phone</option>
+               <option>email</option>
+            </select>
+            <input type="text" ng-model="contact.value"/>
+            [ <a href="" ng-click="clearContact(contact)">clear</a>
+            | <a href="" ng-click="removeContact(contact)">X</a> ]
+          </li>
+          <li>[ <a href="" ng-click="addContact()">add</a> ]</li>
+       </ul>
+      </div>
+     </script>
+</div>
+<div class="tab-pane" title="script.js">
+<pre class="prettyprint linenums" ng-set-text="script.js-69"></pre>
+<script type="text/ng-template" id="script.js-69">
+        function SettingsController2($scope) {
+          $scope.name = "John Smith";
+          $scope.contacts = [
+            {type:'phone', value:'408 555 1212'},
+            {type:'email', value:'john.smith@example.org'} ];
+
+          $scope.greet = function() {
+           alert(this.name);
+          };
+
+          $scope.addContact = function() {
+           this.contacts.push({type:'email', value:'yourname@example.org'});
+          };
+
+          $scope.removeContact = function(contactToRemove) {
+           var index = this.contacts.indexOf(contactToRemove);
+           this.contacts.splice(index, 1);
+          };
+
+          $scope.clearContact = function(contact) {
+           contact.type = 'phone';
+           contact.value = '';
+          };
+        }
+      </script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-71"></pre>
+<script type="text/ng-template" id="scenario.js-71">
+       it('should check controller', function() {
+         expect(element('#ctrl-exmpl>:input').val()).toBe('John Smith');
+         expect(element('#ctrl-exmpl li:nth-child(1) input').val())
+           .toBe('408 555 1212');
+         expect(element('#ctrl-exmpl li:nth-child(2) input').val())
+           .toBe('john.smith@example.org');
+
+         element('#ctrl-exmpl li:first a:contains("clear")').click();
+         expect(element('#ctrl-exmpl li:first input').val()).toBe('');
+
+         element('#ctrl-exmpl li:last a:contains("add")').click();
+         expect(element('#ctrl-exmpl li:nth-child(3) input').val())
+           .toBe('yourname@example.org');
+       });
+     </script>
+</div>
+</div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-embed-app="" ng-set-html="index.html-70" ng-eval-javascript="script.js-69"></div>
+</div></div>
+</div>

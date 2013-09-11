@@ -1,0 +1,67 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/log.js#L3" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/log.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$log</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-log-page"><p>Simple service for logging. Default implementation writes the message
+into the browser&#39;s console (if present).</p>
+<p>The main purpose of this service is to simplify debugging and troubleshooting.</p>
+</div></div>
+<h2 id="Dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="api/ng.$window">$window</a></code>
+</li>
+</ul>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="debug">debug()</h3>
+<div class="debug"><div class="ng-log-debug-page"><p>Write a debug message</p>
+</div></div>
+</li>
+<li><h3 id="error">error()</h3>
+<div class="error"><div class="ng-log-error-page"><p>Write an error message</p>
+</div></div>
+</li>
+<li><h3 id="info">info()</h3>
+<div class="info"><div class="ng-log-info-page"><p>Write an information message</p>
+</div></div>
+</li>
+<li><h3 id="log">log()</h3>
+<div class="log"><div class="ng-log-log-page"><p>Write a log message</p>
+</div></div>
+</li>
+<li><h3 id="warn">warn()</h3>
+<div class="warn"><div class="ng-log-warn-page"><p>Write a warning message</p>
+</div></div>
+</li>
+</ul>
+</div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ng-log-page"><h4>Source</h2>
+<div source-edit="" source-edit-deps="angular.js script.js" source-edit-html="index.html-133" source-edit-css="" source-edit-js="script.js-132" source-edit-json="" source-edit-unit="" source-edit-scenario=""></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-133" ng-html-wrap=" angular.js script.js"></pre>
+<script type="text/ng-template" id="index.html-133">
+  <div ng-controller="LogCtrl">
+    <p>Reload this page with open console, enter text and hit the log button...</p>
+    Message:
+    <input type="text" ng-model="message"/>
+    <button ng-click="$log.log(message)">log</button>
+    <button ng-click="$log.warn(message)">warn</button>
+    <button ng-click="$log.info(message)">info</button>
+    <button ng-click="$log.error(message)">error</button>
+  </div>
+</script>
+</div>
+<div class="tab-pane" title="script.js">
+<pre class="prettyprint linenums" ng-set-text="script.js-132"></pre>
+<script type="text/ng-template" id="script.js-132">
+  function LogCtrl($scope, $log) {
+    $scope.$log = $log;
+    $scope.message = 'Hello World!';
+  }
+</script>
+</div>
+</div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-embed-app="" ng-set-html="index.html-133" ng-eval-javascript="script.js-132"></div>
+</div></div>
+</div>

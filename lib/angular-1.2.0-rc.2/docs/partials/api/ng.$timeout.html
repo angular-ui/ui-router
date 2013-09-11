@@ -1,0 +1,40 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/timeout.js#L10" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/timeout.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$timeout</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-timeout-page"><p>Angular&#39;s wrapper for <code>window.setTimeout</code>. The <code>fn</code> function is wrapped into a try/catch
+block and delegates any exceptions to
+<a href="api/ng.$exceptionHandler"><code>$exceptionHandler</code></a> service.</p>
+<p>The return value of registering a timeout function is a promise, which will be resolved when
+the timeout is reached and the timeout function is executed.</p>
+<p>To cancel a timeout request, call <code>$timeout.cancel(promise)</code>.</p>
+<p>In tests you can use <a href="api/ngMock.$timeout"><code>$timeout.flush()</code></a> to
+synchronously flush the queue of deferred functions.</p>
+</div></div>
+<h2 id="Dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="api/ng.$browser">$browser</a></code>
+</li>
+</ul>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">$timeout(fn[, delay][, invokeApply]);</pre>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>fn</td><td><a href="" class="label type-hint type-hint-function">function()</a></td><td><div class="ng-timeout-page"><p>A function, whose execution should be delayed.</p>
+</div></td></tr><tr><td>delay <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-number">number</a></td><td><div class="ng-timeout-page"><p>Delay in milliseconds.</p>
+</div></td></tr><tr><td>invokeApply <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ng-timeout-page"><p>If set to <code>false</code> skips model dirty checking, otherwise
+will invoke <code>fn</code> within the <a href="api/ng.$rootScope.Scope#$apply"><code>$apply</code></a> block.</p>
+</div></td></tr></tbody></table><h4 id="returns">Returns</h4><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-promise">Promise</a></td><td><div class="ng-timeout-page"><p>Promise that will be resolved when the timeout is reached. The value this
+promise will be resolved with is the return value of the <code>fn</code> function.</p>
+</div></td></tr></table></div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="cancel">cancel(promise)</h3>
+<div class="cancel"><div class="ng-timeout-cancel-page"><p>Cancels a task associated with the <code>promise</code>. As a result of this, the promise will be
+resolved with a rejection.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>promise <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-promise">Promise</a></td><td><div class="ng-timeout-cancel-page"><p>Promise returned by the <code>$timeout</code> function.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ng-timeout-cancel-page"><p>Returns <code>true</code> if the task hasn&#39;t executed yet and was successfully
+canceled.</p>
+</div></td></tr></table></div>
+</li>
+</ul>
+</div>
+</div>

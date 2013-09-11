@@ -1,0 +1,17 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/error/controller/noscp.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">Missing $scope object</code>
+<div><span class="hint">error in component <code ng:non-bindable="">$controller</code>
+</span>
+</div>
+</h1>
+<div><pre class="minerr-errmsg" error-display="Cannot export controller '{0}' as '{1}'! No $scope object provided via `locals`.">Cannot export controller '{0}' as '{1}'! No $scope object provided via `locals`.</pre>
+<h2 id="Description">Description</h2>
+<div class="description"><div class="-controller-page -controller-noscp-page"><p>This error occurs when <a href="api/ng.$controller"><code>$controller</code></a> service is called in order to instantiate a new controller but no scope is provided via <code>$scope</code> property of the locals map.</p>
+<p>Example of incorrect usage that leads to this error:</p>
+<pre><code>$controller(MyController);
+//or
+$controller(MyController, {scope: newScope});</code></pre>
+<p>To fix the example above please provide a scope to the $controller call:</p>
+<pre><code>$controller(MyController, {$scope, newScope});</code></pre>
+<p>Please consult the <a href="api/ng.$controller"><code>$controller</code></a> service api docs to learn more.</p>
+</div></div>
+</div>

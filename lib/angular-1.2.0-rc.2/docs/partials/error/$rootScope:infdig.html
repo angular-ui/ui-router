@@ -1,0 +1,16 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/error/rootScope/infdig.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">Infinite $digest Loop</code>
+<div><span class="hint">error in component <code ng:non-bindable="">$rootScope</code>
+</span>
+</div>
+</h1>
+<div><pre class="minerr-errmsg" error-display="{0} $digest() iterations reached. Aborting!
+Watchers fired in the last 5 iterations: {1}">{0} $digest() iterations reached. Aborting!
+Watchers fired in the last 5 iterations: {1}</pre>
+<h2 id="Description">Description</h2>
+<div class="description"><div class="-rootscope-page -rootscope-infdig-page"><p>This error occurs when the application&#39;s model becomes unstable and each <code>$digest</code> cycle triggers a state change and subsequent <code>$digest</code> cycle. Angular detects this situation and prevents an infinite loop from causing the browser to become unresponsive.</p>
+<p>For example, the situation can occur by setting up a watch on a path and subsequently updating the same path when the value changes.</p>
+<pre><code>$scope.$watch(&#39;foo&#39;, function() {
+  $scope.foo = $scope.foo + 1;
+});</code></pre>
+</div></div>
+</div>

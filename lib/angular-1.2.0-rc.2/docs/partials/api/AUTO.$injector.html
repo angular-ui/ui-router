@@ -1,0 +1,139 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/auto/injector.js#L78" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/auto/injector.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$injector</code>
+<div><span class="hint">service in module <code ng:non-bindable="">AUTO</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="auto-injector-page"><p><code>$injector</code> is used to retrieve object instances as defined by
+<a href="api/AUTO.$provide"><code>provider</code></a>, instantiate types, invoke methods,
+and load modules.</p>
+<p>The following always holds true:</p>
+<pre class="prettyprint linenums">
+  var $injector = angular.injector();
+  expect($injector.get('$injector')).toBe($injector);
+  expect($injector.invoke(function($injector){
+    return $injector;
+  }).toBe($injector);
+</pre>
+<h3>Injection Function Annotation</h3>
+<p>JavaScript does not have annotations, and annotations are needed for dependency injection. The
+following are all valid ways of annotating function with injection arguments and are equivalent.</p>
+<pre class="prettyprint linenums">
+  // inferred (only works if code not minified/obfuscated)
+  $injector.invoke(function(serviceA){});
+
+  // annotated
+  function explicit(serviceA) {};
+  explicit.$inject = ['serviceA'];
+  $injector.invoke(explicit);
+
+  // inline
+  $injector.invoke(['serviceA', function(serviceA){}]);
+</pre>
+<h4>Inference</h2>
+<p>In JavaScript calling <code>toString()</code> on a function returns the function definition. The definition can then be
+parsed and the function arguments can be extracted. <em>NOTE:</em> This does not work with minification, and obfuscation
+tools since these tools change the argument names.</p>
+<h2><code>$inject</code> Annotation</h2>
+<p>By adding a <code>$inject</code> property onto a function the injection parameters can be specified.</p>
+<h2>Inline</h4>
+<p>As an array of injection names, where the last item in the array is the function to call.</p>
+</div></div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="annotate">annotate(fn)</h3>
+<div class="annotate"><div class="auto-injector-annotate-page"><p>Returns an array of service names which the function is requesting for injection. This API is used by the injector
+to determine which services need to be injected into the function when the function is invoked. There are three
+ways in which the function can be annotated with the needed dependencies.</p>
+<h4>Argument names</h1>
+<p>The simplest form is to extract the dependencies from the arguments of the function. This is done by converting
+the function into a string using <code>toString()</code> method and extracting the argument names.
+<pre class="prettyprint linenums">
+  // Given
+  function MyController($scope, $route) {
+    // ...
+  }
+
+  // Then
+  expect(injector.annotate(MyController)).toEqual(['$scope', '$route']);
+</pre>
+<p>This method does not work with code minification / obfuscation. For this reason the following annotation strategies
+are supported.</p>
+<h1>The <code>$inject</code> property</h1>
+<p>If a function has an <code>$inject</code> property and its value is an array of strings, then the strings represent names of
+services to be injected into the function.
+<pre class="prettyprint linenums">
+  // Given
+  var MyController = function(obfuscatedScope, obfuscatedRoute) {
+    // ...
+  }
+  // Define function dependencies
+  MyController.$inject = ['$scope', '$route'];
+
+  // Then
+  expect(injector.annotate(MyController)).toEqual(['$scope', '$route']);
+</pre>
+<h1>The array notation</h4>
+<p>It is often desirable to inline Injected functions and that&#39;s when setting the <code>$inject</code> property is very
+inconvenient. In these situations using the array notation to specify the dependencies in a way that survives
+minification is a better choice:</p>
+<pre class="prettyprint linenums">
+  // We wish to write this (not minification / obfuscation safe)
+  injector.invoke(function($compile, $rootScope) {
+    // ...
+  });
+
+  // We are forced to write break inlining
+  var tmpFn = function(obfuscatedCompile, obfuscatedRootScope) {
+    // ...
+  };
+  tmpFn.$inject = ['$compile', '$rootScope'];
+  injector.invoke(tmpFn);
+
+  // To better support inline function the inline annotation is supported
+  injector.invoke(['$compile', '$rootScope', function(obfCompile, obfRootScope) {
+    // ...
+  }]);
+
+  // Therefore
+  expect(injector.annotate(
+     ['$compile', '$rootScope', function(obfus_$compile, obfus_$rootScope) {}])
+   ).toEqual(['$compile', '$rootScope']);
+</pre>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>fn</td><td><a href="" class="label type-hint type-hint-function">function</a><a href="" class="label type-hint type-hint-array">Array.&lt;string|Function&gt;</a></td><td><div class="auto-injector-annotate-page"><p>Function for which dependent service names need to be retrieved as described
+above.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-array">Array.&lt;string&gt;</a></td><td><div class="auto-injector-annotate-page"><p>The names of the services which the function requires.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="get">get(name)</h3>
+<div class="get"><div class="auto-injector-get-page"><p>Return an instance of the service.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="auto-injector-get-page"><p>The name of the instance to retrieve.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="auto-injector-get-page"><p>The instance.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="has">has(Name)</h3>
+<div class="has"><div class="auto-injector-has-page"><p>Allows the user to query if the particular service exist.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>Name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="auto-injector-has-page"><p>of the service to query.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="auto-injector-has-page"><p>returns true if injector has given service.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="instantiate">instantiate(Type, locals)</h3>
+<div class="instantiate"><div class="auto-injector-instantiate-page"><p>Create a new instance of JS type. The method takes a constructor function invokes the new operator and supplies
+all of the arguments to the constructor function as specified by the constructor annotation.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>Type</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="auto-injector-instantiate-page"><p>Annotated constructor function.</p>
+</div></td></tr><tr><td>locals <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="auto-injector-instantiate-page"><p>Optional object. If preset then any argument names are read from this object first, before
+the <code>$injector</code> is consulted.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="auto-injector-instantiate-page"><p>new instance of <code>Type</code>.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="invoke">invoke(fn, self, locals)</h3>
+<div class="invoke"><div class="auto-injector-invoke-page"><p>Invoke the method and supply the method arguments from the <code>$injector</code>.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>fn</td><td><a href="" class="label type-hint type-hint-object">!function</a></td><td><div class="auto-injector-invoke-page"><p>The function to invoke. The function arguments come form the function annotation.</p>
+</div></td></tr><tr><td>self <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="auto-injector-invoke-page"><p>The <code>this</code> for the invoked method.</p>
+</div></td></tr><tr><td>locals <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="auto-injector-invoke-page"><p>Optional object. If preset then any argument names are read from this object first, before
+the <code>$injector</code> is consulted.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="auto-injector-invoke-page"><p>the value returned by the invoked <code>fn</code> function.</p>
+</div></td></tr></table></div>
+</li>
+</ul>
+</div>
+</div>

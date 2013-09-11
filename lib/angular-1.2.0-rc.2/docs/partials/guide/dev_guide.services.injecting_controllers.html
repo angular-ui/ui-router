@@ -1,0 +1,131 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/guide/dev_guide.services.injecting_controllers.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable=""></code>
+<div><span class="hint"></span>
+</div>
+</h1>
+<div><div class="developer-guide-page developer-guide-angular-services-injecting-services-into-controllers-page"><p>Using services as dependencies for controllers is very similar to using services as dependencies
+for another service.</p>
+<p>Since JavaScript is a dynamic language, DI can&#39;t figure out which services to inject by static
+types (like in static typed languages). Therefore, you can specify the service name by using the
+<code>$inject</code> property, which is an array containing strings with names of services to be injected.
+The name must match the corresponding service ID registered with angular. The order of the service
+IDs matters: the order of the services in the array will be used when calling the factory function
+with injected parameters. The names of parameters in factory function don&#39;t matter, but by
+convention they match the service IDs, which has added benefits discussed below.</p>
+<pre class="prettyprint linenums">
+function myController($loc, $log) {
+this.firstMethod = function() {
+ // use $location service
+ $loc.setHash();
+};
+this.secondMethod = function() {
+ // use $log service
+ $log.info('...');
+};
+}
+// which services to inject ?
+myController.$inject = ['$location', '$log'];
+</pre>
+<h3>Source</h2>
+<div source-edit="MyServiceModule" source-edit-deps="angular.js script.js" source-edit-html="index.html-196" source-edit-css="" source-edit-js="script.js-195" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-197"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-196" ng-html-wrap="MyServiceModule angular.js script.js"></pre>
+<script type="text/ng-template" id="index.html-196">
+
+
+<div ng-controller="myController">
+  <p>Let's try this simple notify service, injected into the controller...</p>
+  <input ng-init="message='test'" ng-model="message" >
+  <button ng-click="callNotify(message);">NOTIFY</button>
+  <p>(you have to click 3 times to see an alert)</p>
+</div>
+</script>
+</div>
+<div class="tab-pane" title="script.js">
+<pre class="prettyprint linenums" ng-set-text="script.js-195"></pre>
+<script type="text/ng-template" id="script.js-195">
+angular.
+ module('MyServiceModule', []).
+ factory('notify', ['$window', function(win) {
+    var msgs = [];
+    return function(msg) {
+      msgs.push(msg);
+      if (msgs.length == 3) {
+        win.alert(msgs.join("\n"));
+        msgs = [];
+      }
+    };
+  }]);
+
+function myController(scope, notifyService) {
+  scope.callNotify = function(msg) {
+    notifyService(msg);
+  };
+}
+
+myController.$inject = ['$scope','notify'];
+</script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-197"></pre>
+<script type="text/ng-template" id="scenario.js-197">
+  it('should test service', function() {
+    expect(element(':input[ng\\:model="message"]').val()).toEqual('test');
+  });
+</script>
+</div>
+</div><h2>Demo</h2>
+<div class="well doc-example-live animate-container" ng-embed-app="MyServiceModule" ng-set-html="index.html-196" ng-eval-javascript="script.js-195"></div>
+<h2>Implicit Dependency Injection</h2>
+<p>A new feature of Angular DI allows it to determine the dependency from the name of the parameter.
+Let&#39;s rewrite the above example to show the use of this implicit dependency injection of
+<code>$window</code>, <code>$scope</code>, and our <code>notify</code> service:</p>
+<h2>Source</h2>
+<div source-edit="MyServiceModuleDI" source-edit-deps="angular.js script.js" source-edit-html="index.html-199" source-edit-css="" source-edit-js="script.js-198" source-edit-json="" source-edit-unit="" source-edit-scenario=""></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-199" ng-html-wrap="MyServiceModuleDI angular.js script.js"></pre>
+<script type="text/ng-template" id="index.html-199">
+
+<div ng-controller="myController">
+  <p>Let's try the notify service, that is implicitly injected into the controller...</p>
+  <input ng-init="message='test'" ng-model="message">
+  <button ng-click="callNotify(message);">NOTIFY</button>
+  <p>(you have to click 3 times to see an alert)</p>
+</div>
+</script>
+</div>
+<div class="tab-pane" title="script.js">
+<pre class="prettyprint linenums" ng-set-text="script.js-198"></pre>
+<script type="text/ng-template" id="script.js-198">
+angular.
+ module('MyServiceModuleDI', []).
+ factory('notify', function($window) {
+    var msgs = [];
+    return function(msg) {
+      msgs.push(msg);
+      if (msgs.length == 3) {
+        $window.alert(msgs.join("\n"));
+        msgs = [];
+      }
+    };
+  });
+
+function myController($scope, notify) {
+  $scope.callNotify = function(msg) {
+    notify(msg);
+  };
+}
+</script>
+</div>
+</div><h2>Demo</h2>
+<div class="well doc-example-live animate-container" ng-embed-app="MyServiceModuleDI" ng-set-html="index.html-199" ng-eval-javascript="script.js-198"></div>
+<p>However, if you plan to <a href="http://en.wikipedia.org/wiki/Minification_(programming)">minify</a> your
+code, your variable names will get renamed in which case you will still need to explicitly specify
+dependencies with the <code>$inject</code> property.</p>
+<h2>Related Topics</h2>
+<p><a href="guide/dev_guide.services.understanding_services">Understanding Angular Services</a>
+<a href="guide/dev_guide.services.creating_services">Creating Angular Services</a>
+<a href="guide/dev_guide.services.managing_dependencies">Managing Service Dependencies</a>
+<a href="guide/dev_guide.services.testing_services">Testing Angular Services</a></p>
+<h2>Related API</h3>
+<p><a href="api/ng">Angular Service API</a></p>
+</div></div>

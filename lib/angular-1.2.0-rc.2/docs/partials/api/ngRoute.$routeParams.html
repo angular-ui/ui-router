@@ -1,0 +1,33 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ngRoute/routeParams.js#L6" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ngRoute/routeParams.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$routeParams</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ngRoute</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ngroute-routeparams-page"><p>The <code>$routeParams</code> service allows you to retrieve the current set of route parameters.</p>
+<p>Requires the <a href="api/ngRoute"><code>ngRoute</code></a> module to be installed.</p>
+<p>The route parameters are a combination of <a href="api/ng.$location"><code><code>$location</code></code></a>&#39;s
+<a href="api/ng.$location#search"><code><code>search()</code></code></a> and <a href="api/ng.$location#path"><code><code>path()</code></code></a>.
+The <code>path</code> parameters are extracted when the <a href="api/ngRoute.$route"><code>$route</code></a> path is matched.</p>
+<p>In case of parameter name collision, <code>path</code> params take precedence over <code>search</code> params.</p>
+<p>The service guarantees that the identity of the <code>$routeParams</code> object will remain unchanged
+(but its properties will likely change) even when a route change occurs.</p>
+<p>Note that the <code>$routeParams</code> are only updated <em>after</em> a route change completes successfully.
+This means that you cannot rely on <code>$routeParams</code> being correct in route resolve functions.
+Instead you can use <code>$route.current.params</code> to access the new route&#39;s parameters.</p>
+</div></div>
+<h2 id="Dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="api/ng.$route">$route</a></code>
+</li>
+</ul>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ngroute-routeparams-page"><pre class="prettyprint linenums">
+// Given:
+// URL: http://server.com/index.html#/Chapter/1/Section/2?search=moby
+// Route: /Chapter/:chapterId/Section/:sectionId
+//
+// Then
+$routeParams ==&gt; {chapterId:1, sectionId:2, search:'moby'}
+</pre>
+</div></div>
+</div>

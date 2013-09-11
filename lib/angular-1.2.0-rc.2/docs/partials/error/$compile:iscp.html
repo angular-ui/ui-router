@@ -1,0 +1,24 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/error/compile/iscp.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">Invalid Isolate Scope Definition</code>
+<div><span class="hint">error in component <code ng:non-bindable="">$compile</code>
+</span>
+</div>
+</h1>
+<div><pre class="minerr-errmsg" error-display="Invalid isolate scope definition for directive '{0}'. Definition: {... {1}: '{2}' ...}">Invalid isolate scope definition for directive '{0}'. Definition: {... {1}: '{2}' ...}</pre>
+<h2 id="Description">Description</h2>
+<div class="description"><div class="-compile-page -compile-iscp-page"><p>When declaring isolate scope the scope definition object must be in specific format which starts with mode character (<code>@&amp;=</code>) with an optional local name.</p>
+<pre><code>myModule.directive(&#39;directiveName&#39;, function factory() {
+  return {
+    ...
+    scope: {
+      &#39;attrName&#39;: &#39;@&#39;, // OK
+      &#39;attrName2&#39;: &#39;=localName&#39;, // OK
+      &#39;attrName3&#39;: &#39;name&#39;,    // ERROR: missing mode @&amp;=
+      &#39;attrName4&#39;: &#39; = name&#39;, // ERROR: extra spaces
+      &#39;attrName5&#39;: &#39;name=&#39;,   // ERROR: must be prefixed with @&amp;=
+    }
+    ...
+  }
+});</code></pre>
+<p>Please refer to the <a href="guide/directive#directivedefinitionobject">directive definition docs</a> to learn more about the api.</p>
+</div></div>
+</div>

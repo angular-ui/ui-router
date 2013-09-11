@@ -1,0 +1,371 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/sce.js#L332" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/sce.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$sce</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-sce-page"><p><code>$sce</code> is a service that provides Strict Contextual Escaping services to AngularJS.</p>
+<h3>Strict Contextual Escaping</h3>
+<p>Strict Contextual Escaping (SCE) is a mode in which AngularJS requires bindings in certain
+contexts to result in a value that is marked as safe to use for that context One example of such
+a context is binding arbitrary html controlled by the user via <code>ng-bind-html</code>.  We refer to these
+contexts as privileged or SCE contexts.</p>
+<p>As of version 1.2, Angular ships with SCE enabled by default.</p>
+<p>Note:  When enabled (the default), IE8 in quirks mode is not supported.  In this mode, IE8 allows
+one to execute arbitrary javascript by the use of the expression() syntax.  Refer
+<a href="http://blogs.msdn.com/b/ie/archive/2008/10/16/ending-expressions.aspx">http://blogs.msdn.com/b/ie/archive/2008/10/16/ending-expressions.aspx</a> to learn more about them.
+You can ensure your document is in standards mode and not quirks mode by adding <code>&lt;!doctype html&gt;</code>
+to the top of your HTML document.</p>
+<p>SCE assists in writing code in way that (a) is secure by default and (b) makes auditing for
+security vulnerabilities such as XSS, clickjacking, etc. a lot easier.</p>
+<p>Here&#39;s an example of a binding in a privileged context:</p>
+<pre class="prettyprint" class="prettyprint linenums">
+    &lt;input ng-model="userHtml"&gt;
+    &lt;div ng-bind-html="{{userHtml}}"&gt;
+</pre>
+<p>Notice that <code>ng-bind-html</code> is bound to <code>{{userHtml}}</code> controlled by the user.  With SCE
+disabled, this application allows the user to render arbitrary HTML into the DIV.
+In a more realistic example, one may be rendering user comments, blog articles, etc. via
+bindings.  (HTML is just one example of a context where rendering user controlled input creates
+security vulnerabilities.)</p>
+<p>For the case of HTML, you might use a library, either on the client side, or on the server side,
+to sanitize unsafe HTML before binding to the value and rendering it in the document.</p>
+<p>How would you ensure that every place that used these types of bindings was bound to a value that
+was sanitized by your library (or returned as safe for rendering by your server?)  How can you
+ensure that you didn&#39;t accidentally delete the line that sanitized the value, or renamed some
+properties/fields and forgot to update the binding to the sanitized value?</p>
+<p>To be secure by default, you want to ensure that any such bindings are disallowed unless you can
+determine that something explicitly says it&#39;s safe to use a value for binding in that
+context.  You can then audit your code (a simple grep would do) to ensure that this is only done
+for those values that you can easily tell are safe - because they were received from your server,
+sanitized by your library, etc.  You can organize your codebase to help with this - perhaps
+allowing only the files in a specific directory to do this.  Ensuring that the internal API
+exposed by that code doesn&#39;t markup arbitrary values as safe then becomes a more manageable task.</p>
+<p>In the case of AngularJS&#39; SCE service, one uses <a href="api/ng.$sce#trustAs"><code>$sce.trustAs</code></a> (and shorthand
+methods such as <a href="api/ng.$sce#trustAsHtml"><code>$sce.trustAsHtml</code></a>, etc.) to obtain values that will be
+accepted by SCE / privileged contexts.</p>
+<h4>How does it work?</h2>
+<p>In privileged contexts, directives and code will bind to the result of <a href="api/ng.$sce#getTrusted"><code>$sce.getTrusted(context, value)</code></a> rather than to the value directly.  Directives use <a href="api/ng.$sce#parse"><code>$sce.parseAs</code></a> rather than <code>$parse</code> to watch attribute bindings, which performs the
+<a href="api/ng.$sce#getTrusted"><code>$sce.getTrusted</code></a> behind the scenes on non-constant literals.</p>
+<p>As an example, <a href="api/ng.directive:ngBindHtml"><code>ngBindHtml</code></a> uses <a href="api/ng.$sce#parseAsHtml"><code>$sce.parseAsHtml(binding expression)</code></a>.  Here&#39;s the actual code (slightly
+simplified):</p>
+<pre class="prettyprint" class="prettyprint linenums">
+  var ngBindHtmlDirective = ['$sce', function($sce) {
+    return function(scope, element, attr) {
+      scope.$watch($sce.parseAsHtml(attr.ngBindHtml), function(value) {
+        element.html(value || '');
+      });
+    };
+  }];
+</pre>
+<h2>Impact on loading templates</h2>
+<p>This applies both to the <a href="api/ng.directive:ngInclude"><code><code>ng-include</code></code></a> directive as well as
+<code>templateUrl</code>&#39;s specified by <a href="guide/directive">directives</a>.</p>
+<p>By default, Angular only loads templates from the same domain and protocol as the application
+document.  This is done by calling <a href="api/ng.$sce#getTrustedResourceUrl"><code>$sce.getTrustedResourceUrl</code></a> on the template URL.  To load templates from other domains and/or
+protocols, you may either either <a href="api/ng.$sceDelegateProvider#resourceUrlWhitelist"><code>whitelist them</code></a> or <a href="api/ng.$sce#trustAsResourceUrl"><code>wrap it</code></a> into a trusted value.</p>
+<p><em>Please note</em>:
+The browser&#39;s
+<a href="https://code.google.com/p/browsersec/wiki/Part2#Same-origin_policy_for_XMLHttpRequest">Same Origin Policy</a> and <a href="http://www.w3.org/TR/cors/">Cross-Origin Resource Sharing (CORS)</a>
+policy apply in addition to this and may further restrict whether the template is successfully
+loaded.  This means that without the right CORS policy, loading templates from a different domain
+won&#39;t work on all browsers.  Also, loading templates from <code>file://</code> URL does not work on some
+browsers.</p>
+<h2>This feels like too much overhead for the developer?</h2>
+<p>It&#39;s important to remember that SCE only applies to interpolation expressions.</p>
+<p>If your expressions are constant literals, they&#39;re automatically trusted and you don&#39;t need to
+call <code>$sce.trustAs</code> on them.  (e.g.
+<code>&lt;div ng-html-bind-unsafe=&quot;&#39;&lt;b&gt;implicitly trusted&lt;/b&gt;&#39;&quot;&gt;&lt;/div&gt;</code>) just works.</p>
+<p>Additionally, <code>a[href]</code> and <code>img[src]</code> automatically sanitize their URLs and do not pass them
+through <a href="api/ng.$sce#getTrusted"><code>$sce.getTrusted</code></a>.  SCE doesn&#39;t play a role here.</p>
+<p>The included <a href="api/ng.$sceDelegate"><code>$sceDelegate</code></a> comes with sane defaults to allow you to load
+templates in <code>ng-include</code> from your application&#39;s domain without having to even know about SCE.
+It blocks loading templates from other domains or loading templates over http from an https
+served document.  You can change these by setting your own custom <a href="api/ng.$sceDelegateProvider#resourceUrlWhitelist"><code>whitelists</code></a> and <a href="api/ng.$sceDelegateProvider#resourceUrlBlacklist"><code>blacklists</code></a> for matching such URLs.</p>
+<p>This significantly reduces the overhead.  It is far easier to pay the small overhead and have an
+application that&#39;s secure and can be audited to verify that with much more ease than bolting
+security onto an application later.</p>
+<h2>What trusted context types are supported?<a name="contexts"></a></h2>
+<table>
+<thead>
+<tr>
+<th>Context</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$sce.HTML</code></td>
+<td>For HTML that&#39;s safe to source into the application.  The <a href="api/ng.directive:ngBindHtml"><code>ngBindHtml</code></a> directive uses this context for bindings.</td>
+</tr>
+<tr>
+<td><code>$sce.CSS</code></td>
+<td>For CSS that&#39;s safe to source into the application.  Currently unused.  Feel free to use it in your own directives.</td>
+</tr>
+<tr>
+<td><code>$sce.URL</code></td>
+<td>For URLs that are safe to follow as links.  Currently unused (<code>&lt;a href=</code> and <code>&lt;img src=</code> sanitize their urls and don&#39;t consititute an SCE context.</td>
+</tr>
+<tr>
+<td><code>$sce.RESOURCE_URL</code></td>
+<td>For URLs that are not only safe to follow as links, but whose contens are also safe to include in your application.  Examples include <code>ng-include</code>, <code>src</code> / <code>ngSrc</code> bindings for tags other than <code>IMG</code> (e.g. <code>IFRAME</code>, <code>OBJECT</code>, etc.)  <br><br>Note that <code>$sce.RESOURCE_URL</code> makes a stronger statement about the URL than <code>$sce.URL</code> does and therefore contexts requiring values trusted for <code>$sce.RESOURCE_URL</code> can be used anywhere that values trusted for <code>$sce.URL</code> are required.</td>
+</tr>
+<tr>
+<td><code>$sce.JS</code></td>
+<td>For JavaScript that is safe to execute in your application&#39;s context.  Currently unused.  Feel free to use it in your own directives.</td>
+</tr>
+</tbody>
+</table>
+<h2>Show me an example.</h4>
+</div></div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="getTrusted">getTrusted(type, maybeTrusted)</h3>
+<div class="gettrusted"><div class="ng-sce-gettrusted-page"><p>Delegates to <a href="api/ng.$sceDelegate#getTrusted"><code><code>$sceDelegate.getTrusted</code></code></a>.  As such, takes
+the result of a <a href="api/ng.$sce#trustAs"><code><code>$sce.trustAs</code></code></a>() call and returns the originally supplied
+value if the queried context type is a supertype of the created type.  If this condition
+isn&#39;t satisfied, throws an exception.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>type</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-sce-gettrusted-page"><p>The kind of context in which this value is to be used.</p>
+</div></td></tr><tr><td>maybeTrusted</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-gettrusted-page"><p>The result of a prior <a href="api/ng.$sce#trustAs"><code><code>$sce.trustAs</code></code></a> call.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-gettrusted-page"><p>The value the was originally provided to <a href="api/ng.$sce#trustAs"><code><code>$sce.trustAs</code></code></a> if
+valid in this context.  Otherwise, throws an exception.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="getTrustedCss">getTrustedCss(value)</h3>
+<div class="gettrustedcss"><div class="ng-sce-gettrustedcss-page"><p>Shorthand method.  <code>$sce.getTrustedCss(value)</code> → <a href="api/ng.$sceDelegate#getTrusted"><code><code>$sceDelegate.getTrusted($sce.CSS, value)</code></code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-gettrustedcss-page"><p>The value to pass to <code>$sce.getTrusted</code>.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-gettrustedcss-page"><p>The return value of <code>$sce.getTrusted($sce.CSS, value)</code></p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="getTrustedHtml">getTrustedHtml(value)</h3>
+<div class="gettrustedhtml"><div class="ng-sce-gettrustedhtml-page"><p>Shorthand method.  <code>$sce.getTrustedHtml(value)</code> → <a href="api/ng.$sceDelegate#getTrusted"><code><code>$sceDelegate.getTrusted($sce.HTML, value)</code></code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-gettrustedhtml-page"><p>The value to pass to <code>$sce.getTrusted</code>.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-gettrustedhtml-page"><p>The return value of <code>$sce.getTrusted($sce.HTML, value)</code></p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="getTrustedJs">getTrustedJs(value)</h3>
+<div class="gettrustedjs"><div class="ng-sce-gettrustedjs-page"><p>Shorthand method.  <code>$sce.getTrustedJs(value)</code> → <a href="api/ng.$sceDelegate#getTrusted"><code><code>$sceDelegate.getTrusted($sce.JS, value)</code></code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-gettrustedjs-page"><p>The value to pass to <code>$sce.getTrusted</code>.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-gettrustedjs-page"><p>The return value of <code>$sce.getTrusted($sce.JS, value)</code></p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="getTrustedResourceUrl">getTrustedResourceUrl(value)</h3>
+<div class="gettrustedresourceurl"><div class="ng-sce-gettrustedresourceurl-page"><p>Shorthand method.  <code>$sce.getTrustedResourceUrl(value)</code> → <a href="api/ng.$sceDelegate#getTrusted"><code><code>$sceDelegate.getTrusted($sce.RESOURCE_URL, value)</code></code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-gettrustedresourceurl-page"><p>The value to pass to <code>$sceDelegate.getTrusted</code>.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-gettrustedresourceurl-page"><p>The return value of <code>$sce.getTrusted($sce.RESOURCE_URL, value)</code></p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="getTrustedUrl">getTrustedUrl(value)</h3>
+<div class="gettrustedurl"><div class="ng-sce-gettrustedurl-page"><p>Shorthand method.  <code>$sce.getTrustedUrl(value)</code> → <a href="api/ng.$sceDelegate#getTrusted"><code><code>$sceDelegate.getTrusted($sce.URL, value)</code></code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-gettrustedurl-page"><p>The value to pass to <code>$sce.getTrusted</code>.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-gettrustedurl-page"><p>The return value of <code>$sce.getTrusted($sce.URL, value)</code></p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="parse">parse(type, expression)</h3>
+<div class="parse"><div class="ng-sce-parse-page"><p>Converts Angular <a href="guide/expression">expression</a> into a function.  This is like <a href="api/ng.$parse"><code>$parse</code></a> and is identical when the expression is a literal constant.  Otherwise, it
+wraps the expression in a call to <a href="api/ng.$sce#getTrusted"><code>$sce.getTrusted(<em>type</em>, <em>result</em>)</code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>type</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-sce-parse-page"><p>The kind of SCE context in which this result will be used.</p>
+</div></td></tr><tr><td>expression</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-sce-parse-page"><p>String expression to compile.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-function">function(context, locals)</a></td><td><div class="ng-sce-parse-page"><p>a function which represents the compiled expression:</p>
+<ul>
+<li><code>context</code> – <code>{object}</code> – an object against which any expressions embedded in the strings
+are evaluated against (typically a scope object).</li>
+<li><code>locals</code> – <code>{object=}</code> – local variables context object, useful for overriding values in
+<code>context</code>.</li>
+</ul>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="parseAsCss">parseAsCss(expression)</h3>
+<div class="parseascss"><div class="ng-sce-parseascss-page"><p>Shorthand method.  <code>$sce.parseAsCss(value)</code> → <a href="api/ng.$sce#parse"><code><code>$sce.parseAs($sce.CSS, value)</code></code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>expression</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-sce-parseascss-page"><p>String expression to compile.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-function">function(context, locals)</a></td><td><div class="ng-sce-parseascss-page"><p>a function which represents the compiled expression:</p>
+<ul>
+<li><code>context</code> – <code>{object}</code> – an object against which any expressions embedded in the strings
+are evaluated against (typically a scope object).</li>
+<li><code>locals</code> – <code>{object=}</code> – local variables context object, useful for overriding values in
+<code>context</code>.</li>
+</ul>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="parseAsHtml">parseAsHtml(expression)</h3>
+<div class="parseashtml"><div class="ng-sce-parseashtml-page"><p>Shorthand method.  <code>$sce.parseAsHtml(expression string)</code> → <a href="api/ng.$sce#parse"><code><code>$sce.parseAs($sce.HTML, value)</code></code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>expression</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-sce-parseashtml-page"><p>String expression to compile.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-function">function(context, locals)</a></td><td><div class="ng-sce-parseashtml-page"><p>a function which represents the compiled expression:</p>
+<ul>
+<li><code>context</code> – <code>{object}</code> – an object against which any expressions embedded in the strings
+are evaluated against (typically a scope object).</li>
+<li><code>locals</code> – <code>{object=}</code> – local variables context object, useful for overriding values in
+<code>context</code>.</li>
+</ul>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="parseAsJs">parseAsJs(expression)</h3>
+<div class="parseasjs"><div class="ng-sce-parseasjs-page"><p>Shorthand method.  <code>$sce.parseAsJs(value)</code> → <a href="api/ng.$sce#parse"><code><code>$sce.parseAs($sce.JS, value)</code></code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>expression</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-sce-parseasjs-page"><p>String expression to compile.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-function">function(context, locals)</a></td><td><div class="ng-sce-parseasjs-page"><p>a function which represents the compiled expression:</p>
+<ul>
+<li><code>context</code> – <code>{object}</code> – an object against which any expressions embedded in the strings
+are evaluated against (typically a scope object).</li>
+<li><code>locals</code> – <code>{object=}</code> – local variables context object, useful for overriding values in
+<code>context</code>.</li>
+</ul>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="parseAsResourceUrl">parseAsResourceUrl(expression)</h3>
+<div class="parseasresourceurl"><div class="ng-sce-parseasresourceurl-page"><p>Shorthand method.  <code>$sce.parseAsResourceUrl(value)</code> → <a href="api/ng.$sce#parse"><code><code>$sce.parseAs($sce.RESOURCE_URL, value)</code></code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>expression</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-sce-parseasresourceurl-page"><p>String expression to compile.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-function">function(context, locals)</a></td><td><div class="ng-sce-parseasresourceurl-page"><p>a function which represents the compiled expression:</p>
+<ul>
+<li><code>context</code> – <code>{object}</code> – an object against which any expressions embedded in the strings
+are evaluated against (typically a scope object).</li>
+<li><code>locals</code> – <code>{object=}</code> – local variables context object, useful for overriding values in
+<code>context</code>.</li>
+</ul>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="parseAsUrl">parseAsUrl(expression)</h3>
+<div class="parseasurl"><div class="ng-sce-parseasurl-page"><p>Shorthand method.  <code>$sce.parseAsUrl(value)</code> → <a href="api/ng.$sce#parse"><code><code>$sce.parseAs($sce.URL, value)</code></code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>expression</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-sce-parseasurl-page"><p>String expression to compile.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-function">function(context, locals)</a></td><td><div class="ng-sce-parseasurl-page"><p>a function which represents the compiled expression:</p>
+<ul>
+<li><code>context</code> – <code>{object}</code> – an object against which any expressions embedded in the strings
+are evaluated against (typically a scope object).</li>
+<li><code>locals</code> – <code>{object=}</code> – local variables context object, useful for overriding values in
+<code>context</code>.</li>
+</ul>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="trustAs">trustAs(type, value)</h3>
+<div class="trustas"><div class="ng-sce-trustas-page"><p>Delegates to <a href="api/ng.$sceDelegate#trustAs"><code><code>$sceDelegate.trustAs</code></code></a>.  As such, returns an object
+that is trusted by angular for use in specified strict contextual escaping contexts (such as
+ng-html-bind-unsafe, ng-include, any src attribute interpolation, any dom event binding
+attribute interpolation such as for onclick,  etc.) that uses the provided value.  See *
+<a href="api/ng.$sce"><code>$sce</code></a> for enabling strict contextual escaping.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>type</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-sce-trustas-page"><p>The kind of context in which this value is safe for use.  e.g. url,
+resource_url, html, js and css.</p>
+</div></td></tr><tr><td>value</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-trustas-page"><p>The value that that should be considered trusted/safe.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-trustas-page"><p>A value that can be used to stand in for the provided <code>value</code> in places
+where Angular expects a $sce.trustAs() return value.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="trustAsHtml">trustAsHtml(value)</h3>
+<div class="trustashtml"><div class="ng-sce-trustashtml-page"><p>Shorthand method.  <code>$sce.trustAsHtml(value)</code> → <a href="api/ng.$sceDelegate#trustAs"><code><code>$sceDelegate.trustAs($sce.HTML, value)</code></code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-trustashtml-page"><p>The value to trustAs.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-trustashtml-page"><p>An object that can be passed to <a href="api/ng.$sce#getTrustedHtml"><code>$sce.getTrustedHtml(value)</code></a> to obtain the original value.  (privileged directives
+only accept expressions that are either literal constants or are the
+return value of <a href="api/ng.$sce#trustAs"><code>$sce.trustAs</code></a>.)</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="trustAsJs">trustAsJs(value)</h3>
+<div class="trustasjs"><div class="ng-sce-trustasjs-page"><p>Shorthand method.  <code>$sce.trustAsJs(value)</code> → <a href="api/ng.$sceDelegate#trustAs"><code><code>$sceDelegate.trustAs($sce.JS, value)</code></code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-trustasjs-page"><p>The value to trustAs.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-trustasjs-page"><p>An object that can be passed to <a href="api/ng.$sce#getTrustedJs"><code>$sce.getTrustedJs(value)</code></a> to obtain the original value.  (privileged directives
+only accept expressions that are either literal constants or are the
+return value of <a href="api/ng.$sce#trustAs"><code>$sce.trustAs</code></a>.)</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="trustAsResourceUrl">trustAsResourceUrl(value)</h3>
+<div class="trustasresourceurl"><div class="ng-sce-trustasresourceurl-page"><p>Shorthand method.  <code>$sce.trustAsResourceUrl(value)</code> → <a href="api/ng.$sceDelegate#trustAs"><code><code>$sceDelegate.trustAs($sce.RESOURCE_URL, value)</code></code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-trustasresourceurl-page"><p>The value to trustAs.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-trustasresourceurl-page"><p>An object that can be passed to <a href="api/ng.$sce#getTrustedResourceUrl"><code>$sce.getTrustedResourceUrl(value)</code></a> to obtain the original value.  (privileged directives
+only accept expressions that are either literal constants or are the return
+value of <a href="api/ng.$sce#trustAs"><code>$sce.trustAs</code></a>.)</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="trustAsUrl">trustAsUrl(value)</h3>
+<div class="trustasurl"><div class="ng-sce-trustasurl-page"><p>Shorthand method.  <code>$sce.trustAsUrl(value)</code> → <a href="api/ng.$sceDelegate#trustAs"><code><code>$sceDelegate.trustAs($sce.URL, value)</code></code></a></p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-trustasurl-page"><p>The value to trustAs.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-sce-trustasurl-page"><p>An object that can be passed to <a href="api/ng.$sce#getTrustedUrl"><code>$sce.getTrustedUrl(value)</code></a> to obtain the original value.  (privileged directives
+only accept expressions that are either literal constants or are the
+return value of <a href="api/ng.$sce#trustAs"><code>$sce.trustAs</code></a>.)</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="isEnabled">isEnabled()</h3>
+<div class="isenabled"><div class="ng-sce-isenabled-page"><p>Returns a boolean indicating if SCE is enabled.</p>
+</div><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-boolean">Boolean</a></td><td><div class="ng-sce-isenabled-page"><p>true if SCE is enabled, false otherwise.  If you want to set the value, you
+have to do it at module config time on <a href="api/ng.$sceProvider"><code>$sceProvider</code></a>.</p>
+</div></td></tr></table></div>
+</li>
+</ul>
+</div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ng-sce-page"><h4>Source</h2>
+<div source-edit="mySceApp" source-edit-deps="angular.js script.js" source-edit-html="index.html-134" source-edit-css="" source-edit-js="script.js-135" source-edit-json="test_data.json" source-edit-unit="" source-edit-scenario="scenario.js-136"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-134" ng-html-wrap="mySceApp angular.js script.js"></pre>
+<script type="text/ng-template" id="index.html-134">
+  <div ng-controller="myAppController as myCtrl">
+    <i ng-bind-html="myCtrl.explicitlyTrustedHtml" id="explicitlyTrustedHtml"></i><br><br>
+    <b>User comments</b><br>
+    By default, HTML that isn't explicitly trusted (e.g. Alice's comment) is sanitized when $sanitize is available.  If $sanitize isn't available, this results in an error instead of an exploit.
+    <div class="well">
+      <div ng-repeat="userComment in myCtrl.userComments">
+        <b>{{userComment.name}}</b>:
+        <span ng-bind-html="userComment.htmlComment" class="htmlComment"></span>
+        <br>
+      </div>
+    </div>
+  </div>
+</script>
+</div>
+<div class="tab-pane" title="script.js">
+<pre class="prettyprint linenums" ng-set-text="script.js-135"></pre>
+<script type="text/ng-template" id="script.js-135">
+  var mySceApp = angular.module('mySceApp', ['ngSanitize']);
+
+  mySceApp.controller("myAppController", function myAppController($http, $templateCache, $sce) {
+    var self = this;
+    $http.get("test_data.json", {cache: $templateCache}).success(function(userComments) {
+      self.userComments = userComments;
+    });
+    self.explicitlyTrustedHtml = $sce.trustAsHtml(
+        '<span onmouseover="this.textContent=&quot;Explicitly trusted HTML bypasses ' +
+        'sanitization.&quot;">Hover over this text.</span>');
+  });
+</script>
+</div>
+<div class="tab-pane" title="test_data.json">
+<pre class="prettyprint linenums" ng-set-text="test_data.json"></pre>
+<script type="text/ng-template" id="test_data.json">
+  [
+    { "name": "Alice",
+      "htmlComment": "<span onmouseover='this.textContent=\"PWN3D!\"'>Is <i>anyone</i> reading this?</span>"
+    },
+    { "name": "Bob",
+      "htmlComment": "<i>Yes!</i>  Am I the only other one?"
+    }
+  ]
+</script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-136"></pre>
+<script type="text/ng-template" id="scenario.js-136">
+  describe('SCE doc demo', function() {
+    it('should sanitize untrusted values', function() {
+      expect(element('.htmlComment').html()).toBe('<span>Is <i>anyone</i> reading this?</span>');
+    });
+    it('should NOT sanitize explicitly trusted values', function() {
+      expect(element('#explicitlyTrustedHtml').html()).toBe(
+          '<span onmouseover="this.textContent=&quot;Explicitly trusted HTML bypasses ' +
+          'sanitization.&quot;">Hover over this text.</span>');
+    });
+  });
+</script>
+</div>
+</div><h2>Demo</h2>
+<div class="well doc-example-live animate-container" ng-embed-app="mySceApp" ng-set-html="index.html-134" ng-eval-javascript="script.js-135"></div>
+<h2>Can I disable SCE completely?</h4>
+<p>Yes, you can.  However, this is strongly discouraged.  SCE gives you a lot of security benefits
+for little coding overhead.  It will be much harder to take an SCE disabled application and
+either secure it on your own or enable SCE at a later stage.  It might make sense to disable SCE
+for cases where you have a lot of existing code that was written before SCE was introduced and
+you&#39;re migrating them a module at a time.</p>
+<p>That said, here&#39;s how you can completely disable SCE:</p>
+<pre class="prettyprint" class="prettyprint linenums">
+angular.module('myAppWithSceDisabledmyApp', []).config(function($sceProvider) {
+  // Completely disable SCE.  For demonstration purposes only!
+  // Do not use in new projects.
+  $sceProvider.enabled(false);
+});
+</pre>
+</div></div>
+</div>

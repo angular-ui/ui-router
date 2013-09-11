@@ -1,0 +1,114 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ngSanitize/filter/linky.js#L1" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ngSanitize/filter/linky.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">linky</code>
+<div><span class="hint">filter in module <code ng:non-bindable="">ngSanitize</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ngsanitize-filter-page ngsanitize-filter-linky-page"><p>Finds links in text input and turns them into html links. Supports http/https/ftp/mailto and
+plain email address links.</p>
+<p>Requires the <a href="api/ngSanitize"><code>ngSanitize</code></a> module to be installed.</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><h3 id="In.HTML.Template.Binding">In HTML Template Binding</h3>
+<div class="in-html-template-binding"><code ng:non-bindable="">&lt;span ng-bind-html="linky_expression | linky"&gt;&lt;/span&gt;</code>
+</div>
+<h3 id="In.JavaScript">In JavaScript</h3>
+<div class="in-javascript"><code ng:non-bindable="">$filter('linky')(text, target)</code>
+</div>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>text</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ngsanitize-filter-page ngsanitize-filter-linky-page"><p>Input text.</p>
+</div></td></tr><tr><td>target</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ngsanitize-filter-page ngsanitize-filter-linky-page"><p>Window (_blank|_self|_parent|_top) or named frame to open links in.</p>
+</div></td></tr></tbody></table><h4 id="returns">Returns</h4><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ngsanitize-filter-page ngsanitize-filter-linky-page"><p>Html-linkified text.</p>
+</div></td></tr></table></div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ngsanitize-filter-page ngsanitize-filter-linky-page"><h4>Source</h2>
+<div source-edit="ngSanitize" source-edit-deps="angular.js script.js" source-edit-html="index.html-152" source-edit-css="" source-edit-js="script.js-151" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-153"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-152" ng-html-wrap="ngSanitize angular.js script.js"></pre>
+<script type="text/ng-template" id="index.html-152">
+  
+  <div ng-controller="Ctrl">
+  Snippet: <textarea ng-model="snippet" cols="60" rows="3"></textarea>
+  <table>
+    <tr>
+      <td>Filter</td>
+      <td>Source</td>
+      <td>Rendered</td>
+    </tr>
+    <tr id="linky-filter">
+      <td>linky filter</td>
+      <td>
+        <pre>&lt;div ng-bind-html="snippet | linky"&gt;<br>&lt;/div&gt;</pre>
+      </td>
+      <td>
+        <div ng-bind-html="snippet | linky"></div>
+      </td>
+    </tr>
+    <tr id="linky-target">
+     <td>linky target</td>
+     <td>
+       <pre>&lt;div ng-bind-html="snippetWithTarget | linky:'_blank'"&gt;<br>&lt;/div&gt;</pre>
+     </td>
+     <td>
+       <div ng-bind-html="snippetWithTarget | linky:'_blank'"></div>
+     </td>
+    </tr>
+    <tr id="escaped-html">
+      <td>no filter</td>
+      <td><pre>&lt;div ng-bind="snippet"&gt;<br>&lt;/div&gt;</pre></td>
+      <td><div ng-bind="snippet"></div></td>
+    </tr>
+  </table>
+</script>
+</div>
+<div class="tab-pane" title="script.js">
+<pre class="prettyprint linenums" ng-set-text="script.js-151"></pre>
+<script type="text/ng-template" id="script.js-151">
+    function Ctrl($scope) {
+      $scope.snippet =
+        'Pretty text with some links:\n'+
+        'http://angularjs.org/,\n'+
+        'mailto:us@somewhere.org,\n'+
+        'another@somewhere.org,\n'+
+        'and one more: ftp://127.0.0.1/.';
+      $scope.snippetWithTarget = 'http://angularjs.org/';
+    }
+  </script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-153"></pre>
+<script type="text/ng-template" id="scenario.js-153">
+  it('should linkify the snippet with urls', function() {
+    expect(using('#linky-filter').binding('snippet | linky')).
+      toBe('Pretty text with some links:&#10;' +
+           '<a href="http://angularjs.org/">http://angularjs.org/</a>,&#10;' +
+           '<a href="mailto:us@somewhere.org">us@somewhere.org</a>,&#10;' +
+           '<a href="mailto:another@somewhere.org">another@somewhere.org</a>,&#10;' +
+           'and one more: <a href="ftp://127.0.0.1/">ftp://127.0.0.1/</a>.');
+  });
+
+  it ('should not linkify snippet without the linky filter', function() {
+    expect(using('#escaped-html').binding('snippet')).
+      toBe("Pretty text with some links:\n" +
+           "http://angularjs.org/,\n" +
+           "mailto:us@somewhere.org,\n" +
+           "another@somewhere.org,\n" +
+           "and one more: ftp://127.0.0.1/.");
+  });
+
+  it('should update', function() {
+    input('snippet').enter('new http://link.');
+    expect(using('#linky-filter').binding('snippet | linky')).
+      toBe('new <a href="http://link">http://link</a>.');
+    expect(using('#escaped-html').binding('snippet')).toBe('new http://link.');
+  });
+
+  it('should work with the target property', function() {
+   expect(using('#linky-target').binding("snippetWithTarget | linky:'_blank'")).
+     toBe('<a target="_blank" href="http://angularjs.org/">http://angularjs.org/</a>');
+  });
+</script>
+</div>
+</div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-embed-app="ngSanitize" ng-set-html="index.html-152" ng-eval-javascript="script.js-151"></div>
+</div></div>
+</div>

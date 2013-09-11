@@ -1,0 +1,30 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ngMock/angular-mocks.js#L1513" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ngMock/angular-mocks.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$timeout</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ngMock</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ngmock-timeout-page"><p>This service is just a simple decorator for <a href="api/ng.$timeout"><code>$timeout</code></a> service
+that adds a &quot;flush&quot; and &quot;verifyNoPendingTasks&quot; methods.</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">$timeout();</pre>
+</div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="flush">flush(delay)</h3>
+<div class="flush"><div class="ngmock-timeout-flush-page"><p>Flushes the queue of pending tasks.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>delay <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-number">number</a></td><td><div class="ngmock-timeout-flush-page"><p>maximum timeout amount to flush up until</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="flushNext">flushNext(expectedDelay)</h3>
+<div class="flushnext"><div class="ngmock-timeout-flushnext-page"><p>Flushes the next timeout in the queue and compares it to the provided delay</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>expectedDelay <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-number">number</a></td><td><div class="ngmock-timeout-flushnext-page"><p>the delay value that will be asserted against the delay of the next timeout function</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="verifyNoPendingTasks">verifyNoPendingTasks()</h3>
+<div class="verifynopendingtasks"><div class="ngmock-timeout-verifynopendingtasks-page"><p>Verifies that there are no pending tasks that need to be flushed.</p>
+</div></div>
+</li>
+</ul>
+</div>
+</div>

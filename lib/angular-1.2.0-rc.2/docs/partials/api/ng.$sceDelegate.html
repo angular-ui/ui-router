@@ -1,0 +1,54 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/sce.js#L16" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/sce.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$sceDelegate</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-scedelegate-page"><p><code>$sceDelegate</code> is a service that is used by the <code>$sce</code> service to provide <a href="api/ng.$sce"><code>Strict Contextual Escaping (SCE)</code></a> services to AngularJS.</p>
+<p>Typically, you would configure or override the <a href="api/ng.$sceDelegate"><code>$sceDelegate</code></a> instead of
+the <code>$sce</code> service to customize the way Strict Contextual Escaping works in AngularJS.  This is
+because, while the <code>$sce</code> provides numerous shorthand methods, etc., you really only need to
+override 3 core functions (<code>trustAs</code>, <code>getTrusted</code> and <code>valueOf</code>) to replace the way things
+work because <code>$sce</code> delegates to <code>$sceDelegate</code> for these operations.</p>
+<p>Refer <a href="api/ng.$sceDelegateProvider"><code>$sceDelegateProvider</code></a> to configure this service.</p>
+<p>The default instance of <code>$sceDelegate</code> should work out of the box with little pain.  While you
+can override it completely to change the behavior of <code>$sce</code>, the common case would
+involve configuring the <a href="api/ng.$sceDelegateProvider"><code>$sceDelegateProvider</code></a> instead by setting
+your own whitelists and blacklists for trusting URLs used for loading AngularJS resources such as
+templates.  Refer <a href="api/ng.$sceDelegateProvider#resourceUrlWhitelist"><code>$sceDelegateProvider.resourceUrlWhitelist</code></a> and <a href="api/ng.$sceDelegateProvider#resourceUrlBlacklist"><code>$sceDelegateProvider.resourceUrlBlacklist</code></a></p>
+</div></div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="getTrusted">getTrusted(type, maybeTrusted)</h3>
+<div class="gettrusted"><div class="ng-scedelegate-gettrusted-page"><p>Takes the result of a <a href="api/ng.$sceDelegate#trustAs"><code><code>$sceDelegate.trustAs</code></code></a> call and returns the
+originally supplied value if the queried context type is a supertype of the created type.  If
+this condition isn&#39;t satisfied, throws an exception.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>type</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-scedelegate-gettrusted-page"><p>The kind of context in which this value is to be used.</p>
+</div></td></tr><tr><td>maybeTrusted</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-scedelegate-gettrusted-page"><p>The result of a prior <a href="api/ng.$sceDelegate#trustAs"><code><code>$sceDelegate.trustAs</code></code></a> call.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-scedelegate-gettrusted-page"><p>The value the was originally provided to <a href="api/ng.$sceDelegate#trustAs"><code><code>$sceDelegate.trustAs</code></code></a> if valid in this context.  Otherwise, throws an exception.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="trustAs">trustAs(type, value)</h3>
+<div class="trustas"><div class="ng-scedelegate-trustas-page"><p>Returns an object that is trusted by angular for use in specified strict
+contextual escaping contexts (such as ng-html-bind-unsafe, ng-include, any src
+attribute interpolation, any dom event binding attribute interpolation
+such as for onclick,  etc.) that uses the provided value.
+See <a href="api/ng.$sce"><code>$sce</code></a> for enabling strict contextual escaping.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>type</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-scedelegate-trustas-page"><p>The kind of context in which this value is safe for use.  e.g. url,
+resourceUrl, html, js and css.</p>
+</div></td></tr><tr><td>value</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-scedelegate-trustas-page"><p>The value that that should be considered trusted/safe.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-scedelegate-trustas-page"><p>A value that can be used to stand in for the provided <code>value</code> in places
+where Angular expects a $sce.trustAs() return value.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="valueOf">valueOf(value)</h3>
+<div class="valueof"><div class="ng-scedelegate-valueof-page"><p>If the passed parameter had been returned by a prior call to <a href="api/ng.$sceDelegate#trustAs"><code><code>$sceDelegate.trustAs</code></code></a>, returns the value that had been passed to <a href="api/ng.$sceDelegate#trustAs"><code><code>$sceDelegate.trustAs</code></code></a>.</p>
+<p>If the passed parameter is not a value that had been returned by <a href="api/ng.$sceDelegate#trustAs"><code><code>$sceDelegate.trustAs</code></code></a>, returns it as-is.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-scedelegate-valueof-page"><p>The result of a prior <a href="api/ng.$sceDelegate#trustAs"><code><code>$sceDelegate.trustAs</code></code></a>
+call or anything else.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-scedelegate-valueof-page"><p>The value the was originally provided to <a href="api/ng.$sceDelegate#trustAs"><code><code>$sceDelegate.trustAs</code></code></a> if <code>value</code> is the result of such a call.  Otherwise, returns <code>value</code>
+unchanged.</p>
+</div></td></tr></table></div>
+</li>
+</ul>
+</div>
+</div>

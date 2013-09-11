@@ -1,0 +1,44 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/directive/booleanAttrs.js#L264" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/directive/booleanAttrs.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">ngOpen</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-directive-page ng-directive-ngopen-page"><p>The HTML specs do not require browsers to preserve the special attributes such as open.
+(The presence of them means true and absence means false)
+This prevents the angular compiler from correctly retrieving the binding expression.
+To solve this problem, we introduce the <code>ngOpen</code> directive.</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;DETAILS ng-open
+     expression="{string}"&gt;
+   ...
+&lt;/DETAILS&gt;</pre>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>expression</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-ngopen-page"><p>Angular expression that will be evaluated.</p>
+</div></td></tr></tbody></table></div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ng-directive-page ng-directive-ngopen-page"><h4>Source</h2>
+<div source-edit="" source-edit-deps="angular.js" source-edit-html="index.html-11" source-edit-css="" source-edit-js="" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-12"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-11" ng-html-wrap=" angular.js"></pre>
+<script type="text/ng-template" id="index.html-11">
+  Check me check multiple: <input type="checkbox" ng-model="open"><br/>
+  <details id="details" ng-open="open">
+     <summary>Show/Hide me</summary>
+  </details>
+</script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-12"></pre>
+<script type="text/ng-template" id="scenario.js-12">
+  it('should toggle open', function() {
+    expect(element('#details').prop('open')).toBeFalsy();
+    input('open').check();
+    expect(element('#details').prop('open')).toBeTruthy();
+  });
+</script>
+</div>
+</div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-embed-app="" ng-set-html="index.html-11" ng-eval-javascript=""></div>
+</div></div>
+</div>

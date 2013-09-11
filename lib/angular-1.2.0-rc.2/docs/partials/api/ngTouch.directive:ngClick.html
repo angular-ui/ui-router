@@ -1,0 +1,42 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ngTouch/directive/ngClick.js#L3" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ngTouch/directive/ngClick.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">ngClick</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">ngTouch</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ngtouch-directive-page ngtouch-directive-ngclick-page"><p>A more powerful replacement for the default ngClick designed to be used on touchscreen
+devices. Most mobile browsers wait about 300ms after a tap-and-release before sending
+the click event. This version handles them immediately, and then prevents the
+following click event from propagating.</p>
+<p>Requires the <a href="api/ngTouch"><code>ngTouch</code></a> module to be installed.</p>
+<p>This directive can fall back to using an ordinary click event, and so works on desktop
+browsers as well as mobile.</p>
+<p>This directive also sets the CSS class <code>ng-click-active</code> while the element is being held
+down (by a mouse click or touch) so you can restyle the depressed element if you wish.</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;ANY ng-click="{expression}"&gt;
+   ...
+&lt;/ANY&gt;</pre>
+as class<pre class="prettyprint linenums">&lt;ANY class="ng-click: {expression};"&gt;
+   ...
+&lt;/ANY&gt;</pre>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>ngClick</td><td><a href="" class="label type-hint type-hint-expression">expression</a></td><td><div class="ngtouch-directive-page ngtouch-directive-ngclick-page"><p><a href="guide/expression">Expression</a> to evaluate
+upon tap. (Event object is available as <code>$event</code>)</p>
+</div></td></tr></tbody></table></div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ngtouch-directive-page ngtouch-directive-ngclick-page"><h4>Source</h2>
+<div source-edit="" source-edit-deps="angular.js" source-edit-html="index.html-159" source-edit-css="" source-edit-js="" source-edit-json="" source-edit-unit="" source-edit-scenario=""></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-159" ng-html-wrap=" angular.js"></pre>
+<script type="text/ng-template" id="index.html-159">
+  <button ng-click="count = count + 1" ng-init="count=0">
+    Increment
+  </button>
+  count: {{ count }}
+</script>
+</div>
+</div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-embed-app="" ng-set-html="index.html-159" ng-eval-javascript=""></div>
+</div></div>
+</div>

@@ -1,0 +1,26 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/error/ng/btstrpd.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">App Already Bootstrapped with this Element</code>
+<div><span class="hint">error in component <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><pre class="minerr-errmsg" error-display="App Already Bootstrapped with this Element '{0}'">App Already Bootstrapped with this Element '{0}'</pre>
+<h2 id="Description">Description</h2>
+<div class="description"><div class="ng-page ng-btstrpd-page"><p>Occurs when calling angular.bootstrap on an element that has already been bootstrapped.</p>
+<p>This usually happens when you accidentally use both <code>ng-app</code> and <code>angular.bootstrap</code> to bootstrap an application.</p>
+<pre><code>&lt;html&gt;
+...
+  &lt;body ng-app=&quot;myApp&quot;&gt;
+    &lt;script&gt;
+      angular.bootstrap(document.body, [&#39;myApp&#39;]);
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<p>Note that for bootrapping purposes, the <code>&lt;html&gt;</code> element is the same as <code>document</code>, so the following will also throw an error.</p>
+<pre><code>&lt;html&gt;
+...
+&lt;script&gt;
+  angular.bootstrap(document, [&#39;myApp&#39;]);
+&lt;/script&gt;
+&lt;/html&gt;</code></pre>
+</div></div>
+</div>

@@ -1,0 +1,17 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/error/interpolate/noconcat.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">Multiple Expressions</code>
+<div><span class="hint">error in component <code ng:non-bindable="">$interpolate</code>
+</span>
+</div>
+</h1>
+<div><pre class="minerr-errmsg" error-display="Error while interpolating: {0}
+Strict Contextual Escaping disallows interpolations that concatenate multiple expressions when a trusted value is required.  See http://docs.angularjs.org/api/ng.$sce">Error while interpolating: {0}
+Strict Contextual Escaping disallows interpolations that concatenate multiple expressions when a trusted value is required.  See http://docs.angularjs.org/api/ng.$sce</pre>
+<h2 id="Description">Description</h2>
+<div class="description"><div class="-interpolate-page -interpolate-noconcat-page"><p>This error occurs when performing an interpolation that concatenates multiple
+expressions when a trusted value is required. Concatenating expressions makes
+it hard to reason about whether some combination of concatenated values are
+unsafe to use and could easily lead to XSS.</p>
+<p>For more information about how AngularJS helps keep your app secure, refer to
+the <a href="api/ng.$sce"><code>$sce</code></a> API doc.</p>
+</div></div>
+</div>

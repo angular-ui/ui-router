@@ -1,0 +1,13 @@
+{
+  "name": "bootstrap",
+  "_cacheHeaders": {
+    "ETag": "\"51ba48cd29dc1bc40a192fb2dc412046\"",
+    "Content-Length": "55592",
+    "Content-Type": "application/zip",
+    "Content-Disposition": "attachment; filename=bootstrap.zip"
+  },
+  "_release": "e-tag:51ba48cd2",
+  "_source": "https://raw.github.com/twbs/bootstrap/v2.0.2/docs/assets/bootstrap.zip",
+  "_target": "*",
+  "_originalSource": "https://raw.github.com/twbs/bootstrap/v2.0.2/docs/assets/bootstrap.zip"
+}

@@ -1,0 +1,13 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/error/sanitize/badparse.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">Parsing Error while Sanitizing</code>
+<div><span class="hint">error in component <code ng:non-bindable="">$sanitize</code>
+</span>
+</div>
+</h1>
+<div><pre class="minerr-errmsg" error-display="The sanitizer was unable to parse the following block of html: {0}">The sanitizer was unable to parse the following block of html: {0}</pre>
+<h2 id="Description">Description</h2>
+<div class="description"><div class="-sanitize-page -sanitize-badparse-page"><p>This error occurs when the HTML string passed to &#39;$sanitize&#39; can&#39;t be parsed by the sanitizer.
+The error contains part of the html string that can&#39;t be parsed.</p>
+<p>The parser is more strict than a typical browser parser, so it&#39;s possible that some obscure input would produce this error despite the string being recognized as valid HTML by a browser.</p>
+<p>If a valid html code results in this error, please file a bug.</p>
+</div></div>
+</div>

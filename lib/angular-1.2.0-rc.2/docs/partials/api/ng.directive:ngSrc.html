@@ -1,0 +1,26 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/directive/booleanAttrs.js#L83" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/directive/booleanAttrs.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">ngSrc</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-directive-page ng-directive-ngsrc-page"><p>Using Angular markup like <code>{{hash}}</code> in a <code>src</code> attribute doesn&#39;t
+work right: The browser will fetch from the URL with the literal
+text <code>{{hash}}</code> until Angular replaces the expression inside
+<code>{{hash}}</code>. The <code>ngSrc</code> directive solves this problem.</p>
+<p>The buggy way to write it:
+<pre class="prettyprint linenums">
+&lt;img src="http://www.gravatar.com/avatar/{{hash}}"/&gt;
+</pre>
+<p>The correct way to write it:
+<pre class="prettyprint linenums">
+&lt;img ng-src="http://www.gravatar.com/avatar/{{hash}}"/&gt;
+</pre>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;IMG ng-src="{template}"&gt;
+   ...
+&lt;/IMG&gt;</pre>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>ngSrc</td><td><a href="" class="label type-hint type-hint-template">template</a></td><td><div class="ng-directive-page ng-directive-ngsrc-page"><p>any string which can contain <code>{{}}</code> markup.</p>
+</div></td></tr></tbody></table></div>
+</div>

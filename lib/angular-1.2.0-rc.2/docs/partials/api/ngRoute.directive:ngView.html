@@ -1,0 +1,196 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ngRoute/directive/ngView.js#L5" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ngRoute/directive/ngView.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">ngView</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">ngRoute</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ngroute-directive-page ngroute-directive-ngview-page"><h3>Overview</h3>
+<p><code>ngView</code> is a directive that complements the <a href="api/ngRoute.$route">$route</a> service by
+including the rendered template of the current route into the main layout (<code>index.html</code>) file.
+Every time the current route changes, the included view changes with it according to the
+configuration of the <code>$route</code> service.</p>
+<p>Requires the <a href="api/ngRoute"><code>ngRoute</code></a> module to be installed.</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><p>This directive can be used as custom element, but be aware of <a href="guide/ie">IE restrictions</a>.</p>as element:<pre class="prettyprint linenums">&lt;ng-view&gt;
+&lt;/ng-view&gt;</pre>
+as attribute<pre class="prettyprint linenums">&lt;ANY ng-view&gt;
+   ...
+&lt;/ANY&gt;</pre>
+as class<pre class="prettyprint linenums">&lt;ANY class="ng-view"&gt;
+   ...
+&lt;/ANY&gt;</pre>
+<h3 id="Directive.info">Directive info</h3>
+<div class="directive-info"><ul><li>This directive creates new scope.</li>
+</ul>
+</div>
+<h3 id="Animations">Animations</h3>
+<div class="animations"><ul><li>enter - animation is used to bring new content into the browser.</li><li>leave - animation is used to animate existing content away.</li><li></li><li>The enter and leave animation occur concurrently.</li></ul></div>
+<a href="api/ngAnimate.$animate">Click here</a> to learn more about the steps involved in the animation.</div>
+<div class="member event"><h2 id="Events">Events</h2>
+<ul class="events"><li><h3 id="$viewContentLoaded">$viewContentLoaded</h3>
+<div class="$viewcontentloaded"><div class="ngroute-directive-page ngroute-directive-ngview-viewcontentloaded-page"><p>Emitted every time the ngView content is reloaded.</p>
+</div><div class="inline"><h4 id="Type.">Type:</h4>
+<div class="type-">emit</div>
+</div>
+<div class="inline"><h4 id="Target.">Target:</h4>
+<div class="target-">the current ngView scope</div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ngroute-directive-page ngroute-directive-ngview-page"><h4>Source</h2>
+<div source-edit="ngViewExample" source-edit-deps="angular.js angular-animate.js angular-route.js script.js" source-edit-html="index.html-145 book.html chapter.html" source-edit-css="animations.css" source-edit-js="script.js-146" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-147"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-145" ng-html-wrap="ngViewExample angular.js angular-animate.js angular-route.js script.js"></pre>
+<script type="text/ng-template" id="index.html-145">
+  <div ng-controller="MainCntl as main">
+    Choose:
+    <a href="Book/Moby">Moby</a> |
+    <a href="Book/Moby/ch/1">Moby: Ch1</a> |
+    <a href="Book/Gatsby">Gatsby</a> |
+    <a href="Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
+    <a href="Book/Scarlet">Scarlet Letter</a><br/>
+
+    <div class="example-animate-container">
+      <div ng-view class="view-example"></div>
+    </div>
+    <hr />
+
+    <pre>$location.path() = {{main.$location.path()}}</pre>
+    <pre>$route.current.templateUrl = {{main.$route.current.templateUrl}}</pre>
+    <pre>$route.current.params = {{main.$route.current.params}}</pre>
+    <pre>$route.current.scope.name = {{main.$route.current.scope.name}}</pre>
+    <pre>$routeParams = {{main.$routeParams}}</pre>
+  </div>
+</script>
+</div>
+<div class="tab-pane" title="book.html">
+<pre class="prettyprint linenums" ng-set-text="book.html"></pre>
+<script type="text/ng-template" id="book.html">
+  <div>
+    controller: {{book.name}}<br />
+    Book Id: {{book.params.bookId}}<br />
+  </div>
+</script>
+</div>
+<div class="tab-pane" title="chapter.html">
+<pre class="prettyprint linenums" ng-set-text="chapter.html"></pre>
+<script type="text/ng-template" id="chapter.html">
+  <div>
+    controller: {{chapter.name}}<br />
+    Book Id: {{chapter.params.bookId}}<br />
+    Chapter Id: {{chapter.params.chapterId}}
+  </div>
+</script>
+</div>
+<div class="tab-pane" title="animations.css">
+<pre class="prettyprint linenums" ng-set-text="animations.css"></pre>
+<style type="text/css" id="animations.css">
+  .example-animate-container {
+    position:relative;
+    background:white;
+    border:1px solid black;
+    height:40px;
+    overflow:hidden;
+  }
+
+  .example-animate-container > div {
+    padding:10px;
+  }
+
+  .view-example.ng-enter, .view-example.ng-leave {
+    -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 1.5s;
+    -moz-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 1.5s;
+    -o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 1.5s;
+    transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 1.5s;
+
+    display:block;
+    width:100%;
+    border-left:1px solid black;
+
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    padding:10px;
+  }
+
+  .example-animate-container {
+    position:relative;
+    height:100px;
+  }
+
+  .view-example.ng-enter {
+    left:100%;
+  }
+  .view-example.ng-enter.ng-enter-active {
+    left:0;
+  }
+
+  .view-example.ng-leave { }
+  .view-example.ng-leave.ng-leave-active {
+    left:-100%;
+  }
+</style>
+</div>
+<div class="tab-pane" title="script.js">
+<pre class="prettyprint linenums" ng-set-text="script.js-146"></pre>
+<script type="text/ng-template" id="script.js-146">
+  angular.module('ngViewExample', ['ngRoute', 'ngAnimate'], function($routeProvider, $locationProvider) {
+    $routeProvider.when('/Book/:bookId', {
+      templateUrl: 'book.html',
+      controller: BookCntl,
+      controllerAs: 'book'
+    });
+    $routeProvider.when('/Book/:bookId/ch/:chapterId', {
+      templateUrl: 'chapter.html',
+      controller: ChapterCntl,
+      controllerAs: 'chapter'
+    });
+
+    // configure html5 to get links working on jsfiddle
+    $locationProvider.html5Mode(true);
+  });
+
+  function MainCntl($route, $routeParams, $location) {
+    this.$route = $route;
+    this.$location = $location;
+    this.$routeParams = $routeParams;
+  }
+
+  function BookCntl($routeParams) {
+    this.name = "BookCntl";
+    this.params = $routeParams;
+  }
+
+  function ChapterCntl($routeParams) {
+    this.name = "ChapterCntl";
+    this.params = $routeParams;
+  }
+</script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-147"></pre>
+<script type="text/ng-template" id="scenario.js-147">
+  it('should load and compile correct template', function() {
+    element('a:contains("Moby: Ch1")').click();
+    var content = element('.doc-example-live [ng-view]').text();
+    expect(content).toMatch(/controller\: ChapterCntl/);
+    expect(content).toMatch(/Book Id\: Moby/);
+    expect(content).toMatch(/Chapter Id\: 1/);
+
+    element('a:contains("Scarlet")').click();
+    content = element('.doc-example-live [ng-view]').text();
+    expect(content).toMatch(/controller\: BookCntl/);
+    expect(content).toMatch(/Book Id\: Scarlet/);
+  });
+</script>
+</div>
+</div><div class="pull-right"> <button class="btn btn-primary" ng-click="animationsOff=true" ng-hide="animationsOff">Animations on</button> <button class="btn btn-primary disabled" ng-click="animationsOff=false" ng-show="animationsOff">Animations off</button></div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-class="{'animations-off':animationsOff == true}" ng-embed-app="ngViewExample" ng-set-html="index.html-145" ng-eval-javascript="script.js-146"></div>
+</div></div>
+</div>

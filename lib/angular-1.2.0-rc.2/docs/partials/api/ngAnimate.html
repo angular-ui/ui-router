@@ -1,0 +1,185 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ngAnimate/animate.js#L1" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ngAnimate/animate.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable=""></code>
+<div><span class="hint"></span>
+</div>
+</h1>
+<div><div class="nganimate-page"><h2>ngAnimate</h1>
+<p><code>ngAnimate</code> is an optional module that provides CSS and JavaScript animation hooks.</p>
+<p><h1>Installation</h1><p>First include <code>angular-animate.js</code> in your HTML:</p><pre><code>    &lt;script src=&quot;angular.js&quot;&gt;
+    &lt;script src=&quot;angular-animate.js&quot;&gt;</pre></code><p>You can also find this file on the <a href="https://developers.google.com/speed/libraries/devguide#angularjs">Google CDN</a>, <a href="http://bower.io/">Bower</a> (as <code>angular-animate</code>), and on <a href="http://code.angularjs.org/">code.angularjs.org</a>.</p><p>Then load the module in your application by adding it as a dependant module:</p><pre><code>    angular.module(&#39;app&#39;, [&#39;ngAnimate&#39;]);</pre></code><p>With that you&#39;re ready to get started!</p></p>
+<h1>Usage</h2>
+<p>To see animations in action, all that is required is to define the appropriate CSS classes
+or to register a JavaScript animation via the $animation service. The directives that support animation automatically are:
+<code>ngRepeat</code>, <code>ngInclude</code>, <code>ngSwitch</code>, <code>ngShow</code>, <code>ngHide</code> and <code>ngView</code>. Custom directives can take advantage of animation
+by using the <code>$animate</code> service.</p>
+<p>Below is a more detailed breakdown of the supported animation events provided by pre-existing ng directives:</p>
+<table>
+<thead>
+<tr>
+<th>Directive</th>
+<th>Supported Animations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="api/ng.directive:ngRepeat#animations"><code>ngRepeat</code></a></td>
+<td>enter, leave and move</td>
+</tr>
+<tr>
+<td><a href="api/ngRoute.directive:ngView#animations">ngView</a></td>
+<td>enter and leave</td>
+</tr>
+<tr>
+<td><a href="api/ng.directive:ngInclude#animations"><code>ngInclude</code></a></td>
+<td>enter and leave</td>
+</tr>
+<tr>
+<td><a href="api/ng.directive:ngSwitch#animations"><code>ngSwitch</code></a></td>
+<td>enter and leave</td>
+</tr>
+<tr>
+<td><a href="api/ng.directive:ngIf#animations"><code>ngIf</code></a></td>
+<td>enter and leave</td>
+</tr>
+<tr>
+<td><a href="api/ng.directive:ngShow#animations"><code>ngClass</code></a></td>
+<td>add and remove</td>
+</tr>
+<tr>
+<td><a href="api/ng.directive:ngShow#animations"><code>ngShow &amp; ngHide</code></a></td>
+<td>add and remove (the ng-hide class value)</td>
+</tr>
+</tbody>
+</table>
+<p>You can find out more information about animations upon visiting each directive page.</p>
+<p>Below is an example of how to apply animations to a directive that supports animation hooks:</p>
+<pre class="prettyprint linenums">
+&lt;style type="text/css"&gt;
+.slide.ng-enter &gt; div,
+.slide.ng-leave &gt; div {
+  -webkit-transition:0.5s linear all;
+  -moz-transition:0.5s linear all;
+  -o-transition:0.5s linear all;
+  transition:0.5s linear all;
+}
+
+.slide.ng-enter { }        /&#42; starting animations for enter &#42;/
+.slide.ng-enter-active { } /&#42; terminal animations for enter &#42;/
+.slide.ng-leave { }        /&#42; starting animations for leave &#42;/
+.slide.ng-leave-active { } /&#42; terminal animations for leave &#42;/
+&lt;/style&gt;
+
+&lt;!--
+the animate service will automatically add .ng-enter and .ng-leave to the element
+to trigger the CSS transition/animations
+--&gt;
+&lt;ANY class="slide" ng-include="..."&gt;&lt;/ANY&gt;
+</pre>
+<p>Keep in mind that if an animation is running, any child elements cannot be animated until the parent element&#39;s
+animation has completed.</p>
+<p><h3>CSS-defined Animations</h2>
+The animate service will automatically apply two CSS classes to the animated element and these two CSS classes
+are designed to contain the start and end CSS styling. Both CSS transitions and keyframe animations are supported
+and can be used to play along with this naming structure.</p>
+<p>The following code below demonstrates how to perform animations using <strong>CSS transitions</strong> with Angular:</p>
+<pre class="prettyprint linenums">
+&lt;style type="text/css"&gt;
+/&#42;
+ The animate class is apart of the element and the ng-enter class
+ is attached to the element once the enter animation event is triggered
+&#42;/
+.reveal-animation.ng-enter {
+ -webkit-transition: 1s linear all; /&#42; Safari/Chrome &#42;/
+ -moz-transition: 1s linear all; /&#42; Firefox &#42;/
+ -o-transition: 1s linear all; /&#42; Opera &#42;/
+ transition: 1s linear all; /&#42; IE10+ and Future Browsers &#42;/
+
+ /&#42; The animation preparation code &#42;/
+ opacity: 0;
+}
+
+/&#42;
+ Keep in mind that you want to combine both CSS
+ classes together to avoid any CSS-specificity
+ conflicts
+&#42;/
+.reveal-animation.ng-enter.ng-enter-active {
+ /&#42; The animation code itself &#42;/
+ opacity: 1;
+}
+&lt;/style&gt;
+
+&lt;div class="view-container"&gt;
+  &lt;div ng-view class="reveal-animation"&gt;&lt;/div&gt;
+&lt;/div&gt;
+</pre>
+<p>The following code below demonstrates how to perform animations using <strong>CSS animations</strong> with Angular:</p>
+<pre class="prettyprint linenums">
+&lt;style type="text/css"&gt;
+.reveal-animation.ng-enter {
+  -webkit-animation: enter_sequence 1s linear; /&#42; Safari/Chrome &#42;/
+  -moz-animation: enter_sequence 1s linear; /&#42; Firefox &#42;/
+  -o-animation: enter_sequence 1s linear; /&#42; Opera &#42;/
+  animation: enter_sequence 1s linear; /&#42; IE10+ and Future Browsers &#42;/
+}
+&#64-webkit-keyframes enter_sequence {
+  from { opacity:0; }
+  to { opacity:1; }
+}
+&#64-moz-keyframes enter_sequence {
+  from { opacity:0; }
+  to { opacity:1; }
+}
+&#64-o-keyframes enter_sequence {
+  from { opacity:0; }
+  to { opacity:1; }
+}
+&#64keyframes enter_sequence {
+  from { opacity:0; }
+  to { opacity:1; }
+}
+&lt;/style&gt;
+
+&lt;div class="view-container"&gt;
+  &lt;div ng-view class="reveal-animation"&gt;&lt;/div&gt;
+&lt;/div&gt;
+</pre>
+<p>Both CSS3 animations and transitions can be used together and the animate service will figure out the correct duration and delay timing.</p>
+<p>Upon DOM mutation, the event class is added first (something like <code>ng-enter</code>), then the browser prepares itself to add
+the active class (in this case <code>ng-enter-active</code>) which then triggers the animation. The animation module will automatically
+detect the CSS code to determine when the animation ends. Once the animation is over then both CSS classes will be
+removed from the DOM. If a browser does not support CSS transitions or CSS animations then the animation will start and end
+immediately resulting in a DOM element that is at its final state. This final state is when the DOM element
+has no CSS transition/animation classes applied to it.</p>
+<p><h2>JavaScript-defined Animations</h3>
+In the event that you do not want to use CSS3 transitions or CSS3 animations or if you wish to offer animations on browsers that do not
+yet support CSS transitions/animations, then you can make use of JavaScript animations defined inside of your AngularJS module.</p>
+<pre class="prettyprint linenums">
+var ngModule = angular.module('<div class="nocode nocode-content" data-popover data-content="Replace this or ngModule with the module that you used to define your application." data-title="Your AngularJS Module">YourApp</div>', []);
+ngModule.animation('.my-crazy-animation', function() {
+  return {
+    enter: function(element, done) {
+      //run the animation
+      
+<div class="nocode nocode-content" data-popover data-content="This function (if provided) will perform the cancellation of the animation when another is triggered" data-title="Cancel Animation">return function(element, done) {</div>
+        //cancel the animation
+      }
+    }
+    leave: function(element, done) { },
+    move: function(element, done) { },
+    show: function(element, done) { },
+    hide: function(element, done) { },
+    addClass: function(element, className, done) { },
+    removeClass: function(element, className, done) { },
+  }
+});
+</pre>
+<p>JavaScript-defined animations are created with a CSS-like class selector and a collection of events which are set to run
+a javascript callback function. When an animation is triggered, $animate will look for a matching animation which fits
+the element&#39;s CSS class attribute value and then run the matching animation event function (if found).
+In other words, if the CSS classes present on the animated element match any of the JavaScript animations then the callback function
+be executed. It should be also noted that only simple class selectors are allowed.</p>
+<p>Within a JavaScript animation, an object containing various event callback animation functions is expected to be returned.
+As explained above, these callbacks are triggered based on the animation event. Therefore if an enter animation is run,
+and the JavaScript animation is found, then the enter callback will handle that animation (in addition to the CSS keyframe animation
+or transition code that is defined via a stylesheet).</p>
+</div></div>

@@ -1,0 +1,67 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/directive/input.js#L1251" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/directive/input.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">ngList</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-directive-page ng-directive-nglist-page"><p>Text input that converts between comma-separated string into an array of strings.</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;input ng-list="{string}"&gt;
+   ...
+&lt;/input&gt;</pre>
+as class<pre class="prettyprint linenums">&lt;input class="ng-list: {string};"&gt;
+   ...
+&lt;/input&gt;</pre>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>ngList <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-nglist-page"><p>optional delimiter that should be used to split the value. If
+specified in form <code>/something/</code> then the value will be converted into a regular expression.</p>
+</div></td></tr></tbody></table></div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ng-directive-page ng-directive-nglist-page"><h4>Source</h2>
+<div source-edit="" source-edit-deps="angular.js script.js" source-edit-html="index.html-50" source-edit-css="" source-edit-js="script.js-49" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-51"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-50" ng-html-wrap=" angular.js script.js"></pre>
+<script type="text/ng-template" id="index.html-50">
+ 
+ <form name="myForm" ng-controller="Ctrl">
+   List: <input name="namesInput" ng-model="names" ng-list required>
+   <span class="error" ng-show="myForm.namesInput.$error.required">
+     Required!</span>
+   <br>
+   <tt>names = {{names}}</tt><br/>
+   <tt>myForm.namesInput.$valid = {{myForm.namesInput.$valid}}</tt><br/>
+   <tt>myForm.namesInput.$error = {{myForm.namesInput.$error}}</tt><br/>
+   <tt>myForm.$valid = {{myForm.$valid}}</tt><br/>
+   <tt>myForm.$error.required = {{!!myForm.$error.required}}</tt><br/>
+  </form>
+</script>
+</div>
+<div class="tab-pane" title="script.js">
+<pre class="prettyprint linenums" ng-set-text="script.js-49"></pre>
+<script type="text/ng-template" id="script.js-49">
+   function Ctrl($scope) {
+     $scope.names = ['igor', 'misko', 'vojta'];
+   }
+ </script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-51"></pre>
+<script type="text/ng-template" id="scenario.js-51">
+  it('should initialize to model', function() {
+    expect(binding('names')).toEqual('["igor","misko","vojta"]');
+    expect(binding('myForm.namesInput.$valid')).toEqual('true');
+    expect(element('span.error').css('display')).toBe('none');
+  });
+
+  it('should be invalid if empty', function() {
+    input('names').enter('');
+    expect(binding('names')).toEqual('[]');
+    expect(binding('myForm.namesInput.$valid')).toEqual('false');
+    expect(element('span.error').css('display')).not().toBe('none');
+  });
+</script>
+</div>
+</div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-embed-app="" ng-set-html="index.html-50" ng-eval-javascript="script.js-49"></div>
+</div></div>
+</div>

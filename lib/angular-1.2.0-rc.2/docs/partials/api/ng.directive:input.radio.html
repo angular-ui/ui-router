@@ -1,0 +1,58 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/directive/input.js#L293" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/directive/input.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">input [radio]</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-directive-page ng-directive-input-radio-page"><p>HTML radio button.</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">&lt;input type="radio"
+       ng-model="{string}"
+       value="{string}"
+       [name="{string}"]
+       [ng-change="{string}"]&gt;</pre>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>ngModel</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-input-radio-page"><p>Assignable angular expression to data-bind to.</p>
+</div></td></tr><tr><td>value</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-input-radio-page"><p>The value to which the expression should be set when selected.</p>
+</div></td></tr><tr><td>name <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-input-radio-page"><p>Property name of the form under which the control is published.</p>
+</div></td></tr><tr><td>ngChange <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-input-radio-page"><p>Angular expression to be executed when input changes due to user
+interaction with the input element.</p>
+</div></td></tr></tbody></table></div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ng-directive-page ng-directive-input-radio-page"><h4>Source</h2>
+<div source-edit="" source-edit-deps="angular.js script.js" source-edit-html="index.html-35" source-edit-css="" source-edit-js="script.js-34" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-36"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-35" ng-html-wrap=" angular.js script.js"></pre>
+<script type="text/ng-template" id="index.html-35">
+ 
+ <form name="myForm" ng-controller="Ctrl">
+   <input type="radio" ng-model="color" value="red">  Red <br/>
+   <input type="radio" ng-model="color" value="green"> Green <br/>
+   <input type="radio" ng-model="color" value="blue"> Blue <br/>
+   <tt>color = {{color}}</tt><br/>
+  </form>
+</script>
+</div>
+<div class="tab-pane" title="script.js">
+<pre class="prettyprint linenums" ng-set-text="script.js-34"></pre>
+<script type="text/ng-template" id="script.js-34">
+   function Ctrl($scope) {
+     $scope.color = 'blue';
+   }
+ </script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-36"></pre>
+<script type="text/ng-template" id="scenario.js-36">
+  it('should change state', function() {
+    expect(binding('color')).toEqual('blue');
+
+    input('color').select('red');
+    expect(binding('color')).toEqual('red');
+  });
+</script>
+</div>
+</div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-embed-app="" ng-set-html="index.html-35" ng-eval-javascript="script.js-34"></div>
+</div></div>
+</div>

@@ -1,0 +1,96 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/filter/filters.js#L265" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/filter/filters.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">date</code>
+<div><span class="hint">filter in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-filter-page ng-filter-date-page"><p>Formats <code>date</code> to a string based on the requested <code>format</code>.</p>
+<p><code>format</code> string can be composed of the following elements:</p>
+<ul>
+<li><code>&#39;yyyy&#39;</code>: 4 digit representation of year (e.g. AD 1 =&gt; 0001, AD 2010 =&gt; 2010)</li>
+<li><code>&#39;yy&#39;</code>: 2 digit representation of year, padded (00-99). (e.g. AD 2001 =&gt; 01, AD 2010 =&gt; 10)</li>
+<li><code>&#39;y&#39;</code>: 1 digit representation of year, e.g. (AD 1 =&gt; 1, AD 199 =&gt; 199)</li>
+<li><code>&#39;MMMM&#39;</code>: Month in year (January-December)</li>
+<li><code>&#39;MMM&#39;</code>: Month in year (Jan-Dec)</li>
+<li><code>&#39;MM&#39;</code>: Month in year, padded (01-12)</li>
+<li><code>&#39;M&#39;</code>: Month in year (1-12)</li>
+<li><code>&#39;dd&#39;</code>: Day in month, padded (01-31)</li>
+<li><code>&#39;d&#39;</code>: Day in month (1-31)</li>
+<li><code>&#39;EEEE&#39;</code>: Day in Week,(Sunday-Saturday)</li>
+<li><code>&#39;EEE&#39;</code>: Day in Week, (Sun-Sat)</li>
+<li><code>&#39;HH&#39;</code>: Hour in day, padded (00-23)</li>
+<li><code>&#39;H&#39;</code>: Hour in day (0-23)</li>
+<li><code>&#39;hh&#39;</code>: Hour in am/pm, padded (01-12)</li>
+<li><code>&#39;h&#39;</code>: Hour in am/pm, (1-12)</li>
+<li><code>&#39;mm&#39;</code>: Minute in hour, padded (00-59)</li>
+<li><code>&#39;m&#39;</code>: Minute in hour (0-59)</li>
+<li><code>&#39;ss&#39;</code>: Second in minute, padded (00-59)</li>
+<li><code>&#39;s&#39;</code>: Second in minute (0-59)</li>
+<li><code>&#39;.sss&#39; or &#39;,sss&#39;</code>: Millisecond in second, padded (000-999)</li>
+<li><code>&#39;a&#39;</code>: am/pm marker</li>
+<li><code>&#39;Z&#39;</code>: 4 digit (+sign) representation of the timezone offset (-1200-+1200)</li>
+</ul>
+<p><code>format</code> string can also be one of the following predefined
+<a href="guide/i18n">localizable formats</a>:</p>
+<ul>
+<li><code>&#39;medium&#39;</code>: equivalent to <code>&#39;MMM d, y h:mm:ss a&#39;</code> for en_US locale
+(e.g. Sep 3, 2010 12:05:08 pm)</li>
+<li><code>&#39;short&#39;</code>: equivalent to <code>&#39;M/d/yy h:mm a&#39;</code> for en_US  locale (e.g. 9/3/10 12:05 pm)</li>
+<li><code>&#39;fullDate&#39;</code>: equivalent to <code>&#39;EEEE, MMMM d,y&#39;</code> for en_US  locale
+(e.g. Friday, September 3, 2010)</li>
+<li><code>&#39;longDate&#39;</code>: equivalent to <code>&#39;MMMM d, y&#39;</code> for en_US  locale (e.g. September 3, 2010)</li>
+<li><code>&#39;mediumDate&#39;</code>: equivalent to <code>&#39;MMM d, y&#39;</code> for en_US  locale (e.g. Sep 3, 2010)</li>
+<li><code>&#39;shortDate&#39;</code>: equivalent to <code>&#39;M/d/yy&#39;</code> for en_US locale (e.g. 9/3/10)</li>
+<li><code>&#39;mediumTime&#39;</code>: equivalent to <code>&#39;h:mm:ss a&#39;</code> for en_US locale (e.g. 12:05:08 pm)</li>
+<li><code>&#39;shortTime&#39;</code>: equivalent to <code>&#39;h:mm a&#39;</code> for en_US locale (e.g. 12:05 pm)</li>
+</ul>
+<p><code>format</code> string can contain literal values. These need to be quoted with single quotes (e.g.
+<code>&quot;h &#39;in the morning&#39;&quot;</code>). In order to output single quote, use two single quotes in a sequence
+(e.g. <code>&quot;h &#39;o&#39;&#39;clock&#39;&quot;</code>).</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><h3 id="In.HTML.Template.Binding">In HTML Template Binding</h3>
+<div class="in-html-template-binding"><code ng:non-bindable=""><span>{{</span> date_expression | date[:format] <span>}}</span></code>
+</div>
+<h3 id="In.JavaScript">In JavaScript</h3>
+<div class="in-javascript"><code ng:non-bindable="">$filter('date')(date[, format])</code>
+</div>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>date</td><td><a href="" class="label type-hint type-hint-date">Date</a><a href="" class="label type-hint type-hint-number">number</a><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-filter-page ng-filter-date-page"><p>Date to format either as Date object, milliseconds (string or
+number) or various ISO 8601 datetime string formats (e.g. yyyy-MM-ddTHH:mm:ss.SSSZ and its
+shorter versions like yyyy-MM-ddTHH:mmZ, yyyy-MM-dd or yyyyMMddTHHmmssZ). If no timezone is
+specified in the string input, the time is considered to be in the local timezone.</p>
+</div></td></tr><tr><td>format <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-filter-page ng-filter-date-page"><p>Formatting rules (see Description). If not specified,
+<code>mediumDate</code> is used.</p>
+</div></td></tr></tbody></table><h4 id="returns">Returns</h4><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-filter-page ng-filter-date-page"><p>Formatted string or the input if input is not recognized as date/millis.</p>
+</div></td></tr></table></div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ng-filter-page ng-filter-date-page"><h4>Source</h2>
+<div source-edit="" source-edit-deps="angular.js" source-edit-html="index.html-116" source-edit-css="" source-edit-js="" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-117"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-116" ng-html-wrap=" angular.js"></pre>
+<script type="text/ng-template" id="index.html-116">
+  <span ng-non-bindable>{{1288323623006 | date:'medium'}}</span>:
+      {{1288323623006 | date:'medium'}}<br>
+  <span ng-non-bindable>{{1288323623006 | date:'yyyy-MM-dd HH:mm:ss Z'}}</span>:
+     {{1288323623006 | date:'yyyy-MM-dd HH:mm:ss Z'}}<br>
+  <span ng-non-bindable>{{1288323623006 | date:'MM/dd/yyyy @ h:mma'}}</span>:
+     {{'1288323623006' | date:'MM/dd/yyyy @ h:mma'}}<br>
+</script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-117"></pre>
+<script type="text/ng-template" id="scenario.js-117">
+  it('should format date', function() {
+    expect(binding("1288323623006 | date:'medium'")).
+       toMatch(/Oct 2\d, 2010 \d{1,2}:\d{2}:\d{2} (AM|PM)/);
+    expect(binding("1288323623006 | date:'yyyy-MM-dd HH:mm:ss Z'")).
+       toMatch(/2010\-10\-2\d \d{2}:\d{2}:\d{2} (\-|\+)?\d{4}/);
+    expect(binding("'1288323623006' | date:'MM/dd/yyyy @ h:mma'")).
+       toMatch(/10\/2\d\/2010 @ \d{1,2}:\d{2}(AM|PM)/);
+  });
+</script>
+</div>
+</div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-embed-app="" ng-set-html="index.html-116" ng-eval-javascript=""></div>
+</div></div>
+</div>

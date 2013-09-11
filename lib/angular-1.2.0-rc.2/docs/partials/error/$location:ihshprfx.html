@@ -1,0 +1,16 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/error/location/ihshprfx.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">Missing Hash Prefix</code>
+<div><span class="hint">error in component <code ng:non-bindable="">$location</code>
+</span>
+</div>
+</h1>
+<div><pre class="minerr-errmsg" error-display="Invalid url &quot;{0}&quot;, missing hash prefix &quot;{1}&quot;.">Invalid url "{0}", missing hash prefix "{1}".</pre>
+<h2 id="Description">Description</h2>
+<div class="description"><div class="-location-page -location-ihshprfx-page"><p>This error occurs when <a href="api/ng.$location"><code>$location</code></a> service is configured to use a hash prefix but this prefix was not present in a url that the <code>$location</code> service was asked to parse.</p>
+<p>For example if you configure <code>$location</code> service with prefix <code>&#39;!&#39;</code>:</p>
+<pre><code>myApp.config(function($locationProvider) {
+  $locationProvider.prefix(&#39;!&#39;);
+});</code></pre>
+<p>If you enter the app at url <code>http:/myapp.com/#/myView</code> this error will be throw.</p>
+<p>The correct url for this configuration is <code>http:/myapp.com/#!/myView</code> (note the <code>&#39;!&#39;</code> after <code>&#39;#&#39;</code> symbol).</p>
+</div></div>
+</div>

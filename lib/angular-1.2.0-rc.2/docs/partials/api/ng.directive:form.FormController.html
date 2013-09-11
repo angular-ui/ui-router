@@ -1,0 +1,73 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/directive/form.js#L12" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/directive/form.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">FormController</code>
+<div><span class="hint">type in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-directive-page ng-directive-form-formcontroller-page"><p><code>FormController</code> keeps track of all its controls and nested forms as well as state of them,
+such as being valid/invalid or dirty/pristine.</p>
+<p>Each <a href="api/ng.directive:form"><code>form</code></a> directive creates an instance
+of <code>FormController</code>.</p>
+</div></div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="$addControl">$addControl()</h3>
+<div class="$addcontrol"><div class="ng-directive-page ng-directive-form-formcontroller-addcontrol-page"><p>Register a control with the form.</p>
+<p>Input elements using ngModelController do this automatically when they are linked.</p>
+</div></div>
+</li>
+<li><h3 id="$removeControl">$removeControl()</h3>
+<div class="$removecontrol"><div class="ng-directive-page ng-directive-form-formcontroller-removecontrol-page"><p>Deregister a control from the form.</p>
+<p>Input elements using ngModelController do this automatically when they are destroyed.</p>
+</div></div>
+</li>
+<li><h3 id="$setDirty">$setDirty()</h3>
+<div class="$setdirty"><div class="ng-directive-page ng-directive-form-formcontroller-setdirty-page"><p>Sets the form to a dirty state.</p>
+<p>This method can be called to add the &#39;ng-dirty&#39; class and set the form to a dirty
+state (ng-dirty class). This method will also propagate to parent forms.</p>
+</div></div>
+</li>
+<li><h3 id="$setPristine">$setPristine()</h3>
+<div class="$setpristine"><div class="ng-directive-page ng-directive-form-formcontroller-setpristine-page"><p>Sets the form to its pristine state.</p>
+<p>This method can be called to remove the &#39;ng-dirty&#39; class and set the form to its pristine
+state (ng-pristine class). This method will also propagate to all the controls contained
+in this form.</p>
+<p>Setting a form back to a pristine state is often useful when we want to &#39;reuse&#39; a form after
+saving or resetting it.</p>
+</div></div>
+</li>
+<li><h3 id="$setValidity">$setValidity()</h3>
+<div class="$setvalidity"><div class="ng-directive-page ng-directive-form-formcontroller-setvalidity-page"><p>Sets the validity of a form control.</p>
+<p>This method will also propagate to parent forms.</p>
+</div></div>
+</li>
+</ul>
+</div>
+<div class="member property"><h2 id="Properties">Properties</h2>
+<ul class="properties"><li><h3 id="$pristine">$pristine</h3>
+<div class="$pristine"><div class="ng-directive-page ng-directive-form-formcontroller-page"><p>True if user has not interacted with the form yet.</p>
+</div></div>
+</li>
+<li><h3 id="$dirty">$dirty</h3>
+<div class="$dirty"><div class="ng-directive-page ng-directive-form-formcontroller-page"><p>True if user has already interacted with the form.</p>
+</div></div>
+</li>
+<li><h3 id="$valid">$valid</h3>
+<div class="$valid"><div class="ng-directive-page ng-directive-form-formcontroller-page"><p>True if all of the containing forms and controls are valid.</p>
+</div></div>
+</li>
+<li><h3 id="$invalid">$invalid</h3>
+<div class="$invalid"><div class="ng-directive-page ng-directive-form-formcontroller-page"><p>True if at least one containing control or form is invalid.</p>
+</div></div>
+</li>
+<li><h3 id="$error">$error</h3>
+<div class="$error"><div class="ng-directive-page ng-directive-form-formcontroller-page"><p>Is an object hash, containing references to all invalid controls or
+forms, where:</p>
+<ul>
+<li>keys are validation tokens (error names) — such as <code>required</code>, <code>url</code> or <code>email</code>),</li>
+<li>values are arrays of controls or forms that are invalid with given error.</li>
+</ul>
+</div></div>
+</li>
+</ul>
+</div>
+</div>

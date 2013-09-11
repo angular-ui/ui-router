@@ -1,0 +1,46 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/sce.js#L43" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/sce.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$sceDelegateProvider</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-scedelegateprovider-page"><p>The $sceDelegateProvider provider allows developers to configure the <a href="api/ng.$sceDelegate"><code>$sceDelegate</code></a> service.  This allows one to get/set the whitelists and blacklists used to ensure
+that URLs used for sourcing Angular templates are safe.  Refer <a href="api/ng.$sceDelegateProvider#resourceUrlWhitelist"><code>$sceDelegateProvider.resourceUrlWhitelist</code></a> and
+<a href="api/ng.$sceDelegateProvider#resourceUrlBlacklist"><code>$sceDelegateProvider.resourceUrlBlacklist</code></a></p>
+<p>Read more about <a href="api/ng.$sce"><code>Strict Contextual Escaping (SCE)</code></a>.</p>
+</div></div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="resourceUrlBlacklist">resourceUrlBlacklist(blacklist)</h3>
+<div class="resourceurlblacklist"><div class="ng-scedelegateprovider-resourceurlblacklist-page"><p>Sets/Gets the blacklist of trusted resource URLs.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>blacklist <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-array">Array</a></td><td><div class="ng-scedelegateprovider-resourceurlblacklist-page"><p>When provided, replaces the resourceUrlBlacklist with the value
+provided.  This must be an array.</p>
+<p>Each element of this array must either be a regex or the special string <code>&#39;self&#39;</code> (see
+<code>resourceUrlWhitelist</code> for meaning - it&#39;s only really useful there.)</p>
+<p>When a regex is used, it is matched against the normalized / absolute URL of the resource
+being tested.</p>
+<p>The typical usage for the blacklist is to <strong>block <a href="http://cwe.mitre.org/data/definitions/601.html">open redirects</a></strong>
+served by your domain as these would otherwise be trusted but actually return content from the redirected
+domain.</p>
+<p>Finally, <strong>the blacklist overrides the whitelist</strong> and has the final say.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-array">Array</a></td><td><div class="ng-scedelegateprovider-resourceurlblacklist-page"><p>the currently set blacklist array.</p>
+<p>The <strong>default value</strong> when no whitelist has been explicitly set is the empty array (i.e. there is
+no blacklist.)</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="resourceUrlWhitelist">resourceUrlWhitelist(whitelist)</h3>
+<div class="resourceurlwhitelist"><div class="ng-scedelegateprovider-resourceurlwhitelist-page"><p>Sets/Gets the whitelist of trusted resource URLs.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>whitelist <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-array">Array</a></td><td><div class="ng-scedelegateprovider-resourceurlwhitelist-page"><p>When provided, replaces the resourceUrlWhitelist with the value
+provided.  This must be an array.</p>
+<p>Each element of this array must either be a regex or the special string <code>&#39;self&#39;</code>.</p>
+<p>When a regex is used, it is matched against the normalized / absolute URL of the resource
+being tested.</p>
+<p>The <strong>special string</strong> <code>&#39;self&#39;</code> can be used to match against all URLs of the same domain as the
+application document with the same protocol (allows sourcing https resources from http documents.)</p>
+<p>Please note that <strong>an empty whitelist array will block all URLs</strong>!</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-array">Array</a></td><td><div class="ng-scedelegateprovider-resourceurlwhitelist-page"><p>the currently set whitelist array.</p>
+<p>The <strong>default value</strong> when no whitelist has been explicitly set is <code>[&#39;self&#39;]</code>.</p>
+</div></td></tr></table></div>
+</li>
+</ul>
+</div>
+</div>

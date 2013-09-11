@@ -1,0 +1,57 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/error/rootScope/inprog.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">Action Already In Progress</code>
+<div><span class="hint">error in component <code ng:non-bindable="">$rootScope</code>
+</span>
+</div>
+</h1>
+<div><pre class="minerr-errmsg" error-display="{0} already in progress">{0} already in progress</pre>
+<h2 id="Description">Description</h2>
+<div class="description"><div class="-rootscope-page -rootscope-inprog-page"><p>At any point in time there can be only one <code>$digest</code> or $apply operation in progress.
+The stack trace of this error allows you to trace the origin of the currently executing $apply or $digest call.</p>
+<p><code>$digest</code> or <code>$apply</code> are processing operational states of the Scope - data-structure in Angular that provides context for models and enables model mutation observation.</p>
+<p>Trying to reenter a <code>$digest</code> or <code>$apply</code> while one of them is already in progress is typically a sign of programming error that needs to be fixed.</p>
+<p>This error is often seen when interacting with an API that is sometimes sync and sometimes async.</p>
+<p>For example:</p>
+<pre><code>function MyController() {
+  thirdPartyComponent.getData(function(someData) {
+    scope.$apply(function() {
+      scope.someData = someData;
+    });
+  });
+}</code></pre>
+<p>The controller constructor is always instantiated from within an $apply cycle, so if the third-party component called our callback synchronously, we&#39;d be trying to enter the $apply again.</p>
+<p>To resolve this type of issue, either fix the api to be always synchronous or asynchronous or wrap the call to the api with setTimeout call to make it always asynchronous.</p>
+<p>Other situation that leads to this error is when you are trying to reuse a function to by using it as a callback for code that is called by various apis inside and outside of $apply.</p>
+<p>For example:</p>
+<pre><code>myApp.directive(&#39;myDirective&#39;, function() {
+  return {
+    link: function($scope, $element) {
+      function doSomeWork() {
+        $scope.$apply(function() {
+           // do work here, and update the model
+        };
+      }
+
+      $element.on(&#39;click&#39;, doSomeWork);
+      doSomeWork(); // &lt;&lt; this will throw an exception because templates are compiled within $apply
+    }
+  }
+});</code></pre>
+<p>The fix for the example above looks like this:</p>
+<pre><code>myApp.directive(&#39;myDirective&#39;, function() {
+  return {
+    link: function($scope, $element) {
+      function doSomeWork() {
+           // do work here, and update the model
+      }
+
+      $element.on(&#39;click&#39;, function() {
+        $scope.$apply(doSomeWork); // &lt;&lt;&lt; the $apply call was moved to the callsite that doesn&#39;t execute in $apply call already
+      });
+
+      doSomeWork();
+    }
+  }
+});</code></pre>
+<p>To learn more about Angular processing model please check out the <a href="guide/concepts">concepts doc</a> as well as the <a href="api/ng.$rootScope.Scope"><code>api</code></a> doc.</p>
+</div></div>
+</div>

@@ -1,0 +1,21 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/error/ngModel/nonassign.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">Non-Assignable Expression</code>
+<div><span class="hint">error in component <code ng:non-bindable="">ngModel</code>
+</span>
+</div>
+</h1>
+<div><pre class="minerr-errmsg" error-display="Expression '{0}' is non-assignable. Element: {1}">Expression '{0}' is non-assignable. Element: {1}</pre>
+<h2 id="Description">Description</h2>
+<div class="description"><div class="ngmodel-page ngmodel-nonassign-page"><p>This error occurs when expression the <a href="api/ng.directive:ngModel"><code>ngModel</code></a> directive is bound to is a non-assignable expression.</p>
+<p>Examples using assignable expressions include:</p>
+<pre><code>&lt;input ng-model=&quot;namedVariable&quot;&gt;
+&lt;input ng-model=&quot;myObj.someProperty&quot;&gt;
+&lt;input ng-model=&quot;indexedArray[0]&quot;&gt;</code></pre>
+<p>Examples of non-assignable expressions include:</p>
+<pre><code>&lt;input ng-model=&quot;foo + bar&quot;&gt;
+&lt;input ng-model=&quot;42&quot;&gt;
+&lt;input ng-model=&quot;&#39;oops&#39;&quot;&gt;
+&lt;input ng-model=&quot;myFunc()&quot;&gt;</code></pre>
+<p>Always make sure that the expression bound via <code>ngModel</code> directive can be assigned to.</p>
+<p>For more information, see the <a href="api/ng.directive:ngModel"><code>ngModel API doc</code></a>.</p>
+</div></div>
+</div>

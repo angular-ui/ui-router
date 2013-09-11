@@ -1,0 +1,99 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/filter/orderBy.js#L3" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/filter/orderBy.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">orderBy</code>
+<div><span class="hint">filter in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-filter-page ng-filter-orderby-page"><p>Orders a specified <code>array</code> by the <code>expression</code> predicate.</p>
+<p>Note: this function is used to augment the <code>Array</code> type in Angular expressions. See
+<a href="api/ng.$filter"><code>ng.$filter</code></a> for more information about Angular arrays.</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">filter:orderBy(array, expression[, reverse]);</pre>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>array</td><td><a href="" class="label type-hint type-hint-array">Array</a></td><td><div class="ng-filter-page ng-filter-orderby-page"><p>The array to sort.</p>
+</div></td></tr><tr><td>expression</td><td><a href="" class="label type-hint type-hint-function">function(*)</a><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-array">Array.&lt;(function(*)|string)&gt;</a></td><td><div class="ng-filter-page ng-filter-orderby-page"><p>A predicate to be
+used by the comparator to determine the order of elements.</p>
+<p>Can be one of:</p>
+<ul>
+<li><code>function</code>: Getter function. The result of this function will be sorted using the
+<code>&lt;</code>, <code>=</code>, <code>&gt;</code> operator.</li>
+<li><code>string</code>: An Angular expression which evaluates to an object to order by, such as &#39;name&#39;
+to sort by a property called &#39;name&#39;. Optionally prefixed with <code>+</code> or <code>-</code> to control
+ascending or descending sort order (for example, +name or -name).</li>
+<li><code>Array</code>: An array of function or string predicates. The first predicate in the array
+is used for sorting, but when two items are equivalent, the next predicate is used.</li>
+</ul>
+</div></td></tr><tr><td>reverse <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ng-filter-page ng-filter-orderby-page"><p>Reverse the order the array.</p>
+</div></td></tr></tbody></table><h4 id="returns">Returns</h4><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-array">Array</a></td><td><div class="ng-filter-page ng-filter-orderby-page"><p>Sorted copy of the source array.</p>
+</div></td></tr></table></div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ng-filter-page ng-filter-orderby-page"><h4>Source</h2>
+<div source-edit="" source-edit-deps="angular.js script.js" source-edit-html="index.html-124" source-edit-css="" source-edit-js="script.js-123" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-125"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-124" ng-html-wrap=" angular.js script.js"></pre>
+<script type="text/ng-template" id="index.html-124">
+  
+  <div ng-controller="Ctrl">
+    <pre>Sorting predicate = {{predicate}}; reverse = {{reverse}}</pre>
+    <hr/>
+    [ <a href="" ng-click="predicate=''">unsorted</a> ]
+    <table class="friend">
+      <tr>
+        <th><a href="" ng-click="predicate = 'name'; reverse=false">Name</a>
+            (<a href ng-click="predicate = '-name'; reverse=false">^</a>)</th>
+        <th><a href="" ng-click="predicate = 'phone'; reverse=!reverse">Phone Number</a></th>
+        <th><a href="" ng-click="predicate = 'age'; reverse=!reverse">Age</a></th>
+      </tr>
+      <tr ng-repeat="friend in friends | orderBy:predicate:reverse">
+        <td>{{friend.name}}</td>
+        <td>{{friend.phone}}</td>
+        <td>{{friend.age}}</td>
+      </tr>
+    </table>
+  </div>
+</script>
+</div>
+<div class="tab-pane" title="script.js">
+<pre class="prettyprint linenums" ng-set-text="script.js-123"></pre>
+<script type="text/ng-template" id="script.js-123">
+    function Ctrl($scope) {
+      $scope.friends =
+          [{name:'John', phone:'555-1212', age:10},
+           {name:'Mary', phone:'555-9876', age:19},
+           {name:'Mike', phone:'555-4321', age:21},
+           {name:'Adam', phone:'555-5678', age:35},
+           {name:'Julie', phone:'555-8765', age:29}]
+      $scope.predicate = '-age';
+    }
+  </script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-125"></pre>
+<script type="text/ng-template" id="scenario.js-125">
+  it('should be reverse ordered by aged', function() {
+    expect(binding('predicate')).toBe('-age');
+    expect(repeater('table.friend', 'friend in friends').column('friend.age')).
+      toEqual(['35', '29', '21', '19', '10']);
+    expect(repeater('table.friend', 'friend in friends').column('friend.name')).
+      toEqual(['Adam', 'Julie', 'Mike', 'Mary', 'John']);
+  });
+
+  it('should reorder the table when user selects different predicate', function() {
+    element('.doc-example-live a:contains("Name")').click();
+    expect(repeater('table.friend', 'friend in friends').column('friend.name')).
+      toEqual(['Adam', 'John', 'Julie', 'Mary', 'Mike']);
+    expect(repeater('table.friend', 'friend in friends').column('friend.age')).
+      toEqual(['35', '10', '29', '19', '21']);
+
+    element('.doc-example-live a:contains("Phone")').click();
+    expect(repeater('table.friend', 'friend in friends').column('friend.phone')).
+      toEqual(['555-9876', '555-8765', '555-5678', '555-4321', '555-1212']);
+    expect(repeater('table.friend', 'friend in friends').column('friend.name')).
+      toEqual(['Mary', 'Julie', 'Adam', 'Mike', 'John']);
+  });
+</script>
+</div>
+</div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-embed-app="" ng-set-html="index.html-124" ng-eval-javascript="script.js-123"></div>
+</div></div>
+</div>

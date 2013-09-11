@@ -1,0 +1,28 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/controller.js#L37" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/controller.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$controller</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-controller-page"><p><code>$controller</code> service is responsible for instantiating controllers.</p>
+<p>It&#39;s just a simple call to <a href="api/AUTO.$injector"><code>$injector</code></a>, but extracted into
+a service, so that one can override this service with <a href="https://gist.github.com/1649788">BC version</a>.</p>
+</div></div>
+<h2 id="Dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="api/ng.$injector">$injector</a></code>
+</li>
+</ul>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">$controller(constructor, locals);</pre>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>constructor</td><td><a href="" class="label type-hint type-hint-function">Function</a><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-controller-page"><p>If called with a function then it&#39;s considered to be the
+controller constructor function. Otherwise it&#39;s considered to be a string which is used
+to retrieve the controller constructor using the following steps:</p>
+<ul>
+<li>check if a controller with given name is registered via <code>$controllerProvider</code></li>
+<li>check if evaluating the string on the current scope returns a constructor</li>
+<li>check <code>window[constructor]</code> on the global <code>window</code> object</li>
+</ul>
+</div></td></tr><tr><td>locals</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ng-controller-page"><p>Injection locals for Controller.</p>
+</div></td></tr></tbody></table><h4 id="returns">Returns</h4><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ng-controller-page"><p>Instance of given controller.</p>
+</div></td></tr></table></div>
+</div>

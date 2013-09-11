@@ -1,0 +1,253 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/guide/dev_guide.e2e-testing.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable=""></code>
+<div><span class="hint"></span>
+</div>
+</h1>
+<div><div class="developer-guide-page developer-guide-e2e-testing-page"><p>As applications grow in size and complexity, it becomes unrealistic to rely on manual testing to
+verify the correctness of new features, catch bugs and notice regressions.</p>
+<p>To solve this problem, we have built an Angular Scenario Runner which simulates user interactions
+that will help you verify the health of your Angular application.</p>
+<h2>Overview</h1>
+<p>You will write scenario tests in JavaScript, which describe how your application should behave,
+given a certain interaction in a specific state. A scenario is comprised of one or more <code>it</code> blocks
+(you can think of these as the requirements of your application), which in turn are made of
+<strong>commands</strong> and <strong>expectations</strong>. Commands tell the Runner to do something with the application
+(such as navigate to a page or click on a button), and expectations tell the Runner to assert
+something about the state (such as the value of a field or the current URL). If any expectation
+fails, the runner marks the <code>it</code>  as &quot;failed&quot; and continues on to the next one. Scenarios may also
+have <strong>beforeEach</strong> and <strong>afterEach</strong> blocks, which will be run before (or after) each <code>it</code>  block,
+regardless of whether they pass or fail.</p>
+<p><img src="img/guide/scenario_runner.png"></p>
+<p>In addition to the above elements, scenarios may also contain helper functions to avoid duplicating
+code in the <code>it</code> blocks.</p>
+<p>Here is an example of a simple scenario:
+<pre class="prettyprint linenums">
+describe('Buzz Client', function() {
+it('should filter results', function() {
+  input('user').enter('jacksparrow');
+  element(':button').click();
+  expect(repeater('ul li').count()).toEqual(10);
+  input('filterText').enter('Bees');
+  expect(repeater('ul li').count()).toEqual(1);
+});
+});
+</pre>
+This scenario describes the requirements of a Buzz Client, specifically, that it should be able to
+filter the stream of the user. It starts by entering a value in the &#39;user&#39; input field, clicking
+the only button on the page, and then it verifies that there are 10 items listed. It then enters
+&#39;Bees&#39; in the &#39;filterText&#39; input field and verifies that the list is reduced to a single item.</p>
+<p>The API section below lists the available commands and expectations for the Runner.</p>
+<h1>API</h1>
+<p>Source: <a href="https://github.com/angular/angular.js/blob/master/src/ngScenario/dsl.js"><a href="https://github.com/angular/angular.js/blob/master/src/ngScenario/dsl.js">https://github.com/angular/angular.js/blob/master/src/ngScenario/dsl.js</a></a></p>
+<h3>pause()</h2>
+<p>Pauses the execution of the tests until you call <code>resume()</code> in the console (or click the resume
+link in the Runner UI).</p>
+<h2>sleep(seconds)</h2>
+<p>Pauses the execution of the tests for the specified number of <code>seconds</code>.</p>
+<h2>browser().navigateTo(url)</h2>
+<p>Loads the <code>url</code> into the test frame.</p>
+<h2>browser().navigateTo(url, fn)</h2>
+<p>Loads the URL returned by <code>fn</code> into the testing frame. The given <code>url</code> is only used for the test
+output. Use this when the destination URL is dynamic (that is, the destination is unknown when you
+write the test).</p>
+<h2>browser().reload()</h2>
+<p>Refreshes the currently loaded page in the test frame.</p>
+<h2>browser().window().href()</h2>
+<p>Returns the window.location.href of the currently loaded page in the test frame.</p>
+<h2>browser().window().path()</h2>
+<p>Returns the window.location.pathname of the currently loaded page in the test frame.</p>
+<h2>browser().window().search()</h2>
+<p>Returns the window.location.search of the currently loaded page in the test frame.</p>
+<h2>browser().window().hash()</h2>
+<p>Returns the window.location.hash (without <code>#</code>) of the currently loaded page in the test frame.</p>
+<h2>browser().location().url()</h2>
+<p>Returns the <a href="api/ng.$location"><code>$location.url()</code></a> of the currently loaded page in
+the test frame.</p>
+<h2>browser().location().path()</h2>
+<p>Returns the <a href="api/ng.$location"><code>$location.path()</code></a> of the currently loaded page in
+the test frame.</p>
+<h2>browser().location().search()</h2>
+<p>Returns the <a href="api/ng.$location"><code>$location.search()</code></a> of the currently loaded page
+in the test frame.</p>
+<h2>browser().location().hash()</h2>
+<p>Returns the <a href="api/ng.$location"><code>$location.hash()</code></a> of the currently loaded page in
+the test frame.</p>
+<h2>expect(future).{matcher}</h2>
+<p>Asserts the value of the given <code>future</code> satisfies the <code>matcher</code>. All API statements return a
+<code>future</code> object, which get a <code>value</code> assigned after they are executed. Matchers are defined using
+<code>angular.scenario.matcher</code>, and they use the value of futures to run the expectation. For example:
+<code>expect(browser().location().href()).toEqual(&#39;http://www.google.com&#39;)</code>. Available matchers
+are presented further down this document.</p>
+<h2>expect(future).not().{matcher}</h2>
+<p>Asserts the value of the given <code>future</code> satisfies the negation of the <code>matcher</code>.</p>
+<h2>using(selector, label)</h2>
+<p>Scopes the next DSL element selection.</p>
+<h2>binding(name)</h2>
+<p>Returns the value of the first binding matching the given <code>name</code>.</p>
+<h2>input(name).enter(value)</h2>
+<p>Enters the given <code>value</code> in the text field with the corresponding ng-model <code>name</code>.</p>
+<h2>input(name).check()</h2>
+<p>Checks/unchecks the checkbox with the corresponding ng-model <code>name</code>.</p>
+<h2>input(name).select(value)</h2>
+<p>Selects the given <code>value</code> in the radio button with the corresponding ng-model <code>name</code>.</p>
+<h2>input(name).val()</h2>
+<p>Returns the current value of an input field with the corresponding ng-model <code>name</code>.</p>
+<h2>repeater(selector, label).count()</h2>
+<p>Returns the number of rows in the repeater matching the given jQuery <code>selector</code>. The <code>label</code> is
+used for test output.</p>
+<h2>repeater(selector, label).row(index)</h2>
+<p>Returns an array with the bindings in the row at the given <code>index</code> in the repeater matching the
+given jQuery <code>selector</code>. The <code>label</code> is used for test output.</p>
+<h2>repeater(selector, label).column(binding)</h2>
+<p>Returns an array with the values in the column with the given <code>binding</code> in the repeater matching
+the given jQuery <code>selector</code>. The <code>label</code> is used for test output.</p>
+<h2>select(name).option(value)</h2>
+<p>Picks the option with the given <code>value</code> on the select with the given <code>name</code>.</p>
+<h2>select(name).options(value1, value2...)</h2>
+<p>Picks the options with the given <code>values</code> on the multi select with the given <code>name</code>.</p>
+<h2>element(selector, label).count()</h2>
+<p>Returns the number of elements that match the given jQuery <code>selector</code>. The <code>label</code> is used for test
+output.</p>
+<h2>element(selector, label).click()</h2>
+<p>Clicks on the element matching the given jQuery <code>selector</code>. The <code>label</code> is used for test output.</p>
+<h2>element(selector, label).query(fn)</h2>
+<p>Executes the function <code>fn(selectedElements, done)</code>, where selectedElements are the elements that
+match the given jQuery <code>selector</code> and <code>done</code> is a function that is called at the end of the <code>fn</code>
+function.  The <code>label</code> is used for test output.</p>
+<h2>element(selector, label).{method}()</h2>
+<p>Returns the result of calling <code>method</code> on the element matching the given jQuery <code>selector</code>, where
+<code>method</code> can be any of the following jQuery methods: <code>val</code>, <code>text</code>, <code>html</code>, <code>height</code>,
+<code>innerHeight</code>, <code>outerHeight</code>, <code>width</code>, <code>innerWidth</code>, <code>outerWidth</code>, <code>position</code>, <code>scrollLeft</code>,
+<code>scrollTop</code>, <code>offset</code>. The <code>label</code> is used for test output.</p>
+<h2>element(selector, label).{method}(value)</h2>
+<p>Executes the <code>method</code> passing in <code>value</code> on the element matching the given jQuery <code>selector</code>, where
+<code>method</code> can be any of the following jQuery methods: <code>val</code>, <code>text</code>, <code>html</code>, <code>height</code>,
+<code>innerHeight</code>, <code>outerHeight</code>, <code>width</code>, <code>innerWidth</code>, <code>outerWidth</code>, <code>position</code>, <code>scrollLeft</code>,
+<code>scrollTop</code>, <code>offset</code>.  The <code>label</code> is used for test output.</p>
+<h2>element(selector, label).{method}(key)</h2>
+<p>Returns the result of calling <code>method</code> passing in <code>key</code> on the element matching the given jQuery
+<code>selector</code>, where <code>method</code> can be any of the following jQuery methods: <code>attr</code>, <code>prop</code>, <code>css</code>. The
+<code>label</code> is used for test output.</p>
+<h2>element(selector, label).{method}(key, value)</h2>
+<p>Executes the <code>method</code> passing in <code>key</code> and <code>value</code> on the element matching the given jQuery
+<code>selector</code>, where <code>method</code> can be any of the following jQuery methods: <code>attr</code>,  <code>prop</code>, <code>css</code>.  The
+<code>label</code> is used for test output.</p>
+<p>JavaScript is a dynamically typed language which comes with great power of expression, but it also
+come with almost no-help from the compiler. For this reason we feel very strongly that any code
+written in JavaScript needs to come with a strong set of tests. We have built many features into
+angular which makes testing your angular applications easy. So there is no excuse for not testing.</p>
+<h1>Matchers</h1>
+<p>Matchers are used in combination with the <code>expect(...)</code> function as described above and can
+be negated with <code>not()</code>. For instance: <code>expect(element(&#39;h1&#39;).text()).not().toEqual(&#39;Error&#39;)</code>.</p>
+<p>Source: <a href="https://github.com/angular/angular.js/blob/master/src/ngScenario/matchers.js"><a href="https://github.com/angular/angular.js/blob/master/src/ngScenario/matchers.js">https://github.com/angular/angular.js/blob/master/src/ngScenario/matchers.js</a></a></p>
+<pre class="prettyprint linenums">
+// value and Object comparison following the rules of angular.equals().
+expect(value).toEqual(value)
+
+// a simpler value comparison using ===
+expect(value).toBe(value)
+
+// checks that the value is defined by checking its type.
+expect(value).toBeDefined()
+
+// the following two matchers are using JavaScript's standard truthiness rules
+expect(value).toBeTruthy()
+expect(value).toBeFalsy()
+
+// verify that the value matches the given regular expression. The regular
+// expression may be passed in form of a string or a regular expression
+// object.
+expect(value).toMatch(expectedRegExp)
+
+// a check for null using ===
+expect(value).toBeNull()
+
+// Array.indexOf(...) is used internally to check whether the element is
+// contained within the array.
+expect(value).toContain(expected)
+
+// number comparison using &lt; and &gt;
+expect(value).toBeLessThan(expected)
+expect(value).toBeGreaterThan(expected)
+</pre>
+<h1>Example</h1>
+<p>See the <a href="https://github.com/angular/angular-seed">angular-seed</a> project for more examples.</p>
+<h2>Conditional actions with element(...).query(fn)</h3>
+<p>E2E testing with angular scenario is highly asynchronous and hides a lot of complexity by
+queueing actions and expectations that can handle futures. From time to time, you might need
+conditional assertions or element selection. Even though you should generally try to avoid this
+(as it is can be sign for unstable tests), you can add conditional behavior with
+<code>element(...).query(fn)</code>. The following code listing shows how this function can be used to delete
+added entries (where an entry is some domain object) using the application&#39;s web interface.</p>
+<p>Imagine the application to be structured into two views:</p>
+<ol>
+<li><em>Overview view</em> which lists all the added entries in a table and</li>
+<li>a <em>detail view</em> which shows the entries&#39; details and contains a delete button. When clicking the
+delete button, the user is redirected back to the <em>overview page</em>.</li>
+</ol>
+<pre class="prettyprint linenums">
+beforeEach(function () {
+  var deleteEntry = function () {
+    browser().navigateTo('/entries');
+
+    // we need to select the &lt;tbody&gt; element as it might be the case that there
+    // are no entries (and therefore no rows). When the selector does not
+    // result in a match, the test would be marked as a failure.
+    element('table tbody').query(function (tbody, done) {
+      // ngScenario gives us a jQuery lite wrapped element. We call the
+      // `children()` function to retrieve the table body's rows
+      var children = tbody.children();
+
+      if (children.length &gt; 0) {
+        // if there is at least one entry in the table, click on the link to
+        // the entry's detail view
+        element('table tbody a').click();
+        // and, after a route change, click the delete button
+        element('.btn-danger').click();
+      }
+
+      // if there is more than one entry shown in the table, queue another
+      // delete action.
+      if (children.length &gt; 1) {
+        deleteEntry();
+      }
+
+      // remember to call `done()` so that ngScenario can continue
+      // test execution.
+      done();
+    });
+
+  };
+
+  // start deleting entries
+  deleteEntry();
+});
+</pre>
+<p>In order to understand what is happening, we should emphasize that ngScenario calls are not
+immediately executed, but queued (in ngScenario terms, we would be talking about adding
+future actions). If we had only one entry in our table, than the following future actions
+would be queued:</p>
+<pre class="prettyprint linenums">
+// delete entry 1
+browser().navigateTo('/entries');
+element('table tbody').query(function (tbody, done) { ... });
+element('table tbody a');
+element('.btn-danger').click();
+</pre>
+<p>For two entries, ngScenario would have to work on the following queue:</p>
+<pre class="prettyprint linenums">
+// delete entry 1
+browser().navigateTo('/entries');
+element('table tbody').query(function (tbody, done) { ... });
+element('table tbody a');
+element('.btn-danger').click();
+
+    // delete entry 2
+    // indented to represent "recursion depth"
+    browser().navigateTo('/entries');
+    element('table tbody').query(function (tbody, done) { ... });
+    element('table tbody a');
+    element('.btn-danger').click();
+</pre>
+<h1>Caveats</h2>
+<p>ngScenario does not work with apps that manually bootstrap using angular.bootstrap. You must use the ng-app directive.</p>
+</div></div>

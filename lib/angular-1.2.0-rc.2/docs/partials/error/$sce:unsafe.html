@@ -1,0 +1,15 @@
+<a href="http://github.com/angular/angular.js/edit/master/docs/content/error/sce/unsafe.ngdoc" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">Require a safe/trusted value</code>
+<div><span class="hint">error in component <code ng:non-bindable="">$sce</code>
+</span>
+</div>
+</h1>
+<div><pre class="minerr-errmsg" error-display="Attempting to use an unsafe value in a safe context.">Attempting to use an unsafe value in a safe context.</pre>
+<h2 id="Description">Description</h2>
+<div class="description"><div class="-sce-page -sce-unsafe-page"><p>The value provided for use in a specific context was not found to be safe/trusted for use.</p>
+<p>Angular&#39;s <a href="api/ng.$sce#strictcontextualescaping"><code>Strict Contextual Escaping (SCE)</code></a> mode
+(enabled by default), requires bindings in certain
+contexts to result in a value that is trusted as safe for use in such a context.  (e.g. loading an
+Angular template from a URL requires that the URL is one considered safe for loading resources.)</p>
+<p>This helps prevent XSS and other security issues.  Read more at <a href="api/ng.$sce#strictcontextualescaping"><code>Strict Contextual Escaping (SCE)</code></a></p>
+</div></div>
+</div>

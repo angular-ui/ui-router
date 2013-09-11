@@ -1,0 +1,149 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/directive/ngShowHide.js#L155" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/directive/ngShowHide.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">ngHide</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-directive-page ng-directive-nghide-page"><p>The <code>ngHide</code> directive shows and hides the given HTML element conditionally based on the expression
+provided to the ngHide attribute. The show and hide mechanism is a achieved by removing and adding
+the <code>ng-hide</code> CSS class onto the element. The <code>.ng-hide</code> CSS class is a predefined CSS class present
+in AngularJS which sets the display style to none (using an !important flag).</p>
+<pre class="prettyprint linenums">
+&lt;!-- when $scope.myValue is truthy (element is hidden) --&gt;
+&lt;div ng-hide="myValue"&gt;&lt;/div&gt;
+
+&lt;!-- when $scope.myValue is falsy (element is visible) --&gt;
+&lt;div ng-hide="myValue" class="ng-hide"&gt;&lt;/div&gt;
+</pre>
+<p>When the ngHide expression evaluates to true then the .ng-hide CSS class is added to the class attribute
+on the element causing it to become hidden. When false, the ng-hide CSS class is removed
+from the element causing the element not to appear hidden.</p>
+<h4>Why is !important used?</h2>
+<p>You may be wondering why !important is used for the .ng-hide CSS class. This is because the <code>.ng-hide</code> selector
+can be easily overridden by heavier selectors. For example, something as simple
+as changing the display style on a HTML list item would make hidden elements appear visible.
+This also becomes a bigger issue when dealing with CSS frameworks.</p>
+<p>By using !important, the show and hide behavior will work as expected despite any clash between CSS selector
+specificity (when !important isn&#39;t used with any conflicting styles). If a developer chooses to override the
+styling to change how to hide an element then it is just a matter of using !important in their own CSS code.</p>
+<h5>Overriding .ng-hide</h5>
+<p>If you wish to change the hide behavior with ngShow/ngHide then this can be achieved by
+restating the styles for the .ng-hide class in CSS:
+<pre class="prettyprint linenums">
+.ng-hide {
+  
+<div class="nocode nocode-content" data-popover data-content="Not to worry, this will override the AngularJS default..." data-title="CSS Specificity">display:block!important;</div>
+
+  //this is just another form of hiding an element
+  position:absolute;
+  top:-9999px;
+  left:-9999px;
+}
+</pre>
+<p>Just remember to include the important flag so the CSS override will function.</p>
+<h2>A note about animations with ngHide</h4>
+<p>Animations in ngShow/ngHide work with the show and hide events that are triggered when the directive expression
+is true and false. This system works similar to the animation system present with ngClass, however, the
+only difference is that you must also include the !important flag to override the display property so
+that you can perform an animation when the element is hidden during the time of the animation.</p>
+<pre class="prettyprint linenums">
+//
+//a working example can be found at the bottom of this page
+//
+.my-element.ng-hide-add, .my-element.ng-hide-remove {
+  transition:0.5s linear all;
+  display:block!important;
+}
+
+.my-element.ng-hide-add { ... }
+.my-element.ng-hide-add.ng-hide-add-active { ... }
+.my-element.ng-hide-remove { ... }
+.my-element.ng-hide-remove.ng-hide-remove-active { ... }
+</pre>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;ANY ng-hide="{expression}"&gt;
+   ...
+&lt;/ANY&gt;</pre>
+as class<pre class="prettyprint linenums">&lt;ANY class="ng-hide: {expression};"&gt;
+   ...
+&lt;/ANY&gt;</pre>
+<h3 id="Animations">Animations</h3>
+<div class="animations"><ul><li>removeClass: .ng-hide - happens after the ngHide expression evaluates to a truthy value and just before the contents are set to hidden</li><li>addClass: .ng-hide - happens after the ngHide expression evaluates to a non truthy value and just before the contents are set to visible</li></ul></div>
+<a href="api/ngAnimate.$animate">Click here</a> to learn more about the steps involved in the animation.<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>ngHide</td><td><a href="" class="label type-hint type-hint-expression">expression</a></td><td><div class="ng-directive-page ng-directive-nghide-page"><p>If the <a href="guide/expression">expression</a> is truthy then
+the element is shown or hidden respectively.</p>
+</div></td></tr></tbody></table></div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ng-directive-page ng-directive-nghide-page"><h4>Source</h2>
+<div source-edit="" source-edit-deps="angular.js angular-animate.js" source-edit-html="index.html-92" source-edit-css="animations.css" source-edit-js="" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-93"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-92" ng-html-wrap=" angular.js angular-animate.js"></pre>
+<script type="text/ng-template" id="index.html-92">
+  Click me: <input type="checkbox" ng-model="checked"><br/>
+  <div>
+    Show:
+    <div class="check-element animate-hide" ng-show="checked">
+      <span class="icon-thumbs-up"></span> I show up when your checkbox is checked.
+    </div>
+  </div>
+  <div>
+    Hide:
+    <div class="check-element animate-hide" ng-hide="checked">
+      <span class="icon-thumbs-down"></span> I hide when your checkbox is checked.
+    </div>
+  </div>
+</script>
+</div>
+<div class="tab-pane" title="animations.css">
+<pre class="prettyprint linenums" ng-set-text="animations.css"></pre>
+<style type="text/css" id="animations.css">
+  .animate-hide.ng-hide-add, 
+  .animate-hide.ng-hide-remove {
+    -webkit-transition:all linear 0.5s;
+    -moz-transition:all linear 0.5s;
+    -o-transition:all linear 0.5s;
+    transition:all linear 0.5s;
+    display:block!important;
+  }
+
+  .animate-hide.ng-hide-add.ng-hide-add-active,
+  .animate-hide.ng-hide-remove {
+    line-height:0;
+    opacity:0;
+    padding:0 10px;
+  }
+
+  .animate-hide.ng-hide-add,
+  .animate-hide.ng-hide-remove.ng-hide-remove-active {
+    line-height:20px;
+    opacity:1;
+    padding:10px;
+    border:1px solid black;
+    background:white;
+  }
+
+  .check-element {
+    padding:10px;
+    border:1px solid black;
+    background:white;
+  }
+</style>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-93"></pre>
+<script type="text/ng-template" id="scenario.js-93">
+   it('should check ng-show / ng-hide', function() {
+     expect(element('.doc-example-live .check-element:first:hidden').count()).toEqual(1);
+     expect(element('.doc-example-live .check-element:last:visible').count()).toEqual(1);
+
+     input('checked').check();
+
+     expect(element('.doc-example-live .check-element:first:visible').count()).toEqual(1);
+     expect(element('.doc-example-live .check-element:last:hidden').count()).toEqual(1);
+   });
+</script>
+</div>
+</div><div class="pull-right"> <button class="btn btn-primary" ng-click="animationsOff=true" ng-hide="animationsOff">Animations on</button> <button class="btn btn-primary disabled" ng-click="animationsOff=false" ng-show="animationsOff">Animations off</button></div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-class="{'animations-off':animationsOff == true}" ng-embed-app="" ng-set-html="index.html-92" ng-eval-javascript=""></div>
+</div></div>
+</div>

@@ -1,0 +1,27 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ngMock/angular-mocks.js#L204" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ngMock/angular-mocks.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$exceptionHandlerProvider</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ngMock</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ngmock-exceptionhandlerprovider-page"><p>Configures the mock implementation of <a href="api/ng.$exceptionHandler"><code>ng.$exceptionHandler</code></a> to rethrow or to log errors passed
+into the <code>$exceptionHandler</code>.</p>
+</div></div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="mode">mode(mode)</h3>
+<div class="mode"><div class="ngmock-exceptionhandlerprovider-mode-page"><p>Sets the logging mode.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>mode</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ngmock-exceptionhandlerprovider-mode-page"><p>Mode of operation, defaults to <code>rethrow</code>.</p>
+<ul>
+<li><code>rethrow</code>: If any errors are passed into the handler in tests, it typically<pre><code>       means that there is a bug in the application or test, so this mock will
+       make these tests fail.</code></pre>
+</li>
+<li><code>log</code>: Sometimes it is desirable to test that an error is thrown, for this case the <code>log</code> mode stores an<pre><code>   array of errors in `$exceptionHandler.errors`, to allow later assertion of them.
+   See &lt;a href=&quot;api/ngMock.$log#assertEmpty&quot;&gt;assertEmpty()&lt;/a&gt; and
+    &lt;a href=&quot;api/ngMock.$log#reset&quot;&gt;reset()&lt;/a&gt;</code></pre>
+</li>
+</ul>
+</div></td></tr></tbody></table></div>
+</li>
+</ul>
+</div>
+</div>

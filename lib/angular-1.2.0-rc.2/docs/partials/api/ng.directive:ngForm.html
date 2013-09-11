@@ -1,0 +1,25 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/directive/form.js#L196" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/directive/form.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">ngForm</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-directive-page ng-directive-ngform-page"><p>Nestable alias of <a href="api/ng.directive:form"><code><code>form</code></code></a> directive. HTML
+does not allow nesting of form elements. It is useful to nest forms, for example if the validity of a
+sub-group of controls needs to be determined.</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><p>This directive can be used as custom element, but be aware of <a href="guide/ie">IE restrictions</a>.</p>as element:<pre class="prettyprint linenums">&lt;ng-form
+       [ngForm="{string}"]&gt;
+&lt;/ng-form&gt;</pre>
+as attribute<pre class="prettyprint linenums">&lt;ANY ng-form
+     [name="{string}"]&gt;
+   ...
+&lt;/ANY&gt;</pre>
+as class<pre class="prettyprint linenums">&lt;ANY class="ng-form [name: {string};]"&gt;
+   ...
+&lt;/ANY&gt;</pre>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name|ngForm <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-ngform-page"><p>Name of the form. If specified, the form controller will be published into
+related scope, under this name.</p>
+</div></td></tr></tbody></table></div>
+</div>

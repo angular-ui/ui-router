@@ -1,0 +1,41 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/filter/filters.js#L422" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/filter/filters.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">json</code>
+<div><span class="hint">filter in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-filter-page ng-filter-json-page"><p>Allows you to convert a JavaScript object into JSON string.</p>
+<p>This filter is mostly useful for debugging. When using the double curly {{value}} notation
+the binding is automatically converted to JSON.</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><h3 id="In.HTML.Template.Binding">In HTML Template Binding</h3>
+<div class="in-html-template-binding"><code ng:non-bindable=""><span>{{</span> json_expression | json <span>}}</span></code>
+</div>
+<h3 id="In.JavaScript">In JavaScript</h3>
+<div class="in-javascript"><code ng:non-bindable="">$filter('json')(object)</code>
+</div>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>object</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="ng-filter-page ng-filter-json-page"><p>Any JavaScript object (including arrays and primitive types) to filter.</p>
+</div></td></tr></tbody></table><h4 id="returns">Returns</h4><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-filter-page ng-filter-json-page"><p>JSON string.</p>
+</div></td></tr></table></div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ng-filter-page ng-filter-json-page"><h4>Source</h2>
+<div source-edit="" source-edit-deps="angular.js" source-edit-html="index.html-118" source-edit-css="" source-edit-js="" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-119"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-118" ng-html-wrap=" angular.js"></pre>
+<script type="text/ng-template" id="index.html-118">
+  <pre>{{ {'name':'value'} | json }}</pre>
+</script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-119"></pre>
+<script type="text/ng-template" id="scenario.js-119">
+  it('should jsonify filtered objects', function() {
+    expect(binding("{'name':'value'}")).toMatch(/\{\n  "name": ?"value"\n}/);
+  });
+</script>
+</div>
+</div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-embed-app="" ng-set-html="index.html-118" ng-eval-javascript=""></div>
+</div></div>
+</div>

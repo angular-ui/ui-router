@@ -1,0 +1,192 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/directive/input.js#L811" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/directive/input.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">NgModelController</code>
+<div><span class="hint">type in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-page"><p><code>NgModelController</code> provides API for the <code>ng-model</code> directive. The controller contains
+services for data-binding, validation, CSS update, value formatting and parsing. It
+specifically does not contain any logic which deals with DOM rendering or listening to
+DOM events. The <code>NgModelController</code> is meant to be extended by other directives where, the
+directive provides DOM manipulation and the <code>NgModelController</code> provides the data-binding.
+Note that you cannot use <code>NgModelController</code> in a directive with an isolated scope,
+as, in that case, the <code>ng-model</code> value gets put into the isolated scope and does not get
+propogated to the parent scope.</p>
+<p>This example shows how to use <code>NgModelController</code> with a custom control to achieve
+data-binding. Notice how different directives (<code>contenteditable</code>, <code>ng-model</code>, and <code>required</code>)
+collaborate together to achieve the desired result.</p>
+<h4>Source</h2>
+<div source-edit="customControl" source-edit-deps="angular.js script.js" source-edit-html="index.html-44" source-edit-css="style.css" source-edit-js="script.js-43" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-45"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-44" ng-html-wrap="customControl angular.js script.js"></pre>
+<script type="text/ng-template" id="index.html-44">
+      <form name="myForm">
+       <div contenteditable
+            name="myWidget" ng-model="userContent"
+            strip-br="true"
+            required>Change me!</div>
+        <span ng-show="myForm.myWidget.$error.required">Required!</span>
+       <hr>
+       <textarea ng-model="userContent"></textarea>
+      </form>
+    </script>
+</div>
+<div class="tab-pane" title="style.css">
+<pre class="prettyprint linenums" ng-set-text="style.css"></pre>
+<style type="text/css" id="style.css">
+      [contenteditable] {
+        border: 1px solid black;
+        background-color: white;
+        min-height: 20px;
+      }
+
+      .ng-invalid {
+        border: 1px solid red;
+      }
+
+    </style>
+</div>
+<div class="tab-pane" title="script.js">
+<pre class="prettyprint linenums" ng-set-text="script.js-43"></pre>
+<script type="text/ng-template" id="script.js-43">
+      angular.module('customControl', []).
+        directive('contenteditable', function() {
+          return {
+            restrict: 'A', // only activate on element attribute
+            require: '?ngModel', // get a hold of NgModelController
+            link: function(scope, element, attrs, ngModel) {
+              if(!ngModel) return; // do nothing if no ng-model
+
+              // Specify how UI should be updated
+              ngModel.$render = function() {
+                element.html(ngModel.$viewValue || '');
+              };
+
+              // Listen for change events to enable binding
+              element.on('blur keyup change', function() {
+                scope.$apply(read);
+              });
+              read(); // initialize
+
+              // Write data to the model
+              function read() {
+                var html = element.html();
+                // When we clear the content editable the browser leaves a <br> behind
+                // If strip-br attribute is provided then we strip this out
+                if( attrs.stripBr && html == '<br>' ) {
+                  html = '';
+                }
+                ngModel.$setViewValue(html);
+              }
+            }
+          };
+        });
+    </script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-45"></pre>
+<script type="text/ng-template" id="scenario.js-45">
+      it('should data-bind and become invalid', function() {
+        var contentEditable = element('[contenteditable]');
+
+        expect(contentEditable.text()).toEqual('Change me!');
+        input('userContent').enter('');
+        expect(contentEditable.text()).toEqual('');
+        expect(contentEditable.prop('className')).toMatch(/ng-invalid-required/);
+      });
+    </script>
+</div>
+</div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-embed-app="customControl" ng-set-html="index.html-44" ng-eval-javascript="script.js-43"></div>
+</div></div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="$render">$render()</h3>
+<div class="$render"><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-render-page"><p>Called when the view needs to be updated. It is expected that the user of the ng-model
+directive will implement this method.</p>
+</div></div>
+</li>
+<li><h3 id="$setPristine">$setPristine()</h3>
+<div class="$setpristine"><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-setpristine-page"><p>Sets the control to its pristine state.</p>
+<p>This method can be called to remove the &#39;ng-dirty&#39; class and set the control to its pristine
+state (ng-pristine class).</p>
+</div></div>
+</li>
+<li><h3 id="$setValidity">$setValidity(validationErrorKey, isValid)</h3>
+<div class="$setvalidity"><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-setvalidity-page"><p>Change the validity state, and notifies the form when the control changes validity. (i.e. it
+does not notify form if given validator is already marked as invalid).</p>
+<p>This method should be called by validators - i.e. the parser or formatter functions.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>validationErrorKey</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-setvalidity-page"><p>Name of the validator. the <code>validationErrorKey</code> will assign
+to <code>$error[validationErrorKey]=isValid</code> so that it is available for data-binding.
+The <code>validationErrorKey</code> should be in camelCase and will get converted into dash-case
+for class name. Example: <code>myError</code> will result in <code>ng-valid-my-error</code> and <code>ng-invalid-my-error</code>
+class and can be bound to as  <code>{{someForm.someControl.$error.myError}}</code> .</p>
+</div></td></tr><tr><td>isValid</td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-setvalidity-page"><p>Whether the current state is valid (true) or invalid (false).</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="$setViewValue">$setViewValue(value)</h3>
+<div class="$setviewvalue"><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-setviewvalue-page"><p>Read a value from view.</p>
+<p>This method should be called from within a DOM event handler.
+For example <a href="api/ng.directive:input"><code>input</code></a> or
+<a href="api/ng.directive:select"><code>select</code></a> directives call it.</p>
+<p>It internally calls all <code>$parsers</code> (including validators) and updates the <code>$modelValue</code> and the actual model path.
+Lastly it calls all registered change listeners.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-setviewvalue-page"><p>Value from the view.</p>
+</div></td></tr></tbody></table></div>
+</li>
+</ul>
+</div>
+<div class="member property"><h2 id="Properties">Properties</h2>
+<ul class="properties"><li><h3 id="$viewValue">$viewValue</h3>
+<div class="$viewvalue"><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-page"><p>Actual string value in the view.</p>
+</div></div>
+</li>
+<li><h3 id="$modelValue">$modelValue</h3>
+<div class="$modelvalue"><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-page"><p>The value in the model, that the control is bound to.</p>
+</div></div>
+</li>
+<li><h3 id="$parsers">$parsers</h3>
+<div class="$parsers"><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-page"><p>Array of functions to execute, as a pipeline, whenever
+the control reads value from the DOM.  Each function is called, in turn, passing the value
+through to the next. Used to sanitize / convert the value as well as validation.
+For validation, the parsers should update the validity state using
+<a href="api/ng.directive:ngModel.NgModelController#$setValidity"><code>$setValidity()</code></a>,
+and return <code>undefined</code> for invalid values.</p>
+</div></div>
+</li>
+<li><h3 id="$formatters">$formatters</h3>
+<div class="$formatters"><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-page"><p>Array of functions to execute, as a pipeline, whenever
+the model value changes. Each function is called, in turn, passing the value through to the
+next. Used to format / convert values for display in the control and validation.
+<pre class="prettyprint linenums">
+function formatter(value) {
+if (value) {
+  return value.toUpperCase();
+}
+}
+ngModel.$formatters.push(formatter);
+</pre>
+</div></div>
+</li>
+<li><h3 id="$error">$error</h3>
+<div class="$error"><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-page"><p>An object hash with all errors as keys.</p>
+</div></div>
+</li>
+<li><h3 id="$pristine">$pristine</h3>
+<div class="$pristine"><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-page"><p>True if user has not interacted with the control yet.</p>
+</div></div>
+</li>
+<li><h3 id="$dirty">$dirty</h3>
+<div class="$dirty"><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-page"><p>True if user has already interacted with the control.</p>
+</div></div>
+</li>
+<li><h3 id="$valid">$valid</h3>
+<div class="$valid"><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-page"><p>True if there is no error.</p>
+</div></div>
+</li>
+<li><h3 id="$invalid">$invalid</h3>
+<div class="$invalid"><div class="ng-directive-page ng-directive-ngmodel-ngmodelcontroller-page"><p>True if at least one error on the control.</p>
+</div></div>
+</li>
+</ul>
+</div>
+</div>

@@ -1,0 +1,120 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/filter/filter.js#L3" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/filter/filter.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">filter</code>
+<div><span class="hint">filter in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-filter-page ng-filter-filter-page"><p>Selects a subset of items from <code>array</code> and returns it as a new array.</p>
+<p>Note: This function is used to augment the <code>Array</code> type in Angular expressions. See
+<a href="api/ng.$filter"><code>ng.$filter</code></a> for more information about Angular arrays.</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><h3 id="In.HTML.Template.Binding">In HTML Template Binding</h3>
+<div class="in-html-template-binding"><code ng:non-bindable=""><span>{{</span> filter_expression | filter:expression:comparator <span>}}</span></code>
+</div>
+<h3 id="In.JavaScript">In JavaScript</h3>
+<div class="in-javascript"><code ng:non-bindable="">$filter('filter')(array, expression, comparator)</code>
+</div>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>array</td><td><a href="" class="label type-hint type-hint-array">Array</a></td><td><div class="ng-filter-page ng-filter-filter-page"><p>The source array.</p>
+</div></td></tr><tr><td>expression</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">Object</a><a href="" class="label type-hint type-hint-function">function()</a></td><td><div class="ng-filter-page ng-filter-filter-page"><p>The predicate to be used for selecting items from
+<code>array</code>.</p>
+<p>Can be one of:</p>
+<ul>
+<li><p><code>string</code>: Predicate that results in a substring match using the value of <code>expression</code>
+string. All strings or objects with string properties in <code>array</code> that contain this string
+will be returned. The predicate can be negated by prefixing the string with <code>!</code>.</p>
+</li>
+<li><p><code>Object</code>: A pattern object can be used to filter specific properties on objects contained
+by <code>array</code>. For example <code>{name:&quot;M&quot;, phone:&quot;1&quot;}</code> predicate will return an array of items
+which have property <code>name</code> containing &quot;M&quot; and property <code>phone</code> containing &quot;1&quot;. A special
+property name <code>$</code> can be used (as in <code>{$:&quot;text&quot;}</code>) to accept a match against any
+property of the object. That&#39;s equivalent to the simple substring match with a <code>string</code>
+as described above.</p>
+</li>
+<li><p><code>function</code>: A predicate function can be used to write arbitrary filters. The function is
+called for each element of <code>array</code>. The final result is an array of those elements that
+the predicate returned true for.</p>
+</li>
+</ul>
+</div></td></tr><tr><td>comparator</td><td><a href="" class="label type-hint type-hint-function">function(expected, actual)</a><a href="" class="label type-hint type-hint-true">true</a><a href="" class="label type-hint type-hint-undefined">undefined</a></td><td><div class="ng-filter-page ng-filter-filter-page"><p>Comparator which is used in
+determining if the expected value (from the filter expression) and actual value (from
+the object in the array) should be considered a match.</p>
+<p>Can be one of:</p>
+<ul>
+<li><p><code>function(expected, actual)</code>:
+The function will be given the object value and the predicate value to compare and
+should return true if the item should be included in filtered result.</p>
+</li>
+<li><p><code>true</code>: A shorthand for <code>function(expected, actual) { return angular.equals(expected, actual)}</code>.
+this is essentially strict comparison of expected and actual.</p>
+</li>
+<li><p><code>false|undefined</code>: A short hand for a function which will look for a substring match in case
+insensitive way.</p>
+</li>
+</ul>
+</div></td></tr></tbody></table></div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ng-filter-page ng-filter-filter-page"><h4>Source</h2>
+<div source-edit="" source-edit-deps="angular.js" source-edit-html="index.html-108" source-edit-css="" source-edit-js="" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-109"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-108" ng-html-wrap=" angular.js"></pre>
+<script type="text/ng-template" id="index.html-108">
+  <div ng-init="friends = [{name:'John', phone:'555-1276'},
+                           {name:'Mary', phone:'800-BIG-MARY'},
+                           {name:'Mike', phone:'555-4321'},
+                           {name:'Adam', phone:'555-5678'},
+                           {name:'Julie', phone:'555-8765'},
+                           {name:'Juliette', phone:'555-5678'}]"></div>
+
+  Search: <input ng-model="searchText">
+  <table id="searchTextResults">
+    <tr><th>Name</th><th>Phone</th></tr>
+    <tr ng-repeat="friend in friends | filter:searchText">
+      <td>{{friend.name}}</td>
+      <td>{{friend.phone}}</td>
+    </tr>
+  </table>
+  <hr>
+  Any: <input ng-model="search.$"> <br>
+  Name only <input ng-model="search.name"><br>
+  Phone only <input ng-model="search.phone"><br>
+  Equality <input type="checkbox" ng-model="strict"><br>
+  <table id="searchObjResults">
+    <tr><th>Name</th><th>Phone</th></tr>
+    <tr ng-repeat="friend in friends | filter:search:strict">
+      <td>{{friend.name}}</td>
+      <td>{{friend.phone}}</td>
+    </tr>
+  </table>
+</script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-109"></pre>
+<script type="text/ng-template" id="scenario.js-109">
+  it('should search across all fields when filtering with a string', function() {
+    input('searchText').enter('m');
+    expect(repeater('#searchTextResults tr', 'friend in friends').column('friend.name')).
+      toEqual(['Mary', 'Mike', 'Adam']);
+
+    input('searchText').enter('76');
+    expect(repeater('#searchTextResults tr', 'friend in friends').column('friend.name')).
+      toEqual(['John', 'Julie']);
+  });
+
+  it('should search in specific fields when filtering with a predicate object', function() {
+    input('search.$').enter('i');
+    expect(repeater('#searchObjResults tr', 'friend in friends').column('friend.name')).
+      toEqual(['Mary', 'Mike', 'Julie', 'Juliette']);
+  });
+  it('should use a equal comparison when comparator is true', function() {
+    input('search.name').enter('Julie');
+    input('strict').check();
+    expect(repeater('#searchObjResults tr', 'friend in friends').column('friend.name')).
+      toEqual(['Julie']);
+  });
+</script>
+</div>
+</div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-embed-app="" ng-set-html="index.html-108" ng-eval-javascript=""></div>
+</div></div>
+</div>

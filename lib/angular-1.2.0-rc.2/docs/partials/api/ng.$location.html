@@ -1,0 +1,107 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/location.js#L445" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/location.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$location</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-location-page"><p>The $location service parses the URL in the browser address bar (based on the
+<a href="https://developer.mozilla.org/en/window.location">window.location</a>) and makes the URL
+available to your application. Changes to the URL in the address bar are reflected into
+$location service and changes to $location are reflected into the browser address bar.</p>
+<p><strong>The $location service:</strong></p>
+<ul>
+<li>Exposes the current URL in the browser address bar, so you can<ul>
+<li>Watch and observe the URL.</li>
+<li>Change the URL.</li>
+</ul>
+</li>
+<li>Synchronizes the URL with the browser when the user<ul>
+<li>Changes the address bar.</li>
+<li>Clicks the back or forward button (or clicks a History link).</li>
+<li>Clicks on a link.</li>
+</ul>
+</li>
+<li>Represents the URL object as a set of methods (protocol, host, port, path, search, hash).</li>
+</ul>
+<p>For more information see <a href="guide/dev_guide.services.$location">Developer Guide: Angular Services: Using $location</a></p>
+</div></div>
+<h2 id="Dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="api/ng.$browser">$browser</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="api/ng.$sniffer">$sniffer</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="api/ng.$rootElement">$rootElement</a></code>
+</li>
+</ul>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="absUrl">absUrl()</h3>
+<div class="absurl"><div class="ng-location-absurl-page"><p>This method is getter only.</p>
+<p>Return full url representation with all segments encoded according to rules specified in
+<a href="http://www.ietf.org/rfc/rfc3986.txt">RFC 3986</a>.</p>
+</div><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-location-absurl-page"><p>full url</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="hash">hash(hash)</h3>
+<div class="hash"><div class="ng-location-hash-page"><p>This method is getter / setter.</p>
+<p>Return hash fragment when called without any parameter.</p>
+<p>Change hash fragment when called with parameter and return <code>$location</code>.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>hash <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-location-hash-page"><p>New hash fragment</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-location-hash-page"><p>hash</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="host">host()</h3>
+<div class="host"><div class="ng-location-host-page"><p>This method is getter only.</p>
+<p>Return host of current url.</p>
+</div><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-location-host-page"><p>host of current url.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="path">path(path)</h3>
+<div class="path"><div class="ng-location-path-page"><p>This method is getter / setter.</p>
+<p>Return path of current url when called without any parameter.</p>
+<p>Change path when called with parameter and return <code>$location</code>.</p>
+<p>Note: Path should always begin with forward slash (/), this method will add the forward slash
+if it is missing.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>path <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-location-path-page"><p>New path</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-location-path-page"><p>path</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="port">port()</h3>
+<div class="port"><div class="ng-location-port-page"><p>This method is getter only.</p>
+<p>Return port of current url.</p>
+</div><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-number">Number</a></td><td><div class="ng-location-port-page"><p>port</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="protocol">protocol()</h3>
+<div class="protocol"><div class="ng-location-protocol-page"><p>This method is getter only.</p>
+<p>Return protocol of current url.</p>
+</div><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-location-protocol-page"><p>protocol of current url</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="replace">replace()</h3>
+<div class="replace"><div class="ng-location-replace-page"><p>If called, all changes to $location during current <code>$digest</code> will be replacing current history
+record, instead of adding new one.</p>
+</div></div>
+</li>
+<li><h3 id="search">search(search, paramValue)</h3>
+<div class="search"><div class="ng-location-search-page"><p>This method is getter / setter.</p>
+<p>Return search part (as object) of current url when called without any parameter.</p>
+<p>Change search part when called with parameter and return <code>$location</code>.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>search</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">Object.&lt;string&gt;</a><a href="" class="label type-hint type-hint-object">Object.&lt;Array.&lt;string&gt;&gt;</a></td><td><div class="ng-location-search-page"><p>New search params - string or hash object. Hash object
+may contain an array of values, which will be decoded as duplicates in the url.</p>
+</div></td></tr><tr><td>paramValue <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-location-search-page"><p>If <code>search</code> is a string, then <code>paramValue</code> will override only a
+single search parameter. If the value is <code>null</code>, the parameter will be deleted.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-location-search-page"><p>search</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="url">url(url, replace)</h3>
+<div class="url"><div class="ng-location-url-page"><p>This method is getter / setter.</p>
+<p>Return url (e.g. <code>/path?a=b#hash</code>) when called without any parameter.</p>
+<p>Change path, search and hash, when called with parameter and return <code>$location</code>.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>url <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-location-url-page"><p>New url without base prefix (e.g. <code>/path?a=b#hash</code>)</p>
+</div></td></tr><tr><td>replace <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-location-url-page"><p>The path that will be changed</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-location-url-page"><p>url</p>
+</div></td></tr></table></div>
+</li>
+</ul>
+</div>
+</div>

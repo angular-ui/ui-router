@@ -1,0 +1,56 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/interpolate.js#L88" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/interpolate.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$interpolate</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-interpolate-page"><p>Compiles a string with markup into an interpolation function. This service is used by the
+HTML <a href="api/ng.$compile"><code>$compile</code></a> service for data binding. See
+<a href="api/ng.$interpolateProvider"><code>$interpolateProvider</code></a> for configuring the
+interpolation markup.</p>
+<pre><code>   <pre class="prettyprint linenums">
+         var $interpolate = ...; // injected
+         var exp = $interpolate('Hello {{name}}!');
+         expect(exp({name:'Angular'}).toEqual('Hello Angular!');
+       </pre></code></pre>
+</div></div>
+<h2 id="Dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="api/ng.$parse">$parse</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="api/ng.$sce">$sce</a></code>
+</li>
+</ul>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">$interpolate(text[, mustHaveExpression][, trustedContext]);</pre>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>text</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-interpolate-page"><p>The text with markup to interpolate.</p>
+</div></td></tr><tr><td>mustHaveExpression <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ng-interpolate-page"><p>if set to true then the interpolation string must have
+embedded expression in order to return an interpolation function. Strings with no
+embedded expression will return null for the interpolation function.</p>
+</div></td></tr><tr><td>trustedContext <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-interpolate-page"><p>when provided, the returned function passes the interpolated
+result through <a href="api/ng.$sce#getTrusted"><code>$sce.getTrusted(interpolatedResult, trustedContext)</code></a> before returning it.  Refer to the <a href="api/ng.$sce"><code>$sce</code></a> service that
+provides Strict Contextual Escaping for details.</p>
+</div></td></tr></tbody></table><h4 id="returns">Returns</h4><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-function">function(context)</a></td><td><div class="ng-interpolate-page"><p>an interpolation function which is used to compute the interpolated
+string. The function has these parameters:</p>
+<ul>
+<li><code>context</code>: an object against which any expressions embedded in the strings are evaluated
+against.</li>
+</ul>
+</div></td></tr></table></div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="endSymbol">endSymbol()</h3>
+<div class="endsymbol"><div class="ng-interpolate-endsymbol-page"><p>Symbol to denote the end of expression in the interpolated string. Defaults to <code>}}</code>.</p>
+<p>Use <a href="api/ng.$interpolateProvider#endSymbol"><code>$interpolateProvider#endSymbol</code></a> to change
+the symbol.</p>
+</div><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-interpolate-endsymbol-page"><p>start symbol.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="startSymbol">startSymbol()</h3>
+<div class="startsymbol"><div class="ng-interpolate-startsymbol-page"><p>Symbol to denote the start of expression in the interpolated string. Defaults to <code>{{</code>.</p>
+<p>Use <a href="api/ng.$interpolateProvider#startSymbol"><code>$interpolateProvider#startSymbol</code></a> to change
+the symbol.</p>
+</div><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-interpolate-startsymbol-page"><p>start symbol.</p>
+</div></td></tr></table></div>
+</li>
+</ul>
+</div>
+</div>

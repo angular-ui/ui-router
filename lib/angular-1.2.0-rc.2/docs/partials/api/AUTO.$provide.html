@@ -1,0 +1,106 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/auto/injector.js#L265" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/auto/injector.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$provide</code>
+<div><span class="hint">service in module <code ng:non-bindable="">AUTO</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="auto-provide-page"><p>Use <code>$provide</code> to register new providers with the <code>$injector</code>. The providers are the factories for the instance.
+The providers share the same name as the instance they create with <code>Provider</code> suffixed to them.</p>
+<p>A provider is an object with a <code>$get()</code> method. The injector calls the <code>$get</code> method to create a new instance of
+a service. The Provider can have additional methods which would allow for configuration of the provider.</p>
+<pre class="prettyprint linenums">
+  function GreetProvider() {
+    var salutation = 'Hello';
+
+    this.salutation = function(text) {
+      salutation = text;
+    };
+
+    this.$get = function() {
+      return function (name) {
+        return salutation + ' ' + name + '!';
+      };
+    };
+  }
+
+  describe('Greeter', function(){
+
+    beforeEach(module(function($provide) {
+      $provide.provider('greet', GreetProvider);
+    }));
+
+    it('should greet', inject(function(greet) {
+      expect(greet('angular')).toEqual('Hello angular!');
+    }));
+
+    it('should allow configuration of salutation', function() {
+      module(function(greetProvider) {
+        greetProvider.salutation('Ahoj');
+      });
+      inject(function(greet) {
+        expect(greet('angular')).toEqual('Ahoj angular!');
+      });
+    });
+</pre>
+</div></div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="constant">constant(name, value)</h3>
+<div class="constant"><div class="auto-provide-constant-page"><p>A constant value, but unlike <a href="api/AUTO.$provide#value"><code>value</code></a> it can be injected
+into configuration function (other modules) and it is not interceptable by
+<a href="api/AUTO.$provide#decorator"><code>decorator</code></a>.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="auto-provide-constant-page"><p>The name of the constant.</p>
+</div></td></tr><tr><td>value</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="auto-provide-constant-page"><p>The constant value.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="auto-provide-constant-page"><p>registered instance</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="decorator">decorator(name, decorator)</h3>
+<div class="decorator"><div class="auto-provide-decorator-page"><p>Decoration of service, allows the decorator to intercept the service instance creation. The
+returned instance may be the original instance, or a new instance which delegates to the
+original instance.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="auto-provide-decorator-page"><p>The name of the service to decorate.</p>
+</div></td></tr><tr><td>decorator</td><td><a href="" class="label type-hint type-hint-function">function()</a></td><td><div class="auto-provide-decorator-page"><p>This function will be invoked when the service needs to be
+instantiated. The function is called using the <a href="api/AUTO.$injector#invoke"><code>injector.invoke</code></a> method and is therefore fully injectable. Local injection arguments:</p>
+<ul>
+<li><code>$delegate</code> - The original service instance, which can be monkey patched, configured,
+decorated or delegated to.</li>
+</ul>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="factory">factory(name, $getFn)</h3>
+<div class="factory"><div class="auto-provide-factory-page"><p>A short hand for configuring services if only <code>$get</code> method is required.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="auto-provide-factory-page"><p>The name of the instance.</p>
+</div></td></tr><tr><td>$getFn</td><td><a href="" class="label type-hint type-hint-function">function()</a></td><td><div class="auto-provide-factory-page"><p>The $getFn for the instance creation. Internally this is a short hand for
+<code>$provide.provider(name, {$get: $getFn})</code>.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="auto-provide-factory-page"><p>registered provider instance</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="provider">provider(name, provider)</h3>
+<div class="provider"><div class="auto-provide-provider-page"><p>Register a provider for a service. The providers can be retrieved and can have additional configuration methods.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="auto-provide-provider-page"><p>The name of the instance. NOTE: the provider will be available under <code>name + &#39;Provider&#39;</code> key.</p>
+</div></td></tr><tr><td>provider</td><td><a href="" class="label type-hint type-hint-object">Object</a><a href="" class="label type-hint type-hint-function">function()</a></td><td><div class="auto-provide-provider-page"><p>If the provider is:</p>
+<ul>
+<li><code>Object</code>: then it should have a <code>$get</code> method. The <code>$get</code> method will be invoked using<pre><code>      &lt;a href=&quot;api/AUTO.$injector#invoke&quot;&gt;&lt;code&gt;$injector.invoke()&lt;/code&gt;&lt;/a&gt; when an instance needs to be created.</code></pre>
+</li>
+<li><code>Constructor</code>: a new instance of the provider will be created using<pre><code>      &lt;a href=&quot;api/AUTO.$injector#instantiate&quot;&gt;&lt;code&gt;$injector.instantiate()&lt;/code&gt;&lt;/a&gt;, then treated as `object`.</code></pre>
+</li>
+</ul>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="auto-provide-provider-page"><p>registered provider instance</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="service">service(name, constructor)</h3>
+<div class="service"><div class="auto-provide-service-page"><p>A short hand for registering service of given class.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="auto-provide-service-page"><p>The name of the instance.</p>
+</div></td></tr><tr><td>constructor</td><td><a href="" class="label type-hint type-hint-function">Function</a></td><td><div class="auto-provide-service-page"><p>A class (constructor function) that will be instantiated.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="auto-provide-service-page"><p>registered provider instance</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="value">value(name, value)</h3>
+<div class="value"><div class="auto-provide-value-page"><p>A short hand for configuring services if the <code>$get</code> method is a constant.</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="auto-provide-value-page"><p>The name of the instance.</p>
+</div></td></tr><tr><td>value</td><td><a href="" class="label type-hint type-hint-object">*</a></td><td><div class="auto-provide-value-page"><p>The value.</p>
+</div></td></tr></tbody></table><h5 id="returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="auto-provide-value-page"><p>registered provider instance</p>
+</div></td></tr></table></div>
+</li>
+</ul>
+</div>
+</div>

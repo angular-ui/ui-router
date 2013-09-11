@@ -1,0 +1,20 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ngMock/angular-mocks.js#L1842" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ngMock/angular-mocks.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">angular.mock.module</code>
+<div><span class="hint">API in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="angular-mock-module-page"><p><em>NOTE</em>: This function is also published on window for easy access.<br></p>
+<p>This function registers a module configuration code. It collects the configuration information
+which will be used when the injector is created by <a href="api/angular.mock.inject"><code>inject</code></a>.</p>
+<p>See <a href="api/angular.mock.inject"><code>inject</code></a> for usage example</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">angular.mock.module(fns);</pre>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>fns</td><td><a href="" class="label type-hint type-hint-object">...(string</a><a href="" class="label type-hint type-hint-function">Function</a><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="angular-mock-module-page"><p>any number of modules which are represented as string
+aliases or as anonymous module initialization functions. The modules are used to
+configure the injector. The &#39;ng&#39; and &#39;ngMock&#39; modules are automatically loaded. If an 
+object literal is passed they will be register as values in the module, the key being
+the module name and the value being what is returned.</p>
+</div></td></tr></tbody></table></div>
+</div>

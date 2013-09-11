@@ -1,0 +1,56 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/animate.js#L61" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/animate.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">$animate</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-animate-page"><p>The $animate service provides rudimentary DOM manipulation functions to insert, remove, move elements within
+the DOM as well as adding and removing classes. This service is the core service used by the ngAnimate $animator
+service which provides high-level animation hooks for CSS and JavaScript. </p>
+<p>$animate is available in the AngularJS core, however, the ngAnimate module must be included to enable full out
+animation support. Otherwise, $animate will only perform simple DOM manipulation operations.</p>
+<p>To learn more about enabling animation support, click here to visit the <a href="api/ngAnimate">ngAnimate module page</a>
+as well as the <a href="api/ngAnimate.$animate">ngAnimate $animate service page</a>.</p>
+</div></div>
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="addClass">addClass(element, className, done)</h3>
+<div class="addclass"><div class="ng-animate-addclass-page"><p>Adds the provided className CSS class value to the provided element. Once complete, the done() callback will be fired (if provided).</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>element</td><td><a href="" class="label type-hint type-hint-jquery">jQuery/jqLite element</a></td><td><div class="ng-animate-addclass-page"><p>the element which will have the className value added to it</p>
+</div></td></tr><tr><td>className</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-animate-addclass-page"><p>the CSS class which will be added to the element</p>
+</div></td></tr><tr><td>done <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ng-animate-addclass-page"><p>the callback function (if provided) that will be fired after the className value has been added to the element</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="enter">enter(element, parent, after, done)</h3>
+<div class="enter"><div class="ng-animate-enter-page"><p>Inserts the element into the DOM either after the <code>after</code> element or within the <code>parent</code> element. Once complete,
+the done() callback will be fired (if provided).</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>element</td><td><a href="" class="label type-hint type-hint-jquery">jQuery/jqLite element</a></td><td><div class="ng-animate-enter-page"><p>the element which will be inserted into the DOM</p>
+</div></td></tr><tr><td>parent</td><td><a href="" class="label type-hint type-hint-jquery">jQuery/jqLite element</a></td><td><div class="ng-animate-enter-page"><p>the parent element which will append the element as a child (if the after element is not present)</p>
+</div></td></tr><tr><td>after</td><td><a href="" class="label type-hint type-hint-jquery">jQuery/jqLite element</a></td><td><div class="ng-animate-enter-page"><p>the sibling element which will append the element after itself</p>
+</div></td></tr><tr><td>done <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ng-animate-enter-page"><p>callback function that will be called after the element has been inserted into the DOM</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="leave">leave(element, done)</h3>
+<div class="leave"><div class="ng-animate-leave-page"><p>Removes the element from the DOM. Once complete, the done() callback will be fired (if provided).</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>element</td><td><a href="" class="label type-hint type-hint-jquery">jQuery/jqLite element</a></td><td><div class="ng-animate-leave-page"><p>the element which will be removed from the DOM</p>
+</div></td></tr><tr><td>done <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ng-animate-leave-page"><p>callback function that will be called after the element has been removed from the DOM</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="move">move(element, parent, after, done)</h3>
+<div class="move"><div class="ng-animate-move-page"><p>Moves the position of the provided element within the DOM to be placed either after the <code>after</code> element or inside of the <code>parent</code> element.
+Once complete, the done() callback will be fired (if provided).</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>element</td><td><a href="" class="label type-hint type-hint-jquery">jQuery/jqLite element</a></td><td><div class="ng-animate-move-page"><p>the element which will be moved around within the DOM</p>
+</div></td></tr><tr><td>parent</td><td><a href="" class="label type-hint type-hint-jquery">jQuery/jqLite element</a></td><td><div class="ng-animate-move-page"><p>the parent element where the element will be inserted into (if the after element is not present)</p>
+</div></td></tr><tr><td>after</td><td><a href="" class="label type-hint type-hint-jquery">jQuery/jqLite element</a></td><td><div class="ng-animate-move-page"><p>the sibling element where the element will be positioned next to</p>
+</div></td></tr><tr><td>done <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ng-animate-move-page"><p>the callback function (if provided) that will be fired after the element has been moved to it&#39;s new position</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="removeClass">removeClass(element, className, done)</h3>
+<div class="removeclass"><div class="ng-animate-removeclass-page"><p>Removes the provided className CSS class value from the provided element. Once complete, the done() callback will be fired (if provided).</p>
+</div><h5 id="parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>element</td><td><a href="" class="label type-hint type-hint-jquery">jQuery/jqLite element</a></td><td><div class="ng-animate-removeclass-page"><p>the element which will have the className value removed from it</p>
+</div></td></tr><tr><td>className</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-animate-removeclass-page"><p>the CSS class which will be removed from the element</p>
+</div></td></tr><tr><td>done <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ng-animate-removeclass-page"><p>the callback function (if provided) that will be fired after the className value has been removed from the element</p>
+</div></td></tr></tbody></table></div>
+</li>
+</ul>
+</div>
+</div>

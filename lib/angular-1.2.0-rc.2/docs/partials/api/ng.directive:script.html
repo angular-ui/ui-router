@@ -1,0 +1,42 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/directive/script.js#L3" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/directive/script.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">script</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-directive-page ng-directive-script-page"><p>Load content of a script tag, with type <code>text/ng-template</code>, into <code>$templateCache</code>, so that the
+template can be used by <code>ngInclude</code>, <code>ngView</code> or directive templates.</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><p>This directive can be used as custom element, but be aware of <a href="guide/ie">IE restrictions</a>.</p>as element:<pre class="prettyprint linenums">&lt;script
+       type="text/ng-template"&gt;
+&lt;/script&gt;</pre>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>type</td><td><a href="" class="label type-hint type-hint-object">'text/ng-template'</a></td><td><div class="ng-directive-page ng-directive-script-page"><p>must be set to <code>&#39;text/ng-template&#39;</code></p>
+</div></td></tr></tbody></table></div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ng-directive-page ng-directive-script-page"><h4>Source</h2>
+<div source-edit="" source-edit-deps="angular.js" source-edit-html="index.html-103" source-edit-css="" source-edit-js="" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-104"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-103" ng-html-wrap=" angular.js"></pre>
+<script type="text/ng-template" id="index.html-103">
+  <script type="text/ng-template" id="/tpl.html">
+    Content of the template.
+  </script>
+
+  <a ng-click="currentTpl='/tpl.html'" id="tpl-link">Load inlined template</a>
+  <div id="tpl-content" ng-include src="currentTpl"></div>
+</script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-104"></pre>
+<script type="text/ng-template" id="scenario.js-104">
+  it('should load template defined inside script tag', function() {
+    element('#tpl-link').click();
+    expect(element('#tpl-content').text()).toMatch(/Content of the template/);
+  });
+</script>
+</div>
+</div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-embed-app="" ng-set-html="index.html-103" ng-eval-javascript=""></div>
+</div></div>
+</div>

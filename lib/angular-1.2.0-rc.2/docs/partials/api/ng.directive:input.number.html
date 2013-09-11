@@ -1,0 +1,94 @@
+<a href="http://github.com/angular/angular.js/tree/v1.2.0rc1/src/ng/directive/input.js#L86" class="view-source btn btn-action"><i class="icon-zoom-in"> </i> View source</a><a href="http://github.com/angular/angular.js/edit/master/src/ng/directive/input.js" class="improve-docs btn btn-primary"><i class="icon-edit"> </i> Improve this doc</a><h1><code ng:non-bindable="">input [number]</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">ng</code>
+</span>
+</div>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><div class="ng-directive-page ng-directive-input-number-page"><p>Text input with number validation and transformation. Sets the <code>number</code> validation
+error if not a valid number.</p>
+</div></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">&lt;input type="number"
+       ng-model="{string}"
+       [name="{string}"]
+       [min="{string}"]
+       [max="{string}"]
+       [required]
+       [ng-required="{string}"]
+       [ng-minlength="{number}"]
+       [ng-maxlength="{number}"]
+       [ng-pattern="{string}"]
+       [ng-change="{string}"]&gt;</pre>
+<h4 id="parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>ngModel</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-input-number-page"><p>Assignable angular expression to data-bind to.</p>
+</div></td></tr><tr><td>name <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-input-number-page"><p>Property name of the form under which the control is published.</p>
+</div></td></tr><tr><td>min <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-input-number-page"><p>Sets the <code>min</code> validation error key if the value entered is less than <code>min</code>.</p>
+</div></td></tr><tr><td>max <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-input-number-page"><p>Sets the <code>max</code> validation error key if the value entered is greater than <code>max</code>.</p>
+</div></td></tr><tr><td>required <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-input-number-page"><p>Sets <code>required</code> validation error key if the value is not entered.</p>
+</div></td></tr><tr><td>ngRequired <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-input-number-page"><p>Adds <code>required</code> attribute and <code>required</code> validation constraint to
+the element when the ngRequired expression evaluates to true. Use <code>ngRequired</code> instead of
+<code>required</code> when you want to data-bind to the <code>required</code> attribute.</p>
+</div></td></tr><tr><td>ngMinlength <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-number">number</a></td><td><div class="ng-directive-page ng-directive-input-number-page"><p>Sets <code>minlength</code> validation error key if the value is shorter than
+minlength.</p>
+</div></td></tr><tr><td>ngMaxlength <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-number">number</a></td><td><div class="ng-directive-page ng-directive-input-number-page"><p>Sets <code>maxlength</code> validation error key if the value is longer than
+maxlength.</p>
+</div></td></tr><tr><td>ngPattern <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-input-number-page"><p>Sets <code>pattern</code> validation error key if the value does not match the
+RegExp pattern expression. Expected value is <code>/regexp/</code> for inline patterns or <code>regexp</code> for
+patterns defined as scope expressions.</p>
+</div></td></tr><tr><td>ngChange <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ng-directive-page ng-directive-input-number-page"><p>Angular expression to be executed when input changes due to user
+interaction with the input element.</p>
+</div></td></tr></tbody></table></div>
+<h2 id="Example">Example</h2>
+<div class="example"><div class="ng-directive-page ng-directive-input-number-page"><h4>Source</h2>
+<div source-edit="" source-edit-deps="angular.js script.js" source-edit-html="index.html-26" source-edit-css="" source-edit-js="script.js-25" source-edit-json="" source-edit-unit="" source-edit-scenario="scenario.js-27"></div>
+<div class="tabbable"><div class="tab-pane" title="index.html">
+<pre class="prettyprint linenums" ng-set-text="index.html-26" ng-html-wrap=" angular.js script.js"></pre>
+<script type="text/ng-template" id="index.html-26">
+ 
+ <form name="myForm" ng-controller="Ctrl">
+   Number: <input type="number" name="input" ng-model="value"
+                  min="0" max="99" required>
+   <span class="error" ng-show="myForm.input.$error.required">
+     Required!</span>
+   <span class="error" ng-show="myForm.input.$error.number">
+     Not valid number!</span>
+   <tt>value = {{value}}</tt><br/>
+   <tt>myForm.input.$valid = {{myForm.input.$valid}}</tt><br/>
+   <tt>myForm.input.$error = {{myForm.input.$error}}</tt><br/>
+   <tt>myForm.$valid = {{myForm.$valid}}</tt><br/>
+   <tt>myForm.$error.required = {{!!myForm.$error.required}}</tt><br/>
+  </form>
+</script>
+</div>
+<div class="tab-pane" title="script.js">
+<pre class="prettyprint linenums" ng-set-text="script.js-25"></pre>
+<script type="text/ng-template" id="script.js-25">
+   function Ctrl($scope) {
+     $scope.value = 12;
+   }
+ </script>
+</div>
+<div class="tab-pane" title="End to end test">
+<pre class="prettyprint linenums" ng-set-text="scenario.js-27"></pre>
+<script type="text/ng-template" id="scenario.js-27">
+  it('should initialize to model', function() {
+   expect(binding('value')).toEqual('12');
+   expect(binding('myForm.input.$valid')).toEqual('true');
+  });
+
+  it('should be invalid if empty', function() {
+   input('value').enter('');
+   expect(binding('value')).toEqual('');
+   expect(binding('myForm.input.$valid')).toEqual('false');
+  });
+
+  it('should be invalid if over max', function() {
+   input('value').enter('123');
+   expect(binding('value')).toEqual('');
+   expect(binding('myForm.input.$valid')).toEqual('false');
+  });
+</script>
+</div>
+</div><h2>Demo</h4>
+<div class="well doc-example-live animate-container" ng-embed-app="" ng-set-html="index.html-26" ng-eval-javascript="script.js-25"></div>
+</div></div>
+</div>
