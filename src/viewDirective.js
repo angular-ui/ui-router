@@ -17,8 +17,46 @@
  */
 $ViewDirective.$inject = ['$state', '$compile', '$controller', '$injector', '$uiViewScroll'];
 function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $uiViewScroll) {
-  var $animator = $injector.has('$animator') ? $injector.get('$animator') : false;
-  var viewIsUpdating = false;
+
+  function getService() {
+    return ($injector.has) ? function(service) {
+      return $injector.has(service) ? $injector.get(service) : null;
+    } : function(service) {
+      try {
+        return $injector.get(service);
+      } catch (e) {
+        return null;
+      }
+    };
+  }
+
+  var viewIsUpdating = false, service = getService(),
+      $animator = service('$animator'), $animate = service('$animate'),
+      hasAnimator = !!($animator || $animate);
+
+  // Returns a set of DOM manipulation functions based on whether animation
+  // should be performed
+  var renderer = function(shouldAnimate) {
+    return (hasAnimator && shouldAnimate) ? {
+      remove: function(element) { $animate.leave(element.contents()); },
+      // remove: function(element) { animate.leave(element.contents(), element); },
+      restore: function(compiled, element) { $animate.enter(compiled, element); },
+      // restore: function(compiled, element) { animate.enter(compiled, element); },
+      populate: function(template, element) {
+        var contents = angular.element('<div></div>').html(template).contents();
+        // animate.enter(contents, element);
+        $animate.enter(contents, element);
+        return contents;
+      }
+    } : {
+      remove: function(element) { element.html(''); },
+      restore: function(compiled, element) { element.append(compiled); },
+      populate: function(template, element) {
+        element.html(template);
+        return element.contents();
+      }
+    };
+  };
 
   var directive = {
     restrict: 'ECA',
@@ -33,30 +71,6 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $ui
             autoscrollExp = attr.autoscroll,
             animate = $animator && $animator(scope, attr),
             initialView = transclude(scope);
-
-        // Returns a set of DOM manipulation functions based on whether animation
-        // should be performed
-        var renderer = function(doAnimate) {
-          return ({
-            "true": {
-              remove: function(element) { animate.leave(element.contents(), element); },
-              restore: function(compiled, element) { animate.enter(compiled, element); },
-              populate: function(template, element) {
-                var contents = angular.element('<div></div>').html(template).contents();
-                animate.enter(contents, element);
-                return contents;
-              }
-            },
-            "false": {
-              remove: function(element) { element.html(''); },
-              restore: function(compiled, element) { element.append(compiled); },
-              populate: function(template, element) {
-                element.html(template);
-                return element.contents();
-              }
-            }
-          })[doAnimate.toString()];
-        };
 
         // Put back the compiled initial view
         element.append(initialView);
@@ -87,7 +101,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $ui
         function updateView(doAnimate) {
           var locals = $state.$current && $state.$current.locals[name];
           if (locals === viewLocals) return; // nothing to do
-          var render = renderer(animate && doAnimate);
+          var render = renderer(doAnimate);
 
           // Remove existing content
           render.remove(element);
