@@ -513,7 +513,7 @@ describe('state', function () {
         var result = {};
 
         angular.forEach(parent(state), function(config, name) {
-          result[name] = angular.extend(config, { templateFactory: function() {
+          result[name] = angular.extend(config, { templateProvider: function() {
             return "Template for " + name;
           }});
         });
@@ -530,8 +530,8 @@ describe('state', function () {
       $state.transitionTo('viewTest');
       $q.flush();
 
-      expect($state.$current.views['viewA@'].templateFactory()).toBe('Template for viewA@');
-      expect($state.$current.views['viewB@'].templateFactory()).toBe('Template for viewB@');
+      expect($state.$current.views['viewA@'].templateProvider()).toBe('Template for viewA@');
+      expect($state.$current.views['viewB@'].templateProvider()).toBe('Template for viewB@');
     }));
 
   });
