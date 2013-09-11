@@ -11,3 +11,7 @@ before_script:
 
 script:
   - grunt
+
+branches:
+  except:
+    - angular-1.2
