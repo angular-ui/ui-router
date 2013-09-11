@@ -129,7 +129,8 @@ describe('uiView', function () {
       $state.transitionTo(fState);
       $q.flush();
 
-      expect(elem[0].querySelector('.view').querySelector('.eview').innerText).toBe(fState.views.eview.template);
+      expect($animate.flushNext('leave').element.text()).toBe('');
+      expect($animate.flushNext('enter').element.parent().parent()[0].querySelector('.view').querySelector('.eview').innerText).toBe(fState.views.eview.template);
     }));
   });
 
@@ -143,7 +144,11 @@ describe('uiView', function () {
       $state.transitionTo(gState);
       $q.flush();
 
-      expect(elem[0].querySelector('.test').innerText).toBe(content);
+      expect($animate.flushNext('leave').element.text()).toBe("");
+      expect($animate.flushNext('enter').element.text()).toBe(content);
+
+      // For some reason the ng-class expression is no longer evaluated
+      expect($animate.flushNext('addClass').element.parent()[0].querySelector('.test').innerText).toBe(content);
     }));
 
     it('initial view should be put back after removal of the view', inject(function ($state, $q, $animate) {
@@ -155,13 +160,18 @@ describe('uiView', function () {
       $state.transitionTo(hState);
       $q.flush();
 
-      expect(elem.text()).toBe(hState.views.inner.template);
+      expect($animate.flushNext('leave').element.text()).toBe('');
+      expect($animate.flushNext('enter').element.text()).toBe(hState.views.inner.template);
+
+      expect($animate.flushNext('addClass').element.text()).toBe(hState.views.inner.template);
+      expect($animate.flushNext('addClass').element.text()).toBe(hState.views.inner.template);
 
       // going to the parent state which makes the inner view empty
       $state.transitionTo(gState);
       $q.flush();
 
-      expect(elem[0].querySelector('.test').innerText).toBe(content);
+      expect($animate.flushNext('leave').element.text()).toBe(hState.views.inner.template);
+      expect($animate.flushNext('enter').element.text()).toBe(content);
     }));
   });
 
