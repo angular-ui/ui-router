@@ -57,7 +57,10 @@ describe('state', function () {
           templateParams = params;
           return "/templates/" + params.item + ".html";
         }
-      });
+      })
+
+      .state('first', { url: '^/first/subpath' })
+      .state('second', { url: '^/second' });
 
     $provide.value('AppInjectable', AppInjectable);
   }));
@@ -214,6 +217,14 @@ describe('state', function () {
     it('doesn\'t transition to parent state when child has no URL', inject(function ($state, $q) {
       $state.transitionTo('about.sidebar'); $q.flush();
       expect($state.current.name).toEqual('about.sidebar');
+    }));
+
+    it('notifies on failed relative state resolution', inject(function ($state, $q) {
+      $state.transitionTo(DD);
+      $q.flush();
+
+      var err = "Could not resolve '^.Z' from state 'DD'";
+      expect(function() { $state.transitionTo("^.Z", null, { relative: $state.$current }); }).toThrow(err);
     }));
   });
 
@@ -384,52 +395,38 @@ describe('state', function () {
     }));
   });
 
-  describe(' "data" property inheritance/override', function () {
-    it('"data" property should stay immutable for if state doesn\'t have parent', inject(function ($state) {
-      initStateTo(H);
-      expect($state.current.name).toEqual('H');
-      expect($state.current.data.propA).toEqual(H.data.propA);
-      expect($state.current.data.propB).toEqual(H.data.propB);
-    }));
-
-    it('"data" property should be inherited from parent if state doesn\'t define it', inject(function ($state) {
-      initStateTo(HH);
-      expect($state.current.name).toEqual('HH');
-      expect($state.current.data.propA).toEqual(H.data.propA);
-      expect($state.current.data.propB).toEqual(H.data.propB);
-    }));
-
-    it('"data" property should be overridden/extended if state defines it', inject(function ($state) {
-      initStateTo(HHH);
-      expect($state.current.name).toEqual('HHH');
-      expect($state.current.data.propA).toEqual(HHH.data.propA);
-      expect($state.current.data.propB).toEqual(H.data.propB);
-      expect($state.current.data.propB).toEqual(HH.data.propB);
-      expect($state.current.data.propC).toEqual(HHH.data.propC);
-    }));
-  });
-
-  describe('html5Mode compatibility', function() {
-
-    it('should generate non-hashbang URLs in HTML5 mode', inject(function ($state) {
-      expect($state.href("about.person", { person: "bob" })).toEqual("#/about/bob");
-      locationProvider.html5Mode(true);
-      expect($state.href("about.person", { person: "bob" })).toEqual("/about/bob");
-    }));
-  });
-
   describe('url handling', function () {
-
     it('should transition to the same state with different parameters', inject(function ($state, $rootScope, $location) {
       $location.path("/about/bob");
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
       expect($state.params).toEqual({ person: "bob" });
+      expect($state.current.name).toBe('about.person');
 
       $location.path("/about/larry");
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
       expect($state.params).toEqual({ person: "larry" });
+      expect($state.current.name).toBe('about.person');
+    }));
+
+    it('should correctly handle absolute urls', inject(function ($state, $rootScope, $location) {
+      $location.path("/first/subpath");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      expect($state.current.name).toBe('first');
+
+      $state.transitionTo('second');
+      $rootScope.$apply();
+      expect($state.current.name).toBe('second');
+      expect($location.path()).toBe('/second');
+    }));
+
+    it('should ignore bad urls', inject(function ($state, $rootScope, $location) {
+      $location.path("/first/second");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      expect($state.current.name).toBe('');
     }));
   });
 
@@ -446,22 +443,22 @@ describe('state', function () {
     }));
   });
 
-  describe(' "data" property inheritance/override', function () {
-    it('"data" property should stay immutable for if state doesn\'t have parent', inject(function ($state) {
+  describe('"data" property inheritance/override', function () {
+    it('should stay immutable for if state doesn\'t have parent', inject(function ($state) {
       initStateTo(H);
       expect($state.current.name).toEqual('H');
       expect($state.current.data.propA).toEqual(H.data.propA);
       expect($state.current.data.propB).toEqual(H.data.propB);
     }));
 
-    it('"data" property should be inherited from parent if state doesn\'t define it', inject(function ($state) {
+    it('should be inherited from parent if state doesn\'t define it', inject(function ($state) {
       initStateTo(HH);
       expect($state.current.name).toEqual('HH');
       expect($state.current.data.propA).toEqual(H.data.propA);
       expect($state.current.data.propB).toEqual(H.data.propB);
     }));
 
-    it('"data" property should be overridden/extended if state defines it', inject(function ($state) {
+    it('should be overridden/extended if state defines it', inject(function ($state) {
       initStateTo(HHH);
       expect($state.current.name).toEqual('HHH');
       expect($state.current.data.propA).toEqual(HHH.data.propA);
