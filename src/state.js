@@ -215,7 +215,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     $state.transitionTo = function transitionTo(to, toParams, options) {
       if (!isDefined(options)) options = (options === true || options === false) ? { location: options } : {};
       toParams = toParams || {};
-      options = extend({ location: true, inherit: false, relative: null }, options);
+      options = extend({ location: true, inherit: false, relative: null, replacePreviousHistoryEntry: false }, options);
 
       var toState = findState(to, options.relative);
 
@@ -305,6 +305,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         var toNav = to.navigable;
         if (options.location && toNav) {
           $location.url(toNav.url.format(toNav.locals.globals.$stateParams));
+          if (options.replacePreviousHistoryEntry) {
+             $location.replace();
+          }
         }
 
         $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
