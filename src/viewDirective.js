@@ -10,7 +10,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
   var renderer = function(doAnimate) {
     return ({
       "true": {
-        remove: function(element) { $animate.leave(element.contents(), element); },
+        remove: function(element) { $animate.leave(element.contents()); },
         restore: function(compiled, element) { $animate.enter(compiled, element); },
         populate: function(template, element) {
           var contents = angular.element('<div></div>').html(template).contents();
