@@ -395,7 +395,7 @@ describe('state', function () {
     }));
 
     it("should return all of the state's config", inject(function ($state) {
-      var list = $state.getAll();
+      var list = $state.getAll().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
       var names = [
         '', // implicit root state
         'A',
@@ -407,14 +407,14 @@ describe('state', function () {
         'H',
         'HH',
         'HHH',
-        'home',
-        'home.item',
         'about',
         'about.person',
         'about.person.item',
         'about.sidebar',
         'about.sidebar.item',
         'first',
+        'home',
+        'home.item',
         'second'
       ];
       expect(list.map(function(state) { return state.name; })).toEqual(names);
