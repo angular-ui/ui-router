@@ -393,6 +393,32 @@ describe('state', function () {
       expect($state.get('A')).toBe(A);
       expect($state.get('Z')).toBeNull();
     }));
+
+    it("should return all of the state's config", inject(function ($state) {
+      var list = $state.getAll();
+      var names = [
+        '', // implicit root state
+        'A',
+        'B',
+        'C',
+        'D',
+        'DD',
+        'E',
+        'H',
+        'HH',
+        'HHH',
+        'home',
+        'home.item',
+        'about',
+        'about.person',
+        'about.person.item',
+        'about.sidebar',
+        'about.sidebar.item',
+        'first',
+        'second'
+      ];
+      expect(list.map(function(state) { return state.name; })).toEqual(names);
+    }));
   });
 
   describe('url handling', function () {

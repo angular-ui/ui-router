@@ -348,6 +348,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return (state && state.self) ? state.self : null;
     };
 
+    $state.getAll = function () {
+      var list = [];
+      forEach(states, function(state) { list.push(state.self); });
+      return list;
+    };
+
     function resolveState(state, params, paramsAreFiltered, inherited, dst) {
       // Make a restricted $stateParams with only the parameters that apply to this state if
       // necessary. In addition to being available to the controller and onEnter/onExit callbacks,
