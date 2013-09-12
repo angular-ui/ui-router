@@ -395,7 +395,7 @@ describe('state', function () {
     }));
 
     it("should return all of the state's config", inject(function ($state) {
-      var list = $state.getAll().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
+      var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
       var names = [
         '', // implicit root state
         'A',
