@@ -1,6 +1,6 @@
 describe('state', function () {
 
-  var locationProvider, templateParams;
+  var stateProvider, locationProvider, templateParams;
 
   beforeEach(module('ui.router', function($locationProvider) {
     locationProvider = $locationProvider;
@@ -33,6 +33,7 @@ describe('state', function () {
       state.onEnter = callbackLogger('onEnter');
       state.onExit = callbackLogger('onExit');
     });
+    stateProvider = $stateProvider;
 
     $stateProvider
       .state('A', A)
@@ -500,5 +501,61 @@ describe('state', function () {
       $state.transitionTo('about.sidebar.item', { item: "foo" }); $q.flush();
       expect(templateParams).toEqual({ item: "foo" });
     }));
+  });
+
+  describe('provider decorators', function () {
+
+    it('should return built-in decorators', function () {
+      expect(stateProvider.decorator('parent')({ parent: A }).self.name).toBe("A");
+    });
+
+    it('should allow built-in decorators to be overridden', inject(function ($state, $q) {
+      stateProvider.decorator('data', function(state) {
+        return angular.extend(state.data || {}, { foo: "bar" });
+      });
+      stateProvider.state('AA', { parent: A, data: { baz: "true" } });
+
+      $state.transitionTo('AA');
+      $q.flush();
+      expect($state.current.data).toEqual({ baz: 'true', foo: 'bar' });
+    }));
+
+    it('should allow new decorators to be added', inject(function ($state, $q) {
+      stateProvider.decorator('custom', function(state) {
+        return function() { return "Custom functionality for state '" + state + "'" };
+      });
+      stateProvider.state('decoratorTest', {});
+
+      $state.transitionTo('decoratorTest');
+      $q.flush();
+      expect($state.$current.custom()).toBe("Custom functionality for state 'decoratorTest'");
+    }));
+
+    it('should allow built-in decorators to be extended', inject(function ($state, $q, $httpBackend) {
+      stateProvider.decorator('views', function(state, parent) {
+        var result = {};
+
+        angular.forEach(parent(state), function(config, name) {
+          result[name] = angular.extend(config, { templateProvider: function() {
+            return "Template for " + name;
+          }});
+        });
+        return result;
+      });
+
+      stateProvider.state('viewTest', {
+        views: {
+          viewA: {},
+          viewB: {}
+        }
+      });
+
+      $state.transitionTo('viewTest');
+      $q.flush();
+
+      expect($state.$current.views['viewA@'].templateProvider()).toBe('Template for viewA@');
+      expect($state.$current.views['viewB@'].templateProvider()).toBe('Template for viewB@');
+    }));
+
   });
 });
