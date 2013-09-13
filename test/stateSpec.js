@@ -194,6 +194,20 @@ describe('state', function () {
       expect($state.params).toEqual({ x: '1', y: '2' });
     }));
 
+    it('can lazy-define a state in $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(DD, { x: 1, y: 2, z: 3 });
+      var called;
+      $rootScope.$on('$stateNotFound', function (ev, redirect) {
+        stateProvider.state(redirect.to, { parent: DD, params: [ 'x', 'y', 'z', 'w' ]});
+        called = true;
+      });
+      var promise = $state.go('DDD', { w: 4 });
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current.name).toEqual('DDD');
+      expect($state.params).toEqual({ x: '1', y: '2', z: '3', w: '4' });
+    }));
+
     it('triggers $stateChangeSuccess', inject(function ($state, $q, $rootScope) {
       initStateTo(E, { i: 'iii' });
       var called;
