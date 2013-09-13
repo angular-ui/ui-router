@@ -24,6 +24,7 @@ function $ViewProvider() {
           result = $templateFactory.fromConfig(options, options.params, options.locals);
         }
         if (result && options.notify) {
+          options.targetView = name;
           $rootScope.$broadcast('$viewContentLoading', options);
         }
         return result;
