@@ -1,8 +1,8 @@
 describe('view', function () {
 
-	it('should notify when content is loading', inject(function($view, $httpBackend, $rootScope) {
+	it('should notify when content is loading', inject(function($view, $rootScope) {
 		var event, options, loadConfig = {
-			templateUrl: '/partials/test.html',
+			template: 'Hello!',
 			params: { foo: "bar" },
 			controller: "MyController"
 		};
@@ -11,14 +11,31 @@ describe('view', function () {
 			event = e;
 			options = o;
 		});
-		$httpBackend.expectGET('/partials/test.html').respond("Test content");
 
 		$view.load("custom.view", loadConfig);
-		$httpBackend.flush();
 
 		expect(event.name).toBe('$viewContentLoading');
-		expect(options.templateUrl).toBe('/partials/test.html');
+		expect(options.template).toBe('Hello!');
 		expect(options.targetView).toBe('custom.view');
 		expect(options.params).toEqual({ foo: "bar" });
+	}));
+
+	it('should always return a promise', inject(function($view, $httpBackend, $rootScope) {
+		var result;
+		$httpBackend.expectGET('/partials/test.html').respond("Test content");
+
+		$view.load("custom.view", { templateUrl: '/partials/test.html' }).then(function(template) {
+			result = template;
+		});
+		expect(result).toBeUndefined();
+
+		$httpBackend.flush();
+		expect(result).toBe("Test content");
+
+		$view.load("custom.view", { template: 'Hello!' }).then(function(template) {
+			result = template;
+		});
+		$rootScope.$digest();
+		expect(result).toBe("Hello!");
 	}));
 });
