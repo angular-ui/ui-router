@@ -208,6 +208,41 @@ describe('state', function () {
       expect($state.params).toEqual({ x: '1', y: '2', z: '3', w: '4' });
     }));
 
+    it('can defer a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(A);
+      var called;
+      var deferred = $q.defer();
+      $rootScope.$on('$stateNotFound', function (ev, redirect) {
+        ev.retry = deferred.promise;
+        called = true;
+      });
+      var promise = $state.go('AA', { a: 1 });
+      stateProvider.state('AA', { parent: A, params: [ 'a' ]});
+      deferred.resolve();
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current.name).toEqual('AA');
+      expect($state.params).toEqual({ a: '1' });
+    }));
+
+    it('can defer and supersede a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(A);
+      var called;
+      var deferred = $q.defer();
+      $rootScope.$on('$stateNotFound', function (ev, redirect) {
+        ev.retry = deferred.promise;
+        called = true;
+      });
+      var promise = $state.go('AA', { a: 1 });
+      $state.go(B);
+      stateProvider.state('AA', { parent: A, params: [ 'a' ]});
+      deferred.resolve();
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current).toEqual(B);
+      expect($state.params).toEqual({});
+    }));
+
     it('triggers $stateChangeSuccess', inject(function ($state, $q, $rootScope) {
       initStateTo(E, { i: 'iii' });
       var called;

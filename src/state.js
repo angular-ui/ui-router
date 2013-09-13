@@ -222,6 +222,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     var TransitionSuperseded = $q.reject(new Error('transition superseded'));
     var TransitionPrevented = $q.reject(new Error('transition prevented'));
     var TransitionAborted = $q.reject(new Error('transition aborted'));
+    var TransitionFailed = $q.reject(new Error('transition failed'));
 
     root.locals = { resolve: null, globals: { $stateParams: {} } };
     $state = {
@@ -238,7 +239,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     $state.transitionTo = function transitionTo(to, toParams, options) {
       if (!isDefined(options)) options = (options === true || options === false) ? { location: options } : {};
       toParams = toParams || {};
-      options = extend({ location: true, inherit: false, relative: null }, options);
+      options = extend({ location: true, inherit: false, relative: null, $retry: false }, options);
 
       var from = $state.$current, fromParams = $state.params, fromPath = from.path;
 
@@ -251,6 +252,22 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         var redirect = { to: to, toParams: toParams, options: options };
         evt = $rootScope.$broadcast('$stateNotFound', redirect, from.self, fromParams);
         if (evt.defaultPrevented) return TransitionAborted;
+
+        // Allow the handler to return a promise to defer state lookup retry
+        if (evt.retry) {
+          if (options.$retry) return TransitionFailed;
+          var retryTransition = $state.transition = $q.when(evt.retry);
+          retryTransition.then(function() {
+            if (retryTransition !== $state.transition) return TransitionSuperseded;
+            redirect.options.$retry = true;
+            return $state.transitionTo(redirect.to, redirect.toParams, redirect.options);
+          },
+          function() {
+            return TransitionAborted;
+          });
+          return retryTransition;
+        }
+
         // Always retry once if the $stateNotFound was not prevented
         // (handles either redirect changed or state lazy-definition)
         to = redirect.to;
@@ -305,7 +322,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         resolved = resolveState(state, toParams, state===to, resolved, locals);
       }
 
-      // Once everything is resolved, wer are ready to perform the actual transition
+      // Once everything is resolved, we are ready to perform the actual transition
       // and return a promise for the new state. We also keep track of what the
       // current promise is, so that we can detect overlapping transitions and
       // keep only the outcome of the last transition.
