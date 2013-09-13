@@ -365,6 +365,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     };
 
     $state.get = function (stateOrName) {
+      if (!isDefined(stateOrName)) {
+        var list = [];
+        forEach(states, function(state) { list.push(state.self); });
+        return list;
+      }
       var state = findState(stateOrName);
       return (state && state.self) ? state.self : null;
     };
