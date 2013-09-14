@@ -185,46 +185,46 @@ Another handy feature is the ability to have more than one view per template. Pl
 3. Set up your states in the module config:
 >
 ```javascript
-myapp.config(function($stateProvider){
-  $stateProvider
-		.state('index', {
-			url: "", // root route
-			views: {
-				"viewA": {
-					templateUrl: "index.viewA.html"
-				},
-				"viewB": {
-					templateUrl: "index.viewB.html"
-				}
-			}
-		})
-		.state('route1', {
-			url: "/route1",
-			views: {
-				"viewA": {
-					templateUrl: "route1.viewA.html"
-				},
-				"viewB": {
-					templateUrl: "route1.viewB.html"
-				}
-			}
-		})
-		.state('route2', {
-			url: "/route2",
-			views: {
-				"viewA": {
-					templateUrl: "route2.viewA.html"
-				},
-				"viewB": {
-					templateUrl: "route2.viewB.html"
-				}
-			}
-		})
-})
+myapp.config(function($stateProvider, $routeProvider){
+    $stateProvider
+        .state('index', {
+            url: "",
+            views: {
+                "viewA": {
+                    template: "index.viewA"
+                },
+                "viewB": {
+                    template: "index.viewB"
+                }
+            }
+        })
+        .state('route1', {
+            url: "/route1",
+            views: {
+                "viewA": {
+                    template: "route1.viewA"
+                },
+                "viewB": {
+                    template: "route1.viewB"
+                }
+            }
+        })
+        .state('route2', {
+            url: "/route2",
+            views: {
+                "viewA": {
+                    template: "route2.viewA"
+                },
+                "viewB": {
+                    template: "route2.viewB"
+                }
+            }
+        })
+    })
 ```
 
 4. See this quick start example in action. 
->**[Go to Quick Start Plunker for Multiple & Named Views](http://plnkr.co/edit/vDURUN?p=preview)**
+>**[Go to Quick Start Plunker for Multiple & Named Views](http://plnkr.co/edit/SDOcGS?p=preview)**
 
 5. This only scratches the surface! You've only seen Named Views and Parallel Views. 
 >**[Dive Deeper!](https://github.com/angular-ui/ui-router/wiki)**
