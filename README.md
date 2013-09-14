@@ -155,14 +155,6 @@ myApp.config(function($stateProvider, $urlRouterProvider) {
 >**[Dive Deeper!](https://github.com/angular-ui/ui-router/wiki)**
 
 
-## Resources
-
-* [In-Depth Overview](https://github.com/angular-ui/ui-router/wiki)
-* [API Quick Reference](https://github.com/angular-ui/ui-router/wiki/Quick-Reference)
-* [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/master/sample))
-* [FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions)
-
-
 ### Multiple & Named Views
 
 Another great feature is the ability to have multiple `<ui-view />`s view per template.
@@ -228,6 +220,15 @@ myapp.config(function($stateProvider, $routeProvider){
 
 **(4)** See this quick start example in action.
 >**[Go to Quick Start Plunker for Multiple & Named Views](http://plnkr.co/edit/SDOcGS?p=preview)**
+
+
+## Resources
+
+* [In-Depth Overview](https://github.com/angular-ui/ui-router/wiki)
+* [API Quick Reference](https://github.com/angular-ui/ui-router/wiki/Quick-Reference)
+* [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/master/sample))
+* [FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions)
+
 
 ## Report an Issue
 
