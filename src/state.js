@@ -236,7 +236,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     $state.transitionTo = function transitionTo(to, toParams, options) {
       if (!isDefined(options)) options = (options === true || options === false) ? { location: options } : {};
       toParams = toParams || {};
-      options = extend({ location: true, inherit: false, relative: null }, options);
+      options = extend({ location: true, inherit: false, relative: null, broadcastStateChangeSuccess : true }, options);
 
       var toState = findState(to, options.relative);
 
@@ -295,6 +295,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       var transition = $state.transition = resolved.then(function () {
         var l, entering, exiting;
 
+
         if ($state.transition !== transition) return TransitionSuperseded;
 
         // Exit 'from' states not kept
@@ -328,7 +329,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
           $location.url(toNav.url.format(toNav.locals.globals.$stateParams));
         }
 
-        $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
+        if(options.broadcastStateChangeSuccess){ 
+          $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);  
+        }
+        
 
         return $state.current;
       }, function (error) {
