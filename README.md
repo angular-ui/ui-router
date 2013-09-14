@@ -3,10 +3,11 @@
 #### The de-facto solution to flexible routing with nested views
 ---
 **[Download 0.2.0](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)** (or **[Minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)**) **|**
+**[Learn](#resources) |**
 **[Discuss](https://groups.google.com/forum/#!categories/angular-ui/router) |**
 **[Get Help](http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router) |**
 **[Report an Issue](#report-an-issue) |**
-**[Contribute](#developing)**
+**[Contribute](#contribute)**
 
 ---
 
@@ -60,13 +61,13 @@ The majority of UI-Router's power is in its ability to nest states & views.
 
 **(1)** First, follow the [setup](#get-started) instructions detailed above.
 
-**(2)** Then, add a [`ui-view` directive](https://github.com/angular-ui/ui-router/wiki/Quick-Reference#ui-view) to the `<body />` of your app app.
+**(2)** Then, add a [`ui-view` directive](https://github.com/angular-ui/ui-router/wiki/Quick-Reference#ui-view) to the `<body />` of your app.
 
 >
 ```html
 <!-- index.html -->
 <body>
-    <ui-view></ui-view>
+    <div ui-view></div>
     <!-- We'll also add some navigation: -->
     <a ui-sref="state1">State 1</a>
     <a ui-sref="state2">State 2</a>
@@ -81,14 +82,14 @@ The majority of UI-Router's power is in its ability to nest states & views.
 <h1>State 1</h1>
 <hr/>
 <a ui-sref="state1.list">Show List</a>
-<ui-view></ui-view>
+<div ui-view></div>
 ```
 ```html
 <!-- partials/state2.html -->
 <h1>State 2</h1>
 <hr/>
 <a ui-sref="state2.list">Show List</a>
-<ui-view></ui-view>
+<div ui-view></div>
 ```
 
 **(4)** Next, we'll add some child templates. *These* will get plugged into the `ui-view` of their parent state templates.
@@ -127,25 +128,25 @@ myApp.config(function($stateProvider, $urlRouterProvider) {
       url: "/state1",
       templateUrl: "partials/state1.html"
     })
-      .state('state1.list', {
-        url: "/list",
-        templateUrl: "partials/1.list.html",
-        controller: function($scope) {
-          $scope.items = ["A", "List", "Of", "Items"];
-        }
-      })
+    .state('state1.list', {
+      url: "/list",
+      templateUrl: "partials/1.list.html",
+      controller: function($scope) {
+        $scope.items = ["A", "List", "Of", "Items"];
+      }
+    })
     .state('state2', {
       url: "/state2",
       templateUrl: "partials/state2.html"
     })
-      .state('state2.list', {
-        url: "/list",
-          templateUrl: "partials/state2.list.html",
-          controller: function($scope) {
-            $scope.things = ["A", "Set", "Of", "Things"];
-          }
-        })
-      });
+    .state('state2.list', {
+      url: "/list",
+        templateUrl: "partials/state2.list.html",
+        controller: function($scope) {
+          $scope.things = ["A", "Set", "Of", "Things"];
+        }
+      })
+    });
 ```
 
 **(6)** See this quick start example in action.
@@ -157,7 +158,7 @@ myApp.config(function($stateProvider, $urlRouterProvider) {
 
 ### Multiple & Named Views
 
-Another great feature is the ability to have multiple `<ui-view />`s view per template.
+Another great feature is the ability to have multiple `ui-view`s view per template.
 
 **Pro Tip:** *While mulitple parallel views are a powerful feature, you'll often be able to manage your
 interfaces more effectively by nesting your views, and pairing those views with nested states.*
@@ -169,8 +170,8 @@ interfaces more effectively by nesting your views, and pairing those views with 
 ```html
 <!-- index.html -->
 <body>
-    <ui-view name="viewA"></div>
-    <ui-view name="viewB"></div>
+    <div ui-view="viewA"></div>
+    <div ui-view="viewB"></div>
     <!-- Also a way to navigate -->
     <a ui-sref="state1">State 1</a>
     <a ui-sref="state2">State 2</a>
@@ -181,41 +182,29 @@ interfaces more effectively by nesting your views, and pairing those views with 
 >
 ```javascript
 myapp.config(function($stateProvider, $routeProvider){
-    $stateProvider
-        .state('index', {
-            url: "",
-            views: {
-                "viewA": {
-                    template: "index.viewA"
-                },
-                "viewB": {
-                    template: "index.viewB"
-                }
-            }
-        })
-        .state('route1', {
-            url: "/route1",
-            views: {
-                "viewA": {
-                    template: "route1.viewA"
-                },
-                "viewB": {
-                    template: "route1.viewB"
-                }
-            }
-        })
-        .state('route2', {
-            url: "/route2",
-            views: {
-                "viewA": {
-                    template: "route2.viewA"
-                },
-                "viewB": {
-                    template: "route2.viewB"
-                }
-            }
-        })
+  $stateProvider
+    .state('index', {
+      url: "",
+      views: {
+        "viewA": { template: "index.viewA" },
+        "viewB": { template: "index.viewB" }
+      }
     })
+    .state('route1', {
+      url: "/route1",
+      views: {
+        "viewA": { template: "route1.viewA" },
+        "viewB": { template: "route1.viewB" }
+      }
+    })
+    .state('route2', {
+      url: "/route2",
+      views: {
+        "viewA": { template: "route2.viewA" },
+        "viewB": { template: "route2.viewB" }
+      }
+    })
+});
 ```
 
 **(4)** See this quick start example in action.
@@ -250,6 +239,22 @@ is a bug, it's best to talk it out in the
 keeps development streamlined, and helps us focus on building great software.
 
 
+## Contribute
+
+**(1)** See the **[Developing](#developing)** section below, to get the development version of UI-Router up and running on your local machine.
+
+**(2)** Check out the [roadmap](https://github.com/angular-ui/ui-router/issues/milestones) to see where the project is headed, and if your feature idea fits with where we're headded.
+
+**(3)** If you're not sure, [open an RFC](https://github.com/angular-ui/ui-router/issues/new?title=RFC:%20My%20idea) to get some feedback on your idea.
+
+**(4)** Finally, commit some code and open a pull request. Code & commits should abide by the following rules:
+
+- *Always* have test coverage for new features (or regression tests for bug fixes), and *never* break existing tests
+- Commits should represent one logical change each; if a feature goes through multiple iterations, squash your commits down to one
+- Changes should always respect the coding style of the project
+
+
+
 ## Developing
 
 UI-Router uses <code>grunt >= 0.4.x</code>. Make sure to upgrade your environment and read the
@@ -258,9 +263,9 @@ UI-Router uses <code>grunt >= 0.4.x</code>. Make sure to upgrade your environmen
 Dependencies for building from source and running tests:
 
 * [grunt-cli](https://github.com/gruntjs/grunt-cli) - run: `$ npm install -g grunt-cli`
-* Then install development dependencies with: `$ npm install`
+* Then, install the development dependencies by running `$ npm install` from the project directory
 
-There are a number of targets in the gruntfile that is used to building the solution, documents etc.
+There are a number of targets in the gruntfile that are used to generating different builds:
 
 * `grunt`: Perform a normal build, runs jshint and karma tests
 * `grunt build`: Perform a normal build
