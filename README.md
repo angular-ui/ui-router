@@ -45,7 +45,7 @@ When you're done, your setup should look similar to the following:
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
     <script src="js/angular-ui-router.min.js"></script>
     <script>
-        var myApp = angular.module('myapp', ['ui.router']);
+        var myApp = angular.module('myApp', ['ui.router']);
     </script>
     ...
 </head>
@@ -181,7 +181,7 @@ interfaces more effectively by nesting your views, and pairing those views with 
 **(3)** Set up your states in the module config:
 >
 ```javascript
-myapp.config(function($stateProvider, $routeProvider){
+myApp.config(function($stateProvider, $routeProvider){
   $stateProvider
     .state('index', {
       url: "",
