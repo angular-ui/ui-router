@@ -72,6 +72,7 @@ describe('state', function () {
     $rootScope.$on('$stateChangeStart', eventLogger);
     $rootScope.$on('$stateChangeSuccess', eventLogger);
     $rootScope.$on('$stateChangeError', eventLogger);
+    $rootScope.$on('$stateNotFound', eventLogger);
   }));
 
 
@@ -137,6 +138,109 @@ describe('state', function () {
       expect(called).toBeTruthy();
       expect($state.current).toBe(A);
       expect(resolvedError(promise)).toBeTruthy();
+    }));
+
+    it('triggers $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(E, { i: 'iii' });
+      var called;
+      $rootScope.$on('$stateNotFound', function (ev, redirect, from, fromParams) {
+        expect(from).toBe(E);
+        expect(fromParams).toEqual({ i: 'iii' });
+        expect(redirect.to).toEqual('never_defined');
+        expect(redirect.toParams).toEqual({ x: '1', y: '2' });
+
+        expect($state.current).toBe(from); // $state not updated yet
+        expect($state.params).toEqual(fromParams);
+        called = true;
+      });
+      var message;
+      try {
+        $state.transitionTo('never_defined', { x: '1', y: '2' });
+      } catch(err) {
+        message = err.message;
+      }
+      $q.flush();
+      expect(message).toEqual('No such state \'never_defined\'');
+      expect(called).toBeTruthy();
+      expect($state.current).toBe(E);
+    }));
+
+    it('can be cancelled by preventDefault() in $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(A);
+      var called;
+      $rootScope.$on('$stateNotFound', function (ev) {
+        ev.preventDefault();
+        called = true;
+      });
+      var promise = $state.transitionTo('never_defined', {});
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current).toBe(A);
+      expect(resolvedError(promise)).toBeTruthy();
+    }));
+
+    it('can be redirected in $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(A);
+      var called;
+      $rootScope.$on('$stateNotFound', function (ev, redirect) {
+        redirect.to = D;
+        redirect.toParams = { x: '1', y: '2' };
+        called = true;
+      });
+      var promise = $state.transitionTo('never_defined', { z: 3 });
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current).toBe(D);
+      expect($state.params).toEqual({ x: '1', y: '2' });
+    }));
+
+    it('can lazy-define a state in $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(DD, { x: 1, y: 2, z: 3 });
+      var called;
+      $rootScope.$on('$stateNotFound', function (ev, redirect) {
+        stateProvider.state(redirect.to, { parent: DD, params: [ 'x', 'y', 'z', 'w' ]});
+        called = true;
+      });
+      var promise = $state.go('DDD', { w: 4 });
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current.name).toEqual('DDD');
+      expect($state.params).toEqual({ x: '1', y: '2', z: '3', w: '4' });
+    }));
+
+    it('can defer a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(A);
+      var called;
+      var deferred = $q.defer();
+      $rootScope.$on('$stateNotFound', function (ev, redirect) {
+        ev.retry = deferred.promise;
+        called = true;
+      });
+      var promise = $state.go('AA', { a: 1 });
+      stateProvider.state('AA', { parent: A, params: [ 'a' ]});
+      deferred.resolve();
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current.name).toEqual('AA');
+      expect($state.params).toEqual({ a: '1' });
+    }));
+
+    it('can defer and supersede a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(A);
+      var called;
+      var deferred = $q.defer();
+      $rootScope.$on('$stateNotFound', function (ev, redirect) {
+        ev.retry = deferred.promise;
+        called = true;
+      });
+      var promise = $state.go('AA', { a: 1 });
+      $state.go(B);
+      stateProvider.state('AA', { parent: A, params: [ 'a' ]});
+      deferred.resolve();
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current).toEqual(B);
+      expect($state.params).toEqual({});
     }));
 
     it('triggers $stateChangeSuccess', inject(function ($state, $q, $rootScope) {
