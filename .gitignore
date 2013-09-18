@@ -3,6 +3,7 @@ build
 
 # common
 node_modules
+bower_components
 .DS_Store
 *~
 
