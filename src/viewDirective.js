@@ -1,8 +1,26 @@
 
-$ViewDirective.$inject = ['$state', '$compile', '$controller', '$anchorScroll', '$animate'];
-function $ViewDirective(   $state,   $compile,   $controller,   $anchorScroll,   $animate) {
+$ViewDirective.$inject = ['$state', '$compile', '$controller', '$anchorScroll', '$injector'];
+function $ViewDirective($state, $compile, $controller, $anchorScroll, $injector) {
 
-  var viewIsUpdating = false;
+  var viewIsUpdating = false,
+      $animate = $injector.has('$animate') ? $injector.get('$animate') : null;
+
+  // Returns a set of DOM manipulation functions based on whether animation
+  // should be performed
+  var renderer = function () {
+    return ({
+      "true": {
+        leave: function (element) { $animate.leave(element); },
+        enter: function (element, anchor) { $animate.enter(element, null, anchor); }
+      },
+      "false": {
+        leave: function (element) { element.remove(); },
+        enter: function (element, anchor) { anchor.after(element); }
+      }
+    })[(!!$animate).toString()];
+  };
+
+  var render = renderer();
 
   var directive = {
     restrict: 'ECA',
@@ -39,7 +57,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $anchorScroll,  
 
         function cleanupLastView() {
           if (currentElement) {
-            $animate.leave(currentElement);
+            render.leave(currentElement);
             currentElement = null;
           }
 
@@ -74,7 +92,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $anchorScroll,  
 
           currentElement = element.clone();
           currentElement.html(locals.$template ? locals.$template : defaultContent);
-          $animate.enter(currentElement, null, anchor);
+          render.enter(currentElement, anchor);
 
           currentElement.data('$uiView', view);
 
