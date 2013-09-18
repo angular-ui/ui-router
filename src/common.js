@@ -9,6 +9,7 @@ var isDefined = angular.isDefined,
     isArray = angular.isArray,
     forEach = angular.forEach,
     extend = angular.extend,
+    equals = angular.equals,
     copy = angular.copy;
 
 function inherit(parent, extra) {
