@@ -107,16 +107,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     $delegates: {}
   };
 
-  function isRelative(stateName) {
-    return stateName.indexOf(".") === 0 || stateName.indexOf("^") === 0;
-  }
-
   function findState(stateOrName, base) {
     var isStr = isString(stateOrName),
-        name  = isStr ? stateOrName : stateOrName.name,
-        path  = isRelative(name);
+        name  = isStr ? stateOrName : stateOrName.name;
 
-    if (path) {
+    if (name.indexOf(".") === 0 || name.indexOf("^") === 0) {
       if (!base) throw new Error("No reference point given for path '"  + name + "'");
       var rel = name.split("."), i = 0, pathLength = rel.length, current = base;
 
@@ -295,8 +290,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
       // If we're going to the same state and all locals are kept, we've got nothing to do.
       // But clear 'transition', as we still want to cancel any other pending transitions.
-      // TODO: We may not want to bump 'transition' if we're called from a location change that we've initiated ourselves,
-      // because we might accidentally abort a legitimate transition initiated from code?
+      // TODO: We may not want to bump 'transition' if we're called from a location change
+      // that we've initiated ourselves, because we might accidentally abort a legitimate
+      // transition initiated from code?
       if (to === from && locals === from.locals) {
         $state.transition = null;
         return $q.when($state.current);
