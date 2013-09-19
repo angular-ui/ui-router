@@ -59,7 +59,8 @@ function UrlMatcher(pattern) {
   var placeholder = /([:*])(\w+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
       names = {}, compiled = '^', last = 0, m,
       segments = this.segments = [],
-      params = this.params = [];
+      params = this.params = [],
+      typeMap = this.typeMap = {};
 
   function addParameter(id) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
@@ -80,6 +81,10 @@ function UrlMatcher(pattern) {
   while ((m = placeholder.exec(pattern))) {
     id = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
     regexp = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
+    if (isDefined(this.types[regexp])) {
+      this.typeMap[id] = regexp;
+      regexp = '[^/]*';
+    } 
     segment = pattern.substring(last, m.index);
     if (segment.indexOf('?') >= 0) break; // we're into the search part
     compiled += quoteRegExp(segment) + '(' + regexp + ')';
@@ -154,7 +159,10 @@ UrlMatcher.prototype.toString = function () {
  * @return {Object}  The captured parameter values.
  */
 UrlMatcher.prototype.exec = function (path, searchParams) {
-  var m = this.regexp.exec(path);
+  var m = this.regexp.exec(path),
+      types = this.types,
+      typeMap = this.typeMap;
+
   if (!m) return null;
 
   var params = this.params, nTotal = params.length,
@@ -165,6 +173,12 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
 
   for (i=0; i<nPath; i++) values[params[i]] = m[i+1];
   for (/**/; i<nTotal; i++) values[params[i]] = searchParams[params[i]];
+
+  forEach(values, function (value, key) {
+    if (isDefined(typeMap[key])) {
+      values[key] = types[typeMap[key]].decode(value);
+    }
+  });
 
   return values;
 };
@@ -216,6 +230,26 @@ UrlMatcher.prototype.format = function (values) {
   return result;
 };
 
+UrlMatcher.prototype.types = {
+  'integer': {
+    equals: function (typeObj, otherObj) {
+      return typeObj === otherObj;
+    },
+    encode: function (typeObj) {
+      return typeObj.toString();
+    },
+    decode: function (value) {
+      return parseInt(value, 10);
+    }
+  }
+};
+UrlMatcher.prototype.type = function (name, handler) {
+  if (!isString(name) || !isObject(handler) || !isFunction(handler.equals) || !isFunction(handler.decode) || !isFunction(handler.encode)) {
+    throw new Error("Invalid type '" + name + "'");
+  }
+  UrlMatcher.prototype.types[name] = handler;
+}
+
 /**
  * Service. Factory for {@link UrlMatcher} instances. The factory is also available to providers
  * under the name `$urlMatcherFactoryProvider`.
@@ -247,16 +281,8 @@ function $UrlMatcherFactory() {
     return isObject(o) && isFunction(o.exec) && isFunction(o.format) && isFunction(o.concat);
   };
 
-  var typeRegistrar = {};
-  this.registerType = function (name, handler) {
-    if (!isString(name) || !isObject(handler) || !isFunction(handler.equals) || !isFunction(handler.decode) || !isFunction(handler.encode)) {
-      throw new Error("Invalid type '" + name + "'");
-    }
-    typeRegistrar[name] = handler;
-  };
-
-  this.isTypeRegistered = function (name) {
-    return isDefined(typeRegistrar[name]);
+  this.type = function (name, handler) {
+    return UrlMatcher.prototype.type(name, handler);
   };
 
   this.$get = function () {

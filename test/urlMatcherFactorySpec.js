@@ -20,6 +20,12 @@ describe("UrlMatcher", function () {
     expect(params).toContain('to');
   });
 
+  it("parses parameters with types", function () {
+    var matcher = new UrlMatcher('/users/{id:type}');
+    var params = matcher.parameters();
+    expect(params).toContain('id');
+  });
+
   it("handles proper snake case parameter names", function(){
     var matcher = new UrlMatcher('/users/?from&to&snake-case&snake-case-triple');
     var params = matcher.parameters();
@@ -45,6 +51,19 @@ describe("UrlMatcher", function () {
       new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?from&to')
         .exec('/users/123/details//0', {}))
       .toEqual({ id:'123', type:'', repeat:'0' });
+  });
+
+  it(".exec() captures typed parameter values", function () {
+    expect(
+      new UrlMatcher('/users/{id:integer}')
+        .exec('/users/22', {}))
+      .toEqual({ id: 22 });
+  });
+
+  it(".exec() captures invalid typed parameter values", function () {
+    expect(
+      new UrlMatcher('/users/{id:integer}')
+        .exec('/users/alpha', {}).id).toBeNaN();
   });
 
   it(".exec() captures catch-all parameters", function () {
@@ -134,11 +153,11 @@ describe("urlMatcherFactory", function () {
   });
 
   it("registers types", function () {
-    $umf.registerType("test", {
+    $umf.type("test", {
       equals: function (typeObj, otherObj) {},
       decode: function (typeObj) {},
       encode: function (value) {}
     });
-    expect($umf.isTypeRegistered("test")).toBe(true);
+    expect($umf.compile('/').types["test"]).toBeDefined();
   });
 });
