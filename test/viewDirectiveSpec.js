@@ -117,19 +117,20 @@ describe('uiView', function () {
       $state.transitionTo(dState);
       $q.flush();
 
-      expect($animate.flushNext('leave').element.html()).toBeUndefined();
-      expect($animate.flushNext('enter').element.html()).toBe(dState.views.dview1.template);
-      expect($animate.flushNext('leave').element.html()).toBeUndefined();
-      expect($animate.flushNext('enter').element.html()).toBe(dState.views.dview2.template);
+      expect($animate.flushNext('leave').element.html()).toBe('');
+      expect($animate.flushNext('enter').element.text()).toBe(dState.views.dview1.template);
+      expect($animate.flushNext('leave').element.html()).toBe('');
+      expect($animate.flushNext('enter').element.text()).toBe(dState.views.dview2.template);
     }));
 
     it('should handle nested ui-views (testing two levels deep)', inject(function ($state, $q, $animate) {
-      elem.append($compile('<div ui-view class="view"></div>')(scope));
+      $compile(elem.append('<div ui-view class="view"></div>'))(scope);
 
       $state.transitionTo(fState);
       $q.flush();
 
       expect($animate.flushNext('leave').element.text()).toBe('');
+      expect($animate.flushNext('enter').element.parent()[0].querySelector('.view').innerText).toBe('');
       expect($animate.flushNext('enter').element.parent().parent()[0].querySelector('.view').querySelector('.eview').innerText).toBe(fState.views.eview.template);
     }));
   });
