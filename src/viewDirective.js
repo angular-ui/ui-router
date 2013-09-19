@@ -7,7 +7,7 @@ function $ViewDirective($state, $compile, $controller, $anchorScroll, $injector)
 
   // Returns a set of DOM manipulation functions based on whether animation
   // should be performed
-  var renderer = function () {
+  var renderer = function (doAnimate) {
     return ({
       "true": {
         leave: function (element) { $animate.leave(element); },
@@ -17,10 +17,8 @@ function $ViewDirective($state, $compile, $controller, $anchorScroll, $injector)
         leave: function (element) { element.remove(); },
         enter: function (element, anchor) { anchor.after(element); }
       }
-    })[(!!$animate).toString()];
+    })[($animate && doAnimate).toString()];
   };
-
-  var render = renderer();
 
   var directive = {
     restrict: 'ECA',
@@ -43,7 +41,7 @@ function $ViewDirective($state, $compile, $controller, $anchorScroll, $injector)
           if (viewIsUpdating) return;
           viewIsUpdating = true;
 
-          try { updateView(); } catch (e) {
+          try { updateView(true); } catch (e) {
             viewIsUpdating = false;
             throw e;
           }
@@ -53,11 +51,11 @@ function $ViewDirective($state, $compile, $controller, $anchorScroll, $injector)
         $scope.$on('$stateChangeSuccess', eventHook);
         $scope.$on('$viewContentLoading', eventHook);
 
-        updateView();
+        updateView(false);
 
         function cleanupLastView() {
           if (currentElement) {
-            render.leave(currentElement);
+            renderer(true).leave(currentElement);
             currentElement = null;
           }
 
@@ -67,8 +65,9 @@ function $ViewDirective($state, $compile, $controller, $anchorScroll, $injector)
           }
         }
 
-        function updateView() {
-          var locals = $state.$current && $state.$current.locals[name];
+        function updateView(doAnimate) {
+          var locals = $state.$current && $state.$current.locals[name],
+              render = renderer(doAnimate);
 
           if (isDefault) {
             isDefault = false;
@@ -79,7 +78,7 @@ function $ViewDirective($state, $compile, $controller, $anchorScroll, $injector)
             cleanupLastView();
             currentElement = element.clone();
             currentElement.html(defaultContent);
-            anchor.after(currentElement);
+            render.enter(currentElement, anchor);
 
             currentScope = $scope.$new();
             $compile(currentElement.contents())(currentScope);

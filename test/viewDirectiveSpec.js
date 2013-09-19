@@ -130,8 +130,7 @@ describe('uiView', function () {
       $q.flush();
 
       expect($animate.flushNext('leave').element.text()).toBe('');
-      expect($animate.flushNext('enter').element.parent()[0].querySelector('.view').innerText).toBe('');
-      expect($animate.flushNext('enter').element.parent().parent()[0].querySelector('.view').querySelector('.eview').innerText).toBe(fState.views.eview.template);
+      expect($animate.flushNext('enter').element.parent()[0].querySelector('.view').querySelector('.eview').innerText).toBe(fState.views.eview.template);
     }));
   });
 
