@@ -26,14 +26,15 @@ to change. Using it in a project that requires guaranteed stability is not recom
 
 ## Get Started
 
-**(1)** Get UI-Router in one of 3 ways:
+**(1)** Get UI-Router in one of 4 ways:
  - clone & [build](#developing) this repository
  - [download the release](http://angular-ui.github.io/ui-router/release/angular-ui-router.js) (or [minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js))
- - or via **[Bower](http://bower.io/)**: by running `$ bower install angular-ui-router` from your console
+ - via **[Bower](http://bower.io/)**: by running `$ bower install angular-ui-router` from your console
+ - or via **[Component](https://github.com/component/component)**: by running `$ component install angular-ui/ui-router` from your console
 
-**(2)** Include `angular-ui-router.js` (or `angular-ui-router.min.js`) in your `index.html`, after including Angular itself
+**(2)** Include `angular-ui-router.js` (or `angular-ui-router.min.js`) in your `index.html`, after including Angular itself (For Component users: ignore this step)
 
-**(3)** Add `'ui.router'` to your main module's list of dependencies
+**(3)** Add `'ui.router'` to your main module's list of dependencies (For Component users: replace `'ui.router'` with `require('angular-ui-router')`)
 
 When you're done, your setup should look similar to the following:
 
@@ -46,6 +47,8 @@ When you're done, your setup should look similar to the following:
     <script src="js/angular-ui-router.min.js"></script>
     <script>
         var myApp = angular.module('myApp', ['ui.router']);
+        // For Component users, it should look like this:
+        // var myApp = angular.module('myApp', [require('angular-ui-router')]);
     </script>
     ...
 </head>
@@ -271,4 +274,3 @@ There are a number of targets in the gruntfile that are used to generating diffe
 * `grunt build`: Perform a normal build
 * `grunt dist`: Perform a clean build and generate documentation
 * `grunt dev`: Run dev server (sample app) and watch for changes, builds and runs karma tests on changes.
-

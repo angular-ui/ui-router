@@ -8,7 +8,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-karma');
-  
+
   // Project configuration.
   grunt.initConfig({
     builddir: 'build',
@@ -25,7 +25,12 @@ module.exports = function (grunt) {
     clean: [ '<%= builddir %>' ],
     concat: {
       options: {
-        banner: '<%= meta.banner %>\n(function (window, angular, undefined) {\n',
+        banner: '<%= meta.banner %>\n\n'+
+                '/* commonjs package manager support (eg componentjs) */\n'+
+                'if (module && exports && module.exports === exports){\n'+
+                '  module.exports = \'ui.router\';\n'+
+                '}\n\n'+
+                '(function (window, angular, undefined) {\n',
         footer: '})(window, window.angular);'
       },
       build: {
@@ -124,8 +129,10 @@ module.exports = function (grunt) {
 
   grunt.registerTask('prepare-release', function () {
     var bower = grunt.file.readJSON('bower.json'),
+        component = grunt.file.readJSON('component.json'),
         version = bower.version;
     if (version != grunt.config('pkg.version')) throw 'Version mismatch in bower.json';
+    if (version != component.version) throw 'Version mismatch in component.json';
 
     promising(this,
       ensureCleanMaster().then(function () {
@@ -144,7 +151,7 @@ module.exports = function (grunt) {
     var version = grunt.config('pkg.version'), releasedir = grunt.config('builddir');
     promising(this,
       system('git add \'' + releasedir + '\'').then(function () {
-        return system('git commit -m \'release ' + version + '\'');  
+        return system('git commit -m \'release ' + version + '\'');
       }).then(function () {
         return system('git tag \'' + version + '\'');
       })
