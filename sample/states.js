@@ -27,6 +27,21 @@ angular.module('uiRouterSample')
         // Use $stateProvider to configure your states.
         $stateProvider
 
+          /////////////////////
+          // Parameter Types //
+          /////////////////////
+          .registerType("date", {
+            equals: function (typeObj, otherObj) {
+              return typeObj.toISOString() === otherObj.toISOString();
+            },
+            decode: function (typeObj) {
+              return typeObj.toISOString();
+            },
+            encode: function (value) {
+              return new Date(value);
+            }
+          })
+
           //////////
           // Home //
           //////////

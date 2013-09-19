@@ -132,4 +132,13 @@ describe("urlMatcherFactory", function () {
   it("recognizes matchers", function () {
     expect($umf.isMatcher(new UrlMatcher('/'))).toBe(true);
   });
+
+  it("registers types", function () {
+    $umf.registerType("test", {
+      equals: function (typeObj, otherObj) {},
+      decode: function (typeObj) {},
+      encode: function (value) {}
+    });
+    expect($umf.isTypeRegistered("test")).toBe(true);
+  });
 });

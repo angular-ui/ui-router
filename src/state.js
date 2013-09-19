@@ -107,6 +107,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     $delegates: {}
   };
 
+  // Create a proxy through to the Type registration on the UrlMatcherFactory
+  this.isTypeRegistered = $urlMatcherFactory.isTypeRegistered;
+  this.registerType = function (name, handler) {
+    $urlMatcherFactory.registerType(name, handler);
+    return this;
+  }
+
   function isRelative(stateName) {
     return stateName.indexOf(".") === 0 || stateName.indexOf("^") === 0;
   }

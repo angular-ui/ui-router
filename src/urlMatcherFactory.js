@@ -247,6 +247,18 @@ function $UrlMatcherFactory() {
     return isObject(o) && isFunction(o.exec) && isFunction(o.format) && isFunction(o.concat);
   };
 
+  var typeRegistrar = {};
+  this.registerType = function (name, handler) {
+    if (!isString(name) || !isObject(handler) || !isFunction(handler.equals) || !isFunction(handler.decode) || !isFunction(handler.encode)) {
+      throw new Error("Invalid type '" + name + "'");
+    }
+    typeRegistrar[name] = handler;
+  };
+
+  this.isTypeRegistered = function (name) {
+    return isDefined(typeRegistrar[name]);
+  };
+
   this.$get = function () {
     return this;
   };
