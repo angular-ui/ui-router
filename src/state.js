@@ -377,14 +377,37 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return transition;
     };
 
-    $state.is = function is(stateOrName) {
+    $state.is = function is(stateOrName, params) {
       var state = findState(stateOrName);
-      return (isDefined(state)) ? $state.$current === state : undefined;
+
+      if (!isDefined(state)) {
+        return undefined;
+      }
+
+      if ($state.$current !== state) {
+        return false;
+      }
+
+      return isDefined(params) ? angular.equals($stateParams, params) : true;
     };
 
-    $state.includes = function includes(stateOrName) {
+    $state.includes = function includes(stateOrName, params) {
       var state = findState(stateOrName);
-      return (isDefined(state)) ? isDefined($state.$current.includes[state.name]) : undefined;
+      if (!isDefined(state)) {
+        return undefined;
+      }
+
+      if (!isDefined($state.$current.includes[state.name])) {
+        return false;
+      }
+
+      var validParams = true;
+      angular.forEach(params, function(value, key) {
+        if (!isDefined($stateParams[key]) || $stateParams[key] !== value) {
+          validParams = false;
+        }
+      });
+      return validParams;
     };
 
     $state.href = function href(stateOrName, params, options) {

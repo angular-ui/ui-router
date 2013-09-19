@@ -393,6 +393,13 @@ describe('state', function () {
     it('should return undefined when queried state does not exist', inject(function ($state) {
       expect($state.is('Z')).toBeUndefined();
     }));
+
+    it('should return true when the current state is passed with matching parameters', inject(function ($state, $q) {
+      $state.transitionTo(D, {x: 'foo', y: 'bar'}); $q.flush();
+      expect($state.is(D, {x: 'foo', y: 'bar'})).toBe(true);
+      expect($state.is('D', {x: 'foo', y: 'bar'})).toBe(true);
+      expect($state.is(D, {x: 'bar', y: 'foo'})).toBe(false);
+    }));
   });
 
   describe('.includes()', function () {
@@ -411,7 +418,21 @@ describe('state', function () {
     }));
 
     it('should return undefined when queried state does not exist', inject(function ($state) {
-      expect($state.is('Z')).toBeUndefined();
+      expect($state.includes('Z')).toBeUndefined();
+    }));
+
+    it('should return true when the current state is passed with partial matching parameters', inject(function ($state, $q) {
+      $state.transitionTo(D, {x: 'foo', y: 'bar'}); $q.flush();
+      expect($state.includes(D, {x: 'foo'})).toBe(true);
+      expect($state.includes(D, {y: 'bar'})).toBe(true);
+      expect($state.includes('D', {x: 'foo'})).toBe(true);
+      expect($state.includes(D, {y: 'foo'})).toBe(false);
+    }));
+
+    it('should return true when the current state is passed with partial matching parameters from state\'s parent', inject(function ($state, $q) {
+      $state.transitionTo('about.person.item', {person: 'bob', id: 5}); $q.flush();
+      expect($state.includes('about.person', {person: 'bob'})).toBe(true);
+      expect($state.includes('about.person', {person: 'steve'})).toBe(false);
     }));
   });
 
