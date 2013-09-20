@@ -1,4 +1,18 @@
 describe("UrlMatcher", function () {
+  beforeEach(function () {
+    UrlMatcher.prototype.type("test", {
+      equals: function (typeObj, otherObj) {
+        return typeObj === otherObj;
+      },
+      encode: function (typeObj) {
+        return "encoded";
+      },
+      decode: function (value) {
+        return "decoded";
+      }
+    })
+  });
+
   it("matches static URLs", function () {
     expect(new UrlMatcher('/hello/world').exec('/hello/world')).toEqual({});
   });
@@ -55,15 +69,9 @@ describe("UrlMatcher", function () {
 
   it(".exec() captures typed parameter values", function () {
     expect(
-      new UrlMatcher('/users/{id:integer}')
+      new UrlMatcher('/users/{id:test}')
         .exec('/users/22', {}))
-      .toEqual({ id: 22 });
-  });
-
-  it(".exec() captures invalid typed parameter values", function () {
-    expect(
-      new UrlMatcher('/users/{id:integer}')
-        .exec('/users/alpha', {}).id).toBeNaN();
+      .toEqual({ id: 'decoded' });
   });
 
   it(".exec() captures catch-all parameters", function () {
@@ -114,6 +122,10 @@ describe("UrlMatcher", function () {
 
   it(".format() encodes URL parameters", function () {
     expect(new UrlMatcher('/users/:id').format({ id:'100%'})).toEqual('/users/100%25');
+  });
+
+  it(".format() encode typed URL parameters", function () {
+    expect(new UrlMatcher('/users/{id:test}').format({ id:55})).toEqual('/users/encoded');
   });
 
   it(".concat() concatenates matchers", function () {

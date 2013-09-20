@@ -109,10 +109,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
   // Create a proxy through to the Type registration on the UrlMatcherFactory
   this.isTypeRegistered = $urlMatcherFactory.isTypeRegistered;
-  this.registerType = function (name, handler) {
-    $urlMatcherFactory.registerType(name, handler);
+  this.type = function (name, handler) {
+    $urlMatcherFactory.type(name, handler);
     return this;
-  }
+  };
 
   function isRelative(stateName) {
     return stateName.indexOf(".") === 0 || stateName.indexOf("^") === 0;
@@ -463,7 +463,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
     forEach(keys, function (name) {
       var value = values[name];
-      normalized[name] = (value != null) ? String(value) : null;
+      //normalized[name] = (value != null) ? String(value) : null;
+      normalized[name] = (value != null) ? value : null;
     });
     return normalized;
   }

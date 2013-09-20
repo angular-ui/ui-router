@@ -114,13 +114,13 @@ describe('state', function () {
         expect(from).toBe(E);
         expect(fromParams).toEqual({ i: 'iii' });
         expect(to).toBe(D);
-        expect(toParams).toEqual({ x: '1', y: '2' });
+        expect(toParams).toEqual({ x: 1, y: 2 });
 
         expect($state.current).toBe(from); // $state not updated yet
         expect($state.params).toEqual(fromParams);
         called = true;
       });
-      $state.transitionTo(D, { x: '1', y: '2' });
+      $state.transitionTo(D, { x: 1, y: 2 });
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(D);
@@ -205,7 +205,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('DDD');
-      expect($state.params).toEqual({ x: '1', y: '2', z: '3', w: '4' });
+      expect($state.params).toEqual({ x: 1, y: 2, z: 3, w: 4 });
     }));
 
     it('can defer a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -222,7 +222,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('AA');
-      expect($state.params).toEqual({ a: '1' });
+      expect($state.params).toEqual({ a: 1 });
     }));
 
     it('can defer and supersede a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -374,7 +374,7 @@ describe('state', function () {
       $q.flush();
 
       expect($state.$current.name).toBe('about.person.item');
-      expect($stateParams).toEqual({ person: 'bob', id: '5' });
+      expect($stateParams).toEqual({ person: 'bob', id: 5 });
 
       $state.go('^.^.sidebar');
       $q.flush();

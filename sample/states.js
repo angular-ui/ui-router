@@ -30,7 +30,7 @@ angular.module('uiRouterSample')
           /////////////////////
           // Parameter Types //
           /////////////////////
-          .registerType("date", {
+          .type("date", {
             equals: function (typeObj, otherObj) {
               return typeObj.toISOString() === otherObj.toISOString();
             },
@@ -154,7 +154,7 @@ angular.module('uiRouterSample')
             // So its url will end up being '/contacts/{contactId:[0-9]{1,8}}'. When the
             // url becomes something like '/contacts/42' then this state becomes active
             // and the $stateParams object becomes { contactId: 42 }.
-            url: '/{contactId:[0-9]{1,4}}',
+            url: '/{contactId:integer}',
 
             // If there is more than a single ui-view in the parent template, or you would
             // like to target a ui-view from even higher up the state tree, you can use the

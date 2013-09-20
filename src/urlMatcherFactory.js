@@ -174,13 +174,17 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
   for (i=0; i<nPath; i++) values[params[i]] = m[i+1];
   for (/**/; i<nTotal; i++) values[params[i]] = searchParams[params[i]];
 
+  var decodedValues = {};
   forEach(values, function (value, key) {
     if (isDefined(typeMap[key])) {
-      values[key] = types[typeMap[key]].decode(value);
+      decodedValues[key] = types[typeMap[key]].decode(value);
+    }
+    else {
+      decodedValues[key] = value;
     }
   });
 
-  return values;
+  return decodedValues;
 };
 
 /**
@@ -207,20 +211,33 @@ UrlMatcher.prototype.parameters = function () {
  * @return {string}  the formatted URL (path and optionally search part).
  */
 UrlMatcher.prototype.format = function (values) {
-  var segments = this.segments, params = this.params;
+  var segments = this.segments, 
+      params = this.params,
+      types = this.types,
+      typeMap = this.typeMap;
   if (!values) return segments.join('');
 
   var nPath = segments.length-1, nTotal = params.length,
     result = segments[0], i, search, value;
 
+  var encodedValues = {};
+  forEach(values, function (value, key) {
+    if (isDefined(typeMap[key])) {
+      encodedValues[key] = types[typeMap[key]].encode(value);
+    }
+    else {
+      encodedValues[key] = value;
+    }
+  });
+
   for (i=0; i<nPath; i++) {
-    value = values[params[i]];
+    value = encodedValues[params[i]];
     // TODO: Maybe we should throw on null here? It's not really good style to use '' and null interchangeabley
     if (value != null) result += encodeURIComponent(value);
     result += segments[i+1];
   }
   for (/**/; i<nTotal; i++) {
-    value = values[params[i]];
+    value = encodedValues[params[i]];
     if (value != null) {
       result += (search ? '&' : '?') + params[i] + '=' + encodeURIComponent(value);
       search = true;
@@ -231,6 +248,19 @@ UrlMatcher.prototype.format = function (values) {
 };
 
 UrlMatcher.prototype.types = {
+  'boolean': {
+    equals: function (typeObj, otherObj) {
+      return typeObj === otherObj;
+    },
+    encode: function (typeObj) {
+      return typeObj.toString();
+    },
+    decode: function (value) {
+      if (value && value.toLowerCase() === 'true') return true;
+      if (value && value.toLowerCase() === 'false') return false;
+      return undefined;
+    }
+  },
   'integer': {
     equals: function (typeObj, otherObj) {
       return typeObj === otherObj;
@@ -243,12 +273,16 @@ UrlMatcher.prototype.types = {
     }
   }
 };
+
+/**
+TODO
+ */
 UrlMatcher.prototype.type = function (name, handler) {
   if (!isString(name) || !isObject(handler) || !isFunction(handler.equals) || !isFunction(handler.decode) || !isFunction(handler.encode)) {
     throw new Error("Invalid type '" + name + "'");
   }
   UrlMatcher.prototype.types[name] = handler;
-}
+};
 
 /**
  * Service. Factory for {@link UrlMatcher} instances. The factory is also available to providers
