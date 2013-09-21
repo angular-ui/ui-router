@@ -3,6 +3,12 @@ describe("resolve", function () {
   var $r, tick;
 
   beforeEach(module('ui.router.util'));
+  beforeEach(module(function($provide) {
+    $provide.factory('Foo', function() {
+      return "Working";
+    });
+  }));
+
   beforeEach(inject(function($resolve, $q) {
     $r = $resolve;
     tick = $q.flush;
@@ -291,6 +297,15 @@ describe("resolve", function () {
       expect(trace).toEqual([ 'a: 1' ]);
       r({ what: 'hi' });
       expect(trace).toEqual([ 'a: 1', 'a: hi' ]);
+    });
+
+    it("resolves values from string factory names", function () {
+      var result, r = $r.study({ foo: "Foo" })().then(function(values) {
+        result = values['foo'];
+      });
+      tick();
+
+      expect(result).toBe("Working");
     });
   });
 });
