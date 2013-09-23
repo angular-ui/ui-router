@@ -174,17 +174,23 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
   for (i=0; i<nPath; i++) values[params[i]] = m[i+1];
   for (/**/; i<nTotal; i++) values[params[i]] = searchParams[params[i]];
 
-  var decodedValues = {};
+  var decodedValues = {}, invalidType = false;
   forEach(values, function (value, key) {
     if (isDefined(typeMap[key])) {
-      decodedValues[key] = types[typeMap[key]].decode(value);
+      var typeHandler = types[typeMap[key]];
+      if (!typeHandler.is(value)) {
+        invalidType = true;
+        return;
+      }
+      decodedValues[key] = typeHandler.decode(value);
     }
     else {
       decodedValues[key] = value;
     }
   });
 
-  return decodedValues;
+  if (!invalidType) return decodedValues;
+  return null;
 };
 
 /**
