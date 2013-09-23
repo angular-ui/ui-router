@@ -25,7 +25,8 @@ describe('state', function () {
       E = { params: [ 'i' ] },
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
-      HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} }
+      HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
+      I = { url: "/type/{name:boolean}" },
       AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -45,6 +46,7 @@ describe('state', function () {
       .state('H', H)
       .state('HH', HH)
       .state('HHH', HHH)
+      .state('I', I)
 
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
@@ -269,6 +271,17 @@ describe('state', function () {
       $q.flush();
       expect(resolvedValue(trans)).toBe(A);
       expect($state.current).toBe(A);
+      expect(log).toBe('');
+    }));
+
+    it('is a no-op when passing the current state and identical typed parameters', inject(function ($state, $q) {
+      initStateTo(I, { name: true });
+      expect($state.params.name).toBe(true);
+      var trans = $state.transitionTo(I, { name: true }); // no-op
+      expect(trans).toBeDefined(); // but we still get a valid promise
+      $q.flush();
+      expect(resolvedValue(trans)).toBe(I);
+      expect($state.current).toBe(I);
       expect(log).toBe('');
     }));
 
@@ -512,6 +525,7 @@ describe('state', function () {
         'H',
         'HH',
         'HHH',
+        'I',
         'about',
         'about.person',
         'about.person.item',
