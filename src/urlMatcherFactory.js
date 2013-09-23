@@ -83,7 +83,7 @@ function UrlMatcher(pattern) {
     regexp = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
     if (isDefined(this.types[regexp])) {
       this.typeMap[id] = regexp;
-      regexp = '[^/]*';
+      regexp = this.types[regexp].pattern; // use the regexp defined for this type instead
     } 
     segment = pattern.substring(last, m.index);
     if (segment.indexOf('?') >= 0) break; // we're into the search part
@@ -174,23 +174,17 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
   for (i=0; i<nPath; i++) values[params[i]] = m[i+1];
   for (/**/; i<nTotal; i++) values[params[i]] = searchParams[params[i]];
 
-  var decodedValues = {}, invalidType = false;
+  var decodedValues = {};
   forEach(values, function (value, key) {
     if (isDefined(typeMap[key])) {
-      var typeHandler = types[typeMap[key]];
-      if (!typeHandler.is(value)) {
-        invalidType = true;
-        return;
-      }
-      decodedValues[key] = typeHandler.decode(value);
+      decodedValues[key] = types[typeMap[key]].decode(value);
     }
     else {
       decodedValues[key] = value;
     }
   });
 
-  if (!invalidType) return decodedValues;
-  return null;
+  return decodedValues;
 };
 
 /**
@@ -255,6 +249,7 @@ UrlMatcher.prototype.format = function (values) {
 
 UrlMatcher.prototype.types = {
   'boolean': {
+    pattern: "true|false",
     is: function (typeObj) {
       return (typeObj === true || typeObj === false);
     },
@@ -265,7 +260,7 @@ UrlMatcher.prototype.types = {
       return false;
     },
     encode: function (typeObj) {
-      return typeObj.toString();
+      return typeObj.toString().toLowerCase();
     },
     decode: function (value) {
       if (value && value.toLowerCase() === 'true') return true;
@@ -274,9 +269,9 @@ UrlMatcher.prototype.types = {
     }
   },
   'integer': {
+    pattern: "[0-9]+",
     is: function (typeObj) {
-      var regexp = /^\d+$/;
-      return !!regexp.exec(this.encode(typeObj));
+      return typeof typeObj === 'number' && typeObj % 1 == 0;
     },
     equals: function (typeObj, otherObj) {
       if (this.is(typeObj) && this.is(otherObj)) {
@@ -307,11 +302,8 @@ UrlMatcher.prototype.type = function (name, handler) {
   }
 
   // normalize the handler
-  if (isString(handler.is)) {
-    handler.regexp = new RegExp(handler.is);
-    handler.is = function (typeObj) {
-      return !!handler.regexp.exec(handler.encode(typeObj));
-    };
+  if (!isString(handler.pattern)) {
+    handler.pattern = ".*";
   }
   if (!isFunction(handler.is)) {
     handler.is = function (typeObj) {

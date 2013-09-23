@@ -56,9 +56,13 @@ describe("UrlMatcher", function () {
 
   it(".exec() captures typed parameter values", function () {
     expect(
-      new UrlMatcher('/users/{id:integer}')
-        .exec('/users/22', {}))
-      .toEqual({ id: 22 });
+      new UrlMatcher('/users/{id:boolean}')
+        .exec('/users/false', {}))
+      .toEqual({ id: false });
+    expect(
+      new UrlMatcher('/users/{id:boolean}')
+        .exec('/users/123', {}))
+      .toBeNull();
   });
 
   it(".exec() returns null if matched param is not correct type", function () {
@@ -204,5 +208,16 @@ describe("urlMatcherFactory", function () {
     expect(typeHandler.equals({ value: "one" }, { value: "two" })).toBe(false);
     expect(typeHandler.is({ value: "one" })).toBe(true);
     expect(typeHandler.is(456)).toBe(false);
+  });
+
+  xit("registers injectable handler types", function () {
+    $umf.type("test", function($location) {
+      return {
+        encode: function (typeObj) { return $location; },
+        decode: function (value) { return $location; }
+      };
+    });
+    var typeHandler = $umf.type("test");
+    expect(typeHandler.encode()).toBeDefined();
   });
 });
