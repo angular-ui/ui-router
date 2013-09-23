@@ -108,7 +108,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
   };
 
   // Create a proxy through to the Type registration on the UrlMatcherFactory
-  this.isTypeRegistered = $urlMatcherFactory.isTypeRegistered;
   this.type = function (name, handler) {
     $urlMatcherFactory.type(name, handler);
     return this;

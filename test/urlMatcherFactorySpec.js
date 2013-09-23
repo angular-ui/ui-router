@@ -164,12 +164,51 @@ describe("urlMatcherFactory", function () {
     expect($umf.isMatcher(new UrlMatcher('/'))).toBe(true);
   });
 
-  it("registers types", function () {
+  it("defines builtin boolean type", function () {
+    var booleanHandler = $umf.type("boolean");
+    expect(booleanHandler.equals(true, true)).toBe(true);
+    expect(booleanHandler.equals(true, "blue")).toBe(false);
+    expect(booleanHandler.is(false)).toBe(true);
+    expect(booleanHandler.is(456)).toBe(false);
+    expect(booleanHandler.encode(false)).toBe("false");
+    expect(booleanHandler.decode("False")).toBe(false);
+    expect(booleanHandler.decode("purple")).toBe(undefined);
+  });
+
+  it("defines builtin integer type", function () {
+    var integerHandler = $umf.type("integer");
+    expect(integerHandler.equals(5, 5)).toBe(true);
+    expect(integerHandler.equals(5, "blue")).toBe(false);
+    expect(integerHandler.is(67)).toBe(true);
+    expect(integerHandler.is(45.2)).toBe(false);
+    expect(integerHandler.is({})).toBe(false);
+    expect(integerHandler.encode(342)).toBe("342");
+    expect(integerHandler.decode("5563")).toBe(5563);
+  });
+
+  it("registers minimal custom types", function () {
     $umf.type("test", {
-      equals: function (typeObj, otherObj) {},
-      decode: function (typeObj) {},
-      encode: function (value) {}
+      encode: function (typeObj) { return typeObj.value; },
+      decode: function (value) { return { value: value }; }
     });
-    expect($umf.compile('/').types["test"]).toBeDefined();
+    var typeHandler = $umf.type("test");
+    expect(typeHandler.equals({ value: "one" }, { value: "one" })).toBe(true);
+    expect(typeHandler.equals({ value: "one" }, { value: "two" })).toBe(false);
+    expect(typeHandler.is({ value: "one" })).toBe(true);
+    expect(typeHandler.is(456)).toBe(false);
+  });
+
+  it("registers complete custom types", function () {
+    $umf.type("test", {
+      encode: function (typeObj) { return typeObj.value; },
+      decode: function (value) { return { value: value }; },
+      is: function (typeObj) { return (isObject(typeObj) && !!typeObj.value); },
+      equals: function (typeObj, otherObj) { return (typeObj.value === otherObj.value && typeObj.value !== undefined); }
+    });
+    var typeHandler = $umf.type("test");
+    expect(typeHandler.equals({ value: "one" }, { value: "one" })).toBe(true);
+    expect(typeHandler.equals({ value: "one" }, { value: "two" })).toBe(false);
+    expect(typeHandler.is({ value: "one" })).toBe(true);
+    expect(typeHandler.is(456)).toBe(false);
   });
 });

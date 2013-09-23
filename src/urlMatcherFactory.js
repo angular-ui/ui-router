@@ -249,8 +249,14 @@ UrlMatcher.prototype.format = function (values) {
 
 UrlMatcher.prototype.types = {
   'boolean': {
+    is: function (typeObj) {
+      return (typeObj === true || typeObj === false);
+    },
     equals: function (typeObj, otherObj) {
-      return typeObj === otherObj;
+      if (this.is(typeObj) && this.is(otherObj)) {
+        return typeObj === otherObj;
+      }
+      return false;
     },
     encode: function (typeObj) {
       return typeObj.toString();
@@ -262,8 +268,15 @@ UrlMatcher.prototype.types = {
     }
   },
   'integer': {
+    is: function (typeObj) {
+      var regexp = /^\d+$/;
+      return !!regexp.exec(this.encode(typeObj));
+    },
     equals: function (typeObj, otherObj) {
-      return typeObj === otherObj;
+      if (this.is(typeObj) && this.is(otherObj)) {
+        return typeObj === otherObj;
+      }
+      return false;
     },
     encode: function (typeObj) {
       return typeObj.toString();
@@ -278,9 +291,36 @@ UrlMatcher.prototype.types = {
 TODO
  */
 UrlMatcher.prototype.type = function (name, handler) {
-  if (!isString(name) || !isObject(handler) || !isFunction(handler.equals) || !isFunction(handler.decode) || !isFunction(handler.encode)) {
+  // return the handle if only the name was provided
+  if (!handler && UrlMatcher.prototype.types[name]) {
+    return UrlMatcher.prototype.types[name];
+  }
+
+  if (!isString(name) || !isObject(handler) || !isFunction(handler.decode) || !isFunction(handler.encode)) {
     throw new Error("Invalid type '" + name + "'");
   }
+
+  // normalize the handler
+  if (isString(handler.is)) {
+    handler.regexp = new RegExp(handler.is);
+    handler.is = function (typeObj) {
+      return !!handler.regexp.exec(handler.encode(typeObj));
+    };
+  }
+  if (!isFunction(handler.is)) {
+    handler.is = function (typeObj) {
+      return (JSON.stringify(handler.decode(handler.encode(typeObj))) === JSON.stringify(typeObj));
+    };
+  }
+  if (!isFunction(handler.equals)) {
+    handler.equals = function (typeObj, otherObj) {
+      if (handler.is(typeObj) && handler.is(otherObj)) {
+        return handler.encode(typeObj) === handler.encode(otherObj);
+      }
+      return false;
+    };
+  }
+
   UrlMatcher.prototype.types[name] = handler;
 };
 
