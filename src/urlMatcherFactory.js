@@ -223,7 +223,10 @@ UrlMatcher.prototype.format = function (values) {
   var encodedValues = {};
   forEach(values, function (value, key) {
     if (isDefined(typeMap[key])) {
-      encodedValues[key] = types[typeMap[key]].encode(value);
+      var typeHandler = types[typeMap[key]];
+      if (typeHandler.is(value)) {
+         encodedValues[key] = typeHandler.encode(value);
+      }
     }
     else {
       encodedValues[key] = value;

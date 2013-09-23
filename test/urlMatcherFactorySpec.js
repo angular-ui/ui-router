@@ -124,6 +124,8 @@ describe("UrlMatcher", function () {
 
   it(".format() encode typed URL parameters", function () {
     expect(new UrlMatcher('/users/{id:integer}').format({ id: 55 })).toEqual('/users/55');
+    expect(new UrlMatcher('/users/{id:boolean}').format({ id: false })).toEqual('/users/false');
+    expect(new UrlMatcher('/users/{id:boolean}').format({ id: "something" })).toEqual('/users/');
   });
 
   it(".concat() concatenates matchers", function () {
