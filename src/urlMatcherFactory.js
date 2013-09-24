@@ -274,7 +274,7 @@ UrlMatcher.prototype.types = {
   'integer': {
     pattern: "[0-9]+",
     is: function (typeObj) {
-      return typeof typeObj === 'number' && typeObj % 1 == 0;
+      return typeof typeObj === 'number' && typeObj % 1 === 0;
     },
     equals: function (typeObj, otherObj) {
       if (this.is(typeObj) && this.is(otherObj)) {
