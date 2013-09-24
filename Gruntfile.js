@@ -106,7 +106,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('jsdoc', 'Generate documentation', function () {
     promising(this,
-      system('node_modules/jsdoc/jsdoc -c config/jsdoc.js -d \'' + grunt.config('builddir') + '\'/doc src')
+      system('./node_modules/jsdoc/jsdoc -c ./config/jsdoc.js -d ./\'' + grunt.config('builddir') + '\'/doc src')
     );
   });
 
