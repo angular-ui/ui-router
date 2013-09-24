@@ -292,7 +292,28 @@ UrlMatcher.prototype.types = {
 };
 
 /**
-TODO
+ * Registers a custom type for parameters or gets a handler for a registered type.
+ * A handler object must include a `decode` function that decodes a string value
+ * from the URL into the type, and a `encode` function that encodes the type into
+ * a string value for the URL.
+ *
+ * ### Example
+ * ```
+ * // Register myType
+ * .type('myType', {
+ *    pattern: "[0-9]+",                       // (Optional) Regex pattern used to match the URL to this type.
+ *    is : function (typeObj) {},              // (Optional) Determines if a param is of this type when saving to the URL.
+ *    equals: function (typeObj, otherObj) {}, // (Optional) Determines if two objects of this type are equal.
+ *    encode: function (typeObj) {},           // (Required) Encode this type to the URL.
+ *    decode: function (value) {}              // (Required) Decode the URL segment to this type.
+ *  });
+ * // Get myType
+ * .type('myType');
+ * ```
+ *
+ * @param {string} name    the name of the type to register or get.
+ * @param {Object} handler the handler object with functions of working with this type.
+ * @return {Object}  the handler object.
  */
 UrlMatcher.prototype.type = function (name, handler) {
   // return the handle if only the name was provided
