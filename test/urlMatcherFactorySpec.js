@@ -1,4 +1,5 @@
 describe("UrlMatcher", function () {
+
   it("matches static URLs", function () {
     expect(new UrlMatcher('/hello/world').exec('/hello/world')).toEqual({});
   });
@@ -18,6 +19,12 @@ describe("UrlMatcher", function () {
     expect(params).toContain('repeat');
     expect(params).toContain('from');
     expect(params).toContain('to');
+  });
+
+  it("parses parameters with types", function () {
+    var matcher = new UrlMatcher('/users/{id:type}');
+    var params = matcher.parameters();
+    expect(params).toContain('id');
   });
 
   it("handles proper snake case parameter names", function(){
@@ -45,6 +52,24 @@ describe("UrlMatcher", function () {
       new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?from&to')
         .exec('/users/123/details//0', {}))
       .toEqual({ id:'123', type:'', repeat:'0' });
+  });
+
+  it(".exec() captures typed parameter values", function () {
+    expect(
+      new UrlMatcher('/users/{id:boolean}')
+        .exec('/users/false', {}))
+      .toEqual({ id: false });
+    expect(
+      new UrlMatcher('/users/{id:boolean}')
+        .exec('/users/123', {}))
+      .toBeNull();
+  });
+
+  it(".exec() returns null if matched param is not correct type", function () {
+    expect(
+      new UrlMatcher('/users/{id:integer}')
+        .exec('/users/badid', {}))
+      .toEqual(null);
   });
 
   it(".exec() captures catch-all parameters", function () {
@@ -97,6 +122,12 @@ describe("UrlMatcher", function () {
     expect(new UrlMatcher('/users/:id').format({ id:'100%'})).toEqual('/users/100%25');
   });
 
+  it(".format() encode typed URL parameters", function () {
+    expect(new UrlMatcher('/users/{id:integer}').format({ id: 55 })).toEqual('/users/55');
+    expect(new UrlMatcher('/users/{id:boolean}').format({ id: false })).toEqual('/users/false');
+    expect(new UrlMatcher('/users/{id:boolean}').format({ id: "something" })).toEqual('/users/');
+  });
+
   it(".concat() concatenates matchers", function () {
     var matcher = new UrlMatcher('/users/:id/details/{type}?from').concat('/{repeat:[0-9]+}?to');
     var params = matcher.parameters();
@@ -131,5 +162,64 @@ describe("urlMatcherFactory", function () {
 
   it("recognizes matchers", function () {
     expect($umf.isMatcher(new UrlMatcher('/'))).toBe(true);
+  });
+
+  it("defines builtin boolean type", function () {
+    var booleanHandler = $umf.type("boolean");
+    expect(booleanHandler.equals(true, true)).toBe(true);
+    expect(booleanHandler.equals(true, "blue")).toBe(false);
+    expect(booleanHandler.is(false)).toBe(true);
+    expect(booleanHandler.is(456)).toBe(false);
+    expect(booleanHandler.encode(false)).toBe("false");
+    expect(booleanHandler.decode("False")).toBe(false);
+    expect(booleanHandler.decode("purple")).toBe(undefined);
+  });
+
+  it("defines builtin integer type", function () {
+    var integerHandler = $umf.type("integer");
+    expect(integerHandler.equals(5, 5)).toBe(true);
+    expect(integerHandler.equals(5, "blue")).toBe(false);
+    expect(integerHandler.is(67)).toBe(true);
+    expect(integerHandler.is(45.2)).toBe(false);
+    expect(integerHandler.is({})).toBe(false);
+    expect(integerHandler.encode(342)).toBe("342");
+    expect(integerHandler.decode("5563")).toBe(5563);
+  });
+
+  it("registers minimal custom types", function () {
+    $umf.type("test", {
+      encode: function (typeObj) { return typeObj.value; },
+      decode: function (value) { return { value: value }; }
+    });
+    var typeHandler = $umf.type("test");
+    expect(typeHandler.equals({ value: "one" }, { value: "one" })).toBe(true);
+    expect(typeHandler.equals({ value: "one" }, { value: "two" })).toBe(false);
+    expect(typeHandler.is({ value: "one" })).toBe(true);
+    expect(typeHandler.is(456)).toBe(false);
+  });
+
+  it("registers complete custom types", function () {
+    $umf.type("test", {
+      encode: function (typeObj) { return typeObj.value; },
+      decode: function (value) { return { value: value }; },
+      is: function (typeObj) { return (isObject(typeObj) && !!typeObj.value); },
+      equals: function (typeObj, otherObj) { return (typeObj.value === otherObj.value && typeObj.value !== undefined); }
+    });
+    var typeHandler = $umf.type("test");
+    expect(typeHandler.equals({ value: "one" }, { value: "one" })).toBe(true);
+    expect(typeHandler.equals({ value: "one" }, { value: "two" })).toBe(false);
+    expect(typeHandler.is({ value: "one" })).toBe(true);
+    expect(typeHandler.is(456)).toBe(false);
+  });
+
+  xit("registers injectable handler types", function () {
+    $umf.type("test", function($location) {
+      return {
+        encode: function (typeObj) { return $location; },
+        decode: function (value) { return $location; }
+      };
+    });
+    var typeHandler = $umf.type("test");
+    expect(typeHandler.encode()).toBeDefined();
   });
 });

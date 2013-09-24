@@ -107,6 +107,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     $delegates: {}
   };
 
+  // Create a proxy through to the Type registration on the UrlMatcherFactory
+  this.type = function (name, handler) {
+    $urlMatcherFactory.type(name, handler);
+    return this;
+  };
+
   function isRelative(stateName) {
     return stateName.indexOf(".") === 0 || stateName.indexOf("^") === 0;
   }
@@ -164,7 +170,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     // Register the state in the global state list and with $urlRouter if necessary.
     if (!state['abstract'] && state.url) {
       $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
-        if ($state.$current.navigable != state || !equalForKeys($match, $stateParams)) {
+        if ($state.$current.navigable != state || !equalForKeys(state, $match, $stateParams)) {
           $state.transitionTo(state, $match, false);
         }
       }]);
@@ -288,7 +294,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // Starting from the root of the path, keep all levels that haven't changed
       var keep, state, locals = root.locals, toLocals = [];
       for (keep = 0, state = toPath[keep];
-           state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams);
+           state && state === fromPath[keep] && equalForKeys(state, toParams, fromParams, state.ownParams);
            keep++, state = toPath[keep]) {
         locals = toLocals[keep] = state.locals;
       }
@@ -479,21 +485,30 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
     forEach(keys, function (name) {
       var value = values[name];
-      normalized[name] = (value != null) ? String(value) : null;
+      //normalized[name] = (value != null) ? String(value) : null;
+      normalized[name] = (value != null) ? value : null;
     });
     return normalized;
   }
 
-  function equalForKeys(a, b, keys) {
+  function equalForKeys(state, aParams, bParams, keys) {
+    var url = state.url || {},
+        types = url.types || {},
+        typeMap = url.typeMap || {};
+
     // If keys not provided, assume keys from object 'a'
     if (!keys) {
       keys = [];
-      for (var n in a) keys.push(n); // Used instead of Object.keys() for IE8 compatibility
+      for (var n in aParams) keys.push(n); // Used instead of Object.keys() for IE8 compatibility
     }
 
     for (var i=0; i<keys.length; i++) {
-      var k = keys[i];
-      if (a[k] != b[k]) return false; // Not '===', values aren't necessarily normalized
+      var key = keys[i];
+      if (isDefined(typeMap[key])) {
+        if (!types[typeMap[key]].equals(aParams[key], bParams[key])) return false;
+      } else {
+        if (aParams[key] != bParams[key]) return false; // Not '===', values aren't necessarily normalized
+      }
     }
     return true;
   }

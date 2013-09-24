@@ -25,7 +25,8 @@ describe('state', function () {
       E = { params: [ 'i' ] },
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
-      HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} }
+      HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
+      I = { url: "/type/{name:boolean}" },
       AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -45,6 +46,7 @@ describe('state', function () {
       .state('H', H)
       .state('HH', HH)
       .state('HHH', HHH)
+      .state('I', I)
 
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
@@ -114,13 +116,13 @@ describe('state', function () {
         expect(from).toBe(E);
         expect(fromParams).toEqual({ i: 'iii' });
         expect(to).toBe(D);
-        expect(toParams).toEqual({ x: '1', y: '2' });
+        expect(toParams).toEqual({ x: 1, y: 2 });
 
         expect($state.current).toBe(from); // $state not updated yet
         expect($state.params).toEqual(fromParams);
         called = true;
       });
-      $state.transitionTo(D, { x: '1', y: '2' });
+      $state.transitionTo(D, { x: 1, y: 2 });
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(D);
@@ -205,7 +207,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('DDD');
-      expect($state.params).toEqual({ x: '1', y: '2', z: '3', w: '4' });
+      expect($state.params).toEqual({ x: 1, y: 2, z: 3, w: 4 });
     }));
 
     it('can defer a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -222,7 +224,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('AA');
-      expect($state.params).toEqual({ a: '1' });
+      expect($state.params).toEqual({ a: 1 });
     }));
 
     it('can defer and supersede a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -269,6 +271,17 @@ describe('state', function () {
       $q.flush();
       expect(resolvedValue(trans)).toBe(A);
       expect($state.current).toBe(A);
+      expect(log).toBe('');
+    }));
+
+    it('is a no-op when passing the current state and identical typed parameters', inject(function ($state, $q) {
+      initStateTo(I, { name: true });
+      expect($state.params.name).toBe(true);
+      var trans = $state.transitionTo(I, { name: true }); // no-op
+      expect(trans).toBeDefined(); // but we still get a valid promise
+      $q.flush();
+      expect(resolvedValue(trans)).toBe(I);
+      expect($state.current).toBe(I);
       expect(log).toBe('');
     }));
 
@@ -374,7 +387,7 @@ describe('state', function () {
       $q.flush();
 
       expect($state.$current.name).toBe('about.person.item');
-      expect($stateParams).toEqual({ person: 'bob', id: '5' });
+      expect($stateParams).toEqual({ person: 'bob', id: 5 });
 
       $state.go('^.^.sidebar');
       $q.flush();
@@ -533,6 +546,7 @@ describe('state', function () {
         'H',
         'HH',
         'HHH',
+        'I',
         'about',
         'about.person',
         'about.person.item',
