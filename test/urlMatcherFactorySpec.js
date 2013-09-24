@@ -27,6 +27,16 @@ describe("UrlMatcher", function () {
     expect(params).toContain('id');
   });
 
+  it("parses search parameters with types", function () {
+    var matcher = new UrlMatcher('/users?{from:integer}&{to:integer}');
+    var params = matcher.parameters();
+    var typeMap = matcher.typeMap;
+    expect(params).toContain('from');
+    expect(params).toContain('to');
+    expect(typeMap.from).toBe('integer');
+    expect(typeMap.to).toBe('integer');
+  });
+
   it("handles proper snake case parameter names", function(){
     var matcher = new UrlMatcher('/users/?from&to&snake-case&snake-case-triple');
     var params = matcher.parameters();

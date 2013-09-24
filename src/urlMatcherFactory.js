@@ -102,7 +102,22 @@ function UrlMatcher(pattern) {
     this.sourcePath = pattern.substring(0, last+i);
 
     // Allow parameters to be separated by '?' as well as '&' to make concat() easier
-    forEach(search.substring(1).split(/[&?]/), addParameter);
+    var searchParams = search.substring(1).split(/[&?]/), j;
+    for(j=0;j<searchParams.length;j++) {
+      placeholder.lastIndex = 0;
+      if ((m = placeholder.exec(searchParams[j]))) {
+        id = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
+        regexp = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
+        if (isDefined(this.types[regexp])) {
+          this.typeMap[id] = regexp;
+          // todo what if its really a regexp?
+        } 
+      }
+      else {
+        id = searchParams[j];
+      }
+      addParameter(id);
+    }
   } else {
     this.sourcePath = pattern;
     this.sourceSearch = '';
