@@ -264,6 +264,32 @@ describe('state', function () {
       expect($state.current).toBe(D);
     }));
 
+
+    it('does not trigger $stateChangeSuccess when flag prevents, but still transitions when different state', inject(function ($state, $q, $rootScope) {
+      initStateTo(E, { i: 'iii' });
+      var called;
+      $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {       
+        called = true;
+      });
+      $state.transitionTo(D, { x: '1', y: '2' }, {broadcastStateChangeSuccess : false});
+      $q.flush();
+      expect(called).toBeFalsy();
+      expect($state.current).toBe(D);
+    }));
+
+    it('does not trigger $stateChangeSuccess when flag prevents, yet still updates params', inject(function ($state, $q, $rootScope) {
+      initStateTo(E, { x: 'iii' });
+      var called;
+      $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {       
+        called = true;
+      });
+      $state.transitionTo(E, { i: '1', y: '2' }, {broadcastStateChangeSuccess : false});
+      $q.flush();
+      expect(called).toBeFalsy();
+      expect($state.params.i).toBe('1');
+      expect($state.current).toBe(E);
+    }));
+
     it('is a no-op when passing the current state and identical parameters', inject(function ($state, $q) {
       initStateTo(A);
       var trans = $state.transitionTo(A, {}); // no-op
