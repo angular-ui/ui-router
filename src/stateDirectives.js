@@ -16,8 +16,8 @@ function $StateRefDirective($state) {
 
       var stateData = element.parent().inheritedData('$uiView');
 
-      if (stateData && stateData.state && stateData.state.name) {
-        base = stateData.state;
+      if (stateData && stateData.context && stateData.context.name) {
+        base = stateData.context;
       }
 
       var update = function(newVal) {

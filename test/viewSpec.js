@@ -30,12 +30,12 @@ describe('view', function () {
 		expect(result).toBeUndefined();
 
 		$httpBackend.flush();
-		expect(result).toBe("Test content");
+		expect(result.$template).toBe("Test content");
 
 		$view.load("custom.view", { template: 'Hello!' }).then(function(template) {
 			result = template;
 		});
 		$rootScope.$digest();
-		expect(result).toBe("Hello!");
+		expect(result.$template).toBe("Hello!");
 	}));
 });

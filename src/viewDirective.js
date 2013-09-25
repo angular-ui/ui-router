@@ -1,6 +1,6 @@
 
-$ViewDirective.$inject = ['$state', '$compile', '$controller', '$injector', '$anchorScroll'];
-function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $anchorScroll) {
+$ViewDirective.$inject = ['$state', '$view', '$compile', '$controller', '$injector', '$anchorScroll'];
+function $ViewDirective(   $state,   $view,   $compile,   $controller,   $injector,   $anchorScroll) {
   // TODO: Change to $injector.has() when we version bump to Angular 1.1.5.
   // See: https://github.com/angular/angular.js/blob/master/CHANGELOG.md#115-triangle-squarification-2013-05-22
   var $animator; try { $animator = $injector.get('$animator'); } catch (e) { /* do nothing */ }
@@ -12,8 +12,8 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
     transclude: true,
     compile: function (element, attr, transclude) {
       return function(scope, element, attr) {
-        var viewScope, viewLocals,
-            name = attr[directive.name] || attr.name || '',
+        var viewScope, viewConfig, unregister,
+            name = attr[directive.name] || attr.name || '$unnamed$',
             onloadExp = attr.onload || '',
             animate = isDefined($animator) && $animator(scope, attr);
 
@@ -48,28 +48,27 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
         // to derive our own qualified view name, then hang our own details
         // off the DOM so child directives can find it.
         var parent = element.parent().inheritedData('$uiView');
-        if (name.indexOf('@') < 0) name  = name + '@' + (parent ? parent.state.name : '');
-        var view = { name: name, state: null };
+        var view = { name: parent ? parent.name + "." + name : name, context: null };
         element.data('$uiView', view);
 
-        var eventHook = function() {
-          if (viewIsUpdating) return;
-          viewIsUpdating = true;
+        unregister = $view.register(view.name, function(config) {
+          var nothingToDo = (config === viewConfig) || (config && viewConfig && (
+            config.$controller === viewConfig.$controller &&
+            config.$template   === viewConfig.$template &&
+            config.$locals     === viewConfig.$locals
+          ));
+          if (nothingToDo) return;
 
-          try { updateView(true); } catch (e) {
-            viewIsUpdating = false;
-            throw e;
-          }
-          viewIsUpdating = false;
-        };
+          updateView(true, config);
+        });
 
-        scope.$on('$stateChangeSuccess', eventHook);
-        scope.$on('$viewContentLoading', eventHook);
+        scope.$on("$destroy", function() {
+          unregister();
+        });
+
         updateView(false);
 
-        function updateView(doAnimate) {
-          var locals = $state.$current && $state.$current.locals[name];
-          if (locals === viewLocals) return; // nothing to do
+        function updateView(doAnimate, config) {
           var render = renderer(animate && doAnimate);
 
           // Remove existing content
@@ -81,27 +80,22 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
             viewScope = null;
           }
 
-          if (!locals) {
-            viewLocals = null;
-            view.state = null;
-
-            // Restore the initial view
+          // Restore the initial view
+          if (!config) {
+            viewConfig = null;
             return render.restore(transclude(scope), element);
           }
 
-          viewLocals = locals;
-          view.state = locals.$$state;
+          viewConfig = config;
+          viewScope  = scope.$new();
+          var link   = $compile(render.populate(config.$template, element));
 
-          var link = $compile(render.populate(locals.$template, element));
-          viewScope = scope.$new();
-
-          if (locals.$$controller) {
-            locals.$scope = viewScope;
-            var controller = $controller(locals.$$controller, locals);
-            element.children().data('$ngControllerController', controller);
+          if (config.$controller) {
+            config.$scope = viewScope;
+            element.children().data('$ngControllerController', $controller(config.$controller, config.$locals));
           }
           link(viewScope);
-          viewScope.$emit('$viewContentLoaded');
+          viewScope.$emit('$viewContentLoaded', copy(view, {}));
           if (onloadExp) viewScope.$eval(onloadExp);
 
           // TODO: This seems strange, shouldn't $anchorScroll listen for $viewContentLoaded if necessary?
