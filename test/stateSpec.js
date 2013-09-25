@@ -510,6 +510,12 @@ describe('state', function () {
       expect($state.href("about.person", { person: "bob" })).toEqual("#/about/bob");
       expect($state.href("about.person.item", { person: "bob", id: null })).toEqual("#/about/bob/");
     }));
+    
+    it('generates absolute url when absolute is true', inject(function ($state) {
+      expect($state.href("about.sidebar", null, { absolute: true })).toEqual("http://server/#/about");
+      locationProvider.html5Mode(true);
+      expect($state.href("about.sidebar", null, { absolute: true })).toEqual("http://server/about");
+    }));
   });
 
   describe('.get()', function () {
