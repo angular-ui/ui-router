@@ -411,14 +411,24 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     };
 
     $state.href = function href(stateOrName, params, options) {
-      options = extend({ lossy: true, inherit: false, relative: $state.$current }, options || {});
+      options = extend({ lossy: true, inherit: false, absolute: false, relative: $state.$current }, options || {});
       var state = findState(stateOrName, options.relative);
       if (!isDefined(state)) return null;
 
       params = inheritParams($stateParams, params || {}, $state.$current, state);
       var nav = (state && options.lossy) ? state.navigable : state;
       var url = (nav && nav.url) ? nav.url.format(normalize(state.params, params || {})) : null;
-      return !$locationProvider.html5Mode() && url ? "#" + url : url;
+      if (!$locationProvider.html5Mode() && url) {
+        url = "#" + url;
+      }
+      if (options.absolute && url) {
+        url = $location.protocol() + '://' + 
+              $location.host() + 
+              ($location.port() == 80 || $location.port() == 443 ? '' : ':' + $location.port()) + 
+              (!$locationProvider.html5Mode() && url ? '/' : '') + 
+              url;
+      }
+      return url;
     };
 
     $state.get = function (stateOrName) {
