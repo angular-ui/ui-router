@@ -89,6 +89,17 @@ describe("UrlMatcher", function () {
       .toBeNull();
   });
 
+  it(".exec() captures typed search parameter values", function () {
+    expect(
+      new UrlMatcher('/users?{registered:boolean}&{start:integer}')
+        .exec('/users', { 'registered': 'false', 'start': '123' }))
+      .toEqual({ registered: false, start: 123 });
+    expect(
+      new UrlMatcher('/users?{registered:boolean}&{start:integer}')
+        .exec('/users', { 'registered': '123', 'start': 'false' }))
+      .toEqual({});
+  });
+
   it(".exec() returns null if matched param is not correct type", function () {
     expect(
       new UrlMatcher('/users/{id:integer}')

@@ -194,22 +194,24 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
     nPath = this.segments.length-1,
     values = {}, i;
 
-  if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
-
-  for (i=0; i<nPath; i++) values[params[i]] = m[i+1];
-  for (/**/; i<nTotal; i++) values[params[i]] = searchParams[params[i]];
-
-  var decodedValues = {};
-  forEach(values, function (value, key) {
+  function addValue(value, key) {
     if (isDefined(typeMap[key])) {
-      decodedValues[key] = types[typeMap[key]].decode(value);
+      var pattern = new RegExp(types[typeMap[key]].pattern);
+      if (pattern.exec(value)) {
+        values[key] = types[typeMap[key]].decode(value);
+      }
     }
     else {
-      decodedValues[key] = value;
+      values[key] = value;
     }
-  });
+  }
 
-  return decodedValues;
+  if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
+
+  for (i=0; i<nPath; i++)   addValue(m[i+1], params[i]);
+  for (/**/; i<nTotal; i++) addValue(searchParams[params[i]], params[i]);
+
+  return values;
 };
 
 /**
