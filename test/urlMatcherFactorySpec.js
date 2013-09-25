@@ -34,7 +34,21 @@ describe("UrlMatcher", function () {
     expect(params).toContain('from');
     expect(params).toContain('to');
     expect(typeMap.from).toBe('integer');
-    expect(typeMap.to).toBe('integer');
+    expect(typeMap.to).toBe('integer'); 
+  });
+
+  it("parses search parameters with regex", function () {
+    var matcher = new UrlMatcher('/users?{from:[0-9]+}&{to:[0-9]+}');
+    var params = matcher.parameters();
+    var fromType = matcher.type('$from');
+    var toType = matcher.type('$to');
+    var typeMap = matcher.typeMap;
+    expect(params).toContain('from');
+    expect(params).toContain('to');
+    expect(fromType.pattern).toBe('[0-9]+');
+    expect(toType.pattern).toBe('[0-9]+');
+    expect(typeMap.from).toBe('$from');
+    expect(typeMap.to).toBe('$to'); 
   });
 
   it("handles proper snake case parameter names", function(){

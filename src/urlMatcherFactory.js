@@ -60,13 +60,22 @@ function UrlMatcher(pattern) {
       names = {}, compiled = '^', last = 0, m,
       segments = this.segments = [],
       params = this.params = [],
-      typeMap = this.typeMap = {};
+      type = this.type, types = this.types, typeMap = this.typeMap = {};
 
   function addParameter(id) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (names[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
     names[id] = true;
     params.push(id);
+  }
+
+  function registerAnonymousType(id, regexp) {
+    type('$'+id, {
+      pattern: regexp,
+      encode: function (typeObj) { return typeObj; },
+      decode: function (value) { return value; }
+    });
+    typeMap[id] = '$'+id;
   }
 
   function quoteRegExp(string) {
@@ -81,9 +90,9 @@ function UrlMatcher(pattern) {
   while ((m = placeholder.exec(pattern))) {
     id = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
     regexp = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
-    if (isDefined(this.types[regexp])) {
-      this.typeMap[id] = regexp;
-      regexp = this.types[regexp].pattern; // use the regexp defined for this type instead
+    if (isDefined(types[regexp])) {
+      typeMap[id] = regexp;
+      regexp = types[regexp].pattern; // use the regexp defined for this type instead
     } 
     segment = pattern.substring(last, m.index);
     if (segment.indexOf('?') >= 0) break; // we're into the search part
@@ -108,10 +117,11 @@ function UrlMatcher(pattern) {
       if ((m = placeholder.exec(searchParams[j]))) {
         id = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
         regexp = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
-        if (isDefined(this.types[regexp])) {
-          this.typeMap[id] = regexp;
-          // todo what if its really a regexp?
-        } 
+        if (isDefined(types[regexp])) {
+          typeMap[id] = regexp;
+        } else {
+          registerAnonymousType(id, regexp);
+        }
       }
       else {
         id = searchParams[j];
