@@ -48,10 +48,10 @@ describe('state', function () {
 
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
-      .state('about', { url: "/about" })
-      .state('about.person', { url: "/:person" })
-      .state('about.person.item', { url: "/:id" })
-      .state('about.sidebar', {})
+      .state('about', { url: "/about", links: { ".cycle": "about.sidebar.cycle" } })
+      .state('about.person', { url: "/:person", links: { ".sidebar": "about.sidebar" } })
+      .state('about.person.item', { url: "/:id", links: { ".up": "^" } })
+      .state('about.sidebar', { links: { ".cycle": "about.cycle", ".home": function(alias, state) { return "home"; } } })
       .state('about.sidebar.item', {
         url: "/:item",
         templateUrl: function(params) {
@@ -343,7 +343,6 @@ describe('state', function () {
       $state.go("home"); $q.flush();
       expect($state.$current.name).toBe('home');
 
-
       // Transition to a child state
       $state.go(".item", { id: 5 }); $q.flush();
       expect($state.$current.name).toBe('home.item');
@@ -364,6 +363,73 @@ describe('state', function () {
       // Transition to sibling
       $state.go("^.sidebar"); $q.flush();
       expect($state.$current.name).toBe('about.sidebar');
+    }));
+
+    iit('transitions to linked state', inject(function ($state, $q) {
+      // Follows a simple relative link
+      $state.transitionTo('about.person.item', { id: 5 }); $q.flush();
+      $state.go('.up'); $q.flush();
+      expect($state.$current.name).toBe('about.person');
+
+      // Follows a simple absolute link
+      $state.go('about.person.sidebar'); $q.flush();
+      expect($state.$current.name).toBe('about.sidebar');
+
+      // Fails on cyclic link
+      try {
+        $state.go('.cycle'); $q.flush();
+      } catch(err) {
+        expect(err.message).toEqual("Could not resolve '.cycle' from state 'about.sidebar'");
+      }
+      expect($state.$current.name).toBe('about.sidebar');
+
+      // Executes a functional link
+      $state.go('.home'); $q.flush();
+      expect($state.$current.name).toBe('home');
+      
+      // Adds a link dynamically
+      $state.link('home', '.dynamic', '.item');
+      $state.go('.dynamic'); $q.flush();
+      expect($state.$current.name).toBe('home.item');
+
+      // Deletes a link dynamically
+      $state.link('home', '.dynamic', false);
+      try {
+        $state.go('home.dynamic'); $q.flush();
+      } catch(err) {
+        expect(err.message).toEqual("Could not resolve 'home.dynamic' from state 'home.item'");
+      }
+      expect($state.$current.name).toBe('home.item');
+      
+      // Allows parent states to redefine links dynamically
+      $state.link('home', 'home.item.up', 'home');
+      $state.go('.up'); $q.flush();
+      expect($state.$current.name).toBe('home');
+
+      // Can return a state object in a functional link
+      var home_item = $state.get('home.item');
+      $state.link('home', '.down', function(name, state) {
+        return home_item;
+      });
+      $state.go('.down'); $q.flush();
+      expect($state.$current.name).toBe('home.item');
+
+      // Fails on computed link cycles
+      $state.link('home.item', '.cycle', function(name, state) {
+        // relative to the current state
+        return '.cycle';
+      });
+      try {
+        $state.go('.cycle'); $q.flush();
+      } catch(err) {
+        expect(err.message).toEqual("Detected cyclic link on 'home.item.cycle'");
+      }
+      expect($state.$current.name).toBe('home.item');
+
+      // Overrides an absolute link dynamically
+      $state.link('home.item', 'home', 'about');
+      $state.go('home'); $q.flush();
+      expect($state.$current.name).toBe('about');
     }));
 
     it('keeps parameters from common ancestor states', inject(function ($state, $stateParams, $q) {

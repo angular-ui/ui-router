@@ -2,6 +2,7 @@ $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider', '$
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $locationProvider) {
 
   var root, states = {}, $state;
+  var linkCache = {}, currentState;
 
   // Builds state properties from definition passed to registerState()
   var stateBuilder = {
@@ -104,6 +105,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return includes;
     },
 
+    // Copy the configured alias links
+    links: function(state) {
+      return state.links ? copy(state.links) : undefined;
+    },
+
     $delegates: {}
   };
 
@@ -111,16 +117,21 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     return stateName.indexOf(".") === 0 || stateName.indexOf("^") === 0;
   }
 
-  function findState(stateOrName, base) {
-    var isStr = isString(stateOrName),
-        name  = isStr ? stateOrName : stateOrName.name,
-        path  = isRelative(name);
+  // Make sure state is the wrapped version
+  function wrapped(state) {
+    if (state && !isDefined(state.self)) {
+      state = states[state.name];
+    }
+    return state;
+  }
 
-    if (path) {
+  // Convert names relative base to their absolute form
+  function absoluteName(name, base) {
+    if (isRelative(name)) {
       if (!base) throw new Error("No reference point given for path '"  + name + "'");
-      var rel = name.split("."), i = 0, pathLength = rel.length, current = base;
+      var rel = name.split("."), pathLength = rel.length, current = base;
 
-      for (; i < pathLength; i++) {
+      for (var i = 0; i < pathLength; i++) {
         if (rel[i] === "" && i === 0) {
           current = base;
           continue;
@@ -135,14 +146,92 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       rel = rel.slice(i).join(".");
       name = current.name + (current.name && rel ? "." : "") + rel;
     }
-    var state = states[name];
+
+    return name;
+  }
+
+  function getLinks(state) {
+    if (!isDefined(state)) return states;
+
+    if (!isDefined(linkCache[state.name])) {
+      var parentStates = states;
+      if (state.parent) {
+        parentStates = linkCache[state.parent.name];
+        if (!isDefined(parentStates)) parentStates = getLinks(state.parent);
+      }
+
+      if (state.links) {
+        // merge in links if the config defined them
+        var combine = {};
+        for (var stateName in parentStates) {
+          combine[stateName] = parentStates[stateName];
+        }
+
+        for (var linkName in state.links) {
+          var alias = absoluteName(linkName, state);
+          var target = state.links[linkName];
+          if (target) {
+            combine[alias] = isFunction(target) ? target : parentStates[absoluteName(target, state)];
+          } else {
+            delete combine[alias];
+          }
+        }
+
+        linkCache[state.name] = combine;
+      } else {
+        // share parent links with this state
+        linkCache[state.name] = parentStates;
+      }
+    }
+
+    return linkCache[state.name];
+  }
+
+  function discardLinks(state) {
+    delete linkCache[state.name];
+    // Invalidate any link with this state in its .path
+    for (var name in states) {
+      if (states[name].path.indexOf(state) >= 0) {
+        delete linkCache[name];
+      }
+    }
+  }
+
+  var cycleSentinel = {};
+
+  function findState(stateOrName, base) {
+    var isStr = isString(stateOrName),
+        name  = isStr ? stateOrName : stateOrName.name;
+
+    base = wrapped(base);
+
+    // Lookup the link
+    name = absoluteName(name, base);
+    var links = getLinks(currentState);
+    var state = links[name];
+
+    // Recursively invoke if this is a link function
+    if (isFunction(state)) {
+      var computed = state(name, base);
+      if (isString(computed)) {
+        try {
+          // Temporarily break link to prevent cycles
+          links[name] = cycleSentinel;
+          computed = findState(computed, base);
+        } finally {
+          links[name] = state;
+        }
+        if (computed === cycleSentinel) throw new Error("Detected cyclic link on '" + name + "'");
+      }
+      state = wrapped(computed);
+    }
 
     if (state && (isStr || (!isStr && (state === stateOrName || state.self === stateOrName)))) {
       return state;
     }
+
     return undefined;
   }
-
 
   function registerState(state) {
     // Wrap a new object around the state so we can store our private details easily.
@@ -182,7 +271,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     'abstract': true
   });
   root.navigable = null;
-
+  currentState = root;
 
   // .decorator()
   // .decorator(name)
@@ -340,6 +429,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
           exiting.locals = null;
         }
 
+        // findState() will now resolve the new state's links
+        currentState = to;
+
         // Enter 'to' states not kept
         for (l=keep; l<toPath.length; l++) {
           entering = toPath[l];
@@ -388,7 +480,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         return false;
       }
 
-      return isDefined(params) ? angular.equals($stateParams, params) : true;
+      return isDefined(params) ? equals($stateParams, params) : true;
     };
 
     $state.includes = function includes(stateOrName, params) {
@@ -402,7 +494,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       }
 
       var validParams = true;
-      angular.forEach(params, function(value, key) {
+      forEach(params, function(value, key) {
         if (!isDefined($stateParams[key]) || $stateParams[key] !== value) {
           validParams = false;
         }
@@ -429,6 +521,28 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
               url;
       }
       return url;
+    };
+
+    $state.link = function link(stateOrName, alias, target) {
+      var state = findState(stateOrName, $state.$current);
+      if (!isDefined(stateOrName)) {
+        throw new Error("No such state '" + stateOrName + "'");
+      }
+
+      var previous = state.links ? state.links[alias] : undefined;
+      if (isDefined(target)) {
+        if (target) {
+          if (!isDefined(state.links)) state.links = {};
+          state.links[alias] = target;
+        } else {
+          delete state.links[alias];
+          if (equals(state.links, {})) state.links = undefined;
+        }
+      }
+
+      discardLinks(state);
+      
+      return previous;
     };
 
     $state.get = function (stateOrName) {
