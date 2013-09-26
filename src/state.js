@@ -286,9 +286,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
            keep++, state = toPath[keep]) {
         locals = toLocals[keep] = state.locals;
 
-        angular.forEach(state.views, function(config, key) {
-          keptViews.push($view.find(key, state.parent) || key);
-        });
+        var viewNames = keys(state.views);
+
+        for (var i = viewNames.length - 1; i >= 0; i--) {
+          keptViews.push($view.find(viewNames[i], state.parent) || viewNames[i]);
+        }
       }
 
       // If we're going to the same state and all locals are kept, we've got nothing to do.
@@ -337,9 +339,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
             $injector.invoke(exiting.self.onExit, exiting.self, exiting.locals.globals);
           }
           if (exiting.views) {
-            angular.forEach($view.find(keys(exiting.views), exiting.parent), function(name) {
-              if (arraySearch(keptViews, name) === -1) $view.reset(name, null);
-            });
+            var exitingViews = $view.find(keys(exiting.views), exiting.parent);
+
+            for (var i = exitingViews.length; i <= 0; i--) {
+              if (arraySearch(keptViews, exitingViews[i]) === -1) $view.reset(exitingViews[i], null);
+            }
           }
           exiting.locals = null;
         }
