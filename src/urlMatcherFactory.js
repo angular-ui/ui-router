@@ -59,13 +59,23 @@ function UrlMatcher(pattern) {
   var placeholder = /([:*])(\w+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
       names = {}, compiled = '^', last = 0, m,
       segments = this.segments = [],
-      params = this.params = [];
+      params = this.params = [],
+      type = this.type, types = this.types, typeMap = this.typeMap = {};
 
   function addParameter(id) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (names[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
     names[id] = true;
     params.push(id);
+  }
+
+  function registerAnonymousType(id, regexp) {
+    type('$'+id, {
+      pattern: regexp,
+      encode: function (typeObj) { return typeObj; },
+      decode: function (value) { return value; }
+    });
+    typeMap[id] = '$'+id;
   }
 
   function quoteRegExp(string) {
@@ -80,6 +90,10 @@ function UrlMatcher(pattern) {
   while ((m = placeholder.exec(pattern))) {
     id = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
     regexp = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
+    if (isDefined(types[regexp])) {
+      typeMap[id] = regexp;
+      regexp = types[regexp].pattern; // use the regexp defined for this type instead
+    } 
     segment = pattern.substring(last, m.index);
     if (segment.indexOf('?') >= 0) break; // we're into the search part
     compiled += quoteRegExp(segment) + '(' + regexp + ')';
@@ -97,7 +111,23 @@ function UrlMatcher(pattern) {
     this.sourcePath = pattern.substring(0, last+i);
 
     // Allow parameters to be separated by '?' as well as '&' to make concat() easier
-    forEach(search.substring(1).split(/[&?]/), addParameter);
+    var searchParams = search.substring(1).split(/[&?]/), j;
+    for(j=0;j<searchParams.length;j++) {
+      placeholder.lastIndex = 0;
+      if ((m = placeholder.exec(searchParams[j]))) {
+        id = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
+        regexp = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
+        if (isDefined(types[regexp])) {
+          typeMap[id] = regexp;
+        } else {
+          registerAnonymousType(id, regexp);
+        }
+      }
+      else {
+        id = searchParams[j];
+      }
+      addParameter(id);
+    }
   } else {
     this.sourcePath = pattern;
     this.sourceSearch = '';
@@ -154,17 +184,32 @@ UrlMatcher.prototype.toString = function () {
  * @return {Object}  The captured parameter values.
  */
 UrlMatcher.prototype.exec = function (path, searchParams) {
-  var m = this.regexp.exec(path);
+  var m = this.regexp.exec(path),
+      types = this.types,
+      typeMap = this.typeMap;
+
   if (!m) return null;
 
   var params = this.params, nTotal = params.length,
     nPath = this.segments.length-1,
     values = {}, i;
 
+  function addValue(value, key) {
+    if (isDefined(typeMap[key])) {
+      var pattern = new RegExp(types[typeMap[key]].pattern);
+      if (pattern.exec(value)) {
+        values[key] = types[typeMap[key]].decode(value);
+      }
+    }
+    else {
+      values[key] = value;
+    }
+  }
+
   if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
 
-  for (i=0; i<nPath; i++) values[params[i]] = m[i+1];
-  for (/**/; i<nTotal; i++) values[params[i]] = searchParams[params[i]];
+  for (i=0; i<nPath; i++)   addValue(m[i+1], params[i]);
+  for (/**/; i<nTotal; i++) addValue(searchParams[params[i]], params[i]);
 
   return values;
 };
@@ -193,20 +238,36 @@ UrlMatcher.prototype.parameters = function () {
  * @return {string}  the formatted URL (path and optionally search part).
  */
 UrlMatcher.prototype.format = function (values) {
-  var segments = this.segments, params = this.params;
+  var segments = this.segments, 
+      params = this.params,
+      types = this.types,
+      typeMap = this.typeMap;
   if (!values) return segments.join('');
 
   var nPath = segments.length-1, nTotal = params.length,
     result = segments[0], i, search, value;
 
+  var encodedValues = {};
+  forEach(values, function (value, key) {
+    if (isDefined(typeMap[key])) {
+      var typeHandler = types[typeMap[key]];
+      if (typeHandler.is(value)) {
+         encodedValues[key] = typeHandler.encode(value);
+      }
+    }
+    else {
+      encodedValues[key] = value;
+    }
+  });
+
   for (i=0; i<nPath; i++) {
-    value = values[params[i]];
+    value = encodedValues[params[i]];
     // TODO: Maybe we should throw on null here? It's not really good style to use '' and null interchangeabley
     if (value != null) result += encodeURIComponent(value);
     result += segments[i+1];
   }
   for (/**/; i<nTotal; i++) {
-    value = values[params[i]];
+    value = encodedValues[params[i]];
     if (value != null) {
       result += (search ? '&' : '?') + params[i] + '=' + encodeURIComponent(value);
       search = true;
@@ -214,6 +275,102 @@ UrlMatcher.prototype.format = function (values) {
   }
 
   return result;
+};
+
+UrlMatcher.prototype.types = {
+  'boolean': {
+    pattern: "true|false",
+    is: function (typeObj) {
+      return (typeObj === true || typeObj === false);
+    },
+    equals: function (typeObj, otherObj) {
+      if (this.is(typeObj) && this.is(otherObj)) {
+        return typeObj === otherObj;
+      }
+      return false;
+    },
+    encode: function (typeObj) {
+      return typeObj.toString().toLowerCase();
+    },
+    decode: function (value) {
+      if (value && value.toLowerCase() === 'true') return true;
+      if (value && value.toLowerCase() === 'false') return false;
+      return undefined;
+    }
+  },
+  'integer': {
+    pattern: "[0-9]+",
+    is: function (typeObj) {
+      return typeof typeObj === 'number' && typeObj % 1 === 0;
+    },
+    equals: function (typeObj, otherObj) {
+      if (this.is(typeObj) && this.is(otherObj)) {
+        return typeObj === otherObj;
+      }
+      return false;
+    },
+    encode: function (typeObj) {
+      return typeObj.toString();
+    },
+    decode: function (value) {
+      return parseInt(value, 10);
+    }
+  }
+};
+
+/**
+ * Registers a custom type for parameters or gets a handler for a registered type.
+ * A handler object must include a `decode` function that decodes a string value
+ * from the URL into the type, and a `encode` function that encodes the type into
+ * a string value for the URL.
+ *
+ * ### Example
+ * ```
+ * // Register myType
+ * .type('myType', {
+ *    pattern: "[0-9]+",                       // (Optional) Regex pattern used to match the URL to this type.
+ *    is : function (typeObj) {},              // (Optional) Determines if a param is of this type when saving to the URL.
+ *    equals: function (typeObj, otherObj) {}, // (Optional) Determines if two objects of this type are equal.
+ *    encode: function (typeObj) {},           // (Required) Encode this type to the URL.
+ *    decode: function (value) {}              // (Required) Decode the URL segment to this type.
+ *  });
+ * // Get myType
+ * .type('myType');
+ * ```
+ *
+ * @param {string} name    the name of the type to register or get.
+ * @param {Object} handler the handler object with functions of working with this type.
+ * @return {Object}  the handler object.
+ */
+UrlMatcher.prototype.type = function (name, handler) {
+  // return the handle if only the name was provided
+  if (!handler && UrlMatcher.prototype.types[name]) {
+    return UrlMatcher.prototype.types[name];
+  }
+
+  if (!isString(name) || !isObject(handler) || !isFunction(handler.decode) || !isFunction(handler.encode)) {
+    throw new Error("Invalid type '" + name + "'");
+  }
+
+  // normalize the handler
+  if (!isString(handler.pattern)) {
+    handler.pattern = ".*";
+  }
+  if (!isFunction(handler.is)) {
+    handler.is = function (typeObj) {
+      return (JSON.stringify(handler.decode(handler.encode(typeObj))) === JSON.stringify(typeObj));
+    };
+  }
+  if (!isFunction(handler.equals)) {
+    handler.equals = function (typeObj, otherObj) {
+      if (handler.is(typeObj) && handler.is(otherObj)) {
+        return handler.encode(typeObj) === handler.encode(otherObj);
+      }
+      return false;
+    };
+  }
+
+  UrlMatcher.prototype.types[name] = handler;
 };
 
 /**
@@ -245,6 +402,10 @@ function $UrlMatcherFactory() {
    */
   this.isMatcher = function (o) {
     return isObject(o) && isFunction(o.exec) && isFunction(o.format) && isFunction(o.concat);
+  };
+
+  this.type = function (name, handler) {
+    return UrlMatcher.prototype.type(name, handler);
   };
 
   this.$get = function () {

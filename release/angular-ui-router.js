@@ -1,9 +1,15 @@
 /**
  * State-based routing for AngularJS
- * @version v0.2.0
+ * @version v0.2.1
  * @link http://angular-ui.github.com/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
+
+/* commonjs package manager support (eg componentjs) */
+if (module && exports && module.exports === exports){
+  module.exports = 'ui.router';
+}
+
 (function (window, angular, undefined) {
 /*jshint globalstrict:true*/
 /*global angular:false*/
@@ -127,7 +133,7 @@ function $Resolve(  $q,    $injector) {
       visited[key] = VISIT_IN_PROGRESS;
       
       if (isString(value)) {
-        plan.push(key, [ function() { return $injector.get(key); }], NO_DEPENDENCIES);
+        plan.push(key, [ function() { return $injector.get(value); }], NO_DEPENDENCIES);
       } else {
         var params = $injector.annotate(value);
         forEach(params, function (param) {
@@ -214,7 +220,7 @@ function $Resolve(  $q,    $injector) {
         }
         // Wait for any parameter that we have a promise for (either from parent or from this
         // resolve; in that case study() will have made sure it's ordered before us in the plan).
-        params.forEach(function (dep) {
+        forEach(params, function (dep) {
           if (promises.hasOwnProperty(dep) && !locals.hasOwnProperty(dep)) {
             waitParams++;
             promises[dep].then(function (result) {
@@ -448,7 +454,8 @@ function UrlMatcher(pattern) {
   var placeholder = /([:*])(\w+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
       names = {}, compiled = '^', last = 0, m,
       segments = this.segments = [],
-      params = this.params = [];
+      params = this.params = [],
+      typeMap = this.typeMap = {};
 
   function addParameter(id) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
@@ -469,6 +476,10 @@ function UrlMatcher(pattern) {
   while ((m = placeholder.exec(pattern))) {
     id = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
     regexp = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
+    if (isDefined(this.types[regexp])) {
+      this.typeMap[id] = regexp;
+      regexp = this.types[regexp].pattern; // use the regexp defined for this type instead
+    } 
     segment = pattern.substring(last, m.index);
     if (segment.indexOf('?') >= 0) break; // we're into the search part
     compiled += quoteRegExp(segment) + '(' + regexp + ')';
@@ -543,7 +554,10 @@ UrlMatcher.prototype.toString = function () {
  * @return {Object}  The captured parameter values.
  */
 UrlMatcher.prototype.exec = function (path, searchParams) {
-  var m = this.regexp.exec(path);
+  var m = this.regexp.exec(path),
+      types = this.types,
+      typeMap = this.typeMap;
+
   if (!m) return null;
 
   var params = this.params, nTotal = params.length,
@@ -555,7 +569,17 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
   for (i=0; i<nPath; i++) values[params[i]] = m[i+1];
   for (/**/; i<nTotal; i++) values[params[i]] = searchParams[params[i]];
 
-  return values;
+  var decodedValues = {};
+  forEach(values, function (value, key) {
+    if (isDefined(typeMap[key])) {
+      decodedValues[key] = types[typeMap[key]].decode(value);
+    }
+    else {
+      decodedValues[key] = value;
+    }
+  });
+
+  return decodedValues;
 };
 
 /**
@@ -582,20 +606,36 @@ UrlMatcher.prototype.parameters = function () {
  * @return {string}  the formatted URL (path and optionally search part).
  */
 UrlMatcher.prototype.format = function (values) {
-  var segments = this.segments, params = this.params;
+  var segments = this.segments, 
+      params = this.params,
+      types = this.types,
+      typeMap = this.typeMap;
   if (!values) return segments.join('');
 
   var nPath = segments.length-1, nTotal = params.length,
     result = segments[0], i, search, value;
 
+  var encodedValues = {};
+  forEach(values, function (value, key) {
+    if (isDefined(typeMap[key])) {
+      var typeHandler = types[typeMap[key]];
+      if (typeHandler.is(value)) {
+         encodedValues[key] = typeHandler.encode(value);
+      }
+    }
+    else {
+      encodedValues[key] = value;
+    }
+  });
+
   for (i=0; i<nPath; i++) {
-    value = values[params[i]];
+    value = encodedValues[params[i]];
     // TODO: Maybe we should throw on null here? It's not really good style to use '' and null interchangeabley
     if (value != null) result += encodeURIComponent(value);
     result += segments[i+1];
   }
   for (/**/; i<nTotal; i++) {
-    value = values[params[i]];
+    value = encodedValues[params[i]];
     if (value != null) {
       result += (search ? '&' : '?') + params[i] + '=' + encodeURIComponent(value);
       search = true;
@@ -603,6 +643,102 @@ UrlMatcher.prototype.format = function (values) {
   }
 
   return result;
+};
+
+UrlMatcher.prototype.types = {
+  'boolean': {
+    pattern: "true|false",
+    is: function (typeObj) {
+      return (typeObj === true || typeObj === false);
+    },
+    equals: function (typeObj, otherObj) {
+      if (this.is(typeObj) && this.is(otherObj)) {
+        return typeObj === otherObj;
+      }
+      return false;
+    },
+    encode: function (typeObj) {
+      return typeObj.toString().toLowerCase();
+    },
+    decode: function (value) {
+      if (value && value.toLowerCase() === 'true') return true;
+      if (value && value.toLowerCase() === 'false') return false;
+      return undefined;
+    }
+  },
+  'integer': {
+    pattern: "[0-9]+",
+    is: function (typeObj) {
+      return typeof typeObj === 'number' && typeObj % 1 === 0;
+    },
+    equals: function (typeObj, otherObj) {
+      if (this.is(typeObj) && this.is(otherObj)) {
+        return typeObj === otherObj;
+      }
+      return false;
+    },
+    encode: function (typeObj) {
+      return typeObj.toString();
+    },
+    decode: function (value) {
+      return parseInt(value, 10);
+    }
+  }
+};
+
+/**
+ * Registers a custom type for parameters or gets a handler for a registered type.
+ * A handler object must include a `decode` function that decodes a string value
+ * from the URL into the type, and a `encode` function that encodes the type into
+ * a string value for the URL.
+ *
+ * ### Example
+ * ```
+ * // Register myType
+ * .type('myType', {
+ *    pattern: "[0-9]+",                       // (Optional) Regex pattern used to match the URL to this type.
+ *    is : function (typeObj) {},              // (Optional) Determines if a param is of this type when saving to the URL.
+ *    equals: function (typeObj, otherObj) {}, // (Optional) Determines if two objects of this type are equal.
+ *    encode: function (typeObj) {},           // (Required) Encode this type to the URL.
+ *    decode: function (value) {}              // (Required) Decode the URL segment to this type.
+ *  });
+ * // Get myType
+ * .type('myType');
+ * ```
+ *
+ * @param {string} name    the name of the type to register or get.
+ * @param {Object} handler the handler object with functions of working with this type.
+ * @return {Object}  the handler object.
+ */
+UrlMatcher.prototype.type = function (name, handler) {
+  // return the handle if only the name was provided
+  if (!handler && UrlMatcher.prototype.types[name]) {
+    return UrlMatcher.prototype.types[name];
+  }
+
+  if (!isString(name) || !isObject(handler) || !isFunction(handler.decode) || !isFunction(handler.encode)) {
+    throw new Error("Invalid type '" + name + "'");
+  }
+
+  // normalize the handler
+  if (!isString(handler.pattern)) {
+    handler.pattern = ".*";
+  }
+  if (!isFunction(handler.is)) {
+    handler.is = function (typeObj) {
+      return (JSON.stringify(handler.decode(handler.encode(typeObj))) === JSON.stringify(typeObj));
+    };
+  }
+  if (!isFunction(handler.equals)) {
+    handler.equals = function (typeObj, otherObj) {
+      if (handler.is(typeObj) && handler.is(otherObj)) {
+        return handler.encode(typeObj) === handler.encode(otherObj);
+      }
+      return false;
+    };
+  }
+
+  UrlMatcher.prototype.types[name] = handler;
 };
 
 /**
@@ -634,6 +770,10 @@ function $UrlMatcherFactory() {
    */
   this.isMatcher = function (o) {
     return isObject(o) && isFunction(o.exec) && isFunction(o.format) && isFunction(o.concat);
+  };
+
+  this.type = function (name, handler) {
+    return UrlMatcher.prototype.type(name, handler);
   };
 
   this.$get = function () {
@@ -784,7 +924,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     // inherit 'data' from parent and override by own values (if any)
     data: function(state) {
       if (state.parent && state.parent.data) {
-        state.data = state.self.data = angular.extend({}, state.parent.data, state.data);
+        state.data = state.self.data = extend({}, state.parent.data, state.data);
       }
       return state.data;
     },
@@ -866,14 +1006,25 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       var includes = state.parent ? extend({}, state.parent.includes) : {};
       includes[state.name] = true;
       return includes;
-    }
+    },
+
+    $delegates: {}
   };
 
+  // Create a proxy through to the Type registration on the UrlMatcherFactory
+  this.type = function (name, handler) {
+    $urlMatcherFactory.type(name, handler);
+    return this;
+  };
+
+  function isRelative(stateName) {
+    return stateName.indexOf(".") === 0 || stateName.indexOf("^") === 0;
+  }
 
   function findState(stateOrName, base) {
     var isStr = isString(stateOrName),
         name  = isStr ? stateOrName : stateOrName.name,
-        path  = name.indexOf(".") === 0 || name.indexOf("^") === 0;
+        path  = isRelative(name);
 
     if (path) {
       if (!base) throw new Error("No reference point given for path '"  + name + "'");
@@ -916,18 +1067,19 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     if (states[name]) throw new Error("State '" + name + "'' is already defined");
 
     for (var key in stateBuilder) {
-      state[key] = stateBuilder[key](state);
+      if (isFunction(stateBuilder[key])) state[key] = stateBuilder[key](state, stateBuilder.$delegates[key]);
     }
     states[name] = state;
 
     // Register the state in the global state list and with $urlRouter if necessary.
     if (!state['abstract'] && state.url) {
       $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
-        if ($state.$current.navigable != state || !equalForKeys($match, $stateParams)) {
+        if ($state.$current.navigable != state || !equalForKeys(state, $match, $stateParams)) {
           $state.transitionTo(state, $match, false);
         }
       }]);
     }
+
     return state;
   }
 
@@ -941,6 +1093,25 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
   });
   root.navigable = null;
 
+
+  // .decorator()
+  // .decorator(name)
+  // .decorator(name, function)
+  this.decorator = decorator;
+  function decorator(name, func) {
+    /*jshint validthis: true */
+    if (isString(name) && !isDefined(func)) {
+      return stateBuilder[name];
+    }
+    if (!isFunction(func) || !isString(name)) {
+      return this;
+    }
+    if (stateBuilder[name] && !stateBuilder.$delegates[name]) {
+      stateBuilder.$delegates[name] = stateBuilder[name];
+    }
+    stateBuilder[name] = func;
+    return this;
+  }
 
   // .state(state)
   // .state(name, state)
@@ -960,6 +1131,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
     var TransitionSuperseded = $q.reject(new Error('transition superseded'));
     var TransitionPrevented = $q.reject(new Error('transition prevented'));
+    var TransitionAborted = $q.reject(new Error('transition aborted'));
+    var TransitionFailed = $q.reject(new Error('transition failed'));
 
     root.locals = { resolve: null, globals: { $stateParams: {} } };
     $state = {
@@ -976,21 +1149,56 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     $state.transitionTo = function transitionTo(to, toParams, options) {
       if (!isDefined(options)) options = (options === true || options === false) ? { location: options } : {};
       toParams = toParams || {};
-      options = extend({ location: true, inherit: false, relative: null }, options);
+      options = extend({ location: true, inherit: false, relative: null, broadcastStateChangeSuccess : true, $retry: false }, options);
+
+      var from = $state.$current, fromParams = $state.params, fromPath = from.path;
 
       var toState = findState(to, options.relative);
-      if (!isDefined(toState)) throw new Error("No such state " + toState);
+
+      var evt;
+
+      if (!isDefined(toState)) {
+        // Broadcast not found event and abort the transition if prevented
+        var redirect = { to: to, toParams: toParams, options: options };
+        evt = $rootScope.$broadcast('$stateNotFound', redirect, from.self, fromParams);
+        if (evt.defaultPrevented) return TransitionAborted;
+
+        // Allow the handler to return a promise to defer state lookup retry
+        if (evt.retry) {
+          if (options.$retry) return TransitionFailed;
+          var retryTransition = $state.transition = $q.when(evt.retry);
+          retryTransition.then(function() {
+            if (retryTransition !== $state.transition) return TransitionSuperseded;
+            redirect.options.$retry = true;
+            return $state.transitionTo(redirect.to, redirect.toParams, redirect.options);
+          },
+          function() {
+            return TransitionAborted;
+          });
+          return retryTransition;
+        }
+
+        // Always retry once if the $stateNotFound was not prevented
+        // (handles either redirect changed or state lazy-definition)
+        to = redirect.to;
+        toParams = redirect.toParams;
+        options = redirect.options;
+        toState = findState(to, options.relative);
+        if (!isDefined(toState)) {
+          if (options.relative) throw new Error("Could not resolve '" + to + "' from state '" + options.relative + "'");
+          throw new Error("No such state '" + to + "'");
+        }
+      }
       if (toState['abstract']) throw new Error("Cannot transition to abstract state '" + to + "'");
       if (options.inherit) toParams = inheritParams($stateParams, toParams || {}, $state.$current, toState);
       to = toState;
 
-      var toPath = to.path,
-          from = $state.$current, fromParams = $state.params, fromPath = from.path;
+      var toPath = to.path;
 
       // Starting from the root of the path, keep all levels that haven't changed
       var keep, state, locals = root.locals, toLocals = [];
       for (keep = 0, state = toPath[keep];
-           state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams);
+           state && state === fromPath[keep] && equalForKeys(state, toParams, fromParams, state.ownParams);
            keep++, state = toPath[keep]) {
         locals = toLocals[keep] = state.locals;
       }
@@ -1008,7 +1216,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       toParams = normalize(to.params, toParams || {});
 
       // Broadcast start event and cancel the transition if requested
-      var evt = $rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams);
+      evt = $rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams);
       if (evt.defaultPrevented) return TransitionPrevented;
 
       // Resolve locals for the remaining states, but don't update any global state just
@@ -1024,12 +1232,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         resolved = resolveState(state, toParams, state===to, resolved, locals);
       }
 
-      // Once everything is resolved, wer are ready to perform the actual transition
+      // Once everything is resolved, we are ready to perform the actual transition
       // and return a promise for the new state. We also keep track of what the
       // current promise is, so that we can detect overlapping transitions and
       // keep only the outcome of the last transition.
       var transition = $state.transition = resolved.then(function () {
         var l, entering, exiting;
+
 
         if ($state.transition !== transition) return TransitionSuperseded;
 
@@ -1064,7 +1273,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
           $location.url(toNav.url.format(toNav.locals.globals.$stateParams));
         }
 
-        $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
+        if(options.broadcastStateChangeSuccess){ 
+          $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);  
+        }
+        
 
         return $state.current;
       }, function (error) {
@@ -1079,14 +1291,37 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return transition;
     };
 
-    $state.is = function is(stateOrName) {
+    $state.is = function is(stateOrName, params) {
       var state = findState(stateOrName);
-      return (isDefined(state)) ? $state.$current === state : undefined;
+
+      if (!isDefined(state)) {
+        return undefined;
+      }
+
+      if ($state.$current !== state) {
+        return false;
+      }
+
+      return isDefined(params) ? angular.equals($stateParams, params) : true;
     };
 
-    $state.includes = function includes(stateOrName) {
+    $state.includes = function includes(stateOrName, params) {
       var state = findState(stateOrName);
-      return (isDefined(state)) ? isDefined($state.$current.includes[state.name]) : undefined;
+      if (!isDefined(state)) {
+        return undefined;
+      }
+
+      if (!isDefined($state.$current.includes[state.name])) {
+        return false;
+      }
+
+      var validParams = true;
+      angular.forEach(params, function(value, key) {
+        if (!isDefined($stateParams[key]) || $stateParams[key] !== value) {
+          validParams = false;
+        }
+      });
+      return validParams;
     };
 
     $state.href = function href(stateOrName, params, options) {
@@ -1101,6 +1336,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     };
 
     $state.get = function (stateOrName) {
+      if (!isDefined(stateOrName)) {
+        var list = [];
+        forEach(states, function(state) { list.push(state.self); });
+        return list;
+      }
       var state = findState(stateOrName);
       return (state && state.self) ? state.self : null;
     };
@@ -1153,21 +1393,30 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
     forEach(keys, function (name) {
       var value = values[name];
-      normalized[name] = (value != null) ? String(value) : null;
+      //normalized[name] = (value != null) ? String(value) : null;
+      normalized[name] = (value != null) ? value : null;
     });
     return normalized;
   }
 
-  function equalForKeys(a, b, keys) {
+  function equalForKeys(state, aParams, bParams, keys) {
+    var url = state.url || {},
+        types = url.types || {},
+        typeMap = url.typeMap || {};
+
     // If keys not provided, assume keys from object 'a'
     if (!keys) {
       keys = [];
-      for (var n in a) keys.push(n); // Used instead of Object.keys() for IE8 compatibility
+      for (var n in aParams) keys.push(n); // Used instead of Object.keys() for IE8 compatibility
     }
 
     for (var i=0; i<keys.length; i++) {
-      var k = keys[i];
-      if (a[k] != b[k]) return false; // Not '===', values aren't necessarily normalized
+      var key = keys[i];
+      if (isDefined(typeMap[key])) {
+        if (!types[typeMap[key]].equals(aParams[key], bParams[key])) return false;
+      } else {
+        if (aParams[key] != bParams[key]) return false; // Not '===', values aren't necessarily normalized
+      }
     }
     return true;
   }
@@ -1370,7 +1619,7 @@ function $StateRefDirective($state) {
 
       if (ref.paramExpr) {
         scope.$watch(ref.paramExpr, function(newVal, oldVal) {
-          if (newVal !== oldVal) update(newVal);
+          if (newVal !== params) update(newVal);
         }, true);
         params = scope.$eval(ref.paramExpr);
       }
@@ -1379,7 +1628,9 @@ function $StateRefDirective($state) {
       if (isForm) return;
 
       element.bind("click", function(e) {
-        if ((e.which == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        var button = e.which || e.button;
+
+        if ((button == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
           $state.go(ref.state, params, { relative: base });
           scope.$apply();
           e.preventDefault();

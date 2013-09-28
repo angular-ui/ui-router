@@ -106,7 +106,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('jsdoc', 'Generate documentation', function () {
     promising(this,
-      system('node_modules/jsdoc/jsdoc -c config/jsdoc.js -d \'' + grunt.config('builddir') + '\'/doc src')
+      system('\"./node_modules/jsdoc/jsdoc\" -c ./config/jsdoc.js -d \"./' + grunt.config('builddir') + '/doc\" src')
     );
   });
 
@@ -150,10 +150,10 @@ module.exports = function (grunt) {
 
     var version = grunt.config('pkg.version'), releasedir = grunt.config('builddir');
     promising(this,
-      system('git add \'' + releasedir + '\'').then(function () {
+      system('git add \"' + releasedir + '\"').then(function () {
         return system('git commit -m \'release ' + version + '\'');
       }).then(function () {
-        return system('git tag \'' + version + '\'');
+        return system('git tag \"' + version + '\"');
       })
     );
   });

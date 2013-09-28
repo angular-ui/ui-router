@@ -27,6 +27,33 @@ angular.module('uiRouterSample')
         // Use $stateProvider to configure your states.
         $stateProvider
 
+          /////////////////////
+          // Parameter Types //
+          /////////////////////
+          // contact id is formatted like ##-####, as dependent on some backend system.
+          .type("myCustomId", {
+            pattern: "[0-9]{2}[\-][0-9]{4}",
+            is: function (typeObj) {
+              return (angular.isObject(typeObj) && typeObj.firstPart && typeObj.secondPart);
+            },
+            equals: function (typeObj, otherObj) {
+              if (this.is(typeObj) && this.is(otherObj)) {
+                return (typeObj.firstPart === otherObj.firstPart && typeObj.secondPart === otherObj.secondPart);
+              }
+              return false;
+            },
+            decode: function (value) {
+              var tokens = value.split("-");
+              return {
+                firstPart: tokens[0],
+                secondPart: tokens[1]
+              };
+            },
+            encode: function (typeObj) {
+              return typeObj.firstPart + "-" + typeObj.secondPart;
+            }
+          })
+
           //////////
           // Home //
           //////////
@@ -139,7 +166,7 @@ angular.module('uiRouterSample')
             // So its url will end up being '/contacts/{contactId:[0-9]{1,8}}'. When the
             // url becomes something like '/contacts/42' then this state becomes active
             // and the $stateParams object becomes { contactId: 42 }.
-            url: '/{contactId:[0-9]{1,4}}',
+            url: '/{contactId:myCustomId}',
 
             // If there is more than a single ui-view in the parent template, or you would
             // like to target a ui-view from even higher up the state tree, you can use the
@@ -157,6 +184,7 @@ angular.module('uiRouterSample')
                 templateUrl: 'contacts.detail.html',
                 controller: ['$scope', '$stateParams', 'utils',
                   function (  $scope,   $stateParams,   utils) {
+                    console.log($stateParams.contactId);
                     $scope.contact = utils.findById($scope.contacts, $stateParams.contactId);
                   }]
               },
