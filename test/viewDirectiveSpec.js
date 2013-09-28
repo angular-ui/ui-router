@@ -50,6 +50,14 @@ describe('uiView', function () {
         template: 'hState inner template'
       }
     }
+  },
+  iState = {
+    template: '<div ui-view>'+
+        '<ul><li ng-repeat="item in items">{{item}}</li></ul>'+
+      '</div>'
+  },
+  jState = {
+    template: '<span ng-class="test">jState</span>'
   };
 
   beforeEach(module(function ($stateProvider) {
@@ -61,7 +69,9 @@ describe('uiView', function () {
       .state('e', eState)
       .state('e.f', fState)
       .state('g', gState)
-      .state('g.h', hState);
+      .state('g.h', hState)
+      .state('i', iState)
+      .state('j', jState);
   }));
 
   beforeEach(inject(function ($rootScope, _$compile_) {
@@ -152,6 +162,41 @@ describe('uiView', function () {
       $q.flush();
 
       expect(elem[0].querySelector('.test').innerText).toBe(content);
+    }));
+
+    // related to issue #435
+    it('initial view should be transcluded once to prevent breaking other directives', inject(function ($state, $q) {
+      scope.items = ["I", "am", "a", "list", "of", "items"];
+
+      elem.append($compile('<div ui-view></div>')(scope));
+
+      // transition to state that has an initial view
+      $state.transitionTo(iState);
+      $q.flush();
+
+      // verify if ng-repeat has been compiled
+      expect(elem.find('li').length).toBe(scope.items.length);
+
+      // transition to another state that replace the initial content
+      $state.transitionTo(jState);
+      $q.flush();
+
+      expect(elem.text()).toBe('jState');
+
+      // transition back to the state with empty subview and the initial view
+      $state.transitionTo(iState);
+      $q.flush();
+
+      // verify if the initial view is correct
+      expect(elem.find('li').length).toBe(scope.items.length);
+
+      // change scope properties
+      scope.$apply(function () {
+        scope.items.push(".", "Working?");
+      });
+
+      // verify if the initial view has been updated
+      expect(elem.find('li').length).toBe(scope.items.length);
     }));
   });
 
