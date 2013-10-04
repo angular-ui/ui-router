@@ -61,7 +61,11 @@ describe('state', function () {
       })
 
       .state('first', { url: '^/first/subpath' })
-      .state('second', { url: '^/second' });
+      .state('second', { url: '^/second' })
+
+      .state('child', { parent: 'home', url: '/child' })
+
+      .state('not-child', { url: '/not-child' });
 
     $provide.value('AppInjectable', AppInjectable);
   }));
@@ -344,16 +348,35 @@ describe('state', function () {
       expect($state.$current.name).toBe('home');
 
 
-      // Transition to a child state
+      // Transition to a child state configured that infers parent from the state name
       $state.go(".item", { id: 5 }); $q.flush();
       expect($state.$current.name).toBe('home.item');
 
+      // Transition to a child state that uses the parent attribute rather than state name
+      $state.go("home"); $q.flush();
+      $state.go(".child"); $q.flush();
+      expect($state.$current.name).toBe('child');
+
+      // Should not be qable to transition to a child state without a valid parent
+      $state.go("home"); $q.flush();
+      expect(function(){
+        $state.go(".not-child"); $q.flush();
+      }).toThrow("Could not resolve '.not-child' from state 'home'");
+
       // Transition to grandparent's sibling through root
       // (Equivalent to absolute transition, assuming the root is known).
+      $state.go(".item", { id: 5 }); $q.flush();
       $state.go("^.^.about"); $q.flush();
       expect($state.$current.name).toBe('about');
 
+      // Transition to grandparent's sibling through defined with parent attribute.
+      // (Equivalent to absolute transition, assuming the root is known).
+      $state.go("^.home.child"); $q.flush();
+      expect($state.$current.name).toBe('child');
+
+
       // Transition to grandchild
+      $state.go("about"); $q.flush();
       $state.go(".person.item", { person: "bob", id: 13 }); $q.flush();
       expect($state.$current.name).toBe('about.person.item');
 
@@ -526,6 +549,7 @@ describe('state', function () {
       expect($state.get('Z')).toBeNull();
     }));
 
+
     it("should return all of the state's config", inject(function ($state) {
       var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
       var names = [
@@ -544,9 +568,12 @@ describe('state', function () {
         'about.person.item',
         'about.sidebar',
         'about.sidebar.item',
+        'child',
         'first',
         'home',
+        'home.child',
         'home.item',
+        'not-child',
         'second'
       ];
       expect(list.map(function(state) { return state.name; })).toEqual(names);
