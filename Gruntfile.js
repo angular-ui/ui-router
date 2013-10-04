@@ -12,6 +12,7 @@ module.exports = function (grunt) {
   // Project configuration.
   grunt.initConfig({
     builddir: 'build',
+    releasedir: 'release',
     pkg: grunt.file.readJSON('package.json'),
     buildtag: '-dev-' + grunt.template.today('yyyy-mm-dd'),
     meta: {
@@ -148,7 +149,7 @@ module.exports = function (grunt) {
   grunt.registerTask('perform-release', function () {
     grunt.task.requires([ 'prepare-release', 'dist' ]);
 
-    var version = grunt.config('pkg.version'), releasedir = grunt.config('builddir');
+    var version = grunt.config('pkg.version'), releasedir = grunt.config('releasedir');
     promising(this,
       system('git add -f \'' + releasedir + '\'').then(function () {
         return system('git commit -m \'release ' + version + '\'');
