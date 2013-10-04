@@ -64,6 +64,8 @@ describe('state', function () {
       .state('second', { url: '^/second' })
 
       .state('child', { parent: 'home', url: '/child' })
+      .state('nested-child', { parent: 'child'})
+      .state('nested-nested-child', { parent: 'nested-child' })
 
       .state('not-child', { url: '/not-child' });
 
@@ -357,6 +359,14 @@ describe('state', function () {
       $state.go(".child"); $q.flush();
       expect($state.$current.name).toBe('child');
 
+      // Transition to a nested child state that uses the parent attribute rather than state name
+      $state.go(".nested-child"); $q.flush();
+      expect($state.$current.name).toBe('child.nested-child');
+
+      // Transition to a nested child state whose that is also a nested state using the parent attribute
+      $state.go(".nested-nested-child"); $q.flush();
+      expect($state.$current.name).toBe('child.nested-child.nested-nested-child');
+
       // Should not be qable to transition to a child state without a valid parent
       $state.go("home"); $q.flush();
       expect(function(){
@@ -549,7 +559,6 @@ describe('state', function () {
       expect($state.get('Z')).toBeNull();
     }));
 
-
     it("should return all of the state's config", inject(function ($state) {
       var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
       var names = [
@@ -569,10 +578,17 @@ describe('state', function () {
         'about.sidebar',
         'about.sidebar.item',
         'child',
+        'child.nested-child',
+        'child.nested-child.nested-nested-child',
         'first',
         'home',
         'home.child',
+        'home.child.nested-child',
+        'home.child.nested-child.nested-nested-child',
         'home.item',
+        'nested-child',
+        'nested-child.nested-nested-child',
+        'nested-nested-child',
         'not-child',
         'second'
       ];
