@@ -210,7 +210,30 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     /*jshint validthis: true */
     if (isObject(name)) definition = name;
     else definition.name = name;
-    registerState(definition);
+
+    var state = registerState(definition),
+        parent = state.parent,
+        nameParts = [state.name, parent.name];
+
+    // Register aliases necessary for the 
+    // following state syntax to work:
+    //
+    //    .state('foo')
+    //    .state('bar', { parent: 'foo' })
+    //    .state('baz', { parent: 'bar' })
+    //
+    if(parent.name !== "" && state.name.indexOf(state.parent.name) !== 0) {
+      while(true){
+        var aliasDefinition = copy(definition);
+        aliasDefinition.name = nameParts.concat([]).reverse().join('.');
+        registerState(aliasDefinition);
+
+        parent = parent.parent;
+        if(parent.name === "") break;
+        nameParts.push(parent.name);
+      }
+    }
+
     return this;
   }
 
