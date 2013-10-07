@@ -176,8 +176,8 @@ interfaces more effectively by nesting your views, and pairing those views with 
     <div ui-view="viewA"></div>
     <div ui-view="viewB"></div>
     <!-- Also a way to navigate -->
-    <a ui-sref="state1">State 1</a>
-    <a ui-sref="state2">State 2</a>
+    <a ui-sref="route1">Route 1</a>
+    <a ui-sref="route2">Route 2</a>
 </body>
 ```
 
