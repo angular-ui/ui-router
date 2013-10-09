@@ -136,10 +136,12 @@ module.exports = function (grunt) {
 
     promising(this,
       ensureCleanMaster().then(function () {
+        console.log("THEN");
         return exec('git tag -l \'' + version + '\'');
       }).then(function (result) {
         if (result.stdout.trim() !== '') throw 'Tag \'' + version + '\' already exists';
         grunt.config('buildtag', '');
+        console.log("THEN");
         grunt.config('builddir', 'release');
       })
     );
@@ -149,11 +151,12 @@ module.exports = function (grunt) {
     grunt.task.requires([ 'prepare-release', 'dist' ]);
 
     var version = grunt.config('pkg.version'), releasedir = grunt.config('builddir');
+    console.log("release dir: " + releasedir);
     promising(this,
-      system('git add \'' + releasedir + '\'').then(function () {
-        return system('git commit -m \'release ' + version + '\'');
+      system('git add -f \'' + releasedir + '\'').then(function () {
+       // return system('git commit -m \'release ' + version + '\'');
       }).then(function () {
-        return system('git tag \'' + version + '\'');
+       // return system('git tag \'' + version + '\'');
       })
     );
   });
