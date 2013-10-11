@@ -216,6 +216,7 @@ myApp.config(function($stateProvider, $routeProvider){
 
 ## Resources
 
+* [Introduction Video](http://egghead.io/lessons/angularjs-introduction-ui-router)
 * [In-Depth Overview](https://github.com/angular-ui/ui-router/wiki)
 * [API Quick Reference](https://github.com/angular-ui/ui-router/wiki/Quick-Reference)
 * [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/master/sample))
