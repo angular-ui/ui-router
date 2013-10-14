@@ -133,7 +133,7 @@ myApp.config(function($stateProvider, $urlRouterProvider) {
     })
     .state('state1.list', {
       url: "/list",
-      templateUrl: "partials/1.list.html",
+      templateUrl: "partials/state1.list.html",
       controller: function($scope) {
         $scope.items = ["A", "List", "Of", "Items"];
       }
