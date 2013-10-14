@@ -25,7 +25,7 @@ describe('state', function () {
       E = { params: [ 'i' ] },
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
-      HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} }
+      HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
       AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -86,7 +86,6 @@ describe('state', function () {
     $q.flush();
     expect($state.current).toBe(state);
   }
-
 
   describe('.transitionTo()', function () {
     it('returns a promise for the target state', inject(function ($state, $q) {
@@ -714,5 +713,40 @@ describe('state', function () {
       expect($state.$current.views['viewB@'].templateProvider()).toBe('Template for viewB@');
     }));
 
+  });
+});
+
+describe('state queue', function(){
+  angular.module('ui.router.queue.test', ['ui.router.queue.test.dependency'])
+    .config(function($stateProvider) {
+      $stateProvider
+        .state('queue-test-a', {})
+        .state('queue-test-b-child', { parent: 'queue-test-b' })
+        .state('queue-test-b', {});
+    });
+  angular.module('ui.router.queue.test.dependency', [])
+    .config(function($stateProvider) {
+      $stateProvider
+        .state('queue-test-a.child', {})
+    });
+
+  var expectedStates = ['','queue-test-a', 'queue-test-a.child', 'queue-test-b', 'queue-test-b-child'];
+
+  it('should work across modules', function() {
+    module('ui.router.queue.test', 'ui.router.queue.test.dependency');
+
+    inject(function ($state) {
+      var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
+      expect(list.map(function(state) { return state.name; })).toEqual(expectedStates);
+    });
+  });
+
+  it('should work when parent is name string', function() {
+    module('ui.router.queue.test', 'ui.router.queue.test.dependency');
+
+    inject(function ($state) {
+      var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
+      expect(list.map(function(state) { return state.name; })).toEqual(expectedStates);
+    });
   });
 });
