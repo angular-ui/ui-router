@@ -1,6 +1,15 @@
 /*jshint browser: true, indent: 2 */
 /*global describe: false, it: false, beforeEach: false, expect: false, resolvedValue: false, module: false, inject: false, angular: false */
 
+/*innerText shim for Firefox */
+function innerText(elem) {
+  if (/firefox/i.test(navigator.userAgent)) {
+    return elem.textContent;
+  } else {
+    return elem.innerText;
+  }
+}
+
 describe('uiView', function () {
   'use strict';
 
@@ -119,8 +128,8 @@ describe('uiView', function () {
       $state.transitionTo(dState);
       $q.flush();
 
-      expect(elem[0].querySelector('.dview1').innerText).toBe(dState.views.dview1.template);
-      expect(elem[0].querySelector('.dview2').innerText).toBe(dState.views.dview2.template);
+      expect(innerText(elem[0].querySelector('.dview1'))).toBe(dState.views.dview1.template);
+      expect(innerText(elem[0].querySelector('.dview2'))).toBe(dState.views.dview2.template);
     }));
 
     it('should handle nested ui-views (testing two levels deep)', inject(function ($state, $q) {
@@ -129,7 +138,7 @@ describe('uiView', function () {
       $state.transitionTo(fState);
       $q.flush();
 
-      expect(elem[0].querySelector('.view').querySelector('.eview').innerText).toBe(fState.views.eview.template);
+      expect(innerText(elem[0].querySelector('.view').querySelector('.eview'))).toBe(fState.views.eview.template);
     }));
   });
 
@@ -143,7 +152,7 @@ describe('uiView', function () {
       $state.transitionTo(gState);
       $q.flush();
 
-      expect(elem[0].querySelector('.test').innerText).toBe(content);
+      expect(innerText(elem[0].querySelector('.test'))).toBe(content);
     }));
 
     it('initial view should be put back after removal of the view', inject(function ($state, $q) {
@@ -161,7 +170,42 @@ describe('uiView', function () {
       $state.transitionTo(gState);
       $q.flush();
 
-      expect(elem[0].querySelector('.test').innerText).toBe(content);
+      expect(innerText(elem[0].querySelector('.test'))).toBe(content);
+    }));
+
+    // related to issue #435
+    it('initial view should be transcluded once to prevent breaking other directives', inject(function ($state, $q) {
+      scope.items = ["I", "am", "a", "list", "of", "items"];
+
+      elem.append($compile('<div ui-view></div>')(scope));
+
+      // transition to state that has an initial view
+      $state.transitionTo(iState);
+      $q.flush();
+
+      // verify if ng-repeat has been compiled
+      expect(elem.find('li').length).toBe(scope.items.length);
+
+      // transition to another state that replace the initial content
+      $state.transitionTo(jState);
+      $q.flush();
+
+      expect(elem.text()).toBe('jState');
+
+      // transition back to the state with empty subview and the initial view
+      $state.transitionTo(iState);
+      $q.flush();
+
+      // verify if the initial view is correct
+      expect(elem.find('li').length).toBe(scope.items.length);
+
+      // change scope properties
+      scope.$apply(function () {
+        scope.items.push(".", "Working?");
+      });
+
+      // verify if the initial view has been updated
+      expect(elem.find('li').length).toBe(scope.items.length);
     }));
 
     // related to issue #435
