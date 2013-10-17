@@ -161,7 +161,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
     var name = state.name;
     if (!isString(name) || name.indexOf('@') >= 0) throw new Error("State must have a valid name");
-    if (states[name]) throw new Error("State '" + name + "'' is already defined");
+    if (states.hasOwnProperty(name)) throw new Error("State '" + name + "'' is already defined");
 
     // Get parent name
     var parentName =

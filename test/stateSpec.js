@@ -87,6 +87,17 @@ describe('state', function () {
     expect($state.current).toBe(state);
   }
 
+  describe('provider', function () {
+    it ('should ignore Object properties when registering states', function () {
+      expect(function() {
+        stateProvider.state('toString', { url: "/to-string" });
+      }).not.toThrow();
+      expect(function() {
+        stateProvider.state('watch', { url: "/watch" });
+      }).not.toThrow();
+    });
+  });
+
   describe('.transitionTo()', function () {
     it('returns a promise for the target state', inject(function ($state, $q) {
       var trans = $state.transitionTo(A, {});
