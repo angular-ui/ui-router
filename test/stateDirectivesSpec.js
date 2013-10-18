@@ -54,12 +54,14 @@ describe('uiStateRef', function() {
 
   describe('links with promises', function() {
     it('should update the href when promises on parameters change before scope is applied', inject(function($rootScope, $compile, $q) {
-      promise = $q.defer()
+      // NOTE: This test fails with Angular 1.2.rc3 due to promise unwrapping in templates is disabled by default.
+      var deferred = $q.defer()
       el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })">Details</a>');
       scope = $rootScope;
-      scope.contact = promise.promise;
-      promise.resolve({id: 6});
+      scope.contact = deferred.promise;
+      deferred.resolve({id: 6});
       scope.$apply();
+
       $compile(el)(scope);
       scope.$digest();
 
