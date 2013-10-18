@@ -1,6 +1,15 @@
 /*jshint browser: true, indent: 2 */
 /*global describe: false, it: false, beforeEach: false, expect: false, resolvedValue: false, module: false, inject: false, angular: false */
 
+/*innerText shim for Firefox */
+function innerText(elem) {
+  if (/firefox/i.test(navigator.userAgent)) {
+    return elem.textContent;
+  } else {
+    return elem.innerText;
+  }
+}
+
 describe('uiView', function () {
   'use strict';
 
@@ -130,12 +139,12 @@ describe('uiView', function () {
       $q.flush();
 
       expect($animate.flushNext('leave').element.text()).toBe('');
-      expect($animate.flushNext('enter').element.parent()[0].querySelector('.view').querySelector('.eview').innerText).toBe(fState.views.eview.template);
+      expect(innerText($animate.flushNext('enter').element.parent()[0].querySelector('.view').querySelector('.eview'))).toBe(fState.views.eview.template);
     }));
   });
 
   describe('handling initial view', function () {
-    it('initial view should be compiled if the view is empty', inject(function ($state, $q, $animate) {
+    it('should be compiled if the view is empty', inject(function ($state, $q, $animate) {
       var content = 'inner content';
 
       elem.append($compile('<div ui-view></div>')(scope));
@@ -144,14 +153,19 @@ describe('uiView', function () {
       $state.transitionTo(gState);
       $q.flush();
 
+      // Leave elem
       expect($animate.flushNext('leave').element.text()).toBe("");
-      expect($animate.flushNext('enter').element.text()).toBe(content);
-
-      // For some reason the ng-class expression is no longer evaluated
-      expect($animate.flushNext('addClass').element.parent()[0].querySelector('.test').innerText).toBe(content);
+      // Enter and leave ui-view insert of template
+      $animate.flushNext('enter');
+      $animate.flushNext('leave');
+      // Enter again after $scope.digest()
+      expect($animate.flushNext('enter').element.text()).toEqual(content);
+      // Evaluate addClass
+      var item = $animate.flushNext('addClass').element;
+      expect(item.text()).toEqual(content);
     }));
 
-    it('initial view should be put back after removal of the view', inject(function ($state, $q, $animate) {
+    it('should be put back after removal of the view', inject(function ($state, $q, $animate) {
       var content = 'inner content';
 
       elem.append($compile('<div ui-view></div>')(scope));
@@ -160,11 +174,12 @@ describe('uiView', function () {
       $state.transitionTo(hState);
       $q.flush();
 
+      expect($animate.queue.length).toEqual(4);
       expect($animate.flushNext('leave').element.text()).toBe('');
       expect($animate.flushNext('enter').element.text()).toBe(hState.views.inner.template);
 
-      expect($animate.flushNext('addClass').element.text()).toBe(hState.views.inner.template);
-      expect($animate.flushNext('addClass').element.text()).toBe(hState.views.inner.template);
+      // Remove the addClass observers which have been replaced.
+      $animate.queue = [];
 
       // going to the parent state which makes the inner view empty
       $state.transitionTo(gState);
