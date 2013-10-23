@@ -59,6 +59,12 @@ describe('state', function () {
           return "/templates/" + params.item + ".html";
         }
       })
+      .state('home.redirect', {
+        url: "redir",
+        onEnter: function($state) {
+          $state.transitionTo("about");
+        }
+      })
 
       .state('first', { url: '^/first/subpath' })
       .state('second', { url: '^/second' });
@@ -306,8 +312,13 @@ describe('state', function () {
       $q.flush();
       expect($state.current).toBe(A);
       expect(resolvedError(superseded)).toBeTruthy();
-      expect(log).toBe(
-        '$stateChangeStart(B,A);');
+      expect(log).toBe('$stateChangeStart(B,A);');
+    }));
+
+    it('aborts pending transitions when aborted from callbacks', inject(function ($state, $q) {
+      var superseded = $state.transitionTo('home.redirect');
+      $q.flush();
+      expect($state.current.name).toBe('about');
     }));
 
     it('triggers onEnter and onExit callbacks', inject(function ($state, $q) {
@@ -557,6 +568,7 @@ describe('state', function () {
         'first',
         'home',
         'home.item',
+        'home.redirect',
         'second'
       ];
       expect(list.map(function(state) { return state.name; })).toEqual(names);
