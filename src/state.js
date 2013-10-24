@@ -264,7 +264,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     $state.transitionTo = function transitionTo(to, toParams, options) {
       if (!isDefined(options)) options = (options === true || options === false) ? { location: options } : {};
       toParams = toParams || {};
-      options = extend({ location: true, inherit: false, relative: null, $retry: false }, options);
+      options = extend({ location: true, inherit: false, relative: null, notify: true, $retry: false }, options);
 
       var from = $state.$current, fromParams = $state.params, fromPath = from.path;
 
@@ -331,8 +331,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       toParams = normalize(to.params, toParams || {});
 
       // Broadcast start event and cancel the transition if requested
-      evt = $rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams);
-      if (evt.defaultPrevented) return TransitionPrevented;
+      if (options.notify) {
+        evt = $rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams);
+        if (evt.defaultPrevented) return TransitionPrevented;
+      }
 
       // Resolve locals for the remaining states, but don't update any global state just
       // yet -- if anything fails to resolve the current state needs to remain untouched.
@@ -394,7 +396,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
           }
         }
 
-        $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
+        if (options.notify) {
+          $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
+        }
 
         return $state.current;
       }, function (error) {
