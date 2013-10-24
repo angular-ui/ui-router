@@ -504,7 +504,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
         promises.push($resolve.resolve(injectables, locals, dst.resolve, state).then(function (result) {
           // References to the controller (only instantiated at link time)
-          result.$$controller = view.controller;
+          if (isFunction(view.controllerProvider)) {
+            result.$$controller = $injector.invoke(
+              view.controllerProvider, null, angular.extend({}, injectables, locals)
+            );
+          } else {
+            result.$$controller = view.controller;
+          }
           // Provide access to the state itself for internal use
           result.$$state = state;
           dst[name] = result;

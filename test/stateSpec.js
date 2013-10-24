@@ -1,6 +1,6 @@
 describe('state', function () {
 
-  var stateProvider, locationProvider, templateParams;
+  var stateProvider, locationProvider, templateParams, ctrlName;
 
   beforeEach(module('ui.router', function($locationProvider) {
     locationProvider = $locationProvider;
@@ -57,6 +57,14 @@ describe('state', function () {
         templateUrl: function(params) {
           templateParams = params;
           return "/templates/" + params.item + ".html";
+        }
+      })
+      .state('dynamicController', {
+        url: "/dynamic/:type",
+        template: "test",
+        controllerProvider: function($stateParams) {
+          ctrlName = $stateParams.type + "Controller";
+          return ctrlName;
         }
       })
       .state('home.redirect', {
@@ -382,6 +390,12 @@ describe('state', function () {
       var err = "Could not resolve '^.Z' from state 'DD'";
       expect(function() { $state.transitionTo("^.Z", null, { relative: $state.$current }); }).toThrow(err);
     }));
+
+    it('uses the controllerProvider to get controller dynamically', inject(function ($state, $q) {
+      $state.transitionTo('dynamicController', { type: "Acme" });
+      $q.flush();
+      expect(ctrlName).toEqual("AcmeController");
+    }));
   });
 
   describe('.go()', function () {
@@ -595,6 +609,7 @@ describe('state', function () {
         'about.person.item',
         'about.sidebar',
         'about.sidebar.item',
+        'dynamicController',
         'first',
         'home',
         'home.item',
