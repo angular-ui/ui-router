@@ -97,6 +97,13 @@ describe("UrlMatcher", function () {
     expect(new UrlMatcher('/users/:id').format({ id:'100%'})).toEqual('/users/100%25');
   });
 
+  it(".format() encodes URL parameters with hashes", function () {
+    expect(
+      new UrlMatcher('/users/:id#:section')
+        .format({ id: 'bob', section: 'contact-details' }))
+    .toEqual('/users/bob#contact-details');
+  });
+
   it(".concat() concatenates matchers", function () {
     var matcher = new UrlMatcher('/users/:id/details/{type}?from').concat('/{repeat:[0-9]+}?to');
     var params = matcher.parameters();
