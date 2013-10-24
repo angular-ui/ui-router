@@ -73,6 +73,14 @@ describe('state', function () {
           $state.transitionTo("about");
         }
       })
+      .state('resolveFail', {
+        url: "/resolve-fail",
+        resolve: {
+          badness: function($q) {
+            return $q.reject("!");
+          }
+        }
+      })
 
       .state('first', { url: '^/first/subpath' })
       .state('second', { url: '^/second' });
@@ -614,6 +622,7 @@ describe('state', function () {
         'home',
         'home.item',
         'home.redirect',
+        'resolveFail',
         'second'
       ];
       expect(list.map(function(state) { return state.name; })).toEqual(names);
@@ -652,6 +661,17 @@ describe('state', function () {
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
       expect($state.current.name).toBe('');
+    }));
+
+    it('should revert to last known working url on state change failure', inject(function ($state, $rootScope, $location, $q) {
+      $state.transitionTo("about");
+      $q.flush();
+
+      $location.path("/resolve-fail");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+
+      expect($state.current.name).toBe("about");
     }));
 
     it('should replace browser history when "replace" enabled', inject(function ($state, $rootScope, $location, $q) {

@@ -248,6 +248,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     var TransitionPrevented = $q.reject(new Error('transition prevented'));
     var TransitionAborted = $q.reject(new Error('transition aborted'));
     var TransitionFailed = $q.reject(new Error('transition failed'));
+    var currentLocation = $location.url();
+
+    function syncUrl() {
+      if ($location.url() !== currentLocation) {
+        $location.url(currentLocation);
+        $location.replace();
+      }
+    }
 
     root.locals = { resolve: null, globals: { $stateParams: {} } };
     $state = {
@@ -267,20 +275,23 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       options = extend({ location: true, inherit: false, relative: null, notify: true, $retry: false }, options);
 
       var from = $state.$current, fromParams = $state.params, fromPath = from.path;
-
-      var toState = findState(to, options.relative);
-
-      var evt;
+      var evt, toState = findState(to, options.relative);
 
       if (!isDefined(toState)) {
         // Broadcast not found event and abort the transition if prevented
         var redirect = { to: to, toParams: toParams, options: options };
         evt = $rootScope.$broadcast('$stateNotFound', redirect, from.self, fromParams);
-        if (evt.defaultPrevented) return TransitionAborted;
+        if (evt.defaultPrevented) {
+          syncUrl();
+          return TransitionAborted;
+        }
 
         // Allow the handler to return a promise to defer state lookup retry
         if (evt.retry) {
-          if (options.$retry) return TransitionFailed;
+          if (options.$retry) {
+            syncUrl();
+            return TransitionFailed;
+          }
           var retryTransition = $state.transition = $q.when(evt.retry);
           retryTransition.then(function() {
             if (retryTransition !== $state.transition) return TransitionSuperseded;
@@ -290,6 +301,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
           function() {
             return TransitionAborted;
           });
+          syncUrl();
           return retryTransition;
         }
 
@@ -323,6 +335,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // TODO: We may not want to bump 'transition' if we're called from a location change that we've initiated ourselves,
       // because we might accidentally abort a legitimate transition initiated from code?
       if (to === from && locals === from.locals) {
+        syncUrl();
         $state.transition = null;
         return $q.when($state.current);
       }
@@ -333,7 +346,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // Broadcast start event and cancel the transition if requested
       if (options.notify) {
         evt = $rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams);
-        if (evt.defaultPrevented) return TransitionPrevented;
+        if (evt.defaultPrevented) {
+          syncUrl();
+          return TransitionPrevented;
+        }
       }
 
       // Resolve locals for the remaining states, but don't update any global state just
@@ -399,6 +415,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         if (options.notify) {
           $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
         }
+        currentLocation = $location.url();
 
         return $state.current;
       }, function (error) {
@@ -406,6 +423,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
         $state.transition = null;
         $rootScope.$broadcast('$stateChangeError', to.self, toParams, from.self, fromParams, error);
+        syncUrl();
 
         return $q.reject(error);
       });
