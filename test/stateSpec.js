@@ -608,6 +608,38 @@ describe('state', function () {
       $rootScope.$apply();
       expect($state.current.name).toBe('');
     }));
+
+    it('should replace browser history when "replace" enabled', inject(function ($state, $rootScope, $location, $q) {
+      var originalReplaceFn = $location.replace, replaceWasCalled = false;
+
+      // @todo Replace this with a spy
+      var decoratedReplaceFn = function() {
+        replaceWasCalled = true;
+        originalReplaceFn.call($location);
+      };
+      $location.replace = decoratedReplaceFn;
+
+      $state.transitionTo('about', {}, { location: 'replace' });
+      $q.flush();
+
+      expect(replaceWasCalled).toEqual(true);
+    }));
+
+    it('should not replace history normally', inject(function ($state, $rootScope, $location, $q) {
+      var originalReplaceFn = $location.replace, replaceWasCalled = false;
+
+      // @todo Replace with spy
+      var decoratedReplaceFn = function() {
+        replaceWasCalled = true;
+        originalReplaceFn.call($location);
+      };
+      $location.replace = decoratedReplaceFn;
+
+      $state.transitionTo('about');
+      $q.flush();
+
+      expect(replaceWasCalled).toEqual(false);
+    }));
   });
 
   describe('default properties', function() {
