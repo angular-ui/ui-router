@@ -90,6 +90,16 @@ describe('uiStateRef', function() {
       expect(el.attr('href')).toBe('#/contacts/6');
     });
 
+    it('should allow multi-line attribute values', inject(function($compile, $rootScope) {
+      el = angular.element("<a ui-sref=\"contacts.item.detail({\n\tid: $index\n})\">Details</a>");
+      $rootScope.$index = 3;
+      $rootScope.$apply();
+
+      $compile(el)($rootScope);
+      $rootScope.$digest();
+      expect(el.attr('href')).toBe('#/contacts/3');
+    }));
+
     it('should transition states when left-clicked', inject(function($state, $stateParams, $document, $q) {
       expect($state.$current.name).toEqual('');
 
