@@ -163,7 +163,7 @@ myApp.config(function($stateProvider, $urlRouterProvider) {
 
 Another great feature is the ability to have multiple `ui-view`s view per template.
 
-**Pro Tip:** *While mulitple parallel views are a powerful feature, you'll often be able to manage your
+**Pro Tip:** *While multiple parallel views are a powerful feature, you'll often be able to manage your
 interfaces more effectively by nesting your views, and pairing those views with nested states.*
 
 **(1)** Follow the [setup](#get-started) instructions detailed above.
@@ -247,7 +247,7 @@ keeps development streamlined, and helps us focus on building great software.
 
 **(1)** See the **[Developing](#developing)** section below, to get the development version of UI-Router up and running on your local machine.
 
-**(2)** Check out the [roadmap](https://github.com/angular-ui/ui-router/issues/milestones) to see where the project is headed, and if your feature idea fits with where we're headded.
+**(2)** Check out the [roadmap](https://github.com/angular-ui/ui-router/issues/milestones) to see where the project is headed, and if your feature idea fits with where we're headed.
 
 **(3)** If you're not sure, [open an RFC](https://github.com/angular-ui/ui-router/issues/new?title=RFC:%20My%20idea) to get some feedback on your idea.
 
