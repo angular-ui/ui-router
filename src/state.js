@@ -147,7 +147,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     if (!queue[parentName]) {
       queue[parentName] = [];
     }
-
     queue[parentName].push(state);
   }
 
@@ -164,8 +163,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     if (states.hasOwnProperty(name)) throw new Error("State '" + name + "'' is already defined");
 
     // Get parent name
-    var parentName =
-      (name.indexOf('.') !== -1) ? name.substring(0, name.lastIndexOf('.'))
+    var parentName = (name.indexOf('.') !== -1) ? name.substring(0, name.lastIndexOf('.'))
         : (isString(state.parent)) ? state.parent
         : '';
 
@@ -265,14 +263,19 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       transition: null
     };
 
+    $state.reload = function reload() {
+      $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: false });
+    };
+
     $state.go = function go(to, params, options) {
       return this.transitionTo(to, params, extend({ inherit: true, relative: $state.$current }, options));
     };
 
     $state.transitionTo = function transitionTo(to, toParams, options) {
-      if (!isDefined(options)) options = (options === true || options === false) ? { location: options } : {};
       toParams = toParams || {};
-      options = extend({ location: true, inherit: false, relative: null, notify: true, $retry: false }, options);
+      options = extend({
+        location: true, inherit: false, relative: null, notify: true, reload: false, $retry: false
+      }, options || {});
 
       var from = $state.$current, fromParams = $state.params, fromPath = from.path;
       var evt, toState = findState(to, options.relative);
@@ -297,8 +300,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
             if (retryTransition !== $state.transition) return TransitionSuperseded;
             redirect.options.$retry = true;
             return $state.transitionTo(redirect.to, redirect.toParams, redirect.options);
-          },
-          function() {
+          }, function() {
             return TransitionAborted;
           });
           syncUrl();
@@ -325,7 +327,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // Starting from the root of the path, keep all levels that haven't changed
       var keep, state, locals = root.locals, toLocals = [];
       for (keep = 0, state = toPath[keep];
-           state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams);
+           state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams) && !options.reload;
            keep++, state = toPath[keep]) {
         locals = toLocals[keep] = state.locals;
       }
@@ -334,7 +336,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // But clear 'transition', as we still want to cancel any other pending transitions.
       // TODO: We may not want to bump 'transition' if we're called from a location change that we've initiated ourselves,
       // because we might accidentally abort a legitimate transition initiated from code?
-      if (to === from && locals === from.locals) {
+      if (to === from && locals === from.locals && !options.reload) {
         syncUrl();
         $state.transition = null;
         return $q.when($state.current);

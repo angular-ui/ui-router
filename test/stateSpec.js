@@ -81,6 +81,14 @@ describe('state', function () {
           }
         }
       })
+      .state('resolveTimeout', {
+        url: "/:foo",
+        resolve: {
+          value: function ($timeout) {
+            return $timeout(function() { log += "Success!"; }, 1);
+          }
+        }
+      })
 
       .state('first', { url: '^/first/subpath' })
       .state('second', { url: '^/second' });
@@ -455,6 +463,22 @@ describe('state', function () {
     }));
   });
 
+  describe('.reload()', function () {
+    it('should reload the current state with the current parameters', inject(function ($state, $q, $timeout) {
+      $state.transitionTo('resolveTimeout', { foo: "bar" });
+      $q.flush();
+      expect(log).toBe('');
+
+      $timeout.flush();
+      expect(log).toBe('Success!');
+
+      $state.reload();
+      $q.flush();
+      $timeout.flush();
+      expect(log).toBe('Success!Success!');
+    }));
+  });
+
   describe('.is()', function () {
     it('should return true when the current state is passed', inject(function ($state, $q) {
       $state.transitionTo(A); $q.flush();
@@ -623,6 +647,7 @@ describe('state', function () {
         'home.item',
         'home.redirect',
         'resolveFail',
+        'resolveTimeout',
         'second'
       ];
       expect(list.map(function(state) { return state.name; })).toEqual(names);
