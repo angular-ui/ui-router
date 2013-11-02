@@ -1,39 +1,51 @@
 
-$ViewDirective.$inject = ['$state', '$compile', '$controller', '$anchorScroll', '$injector'];
-function $ViewDirective($state, $compile, $controller, $anchorScroll, $injector) {
+$ViewDirective.$inject = ['$state', '$compile', '$controller', '$anchorScroll', '$injector', '$rootScope'];
+function $ViewDirective($state, $compile, $controller, $anchorScroll, $injector, $rootScope) {
 
   var viewIsUpdating = false,
       $animate = $injector.has('$animate') ? $injector.get('$animate') : null;
 
-  // Returns a set of DOM manipulation functions based on whether animation
-  // should be performed
-  var renderer = function (doAnimate) {
-    return ({
-      "true": {
-        leave: function (element) { $animate.leave(element); },
-        enter: function (element, anchor) { $animate.enter(element, null, anchor); }
-      },
-      "false": {
-        leave: function (element) { element.remove(); },
-        enter: function (element, anchor) { anchor.after(element); }
-      }
-    })[($animate && doAnimate).toString()];
-  };
-
   var directive = {
     restrict: 'ECA',
-    compile: function (element, attrs) {
-      var defaultContent = element.html(), isDefault = true,
-          anchor = angular.element(document.createComment(' ui-view '));
+    priority: 1000,
+    terminal: true,
+    transclude: 'element',
+    compile: function (element, attrs, transclude) {
+      return function ($scope, $element, $attrs) {
+        // Returns a set of DOM manipulation functions based on whether animation
+        // should be performed
+        var renderer = function (doAnimate) {
+          function animationEvent(animationType) {
+            $rootScope.$broadcast('$viewAnimationStart', animationType, $state.$current);
+            return function() {
+              $rootScope.$broadcast('$viewAnimationEnd', animationType, $state.$current);
+            };
+          }
 
-      element.prepend(anchor);
+          if(doAnimate && $animate) {
+            return {
+              leave: function (view) { $animate.leave(view, animationEvent('leave')); },
+              enter: function (view) { $animate.enter(view, null, $element, animationEvent('enter')); }
+            };
+          }
+          else {
+            return {
+              leave: function (view) { view.remove(); },
+              enter: function (view) { $element.after(view); }
+            };
+          }
+        };
 
-      return function ($scope) {
         var currentScope, currentElement, viewLocals,
+            noop = function() {},
             name = attrs[directive.name] || attrs.name || '',
-            onloadExp = attrs.onload || '';
+            onloadExp = attrs.onload || '',
+            initialView = transclude($scope, noop);
 
-        var parent = element.parent().inheritedData('$uiView');
+        currentElement = initialView;
+        $element.after(currentElement);
+
+        var parent = $element.parent().inheritedData('$uiView');
         if (name.indexOf('@') < 0) name = name + '@' + (parent ? parent.state.name : '');
         var view = { name: name, state: null };
 
@@ -50,70 +62,54 @@ function $ViewDirective($state, $compile, $controller, $anchorScroll, $injector)
 
         $scope.$on('$stateChangeSuccess', eventHook);
         $scope.$on('$viewContentLoading', eventHook);
-
         updateView(false);
-
-        function cleanupLastView() {
-          if (currentElement) {
-            renderer(true).leave(currentElement);
-            currentElement = null;
-          }
-
-          if (currentScope) {
-            currentScope.$destroy();
-            currentScope = null;
-          }
-        }
 
         function updateView(doAnimate) {
           var locals = $state.$current && $state.$current.locals[name],
               render = renderer(doAnimate);
 
-          if (isDefault) {
-            isDefault = false;
-            element.replaceWith(anchor);
+          if (locals === viewLocals) return; // nothing to do
+
+          // remove old view
+          render.leave(currentElement);
+
+          if (currentScope) {
+            currentScope.$destroy();
+            currentScope = null;
           }
 
-          if (!locals) {
-            cleanupLastView();
-            currentElement = element.clone();
-            currentElement.html(defaultContent);
-            render.enter(currentElement, anchor);
-
-            currentScope = $scope.$new();
-            $compile(currentElement.contents())(currentScope);
+          // if empty view, restore initial view
+          if(!locals) {
+            currentElement = initialView;
+            render.enter(currentElement);
+            viewLocals = undefined;
+            view.state = undefined;
             return;
           }
 
-          if (locals === viewLocals) return; // nothing to do
-
-          cleanupLastView();
-
-          currentElement = element.clone();
-          currentElement.html(locals.$template ? locals.$template : defaultContent);
-          render.enter(currentElement, anchor);
-
+          // update the view with a new clone
+          currentElement = transclude($scope, noop);
+          currentElement.html(locals.$template);
           currentElement.data('$uiView', view);
 
           viewLocals = locals;
           view.state = locals.$$state;
 
           var link = $compile(currentElement.contents());
-
           currentScope = $scope.$new();
 
           if (locals.$$controller) {
             locals.$scope = currentScope;
             var controller = $controller(locals.$$controller, locals);
-            currentElement.children().data('$ngControllerController', controller);
+            currentElement.contents().data('$ngControllerController', controller);
           }
 
           link(currentScope);
+          render.enter(currentElement);
 
           currentScope.$emit('$viewContentLoaded');
           if (onloadExp) currentScope.$eval(onloadExp);
 
-          // TODO: This seems strange, shouldn't $anchorScroll listen for $viewContentLoaded if necessary?
           // $anchorScroll might listen on event...
           $anchorScroll();
         }

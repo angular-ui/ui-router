@@ -16,7 +16,7 @@ describe('uiView', function () {
   var scope, $compile, elem;
 
   beforeEach(function() {
-    angular.module('ui.router.test', ['ui.router', 'ngAnimate']);
+    angular.module('ui.router.test', ['ui.router']);
     module('ui.router.test');
     module('mock.animate');
   });
@@ -63,6 +63,14 @@ describe('uiView', function () {
         template: 'hState inner template'
       }
     }
+  },
+  iState = {
+    template: '<div ui-view>'+
+        '<ul><li ng-repeat="item in items">{{item}}</li></ul>'+
+      '</div>'
+  },
+  jState = {
+    template: '<span ng-class="test">jState</span>'
   };
 
   beforeEach(module(function ($stateProvider) {
@@ -74,7 +82,9 @@ describe('uiView', function () {
       .state('e', eState)
       .state('e.f', fState)
       .state('g', gState)
-      .state('g.h', hState);
+      .state('g.h', hState)
+      .state('i', iState)
+      .state('j', jState);
   }));
 
   beforeEach(inject(function ($rootScope, _$compile_) {
@@ -141,6 +151,20 @@ describe('uiView', function () {
       expect($animate.flushNext('leave').element.text()).toBe('');
       expect(innerText($animate.flushNext('enter').element.parent()[0].querySelector('.view').querySelector('.eview'))).toBe(fState.views.eview.template);
     }));
+
+    it('should compile the cloned element', inject(function ($state, $q, $animate) {
+      scope.isTest = false;
+
+      $compile(elem.append('<div ui-view ng-class="{ test: isTest }"></div>'))(scope);
+      
+      scope.isTest = true;
+      scope.$apply();
+
+      $animate.flushNext('addClass');
+
+      var child = angular.element(elem.children()[0]);
+      expect(child.hasClass('test')).toBe(true);
+    }));
   });
 
   describe('handling initial view', function () {
@@ -153,14 +177,9 @@ describe('uiView', function () {
       $state.transitionTo(gState);
       $q.flush();
 
-      // Leave elem
       expect($animate.flushNext('leave').element.text()).toBe("");
-      // Enter and leave ui-view insert of template
-      $animate.flushNext('enter');
-      $animate.flushNext('leave');
-      // Enter again after $scope.digest()
       expect($animate.flushNext('enter').element.text()).toEqual(content);
-      // Evaluate addClass
+
       var item = $animate.flushNext('addClass').element;
       expect(item.text()).toEqual(content);
     }));
@@ -174,7 +193,6 @@ describe('uiView', function () {
       $state.transitionTo(hState);
       $q.flush();
 
-      expect($animate.queue.length).toEqual(4);
       expect($animate.flushNext('leave').element.text()).toBe('');
       expect($animate.flushNext('enter').element.text()).toBe(hState.views.inner.template);
 
@@ -187,6 +205,62 @@ describe('uiView', function () {
 
       expect($animate.flushNext('leave').element.text()).toBe(hState.views.inner.template);
       expect($animate.flushNext('enter').element.text()).toBe(content);
+    }));
+
+    it('initial view should be transcluded once to prevent breaking other directives', inject(function ($state, $q, $animate) {
+      
+      scope.items = ["I", "am", "a", "list", "of", "items"];
+
+      elem.append($compile('<div ui-view></div>')(scope));
+
+      function renderList() {
+        for (var i = 0; i < scope.items.length; i++) {
+          expect($animate.flushNext('enter').element.text()).toBe(scope.items[i]);
+        }
+      }
+
+      // transition to state that has an initial view
+      $state.transitionTo(iState);
+      $q.flush();
+
+      expect($animate.flushNext('leave').element.text()).toBe('');
+      expect($animate.flushNext('enter').element.text()).toBe(''); // ngRepeat items not yet entered
+
+      // render the list items
+      renderList();
+
+      // verify if ng-repeat has been compiled
+      expect(elem.find('li').length).toBe(scope.items.length);
+
+      // transition to another state that replace the initial content
+      $state.transitionTo(jState);
+      $q.flush();
+
+      expect($animate.flushNext('leave').element.text()).toBe(scope.items.join(''));
+      expect($animate.flushNext('enter').element.text()).toBe('jState');
+
+      // transition back to the state with empty subview and the initial view
+      $state.transitionTo(iState);
+      $q.flush();
+
+      expect($animate.flushNext('leave').element.text()).toBe('jState');
+      expect($animate.flushNext('enter').element.text()).toBe(''); // ngRepeat items not yet entered
+
+      renderList();
+
+      // verify if the initial view is correct
+      expect(elem.find('li').length).toBe(scope.items.length);
+
+      // change scope properties
+      scope.$apply(function () {
+        scope.items.push(".", "Working?");
+      });
+
+      expect($animate.flushNext('enter').element.text()).toBe('.');
+      expect($animate.flushNext('enter').element.text()).toBe('Working?');
+
+      // verify if the initial view has been updated
+      expect(elem.find('li').length).toBe(scope.items.length);
     }));
   });
 
