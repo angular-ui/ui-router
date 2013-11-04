@@ -67,7 +67,18 @@ describe('uiView', function () {
   },
   jState = {
     template: '<span ng-class="test">jState</span>'
-  };
+  },
+  kState = {
+    controller: function() { },
+    views: {
+      'v1': {
+        template: 'v1 {{text}}'
+      },
+      'v2': {
+        template: 'v2 {{text}}'
+      }
+    }
+  }
 
   beforeEach(module(function ($stateProvider) {
     $stateProvider
@@ -80,7 +91,8 @@ describe('uiView', function () {
       .state('g', gState)
       .state('g.h', hState)
       .state('i', iState)
-      .state('j', jState);
+      .state('j', jState)
+      .state('k', kState);
   }));
 
   beforeEach(inject(function ($rootScope, _$compile_) {
@@ -206,6 +218,99 @@ describe('uiView', function () {
 
       // verify if the initial view has been updated
       expect(elem.find('li').length).toBe(scope.items.length);
+    }));
+  });
+
+
+  describe('sharing controller across views', function() {
+
+    it('should create controller only once when defined at state level', inject(function($state, $q) {
+      elem.append($compile('<div ui-view="v1"></div><div ui-view="v2"></div>')(scope));
+      var times = 0;
+      kState.controller = function() {
+        times++;
+      }
+
+      $state.transitionTo('k');
+      $q.flush();
+
+      expect(times).toBe(1);
+    }));
+
+    it('should share scope/controller across views with undefined controller', inject(function($state, $q) {
+      elem.append($compile('<div id="v1" ui-view="v1"></div><div id="v2" ui-view="v2"></div>')(scope));
+      kState.controller = function($scope) {
+        $scope.text = 'text';
+      }
+
+      $state.transitionTo('k');
+      $q.flush();
+
+      expect(innerText(elem[0].querySelector('#v1'))).toBe('v1 text');
+      expect(innerText(elem[0].querySelector('#v2'))).toBe('v2 text');
+    }));
+
+    it('should not share scope/controller with views with explicit controller definition', inject(function($state, $q) {
+      elem.append($compile('<div id="v1" ui-view="v1"></div><div id="v2" ui-view="v2"></div>')(scope));
+      kState.controller = function($scope) {
+        $scope.text = 'text';
+      }
+      kState.views.v1.controller = function($scope) {
+        $scope.text = 'other text';
+      }
+
+      $state.transitionTo('k');
+      $q.flush();
+
+      expect(innerText(elem[0].querySelector('#v1'))).toBe('v1 other text');
+      expect(innerText(elem[0].querySelector('#v2'))).toBe('v2 text');
+    }));
+
+    it('should not share scope/controller with views with explicit (null) controller definition', inject(function($state, $q) {
+      elem.append($compile('<div id="v1" ui-view="v1"></div><div id="v2" ui-view="v2"></div>')(scope));
+      kState.controller = function($scope) {
+        $scope.text = 'text';
+      }
+      kState.views.v1.controller = null;
+
+      $state.transitionTo('k');
+      $q.flush();
+
+      expect(innerText(elem[0].querySelector('#v1'))).toBe('v1 ');
+      expect(innerText(elem[0].querySelector('#v2'))).toBe('v2 text');
+    }));
+
+    it('should emit $viewContentLoaded only once even if controller is used in more than one view', inject(function($state, $q) {
+      elem.append($compile('<div id="v1" ui-view="v1"></div><div id="v2" ui-view="v2"></div>')(scope));
+      var times = 0;
+      kState.controller = function($scope) {
+        $scope.$on('$viewContentLoaded', function() {
+          times++;
+        })
+      }
+
+      $state.transitionTo('k');
+      $q.flush();
+
+      expect(times).toBe(1);
+    }));
+
+    it('should emit $destroy only once when leaving even if controller is used in more than one view', inject(function($state, $q) {
+      elem.append($compile('<div id="v1" ui-view="v1"></div><div id="v2" ui-view="v2"></div>')(scope));
+      var times = 0;
+      kState.controller = function($scope) {
+        $scope.$on('$destroy', function() {
+          times++;
+        })
+      }
+
+      $state.transitionTo('k');
+      $q.flush();
+
+      $state.transitionTo('a');
+      $q.flush();
+
+      expect(times).toBe(1);
     }));
   });
 

@@ -95,16 +95,50 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
           view.state = locals.$$state;
 
           var link = $compile(render.populate(locals.$template, element));
-          viewScope = scope.$new();
 
-          if (locals.$$controller) {
-            locals.$scope = viewScope;
-            var controller = $controller(locals.$$controller, locals);
+          var controller;
+          var usesSharedController = !isDefined(locals.$$controller) && locals.$$state.self.controller;
+          if (usesSharedController) {
+
+            var globals = locals.$$state.locals.globals;
+            controller = globals.$$controllerInstance;
+            if (!controller) {
+              viewScope = scope.$new();
+              locals.$scope = viewScope;
+              controller = $controller(locals.$$state.self.controller, locals);
+
+              // save instances for subsequent views
+              globals.$$controllerInstance = controller;
+              globals.$$scopeInstance = viewScope;
+              globals.$$controllerSharedCount = 0;
+            }
+            viewScope = globals.$$scopeInstance;
+            globals.$$controllerSharedCount++;
+
             element.children().data('$ngControllerController', controller);
+
+            link(viewScope);
+
+            var allViewsSharingControllerLoaded = globals.$$controllerSharedCount >= locals.$$state.sharingControllerViewsCount;
+            if (allViewsSharingControllerLoaded) {
+              viewScope.$emit('$viewContentLoaded');
+              if (onloadExp) viewScope.$eval(onloadExp);
+            }
           }
-          link(viewScope);
-          viewScope.$emit('$viewContentLoaded');
-          if (onloadExp) viewScope.$eval(onloadExp);
+          else {
+
+            viewScope = scope.$new();
+
+            if (locals.$$controller) {
+              locals.$scope = viewScope;
+              controller = $controller(locals.$$controller, locals);
+
+              element.children().data('$ngControllerController', controller);
+            }
+            link(viewScope);
+            viewScope.$emit('$viewContentLoaded');
+            if (onloadExp) viewScope.$eval(onloadExp);
+          }
 
           // TODO: This seems strange, shouldn't $anchorScroll listen for $viewContentLoaded if necessary?
           // $anchorScroll might listen on event...
