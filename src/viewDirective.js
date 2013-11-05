@@ -8,16 +8,13 @@ function $ViewDirective($state, $compile, $controller, $anchorScroll, $injector)
   // Returns a set of DOM manipulation functions based on whether animation
   // should be performed
   var renderer = function (doAnimate) {
-    return ({
-      "true": {
+    return $animate && doAnimate ? {
         leave: function (element) { $animate.leave(element); },
         enter: function (element, anchor) { $animate.enter(element, null, anchor); }
-      },
-      "false": {
+      } : {
         leave: function (element) { element.remove(); },
         enter: function (element, anchor) { anchor.after(element); }
-      }
-    })[($animate && doAnimate).toString()];
+    };
   };
 
   var directive = {
@@ -67,7 +64,8 @@ function $ViewDirective($state, $compile, $controller, $anchorScroll, $injector)
 
         function updateView(doAnimate) {
           var locals = $state.$current && $state.$current.locals[name],
-              render = renderer(doAnimate);
+              render = renderer(doAnimate),
+              template = null;
 
           if (isDefault) {
             isDefault = false;
@@ -76,46 +74,59 @@ function $ViewDirective($state, $compile, $controller, $anchorScroll, $injector)
 
           if (!locals) {
             cleanupLastView();
-            currentElement = element.clone();
-            currentElement.html(defaultContent);
-            render.enter(currentElement, anchor);
-
-            currentScope = $scope.$new();
-            $compile(currentElement.contents())(currentScope);
+            
+            if (defaultContent.length) {
+              currentElement = element.clone();
+              currentElement.html(defaultContent);
+              render.enter(currentElement, anchor);
+  
+              currentScope = $scope.$new();
+              $compile(currentElement.contents())(currentScope);
+            }
+            
             return;
           }
 
           if (locals === viewLocals) return; // nothing to do
 
           cleanupLastView();
-
-          currentElement = element.clone();
-          currentElement.html(locals.$template ? locals.$template : defaultContent);
-          render.enter(currentElement, anchor);
-
-          currentElement.data('$uiView', view);
-
-          viewLocals = locals;
-          view.state = locals.$$state;
-
-          var link = $compile(currentElement.contents());
-
-          currentScope = $scope.$new();
-
-          if (locals.$$controller) {
-            locals.$scope = currentScope;
-            var controller = $controller(locals.$$controller, locals);
-            currentElement.children().data('$ngControllerController', controller);
+          
+          if (locals.$template.length) {
+            template = locals.$template;
           }
+          else if (defaultContent.length) {
+            template = defaultContent;
+          }
+          
+          if (template !== null) {
+            currentElement = element.clone();
+            currentElement.html(template);
+            render.enter(currentElement, anchor);
+            
+            currentElement.data('$uiView', view);
 
-          link(currentScope);
-
-          currentScope.$emit('$viewContentLoaded');
-          if (onloadExp) currentScope.$eval(onloadExp);
-
-          // TODO: This seems strange, shouldn't $anchorScroll listen for $viewContentLoaded if necessary?
-          // $anchorScroll might listen on event...
-          $anchorScroll();
+            viewLocals = locals;
+            view.state = locals.$$state;
+  
+            var link = $compile(currentElement.contents());
+  
+            currentScope = $scope.$new();
+  
+            if (locals.$$controller) {
+              locals.$scope = currentScope;
+              var controller = $controller(locals.$$controller, locals);
+              currentElement.children().data('$ngControllerController', controller);
+            }
+  
+            link(currentScope);
+  
+            currentScope.$emit('$viewContentLoaded');
+            if (onloadExp) currentScope.$eval(onloadExp);
+  
+            // TODO: This seems strange, shouldn't $anchorScroll listen for $viewContentLoaded if necessary?
+            // $anchorScroll might listen on event...
+            $anchorScroll();
+          }
         }
       };
     }

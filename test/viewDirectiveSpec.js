@@ -90,7 +90,6 @@ describe('uiView', function () {
       $state.transitionTo(aState);
       $q.flush();
 
-      expect($animate.flushNext('leave').element.text()).toBe('');
       expect($animate.flushNext('enter').element.text()).toBe(aState.template);
     }));
 
@@ -100,7 +99,6 @@ describe('uiView', function () {
       $state.transitionTo(cState);
       $q.flush();
 
-      expect($animate.flushNext('leave').element.text()).toBe('');
       expect($animate.flushNext('enter').element.text()).toBe(cState.views.cview.template);
     }));
 
@@ -110,7 +108,6 @@ describe('uiView', function () {
       $state.transitionTo(aState);
       $q.flush();
 
-      expect($animate.flushNext('leave').element.text()).toBe('');
       expect($animate.flushNext('enter').element.text()).toBe(aState.template);
 
       $state.transitionTo(bState);
@@ -126,9 +123,7 @@ describe('uiView', function () {
       $state.transitionTo(dState);
       $q.flush();
 
-      expect($animate.flushNext('leave').element.html()).toBe('');
       expect($animate.flushNext('enter').element.text()).toBe(dState.views.dview1.template);
-      expect($animate.flushNext('leave').element.html()).toBe('');
       expect($animate.flushNext('enter').element.text()).toBe(dState.views.dview2.template);
     }));
 
@@ -138,7 +133,6 @@ describe('uiView', function () {
       $state.transitionTo(fState);
       $q.flush();
 
-      expect($animate.flushNext('leave').element.text()).toBe('');
       expect(innerText($animate.flushNext('enter').element.parent()[0].querySelector('.view').querySelector('.eview'))).toBe(fState.views.eview.template);
     }));
   });
@@ -153,8 +147,6 @@ describe('uiView', function () {
       $state.transitionTo(gState);
       $q.flush();
 
-      // Leave elem
-      expect($animate.flushNext('leave').element.text()).toBe("");
       // Enter and leave ui-view insert of template
       $animate.flushNext('enter');
       $animate.flushNext('leave');
@@ -174,8 +166,7 @@ describe('uiView', function () {
       $state.transitionTo(hState);
       $q.flush();
 
-      expect($animate.queue.length).toEqual(4);
-      expect($animate.flushNext('leave').element.text()).toBe('');
+      expect($animate.queue.length).toEqual(3);
       expect($animate.flushNext('enter').element.text()).toBe(hState.views.inner.template);
 
       // Remove the addClass observers which have been replaced.
