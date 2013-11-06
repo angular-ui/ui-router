@@ -71,7 +71,16 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
 
         function updateView(doAnimate) {
           var locals = $state.$current && $state.$current.locals[name];
-          if (locals === viewLocals) return; // nothing to do
+
+          // Nothing to do if previous locals is exactly the same as currert locals.
+          if (locals === viewLocals || /* fast-check the obj references */
+              (locals && viewLocals && /* deep-comparing essential elements */
+               angular.equals(locals, viewLocals) &&
+               angular.equals(locals.$stateParams, viewLocals.$stateParams)) ) return;
+
+          // Preserving current view and scope if current $template is '='.
+          if (locals && locals.$template === '=') return;
+
           var render = renderer(animate && doAnimate);
 
           // Remove existing content
