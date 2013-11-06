@@ -613,6 +613,11 @@ describe('state', function () {
       locationProvider.html5Mode(true);
       expect($state.href("about.sidebar", null, { absolute: true })).toEqual("http://server/about");
     }));
+
+    it('respects $locationProvider.hashPrefix()', inject(function ($state) {
+      locationProvider.hashPrefix("!");
+      expect($state.href("home")).toEqual("#!/");
+    }));
   });
 
   describe('.get()', function () {
