@@ -475,7 +475,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       var nav = (state && options.lossy) ? state.navigable : state;
       var url = (nav && nav.url) ? nav.url.format(normalize(state.params, params || {})) : null;
       if (!$locationProvider.html5Mode() && url) {
-        url = "#" + url;
+        url = "#" + $locationProvider.hashPrefix() + url;
       }
       if (options.absolute && url) {
         url = $location.protocol() + '://' + 
