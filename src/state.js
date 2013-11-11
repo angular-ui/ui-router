@@ -539,6 +539,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // Wait for all the promises and then return the activation object
       return $q.all(promises).then(function (values) {
         return dst;
+      }, function(error) {
+        throw new Error(error.message);
       });
     }
 
