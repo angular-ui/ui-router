@@ -160,7 +160,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     states[name] = state;
 
     // Register the state in the global state list and with $urlRouter if necessary.
-    if (!state['abstract'] && state.url) {
+    if (!state.abstract && state.url) {
       $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
         if ($state.$current.navigable != state || !equalForKeys($match, $stateParams)) {
           $state.transitionTo(state, $match, false);
@@ -176,7 +176,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     name: '',
     url: '^',
     views: null,
-    'abstract': true
+    abstract: true
   });
   root.navigable = null;
 
@@ -223,7 +223,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
          if (options.relative) throw new Error("Could not resolve '" + to + "' from state '" + options.relative + "'");
          throw new Error("No such state '" + to + "'");
       }
-      if (toState['abstract']) throw new Error("Cannot transition to abstract state '" + to + "'");
+      if (toState.abstract) throw new Error("Cannot transition to abstract state '" + to + "'");
       if (options.inherit) toParams = inheritParams($stateParams, toParams || {}, $state.$current, toState);
       to = toState;
 
