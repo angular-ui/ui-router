@@ -4,8 +4,8 @@ function parseStateRef(ref) {
   return { state: parsed[1], paramExpr: parsed[3] || null };
 }
 
-$StateRefDirective.$inject = ['$state'];
-function $StateRefDirective($state) {
+$StateRefDirective.$inject = ['$state', '$injector', '$q'];
+function $StateRefDirective($state, $injector, $q) {
   return {
     restrict: 'A',
     link: function(scope, element, attrs) {
@@ -45,13 +45,25 @@ function $StateRefDirective($state) {
 
       element.bind("click", function(e) {
         var button = e.which || e.button;
-
+        
         if ((button == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-          $state.go(ref.state, params, { relative: base });
-          scope.$apply();
-          e.preventDefault();
+          var changeState = function(digest) {
+            $state.go(ref.state, params, { relative: base });
+            if (digest) scope.$apply();
+          };
+          
+          if ($state.$current.onBeforeExit) {
+            $q.when($injector.invoke($state.$current.onBeforeExit)).then(function(result){
+              if (result) changeState(false);
+            });
+          } else {
+            changeState(true);
+          }
         }
+        
+        e.preventDefault();
       });
+
     }
   };
 }
