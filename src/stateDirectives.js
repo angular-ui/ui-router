@@ -44,7 +44,9 @@ function $StateRefDirective($state, $injector, $q) {
       if (isForm) return;
 
       element.bind("click", function(e) {
-        if ((e.which == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        var button = e.which || e.button;
+        
+        if ((button == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
           var changeState = function(digest) {
             $state.go(ref.state, params, { relative: base });
             if (digest) scope.$apply();
