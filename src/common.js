@@ -2,6 +2,10 @@
 /*global angular:false*/
 'use strict';
 
+if(!angular.extend){
+    throw "Loaded asynchronously.  You must include load angular.js before angular-ui-router.js!";
+}
+
 var isDefined = angular.isDefined,
     isFunction = angular.isFunction,
     isString = angular.isString,
