@@ -3,7 +3,7 @@
 'use strict';
 
 if(!angular.extend){
-    throw "Loaded asynchronously.  You must include load angular.js before angular-ui-router.js!";
+    throw "Cannot loaded asynchronously. You must load angular.js before angular-ui-router.js!";
 }
 
 var isDefined = angular.isDefined,
