@@ -50,6 +50,7 @@ function $StateRefDirective($state) {
           $state.go(ref.state, params, { relative: base });
           scope.$apply();
           e.preventDefault();
+          e.stopPropagation();
         }
       });
     }
