@@ -336,8 +336,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // But clear 'transition', as we still want to cancel any other pending transitions.
       // TODO: We may not want to bump 'transition' if we're called from a location change that we've initiated ourselves,
       // because we might accidentally abort a legitimate transition initiated from code?
-      if (to === from && locals === from.locals && !options.reload) {
-        syncUrl();
+      if (shouldTriggerReload(to, from, locals, options) ) {
+        if ( to.self.reloadOnSearch !== false )
+          syncUrl();
         $state.transition = null;
         return $q.when($state.current);
       }
@@ -576,6 +577,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       filtered[name] = values[name];
     });
     return filtered;
+  }
+
+  function shouldTriggerReload(to, from, locals, options) {
+    if ( to === from && ((locals === from.locals && !options.reload) || (to.self.reloadOnSearch === false)) ) {
+      return true;
+    }
   }
 }
 

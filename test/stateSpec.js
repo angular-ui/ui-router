@@ -26,6 +26,7 @@ describe('state', function () {
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
       HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
+      RS = { url: '^/search?term', reloadOnSearch: false },
       AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -45,6 +46,7 @@ describe('state', function () {
       .state('H', H)
       .state('HH', HH)
       .state('HHH', HHH)
+      .state('RS', RS)
 
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
@@ -139,6 +141,18 @@ describe('state', function () {
       $state.transitionTo('A', {});
       $q.flush();
       expect($state.current).toBe(A);
+    }));
+
+    it('doesn\'t trigger state change if reloadOnSearch is false', inject(function ($state, $q, $location, $rootScope){
+      initStateTo(RS);
+      $location.search({term: 'hello'});
+      var called;
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+        called = true
+      });
+      $q.flush();
+      expect($location.search()).toEqual({term: 'hello'});
+      expect(called).toBeFalsy();        
     }));
 
     it('ignores non-applicable state parameters', inject(function ($state, $q) {
@@ -641,6 +655,7 @@ describe('state', function () {
         'H',
         'HH',
         'HHH',
+        'RS',
         'about',
         'about.person',
         'about.person.item',
