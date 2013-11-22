@@ -15,11 +15,6 @@ function $StateRefDirective($state) {
     return parent ? getSrefEl(parent) : null;
   }
   
-  function getIsCurrentEl(e) {
-    var targetEl = angular.element(e.target), srefEl = getSrefEl(targetEl);
-    return element[0] === sref[0];
-  }
-  
   return {
     restrict: 'A',
     link: function(scope, element, attrs) {
@@ -57,12 +52,17 @@ function $StateRefDirective($state) {
 
       if (isForm) return;
 
+      function getIsCurrentElClicked(e) {
+        var targetEl = angular.element(e.target), srefEl = getSrefEl(targetEl);
+        return element[0] === sref[0];
+      }
+
       element.bind("click", function(e) {
         var button = e.which || e.button;
 
         if ((button == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-          var isCurrentEl = getIsCurrentEl(e);
-          if(!isCurrentEl) {
+          var isCurrentElClicked = getIsCurrentElClicked(e);
+          if(!isCurrentElClicked) {
             return;
           }
           
