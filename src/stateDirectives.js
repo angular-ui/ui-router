@@ -54,7 +54,7 @@ function $StateRefDirective($state) {
 
       function getIsCurrentElClicked(e) {
         var targetEl = angular.element(e.target), srefEl = getSrefEl(targetEl);
-        return element[0] === sref[0];
+        return element[0] === srefEl[0];
       }
 
       element.bind("click", function(e) {
