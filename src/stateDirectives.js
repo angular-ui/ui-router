@@ -6,6 +6,20 @@ function parseStateRef(ref) {
 
 $StateRefDirective.$inject = ['$state'];
 function $StateRefDirective($state) {
+  function getSrefEl(el) {
+    var sref = el.attr('ui-sref'), hasSref = typeof (sref) !== 'undefined';
+    if (hasSref) {
+        return el;
+    }
+    var parent = el.parent();
+    return parent ? getSrefEl(parent) : null;
+  }
+  
+  function getIsCurrentEl(e) {
+    var targetEl = angular.element(e.target), srefEl = getSrefEl(targetEl);
+    return element.is(srefEl);
+  }
+  
   return {
     restrict: 'A',
     link: function(scope, element, attrs) {
@@ -47,10 +61,14 @@ function $StateRefDirective($state) {
         var button = e.which || e.button;
 
         if ((button == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+          var isCurrentEl = getIsCurrentEl(e);
+          if(!isCurrentEl) {
+            return;
+          }
+          
           $state.go(ref.state, params, { relative: base });
           scope.$apply();
           e.preventDefault();
-          e.stopPropagation();
         }
       });
     }
