@@ -17,7 +17,7 @@ function $StateRefDirective($state) {
   
   function getIsCurrentEl(e) {
     var targetEl = angular.element(e.target), srefEl = getSrefEl(targetEl);
-    return element.is(srefEl);
+    return element[0] === sref[0];
   }
   
   return {
