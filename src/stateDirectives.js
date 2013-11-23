@@ -6,6 +6,15 @@ function parseStateRef(ref) {
 
 $StateRefDirective.$inject = ['$state'];
 function $StateRefDirective($state) {
+  function getSrefEl(el) {
+    var sref = el.attr('ui-sref'), hasSref = typeof (sref) !== 'undefined';
+    if (hasSref) {
+        return el;
+    }
+    var parent = el.parent();
+    return parent ? getSrefEl(parent) : null;
+  }
+  
   return {
     restrict: 'A',
     link: function(scope, element, attrs) {
@@ -43,10 +52,20 @@ function $StateRefDirective($state) {
 
       if (isForm) return;
 
+      function getIsCurrentElClicked(e) {
+        var targetEl = angular.element(e.target), srefEl = getSrefEl(targetEl);
+        return element[0] === srefEl[0];
+      }
+
       element.bind("click", function(e) {
         var button = e.which || e.button;
 
         if ((button == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+          var isCurrentElClicked = getIsCurrentElClicked(e);
+          if(!isCurrentElClicked) {
+            return;
+          }
+          
           $state.go(ref.state, params, { relative: base });
           scope.$apply();
           e.preventDefault();
