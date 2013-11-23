@@ -92,7 +92,8 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
     [        '$location', '$rootScope', '$injector',
     function ($location,   $rootScope,   $injector) {
       // TODO: Optimize groups of rules with non-empty prefix into some sort of decision tree
-      function update() {
+      function update(evt) {
+        if (evt && evt.defaultPrevented) return;
         function check(rule) {
           var handled = rule($injector, $location);
           if (handled) {
@@ -110,7 +111,12 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
       }
 
       $rootScope.$on('$locationChangeSuccess', update);
-      return {};
+
+      return {
+        sync: function () {
+          update();
+        }
+      };
     }];
 }
 

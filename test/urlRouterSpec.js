@@ -80,6 +80,32 @@ describe("UrlRouter", function () {
       expect(custom.url.format).not.toHaveBeenCalled();
       expect(custom.handler).toHaveBeenCalled();
     });
+
+    it('can be cancelled by preventDefault() in $locationChangeSuccess', inject(function () {
+      var called;
+      location.path("/baz");
+      scope.$on('$locationChangeSuccess', function (ev) {
+        ev.preventDefault();
+        called = true;
+      });
+      scope.$emit("$locationChangeSuccess");
+      expect(called).toBeTruthy();
+      expect(location.path()).toBe("/baz");
+    }));
+
+    it('can be deferred and updated in $locationChangeSuccess', inject(function ($urlRouter, $timeout) {
+      var called;
+      location.path("/baz");
+      scope.$on('$locationChangeSuccess', function (ev) {
+        ev.preventDefault();
+        called = true;
+        $timeout($urlRouter.sync, 2000);
+      });
+      scope.$emit("$locationChangeSuccess");
+      $timeout.flush();
+      expect(called).toBeTruthy();
+      expect(location.path()).toBe("/b4z");
+    }));
   });
 
 });
