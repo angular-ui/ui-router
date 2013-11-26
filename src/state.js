@@ -264,7 +264,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     };
 
     $state.reload = function reload() {
-      $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: false });
+      if ($state.transition) {
+        $state.transition.then(function() {
+          $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: false });
+        });
+      } else {
+        $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: false });
+      }
     };
 
     $state.go = function go(to, params, options) {
@@ -415,7 +421,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
           }
         }
 
-        if (options.notify) {
+        if (!options.notify && options.reload) {
+          $rootScope.$broadcast('$stateReload', to.self, toParams, from.self, fromParams);
+        } else if (options.notify) {
           $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
         }
         currentLocation = $location.url();

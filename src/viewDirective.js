@@ -65,6 +65,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
           viewIsUpdating = false;
         };
 
+        scope.$on('$stateReload', eventHook);
         scope.$on('$stateChangeSuccess', eventHook);
         scope.$on('$viewContentLoading', eventHook);
         updateView(false);
