@@ -49,7 +49,7 @@ function $StateRefDirective($state) {
         if ((button == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
           scope.$evalAsync(function() {
             $state.go(ref.state, params, { relative: base });
-		  });
+          });
           e.preventDefault();
         }
       });
