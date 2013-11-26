@@ -415,7 +415,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
           }
         }
 
-        if (options.notify) {
+        if (!options.notify && options.reload) {
+          $rootScope.$broadcast('$stateReload', to.self, toParams, from.self, fromParams);
+        } else if (options.notify) {
           $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
         }
         currentLocation = $location.url();
