@@ -46,7 +46,7 @@ function $StateRefDirective($state) {
       element.bind("click", function(e) {
         var button = e.which || e.button;
 
-        if ((button == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        if ((button === 0 || button == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
           scope.$evalAsync(function() {
             $state.go(ref.state, params, { relative: base });
           });
