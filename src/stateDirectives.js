@@ -11,9 +11,6 @@ function $StateRefDirective($state) {
     link: function(scope, element, attrs) {
       var ref = parseStateRef(attrs.uiSref);
       var params = null, options = {}, url = null, base = $state.$current;
-      var defaults = {
-        relative : base
-      };
       var isForm = element[0].nodeName === "FORM";
       var attr = isForm ? "action" : "href", nav = true;
 
@@ -22,6 +19,10 @@ function $StateRefDirective($state) {
       if (stateData && stateData.state && stateData.state.name) {
         base = stateData.state;
       }
+
+      var defaults = {
+        relative : base
+      };
 
       var update = function(newVal) {
         if (newVal) params = newVal;
