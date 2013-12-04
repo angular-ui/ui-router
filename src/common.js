@@ -45,6 +45,28 @@ function ancestors(first, second) {
 }
 
 /**
+ * IE8-safe wrapper for `Array.prototype.indexOf()`.
+ *
+ * @param {Array} array A JavaScript array.
+ * @param {*} value A value to search the array for.
+ * @return {Number} Returns the array index value of `value`, or `-1` if not present.
+ */
+function arraySearch(array, value) {
+  if (Array.prototype.indexOf) {
+    return array.indexOf(value, Number(arguments[2]) || 0);
+  }
+  var len = array.length >>> 0, from = Number(arguments[2]) || 0;
+  from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+
+  if (from < 0) from += len;
+
+  for (; from < len; from++) {
+    if (from in array && array[from] === value) return from;
+  }
+  return -1;
+}
+
+/**
  * Merges a set of parameters with all parameters inherited between the common parents of the
  * current state and a given destination state.
  *
@@ -61,7 +83,7 @@ function inheritParams(currentParams, newParams, $current, $to) {
     parentParams = parents[i].params;
 
     for (var j in parentParams) {
-      if (inheritList.indexOf(parentParams[j]) >= 0) continue;
+      if (arraySearch(inheritList, parentParams[j]) >= 0) continue;
       inheritList.push(parentParams[j]);
       inherited[parentParams[j]] = currentParams[parentParams[j]];
     }
