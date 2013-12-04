@@ -47,6 +47,7 @@
     "karma-script-launcher": "~0.1.0",
     "karma-coffee-preprocessor": "~0.1.0",
     "karma": "~0.10.1",
-    "karma-phantomjs-launcher": "~0.1.0"
+    "karma-phantomjs-launcher": "~0.1.0",
+    "grunt-conventional-changelog": "~1.0.0"
   }
 }
