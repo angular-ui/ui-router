@@ -72,6 +72,19 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return views;
     },
 
+    sharingControllerViewsCount: function(state) {
+      if (!isDefined(state.views))
+        return 0;
+
+      var count = 0;
+      forEach(state.views, function(view) {
+        if (!(isDefined(view.controller) || isDefined(view.controllerProvider))) {
+          count++;
+        }
+      });
+      return count;
+    },
+
     ownParams: function(state) {
       if (!state.parent) {
         return state.params;
