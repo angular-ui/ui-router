@@ -77,18 +77,23 @@ module.exports = function (grunt) {
         }
       }
     },
-  karma: {
-    options: {
-      configFile: 'config/karma.js'
+    karma: {
+      options: {
+        configFile: 'config/karma.js'
+      },
+      unit: {
+        singleRun: true
+      },
+      background: {
+        background: true,
+        browsers: [ grunt.option('browser') || 'PhantomJS' ]
+      }
     },
-    unit: {
-      singleRun: true
-    },
-    background: {
-      background: true,
-      browsers: [ grunt.option('browser') || 'PhantomJS' ]
+    changelog: {
+      options: {
+        dest: 'CHANGELOG.md'
+      }
     }
-  }
   });
 
   grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
