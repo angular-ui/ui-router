@@ -4,6 +4,14 @@ function parseStateRef(ref) {
   return { state: parsed[1], paramExpr: parsed[3] || null };
 }
 
+function stateContext(el) {
+  var stateData = el.parent().inheritedData('$uiView');
+
+  if (stateData && stateData.state && stateData.state.name) {
+    return stateData.state;
+  }
+}
+
 $StateRefDirective.$inject = ['$state'];
 function $StateRefDirective($state) {
   return {
@@ -11,15 +19,9 @@ function $StateRefDirective($state) {
     require: '?^uiStateActive',
     link: function(scope, element, attrs, uiStateActive) {
       var ref = parseStateRef(attrs.uiSref);
-      var params = null, url = null, base = $state.$current;
+      var params = null, url = null, base = stateContext(element) || $state.$current;
       var isForm = element[0].nodeName === "FORM";
       var attr = isForm ? "action" : "href", nav = true;
-
-      var stateData = element.parent().inheritedData('$uiView');
-
-      if (stateData && stateData.state && stateData.state.name) {
-        base = stateData.state;
-      }
 
       var update = function(newVal) {
         if (newVal) params = newVal;
@@ -69,47 +71,29 @@ function $StateActiveDirective($state, $stateParams, $interpolate) {
       var state, params, paramKeys, activeClass;
 
       // There probably isn't much point in $observing this
-      activeClass = $interpolate($attrs.uiSactive || '', false)($scope);
+      activeClass = $interpolate($attrs.uiStateActive || '', false)($scope);
 
       // Allow uiSref to communicate with uiStateActive
       this.$$setStateInfo = function(newState, newParams) {
-        state = newState;
+        state = $state.get(newState, stateContext($element));
         params = newParams;
-        paramKeys = params && Object.keys(params);
+        paramKeys = params && keys(params);
         update();
       };
 
       $scope.$on('$stateChangeSuccess', update);
-      $scope.$on('$stateChangeError', function() {
-        $attrs.$removeClass(activeClass);
-      });
 
       // Update route state
       function update() {
-        if ($state.current.name === state && matchesParams()) {
-          $attrs.$addClass(activeClass);
+        if ($state.$current.self === state && matchesParams()) {
+          $element.addClass(activeClass);
         } else {
-          $attrs.$removeClass(activeClass);
+          $element.removeClass(activeClass);
         }
       }
 
       function matchesParams() {
-        if (params) {
-          var result = true;
-          // Can't use angular.equals() because it is possible for ui-sref
-          // to not reference each state parameter in $stateParams
-          //
-          // Unfortunately, using angular.forEach, short-circuiting is
-          // impossible --- But it's unlikely that very many parameters are
-          // used, so it is unlikely to hurt badly.
-          angular.forEach(params, function(value, key) {
-            if ($stateParams[key] !== value) {
-              result = false;
-            }
-          });
-          return result;
-        }
-        return true;
+        return !params || equalForKeys(params, $stateParams);
       }
     }
   };
