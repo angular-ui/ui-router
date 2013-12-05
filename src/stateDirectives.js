@@ -1,7 +1,7 @@
 function parseStateRef(ref) {
-  var parsed = ref.replace(/\n/g, " ").match(/^([^(]+?)\s*(\((.*)\))?$/);
+  var parsed = ref.replace(/\n/g, " ").match(/^([^(]+)(?:\s*(?:\(\s*(\{.*?\}){1}(?:\s*,\s*(\{.*?\}))?\s*\)){1})?$/);
   if (!parsed || parsed.length !== 4) throw new Error("Invalid state ref '" + ref + "'");
-  return { state: parsed[1], paramExpr: parsed[3] || null };
+  return { state: parsed[1], paramExpr: parsed[2] || null, options: parsed[3] || {} };
 }
 
 $StateRefDirective.$inject = ['$state'];
@@ -10,7 +10,7 @@ function $StateRefDirective($state) {
     restrict: 'A',
     link: function(scope, element, attrs) {
       var ref = parseStateRef(attrs.uiSref);
-      var params = null, url = null, base = $state.$current;
+      var params = null, options = {}, url = null, base = $state.$current;
       var isForm = element[0].nodeName === "FORM";
       var attr = isForm ? "action" : "href", nav = true;
 
@@ -20,11 +20,15 @@ function $StateRefDirective($state) {
         base = stateData.state;
       }
 
+      var defaults = {
+        relative : base
+      };
+
       var update = function(newVal) {
         if (newVal) params = newVal;
         if (!nav) return;
 
-        var newHref = $state.href(ref.state, params, { relative: base });
+        var newHref = $state.href(ref.state, params, options);
 
         if (!newHref) {
           nav = false;
@@ -38,6 +42,7 @@ function $StateRefDirective($state) {
           if (newVal !== params) update(newVal);
         }, true);
         params = scope.$eval(ref.paramExpr);
+        options = angular.extend({}, defaults, scope.$eval(ref.options));
       }
       update();
 
@@ -48,7 +53,7 @@ function $StateRefDirective($state) {
 
         if ((button === 0 || button == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
           scope.$evalAsync(function() {
-            $state.go(ref.state, params, { relative: base });
+            $state.go(ref.state, params, options);
           });
           e.preventDefault();
         }
