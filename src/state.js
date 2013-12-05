@@ -181,7 +181,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     if (!state['abstract'] && state.url) {
       $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
         if ($state.$current.navigable != state || !equalForKeys($match, $stateParams)) {
-          $state.transitionTo(state, $match, false);
+          $state.transitionTo(state, $match, { location: false });
         }
       }]);
     }
