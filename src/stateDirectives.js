@@ -8,7 +8,8 @@ $StateRefDirective.$inject = ['$state'];
 function $StateRefDirective($state) {
   return {
     restrict: 'A',
-    link: function(scope, element, attrs) {
+    require: '?^uiStateActive',
+    link: function(scope, element, attrs, uiStateActive) {
       var ref = parseStateRef(attrs.uiSref);
       var params = null, url = null, base = $state.$current;
       var isForm = element[0].nodeName === "FORM";
@@ -31,6 +32,9 @@ function $StateRefDirective($state) {
           return false;
         }
         element[0][attr] = newHref;
+        if (uiStateActive) {
+          uiStateActive.$$setStateInfo(ref.state, params);
+        }
       };
 
       if (ref.paramExpr) {
@@ -57,4 +61,60 @@ function $StateRefDirective($state) {
   };
 }
 
-angular.module('ui.router.state').directive('uiSref', $StateRefDirective);
+$StateActiveDirective.$inject = ['$state', '$stateParams', '$interpolate'];
+function $StateActiveDirective($state, $stateParams, $interpolate) {
+  return {
+    restrict: "A",
+    controller: function($scope, $element, $attrs) {
+      var state, params, paramKeys, activeClass;
+
+      // There probably isn't much point in $observing this
+      activeClass = $interpolate($attrs.uiSactive || '', false)($scope);
+
+      // Allow uiSref to communicate with uiStateActive
+      this.$$setStateInfo = function(newState, newParams) {
+        state = newState;
+        params = newParams;
+        paramKeys = params && Object.keys(params);
+        update();
+      };
+
+      $scope.$on('$stateChangeSuccess', update);
+      $scope.$on('$stateChangeError', function() {
+        $attrs.$removeClass(activeClass);
+      });
+
+      // Update route state
+      function update() {
+        if ($state.current.name === state && matchesParams()) {
+          $attrs.$addClass(activeClass);
+        } else {
+          $attrs.$removeClass(activeClass);
+        }
+      }
+
+      function matchesParams() {
+        if (params) {
+          var result = true;
+          // Can't use angular.equals() because it is possible for ui-sref
+          // to not reference each state parameter in $stateParams
+          //
+          // Unfortunately, using angular.forEach, short-circuiting is
+          // impossible --- But it's unlikely that very many parameters are
+          // used, so it is unlikely to hurt badly.
+          angular.forEach(params, function(value, key) {
+            if ($stateParams[key] !== value) {
+              result = false;
+            }
+          });
+          return result;
+        }
+        return true;
+      }
+    }
+  };
+}
+
+angular.module('ui.router.state')
+  .directive('uiSref', $StateRefDirective)
+  .directive('uiStateActive', $StateActiveDirective);
