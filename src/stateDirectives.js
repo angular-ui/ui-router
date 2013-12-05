@@ -68,7 +68,7 @@ function $StateActiveDirective($state, $stateParams, $interpolate) {
   return {
     restrict: "A",
     controller: function($scope, $element, $attrs) {
-      var state, params, paramKeys, activeClass;
+      var state, params, activeClass;
 
       // There probably isn't much point in $observing this
       activeClass = $interpolate($attrs.uiStateActive || '', false)($scope);
@@ -77,7 +77,6 @@ function $StateActiveDirective($state, $stateParams, $interpolate) {
       this.$$setStateInfo = function(newState, newParams) {
         state = $state.get(newState, stateContext($element));
         params = newParams;
-        paramKeys = params && keys(params);
         update();
       };
 
