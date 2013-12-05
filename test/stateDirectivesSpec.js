@@ -218,7 +218,7 @@ describe('uiStateRef', function() {
   });
 });
 
-describe('uiStateActive', function() {
+describe('uiSrefActive', function() {
     var el, template, scope, document;
 
   beforeEach(module('ui.router'));
@@ -230,7 +230,7 @@ describe('uiStateActive', function() {
       url: '/contacts',
       views: {
         '@': {
-          template: '<a ui-sref=".item({ id: 6 })" ui-state-active="active">Contacts</a>'
+          template: '<a ui-sref=".item({ id: 6 })" ui-sref-active="active">Contacts</a>'
         }
       }
     }).state('contacts.item', {
@@ -245,7 +245,7 @@ describe('uiStateActive', function() {
   }));
 
   it('should update class for sibling uiSref', inject(function($rootScope, $q, $compile, $state) {
-    el = angular.element('<div><a ui-sref="contacts" ui-state-active="active">Contacts</a></div>');
+    el = angular.element('<div><a ui-sref="contacts" ui-sref-active="active">Contacts</a></div>');
     template = $compile(el)($rootScope);
     $rootScope.$digest();
 
@@ -261,7 +261,7 @@ describe('uiStateActive', function() {
   }));
 
   it('should match state\'s parameters', inject(function($rootScope, $q, $compile, $state) {
-    el = angular.element('<div><a ui-sref="contacts.item.detail({ foo: \'bar\' })" ui-state-active="active">Contacts</a></div>');
+    el = angular.element('<div><a ui-sref="contacts.item.detail({ foo: \'bar\' })" ui-sref-active="active">Contacts</a></div>');
     template = $compile(el)($rootScope);
     $rootScope.$digest();
 

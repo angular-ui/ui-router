@@ -16,8 +16,8 @@ $StateRefDirective.$inject = ['$state'];
 function $StateRefDirective($state) {
   return {
     restrict: 'A',
-    require: '?^uiStateActive',
-    link: function(scope, element, attrs, uiStateActive) {
+    require: '?^uiSrefActive',
+    link: function(scope, element, attrs, uiSrefActive) {
       var ref = parseStateRef(attrs.uiSref);
       var params = null, url = null, base = stateContext(element) || $state.$current;
       var isForm = element[0].nodeName === "FORM";
@@ -34,8 +34,8 @@ function $StateRefDirective($state) {
           return false;
         }
         element[0][attr] = newHref;
-        if (uiStateActive) {
-          uiStateActive.$$setStateInfo(ref.state, params);
+        if (uiSrefActive) {
+          uiSrefActive.$$setStateInfo(ref.state, params);
         }
       };
 
@@ -71,9 +71,9 @@ function $StateActiveDirective($state, $stateParams, $interpolate) {
       var state, params, activeClass;
 
       // There probably isn't much point in $observing this
-      activeClass = $interpolate($attrs.uiStateActive || '', false)($scope);
+      activeClass = $interpolate($attrs.uiSrefActive || '', false)($scope);
 
-      // Allow uiSref to communicate with uiStateActive
+      // Allow uiSref to communicate with uiSrefActive
       this.$$setStateInfo = function(newState, newParams) {
         state = $state.get(newState, stateContext($element));
         params = newParams;
@@ -100,4 +100,4 @@ function $StateActiveDirective($state, $stateParams, $interpolate) {
 
 angular.module('ui.router.state')
   .directive('uiSref', $StateRefDirective)
-  .directive('uiStateActive', $StateActiveDirective);
+  .directive('uiSrefActive', $StateActiveDirective);
