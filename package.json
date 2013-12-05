@@ -3,16 +3,25 @@
   "description": "State-based routing for AngularJS",
   "version": "0.2.0",
   "homepage": "http://angular-ui.github.com/",
-  "author": {
-    "name": "Karsten Sperling",
-    "url": "https://github.com/ksperling"
-  },
   "contributors": [
     {
-      "name": "AngularUI",
-      "url": "https://github.com/angular-ui?tab=members"
+      "name": "Nate Abele",
+      "email": "nate@unionofrad.com",
+      "web": "https://github.com/nateabele"
+    },
+    {
+      "name": "Tim Kindberg",
+      "web": "https://github.com/timkindberg"
+    },
+    {
+      "name": "Karsten Sperling",
+      "web": "https://github.com/ksperling"
     }
   ],
+  "maintainers": [{
+    "name": "AngularUI",
+    "web": "https://github.com/angular-ui?tab=members"
+  }],
   "repository": {
     "type": "git",
     "url": "https://github.com/angular-ui/ui-router.git"
