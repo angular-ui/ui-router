@@ -525,15 +525,21 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
         promises.push($resolve.resolve(injectables, locals, dst.resolve, state).then(function (result) {
           // References to the controller (only instantiated at link time)
+          var controller;
           if (isFunction(view.controllerProvider) || isArray(view.controllerProvider)) {
             var injectLocals = angular.extend({}, injectables, locals);
-            result.$$controller = $injector.invoke(view.controllerProvider, null, injectLocals);
+            controller = $injector.invoke(view.controllerProvider, null, injectLocals);
           } else {
-            result.$$controller = view.controller;
+            controller = view.controller;
           }
-          // Provide access to the state itself for internal use
-          result.$$state = state;
-          dst[name] = result;
+
+          return $q.when(controller).then(function (resolvedController) {
+            result.$$controller = resolvedController;
+
+            // Provide access to the state itself for internal use
+            result.$$state = state;
+            dst[name] = result;
+          });
         }));
       });
 
