@@ -149,7 +149,7 @@ describe('uiStateRef', function() {
       expect($stateParams).toEqual({ id: "5" });
     }));
 
-    it('should call $state.href with the provided options', inject(function($compile, $rootScope, $state) {
+    it('should call $state.href with the provided options', inject(function($compile, $rootScope) {
       el = angular.element('<a ui-sref="contacts.item.detail({id: $index}, {absolute: true})">Details</a>');
       $rootScope.$index = 3;
       $rootScope.$apply();
@@ -159,7 +159,7 @@ describe('uiStateRef', function() {
       expect(el.attr('href')).toBe('http://server/#/contacts/3');
     }));
 
-    it('should call $state.href with the provided options when parameters change', inject(function($compile, $rootScope, $state) {
+    it('should call $state.href with the provided options when parameters change', inject(function($compile, $rootScope) {
       el = angular.element('<a ui-sref="contacts.item.detail({id: $index}, myOptions)">Details</a>');
       $rootScope.$index = 3;
       $rootScope.$apply();
@@ -173,7 +173,7 @@ describe('uiStateRef', function() {
       expect(el.attr('href')).toBe('http://server/#/contacts/3');
     }));
 
-    it('should call $state.go with the provided options', inject(function($compile, $rootScope, $state) {
+    it('should call $state.go with the provided options', inject(function($compile, $rootScope) {
       el = angular.element('<a ui-sref="contacts.item.detail({id: 3}, {notify: shouldNotify})">Details</a>');
       $compile(el)($rootScope);
       $rootScope.shouldNotify = true;
@@ -192,6 +192,27 @@ describe('uiStateRef', function() {
 
       triggerClick(el);
       $rootScope.$digest();
+    }));
+    
+    it('can be used for evil', inject(function($compile, $rootScope) {
+      $rootScope.doEvil = function() {
+        throw Error('doing some evil');
+      }
+    
+      el = angular.element('<a ui-sref="foo(); doEvil()">Details</a>');
+      $compile(el)($rootScope);
+      expect($rootScope.$digest).toThrow();
+    }));
+    
+    it('actually fixes #395, if you are a terrible human being', inject(function($compile, $rootScope) {
+      el = angular.element('<a ui-sref="dynamic(stateName, stateParams, stateOptions).slice(1)">Details</a>');
+      $compile(el)($rootScope);
+      
+      $rootScope.stateName = 'contacts.item.detail';
+      $rootScope.stateParams = {id: 3};
+      
+      $rootScope.$digest();
+      expect(el.attr('href')).toBe('#/contacts/3');
     }));
   });
 
