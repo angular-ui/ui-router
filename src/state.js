@@ -137,7 +137,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     }
     var state = states[name];
 
-    if (state && (isStr || (!isStr && (state === stateOrName || state.self === stateOrName)))) {
+    if (state && (isStr || (!isStr && (state === stateOrName || state.self === stateOrName || state.self === stateOrName.self)))) {
       return state;
     }
     return undefined;
