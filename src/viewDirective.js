@@ -1,7 +1,7 @@
 
 $ViewDirective.$inject = ['$state', '$compile', '$controller', '$injector', '$anchorScroll'];
 function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $anchorScroll) {
-  var $animator = $injector.has('$animator') ? $injector.get('$animator') : null;
+  var $animator = $injector.has('$animator') ? $injector.get('$animator') : false;
   var viewIsUpdating = false;
 
   var directive = {
