@@ -1,7 +1,10 @@
 function parseStateRef(ref) {
-  var parsed = ref.replace(/\n/g, " ").match(/^([^(]+?)\s*(\((.*)\))?$/);
-  if (!parsed || parsed.length !== 4) throw new Error("Invalid state ref '" + ref + "'");
-  return { state: parsed[1], paramExpr: parsed[3] || null };
+  var parsed = ref.replace(/\n/g, " ").match(/^([^(]+?)\s*(\(.*\))?\s*$/);
+  if (!parsed || parsed.length !== 3) throw new Error("Invalid state ref '" + ref + "'");
+
+  var state = parsed[1],
+      paramExpr = parsed[2];
+  return '["' + state + '"].concat' + (paramExpr || '()');
 }
 
 function stateContext(el) {
@@ -18,43 +21,43 @@ function $StateRefDirective($state) {
     restrict: 'A',
     require: '?^uiSrefActive',
     link: function(scope, element, attrs, uiSrefActive) {
-      var ref = parseStateRef(attrs.uiSref);
-      var params = null, url = null, base = stateContext(element) || $state.$current;
-      var isForm = element[0].nodeName === "FORM";
-      var attr = isForm ? "action" : "href", nav = true;
+      var ref = parseStateRef(attrs.uiSref),
+          params = [],
+          base = stateContext(element) || $state.$current,
+          isForm = element[0].nodeName === "FORM",
+          attr = isForm ? "action" : "href";
 
-      var update = function(newVal) {
-        if (newVal) params = newVal;
-        if (!nav) return;
+      var defaults = {
+        relative: base
+      };
 
-        var newHref = $state.href(ref.state, params, { relative: base });
+      var update = function(newParams) {
+        params = [].concat(newParams);
+        params[1] = params[1] || {};
+        params[2] = angular.extend({}, defaults, params[2] || {});
 
+        var newHref = $state.href.apply($state, params);
         if (!newHref) {
-          nav = false;
-          return false;
+          return;
         }
-        element[0][attr] = newHref;
+
+        attrs.$set(attr, newHref);
+
         if (uiSrefActive) {
-          uiSrefActive.$$setStateInfo(ref.state, params);
+          uiSrefActive.$$setStateInfo.apply(uiSrefActive, params);
         }
       };
 
-      if (ref.paramExpr) {
-        scope.$watch(ref.paramExpr, function(newVal, oldVal) {
-          if (newVal !== params) update(newVal);
-        }, true);
-        params = scope.$eval(ref.paramExpr);
-      }
-      update();
+      scope.$watch(ref, update, true);
 
       if (isForm) return;
 
       element.bind("click", function(e) {
         var button = e.which || e.button;
 
-        if ((button === 0 || button == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        if ((button === 0 || button === 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
           scope.$evalAsync(function() {
-            $state.go(ref.state, params, { relative: base });
+            $state.go.apply($state, params);
           });
           e.preventDefault();
         }
@@ -74,8 +77,8 @@ function $StateActiveDirective($state, $stateParams, $interpolate) {
       activeClass = $interpolate($attrs.uiSrefActive || '', false)($scope);
 
       // Allow uiSref to communicate with uiSrefActive
-      this.$$setStateInfo = function(newState, newParams) {
-        state = $state.get(newState, stateContext($element));
+      this.$$setStateInfo = function(newState, newParams, options) {
+        state = $state.get(newState, options.relative || stateContext($element));
         params = newParams;
         update();
       };
