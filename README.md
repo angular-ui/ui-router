@@ -255,6 +255,7 @@ keeps development streamlined, and helps us focus on building great software.
 
 - *Always* have test coverage for new features (or regression tests for bug fixes), and *never* break existing tests
 - Commits should represent one logical change each; if a feature goes through multiple iterations, squash your commits down to one
+- Make sure to follow the [Angular commit message format](https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#commit-message-format) so your change will appear in the changelog of the next release.
 - Changes should always respect the coding style of the project
 
 

@@ -689,6 +689,17 @@ describe('state', function () {
       expect($state.current.name).toBe('about.person');
     }));
 
+    it('preserve hash', inject(function($state, $rootScope, $location) {
+      $location.path("/about/bob");
+      $location.hash("frag");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      expect($state.params).toEqual({ person: "bob" });
+      expect($state.current.name).toBe('about.person');
+      expect($location.path()).toBe('/about/bob');
+      expect($location.hash()).toBe('frag');
+    }));
+
     it('should correctly handle absolute urls', inject(function ($state, $rootScope, $location) {
       $location.path("/first/subpath");
       $rootScope.$broadcast("$locationChangeSuccess");

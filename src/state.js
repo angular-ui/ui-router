@@ -1,7 +1,7 @@
 $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider', '$locationProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $locationProvider) {
 
-  var root, states = {}, $state, queue = {};
+  var root, states = {}, $state, queue = {}, abstractKey = 'abstract';
 
   // Builds state properties from definition passed to registerState()
   var stateBuilder = {
@@ -178,10 +178,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     states[name] = state;
 
     // Register the state in the global state list and with $urlRouter if necessary.
-    if (!state['abstract'] && state.url) {
+    if (!state[abstractKey] && state.url) {
       $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
         if ($state.$current.navigable != state || !equalForKeys($match, $stateParams)) {
-          $state.transitionTo(state, $match, false);
+          $state.transitionTo(state, $match, { location: false });
         }
       }]);
     }
@@ -318,7 +318,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
           throw new Error("No such state '" + to + "'");
         }
       }
-      if (toState['abstract']) throw new Error("Cannot transition to abstract state '" + to + "'");
+      if (toState[abstractKey]) throw new Error("Cannot transition to abstract state '" + to + "'");
       if (options.inherit) toParams = inheritParams($stateParams, toParams || {}, $state.$current, toState);
       to = toState;
 
@@ -547,39 +547,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     }
 
     return $state;
-  }
-
-  function normalize(keys, values) {
-    var normalized = {};
-
-    forEach(keys, function (name) {
-      var value = values[name];
-      normalized[name] = (value != null) ? String(value) : null;
-    });
-    return normalized;
-  }
-
-  function equalForKeys(a, b, keys) {
-    // If keys not provided, assume keys from object 'a'
-    if (!keys) {
-      keys = [];
-      for (var n in a) keys.push(n); // Used instead of Object.keys() for IE8 compatibility
-    }
-
-    for (var i=0; i<keys.length; i++) {
-      var k = keys[i];
-      if (a[k] != b[k]) return false; // Not '===', values aren't necessarily normalized
-    }
-    return true;
-  }
-
-  function filterByKeys(keys, values) {
-    var filtered = {};
-
-    forEach(keys, function (name) {
-      filtered[name] = values[name];
-    });
-    return filtered;
   }
 
   function shouldTriggerReload(to, from, locals, options) {

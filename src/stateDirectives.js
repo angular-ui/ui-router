@@ -4,21 +4,24 @@ function parseStateRef(ref) {
   return { state: parsed[1], paramExpr: parsed[3] || null };
 }
 
+function stateContext(el) {
+  var stateData = el.parent().inheritedData('$uiView');
+
+  if (stateData && stateData.state && stateData.state.name) {
+    return stateData.state;
+  }
+}
+
 $StateRefDirective.$inject = ['$state'];
 function $StateRefDirective($state) {
   return {
     restrict: 'A',
-    link: function(scope, element, attrs) {
+    require: '?^uiSrefActive',
+    link: function(scope, element, attrs, uiSrefActive) {
       var ref = parseStateRef(attrs.uiSref);
-      var params = null, url = null, base = $state.$current;
+      var params = null, url = null, base = stateContext(element) || $state.$current;
       var isForm = element[0].nodeName === "FORM";
       var attr = isForm ? "action" : "href", nav = true;
-
-      var stateData = element.parent().inheritedData('$uiView');
-
-      if (stateData && stateData.state && stateData.state.name) {
-        base = stateData.state;
-      }
 
       var update = function(newVal) {
         if (newVal) params = newVal;
@@ -31,6 +34,9 @@ function $StateRefDirective($state) {
           return false;
         }
         element[0][attr] = newHref;
+        if (uiSrefActive) {
+          uiSrefActive.$$setStateInfo(ref.state, params);
+        }
       };
 
       if (ref.paramExpr) {
@@ -57,4 +63,41 @@ function $StateRefDirective($state) {
   };
 }
 
-angular.module('ui.router.state').directive('uiSref', $StateRefDirective);
+$StateActiveDirective.$inject = ['$state', '$stateParams', '$interpolate'];
+function $StateActiveDirective($state, $stateParams, $interpolate) {
+  return {
+    restrict: "A",
+    controller: function($scope, $element, $attrs) {
+      var state, params, activeClass;
+
+      // There probably isn't much point in $observing this
+      activeClass = $interpolate($attrs.uiSrefActive || '', false)($scope);
+
+      // Allow uiSref to communicate with uiSrefActive
+      this.$$setStateInfo = function(newState, newParams) {
+        state = $state.get(newState, stateContext($element));
+        params = newParams;
+        update();
+      };
+
+      $scope.$on('$stateChangeSuccess', update);
+
+      // Update route state
+      function update() {
+        if ($state.$current.self === state && matchesParams()) {
+          $element.addClass(activeClass);
+        } else {
+          $element.removeClass(activeClass);
+        }
+      }
+
+      function matchesParams() {
+        return !params || equalForKeys(params, $stateParams);
+      }
+    }
+  };
+}
+
+angular.module('ui.router.state')
+  .directive('uiSref', $StateRefDirective)
+  .directive('uiSrefActive', $StateActiveDirective);
