@@ -10,8 +10,8 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      '../lib/angular-1.1.4.js',
-      './lib/angular-mocks-1.1.4.js',
+      '../lib/angular-1.1.5.js',
+      './lib/angular-mocks-1.1.5.js',
       './testUtils.js',
 
       '../src/common.js',
