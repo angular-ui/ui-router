@@ -52,10 +52,8 @@ part of the URL. A URL pattern consists of a path pattern, optionally followed b
 of search parameters. Multiple search parameter names are separated by '&amp;'. Search parameters
 do not influence whether or not a URL is matched, but their values are passed through into
 the matched parameters returned by <a href="UrlMatcher.html#exec">exec</a>.</p>
-
 <p>Path parameter placeholders can be specified using simple colon/catch-all syntax or curly brace
 syntax, which optionally allows a regular expression for the parameter to be specified:</p>
-
 <ul>
 <li>':' name - colon placeholder</li>
 <li>'*' name - catch-all placeholder</li>
@@ -63,15 +61,12 @@ syntax, which optionally allows a regular expression for the parameter to be spe
 <li>'{' name ':' regexp '}' - curly placeholder with regexp. Should the regexp itself contain
 curly braces, they must be in matched pairs or escaped with a backslash.</li>
 </ul>
-
 <p>Parameter names may contain only word characters (latin letters, digits, and underscore) and
 must be unique within the pattern (across both path and search parameters). For colon 
 placeholders or curly placeholders without an explicit regexp, a path parameter matches any
 number of characters other than '/'. For catch-all placeholders the path parameter matches
 any number of characters.</p>
-
 <h3>Examples</h3>
-
 <ul>
 <li>'/hello/' - Matches only if the path is exactly '/hello/'. There is no special treatment for
 trailing slashes, and patterns have to match the entire path, not just a prefix.</li>
@@ -218,7 +213,7 @@ path into the parameter 'path'.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        urlMatcherFactory.js, line 44
+        <a href="urlMatcherFactory.js.html">urlMatcherFactory.js</a>, <a href="urlMatcherFactory.js.html#line44">line 44</a>
     </li></ul></dd>
     
     
@@ -230,6 +225,10 @@ path into the parameter 'path'.</li>
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -272,14 +271,10 @@ path into the parameter 'path'.</li>
 search parameters of the specified pattern to this pattern. The current pattern is not
 modified. This can be understood as creating a pattern for URLs that are relative to (or
 suffixes of) the current pattern.</p>
-
 <h3>Example</h3>
-
 <p>The following two matchers are equivalent:</p>
-
-<div class="highlight"><pre lang="">new UrlMatcher('/user/{id}?q').concat('/details?date');
-new UrlMatcher('/user/{id}/details?q&date');
-</pre></div>
+<pre><code>new UrlMatcher('/user/{id}?q').concat('/details?date');
+new UrlMatcher('/user/{id}/details?q&amp;date');</code></pre>
     </div>
     
 
@@ -360,7 +355,7 @@ new UrlMatcher('/user/{id}/details?q&date');
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        urlMatcherFactory.js, line 128
+        <a href="urlMatcherFactory.js.html">urlMatcherFactory.js</a>, <a href="urlMatcherFactory.js.html#line128">line 128</a>
     </li></ul></dd>
     
     
@@ -372,6 +367,10 @@ new UrlMatcher('/user/{id}/details?q&date');
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -419,12 +418,9 @@ parameter values, or null if the path does not match. The returned object contai
 of any search parameters that are mentioned in the pattern, but their value may be null if
 they are not present in <code>searchParams</code>. This means that search parameters are always treated
 as optional.</p>
-
 <h3>Example</h3>
-
-<div class="highlight"><pre lang="">new UrlMatcher('/user/{id}?q&r').exec('/user/bob', { x:'1', q:'hello' });
-// returns { id:'bob', q:'hello', r:null }
-</pre></div>
+<pre><code>new UrlMatcher('/user/{id}?q&amp;r').exec('/user/bob', { x:'1', q:'hello' });
+// returns { id:'bob', q:'hello', r:null }</code></pre>
     </div>
     
 
@@ -528,7 +524,7 @@ as optional.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        urlMatcherFactory.js, line 156
+        <a href="urlMatcherFactory.js.html">urlMatcherFactory.js</a>, <a href="urlMatcherFactory.js.html#line156">line 156</a>
     </li></ul></dd>
     
     
@@ -540,6 +536,10 @@ as optional.</p>
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -585,12 +585,9 @@ as optional.</p>
         <p>Creates a URL that matches this pattern by substituting the specified values
 for the path and search parameters. Null values for path parameters are
 treated as empty strings.</p>
-
 <h3>Example</h3>
-
-<div class="highlight"><pre lang="">new UrlMatcher('/user/{id}?q').format({ id:'bob', q:'yes' });
-// returns '/user/bob?q=yes'
-</pre></div>
+<pre><code>new UrlMatcher('/user/{id}?q').format({ id:'bob', q:'yes' });
+// returns '/user/bob?q=yes'</code></pre>
     </div>
     
 
@@ -671,7 +668,7 @@ treated as empty strings.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        urlMatcherFactory.js, line 195
+        <a href="urlMatcherFactory.js.html">urlMatcherFactory.js</a>, <a href="urlMatcherFactory.js.html#line195">line 195</a>
     </li></ul></dd>
     
     
@@ -683,6 +680,10 @@ treated as empty strings.</p>
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -758,7 +759,7 @@ treated as empty strings.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        urlMatcherFactory.js, line 177
+        <a href="urlMatcherFactory.js.html">urlMatcherFactory.js</a>, <a href="urlMatcherFactory.js.html#line177">line 177</a>
     </li></ul></dd>
     
     
@@ -770,6 +771,10 @@ treated as empty strings.</p>
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -818,15 +823,16 @@ treated as empty strings.</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="$resolve.html">$resolve</a></li></ul><h3>Classes</h3><ul><li><a href="$templateFactory.html">$templateFactory</a></li><li><a href="$urlMatcherFactory.html">$urlMatcherFactory</a></li><li><a href="UrlMatcher.html">UrlMatcher</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ancestors">ancestors</a></li><li><a href="global.html#arraySearch">arraySearch</a></li><li><a href="global.html#inheritParams">inheritParams</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="$resolve.html">$resolve</a></li></ul><h3>Classes</h3><ul><li><a href="$templateFactory.html">$templateFactory</a></li><li><a href="$urlMatcherFactory.html">$urlMatcherFactory</a></li><li><a href="UrlMatcher.html">UrlMatcher</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ancestors">ancestors</a></li><li><a href="global.html#arraySearch">arraySearch</a></li><li><a href="global.html#equalForKeys">equalForKeys</a></li><li><a href="global.html#filterByKeys">filterByKeys</a></li><li><a href="global.html#inheritParams">inheritParams</a></li><li><a href="global.html#keys">keys</a></li><li><a href="global.html#normalize">normalize</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.1.1</a> on Wed Dec 04 2013 21:16:33 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Dec 06 2013 14:17:59 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
 </body>
 </html>

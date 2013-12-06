@@ -64,7 +64,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        resolve.js, line 1
+        <a href="resolve.js.html">resolve.js</a>, <a href="resolve.js.html#line1">line 1</a>
     </li></ul></dd>
     
     
@@ -118,40 +118,32 @@
 and can have an arbitrary number of dependencies. An invocable can either return a value directly,
 or a <code>$q</code> promise. If a promise is returned it will be resolved and the resulting value will be
 used instead. Dependencies of invocables are resolved (in this order of precedence)</p>
-
 <ul>
 <li>from the specified <code>locals</code></li>
 <li>from another invocable that is part of this <code>$resolve</code> call</li>
 <li>from an invocable that is inherited from a <code>parent</code> call to <code>$resolve</code> (or recursively
 from any ancestor <code>$resolve</code> of that parent).</li>
 </ul>
-
 <p>The return value of <code>$resolve</code> is a promise for an object that contains (in this order of precedence)</p>
-
 <ul>
 <li>any <code>locals</code> (if specified)</li>
 <li>the resolved return values of all injectables</li>
 <li>any values inherited from a <code>parent</code> call to <code>$resolve</code> (if specified)</li>
 </ul>
-
 <p>The promise will resolve after the <code>parent</code> promise (if any) and all promises returned by injectables
 have been resolved. If any invocable (or <code>$injector.invoke</code>) throws an exception, or if a promise
 returned by an invocable is rejected, the <code>$resolve</code> promise is immediately rejected with the same error.
 A rejection of a <code>parent</code> promise (if specified) will likewise be propagated immediately. Once the
 <code>$resolve</code> promise has been rejected, no further invocables will be called.</p>
-
 <p>Cyclic dependencies between invocables are not permitted and will caues <code>$resolve</code> to throw an
 error. As a special case, an injectable can depend on a parameter with the same name as the injectable,
 which will be fulfilled from the <code>parent</code> injectable of the same name. This allows inherited values
 to be decorated. Note that in this case any other injectable in the same <code>$resolve</code> with the same
 dependency would see the decorated value, not the inherited value.</p>
-
 <p>Note that missing dependencies -- unlike cyclic dependencies -- will cause an (asynchronous) rejection
 of the <code>$resolve</code> promise rather than a (synchronous) exception.</p>
-
 <p>Invocables are invoked eagerly as soon as all dependencies are available. This is true even for
 dependencies inherited from a <code>parent</code> call to <code>$resolve</code>.</p>
-
 <p>As a special case, an invocable can be a string, in which case it is taken to be a service name
 to be passed to <code>$injector.get()</code>. This is supported primarily for backwards-compatibility with the
 <code>resolve</code> property of <code>$routeProvider</code> routes.</p>
@@ -196,10 +188,7 @@ to be passed to <code>$injector.get()</code>. This is supported primarily for ba
             <td class="type">
             
                 
-<span class="param-type">Object.&lt;string, Function</span>
-|
-
-<span class="param-type">string></span>
+<span class="param-type">Object.&lt;string, (function()|string)></span>
 
 
             
@@ -207,6 +196,8 @@ to be passed to <code>$injector.get()</code>. This is supported primarily for ba
             
             
                 <td class="attributes">
+                
+                    
                 
                     
                 
@@ -241,6 +232,8 @@ to be passed to <code>$injector.get()</code>. This is supported primarily for ba
                 
                     
                 
+                    
+                
                 </td>
             
             
@@ -272,6 +265,8 @@ to be passed to <code>$injector.get()</code>. This is supported primarily for ba
                 
                     
                 
+                    
+                
                 </td>
             
             
@@ -300,6 +295,8 @@ to be passed to <code>$injector.get()</code>. This is supported primarily for ba
                 <td class="attributes">
                 
                     &lt;optional><br>
+                
+                    
                 
                     
                 
@@ -339,7 +336,7 @@ to be passed to <code>$injector.get()</code>. This is supported primarily for ba
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        resolve.js, line 209
+        <a href="resolve.js.html">resolve.js</a>, <a href="resolve.js.html#line209">line 209</a>
     </li></ul></dd>
     
     
@@ -351,6 +348,10 @@ to be passed to <code>$injector.get()</code>. This is supported primarily for ba
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -386,7 +387,7 @@ to be passed to <code>$injector.get()</code>. This is supported primarily for ba
         
             
 <dt>
-    <h4 class="name" id="study"><span class="type-signature"></span>study<span class="signature">(invocables)</span><span class="type-signature"> &rarr; {Function}</span></h4>
+    <h4 class="name" id="study"><span class="type-signature"></span>study<span class="signature">(invocables)</span><span class="type-signature"> &rarr; {function}</span></h4>
     
     
 </dt>
@@ -480,7 +481,7 @@ See module:$resolve/resolve for details.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        resolve.js, line 29
+        <a href="resolve.js.html">resolve.js</a>, <a href="resolve.js.html#line29">line 29</a>
     </li></ul></dd>
     
     
@@ -492,6 +493,10 @@ See module:$resolve/resolve for details.</p>
 </dl>
 
     
+    
+
+    
+
     
     
     
@@ -508,7 +513,7 @@ See module:$resolve/resolve for details.</p>
 	</dt>
 	<dd>
 		
-<span class="param-type">Function</span>
+<span class="param-type">function</span>
 
 
 	</dd>
@@ -535,15 +540,16 @@ See module:$resolve/resolve for details.</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="$resolve.html">$resolve</a></li></ul><h3>Classes</h3><ul><li><a href="$templateFactory.html">$templateFactory</a></li><li><a href="$urlMatcherFactory.html">$urlMatcherFactory</a></li><li><a href="UrlMatcher.html">UrlMatcher</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ancestors">ancestors</a></li><li><a href="global.html#arraySearch">arraySearch</a></li><li><a href="global.html#inheritParams">inheritParams</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="$resolve.html">$resolve</a></li></ul><h3>Classes</h3><ul><li><a href="$templateFactory.html">$templateFactory</a></li><li><a href="$urlMatcherFactory.html">$urlMatcherFactory</a></li><li><a href="UrlMatcher.html">UrlMatcher</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ancestors">ancestors</a></li><li><a href="global.html#arraySearch">arraySearch</a></li><li><a href="global.html#equalForKeys">equalForKeys</a></li><li><a href="global.html#filterByKeys">filterByKeys</a></li><li><a href="global.html#inheritParams">inheritParams</a></li><li><a href="global.html#keys">keys</a></li><li><a href="global.html#normalize">normalize</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.1.1</a> on Wed Dec 04 2013 21:16:33 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Dec 06 2013 14:17:59 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
 </body>
 </html>
