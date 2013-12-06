@@ -14,7 +14,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
         var viewScope, viewLocals,
             name = attr[directive.name] || attr.name || '',
             onloadExp = attr.onload || '',
-            animate = isDefined($animator) && $animator(scope, attr),
+            animate = $animator && $animator(scope, attr),
             initialView = transclude(scope);
 
         // Returns a set of DOM manipulation functions based on whether animation
