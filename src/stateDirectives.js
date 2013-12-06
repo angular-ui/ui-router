@@ -12,8 +12,8 @@ function stateContext(el) {
   }
 }
 
-$StateRefDirective.$inject = ['$state'];
-function $StateRefDirective($state) {
+$StateRefDirective.$inject = ['$state', '$timeout'];
+function $StateRefDirective($state, $timeout) {
   return {
     restrict: 'A',
     require: '?^uiSrefActive',
@@ -53,8 +53,11 @@ function $StateRefDirective($state) {
         var button = e.which || e.button;
 
         if ((button === 0 || button == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-          scope.$evalAsync(function() {
-            $state.go(ref.state, params, { relative: base });
+          // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
+          $timeout(function() {
+            scope.$apply(function() {
+              $state.go(ref.state, params, { relative: base });
+            });
           });
           e.preventDefault();
         }

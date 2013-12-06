@@ -100,10 +100,11 @@ describe('uiStateRef', function() {
       expect(el.attr('href')).toBe('#/contacts/3');
     }));
 
-    it('should transition states when left-clicked', inject(function($state, $stateParams, $document, $q) {
+    it('should transition states when left-clicked', inject(function($state, $stateParams, $document, $q, $timeout) {
       expect($state.$current.name).toEqual('');
 
       triggerClick(el);
+      $timeout.flush();
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
@@ -181,37 +182,42 @@ describe('uiStateRef', function() {
       scope.$digest();
     }));
 
-    it('should work', inject(function ($state, $stateParams, $q) {
+    it('should work', inject(function ($state, $stateParams, $q, $timeout) {
       triggerClick(el);
+      $timeout.flush();
       $q.flush();
 
       expect($state.$current.name).toBe("contacts.item.detail");
       expect($state.params).toEqual({ id: '5' });
     }));
 
-    it('should resolve states from parent uiView', inject(function ($state, $stateParams, $q) {
+    it('should resolve states from parent uiView', inject(function ($state, $stateParams, $q, $timeout) {
       $state.transitionTo('contacts');
       $q.flush();
 
       var parentToChild = angular.element(template[0].querySelector('a.item'));
       triggerClick(parentToChild);
+      $timeout.flush();
       $q.flush();
 
       var childToGrandchild = angular.element(template[0].querySelector('a.item-detail'));
       var childToParent = angular.element(template[0].querySelector('a.item-parent'));
 
       triggerClick(childToGrandchild);
+      $timeout.flush();
       $q.flush();
 
       var grandchildToParent = angular.element(template[0].querySelector('a.item-parent2'));
       expect($state.$current.name).toBe("contacts.item.detail")
 
       triggerClick(grandchildToParent);
+      $timeout.flush();
       $q.flush();
       expect($state.$current.name).toBe("contacts.item");
 
       $state.transitionTo("contacts.item.detail", { id: 3 });
       triggerClick(childToParent);
+      $timeout.flush();
       $q.flush();
       expect($state.$current.name).toBe("contacts");
     }));
