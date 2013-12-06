@@ -1,7 +1,7 @@
 $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider', '$locationProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $locationProvider) {
 
-  var root, states = {}, $state, queue = {};
+  var root, states = {}, $state, queue = {}, abstractKey = 'abstract';
 
   // Builds state properties from definition passed to registerState()
   var stateBuilder = {
@@ -178,7 +178,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     states[name] = state;
 
     // Register the state in the global state list and with $urlRouter if necessary.
-    if (!state['abstract'] && state.url) {
+    if (!state[abstractKey] && state.url) {
       $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
         if ($state.$current.navigable != state || !equalForKeys($match, $stateParams)) {
           $state.transitionTo(state, $match, { location: false });
@@ -318,7 +318,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
           throw new Error("No such state '" + to + "'");
         }
       }
-      if (toState['abstract']) throw new Error("Cannot transition to abstract state '" + to + "'");
+      if (toState[abstractKey]) throw new Error("Cannot transition to abstract state '" + to + "'");
       if (options.inherit) toParams = inheritParams($stateParams, toParams || {}, $state.$current, toState);
       to = toState;
 
