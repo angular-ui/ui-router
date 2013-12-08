@@ -13,7 +13,7 @@ describe('state', function () {
   }
   function callbackLogger(what) {
     return function () {
-      if (logEnterExit) log += this.name + '.' + what + ';';
+      if (logEnterExit) log += this.name + '!' + what + ';';
     };
   }
 
@@ -26,6 +26,12 @@ describe('state', function () {
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
       HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
+      I = { name: 'I' },
+      II = { name: 'II', parent: I },
+      J = {},
+      JJ = {},
+      K = {},
+      KK = { parent: 'K' },
       RS = { url: '^/search?term', reloadOnSearch: false },
       AppInjectable = {};
 
@@ -46,6 +52,12 @@ describe('state', function () {
       .state('H', H)
       .state('HH', HH)
       .state('HHH', HHH)
+      .state(I)
+      .state(II)
+      .state('J', J)
+      .state('J.JJ', JJ)
+      .state('K', K)
+      .state('KK', KK)
       .state('RS', RS)
 
       .state('home', { url: "/" })
@@ -152,7 +164,7 @@ describe('state', function () {
       });
       $q.flush();
       expect($location.search()).toEqual({term: 'hello'});
-      expect(called).toBeFalsy();        
+      expect(called).toBeFalsy();
     }));
 
     it('ignores non-applicable state parameters', inject(function ($state, $q) {
@@ -214,7 +226,7 @@ describe('state', function () {
         message = err.message;
       }
       $q.flush();
-      expect(message).toEqual('No such state \'never_defined\'');
+      expect(message).toEqual('No such state "never_defined"');
       expect(called).toBeTruthy();
       expect($state.current).toBe(E);
     }));
@@ -255,10 +267,10 @@ describe('state', function () {
         stateProvider.state(redirect.to, { parent: DD, params: [ 'x', 'y', 'z', 'w' ]});
         called = true;
       });
-      var promise = $state.go('DDD', { w: 4 });
+      var promise = $state.go('D.DD.DDD', { w: 4 });
       $q.flush();
       expect(called).toBeTruthy();
-      expect($state.current.name).toEqual('DDD');
+      expect($state.current.name).toEqual('D.DD.DDD');
       expect($state.params).toEqual({ x: '1', y: '2', z: '3', w: '4' });
     }));
 
@@ -270,12 +282,12 @@ describe('state', function () {
         ev.retry = deferred.promise;
         called = true;
       });
-      var promise = $state.go('AA', { a: 1 });
-      stateProvider.state('AA', { parent: A, params: [ 'a' ]});
+      var promise = $state.go('A.AA', { a: 1 });
+      stateProvider.state('A.AA', { parent: A, params: [ 'a' ]});
       deferred.resolve();
       $q.flush();
       expect(called).toBeTruthy();
-      expect($state.current.name).toEqual('AA');
+      expect($state.current.name).toEqual('A.AA');
       expect($state.params).toEqual({ a: '1' });
     }));
 
@@ -398,14 +410,14 @@ describe('state', function () {
       log += $state.current.name + ';';
       $state.transitionTo(A, {}); $q.flush();
       expect(log).toBe(
-        'A.onExit;' +
-        'D.onEnter;' +
+        'A!onExit;' +
+        'D!onEnter;' +
         'D;' +
-        'DD.onEnter;' +
-        'DD;' +
-        'DD.onExit;' +
-        'D.onExit;' +
-        'A.onEnter;');
+        'D.DD!onEnter;' +
+        'D.DD;' +
+        'D.DD!onExit;' +
+        'D!onExit;' +
+        'A!onEnter;');
     }));
 
     it('doesn\'t transition to parent state when child has no URL', inject(function ($state, $q) {
@@ -417,7 +429,7 @@ describe('state', function () {
       $state.transitionTo(DD);
       $q.flush();
 
-      var err = "Could not resolve '^.Z' from state 'DD'";
+      var err = "Could not resolve '^.Z' from state 'D.DD'";
       expect(function() { $state.transitionTo("^.Z", null, { relative: $state.$current }); }).toThrow(err);
     }));
 
@@ -461,6 +473,68 @@ describe('state', function () {
       expect($state.$current.name).toBe('about.sidebar');
     }));
 
+    describe('absolute and object sref', function ($state, $q) {
+      var $state, $q;
+
+      beforeEach(inject(['$state', '$q', function (_$state_, _$q_) {
+        $state = _$state_;
+        $q = _$q_;
+        $state.go("home"); $q.flush();
+      }]));
+
+      it('transitions to peer', function() {
+        $state.go('A'); $q.flush();
+        expect($state.$current.name).toBe('A');
+      });
+
+      it('transitions to peer-with-child', function() {
+        $state.go('D'); $q.flush();
+        expect($state.$current.name).toBe('D');
+      });
+
+      it('transitions to own child', function() {
+        $state.go('D'); $q.flush();
+        $state.go('D.DD'); $q.flush();
+        expect($state.$current.name).toBe('D.DD');
+      });
+
+      it('transitions to child of peer', function() {
+        $state.go('D.DD'); $q.flush();
+        expect($state.$current.name).toBe('D.DD');
+      });
+
+      it('transitions to peer with `name`', function() {
+        $state.go('I'); $q.flush();
+        expect($state.$current.name).toBe('I');
+      });
+
+      it('transitions to own child with `name`', function() {
+        $state.go('I'); $q.flush();
+        $state.go('I.II'); $q.flush();
+        expect($state.$current.name).toBe('I.II');
+      });
+
+      it('transitions to child of peer with `name`', function() {
+        $state.go('I.II'); $q.flush();
+        expect($state.$current.name).toBe('I.II');
+      });
+
+      it('transitions to child of peer with parent-name ref', function() {
+        $state.go(KK); $q.flush();
+        expect($state.$current.name).toBe('K.KK');
+      });
+
+      it('transitions to peer with dot-name', function() {
+        $state.go('J.JJ'); $q.flush();
+        expect($state.$current.name).toBe('J.JJ');
+      });
+
+      it('transitions to peer by reference', function() {
+        $state.go(DD); $q.flush();
+        expect($state.$current.name).toBe('D.DD');
+      });
+    });
+
     it('keeps parameters from common ancestor states', inject(function ($state, $stateParams, $q) {
       $state.transitionTo('about.person', { person: 'bob' });
       $q.flush();
@@ -499,6 +573,7 @@ describe('state', function () {
       expect($state.is(A)).toBe(true);
       expect($state.is('A')).toBe(true);
       expect($state.is(B)).toBe(false);
+      $state.transitionTo(HHH); $q.flush();
     }));
 
     it('should return undefined when queried state does not exist', inject(function ($state) {
@@ -600,7 +675,6 @@ describe('state', function () {
     }));
   });
 
-
   describe('.href()', function () {
     it('aborts on un-navigable states', inject(function ($state) {
       expect($state.href("A")).toBeNull();
@@ -621,7 +695,7 @@ describe('state', function () {
       expect($state.href("about.person", { person: "bob" })).toEqual("#/about/bob");
       expect($state.href("about.person.item", { person: "bob", id: null })).toEqual("#/about/bob/");
     }));
-    
+
     it('generates absolute url when absolute is true', inject(function ($state) {
       expect($state.href("about.sidebar", null, { absolute: true })).toEqual("http://server/#/about");
       locationProvider.html5Mode(true);
@@ -650,11 +724,17 @@ describe('state', function () {
         'B',
         'C',
         'D',
-        'DD',
+        'D.DD',
         'E',
         'H',
-        'HH',
-        'HHH',
+        'H.HH',
+        'H.HH.HHH',
+        'I',
+        'I.II',
+        'J',
+        'J.JJ',
+        'K',
+        'K.KK',
         'RS',
         'about',
         'about.person',
@@ -786,14 +866,14 @@ describe('state', function () {
 
     it('should be inherited from parent if state doesn\'t define it', inject(function ($state) {
       initStateTo(HH);
-      expect($state.current.name).toEqual('HH');
+      expect($state.current.name).toEqual('H.HH');
       expect($state.current.data.propA).toEqual(H.data.propA);
       expect($state.current.data.propB).toEqual(H.data.propB);
     }));
 
     it('should be overridden/extended if state defines it', inject(function ($state) {
       initStateTo(HHH);
-      expect($state.current.name).toEqual('HHH');
+      expect($state.current.name).toEqual('H.HH.HHH');
       expect($state.current.data.propA).toEqual(HHH.data.propA);
       expect($state.current.data.propB).toEqual(H.data.propB);
       expect($state.current.data.propB).toEqual(HH.data.propB);
@@ -823,7 +903,7 @@ describe('state', function () {
 
     it('should include itself and parent states', inject(function ($state, $q) {
       $state.transitionTo(DD); $q.flush();
-      expect($state.$current.includes).toEqual({ '': true, D: true, DD: true });
+      expect($state.$current.includes).toEqual({ '': true, 'D': true, 'D.DD': true });
     }));
   });
 
@@ -847,7 +927,7 @@ describe('state', function () {
       });
       stateProvider.state('AA', { parent: A, data: { baz: "true" } });
 
-      $state.transitionTo('AA');
+      $state.transitionTo('A.AA');
       $q.flush();
       expect($state.current.data).toEqual({ baz: 'true', foo: 'bar' });
     }));
@@ -906,7 +986,7 @@ describe('state queue', function(){
         .state('queue-test-a.child', {})
     });
 
-  var expectedStates = ['','queue-test-a', 'queue-test-a.child', 'queue-test-b', 'queue-test-b-child'];
+  var expectedStates = ['','queue-test-a', 'queue-test-a.child', 'queue-test-b', 'queue-test-b.queue-test-b-child'];
 
   it('should work across modules', function() {
     module('ui.router.queue.test', 'ui.router.queue.test.dependency');
