@@ -38,7 +38,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
                 return element.contents();
               }
             }
-          })[doAnimate.toString()];
+          })[(!!doAnimate).toString()];
         };
 
         // Put back the compiled initial view
