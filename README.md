@@ -236,11 +236,13 @@ Next, [create a new issue](https://github.com/angular-ui/ui-router/issues/new) t
 and provides a bit of background as to the circumstances that triggered it. Don't forget to include the link to
 that plunkr you created!
 
-Finally, if you're unsure how a feature is used, or are encountering some unexpected behavior that you aren't sure
+**Note**: If you're unsure how a feature is used, or are encountering some unexpected behavior that you aren't sure
 is a bug, it's best to talk it out in the
 [Google Group](https://groups.google.com/forum/#!categories/angular-ui/router) or on
 [StackOverflow](http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router) before reporting it. This
 keeps development streamlined, and helps us focus on building great software.
+
+Please keep in mind that the issue tracker is for *issues*. Please do *not* post an issue if you need help or support. Instead, see one of the above-mentioned forums or [IRC](irc://irc.freenode.net/#angularjs).
 
 
 ## Contribute
