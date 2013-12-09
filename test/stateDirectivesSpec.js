@@ -53,15 +53,22 @@ describe('uiStateRef', function() {
   }
 
   describe('links with promises', function() {
+
     it('should update the href when promises on parameters change before scope is applied', inject(function($rootScope, $compile, $q) {
-      promise = $q.defer()
+      var defer = $q.defer();
       el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })">Details</a>');
-      scope = $rootScope;
-      scope.contact = promise.promise;
-      promise.resolve({id: 6});
-      scope.$apply();
-      $compile(el)(scope);
-      scope.$digest();
+
+      $rootScope.contact = defer.promise;
+      defer.resolve({ id: 6 });
+
+      $compile(el)($rootScope);
+      $rootScope.$digest();
+
+      // HACK: Promises no longer auto-unwrap in 1.2.x+
+      if ($rootScope.contact.$$resolved && $rootScope.contact.$$resolved.value) {
+        $rootScope.contact = $rootScope.contact.$$resolved.value;
+        $rootScope.$digest();
+      }
 
       expect(el.attr('href')).toBe('#/contacts/6');
     }));

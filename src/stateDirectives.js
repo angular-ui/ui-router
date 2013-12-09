@@ -90,9 +90,7 @@ function $StateRefDirective($state, $timeout) {
         if ((button === 0 || button == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey && !element.attr('target')) {
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
           $timeout(function() {
-            scope.$apply(function() {
               $state.go(ref.state, params, { relative: base });
-            });
           });
           e.preventDefault();
         }
