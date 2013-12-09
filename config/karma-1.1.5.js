@@ -8,7 +8,7 @@ module.exports = function (karma) {
     basePath: '..',
 
     // list of files / patterns to load in the browser
-    files: [].concat(files.angular('1.2.4'), files.testUtils, files.src, files.test),
+    files: [].concat(files.angular('1.1.5'), files.testUtils, files.src, files.test),
 
     // level of logging
     // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
