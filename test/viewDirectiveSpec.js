@@ -16,7 +16,7 @@ describe('uiView', function () {
   var scope, $compile, elem;
 
   beforeEach(function() {
-    angular.module('ui.router.test', ['ui.router', 'ngAnimate']);
+    angular.module('ui.router.test', ['ui.router']);
     module('ui.router.test');
     module('mock.animate');
   });
@@ -140,6 +140,20 @@ describe('uiView', function () {
 
       expect($animate.flushNext('leave').element.text()).toBe('');
       expect(innerText($animate.flushNext('enter').element.parent()[0].querySelector('.view').querySelector('.eview'))).toBe(fState.views.eview.template);
+    }));
+
+    it('should compile the cloned element', inject(function ($state, $q, $animate) {
+      scope.isTest = false;
+
+      $compile(elem.append('<div ui-view ng-class="{ test: isTest }"></div>'))(scope);
+
+      scope.isTest = true;
+      scope.$apply();
+
+      $animate.flushNext('addClass');
+
+      var child = angular.element(elem.children()[0]);
+      expect(child.hasClass('test')).toBe(true);
     }));
   });
 
