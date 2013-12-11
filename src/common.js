@@ -164,9 +164,55 @@ function filterByKeys(keys, values) {
   return filtered;
 }
 
+/**
+ * @ngdoc overview
+ * @name ui.router.util
+ *
+ * @description
+ *
+ */
 angular.module('ui.router.util', ['ng']);
-angular.module('ui.router.router', ['ui.router.util']);
-angular.module('ui.router.state', ['ui.router.router', 'ui.router.util']);
-angular.module('ui.router', ['ui.router.state']);
-angular.module('ui.router.compat', ['ui.router']);
 
+/**
+ * @ngdoc overview
+ * @name ui.router.router
+ * 
+ * @requires ui.router.util
+ *
+ * @description
+ *
+ */
+angular.module('ui.router.router', ['ui.router.util']);
+
+/**
+ * @ngdoc overview
+ * @name ui.router.router
+ * 
+ * @requires ui.router.router
+ * @requires ui.router.util
+ *
+ * @description
+ *
+ */
+angular.module('ui.router.state', ['ui.router.router', 'ui.router.util']);
+
+/**
+ * @ngdoc overview
+ * @name ui.router
+ *
+ * @requires ui.router.state
+ *
+ * @description
+ *
+ */
+angular.module('ui.router', ['ui.router.state']);
+/**
+ * @ngdoc overview
+ * @name ui.router.compat
+ *
+ * @requires ui.router
+ *
+ * @description
+ *
+ */
+angular.module('ui.router.compat', ['ui.router']);

@@ -93,6 +93,18 @@ module.exports = function (grunt) {
       options: {
         dest: 'CHANGELOG.md'
       }
+    },
+    ngdocs: {
+      options: {
+        dest: 'site',
+        html5Mode: false,
+        title: 'UI Router',
+        startPage: '/api',
+      },
+      api: {
+        src: ['src/**/*.js'],
+        title: 'API Reference'
+      }
     }
   });
 
