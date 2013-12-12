@@ -70,7 +70,7 @@ $StateActiveDirective.$inject = ['$state', '$stateParams', '$interpolate'];
 function $StateActiveDirective($state, $stateParams, $interpolate) {
   return {
     restrict: "A",
-    controller: function($scope, $element, $attrs) {
+    controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
       var state, params, activeClass;
 
       // There probably isn't much point in $observing this
@@ -97,7 +97,7 @@ function $StateActiveDirective($state, $stateParams, $interpolate) {
       function matchesParams() {
         return !params || equalForKeys(params, $stateParams);
       }
-    }
+    }]
   };
 }
 
