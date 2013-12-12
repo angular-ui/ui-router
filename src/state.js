@@ -335,8 +335,85 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     return this;
   }
 
-  // .state(state)
-  // .state(name, state)
+  /**
+   * @ngdoc function
+   * @name ui.router.state.$stateProvider#state
+   * @methodOf ui.router.state.$stateProvider
+   *
+   * @description
+   * Registers a state configuration under a given state name. The stateConfig object
+   * has the following acceptable properties.
+   * 
+   * - [`template`, `templateUrl`, `templateProvider`] - There are three ways to setup
+   *   your templates.
+   *
+   *   - `{string|object}` - template - String HTML content, or function that returns an HTML
+   *   string.
+   *   - `{string}` - templateUrl - String URL path to template file OR function,
+   *   that returns URL path string.
+   *   - `{object}` - templateProvider - Provider function that returns HTML content
+   *   string.
+   *
+   * - [`controller`, `controllerProvider`] - A controller paired to the state. You can
+   *   either use a controller, or a controller provider.
+   *
+   *   - `{string|object}` - controller - Controller function or controller name.
+   *   - `{object}` - controllerProvider - Injectable provider function that returns
+   *   the actual controller or string.
+   *
+   * - `{object}` - resolve - A map of dependencies which should be injected into the
+   *   controller.
+   *
+   * - `{string}` - url - A url with optional parameters. When a state is navigated or
+   *   transitioned to, the `$stateParams` service will be populated with any 
+   *   parameters that were passed.
+   *
+   * - `{object}` - params - An array of parameter names or regular expressions. Only 
+   *   use this within a state if you are not using url. Otherwise you can specify your
+   *   parameters within the url. When a state is navigated or transitioned to, the 
+   *   $stateParams service will be populated with any parameters that were passed.
+   *
+   * - `{object}` - views - Use the views property to set up multiple views. 
+   *   If you don't need multiple views within a single state this property is not 
+   *   needed. Tip: remember that often nested views are more useful and powerful 
+   *   than multiple sibling views.
+   *
+   * - `{boolean}` - abstract - An abstract state will never be directly activated, 
+   *   but can provide inherited properties to its common children states.
+   *
+   * - `{object}` - onEnter - Callback function for when a state is entered. Good way
+   *   to trigger an action or dispatch an event, such as opening a dialog.
+   *
+   * - `{object}` - onExit - Callback function for when a state is exited. Good way to
+   *   trigger an action or dispatch an event, such as opening a dialog.
+   *
+   * - `{object}` - data - Arbitrary data object, useful for custom configuration.
+   *
+   * @example
+   * <pre>
+   * // The state() method takes a unique stateName (String) and a stateConfig (Object)
+   * $stateProvider.state(stateName, stateConfig);
+   *
+   * // stateName can be a single top-level name (must be unique).
+   * $stateProvider.state("home", {});
+   *
+   * // Or it can be a nested state name. This state is a child of the above "home" state.
+   * $stateProvider.state("home.newest", {});
+   *
+   * // Nest states as deeply as needed.
+   * $stateProvider.state("home.newest.abc.xyz.inception", {});
+   *
+   * // state() returns $stateProvider, so you can chain state declarations.
+   * $stateProvider
+   *   .state("home", {})
+   *   .state("about", {})
+   *   .state("contacts", {});
+   * </pre>
+   *
+   * @param {string} name A unique state name, e.g. "home", "about", "contacts". 
+   * To create a parent/child state use a dot, e.g. "about.sales", "home.newest".
+   * @param {object} definition State configuratino object.
+   */
   this.state = state;
   function state(name, definition) {
     /*jshint validthis: true */
@@ -346,6 +423,29 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     return this;
   }
 
+  /**
+   * @ngdoc object
+   * @name ui.router.state.$state
+   *
+   * @requires $rootScope
+   * @requires $q
+   * @requires ui.router.state.$view
+   * @requires $injector
+   * @requires ui.router.util.$resolve
+   * @requires ui.router.state.$stateParams
+   *
+   * @property {object} params A param object, e.g. {sectionId: section.id)}, that 
+   * you'd like to test against the current active state.
+   * @property {object} current A reference to the state's config object. However 
+   * you passed it in. Useful for accessing custom data.
+   * @property {object} transition Currently pending transition. A promise that'll 
+   * resolve or reject.
+   *
+   * @description
+   * `$state` service is responsible for representing states as well as transitioning
+   * between them. It also provides interfaces to ask for current state or even states
+   * you're coming from.
+   */
   // $urlRouter is injected just to ensure it gets instantiated
   this.$get = $get;
   $get.$inject = ['$rootScope', '$q', '$view', '$injector', '$resolve', '$stateParams', '$location', '$urlRouter'];
@@ -372,10 +472,36 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       transition: null
     };
 
+    /**
+     * @ngdoc function
+     * @name ui.router.state.$state#reload
+     * @methodOf ui.router.state.$state
+     *
+     * @description
+     * Reloads the current state by re-transitioning to it.
+     */
     $state.reload = function reload() {
       $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: false });
     };
 
+    /**
+     * @ngdoc function
+     * @name ui.router.state.$state#go
+     * @methodOf ui.router.state.$state
+     *
+     * @description
+     * Convenience method for transitioning to a new state. `$state.go` calls 
+     * `$state.transitionTo` internally but automatically sets options to 
+     * `{ location: true, inherit: true, relative: $state.$current, notify: true }`. 
+     * This allows you to easily use an absolute or relative to path and specify 
+     * only the parameters you'd like to update (while letting unspecified parameters 
+     * inherit from the current state.
+     *
+     * @param {string} to Absolute State Name or Relative State Path.
+     * @param {object} params A map of the parameters that will be sent to the state, 
+     * will populate $stateParams.
+     * @param {object} options If Object is passed, object is an options hash.
+     */
     $state.go = function go(to, params, options) {
       return this.transitionTo(to, params, extend({ inherit: true, relative: $state.$current }, options));
     };
