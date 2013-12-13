@@ -1,4 +1,3 @@
-
 $ViewDirective.$inject = ['$state', '$compile', '$controller', '$injector', '$anchorScroll'];
 function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $anchorScroll) {
   var $animator = $injector.has('$animator') ? $injector.get('$animator') : false;
@@ -101,7 +100,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
             element.children().data('$ngControllerController', controller);
           }
           link(viewScope);
-          viewScope.$emit('$viewContentLoaded');
+          viewScope.$emit('$viewContentLoaded', name);
           if (onloadExp) viewScope.$eval(onloadExp);
 
           // TODO: This seems strange, shouldn't $anchorScroll listen for $viewContentLoaded if necessary?
