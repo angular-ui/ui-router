@@ -543,8 +543,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return transition;
     };
 
-    $state.is = function is(stateOrName, params) {
-      var state = findState(stateOrName);
+    $state.is = function is(stateOrName, params, options) {
+      options = extend({ relative: $state.$current }, options || {});
+      var state = findState(stateOrName, options.relative);
 
       if (!isDefined(state)) {
         return undefined;
@@ -557,8 +558,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return isDefined(params) ? angular.equals($stateParams, params) : true;
     };
 
-    $state.includes = function includes(stateOrName, params) {
-      var state = findState(stateOrName);
+    $state.includes = function includes(stateOrName, params, options) {
+      options = extend({ relative: $state.$current }, options || {});
+      var state = findState(stateOrName, options.relative);
       if (!isDefined(state)) {
         return undefined;
       }
@@ -597,13 +599,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return url;
     };
 
-    $state.get = function (stateOrName, context) {
+    $state.get = function (stateOrName, options) {
+      options = extend({ relative: $state.$current }, options || {});
       if (!isDefined(stateOrName)) {
         var list = [];
         forEach(states, function(state) { list.push(state.self); });
         return list;
       }
-      var state = findState(stateOrName, context);
+      var state = findState(stateOrName, options.relative);
       return (state && state.self) ? state.self : null;
     };
 
