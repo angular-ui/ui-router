@@ -479,6 +479,15 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
      *
      * @description
      * Reloads the current state by re-transitioning to it.
+     *
+     * @example
+     * <pre>
+     * var app angular.module('app', ['ui.router.state']);
+     *
+     * app.controller('ctrl', function ($state) {
+     *   $state.reload();
+     * });
+     * </pre>
      */
     $state.reload = function reload() {
       $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: false });
@@ -497,6 +506,24 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
      * only the parameters you'd like to update (while letting unspecified parameters 
      * inherit from the current state.
      *
+     * Some examples:
+     *
+     * - `$state.go('contact.detail')` - will go to the `contact.detail` state
+     * - `$state.go('^')` - will go to a parent state
+     * - `$state.go('^.sibling')` - will go to a sibling state
+     * - `$state.go('.child.grandchild')` - will go to grandchild state
+     *
+     * @example
+     * <pre>
+     * var app = angular.module('app', ['ui.router.state']);
+     *
+     * app.controller('ctrl', function ($scope, $state) {
+     *   $scope.changeState = function () {
+     *     $state.go('contact.detail');
+     *   };
+     * });
+     * </pre>
+     *
      * @param {string} to Absolute State Name or Relative State Path.
      * @param {object} params A map of the parameters that will be sent to the state, 
      * will populate $stateParams.
@@ -506,6 +533,31 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return this.transitionTo(to, params, extend({ inherit: true, relative: $state.$current }, options));
     };
 
+    /**
+     * @ngdoc function
+     * @name ui.router.state.$state#transitionTo
+     * @methodOf ui.router.state.$state
+     *
+     * @description
+     * Low-level method for transitioning to a new state. {@link ui.router.state.$state#methods_go $state.go}
+     * uses `transitionTo` internally. `$state.go` is recommended in most situations.
+     *
+     * @example
+     * <pre>
+     * var app = angular.module('app', ['ui.router.state']);
+     *
+     * app.controller('ctrl', function ($scope, $state) {
+     *   $scope.changeState = function () {
+     *     $state.transitionTo('contact.detail');
+     *   };
+     * });
+     * </pre>
+     *
+     * @param {string} to Absolute State Name or Relative State Path.
+     * @param {object} params A map of the parameters that will be sent to the state, 
+     * will populate $stateParams.
+     * @param {object} options If Object is passed, object is an options hash.
+     */
     $state.transitionTo = function transitionTo(to, toParams, options) {
       toParams = toParams || {};
       options = extend({
@@ -669,6 +721,30 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return transition;
     };
 
+    /**
+     * @ngdoc function
+     * @name ui.router.state.$state#is
+     * @methodOf ui.router.state.$state
+     *
+     * @description
+     * Similar to {@link ui.router.state.$state#methods_includes $state.includes},
+     * but only checks for the full state name. If params is supplied then it will be 
+     * tested for strict equality against the current active params object, so all params 
+     * must match with none missing and no extras.
+     *
+     * @example
+     * <pre>
+     * $state.is('contact.details.item'); // returns true
+     * $state.is(contactDetailItemStateObject); // returns true
+     *
+     * // everything else would return false
+     * </pre>
+     *
+     * @param {string|object} stateName The state name or state object you'd like to check.
+     * @param {object} params A param object, e.g. `{sectionId: section.id}`, that you'd like 
+     * to test against the current active state.
+     * @returns {boolean} Returns true or false whether its the state or not.
+     */
     $state.is = function is(stateOrName, params) {
       var state = findState(stateOrName);
 
@@ -683,6 +759,30 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return isDefined(params) ? angular.equals($stateParams, params) : true;
     };
 
+    /**
+     * @ngdoc function
+     * @name ui.router.state.$state#includes
+     * @methodOf ui.router.state.$state
+     *
+     * @description
+     * A method to determine if the current active state is equal to or is the child of the 
+     * state stateName. If any params are passed then they will be tested for a match as well.
+     * Not all the parameters need to be passed, just the ones you'd like to test for equality.
+     *
+     * @example
+     * <pre>
+     * $state.includes("contacts"); // returns true
+     * $state.includes("contacts.details"); // returns true
+     * $state.includes("contacts.details.item"); // returns true
+     * $state.includes("contacts.list"); // returns false
+     * $state.includes("about"); // returns false
+     * </pre>
+     *
+     * @param {string} stateOrName A partial name to be searched for within the current state name.
+     * @param {object} params A param object, e.g. `{sectionId: section.id}`, 
+     * that you'd like to test against the current active state.
+     * @returns {boolean} True or false
+     */
     $state.includes = function includes(stateOrName, params) {
       var state = findState(stateOrName);
       if (!isDefined(state)) {
@@ -702,6 +802,23 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return validParams;
     };
 
+    /**
+     * @ngdoc function
+     * @name ui.router.state.$state#href
+     * @methodOf ui.router.state.$state
+     *
+     * @description
+     * A url generation method that returns the compiled url for the given state populated with the given params.
+     *
+     * @example
+     * <pre>
+     * expect($state.href("about.person", { person: "bob" })).toEqual("/about/bob");
+     * </pre>
+     *
+     * @param {string|object} stateOrName The state name or state object you'd like to generate a url from.
+     * @param {object} params An object of parameter values to fill the state's required parameters.
+     * @returns {string} url
+     */
     $state.href = function href(stateOrName, params, options) {
       options = extend({ lossy: true, inherit: false, absolute: false, relative: $state.$current }, options || {});
       var state = findState(stateOrName, options.relative);
@@ -723,6 +840,20 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return url;
     };
 
+    /**
+     * @ngdoc function
+     * @name ui.router.state.$state#get
+     * @methodOf ui.router.state.$state
+     *
+     * @description
+     * Returns the state configuration object for any state by passing the name
+     * as a string. Without any arguments it'll return a array of all configured
+     * state objects.
+     *
+     * @param {string|object} stateOrName The name of the state for which you'd like 
+     * to get the original state configuration object for.
+     * @returns {object} State configuration object or array of all objects.
+     */
     $state.get = function (stateOrName, context) {
       if (!isDefined(stateOrName)) {
         var list = [];
