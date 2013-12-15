@@ -243,14 +243,23 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
          * @methodOf ui.router.router.$urlRouter
          *
          * @description
-         * Checks registered rules until first rule is handled.
+         * Triggers an update; the same update that happens when the address bar url changes, aka `$locationChangeSuccess`.
+         * This method is useful when you need to use `preventDefault()` on the `$locationChangeSuccess` event, 
+         * perform some custom logic (route protection, auth, config, redirection, etc) and then finally proceed 
+         * with the transition by calling `$urlRouter.sync()`.
          *
          * @example
          * <pre>
-         * var app = angular.module('app', ['ui.router.router']);
-         *
-         * app.run(function ($urlRouter) {
-         *   $urlRouter.sync();
+         * angular.module('app', ['ui.router']);
+         *   .run(function($rootScope, $urlRouter) {
+         *     $rootScope.$on('$locationChangeSuccess', function(evt) {
+         *       // Halt state change from even starting
+         *       evt.preventDefault();
+         *       // Perform custom logic
+         *       var meetsRequirement = ...
+         *       // Continue with the update and state transition if logic allows
+         *       if (meetsRequirement) $urlRouter.sync();
+         *     });
          * });
          * </pre>
          */
