@@ -1,4 +1,21 @@
-
+/**
+ * @ngdoc directive
+ * @name ui.router.state.diretive.ui-view
+ *
+ * @requires ui.router.state.$state
+ * @requires $compile
+ * @requires $controller
+ * @requires $injector
+ * @requires $anchorScroll
+ *
+ * @restrict ECA
+ *
+ * @description
+ * The ui-view directive tells $state where to place your templates. 
+ * A view can be unnamed or named.
+ *
+ * @param {string} ui-view A view name.
+ */
 $ViewDirective.$inject = ['$state', '$compile', '$controller', '$injector', '$anchorScroll'];
 function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $anchorScroll) {
   var $animator = $injector.has('$animator') ? $injector.get('$animator') : false;
