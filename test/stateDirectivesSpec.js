@@ -149,6 +149,17 @@ describe('uiStateRef', function() {
       expect($state.current.name).toEqual('');
       expect($stateParams).toEqual({ id: "5" });
     }));
+
+    it('should not transition states when element has target specified', inject(function($state, $stateParams, $document, $q, $timeout) {
+      el.attr('target', '_blank');
+      expect($state.$current.name).toEqual('');
+
+      triggerClick(el);
+      $q.flush();
+
+      expect($state.current.name).toEqual('');
+      expect($stateParams).toEqual({ id: "5" });
+    }));
   });
 
   describe('forms', function() {
