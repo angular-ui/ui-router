@@ -35,6 +35,9 @@ function stateContext(el) {
  * to the state that the link lives in, in other words the state that loaded the 
  * template containing the link.
  *
+ * Options passed to the `$state.go()` also can be overiden with the `ui-sref-opts`
+ * attribute.
+ *
  * @example
  * <pre>
  * <a ui-sref="home">Home</a> | <a ui-sref="about">About</a>
@@ -44,6 +47,8 @@ function stateContext(el) {
  *     <a ui-sref="contacts.detail({ id: contact.id })">{{ contact.name }}</a>
  *   </li>
  * </ul>
+ *
+ * <a ui-sref="home" ui-sref-opts="{location: 'replace'}">Home</a>
  * </pre>
  *
  * @param {string} ui-sref 'stateName' can be any valid absolute or relative state
@@ -58,12 +63,16 @@ function $StateRefDirective($state, $timeout) {
       var params = null, url = null, base = stateContext(element) || $state.$current;
       var isForm = element[0].nodeName === "FORM";
       var attr = isForm ? "action" : "href", nav = true;
+      var opts = angular.extend(
+        { relative: base },
+        scope.$eval(attrs.uiSrefOpts) || {}
+      );
 
       var update = function(newVal) {
         if (newVal) params = newVal;
         if (!nav) return;
 
-        var newHref = $state.href(ref.state, params, { relative: base });
+        var newHref = $state.href(ref.state, params, opts);
 
         if (!newHref) {
           nav = false;
@@ -91,7 +100,7 @@ function $StateRefDirective($state, $timeout) {
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
           $timeout(function() {
             scope.$apply(function() {
-              $state.go(ref.state, params, { relative: base });
+              $state.go(ref.state, params, opts);
             });
           });
           e.preventDefault();

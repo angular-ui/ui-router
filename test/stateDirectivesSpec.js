@@ -100,6 +100,18 @@ describe('uiStateRef', function() {
       expect(el.attr('href')).toBe('#/contacts/3');
     }));
 
+    it('should allow to override options', inject(function($compile, $rootScope, $state) {
+      el = angular.element('<a ui-sref=".detail({id: $index})" ui-sref-opts="{relative: $relativeState}">Details</a>');
+      $rootScope.$index = 3;
+      $rootScope.$relativeState = $state.get('contacts.item');
+      $rootScope.$apply();
+
+      $compile(el)($rootScope);
+      $rootScope.$digest();
+
+      expect(el.attr('href')).toBe('#/contacts/3');
+    }));
+
     it('should transition states when left-clicked', inject(function($state, $stateParams, $document, $q, $timeout) {
       expect($state.$current.name).toEqual('');
 
