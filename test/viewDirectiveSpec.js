@@ -1,15 +1,6 @@
 /*jshint browser: true, indent: 2 */
 /*global describe: false, it: false, beforeEach: false, expect: false, resolvedValue: false, module: false, inject: false, angular: false */
 
-/*innerText shim for Firefox */
-function innerText(elem) {
-  if (/firefox/i.test(navigator.userAgent)) {
-    return elem.textContent;
-  } else {
-    return elem.innerText;
-  }
-}
-
 describe('uiView', function () {
   'use strict';
 
@@ -142,8 +133,8 @@ describe('uiView', function () {
       $state.transitionTo(dState);
       $q.flush();
 
-      // expect(innerText(elem[0].querySelector('.dview1'))).toBe(dState.views.dview1.template);
-      // expect(innerText(elem[0].querySelector('.dview2'))).toBe(dState.views.dview2.template);
+      // expect(elem[0].querySelector('.dview1')).toMatchText(dState.views.dview1.template);
+      // expect(elem[0].querySelector('.dview2')).toMatchText(dState.views.dview2.template);
 
       expect($animate.flushNext('leave').element.html()).toBeUndefined();
       expect($animate.flushNext('enter').element.html()).toBe(dState.views.dview1.template);
@@ -157,10 +148,10 @@ describe('uiView', function () {
       $state.transitionTo(fState);
       $q.flush();
 
-      // expect(innerText(elem[0].querySelector('.view').querySelector('.eview'))).toBe(fState.views.eview.template);
+      // expect(elem[0].querySelector('.view').querySelector('.eview')).toMatchText(fState.views.eview.template);
 
       expect($animate.flushNext('leave').element.text()).toBe('');
-      expect($animate.flushNext('enter').element.parent().parent()[0].querySelector('.view').querySelector('.eview').innerText).toBe(fState.views.eview.template);
+      expect($animate.flushNext('enter').element.parent().parent()[0].querySelector('.view').querySelector('.eview')).toMatchText(fState.views.eview.template);
     }));
   });
 
@@ -174,13 +165,13 @@ describe('uiView', function () {
       $state.transitionTo(gState);
       $q.flush();
 
-      // expect(innerText(elem[0].querySelector('.test'))).toBe(content);
+      // expect(elem[0].querySelector('.test')).toMatchText(content);
 
       expect($animate.flushNext('leave').element.text()).toBe("");
       expect($animate.flushNext('enter').element.text()).toBe(content);
 
       // For some reason the ng-class expression is no longer evaluated
-      expect($animate.flushNext('addClass').element.parent()[0].querySelector('.test').innerText).toBe(content);
+      expect($animate.flushNext('addClass').element.parent()[0].querySelector('.test')).toMatchText(content);
     }));
 
     it('initial view should be put back after removal of the view', inject(function ($state, $q, $animate) {
@@ -202,7 +193,7 @@ describe('uiView', function () {
       $state.transitionTo(gState);
       $q.flush();
 
-      // expect(innerText(elem[0].querySelector('.test'))).toBe(content);
+      // expect(elem[0].querySelector('.test')).toMatchText(content);
 
       expect($animate.flushNext('leave').element.text()).toBe(hState.views.inner.template);
       expect($animate.flushNext('enter').element.text()).toBe(content);
