@@ -497,6 +497,7 @@ describe('state', function () {
     it('should return true when the current state is passed', inject(function ($state, $q) {
       $state.transitionTo(A); $q.flush();
       expect($state.is(A)).toBe(true);
+      expect($state.is(A, null)).toBe(true);
       expect($state.is('A')).toBe(true);
       expect($state.is(B)).toBe(false);
     }));

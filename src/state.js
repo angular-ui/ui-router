@@ -756,7 +756,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         return false;
       }
 
-      return isDefined(params) ? angular.equals($stateParams, params) : true;
+      return isDefined(params) && params !== null ? angular.equals($stateParams, params) : true;
     };
 
     /**
