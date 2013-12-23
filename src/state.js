@@ -165,6 +165,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     return undefined;
   }
 
+  function getRegisteredStates(){
+      return states;
+  }
+
   function queueState(parentName, state) {
     if (!queue[parentName]) {
       queue[parentName] = [];
@@ -907,6 +911,27 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       return $q.all(promises).then(function (values) {
         return dst;
       });
+    }
+
+    /**
+     * @ngdoc function
+     * @name ui.router.state.$state#debug
+     * @methodOf ui.router.state.$state
+     *
+     * @description
+     * Returns a debug object, containing all the registered states and their urls.
+     * You can easily access this function from your browser's console by executing:
+     * angular.element('[ng-app]').injector().get('$state').debug()
+     *
+     * @returns {object} Debug information object
+     */
+    $state.debug = function() {
+      var debug = {};
+      angular.forEach(getRegisteredStates(), function(state) {
+        this[state.toString()] = state.self.url;
+      }, debug);
+
+      return debug;
     }
 
     return $state;
