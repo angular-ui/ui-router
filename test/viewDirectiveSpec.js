@@ -216,8 +216,15 @@ describe('uiView', function () {
   });
 
   describe('autoscroll attribute', function () {
-    it('should autoscroll when missing', inject(function ($state, $q, $anchorScroll) {
+    it('should autoscroll when unspecified', inject(function ($state, $q, $anchorScroll) {
       elem.append($compile('<div ui-view></div>')(scope));
+      $state.transitionTo(gState);
+      $q.flush();
+      expect($anchorScroll).toHaveBeenCalled();
+    }));
+
+    it('should autoscroll when expr is missing', inject(function ($state, $q, $anchorScroll) {
+      elem.append($compile('<div ui-view autoscroll></div>')(scope));
       $state.transitionTo(gState);
       $q.flush();
       expect($anchorScroll).toHaveBeenCalled();

@@ -11,7 +11,7 @@
  * @restrict ECA
  *
  * @description
- * The ui-view directive tells $state where to place your templates. 
+ * The ui-view directive tells $state where to place your templates.
  * A view can be unnamed or named.
  *
  * @param {string} ui-view A view name.
@@ -123,7 +123,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
 
           // TODO: This seems strange, shouldn't $anchorScroll listen for $viewContentLoaded if necessary?
           // $anchorScroll might listen on event...
-          if (!angular.isDefined(attr.autoscroll) || scope.$eval(attr.autoscroll)) {
+          if (!angular.isDefined(attr.autoscroll) || (!attr.autoscroll || scope.$eval(attr.autoscroll))) {
             $anchorScroll();
           }
         }
