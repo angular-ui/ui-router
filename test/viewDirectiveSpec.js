@@ -69,7 +69,12 @@ describe('uiView', function () {
     template: '<span ng-class="test">jState</span>'
   };
 
-  beforeEach(module(function ($stateProvider) {
+  var count;
+  var $anchorScroll = function() {
+    count++;
+  };
+
+  beforeEach(module(function ($stateProvider, $provide) {
     $stateProvider
       .state('a', aState)
       .state('b', bState)
@@ -81,6 +86,8 @@ describe('uiView', function () {
       .state('g.h', hState)
       .state('i', iState)
       .state('j', jState);
+
+    $provide.factory('$anchorScroll', function(){ return $anchorScroll; });
   }));
 
   beforeEach(inject(function ($rootScope, _$compile_) {
@@ -206,6 +213,71 @@ describe('uiView', function () {
 
       // verify if the initial view has been updated
       expect(elem.find('li').length).toBe(scope.items.length);
+    }));
+  });
+
+  describe('autoscroll', function() {
+    beforeEach(function() {
+      count = 0;
+    });
+
+    it('should call anchor scroll if autoscroll is specified without a value', inject(function ($state, $q, $anchorScroll) {
+      elem.append($compile('<div ui-view autoscroll></div>')(scope));
+
+      $state.transitionTo(aState);
+      $q.flush();
+
+      expect(count).toBe(1);
+    }));
+
+    it('should call anchor scroll if autoscroll is true', inject(function ($state, $q, $anchorScroll) {
+      elem.append($compile('<div ui-view autoscroll="true"></div>')(scope));
+
+      $state.transitionTo(aState);
+      $q.flush();
+
+      expect(count).toBe(1);
+    }));
+
+    it('should not call anchor scroll if autoscroll is false', inject(function ($state, $q, $anchorScroll) {
+      elem.append($compile('<div ui-view autoscroll="false"></div>')(scope));
+
+      $state.transitionTo(aState);
+      $q.flush();
+
+      expect(count).toBe(0);
+    }));
+
+    it('should correctly evaluate the expression', inject(function ($state, $q, $anchorScroll) {
+      scope.thing = true;
+      scope.$apply();
+      elem.append($compile('<div ui-view autoscroll="thing"></div>')(scope));
+
+      $state.transitionTo(aState);
+      $q.flush();
+
+      scope.thing = true;
+      scope.$apply();
+
+      expect(count).toBe(1);
+      count = 0;
+
+      scope.thing = false;
+      scope.$apply();
+
+      $state.transitionTo(bState);
+      $q.flush();
+
+      expect(count).toBe(0);
+    }));
+
+    it('should not call anchor scroll if autoscroll is not set', inject(function ($state, $q, $anchorScroll) {
+      elem.append($compile('<div ui-view></div>')(scope));
+
+      $state.transitionTo(aState);
+      $q.flush();
+
+      expect(count).toBe(0);
     }));
   });
 
