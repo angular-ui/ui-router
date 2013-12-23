@@ -17,6 +17,12 @@ describe('uiView', function () {
 
   beforeEach(module('ui.router'));
 
+  beforeEach(module(function ($provide) {
+    $provide.decorator('$anchorScroll', function ($delegate) {
+       return jasmine.createSpy('$anchorScroll');
+    });
+  }));
+
   var aState = {
     template: 'aState template'
   },
@@ -206,6 +212,29 @@ describe('uiView', function () {
 
       // verify if the initial view has been updated
       expect(elem.find('li').length).toBe(scope.items.length);
+    }));
+  });
+
+  describe('autoscroll attribute', function () {
+    it('should autoscroll when missing', inject(function ($state, $q, $anchorScroll) {
+      elem.append($compile('<div ui-view></div>')(scope));
+      $state.transitionTo(gState);
+      $q.flush();
+      expect($anchorScroll).toHaveBeenCalled();
+    }));
+
+    it('should autoscroll when truthy', inject(function ($state, $q, $anchorScroll) {
+      elem.append($compile('<div ui-view autoscroll="true"></div>')(scope));
+      $state.transitionTo(gState);
+      $q.flush();
+      expect($anchorScroll).toHaveBeenCalled();
+    }));
+
+    it('should not autoscroll when falsy', inject(function ($state, $q, $anchorScroll) {
+      elem.append($compile('<div ui-view autoscroll="false"></div>')(scope));
+      $state.transitionTo(gState);
+      $q.flush();
+      expect($anchorScroll).not.toHaveBeenCalled();
     }));
   });
 

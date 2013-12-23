@@ -123,7 +123,9 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
 
           // TODO: This seems strange, shouldn't $anchorScroll listen for $viewContentLoaded if necessary?
           // $anchorScroll might listen on event...
-          $anchorScroll();
+          if (!angular.isDefined(attr.autoscroll) || scope.$eval(attr.autoscroll)) {
+            $anchorScroll();
+          }
         }
       };
     }
