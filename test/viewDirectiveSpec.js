@@ -216,11 +216,11 @@ describe('uiView', function () {
   });
 
   describe('autoscroll attribute', function () {
-    it('should autoscroll when unspecified', inject(function ($state, $q, $anchorScroll) {
+    it('should not autoscroll when unspecified', inject(function ($state, $q, $anchorScroll) {
       elem.append($compile('<div ui-view></div>')(scope));
       $state.transitionTo(gState);
       $q.flush();
-      expect($anchorScroll).toHaveBeenCalled();
+      expect($anchorScroll).not.toHaveBeenCalled();
     }));
 
     it('should autoscroll when expr is missing', inject(function ($state, $q, $anchorScroll) {
@@ -230,15 +230,17 @@ describe('uiView', function () {
       expect($anchorScroll).toHaveBeenCalled();
     }));
 
-    it('should autoscroll when truthy', inject(function ($state, $q, $anchorScroll) {
-      elem.append($compile('<div ui-view autoscroll="true"></div>')(scope));
+    it('should autoscroll when expression is truthy', inject(function ($state, $q, $anchorScroll) {
+      elem.append($compile('<div ui-view autoscroll="doAutoScroll"></div>')(scope));
+      scope.doAutoScroll = true;
       $state.transitionTo(gState);
       $q.flush();
       expect($anchorScroll).toHaveBeenCalled();
     }));
 
-    it('should not autoscroll when falsy', inject(function ($state, $q, $anchorScroll) {
-      elem.append($compile('<div ui-view autoscroll="false"></div>')(scope));
+    it('should not autoscroll when expression is falsy', inject(function ($state, $q, $anchorScroll) {
+      elem.append($compile('<div ui-view autoscroll="doAutoScroll()"></div>')(scope));
+      scope.doAutoScroll = function () { return false; };
       $state.transitionTo(gState);
       $q.flush();
       expect($anchorScroll).not.toHaveBeenCalled();

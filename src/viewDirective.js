@@ -31,6 +31,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
         var viewScope, viewLocals,
             name = attr[directive.name] || attr.name || '',
             onloadExp = attr.onload || '',
+            autoscrollExp = attr.autoscroll,
             animate = $animator && $animator(scope, attr),
             initialView = transclude(scope);
 
@@ -123,7 +124,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
 
           // TODO: This seems strange, shouldn't $anchorScroll listen for $viewContentLoaded if necessary?
           // $anchorScroll might listen on event...
-          if (!angular.isDefined(attr.autoscroll) || (!attr.autoscroll || scope.$eval(attr.autoscroll))) {
+          if (angular.isDefined(autoscrollExp) && (!autoscrollExp || scope.$eval(autoscrollExp))) {
             $anchorScroll();
           }
         }
