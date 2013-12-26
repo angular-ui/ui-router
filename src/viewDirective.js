@@ -6,18 +6,17 @@
  * @requires $compile
  * @requires $controller
  * @requires $injector
- * @requires $anchorScroll
  *
  * @restrict ECA
  *
  * @description
- * The ui-view directive tells $state where to place your templates. 
+ * The ui-view directive tells $state where to place your templates.
  * A view can be unnamed or named.
  *
  * @param {string} ui-view A view name.
  */
-$ViewDirective.$inject = ['$state', '$compile', '$controller', '$injector', '$anchorScroll'];
-function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $anchorScroll) {
+$ViewDirective.$inject = ['$state', '$compile', '$controller', '$injector', '$uiViewScroll'];
+function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $uiViewScroll) {
   var $animator = $injector.has('$animator') ? $injector.get('$animator') : false;
   var viewIsUpdating = false;
 
@@ -31,6 +30,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
         var viewScope, viewLocals,
             name = attr[directive.name] || attr.name || '',
             onloadExp = attr.onload || '',
+            autoscrollExp = attr.autoscroll,
             animate = $animator && $animator(scope, attr),
             initialView = transclude(scope);
 
@@ -121,9 +121,9 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
           viewScope.$emit('$viewContentLoaded');
           if (onloadExp) viewScope.$eval(onloadExp);
 
-          // TODO: This seems strange, shouldn't $anchorScroll listen for $viewContentLoaded if necessary?
-          // $anchorScroll might listen on event...
-          $anchorScroll();
+          if (!angular.isDefined(autoscrollExp) || !autoscrollExp || scope.$eval(autoscrollExp)) {
+            $uiViewScroll(element);
+          }
         }
       };
     }

@@ -17,6 +17,12 @@ describe('uiView', function () {
 
   beforeEach(module('ui.router'));
 
+  beforeEach(module(function ($provide) {
+    $provide.decorator('$uiViewScroll', function ($delegate) {
+      return jasmine.createSpy('$uiViewScroll');
+    });
+  }));
+
   var aState = {
     template: 'aState template'
   },
@@ -206,6 +212,36 @@ describe('uiView', function () {
 
       // verify if the initial view has been updated
       expect(elem.find('li').length).toBe(scope.items.length);
+    }));
+  });
+
+  describe('autoscroll attribute', function () {
+    it('should autoscroll when unspecified', inject(function ($state, $q, $uiViewScroll) {
+      elem.append($compile('<div ui-view></div>')(scope));
+      $state.transitionTo(aState);
+      $q.flush();
+      expect($uiViewScroll).toHaveBeenCalledWith(elem.find('div'));
+    }));
+
+    it('should autoscroll when expression is missing', inject(function ($state, $q, $uiViewScroll) {
+      elem.append($compile('<div ui-view autoscroll></div>')(scope));
+      $state.transitionTo(aState);
+      $q.flush();
+      expect($uiViewScroll).toHaveBeenCalledWith(elem.find('div'));
+    }));
+
+    it('should autoscroll based on expression', inject(function ($state, $q, $uiViewScroll) {
+      elem.append($compile('<div ui-view autoscroll="doScroll"></div>')(scope));
+
+      scope.doScroll = false;
+      $state.transitionTo(aState);
+      $q.flush();
+      expect($uiViewScroll).not.toHaveBeenCalled();
+
+      scope.doScroll = true;
+      $state.transitionTo(bState);
+      $q.flush();
+      expect($uiViewScroll).toHaveBeenCalledWith(elem.find('div'));
     }));
   });
 
