@@ -118,6 +118,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
     if (path) {
       if (!base) throw new Error("No reference point given for path '"  + name + "'");
+      base = findState(base);
+      
       var rel = name.split("."), i = 0, pathLength = rel.length, current = base;
 
       for (; i < pathLength; i++) {
