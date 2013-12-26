@@ -21,6 +21,7 @@ module.exports = function(config) {
       '../src/urlRouter.js',
       '../src/view.js',
       '../src/state.js',
+      '../src/viewScrollProvider.js',
       '../src/viewDirective.js',
       '../src/stateDirectives.js',
       '../src/compat.js',

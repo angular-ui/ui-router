@@ -18,8 +18,8 @@ describe('uiView', function () {
   beforeEach(module('ui.router'));
 
   beforeEach(module(function ($provide) {
-    $provide.decorator('$anchorScroll', function ($delegate) {
-       return jasmine.createSpy('$anchorScroll');
+    $provide.decorator('$uiViewScroll', function ($delegate) {
+      return jasmine.createSpy('$uiViewScroll');
     });
   }));
 
@@ -216,32 +216,32 @@ describe('uiView', function () {
   });
 
   describe('autoscroll attribute', function () {
-    it('should not autoscroll when unspecified', inject(function ($state, $q, $anchorScroll) {
+    it('should autoscroll when unspecified', inject(function ($state, $q, $uiViewScroll) {
       elem.append($compile('<div ui-view></div>')(scope));
-      $state.transitionTo(gState);
+      $state.transitionTo(aState);
       $q.flush();
-      expect($anchorScroll).not.toHaveBeenCalled();
+      expect($uiViewScroll).toHaveBeenCalledWith(elem.find('div'));
     }));
 
-    it('should autoscroll when expression is missing', inject(function ($state, $q, $anchorScroll) {
+    it('should autoscroll when expression is missing', inject(function ($state, $q, $uiViewScroll) {
       elem.append($compile('<div ui-view autoscroll></div>')(scope));
-      $state.transitionTo(gState);
+      $state.transitionTo(aState);
       $q.flush();
-      expect($anchorScroll).toHaveBeenCalled();
+      expect($uiViewScroll).toHaveBeenCalledWith(elem.find('div'));
     }));
 
-    it('should autoscroll based on expression', inject(function ($state, $q, $anchorScroll) {
+    it('should autoscroll based on expression', inject(function ($state, $q, $uiViewScroll) {
       elem.append($compile('<div ui-view autoscroll="doScroll"></div>')(scope));
 
       scope.doScroll = false;
       $state.transitionTo(aState);
       $q.flush();
-      expect($anchorScroll).not.toHaveBeenCalled();
+      expect($uiViewScroll).not.toHaveBeenCalled();
 
       scope.doScroll = true;
       $state.transitionTo(bState);
       $q.flush();
-      expect($anchorScroll).toHaveBeenCalled();
+      expect($uiViewScroll).toHaveBeenCalledWith(elem.find('div'));
     }));
   });
 
