@@ -36,7 +36,7 @@ module.exports = function (grunt) {
           'src/urlRouter.js',
           'src/state.js',
           'src/view.js',
-          'src/viewScrollProvider.js',
+          'src/viewScroll.js',
           'src/viewDirective.js',
           'src/stateDirectives.js',
           'src/compat.js'

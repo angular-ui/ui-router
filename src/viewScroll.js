@@ -1,5 +1,5 @@
 /**
- * @ngdoc directive
+ * @ngdoc provider
  * @name ui.router.state.$uiViewScroll
  *
  * @requires $anchorScroll
@@ -7,10 +7,10 @@
  *
  * @description
  * When called with a jqLite element, it scrolls the element into view (after a
- * `$timeout`, so the DOM had time to refresh).
+ * `$timeout` so the DOM has time to refresh).
  *
  * If you prefer to rely on `$anchorScroll` to scroll the view to the anchor,
- * this can be enabled by calling `$uiViewScroll.useAnchorScroll()`.
+ * this can be enabled by calling `$uiViewScrollProvider.useAnchorScroll()`.
  */
 function $ViewScrollProvider() {
 
