@@ -196,7 +196,7 @@ describe('uiStateRef', function() {
       scope.$apply();
 
       $compile(el)(scope);
-      template = $compile(angular.element('<ui-view></ui-view>'))(scope);
+      template = $compile(angular.element('<div><ui-view></ui-view><div>'))(scope);
       scope.$digest();
     }));
 

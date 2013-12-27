@@ -25,8 +25,8 @@ routerFiles = {
   angular: function(version) {
     return [
       'lib/angular-' + version + '/angular.js',
-      'lib/angular-' + version + '/angular-mocks.js',
-    ];
+      'lib/angular-' + version + '/angular-mocks.js'
+    ].concat(version === '1.2.4' ? ['lib/angular-' + version + '/angular-animate.js'] : []);
   }
 };
 

@@ -149,15 +149,11 @@ beforeEach(function() {
               angular.element(this.actual).hasClass(clazz);
     },
 
-    /**
-     * innerText compatibility shim for Firefox
-     */
     toMatchText: function(text) {
-      var isFirefox = /firefox/i.test(navigator.userAgent);
       this.message = function() {
-        return "Expected '" + this.actual.nodeName + "' element to have text '" + text + "'";
+        return "Expected '" + (this.actual && this.actual.nodeName) + "' element to have text '" + text + "'";
       };
-      return this.actual[isFirefox ? 'textContent' : 'innerText'] === text;
+      return this.actual && this.actual.text && this.actual.text() === text;
     }
 
   });

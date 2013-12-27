@@ -15,8 +15,8 @@
  *
  * @param {string} ui-view A view name.
  */
-$ViewDirective.$inject = ['$state', '$compile', '$controller', '$injector', '$uiViewScroll'];
-function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $uiViewScroll) {
+$ViewDirective.$inject = ['$state', '$compile', '$controller', '$injector', '$uiViewScroll', '$document'];
+function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $uiViewScroll,   $document) {
 
   function getService() {
     return ($injector.has) ? function(service) {
@@ -30,118 +30,149 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $ui
     };
   }
 
-  var viewIsUpdating = false, service = getService(),
-      $animator = service('$animator'), $animate = service('$animate'),
-      hasAnimator = !!($animator || $animate);
+  var viewIsUpdating = false,
+      service = getService(),
+      $animator = service('$animator'),
+      $animate = service('$animate');
 
   // Returns a set of DOM manipulation functions based on whether animation
   // should be performed
-  var renderer = function(shouldAnimate) {
-    return (hasAnimator && shouldAnimate) ? {
-      remove: function(element) { $animate.leave(element.contents()); },
-      // remove: function(element) { animate.leave(element.contents(), element); },
-      restore: function(compiled, element) { $animate.enter(compiled, element); },
-      // restore: function(compiled, element) { animate.enter(compiled, element); },
-      populate: function(template, element) {
-        var contents = angular.element('<div></div>').html(template).contents();
-        // animate.enter(contents, element);
-        $animate.enter(contents, element);
-        return contents;
-      }
-    } : {
-      remove: function(element) { element.html(''); },
-      restore: function(compiled, element) { element.append(compiled); },
-      populate: function(template, element) {
-        element.html(template);
-        return element.contents();
-      }
+  function getRenderer(element, attrs, scope) {
+    var statics = function() {
+      return {
+        leave: function (element) { element.remove(); },
+        enter: function (element, parent, anchor) { anchor.after(element); }
+      };
     };
-  };
+
+    if ($animate) {
+      return function(shouldAnimate) {
+        return !shouldAnimate ? statics() : {
+          enter: function(element, parent, anchor) { $animate.enter(element, null, anchor); },
+          leave: function(element) { $animate.leave(element, function() { element.remove(); }); }
+        };
+      };
+    }
+
+    if ($animator) {
+      var animate = $animator && $animator(scope, attrs);
+
+      return function(shouldAnimate) {
+        return !shouldAnimate ? statics() : {
+          enter: function(element, parent, anchor) { animate.enter(element, parent); },
+          leave: function(element) { animate.leave(element.contents(), element); }
+        };
+      };
+    }
+
+    return statics;
+  }
 
   var directive = {
     restrict: 'ECA',
-    terminal: true,
-    priority: 1000,
-    transclude: true,
-    compile: function (element, attr, transclude) {
-      return function(scope, element, attr) {
-        var viewScope, viewLocals,
-            name = attr[directive.name] || attr.name || '',
-            onloadExp = attr.onload || '',
-            autoscrollExp = attr.autoscroll,
-            animate = $animator && $animator(scope, attr),
-            initialView = transclude(scope);
+    compile: function (element, attrs) {
+      var initial   = element.html(),
+          isDefault = true,
+          anchor    = angular.element($document[0].createComment(' ui-view-anchor ')),
+          parentEl  = element.parent();
 
-        // Put back the compiled initial view
-        element.append(initialView);
+      element.prepend(anchor);
 
-        // Find the details of the parent view directive (if any) and use it
-        // to derive our own qualified view name, then hang our own details
-        // off the DOM so child directives can find it.
-        var parent = element.parent().inheritedData('$uiView');
-        if (name.indexOf('@') < 0) name  = name + '@' + (parent ? parent.state.name : '');
+      return function ($scope) {
+        var inherited = parentEl.inheritedData('$uiView');
+
+        var currentScope, currentEl, viewLocals,
+            name      = attrs[directive.name] || attrs.name || '',
+            onloadExp = attrs.onload || '',
+            autoscrollExp = attrs.autoscroll,
+            renderer  = getRenderer(element, attrs, $scope);
+
+        if (name.indexOf('@') < 0) name = name + '@' + (inherited ? inherited.state.name : '');
         var view = { name: name, state: null };
-        element.data('$uiView', view);
 
-        var eventHook = function() {
+        var eventHook = function () {
           if (viewIsUpdating) return;
           viewIsUpdating = true;
 
-          try { updateView(true); } catch (e) {
+          try { updateView(); } catch (e) {
             viewIsUpdating = false;
             throw e;
           }
           viewIsUpdating = false;
         };
 
-        scope.$on('$stateChangeSuccess', eventHook);
-        scope.$on('$viewContentLoading', eventHook);
-        updateView(false);
+        $scope.$on('$stateChangeSuccess', eventHook);
+        $scope.$on('$viewContentLoading', eventHook);
 
-        function updateView(doAnimate) {
+        updateView();
+
+        function cleanupLastView() {
+          if (currentEl) {
+            renderer(true).leave(currentEl);
+            currentEl = null;
+          }
+
+          if (currentScope) {
+            currentScope.$destroy();
+            currentScope = null;
+          }
+        }
+
+        function updateView() {
           var locals = $state.$current && $state.$current.locals[name];
-          if (locals === viewLocals) return; // nothing to do
-          var render = renderer(doAnimate);
 
-          // Remove existing content
-          render.remove(element);
-
-          // Destroy previous view scope
-          if (viewScope) {
-            viewScope.$destroy();
-            viewScope = null;
+          if (isDefault) {
+            isDefault = false;
+            element.replaceWith(anchor);
           }
 
           if (!locals) {
-            viewLocals = null;
-            view.state = null;
+            cleanupLastView();
+            currentEl = element.clone();
+            currentEl.html(initial);
+            anchor.after(currentEl);
 
-            // Restore the initial view
-            return render.restore(initialView, element);
+            currentScope = $scope.$new();
+            $compile(currentEl.contents())(currentScope);
+            return;
           }
+
+          if (locals === viewLocals) return; // nothing to do
+
+          cleanupLastView();
+
+          currentEl = element.clone();
+          currentEl.html(locals.$template ? locals.$template : initial);
+          renderer(true).enter(currentEl, parentEl, anchor);
+
+          currentEl.data('$uiView', view);
 
           viewLocals = locals;
           view.state = locals.$$state;
 
-          var link = $compile(render.populate(locals.$template, element));
-          viewScope = scope.$new();
+          var link = $compile(currentEl.contents());
+
+          currentScope = $scope.$new();
 
           if (locals.$$controller) {
-            locals.$scope = viewScope;
+            locals.$scope = currentScope;
             var controller = $controller(locals.$$controller, locals);
-            element.children().data('$ngControllerController', controller);
+            currentEl.children().data('$ngControllerController', controller);
           }
-          link(viewScope);
-          viewScope.$emit('$viewContentLoaded');
-          if (onloadExp) viewScope.$eval(onloadExp);
 
-          if (!angular.isDefined(autoscrollExp) || !autoscrollExp || scope.$eval(autoscrollExp)) {
-            $uiViewScroll(element);
+          link(currentScope);
+
+          currentScope.$emit('$viewContentLoaded');
+          if (onloadExp) currentScope.$eval(onloadExp);
+
+          if (!angular.isDefined(autoscrollExp) || !autoscrollExp || $scope.$eval(autoscrollExp)) {
+            $uiViewScroll(currentEl);
           }
         }
       };
     }
   };
+
   return directive;
 }
 
