@@ -94,7 +94,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $ui
           if (viewIsUpdating) return;
           viewIsUpdating = true;
 
-          try { updateView(); } catch (e) {
+          try { updateView(true); } catch (e) {
             viewIsUpdating = false;
             throw e;
           }
@@ -104,7 +104,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $ui
         $scope.$on('$stateChangeSuccess', eventHook);
         $scope.$on('$viewContentLoading', eventHook);
 
-        updateView();
+        updateView(false);
 
         function cleanupLastView() {
           if (currentEl) {
@@ -118,7 +118,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $ui
           }
         }
 
-        function updateView() {
+        function updateView(shouldAnimate) {
           var locals = $state.$current && $state.$current.locals[name];
 
           if (isDefault) {
@@ -130,7 +130,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $ui
             cleanupLastView();
             currentEl = element.clone();
             currentEl.html(initial);
-            anchor.after(currentEl);
+            renderer(shouldAnimate).enter(currentEl, parentEl, anchor);
 
             currentScope = $scope.$new();
             $compile(currentEl.contents())(currentScope);

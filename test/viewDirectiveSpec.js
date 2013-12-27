@@ -191,6 +191,7 @@ describe('uiView', function () {
 
         $animate.flushNext('enter');
         $animate.flushNext('leave');
+        $animate.flushNext('enter');
         $animate.flushNext('addClass');
         $animate.flushNext('addClass');
 
@@ -220,6 +221,7 @@ describe('uiView', function () {
         $q.flush();
 
         expect($animate.flushNext('leave').element).toMatchText(hState.views.inner.template);
+        $animate.flushNext('enter');
 
         var target = $animate.flushNext('addClass').element;
         expect(target).toHaveClass('test');
