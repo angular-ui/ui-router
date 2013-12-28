@@ -271,18 +271,20 @@ describe('uiView', function () {
   });
 
   describe('autoscroll attribute', function () {
-    it('should autoscroll when unspecified', inject(function ($state, $q, $uiViewScroll) {
+    it('should autoscroll when unspecified', inject(function ($state, $q, $uiViewScroll, $animate) {
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
       $state.transitionTo(aState);
       $q.flush();
-      expect($uiViewScroll).toHaveBeenCalledWith(elem.find('ui-view'));
+      if ($animate) $animate.flush();
+      expect($uiViewScroll).toHaveBeenCalledWith(elem.find('span').parent());
     }));
 
-    it('should autoscroll when expression is missing', inject(function ($state, $q, $uiViewScroll) {
+    it('should autoscroll when expression is missing', inject(function ($state, $q, $uiViewScroll, $animate) {
       elem.append($compile('<div><ui-view autoscroll></ui-view></div>')(scope));
       $state.transitionTo(aState);
       $q.flush();
-      expect($uiViewScroll).toHaveBeenCalledWith(elem.find('ui-view'));
+      if ($animate) $animate.flush();
+      expect($uiViewScroll).toHaveBeenCalledWith(elem.find('span').parent());
     }));
 
     it('should autoscroll based on expression', inject(function ($state, $q, $uiViewScroll, $animate) {
@@ -298,7 +300,12 @@ describe('uiView', function () {
       $q.flush();
       if ($animate) $animate.flush();
 
-      expect($uiViewScroll).toHaveBeenCalledWith(elem.find('ui-view'));
+      var target;
+      angular.forEach(elem.find('ui-view'), function(view) {
+        if (angular.element(view).text() === bState.template) target = angular.element(view);
+      });
+
+      expect($uiViewScroll).toHaveBeenCalledWith(target);
     }));
   });
 

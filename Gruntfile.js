@@ -89,10 +89,10 @@ module.exports = function (grunt) {
         browsers: [ grunt.option('browser') || 'Chrome' ]
       },
       past: {
-        configFile: 'config/karma-1.0.8.js',
+        configFile: 'config/karma-1.0.8.js'
       },
       unstable: {
-        configFile: 'config/karma-1.1.5.js',
+        configFile: 'config/karma-1.1.5.js'
       }
     },
     changelog: {
