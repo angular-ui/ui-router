@@ -184,7 +184,7 @@ interfaces more effectively by nesting your views, and pairing those views with 
 **(3)** Set up your states in the module config:
 >
 ```javascript
-myApp.config(function($stateProvider, $routeProvider){
+myApp.config(function($stateProvider) {
   $stateProvider
     .state('index', {
       url: "",
