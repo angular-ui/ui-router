@@ -35,7 +35,7 @@ function stateContext(el) {
  * to the state that the link lives in, in other words the state that loaded the 
  * template containing the link.
  *
- * Options passed to the `$state.go()` also can be overiden with the `ui-sref-opts`
+ * Options passed to the `$state.go()` also can be overidden with the `ui-sref-opts`
  * attribute.
  *
  * @example
