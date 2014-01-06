@@ -83,6 +83,10 @@ module.exports = function (grunt) {
       unit: {
         browsers: [ grunt.option('browser') || 'PhantomJS' ]
       },
+      background: {
+        background: true,
+        browsers: [ grunt.option('browser') || 'PhantomJS' ]
+      },
       debug: {
         singleRun: false,
         background: false,
