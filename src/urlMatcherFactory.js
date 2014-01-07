@@ -154,7 +154,7 @@ UrlMatcher.prototype.toString = function () {
  * @return {Object}  The captured parameter values.
  */
 UrlMatcher.prototype.exec = function (path, searchParams) {
-  var m = this.regexp.exec(path);
+  var m = this.regexp.exec(path || '/');
   if (!m) return null;
 
   var params = this.params, nTotal = params.length,
