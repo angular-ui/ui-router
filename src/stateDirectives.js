@@ -65,14 +65,14 @@ function $StateRefDirective($state, $timeout) {
 
         var newHref = $state.href(ref.state, params, { relative: base });
 
+        if (uiSrefActive) {
+          uiSrefActive.$$setStateInfo(ref.state, params);
+        }
         if (!newHref) {
           nav = false;
           return false;
         }
         element[0][attr] = newHref;
-        if (uiSrefActive) {
-          uiSrefActive.$$setStateInfo(ref.state, params);
-        }
       };
 
       if (ref.paramExpr) {
