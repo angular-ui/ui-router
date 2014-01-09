@@ -108,7 +108,7 @@ describe('uiStateRef', function() {
     }));
 
     it('should transition states when left-clicked', inject(function($state, $stateParams, $document, $q, $timeout) {
-      expect($state.$current.name).toEqual('');
+      expect($state.$current.name).toEqual('index');
 
       triggerClick(el);
       $timeout.flush();
@@ -119,7 +119,7 @@ describe('uiStateRef', function() {
     }));
 
     it('should not transition states when ctrl-clicked', inject(function($state, $stateParams, $document, $q) {
-      expect($state.$current.name).toEqual('');
+      expect($state.$current.name).toEqual('index');
       triggerClick(el, { ctrlKey: true });
 
       $q.flush();
@@ -128,43 +128,43 @@ describe('uiStateRef', function() {
     }));
 
     it('should not transition states when meta-clicked', inject(function($state, $stateParams, $document, $q) {
-      expect($state.$current.name).toEqual('');
+      expect($state.$current.name).toEqual('index');
 
       triggerClick(el, { metaKey: true });
       $q.flush();
 
-      expect($state.current.name).toEqual('');
+      expect($state.current.name).toEqual('index');
       expect($stateParams).toEqual({ id: "5" });
     }));
 
     it('should not transition states when shift-clicked', inject(function($state, $stateParams, $document, $q) {
-      expect($state.$current.name).toEqual('');
+      expect($state.$current.name).toEqual('index');
 
       triggerClick(el, { shiftKey: true });
       $q.flush();
 
-      expect($state.current.name).toEqual('');
+      expect($state.current.name).toEqual('index');
       expect($stateParams).toEqual({ id: "5" });
     }));
 
     it('should not transition states when middle-clicked', inject(function($state, $stateParams, $document, $q) {
-      expect($state.$current.name).toEqual('');
+      expect($state.$current.name).toEqual('index');
 
       triggerClick(el, { button: 1 });
       $q.flush();
 
-      expect($state.current.name).toEqual('');
+      expect($state.current.name).toEqual('index');
       expect($stateParams).toEqual({ id: "5" });
     }));
 
     it('should not transition states when element has target specified', inject(function($state, $stateParams, $document, $q, $timeout) {
       el.attr('target', '_blank');
-      expect($state.$current.name).toEqual('');
+      expect($state.$current.name).toEqual('index');
 
       triggerClick(el);
       $q.flush();
 
-      expect($state.current.name).toEqual('');
+      expect($state.current.name).toEqual('index');
       expect($stateParams).toEqual({ id: "5" });
     }));
   });

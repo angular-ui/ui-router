@@ -154,6 +154,8 @@ UrlMatcher.prototype.toString = function () {
  * @return {Object}  The captured parameter values.
  */
 UrlMatcher.prototype.exec = function (path, searchParams) {
+  if(angular.isString(path) && !path)
+    path = '/';
   var m = this.regexp.exec(path);
   if (!m) return null;
 
