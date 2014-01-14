@@ -1,5 +1,4 @@
-// Make sure to include the `ui.router` module as a dependency.
-angular.module('uiRouterSample')
+angular.module('states',[])
   .config(
     [          '$stateProvider', '$urlRouterProvider',
       function ($stateProvider,   $urlRouterProvider) {
