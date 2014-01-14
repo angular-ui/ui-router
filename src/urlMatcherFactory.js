@@ -4,7 +4,7 @@
  * of search parameters. Multiple search parameter names are separated by '&'. Search parameters
  * do not influence whether or not a URL is matched, but their values are passed through into
  * the matched parameters returned by {@link UrlMatcher#exec exec}.
- * 
+ *
  * Path parameter placeholders can be specified using simple colon/catch-all syntax or curly brace
  * syntax, which optionally allows a regular expression for the parameter to be specified:
  *
@@ -15,13 +15,13 @@
  *   curly braces, they must be in matched pairs or escaped with a backslash.
  *
  * Parameter names may contain only word characters (latin letters, digits, and underscore) and
- * must be unique within the pattern (across both path and search parameters). For colon 
+ * must be unique within the pattern (across both path and search parameters). For colon
  * placeholders or curly placeholders without an explicit regexp, a path parameter matches any
  * number of characters other than '/'. For catch-all placeholders the path parameter matches
  * any number of characters.
- * 
+ *
  * ### Examples
- * 
+ *
  * * '/hello/' - Matches only if the path is exactly '/hello/'. There is no special treatment for
  *   trailing slashes, and patterns have to match the entire path, not just a prefix.
  * * '/user/:id' - Matches '/user/bob' or '/user/1234!!!' or even '/user/' but not '/user' or
@@ -36,12 +36,13 @@
  *
  * @constructor
  * @param {string} pattern  the pattern to compile into a matcher.
+ * @param {boolean} strict  the formatting and matching should be strict.
  *
  * @property {string} prefix  A static prefix of this pattern. The matcher guarantees that any
  *   URL matching this matcher (i.e. any string for which {@link UrlMatcher#exec exec()} returns
  *   non-null) will start with this prefix.
  */
-function UrlMatcher(pattern) {
+function UrlMatcher(pattern, strict) {
 
   // Find all placeholders and create a compiled pattern, using either classic or curly syntax:
   //   '*' name
@@ -73,6 +74,7 @@ function UrlMatcher(pattern) {
   }
 
   this.source = pattern;
+  this.strict = typeof strict === 'boolean' ? strict : true;
 
   // Split into static segments separated by path parameter placeholders.
   // The number of segments is always 1 more than the number of parameters.
@@ -123,13 +125,14 @@ function UrlMatcher(pattern) {
  * ```
  *
  * @param {string} pattern  The pattern to append.
+ * @param {boolean} strict  the formatting and matching should be strict.
  * @return {UrlMatcher}  A matcher for the concatenated pattern.
  */
-UrlMatcher.prototype.concat = function (pattern) {
+UrlMatcher.prototype.concat = function (pattern, strict) {
   // Because order of search parameters is irrelevant, we can add our own search
   // parameters to the end of the new pattern. Parse the new pattern by itself
   // and then join the bits together, but it's much easier to do this on a string level.
-  return new UrlMatcher(this.sourcePath + pattern + this.sourceSearch);
+  return new UrlMatcher(this.sourcePath + pattern + this.sourceSearch, strict);
 };
 
 UrlMatcher.prototype.toString = function () {
@@ -166,6 +169,10 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
   for (i=0; i<nPath; i++) values[params[i]] = m[i+1];
   for (/**/; i<nTotal; i++) values[params[i]] = searchParams[params[i]];
 
+  if (!this.strict) {
+    angular.extend(values, searchParams);
+  }
+
   return values;
 };
 
@@ -197,21 +204,36 @@ UrlMatcher.prototype.format = function (values) {
   if (!values) return segments.join('');
 
   var nPath = segments.length-1, nTotal = params.length,
-    result = segments[0], i, search, value;
+    result = segments[0], i, search, value,
+    clonedValues = angular.extend({}, values), appendToSearch = function(key, value) {
+      result += (search ? '&' : '?') + key + '=' + encodeURIComponent(value);
+      search = true;
+    };
 
   for (i=0; i<nPath; i++) {
     value = values[params[i]];
     // TODO: Maybe we should throw on null here? It's not really good style to use '' and null interchangeabley
     if (value != null) result += encodeURIComponent(value);
     result += segments[i+1];
+    delete clonedValues[params[i]];
   }
   for (/**/; i<nTotal; i++) {
     value = values[params[i]];
     if (value != null) {
-      result += (search ? '&' : '?') + params[i] + '=' + encodeURIComponent(value);
-      search = true;
+      appendToSearch(params[i], value);
     }
+    delete clonedValues[params[i]];
   }
+
+  if (!this.strict) {
+    var key;
+    for (key in clonedValues) {
+      if (clonedValues.hasOwnProperty(key)) {
+        value = clonedValues[key];
+        appendToSearch(key, value);
+      }
+    }
+   }
 
   return result;
 };
@@ -229,10 +251,11 @@ function $UrlMatcherFactory() {
    * @name $urlMatcherFactory#compile
    * @methodOf $urlMatcherFactory
    * @param {string} pattern  The URL pattern.
+   * @param {boolean} strict  the formatting and matching should be strict.
    * @return {UrlMatcher}  The UrlMatcher.
    */
-  this.compile = function (pattern) {
-    return new UrlMatcher(pattern);
+  this.compile = function (pattern, strict) {
+    return new UrlMatcher(pattern, strict);
   };
 
   /**

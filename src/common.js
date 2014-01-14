@@ -118,8 +118,7 @@ function inheritParams(currentParams, newParams, $current, $to) {
 function normalize(keys, values) {
   var normalized = {};
 
-  forEach(keys, function (name) {
-    var value = values[name];
+  forEach(values, function (value, name) {
     normalized[name] = (value != null) ? String(value) : null;
   });
   return normalized;
@@ -175,7 +174,7 @@ angular.module('ui.router.util', ['ng']);
 /**
  * @ngdoc overview
  * @name ui.router.router
- * 
+ *
  * @requires ui.router.util
  *
  * @description
@@ -186,7 +185,7 @@ angular.module('ui.router.router', ['ui.router.util']);
 /**
  * @ngdoc overview
  * @name ui.router.router
- * 
+ *
  * @requires ui.router.router
  * @requires ui.router.util
  *
