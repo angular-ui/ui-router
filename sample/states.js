@@ -170,7 +170,7 @@ angular.module('uiRouterSample')
               // This one is targeting the ui-view="menu" within the parent state's template.
               'menuTip': {
                 // templateProvider is the final method for supplying a template.
-                // There is: template, templatUrl, and templateProvider.
+                // There is: template, templateUrl, and templateProvider.
                 templateProvider: ['$stateParams',
                   function (        $stateParams) {
                     // This is just to demonstrate that $stateParams injection works for templateProvider.
