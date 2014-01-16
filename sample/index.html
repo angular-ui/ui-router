@@ -10,8 +10,9 @@
     <link rel="stylesheet" type="text/css" href="styles.css">
 
     <!-- Include both angular.js and angular-ui-router.js-->
-    <script src="../lib/angular-1.1.5.js"></script>
-    <script src="../build/angular-ui-router.js"></script>
+    <script src="../lib/angular-1.2.4/angular.js"></script>
+    <script src="../lib/angular-1.2.4/angular-animate.js"></script>
+    <script src="../release/angular-ui-router.js"></script>
 
     <!-- module.js declares the uiRouterSample module and adds items to $rootScope-->
     <script src="module.js"></script>
@@ -50,7 +51,7 @@
 
     <!-- Here is the main ui-view (unnamed) and will be populate by its immediate children's templates
          unless otherwise explicitly named views are targeted. It's also employing ng-animate. -->
-    <div ui-view class="container" style="margin-top:60px" ng-animate="{enter:'fade-enter'}"></div>
+    <div ui-view class="container slide" style="margin-top: 80px;"></div>
 
 
     <hr>

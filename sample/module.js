@@ -1,5 +1,5 @@
 // Make sure to include the `ui.router` module as a dependency
-angular.module('uiRouterSample', ['ui.router'])
+angular.module('uiRouterSample', ['ui.router', 'ngAnimate'])
     .run(
       [        '$rootScope', '$state', '$stateParams',
       function ($rootScope,   $state,   $stateParams) {
