@@ -1,5 +1,5 @@
 /**
- * @ngdoc provider
+ * @ngdoc object
  * @name ui.router.state.$uiViewScroll
  *
  * @requires $anchorScroll
