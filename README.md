@@ -2,7 +2,7 @@
 
 #### The de-facto solution to flexible routing with nested views
 ---
-**[Download 0.2.7](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)** (or **[Minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)**) **|**
+**[Download 0.2.8](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)** (or **[Minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)**) **|**
 **[Learn](#resources) |**
 **[Discuss](https://groups.google.com/forum/#!categories/angular-ui/router) |**
 **[Get Help](http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router) |**
