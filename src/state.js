@@ -469,7 +469,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       params: {},
       current: root.self,
       $current: root,
-      transition: null
+      transition: null,
+      states: states
     };
 
     /**
