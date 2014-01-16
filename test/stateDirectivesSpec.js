@@ -118,6 +118,23 @@ describe('uiStateRef', function() {
       expect($stateParams).toEqual({ id: "5" });
     }));
 
+    it('should transition when given a click that contains no data (fake-click)', inject(function($state, $stateParams, $document, $q, $timeout) {
+      expect($state.current.name).toEqual('');
+
+      triggerClick(el, {
+        metaKey:  undefined,
+        ctrlKey:  undefined,
+        shiftKey: undefined,
+        altKey:   undefined,
+        button:   undefined 
+      });
+      $timeout.flush();
+      $q.flush();
+
+      expect($state.current.name).toEqual('contacts.item.detail');
+      expect($stateParams).toEqual({ id: "5" });
+    }));
+
     it('should not transition states when ctrl-clicked', inject(function($state, $stateParams, $document, $q) {
       expect($state.$current.name).toEqual('');
       triggerClick(el, { ctrlKey: true });
