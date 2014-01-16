@@ -7,11 +7,11 @@
   },
   "ignore": [
     "**/.*",
-    "*.js"
+    "*.js",
     "node_modules",
     "bower_components",
     "component.json",
-    "package.json"
+    "package.json",
     "lib",
     "config",
     "sample",
