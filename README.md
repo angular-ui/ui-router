@@ -30,7 +30,8 @@ to change. Using it in a project that requires guaranteed stability is not recom
  - clone & [build](#developing) this repository
  - [download the release](http://angular-ui.github.io/ui-router/release/angular-ui-router.js) (or [minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js))
  - via **[Bower](http://bower.io/)**: by running `$ bower install angular-ui-router` from your console
- - or via **[Component](https://github.com/component/component)**: by running `$ component install angular-ui/ui-router` from your console
+ - via **[Component](https://github.com/component/component)**: by running `$ component install angular-ui/ui-router` from your console
+ - via **[WebJars](http://mvnrepository.com/artifact/org.webjars/angular-ui-router/)**
 
 **(2)** Include `angular-ui-router.js` (or `angular-ui-router.min.js`) in your `index.html`, after including Angular itself (For Component users: ignore this step)
 
