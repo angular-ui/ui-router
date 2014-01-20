@@ -1,7 +1,7 @@
 function parseStateRef(ref) {
-  var parsed = ref.replace(/\n/g, " ").match(/^([^(]+?)\s*(\((.*)\))?$/);
-  if (!parsed || parsed.length !== 4) throw new Error("Invalid state ref '" + ref + "'");
-  return { state: parsed[1], paramExpr: parsed[3] || null };
+  var parsed = ref.replace(/\n/g, " ").match(/^([^(]+?)\s*(\(({[^}]*})[,\s]*({[^}]*})?\))?$/);
+  if (!parsed || parsed.length !== 5) throw new Error("Invalid state ref '" + ref + "'");
+  return { state: parsed[1], paramExpr: parsed[3] || null, optionExpr: parsed[4] || null };
 }
 
 function stateContext(el) {
@@ -55,7 +55,7 @@ function $StateRefDirective($state, $timeout) {
     require: '?^uiSrefActive',
     link: function(scope, element, attrs, uiSrefActive) {
       var ref = parseStateRef(attrs.uiSref);
-      var params = null, url = null, base = stateContext(element) || $state.$current;
+      var params = null, url = null, base = stateContext(element) || $state.$current, options = null;
       var isForm = element[0].nodeName === "FORM";
       var attr = isForm ? "action" : "href", nav = true;
 
@@ -81,6 +81,12 @@ function $StateRefDirective($state, $timeout) {
         }, true);
         params = scope.$eval(ref.paramExpr);
       }
+      if (ref.optionExpr) {
+        scope.$watch(ref.optionExpr, function(newVal, oldVal) {
+          if (newVal !== options) options = newVal;
+        });
+        options = scope.$eval(ref.optionExpr);
+      }
       update();
 
       if (isForm) return;
@@ -90,7 +96,7 @@ function $StateRefDirective($state, $timeout) {
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
           $timeout(function() {
-            $state.go(ref.state, params, { relative: base });
+            $state.go(ref.state, params, angular.extend({ relative: base }, options));
           });
           e.preventDefault();
         }
