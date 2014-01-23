@@ -119,7 +119,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $ui
         }
 
         function updateView(shouldAnimate) {
-          var locals = $state.$current && $state.$current.locals[name];
+          var locals = $state.$current && ($state.$current.locals[name] || $state.$current.locals[name.split('@')[0] + '@?']);
 
           if (isDefault) {
             isDefault = false;
