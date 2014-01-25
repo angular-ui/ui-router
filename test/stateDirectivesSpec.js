@@ -278,6 +278,8 @@ describe('uiSrefActive', function() {
       url: '/:id',
     }).state('contacts.item.detail', {
       url: '/detail/:foo'
+    }).state('contacts.item.edit', {
+      url: '/edit'
     });
   }));
 
@@ -314,6 +316,20 @@ describe('uiSrefActive', function() {
     $state.transitionTo('contacts.item.detail', { id: 5, foo: 'baz' });
     $q.flush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+  }));
+
+  it('should match child states when asParent attribute is used', inject(function($rootScope, $q, $compile, $state) {
+    template = $compile('<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active="active" as-parent>Contacts</a></div>')($rootScope);
+    $rootScope.$digest();
+    var a = angular.element(template[0].getElementsByTagName('a')[0]);
+
+    $state.transitionTo('contacts.item.edit', { id: 1 });
+    $q.flush();
+    expect(a.attr('class')).toMatch(/active/);
+
+    $state.transitionTo('contacts.item.edit', { id: 4 });
+    $q.flush();
+    expect(a.attr('class')).not.toMatch(/active/);
   }));
 
   it('should resolve relative state refs', inject(function($rootScope, $q, $compile, $state) {
