@@ -157,6 +157,9 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $ui
           if (locals.$$controller) {
             locals.$scope = currentScope;
             var controller = $controller(locals.$$controller, locals);
+            if ($state.$current.controllerAs) {
+              currentScope[$state.$current.controllerAs] = controller;
+            }
             currentEl.children().data('$ngControllerController', controller);
           }
 

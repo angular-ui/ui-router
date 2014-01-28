@@ -77,6 +77,12 @@ describe('uiView', function () {
   },
   jState = {
     template: '<span ng-class="test">jState</span>'
+  },
+  kState = {
+    controller: function() {
+      this.someProperty = "value"
+    },
+    controllerAs: "vm",
   };
 
   beforeEach(module(function ($stateProvider) {
@@ -90,7 +96,8 @@ describe('uiView', function () {
       .state('g', gState)
       .state('g.h', hState)
       .state('i', iState)
-      .state('j', jState);
+      .state('j', jState)
+      .state('k', kState)
   }));
 
   beforeEach(inject(function ($rootScope, _$compile_) {
@@ -307,6 +314,15 @@ describe('uiView', function () {
 
       expect($uiViewScroll).toHaveBeenCalledWith(target);
     }));
+
+    it('should instantiate a controller with controllerAs', inject(function($state, $q) {
+      elem.append($compile('<div><ui-view>{{vm.someProperty}}</ui-view></div>')(scope));
+      $state.transitionTo(kState);
+      $q.flush();
+      var innerScope = scope.$$childHead
+      expect(innerScope.vm).not.toBeUndefined()
+      expect(innerScope.vm.someProperty).toBe("value")
+    }))
   });
 
 });
