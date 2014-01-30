@@ -1,17 +1,21 @@
 /**
+ * @ngdoc object
+ * @name ui.router.util.type:UrlMatcher
+ *
+ * @description
  * Matches URLs against patterns and extracts named parameters from the path or the search
  * part of the URL. A URL pattern consists of a path pattern, optionally followed by '?' and a list
  * of search parameters. Multiple search parameter names are separated by '&'. Search parameters
  * do not influence whether or not a URL is matched, but their values are passed through into
- * the matched parameters returned by {@link UrlMatcher#exec exec}.
+ * the matched parameters returned by {@link ui.router.util.type:UrlMatcher#methods_exec exec}.
  * 
  * Path parameter placeholders can be specified using simple colon/catch-all syntax or curly brace
  * syntax, which optionally allows a regular expression for the parameter to be specified:
  *
- * * ':' name - colon placeholder
- * * '*' name - catch-all placeholder
- * * '{' name '}' - curly placeholder
- * * '{' name ':' regexp '}' - curly placeholder with regexp. Should the regexp itself contain
+ * * `':'` name - colon placeholder
+ * * `'*'` name - catch-all placeholder
+ * * `'{' name '}'` - curly placeholder
+ * * `'{' name ':' regexp '}'` - curly placeholder with regexp. Should the regexp itself contain
  *   curly braces, they must be in matched pairs or escaped with a backslash.
  *
  * Parameter names may contain only word characters (latin letters, digits, and underscore) and
@@ -20,26 +24,36 @@
  * number of characters other than '/'. For catch-all placeholders the path parameter matches
  * any number of characters.
  * 
- * ### Examples
+ * Examples:
  * 
- * * '/hello/' - Matches only if the path is exactly '/hello/'. There is no special treatment for
+ * * `'/hello/'` - Matches only if the path is exactly '/hello/'. There is no special treatment for
  *   trailing slashes, and patterns have to match the entire path, not just a prefix.
- * * '/user/:id' - Matches '/user/bob' or '/user/1234!!!' or even '/user/' but not '/user' or
+ * * `'/user/:id'` - Matches '/user/bob' or '/user/1234!!!' or even '/user/' but not '/user' or
  *   '/user/bob/details'. The second path segment will be captured as the parameter 'id'.
- * * '/user/{id}' - Same as the previous example, but using curly brace syntax.
- * * '/user/{id:[^/]*}' - Same as the previous example.
- * * '/user/{id:[0-9a-fA-F]{1,8}}' - Similar to the previous example, but only matches if the id
+ * * `'/user/{id}'` - Same as the previous example, but using curly brace syntax.
+ * * `'/user/{id:[^/]*}'` - Same as the previous example.
+ * * `'/user/{id:[0-9a-fA-F]{1,8}}'` - Similar to the previous example, but only matches if the id
  *   parameter consists of 1 to 8 hex digits.
- * * '/files/{path:.*}' - Matches any URL starting with '/files/' and captures the rest of the
+ * * `'/files/{path:.*}'` - Matches any URL starting with '/files/' and captures the rest of the
  *   path into the parameter 'path'.
- * * '/files/*path' - ditto.
+ * * `'/files/*path'` - ditto.
  *
- * @constructor
  * @param {string} pattern  the pattern to compile into a matcher.
  *
  * @property {string} prefix  A static prefix of this pattern. The matcher guarantees that any
- *   URL matching this matcher (i.e. any string for which {@link UrlMatcher#exec exec()} returns
+ *   URL matching this matcher (i.e. any string for which {@link ui.router.util.type:UrlMatcher#methods_exec exec()} returns
  *   non-null) will start with this prefix.
+ *
+ * @property {string} source  The pattern that was passed into the contructor
+ *
+ * @property {string} sourcePath  The path portion of the source property
+ *
+ * @property {string} sourceSearch  The search portion of the source property
+ *
+ * @property {string} regex  The constructed regex that will be used to match against the url when 
+ *   it is time to determine which url will match.
+ *
+ * @returns {Object}  New UrlMatcher object
  */
 function UrlMatcher(pattern) {
 
@@ -110,12 +124,17 @@ function UrlMatcher(pattern) {
 }
 
 /**
+ * @ngdoc function
+ * @name ui.router.util.type:UrlMatcher#concat
+ * @methodOf ui.router.util.type:UrlMatcher
+ *
+ * @description
  * Returns a new matcher for a pattern constructed by appending the path part and adding the
  * search parameters of the specified pattern to this pattern. The current pattern is not
  * modified. This can be understood as creating a pattern for URLs that are relative to (or
  * suffixes of) the current pattern.
  *
- * ### Example
+ * @example
  * The following two matchers are equivalent:
  * ```
  * new UrlMatcher('/user/{id}?q').concat('/details?date');
@@ -123,7 +142,7 @@ function UrlMatcher(pattern) {
  * ```
  *
  * @param {string} pattern  The pattern to append.
- * @return {UrlMatcher}  A matcher for the concatenated pattern.
+ * @returns {ui.router.util.type:UrlMatcher}  A matcher for the concatenated pattern.
  */
 UrlMatcher.prototype.concat = function (pattern) {
   // Because order of search parameters is irrelevant, we can add our own search
@@ -137,13 +156,18 @@ UrlMatcher.prototype.toString = function () {
 };
 
 /**
+ * @ngdoc function
+ * @name ui.router.util.type:UrlMatcher#exec
+ * @methodOf ui.router.util.type:UrlMatcher
+ *
+ * @description
  * Tests the specified path against this matcher, and returns an object containing the captured
  * parameter values, or null if the path does not match. The returned object contains the values
  * of any search parameters that are mentioned in the pattern, but their value may be null if
  * they are not present in `searchParams`. This means that search parameters are always treated
  * as optional.
  *
- * ### Example
+ * @example
  * ```
  * new UrlMatcher('/user/{id}?q&r').exec('/user/bob', { x:'1', q:'hello' });
  * // returns { id:'bob', q:'hello', r:null }
@@ -151,7 +175,7 @@ UrlMatcher.prototype.toString = function () {
  *
  * @param {string} path  The URL path to match, e.g. `$location.path()`.
  * @param {Object} searchParams  URL search parameters, e.g. `$location.search()`.
- * @return {Object}  The captured parameter values.
+ * @returns {Object}  The captured parameter values.
  */
 UrlMatcher.prototype.exec = function (path, searchParams) {
   var m = this.regexp.exec(path);
@@ -170,8 +194,14 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
 };
 
 /**
+ * @ngdoc function
+ * @name ui.router.util.type:UrlMatcher#parameters
+ * @methodOf ui.router.util.type:UrlMatcher
+ *
+ * @description
  * Returns the names of all path and search parameters of this pattern in an unspecified order.
- * @return {Array.<string>}  An array of parameter names. Must be treated as read-only. If the
+ * 
+ * @returns {Array.<string>}  An array of parameter names. Must be treated as read-only. If the
  *    pattern has no parameters, an empty array is returned.
  */
 UrlMatcher.prototype.parameters = function () {
@@ -179,18 +209,23 @@ UrlMatcher.prototype.parameters = function () {
 };
 
 /**
+ * @ngdoc function
+ * @name ui.router.util.type:UrlMatcher#format
+ * @methodOf ui.router.util.type:UrlMatcher
+ *
+ * @description
  * Creates a URL that matches this pattern by substituting the specified values
  * for the path and search parameters. Null values for path parameters are
  * treated as empty strings.
  *
- * ### Example
+ * @example
  * ```
  * new UrlMatcher('/user/{id}?q').format({ id:'bob', q:'yes' });
  * // returns '/user/bob?q=yes'
  * ```
  *
  * @param {Object} values  the values to substitute for the parameters in this pattern.
- * @return {string}  the formatted URL (path and optionally search part).
+ * @returns {string}  the formatted URL (path and optionally search part).
  */
 UrlMatcher.prototype.format = function (values) {
   var segments = this.segments, params = this.params;
@@ -216,37 +251,49 @@ UrlMatcher.prototype.format = function (values) {
   return result;
 };
 
+
+
 /**
- * Service. Factory for {@link UrlMatcher} instances. The factory is also available to providers
+ * @ngdoc object
+ * @name ui.router.util.$urlMatcherFactory
+ *
+ * @description
+ * Factory for {@link ui.router.util.type:UrlMatcher} instances. The factory is also available to providers
  * under the name `$urlMatcherFactoryProvider`.
- * @constructor
- * @name $urlMatcherFactory
  */
 function $UrlMatcherFactory() {
+
   /**
-   * Creates a {@link UrlMatcher} for the specified pattern.
-   * @function
-   * @name $urlMatcherFactory#compile
-   * @methodOf $urlMatcherFactory
+   * @ngdoc function
+   * @name ui.router.util.$urlMatcherFactory#compile
+   * @methodOf ui.router.util.$urlMatcherFactory
+   *
+   * @description
+   * Creates a {@link ui.router.util.type:UrlMatcher} for the specified pattern.
+   *   
    * @param {string} pattern  The URL pattern.
-   * @return {UrlMatcher}  The UrlMatcher.
+   * @returns {ui.router.util.type:UrlMatcher}  The UrlMatcher.
    */
   this.compile = function (pattern) {
     return new UrlMatcher(pattern);
   };
 
   /**
+   * @ngdoc function
+   * @name ui.router.util.$urlMatcherFactory#isMatcher
+   * @methodOf ui.router.util.$urlMatcherFactory
+   *
+   * @description
    * Returns true if the specified object is a UrlMatcher, or false otherwise.
-   * @function
-   * @name $urlMatcherFactory#isMatcher
-   * @methodOf $urlMatcherFactory
-   * @param {Object} o
-   * @return {boolean}
+   *
+   * @param {Object} object  The object to perform the type check against.
+   * @returns {Boolean}  Returns `true` if the object has the following functions: `exec`, `format`, and `concat`.
    */
   this.isMatcher = function (o) {
     return isObject(o) && isFunction(o.exec) && isFunction(o.format) && isFunction(o.concat);
   };
-
+  
+  /* No need to document $get, since it returns this */
   this.$get = function () {
     return this;
   };

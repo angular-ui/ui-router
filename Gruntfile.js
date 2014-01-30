@@ -105,7 +105,8 @@ module.exports = function (grunt) {
         dest: 'site',
         html5Mode: false,
         title: 'UI Router',
-        startPage: '/api',
+        startPage: '/api/ui.router',
+		    navTemplate: 'ngdoc_assets/docnav.html'
       },
       api: {
         src: ['src/**/*.js'],

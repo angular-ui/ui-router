@@ -1,4 +1,4 @@
-/**
+/*
  * @ngdoc object
  * @name ui.router.compat.$routeProvider
  *
@@ -35,7 +35,7 @@ function $RouteProvider(  $stateProvider,    $urlRouterProvider) {
   }
 
   this.when = when;
-  /**
+  /*
    * @ngdoc function
    * @name ui.router.compat.$routeProvider#when
    * @methodOf ui.router.compat.$routeProvider
@@ -91,7 +91,7 @@ function $RouteProvider(  $stateProvider,    $urlRouterProvider) {
     return this;
   }
 
-  /**
+  /*
    * @ngdoc object
    * @name ui.router.compat.$route
    *
