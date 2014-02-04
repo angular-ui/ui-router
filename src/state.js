@@ -1178,6 +1178,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
           }
           // Provide access to the state itself for internal use
           result.$$state = state;
+          result.$$controllerAs = view.controllerAs;
           dst[name] = result;
         }));
       });
