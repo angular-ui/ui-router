@@ -469,6 +469,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       params: {},
       current: root.self,
       $current: root,
+      previous: undefined,
+      previousParams: undefined,
       transition: null
     };
 
@@ -531,6 +533,32 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
      */
     $state.go = function go(to, params, options) {
       return this.transitionTo(to, params, extend({ inherit: true, relative: $state.$current }, options));
+    };
+
+    /**
+     * @ngdoc function
+     * @name ui.router.state.$state#back
+     * @methodOf ui.router.state.$state
+     *
+     * @description
+     * Convenience method for transitioning back to previous state. `$state.back` calls 
+     * `$state.transitionTo` internally.
+     *
+     * @example
+     * <pre>
+     * var app = angular.module('app', ['ui.router.state']);
+     *
+     * app.controller('ctrl', function ($scope, $state) {
+     *   $scope.changeState = function () {
+     *     $state.back();
+     *   };
+     * });
+     * </pre>
+     *
+     * @param {object} options If Object is passed, object is an options hash.
+     */
+    $state.back = function (options) {
+      return this.transitionTo($state.previous, $state.previousParams, options);
     };
 
     /**
@@ -686,6 +714,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         if ($state.transition !== transition) return TransitionSuperseded;
 
         // Update globals in $state
+        $state.previous = $state.current;
+        $state.previousParams = $state.params;
         $state.$current = to;
         $state.current = to.self;
         $state.params = toParams;

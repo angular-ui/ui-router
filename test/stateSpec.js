@@ -483,6 +483,26 @@ describe('state', function () {
     }));
   });
 
+  describe('.back()', function () {
+    it('transitions to previous state', inject(function ($state, $q) {
+      $state.transitionTo('about.person.item'); $q.flush();
+      $state.go('^.^.sidebar'); $q.flush();
+      $state.back(); $q.flush();
+
+      expect($state.$current.name).toBe('about.person.item');
+
+    }));
+
+    it('transitions to previous state', inject(function ($state, $stateParams, $q) {
+      $state.transitionTo('about.person.item', { id:5 }); $q.flush();
+      $state.go('^.^.sidebar'); $q.flush();
+      $state.back(); $q.flush();
+
+      expect($stateParams).toEqual({ person: '', id: '5' });
+    }));
+
+  });
+
   describe('.reload()', function () {
     it('should reload the current state with the current parameters', inject(function ($state, $q, $timeout) {
       $state.transitionTo('resolveTimeout', { foo: "bar" });
