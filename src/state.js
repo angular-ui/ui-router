@@ -53,9 +53,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
       if (isString(url)) {
         if (url.charAt(0) == '^') {
-          return $urlMatcherFactory.compile(url.substring(1));
+          return $urlMatcherFactory.compile(url.substring(1), state.strict);
         }
-        return (state.parent.navigable || root).url.concat(url);
+        return (state.parent.navigable || root).url.concat(url, state.strict);
       }
 
       if ($urlMatcherFactory.isMatcher(url) || url == null) {
@@ -202,7 +202,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     // Register the state in the global state list and with $urlRouter if necessary.
     if (!state[abstractKey] && state.url) {
       $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
-        if ($state.$current.navigable != state || !equalForKeys($match, $stateParams)) {
+        if ($state.$current.navigable != state || !equalForKeys($match, $stateParams, state.ownParams)) {
           $state.transitionTo(state, $match, { location: false });
         }
       }]);
@@ -831,10 +831,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         url = "#" + $locationProvider.hashPrefix() + url;
       }
       if (options.absolute && url) {
-        url = $location.protocol() + '://' + 
-              $location.host() + 
-              ($location.port() == 80 || $location.port() == 443 ? '' : ':' + $location.port()) + 
-              (!$locationProvider.html5Mode() && url ? '/' : '') + 
+        url = $location.protocol() + '://' +
+              $location.host() +
+              ($location.port() == 80 || $location.port() == 443 ? '' : ':' + $location.port()) +
+              (!$locationProvider.html5Mode() && url ? '/' : '') +
               url;
       }
       return url;
