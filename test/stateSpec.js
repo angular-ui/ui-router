@@ -552,6 +552,21 @@ describe('state', function () {
       expect($state.includes('about.person', {person: 'bob'})).toBe(true);
       expect($state.includes('about.person', {person: 'steve'})).toBe(false);
     }));
+
+    it('should return true when the current state is passed with partial glob patterns', inject(function ($state, $q) {
+      $state.transitionTo('about.person.item', {person: 'bob', id: 5}); $q.flush();
+      expect($state.includes('*.person.*')).toBe(true);
+      expect($state.includes('*.person.**')).toBe(true);
+      expect($state.includes('**.item.*')).toBe(false);
+      expect($state.includes('**.item')).toBe(true);
+      expect($state.includes('**.stuff.*')).toBe(false);
+      expect($state.includes('*.*.*')).toBe(true);
+      expect($state.includes('about.*.*')).toBe(true);
+      expect($state.includes('about.**')).toBe(true);
+      expect($state.includes('*.about.*')).toBe(false);
+      expect($state.includes('about.*.*', {person: 'bob'})).toBe(true);
+      expect($state.includes('about.*.*', {person: 'shawn'})).toBe(false);
+    }));
   });
 
   describe('.current', function () {
