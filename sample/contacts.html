@@ -7,8 +7,7 @@
 
         <!-- This <li> will only add the 'active' class if 'contacts.detail' or its descendants are active
              AND if it is the link for the active contact (aka contactId) -->
-        <li ng-repeat="contact in contacts | limitTo:2"
-            ng-class="{ active: $state.includes('contacts.detail') && $stateParams.contactId == contact.id }">
+        <li ng-repeat="contact in contacts | limitTo:2" ui-sref-active="active">
 
           <!-- Here's a ui-sref that is also providing necessary parameters -->
           <a ui-sref="contacts.detail({contactId:contact.id})">{{contact.name}}</a>
