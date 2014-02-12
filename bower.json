@@ -15,6 +15,7 @@
     "config",
     "sample",
     "test",
-    "tests"
+    "tests",
+    "ngdoc_assets"
   ]
 }
