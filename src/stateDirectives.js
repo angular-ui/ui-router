@@ -36,13 +36,32 @@ function stateContext(el) {
  * template containing the link.
  *
  * @example
+ * Here's an example of how you'd use ui-sref and how it would compile. If you have the 
+ * following template:
  * <pre>
  * <a ui-sref="home">Home</a> | <a ui-sref="about">About</a>
- *
+ * 
  * <ul>
- *   <li ng-repeat="contact in contacts">
- *     <a ui-sref="contacts.detail({ id: contact.id })">{{ contact.name }}</a>
- *   </li>
+ *     <li ng-repeat="contact in contacts">
+ *         <a ui-sref="contacts.detail({ id: contact.id })">{{ contact.name }}</a>
+ *     </li>
+ * </ul>
+ * </pre>
+ * 
+ * Then the compiled html would be (assuming Html5Mode is off):
+ * <pre>
+ * <a href="#/home" ui-sref="home">Home</a> | <a href="#/about" ui-sref="about">About</a>
+ * 
+ * <ul>
+ *     <li ng-repeat="contact in contacts">
+ *         <a href="#/contacts/1" ui-sref="contacts.detail({ id: contact.id })">Joe</a>
+ *     </li>
+ *     <li ng-repeat="contact in contacts">
+ *         <a href="#/contacts/2" ui-sref="contacts.detail({ id: contact.id })">Alice</a>
+ *     </li>
+ *     <li ng-repeat="contact in contacts">
+ *         <a href="#/contacts/3" ui-sref="contacts.detail({ id: contact.id })">Bob</a>
+ *     </li>
  * </ul>
  * </pre>
  *
@@ -117,12 +136,34 @@ function $StateRefDirective($state, $timeout) {
  * distinguishing it from the inactive menu items.
  *
  * @example
+ * Given the following template:
+ * <pre>
+ * <ul>
+ *   <li ui-sref-active="active" class="item">
+ *     <a href ui-sref="app.user({user: 'bilbobaggins'})">@bilbobaggins</a>
+ *   </li>
+ * </ul>
+ * </pre>
+ * 
+ * When the app state is "app.user", and contains the state parameter "user" with value "bilbobaggins", 
+ * the resulting HTML will appear as (note the 'active' class):
  * <pre>
  * <ul>
  *   <li ui-sref-active="active" class="item active">
  *     <a ui-sref="app.user({user: 'bilbobaggins'})" href="/users/bilbobaggins">@bilbobaggins</a>
  *   </li>
- *   <!-- ... -->
+ * </ul>
+ * </pre>
+ * 
+ * The class name is interpolated **once** during the directives link time (any further changes to the 
+ * interpolated value are ignored). 
+ * 
+ * Multiple classes may be specified in a space-separated format:
+ * <pre>
+ * <ul>
+ *   <li ui-sref-active='class1 class2 class3'>
+ *     <a ui-sref="app.user">link</a>
+ *   </li>
  * </ul>
  * </pre>
  */

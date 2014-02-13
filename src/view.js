@@ -37,6 +37,30 @@ function $ViewProvider() {
           result = $templateFactory.fromConfig(options.view, options.params, options.locals);
         }
         if (result && options.notify) {
+        /**
+         * @ngdoc event
+         * @name ui.router.state.$state#$viewContentLoading
+         * @eventOf ui.router.state.$view
+         * @eventType broadcast on root scope
+         * @description
+         * **Known Bug:** This doesn't appear to be working (v0.2.8).
+         *
+         * Fired once the view **begins loading**, *before* the DOM is rendered.
+         *
+         * @param {Object} event Event object.
+         * @param {Object} viewConfig The view config properties (template, controller, etc).
+         *
+         * @example
+         *
+         * <pre>
+         * $scope.$on('$viewContentLoading',
+         * function(event, viewConfig){
+         *     // Access to all the view config properties.
+         *     // and one special property 'targetView'
+         *     // viewConfig.targetView
+         * });
+         * </pre>
+         */
           $rootScope.$broadcast('$viewContentLoading', options);
         }
         return result;
