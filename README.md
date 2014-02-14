@@ -4,6 +4,7 @@
 ---
 **[Download 0.2.8](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)** (or **[Minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)**) **|**
 **[Learn](#resources) |**
+**[API](http://angular-ui.github.io/ui-router/site) |**
 **[Discuss](https://groups.google.com/forum/#!categories/angular-ui/router) |**
 **[Get Help](http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router) |**
 **[Report an Issue](#report-an-issue) |**
@@ -216,11 +217,11 @@ myApp.config(function($stateProvider) {
 ## Resources
 
 * [In-Depth Guide](https://github.com/angular-ui/ui-router/wiki)
-* [API Quick Reference](https://github.com/angular-ui/ui-router/wiki/Quick-Reference)
-* [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/master/sample))
+* [API Reference](http://angular-ui.github.io/ui-router/site)
+* [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/gh-pages/sample))
 * [FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions)
-* [Introduction Video](http://egghead.io/lessons/angularjs-introduction-ui-router)
-* [Slides from CincyNg Meetup](http://slid.es/timkindberg/ui-router#/)
+* [Introduction Video](https://egghead.io/lessons/angularjs-introduction-ui-router)
+* [Slides comparing ngRoute to ui-router](http://slid.es/timkindberg/ui-router#/)
 
 ## Report an Issue
 
