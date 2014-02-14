@@ -1,6 +1,6 @@
 describe('state', function () {
 
-  var locationProvider, templateParams;
+  var stateProvider, locationProvider, templateParams, ctrlName;
 
   beforeEach(module('ui.router', function($locationProvider) {
     locationProvider = $locationProvider;
@@ -25,7 +25,8 @@ describe('state', function () {
       E = { params: [ 'i' ] },
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
-      HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} }
+      HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
+      RS = { url: '^/search?term', reloadOnSearch: false },
       AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -33,6 +34,7 @@ describe('state', function () {
       state.onEnter = callbackLogger('onEnter');
       state.onExit = callbackLogger('onExit');
     });
+    stateProvider = $stateProvider;
 
     $stateProvider
       .state('A', A)
@@ -44,6 +46,7 @@ describe('state', function () {
       .state('H', H)
       .state('HH', HH)
       .state('HHH', HHH)
+      .state('RS', RS)
 
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
@@ -57,7 +60,46 @@ describe('state', function () {
           templateParams = params;
           return "/templates/" + params.item + ".html";
         }
-      });
+      })
+      .state('dynamicController', {
+        url: "/dynamic/:type",
+        template: "test",
+        controllerProvider: function($stateParams) {
+          ctrlName = $stateParams.type + "Controller";
+          return ctrlName;
+        }
+      })
+      .state('home.redirect', {
+        url: "redir",
+        onEnter: function($state) {
+          $state.transitionTo("about");
+        }
+      })
+      .state('resolveFail', {
+        url: "/resolve-fail",
+        resolve: {
+          badness: function($q) {
+            return $q.reject("!");
+          }
+        }
+      })
+      .state('resolveTimeout', {
+        url: "/:foo",
+        resolve: {
+          value: function ($timeout) {
+            return $timeout(function() { log += "Success!"; }, 1);
+          }
+        }
+      })
+
+      .state('first', { url: '^/first/subpath' })
+      .state('second', { url: '^/second' })
+
+      // State param inheritance tests. param1 is inherited by sub1 & sub2;
+      // param2 should not be transferred (unless explicitly set).
+      .state('root', { url: '^/root?param1' })
+      .state('root.sub1', {url: '/1?param2' })
+      .state('root.sub2', {url: '/2?param2' });
 
     $provide.value('AppInjectable', AppInjectable);
   }));
@@ -68,6 +110,7 @@ describe('state', function () {
     $rootScope.$on('$stateChangeStart', eventLogger);
     $rootScope.$on('$stateChangeSuccess', eventLogger);
     $rootScope.$on('$stateChangeError', eventLogger);
+    $rootScope.$on('$stateNotFound', eventLogger);
   }));
 
 
@@ -82,6 +125,16 @@ describe('state', function () {
     expect($state.current).toBe(state);
   }
 
+  describe('provider', function () {
+    it ('should ignore Object properties when registering states', function () {
+      expect(function() {
+        stateProvider.state('toString', { url: "/to-string" });
+      }).not.toThrow();
+      expect(function() {
+        stateProvider.state('watch', { url: "/watch" });
+      }).not.toThrow();
+    });
+  });
 
   describe('.transitionTo()', function () {
     it('returns a promise for the target state', inject(function ($state, $q) {
@@ -94,6 +147,18 @@ describe('state', function () {
       $state.transitionTo('A', {});
       $q.flush();
       expect($state.current).toBe(A);
+    }));
+
+    it('doesn\'t trigger state change if reloadOnSearch is false', inject(function ($state, $q, $location, $rootScope){
+      initStateTo(RS);
+      $location.search({term: 'hello'});
+      var called;
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+        called = true
+      });
+      $q.flush();
+      expect($location.search()).toEqual({term: 'hello'});
+      expect(called).toBeFalsy();        
     }));
 
     it('ignores non-applicable state parameters', inject(function ($state, $q) {
@@ -135,6 +200,109 @@ describe('state', function () {
       expect(resolvedError(promise)).toBeTruthy();
     }));
 
+    it('triggers $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(E, { i: 'iii' });
+      var called;
+      $rootScope.$on('$stateNotFound', function (ev, redirect, from, fromParams) {
+        expect(from).toBe(E);
+        expect(fromParams).toEqual({ i: 'iii' });
+        expect(redirect.to).toEqual('never_defined');
+        expect(redirect.toParams).toEqual({ x: '1', y: '2' });
+
+        expect($state.current).toBe(from); // $state not updated yet
+        expect($state.params).toEqual(fromParams);
+        called = true;
+      });
+      var message;
+      try {
+        $state.transitionTo('never_defined', { x: '1', y: '2' });
+      } catch(err) {
+        message = err.message;
+      }
+      $q.flush();
+      expect(message).toEqual('No such state \'never_defined\'');
+      expect(called).toBeTruthy();
+      expect($state.current).toBe(E);
+    }));
+
+    it('can be cancelled by preventDefault() in $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(A);
+      var called;
+      $rootScope.$on('$stateNotFound', function (ev) {
+        ev.preventDefault();
+        called = true;
+      });
+      var promise = $state.transitionTo('never_defined', {});
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current).toBe(A);
+      expect(resolvedError(promise)).toBeTruthy();
+    }));
+
+    it('can be redirected in $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(A);
+      var called;
+      $rootScope.$on('$stateNotFound', function (ev, redirect) {
+        redirect.to = D;
+        redirect.toParams = { x: '1', y: '2' };
+        called = true;
+      });
+      var promise = $state.transitionTo('never_defined', { z: 3 });
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current).toBe(D);
+      expect($state.params).toEqual({ x: '1', y: '2' });
+    }));
+
+    it('can lazy-define a state in $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(DD, { x: 1, y: 2, z: 3 });
+      var called;
+      $rootScope.$on('$stateNotFound', function (ev, redirect) {
+        stateProvider.state(redirect.to, { parent: DD, params: [ 'x', 'y', 'z', 'w' ]});
+        called = true;
+      });
+      var promise = $state.go('DDD', { w: 4 });
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current.name).toEqual('DDD');
+      expect($state.params).toEqual({ x: '1', y: '2', z: '3', w: '4' });
+    }));
+
+    it('can defer a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(A);
+      var called;
+      var deferred = $q.defer();
+      $rootScope.$on('$stateNotFound', function (ev, redirect) {
+        ev.retry = deferred.promise;
+        called = true;
+      });
+      var promise = $state.go('AA', { a: 1 });
+      stateProvider.state('AA', { parent: A, params: [ 'a' ]});
+      deferred.resolve();
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current.name).toEqual('AA');
+      expect($state.params).toEqual({ a: '1' });
+    }));
+
+    it('can defer and supersede a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
+      initStateTo(A);
+      var called;
+      var deferred = $q.defer();
+      $rootScope.$on('$stateNotFound', function (ev, redirect) {
+        ev.retry = deferred.promise;
+        called = true;
+      });
+      var promise = $state.go('AA', { a: 1 });
+      $state.go(B);
+      stateProvider.state('AA', { parent: A, params: [ 'a' ]});
+      deferred.resolve();
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current).toEqual(B);
+      expect($state.params).toEqual({});
+    }));
+
     it('triggers $stateChangeSuccess', inject(function ($state, $q, $rootScope) {
       initStateTo(E, { i: 'iii' });
       var called;
@@ -152,6 +320,36 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(D);
+    }));
+
+    it('does not trigger $stateChangeSuccess when suppressed, but changes state', inject(function ($state, $q, $rootScope) {
+      initStateTo(E, { i: 'iii' });
+      var called;
+
+      $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {
+        called = true;
+      });
+
+      $state.transitionTo(D, { x: '1', y: '2' }, { notify: false });
+      $q.flush();
+
+      expect(called).toBeFalsy();
+      expect($state.current).toBe(D);
+    }));
+
+    it('does not trigger $stateChangeSuccess when suppressed, but updates params', inject(function ($state, $q, $rootScope) {
+      initStateTo(E, { x: 'iii' });
+      var called;
+
+      $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {
+        called = true;
+      });
+      $state.transitionTo(E, { i: '1', y: '2' }, { notify: false });
+      $q.flush();
+
+      expect(called).toBeFalsy();
+      expect($state.params.i).toBe('1');
+      expect($state.current).toBe(E);
     }));
 
     it('is a no-op when passing the current state and identical parameters', inject(function ($state, $q) {
@@ -188,8 +386,13 @@ describe('state', function () {
       $q.flush();
       expect($state.current).toBe(A);
       expect(resolvedError(superseded)).toBeTruthy();
-      expect(log).toBe(
-        '$stateChangeStart(B,A);');
+      expect(log).toBe('$stateChangeStart(B,A);');
+    }));
+
+    it('aborts pending transitions when aborted from callbacks', inject(function ($state, $q) {
+      var superseded = $state.transitionTo('home.redirect');
+      $q.flush();
+      expect($state.current.name).toBe('about');
     }));
 
     it('triggers onEnter and onExit callbacks', inject(function ($state, $q) {
@@ -214,6 +417,20 @@ describe('state', function () {
     it('doesn\'t transition to parent state when child has no URL', inject(function ($state, $q) {
       $state.transitionTo('about.sidebar'); $q.flush();
       expect($state.current.name).toEqual('about.sidebar');
+    }));
+
+    it('notifies on failed relative state resolution', inject(function ($state, $q) {
+      $state.transitionTo(DD);
+      $q.flush();
+
+      var err = "Could not resolve '^.Z' from state 'DD'";
+      expect(function() { $state.transitionTo("^.Z", null, { relative: $state.$current }); }).toThrow(err);
+    }));
+
+    it('uses the controllerProvider to get controller dynamically', inject(function ($state, $q) {
+      $state.transitionTo('dynamicController', { type: "Acme" });
+      $q.flush();
+      expect(ctrlName).toEqual("AcmeController");
     }));
   });
 
@@ -266,16 +483,40 @@ describe('state', function () {
     }));
   });
 
+  describe('.reload()', function () {
+    it('should reload the current state with the current parameters', inject(function ($state, $q, $timeout) {
+      $state.transitionTo('resolveTimeout', { foo: "bar" });
+      $q.flush();
+      expect(log).toBe('');
+
+      $timeout.flush();
+      expect(log).toBe('Success!');
+
+      $state.reload();
+      $q.flush();
+      $timeout.flush();
+      expect(log).toBe('Success!Success!');
+    }));
+  });
+
   describe('.is()', function () {
     it('should return true when the current state is passed', inject(function ($state, $q) {
       $state.transitionTo(A); $q.flush();
       expect($state.is(A)).toBe(true);
+      expect($state.is(A, null)).toBe(true);
       expect($state.is('A')).toBe(true);
       expect($state.is(B)).toBe(false);
     }));
 
     it('should return undefined when queried state does not exist', inject(function ($state) {
       expect($state.is('Z')).toBeUndefined();
+    }));
+
+    it('should return true when the current state is passed with matching parameters', inject(function ($state, $q) {
+      $state.transitionTo(D, {x: 'foo', y: 'bar'}); $q.flush();
+      expect($state.is(D, {x: 'foo', y: 'bar'})).toBe(true);
+      expect($state.is('D', {x: 'foo', y: 'bar'})).toBe(true);
+      expect($state.is(D, {x: 'bar', y: 'foo'})).toBe(false);
     }));
   });
 
@@ -295,7 +536,21 @@ describe('state', function () {
     }));
 
     it('should return undefined when queried state does not exist', inject(function ($state) {
-      expect($state.is('Z')).toBeUndefined();
+      expect($state.includes('Z')).toBeUndefined();
+    }));
+
+    it('should return true when the current state is passed with partial matching parameters', inject(function ($state, $q) {
+      $state.transitionTo(D, {x: 'foo', y: 'bar'}); $q.flush();
+      expect($state.includes(D, {x: 'foo'})).toBe(true);
+      expect($state.includes(D, {y: 'bar'})).toBe(true);
+      expect($state.includes('D', {x: 'foo'})).toBe(true);
+      expect($state.includes(D, {y: 'foo'})).toBe(false);
+    }));
+
+    it('should return true when the current state is passed with partial matching parameters from state\'s parent', inject(function ($state, $q) {
+      $state.transitionTo('about.person.item', {person: 'bob', id: 5}); $q.flush();
+      expect($state.includes('about.person', {person: 'bob'})).toBe(true);
+      expect($state.includes('about.person', {person: 'steve'})).toBe(false);
     }));
   });
 
@@ -373,6 +628,17 @@ describe('state', function () {
       expect($state.href("about.person", { person: "bob" })).toEqual("#/about/bob");
       expect($state.href("about.person.item", { person: "bob", id: null })).toEqual("#/about/bob/");
     }));
+    
+    it('generates absolute url when absolute is true', inject(function ($state) {
+      expect($state.href("about.sidebar", null, { absolute: true })).toEqual("http://server/#/about");
+      locationProvider.html5Mode(true);
+      expect($state.href("about.sidebar", null, { absolute: true })).toEqual("http://server/about");
+    }));
+
+    it('respects $locationProvider.hashPrefix()', inject(function ($state) {
+      locationProvider.hashPrefix("!");
+      expect($state.href("home")).toEqual("#!/");
+    }));
   });
 
   describe('.get()', function () {
@@ -382,54 +648,128 @@ describe('state', function () {
       expect($state.get('A')).toBe(A);
       expect($state.get('Z')).toBeNull();
     }));
-  });
 
-  describe(' "data" property inheritance/override', function () {
-    it('"data" property should stay immutable for if state doesn\'t have parent', inject(function ($state) {
-      initStateTo(H);
-      expect($state.current.name).toEqual('H');
-      expect($state.current.data.propA).toEqual(H.data.propA);
-      expect($state.current.data.propB).toEqual(H.data.propB);
-    }));
-
-    it('"data" property should be inherited from parent if state doesn\'t define it', inject(function ($state) {
-      initStateTo(HH);
-      expect($state.current.name).toEqual('HH');
-      expect($state.current.data.propA).toEqual(H.data.propA);
-      expect($state.current.data.propB).toEqual(H.data.propB);
-    }));
-
-    it('"data" property should be overridden/extended if state defines it', inject(function ($state) {
-      initStateTo(HHH);
-      expect($state.current.name).toEqual('HHH');
-      expect($state.current.data.propA).toEqual(HHH.data.propA);
-      expect($state.current.data.propB).toEqual(H.data.propB);
-      expect($state.current.data.propB).toEqual(HH.data.propB);
-      expect($state.current.data.propC).toEqual(HHH.data.propC);
-    }));
-  });
-
-  describe('html5Mode compatibility', function() {
-
-    it('should generate non-hashbang URLs in HTML5 mode', inject(function ($state) {
-      expect($state.href("about.person", { person: "bob" })).toEqual("#/about/bob");
-      locationProvider.html5Mode(true);
-      expect($state.href("about.person", { person: "bob" })).toEqual("/about/bob");
+    it("should return all of the state's config", inject(function ($state) {
+      var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
+      var names = [
+        '', // implicit root state
+        'A',
+        'B',
+        'C',
+        'D',
+        'DD',
+        'E',
+        'H',
+        'HH',
+        'HHH',
+        'RS',
+        'about',
+        'about.person',
+        'about.person.item',
+        'about.sidebar',
+        'about.sidebar.item',
+        'dynamicController',
+        'first',
+        'home',
+        'home.item',
+        'home.redirect',
+        'resolveFail',
+        'resolveTimeout',
+        'root',
+        'root.sub1',
+        'root.sub2',
+        'second'
+      ];
+      expect(list.map(function(state) { return state.name; })).toEqual(names);
     }));
   });
 
   describe('url handling', function () {
-
     it('should transition to the same state with different parameters', inject(function ($state, $rootScope, $location) {
       $location.path("/about/bob");
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
       expect($state.params).toEqual({ person: "bob" });
+      expect($state.current.name).toBe('about.person');
 
       $location.path("/about/larry");
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
       expect($state.params).toEqual({ person: "larry" });
+      expect($state.current.name).toBe('about.person');
+    }));
+
+    it('preserve hash', inject(function($state, $rootScope, $location) {
+      $location.path("/about/bob");
+      $location.hash("frag");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      expect($state.params).toEqual({ person: "bob" });
+      expect($state.current.name).toBe('about.person');
+      expect($location.path()).toBe('/about/bob');
+      expect($location.hash()).toBe('frag');
+    }));
+
+    it('should correctly handle absolute urls', inject(function ($state, $rootScope, $location) {
+      $location.path("/first/subpath");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      expect($state.current.name).toBe('first');
+
+      $state.transitionTo('second');
+      $rootScope.$apply();
+      expect($state.current.name).toBe('second');
+      expect($location.path()).toBe('/second');
+    }));
+
+    it('should ignore bad urls', inject(function ($state, $rootScope, $location) {
+      $location.path("/first/second");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      expect($state.current.name).toBe('');
+    }));
+
+    it('should revert to last known working url on state change failure', inject(function ($state, $rootScope, $location, $q) {
+      $state.transitionTo("about");
+      $q.flush();
+
+      $location.path("/resolve-fail");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+
+      expect($state.current.name).toBe("about");
+    }));
+
+    it('should replace browser history when "replace" enabled', inject(function ($state, $rootScope, $location, $q) {
+      var originalReplaceFn = $location.replace, replaceWasCalled = false;
+
+      // @todo Replace this with a spy
+      var decoratedReplaceFn = function() {
+        replaceWasCalled = true;
+        originalReplaceFn.call($location);
+      };
+      $location.replace = decoratedReplaceFn;
+
+      $state.transitionTo('about', {}, { location: 'replace' });
+      $q.flush();
+
+      expect(replaceWasCalled).toEqual(true);
+    }));
+
+    it('should not replace history normally', inject(function ($state, $rootScope, $location, $q) {
+      var originalReplaceFn = $location.replace, replaceWasCalled = false;
+
+      // @todo Replace with spy
+      var decoratedReplaceFn = function() {
+        replaceWasCalled = true;
+        originalReplaceFn.call($location);
+      };
+      $location.replace = decoratedReplaceFn;
+
+      $state.transitionTo('about');
+      $q.flush();
+
+      expect(replaceWasCalled).toEqual(false);
     }));
   });
 
@@ -446,28 +786,51 @@ describe('state', function () {
     }));
   });
 
-  describe(' "data" property inheritance/override', function () {
-    it('"data" property should stay immutable for if state doesn\'t have parent', inject(function ($state) {
+  describe('"data" property inheritance/override', function () {
+    it('should stay immutable for if state doesn\'t have parent', inject(function ($state) {
       initStateTo(H);
       expect($state.current.name).toEqual('H');
       expect($state.current.data.propA).toEqual(H.data.propA);
       expect($state.current.data.propB).toEqual(H.data.propB);
     }));
 
-    it('"data" property should be inherited from parent if state doesn\'t define it', inject(function ($state) {
+    it('should be inherited from parent if state doesn\'t define it', inject(function ($state) {
       initStateTo(HH);
       expect($state.current.name).toEqual('HH');
       expect($state.current.data.propA).toEqual(H.data.propA);
       expect($state.current.data.propB).toEqual(H.data.propB);
     }));
 
-    it('"data" property should be overridden/extended if state defines it', inject(function ($state) {
+    it('should be overridden/extended if state defines it', inject(function ($state) {
       initStateTo(HHH);
       expect($state.current.name).toEqual('HHH');
       expect($state.current.data.propA).toEqual(HHH.data.propA);
       expect($state.current.data.propB).toEqual(H.data.propB);
       expect($state.current.data.propB).toEqual(HH.data.propB);
       expect($state.current.data.propC).toEqual(HHH.data.propC);
+    }));
+  });
+
+  describe('substate and stateParams inheritance', function() {
+    it('should inherit the parent param', inject(function ($state, $stateParams, $q) {
+      initStateTo($state.get('root'), {param1: 1});
+      $state.go('root.sub1', {param2: 2});
+      $q.flush();
+      expect($state.current.name).toEqual('root.sub1');
+      expect($stateParams).toEqual({param1: '1', param2: '2'});
+    }));
+
+    it('should not inherit siblings\' states', inject(function ($state, $stateParams, $q) {
+      initStateTo($state.get('root'), {param1: 1});
+      $state.go('root.sub1', {param2: 2});
+      $q.flush();
+      expect($state.current.name).toEqual('root.sub1');
+
+      $state.go('root.sub2');
+      $q.flush();
+      expect($state.current.name).toEqual('root.sub2');
+
+      expect($stateParams).toEqual({param1: '1', param2: null});
     }));
   });
 
@@ -503,5 +866,96 @@ describe('state', function () {
       $state.transitionTo('about.sidebar.item', { item: "foo" }); $q.flush();
       expect(templateParams).toEqual({ item: "foo" });
     }));
+  });
+
+  describe('provider decorators', function () {
+
+    it('should return built-in decorators', function () {
+      expect(stateProvider.decorator('parent')({ parent: A }).self.name).toBe("A");
+    });
+
+    it('should allow built-in decorators to be overridden', inject(function ($state, $q) {
+      stateProvider.decorator('data', function(state) {
+        return angular.extend(state.data || {}, { foo: "bar" });
+      });
+      stateProvider.state('AA', { parent: A, data: { baz: "true" } });
+
+      $state.transitionTo('AA');
+      $q.flush();
+      expect($state.current.data).toEqual({ baz: 'true', foo: 'bar' });
+    }));
+
+    it('should allow new decorators to be added', inject(function ($state, $q) {
+      stateProvider.decorator('custom', function(state) {
+        return function() { return "Custom functionality for state '" + state + "'" };
+      });
+      stateProvider.state('decoratorTest', {});
+
+      $state.transitionTo('decoratorTest');
+      $q.flush();
+      expect($state.$current.custom()).toBe("Custom functionality for state 'decoratorTest'");
+    }));
+
+    it('should allow built-in decorators to be extended', inject(function ($state, $q, $httpBackend) {
+      stateProvider.decorator('views', function(state, parent) {
+        var result = {};
+
+        angular.forEach(parent(state), function(config, name) {
+          result[name] = angular.extend(config, { templateProvider: function() {
+            return "Template for " + name;
+          }});
+        });
+        return result;
+      });
+
+      stateProvider.state('viewTest', {
+        views: {
+          viewA: {},
+          viewB: {}
+        }
+      });
+
+      $state.transitionTo('viewTest');
+      $q.flush();
+
+      expect($state.$current.views['viewA@'].templateProvider()).toBe('Template for viewA@');
+      expect($state.$current.views['viewB@'].templateProvider()).toBe('Template for viewB@');
+    }));
+
+  });
+});
+
+describe('state queue', function(){
+  angular.module('ui.router.queue.test', ['ui.router.queue.test.dependency'])
+    .config(function($stateProvider) {
+      $stateProvider
+        .state('queue-test-a', {})
+        .state('queue-test-b-child', { parent: 'queue-test-b' })
+        .state('queue-test-b', {});
+    });
+  angular.module('ui.router.queue.test.dependency', [])
+    .config(function($stateProvider) {
+      $stateProvider
+        .state('queue-test-a.child', {})
+    });
+
+  var expectedStates = ['','queue-test-a', 'queue-test-a.child', 'queue-test-b', 'queue-test-b-child'];
+
+  it('should work across modules', function() {
+    module('ui.router.queue.test', 'ui.router.queue.test.dependency');
+
+    inject(function ($state) {
+      var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
+      expect(list.map(function(state) { return state.name; })).toEqual(expectedStates);
+    });
+  });
+
+  it('should work when parent is name string', function() {
+    module('ui.router.queue.test', 'ui.router.queue.test.dependency');
+
+    inject(function ($state) {
+      var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
+      expect(list.map(function(state) { return state.name; })).toEqual(expectedStates);
+    });
   });
 });

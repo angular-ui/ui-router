@@ -147,6 +147,13 @@ beforeEach(function() {
       return this.actual.hasClass ?
               this.actual.hasClass(clazz) :
               angular.element(this.actual).hasClass(clazz);
+    },
+
+    toMatchText: function(text) {
+      this.message = function() {
+        return "Expected '" + (this.actual && this.actual.nodeName) + "' element to have text '" + text + "'";
+      };
+      return this.actual && this.actual.text && this.actual.text() === text;
     }
 
   });

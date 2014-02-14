@@ -56,7 +56,7 @@ angular.module('uiRouterSample')
           .state('contacts', {
 
             // With abstract set to true, that means this state can not be explicitly activated.
-            // It can only be implicitly activated by activating one if it's children.
+            // It can only be implicitly activated by activating one of it's children.
             abstract: true,
 
             // This abstract state will prepend '/contacts' onto the urls of all its children.
@@ -170,7 +170,7 @@ angular.module('uiRouterSample')
               // This one is targeting the ui-view="menu" within the parent state's template.
               'menuTip': {
                 // templateProvider is the final method for supplying a template.
-                // There is: template, templatUrl, and templateProvider.
+                // There is: template, templateUrl, and templateProvider.
                 templateProvider: ['$stateParams',
                   function (        $stateParams) {
                     // This is just to demonstrate that $stateParams injection works for templateProvider.
