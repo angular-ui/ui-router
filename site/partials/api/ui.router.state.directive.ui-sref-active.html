@@ -1,0 +1,55 @@
+<h1><code ng:non-bindable="">ui-sref-active</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">ui.router.state</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="ui-router-state-directive-page ui-router-state-directive-ui-sref-active-page"><p>A directive working alongside ui-sref to add classes to an element when the 
+related ui-sref directive&#39;s state is active, and removing them when it is inactive.
+The primary use-case is to simplify the special appearance of navigation menus 
+relying on <code>ui-sref</code>, by having the &quot;active&quot; state&#39;s menu button appear different,
+distinguishing it from the inactive menu items.</p>
+</div></div>
+<h2 id="dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/ui.router.state.$state">$state</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ui.router.state.$stateParams">$stateParams</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$interpolate">$interpolate</a></code>
+</li>
+</ul>
+<h2 id="usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;ANY ui-sref-active&gt;
+   ...
+&lt;/ANY&gt;</pre>
+</div>
+<h2 id="example">Example</h2>
+<div class="example"><div class="ui-router-state-directive-page ui-router-state-directive-ui-sref-active-page"><p>Given the following template:
+<pre class="prettyprint linenums">
+&lt;ul&gt;
+  &lt;li ui-sref-active="active" class="item"&gt;
+    &lt;a href ui-sref="app.user({user: 'bilbobaggins'})"&gt;@bilbobaggins&lt;/a&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</pre>
+<p>When the app state is &quot;app.user&quot;, and contains the state parameter &quot;user&quot; with value &quot;bilbobaggins&quot;, 
+the resulting HTML will appear as (note the &#39;active&#39; class):
+<pre class="prettyprint linenums">
+&lt;ul&gt;
+  &lt;li ui-sref-active="active" class="item active"&gt;
+    &lt;a ui-sref="app.user({user: 'bilbobaggins'})" href="/users/bilbobaggins"&gt;@bilbobaggins&lt;/a&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</pre>
+<p>The class name is interpolated <strong>once</strong> during the directives link time (any further changes to the 
+interpolated value are ignored). </p>
+<p>Multiple classes may be specified in a space-separated format:
+<pre class="prettyprint linenums">
+&lt;ul&gt;
+  &lt;li ui-sref-active='class1 class2 class3'&gt;
+    &lt;a ui-sref="app.user"&gt;link&lt;/a&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</pre>
+</div></div>
+</div>

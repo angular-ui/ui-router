@@ -1,0 +1,324 @@
+<h1><code ng:non-bindable="">$state</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ui.router.state</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="ui-router-state-state-page"><p><code>$state</code> service is responsible for representing states as well as transitioning
+between them. It also provides interfaces to ask for current state or even states
+you&#39;re coming from.</p>
+</div></div>
+<h2 id="dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/ng.$rootScope">$rootScope</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$q">$q</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ui.router.state.$view">$view</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$injector">$injector</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ui.router.util.$resolve">$resolve</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ui.router.state.$stateParams">$stateParams</a></code>
+</li>
+</ul>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_get">get(stateOrName)</h3>
+<div class="get"><div class="ui-router-state-state-get-page"><p>Returns the state configuration object for any specific state or all states.</p>
+</div><h5 id="methods_get_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>stateOrName <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-get-page"><p>If provided, will only get the config for
+the requested state. If not provided, returns an array of ALL state configs.</p>
+</div></td></tr></tbody></table><h5 id="methods_get_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">object|array</a></td><td><div class="ui-router-state-state-get-page"><p>State configuration object or array of all objects.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_go">go(to, params, options)</h3>
+<div class="go"><div class="ui-router-state-state-go-page"><p>Convenience method for transitioning to a new state. <code>$state.go</code> calls 
+<code>$state.transitionTo</code> internally but automatically sets options to 
+<code>{ location: true, inherit: true, relative: $state.$current, notify: true }</code>. 
+This allows you to easily use an absolute or relative to path and specify 
+only the parameters you&#39;d like to update (while letting unspecified parameters 
+inherit from the currently active ancestor states).</p>
+</div><h5 id="methods_go_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>to</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-state-go-page"><p>Absolute state name or relative state path. Some examples:</p>
+<ul>
+<li><code>$state.go(&#39;contact.detail&#39;)</code> - will go to the <code>contact.detail</code> state</li>
+<li><code>$state.go(&#39;^&#39;)</code> - will go to a parent state</li>
+<li><code>$state.go(&#39;^.sibling&#39;)</code> - will go to a sibling state</li>
+<li><code>$state.go(&#39;.child.grandchild&#39;)</code> - will go to grandchild state</li>
+</ul>
+</div></td></tr><tr><td>params <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-go-page"><p>A map of the parameters that will be sent to the state,
+will populate $stateParams. Any parameters that are not specified will be inherited from currently 
+defined parameters. This allows, for example, going to a sibling state that shares parameters
+specified in a parent state. Parameter inheritance only works between common ancestor states, I.e.
+transitioning to a sibling will get you the parameters for all parents, transitioning to a child
+will get you all current parameters, etc.</p>
+</div></td></tr><tr><td>options <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-go-page"><p>Options object. The options are:</p>
+<ul>
+<li><strong><code>location</code></strong> - {boolean=true|string=} - If <code>true</code> will update the url in the location bar, if <code>false</code>
+ will not. If string, must be <code>&quot;replace&quot;</code>, which will update url and also replace last history record.</li>
+<li><strong><code>inherit</code></strong> - {boolean=true}, If <code>true</code> will inherit url parameters from current url.</li>
+<li><strong><code>relative</code></strong> - {object=$state.$current}, When transitioning with relative path (e.g &#39;^&#39;), 
+ defines which state to be relative from.</li>
+<li><strong><code>notify</code></strong> - {boolean=true}, If <code>true</code> will broadcast $stateChangeStart and $stateChangeSuccess events.</li>
+<li><strong><code>reload</code></strong> (v0.2.5) - {boolean=false}, If <code>true</code> will force transition even if the state or params 
+ have not changed, aka a reload of the same state. It differs from reloadOnSearch because you&#39;d
+ use this when you want to force a reload when <em>everything</em> is the same, including search params.</li>
+</ul>
+</div></td></tr></tbody></table><h5 id="methods_go_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-promise">promise</a></td><td><div class="ui-router-state-state-go-page"><p>A promise representing the state of the new transition.</p>
+<p>Possible success values:</p>
+<ul>
+<li>$state.current</li>
+</ul>
+<p><br/>Possible rejection values:</p>
+<ul>
+<li>&#39;transition superseded&#39; - when a newer transition has been started after this one</li>
+<li>&#39;transition prevented&#39; - when <code>event.preventDefault()</code> has been called in a <code>$stateChangeStart</code> listener</li>
+<li>&#39;transition aborted&#39; - when <code>event.preventDefault()</code> has been called in a <code>$stateNotFound</code> listener or
+when a <code>$stateNotFound</code> <code>event.retry</code> promise errors.</li>
+<li>&#39;transition failed&#39; - when a state has been unsuccessfully found after 2 tries.</li>
+<li><em>resolve error</em> - when an error has occurred with a <code>resolve</code></li>
+</ul>
+</div></td></tr></table><h4 id="methods_go_example">Example</h4>
+<div class="example"><div class="ui-router-state-state-go-page"><pre class="prettyprint linenums">
+var app = angular.module('app', ['ui.router']);
+
+app.controller('ctrl', function ($scope, $state) {
+  $scope.changeState = function () {
+    $state.go('contact.detail');
+  };
+});
+</pre>
+<img src='../ngdoc_assets/StateGoExamples.png'/></p>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_href">href(stateOrName, params, options)</h3>
+<div class="href"><div class="ui-router-state-state-href-page"><p>A url generation method that returns the compiled url for the given state populated with the given params.</p>
+</div><h5 id="methods_href_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>stateOrName</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-href-page"><p>The state name or state object you&#39;d like to generate a url from.</p>
+</div></td></tr><tr><td>params <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-href-page"><p>An object of parameter values to fill the state&#39;s required parameters.</p>
+</div></td></tr><tr><td>options <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-href-page"><p>Options object. The options are:</p>
+<ul>
+<li><strong><code>lossy</code></strong> - {boolean=true} -  If true, and if there is no url associated with the state provided in the
+ first parameter, then the constructed href url will be built from the first navigable ancestor (aka
+ ancestor with a valid url).</li>
+<li><strong><code>inherit</code></strong> - {boolean=false}, If <code>true</code> will inherit url parameters from current url.</li>
+<li><strong><code>relative</code></strong> - {object=$state.$current}, When transitioning with relative path (e.g &#39;^&#39;), 
+ defines which state to be relative from.</li>
+<li><strong><code>absolute</code></strong> - {boolean=false},  If true will generate an absolute url, e.g. &quot;<a href="http://www.example.com/fullurl">http://www.example.com/fullurl</a>&quot;.</li>
+</ul>
+</div></td></tr></tbody></table><h5 id="methods_href_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-state-href-page"><p>compiled state url</p>
+</div></td></tr></table><h4 id="methods_href_example">Example</h4>
+<div class="example"><div class="ui-router-state-state-href-page"><pre class="prettyprint linenums">
+expect($state.href("about.person", { person: "bob" })).toEqual("/about/bob");
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_includes">includes(stateOrName, params)</h3>
+<div class="includes"><div class="ui-router-state-state-includes-page"><p>A method to determine if the current active state is equal to or is the child of the 
+state stateName. If any params are passed then they will be tested for a match as well.
+Not all the parameters need to be passed, just the ones you&#39;d like to test for equality.</p>
+</div><h5 id="methods_includes_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>stateOrName</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-includes-page"><p>A full or partial state name to be searched for within the current state name.</p>
+</div></td></tr><tr><td>params <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-includes-page"><p>A param object, e.g. <code>{sectionId: section.id}</code>,
+that you&#39;d like to test against the current active state.</p>
+</div></td></tr></tbody></table><h5 id="methods_includes_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-state-state-includes-page"><p>Returns true if it does include the state</p>
+</div></td></tr></table><h4 id="methods_includes_example">Example</h4>
+<div class="example"><div class="ui-router-state-state-includes-page"><pre class="prettyprint linenums">
+$state.includes("contacts"); // returns true
+$state.includes("contacts.details"); // returns true
+$state.includes("contacts.details.item"); // returns true
+$state.includes("contacts.list"); // returns false
+$state.includes("about"); // returns false
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_is">is(stateName, params)</h3>
+<div class="is"><div class="ui-router-state-state-is-page"><p>Similar to <a href="#/api/ui.router.state.$state#methods_includes">$state.includes</a>,
+but only checks for the full state name. If params is supplied then it will be 
+tested for strict equality against the current active params object, so all params 
+must match with none missing and no extras.</p>
+</div><h5 id="methods_is_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>stateName</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-is-page"><p>The state name or state object you&#39;d like to check.</p>
+</div></td></tr><tr><td>params <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-is-page"><p>A param object, e.g. <code>{sectionId: section.id}</code>, that you&#39;d like
+to test against the current active state.</p>
+</div></td></tr></tbody></table><h5 id="methods_is_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-state-state-is-page"><p>Returns true if it is the state.</p>
+</div></td></tr></table><h4 id="methods_is_example">Example</h4>
+<div class="example"><div class="ui-router-state-state-is-page"><pre class="prettyprint linenums">
+$state.is('contact.details.item'); // returns true
+$state.is(contactDetailItemStateObject); // returns true
+
+// everything else would return false
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_reload">reload()</h3>
+<div class="reload"><div class="ui-router-state-state-reload-page"><p>A method that force reloads the current state. All resolves are re-resolved, events are not re-fired, 
+and controllers reinstantiated (bug with controllers reinstantiating right now, fixing soon).</p>
+</div><h4 id="methods_reload_example">Example</h4>
+<div class="example"><div class="ui-router-state-state-reload-page"><pre class="prettyprint linenums">
+var app angular.module('app', ['ui.router']);
+
+app.controller('ctrl', function ($scope, $state) {
+  $scope.reload = function(){
+    $state.reload();
+  }
+});
+</pre>
+<p><code>reload()</code> is just an alias for:
+<pre class="prettyprint linenums">
+$state.transitionTo($state.current, $stateParams, { 
+  reload: true, inherit: false, notify: false 
+});
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_transitionto">transitionTo(to, toParams, options)</h3>
+<div class="transitionto"><div class="ui-router-state-state-transitionto-page"><p>Low-level method for transitioning to a new state. <a href="#/api/ui.router.state.$state#methods_go">$state.go</a>
+uses <code>transitionTo</code> internally. <code>$state.go</code> is recommended in most situations.</p>
+</div><h5 id="methods_transitionto_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>to</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-state-transitionto-page"><p>State name.</p>
+</div></td></tr><tr><td>toParams <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-transitionto-page"><p>A map of the parameters that will be sent to the state,
+will populate $stateParams.</p>
+</div></td></tr><tr><td>options <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-transitionto-page"><p>Options object. The options are:</p>
+<ul>
+<li><strong><code>location</code></strong> - {boolean=true|string=} - If <code>true</code> will update the url in the location bar, if <code>false</code>
+ will not. If string, must be <code>&quot;replace&quot;</code>, which will update url and also replace last history record.</li>
+<li><strong><code>inherit</code></strong> - {boolean=false}, If <code>true</code> will inherit url parameters from current url.</li>
+<li><strong><code>relative</code></strong> - {object=}, When transitioning with relative path (e.g &#39;^&#39;), 
+ defines which state to be relative from.</li>
+<li><strong><code>notify</code></strong> - {boolean=true}, If <code>true</code> will broadcast $stateChangeStart and $stateChangeSuccess events.</li>
+<li><strong><code>reload</code></strong> (v0.2.5) - {boolean=false}, If <code>true</code> will force transition even if the state or params 
+ have not changed, aka a reload of the same state. It differs from reloadOnSearch because you&#39;d
+ use this when you want to force a reload when <em>everything</em> is the same, including search params.</li>
+</ul>
+</div></td></tr></tbody></table><h5 id="methods_transitionto_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-promise">promise</a></td><td><div class="ui-router-state-state-transitionto-page"><p>A promise representing the state of the new transition. See
+<a href="#/api/ui.router.state.$state#methods_go">$state.go</a>.</p>
+</div></td></tr></table><h4 id="methods_transitionto_example">Example</h4>
+<div class="example"><div class="ui-router-state-state-transitionto-page"><pre class="prettyprint linenums">
+var app = angular.module('app', ['ui.router']);
+
+app.controller('ctrl', function ($scope, $state) {
+  $scope.changeState = function () {
+    $state.transitionTo('contact.detail');
+  };
+});
+</pre>
+</div></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="member property"><h2 id="properties">Properties</h2>
+<ul class="properties"><li><h3 id="properties_params">params</h3>
+<div class="params"><div class="ui-router-state-state-page"><p>A param object, e.g. {sectionId: section.id)}, that
+you&#39;d like to test against the current active state.</p>
+</div></div>
+</li>
+<li><h3 id="properties_current">current</h3>
+<div class="current"><div class="ui-router-state-state-page"><p>A reference to the state&#39;s config object. However
+you passed it in. Useful for accessing custom data.</p>
+</div></div>
+</li>
+<li><h3 id="properties_transition">transition</h3>
+<div class="transition"><div class="ui-router-state-state-page"><p>Currently pending transition. A promise that&#39;ll
+resolve or reject.</p>
+</div></div>
+</li>
+</ul>
+</div>
+<div class="member event"><h2 id="events">Events</h2>
+<ul class="events"><li><h3 id="events_$statechangeerror">$stateChangeError</h3>
+<div class="$statechangeerror"><div class="ui-router-state-state-statechangeerror-page"><p>Fired when an <strong>error occurs</strong> during transition. It&#39;s important to note that if you
+have any errors in your resolve functions (javascript errors, non-existent services, etc)
+they will not throw traditionally. You must listen for this $stateChangeError event to
+catch <strong>ALL</strong> errors.</p>
+</div><div class="inline"><h4 id="events_$statechangeerror_type">Type:</h4>
+<div class="type">broadcast</div>
+</div>
+<div class="inline"><h4 id="events_$statechangeerror_target">Target:</h4>
+<div class="target">root scope</div>
+</div>
+<h5 id="events_$statechangeerror_target_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>event</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-state-statechangeerror-page"><p>Event object.</p>
+</div></td></tr><tr><td>toState</td><td><a href="" class="label type-hint type-hint-state">State</a></td><td><div class="ui-router-state-state-statechangeerror-page"><p>The state being transitioned to.</p>
+</div></td></tr><tr><td>toParams</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-state-statechangeerror-page"><p>The params supplied to the <code>toState</code>.</p>
+</div></td></tr><tr><td>fromState</td><td><a href="" class="label type-hint type-hint-state">State</a></td><td><div class="ui-router-state-state-statechangeerror-page"><p>The current state, pre-transition.</p>
+</div></td></tr><tr><td>fromParams</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-state-statechangeerror-page"><p>The params supplied to the <code>fromState</code>.</p>
+</div></td></tr><tr><td>error</td><td><a href="" class="label type-hint type-hint-error">Error</a></td><td><div class="ui-router-state-state-statechangeerror-page"><p>The resolve error object.</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="events_$statechangestart">$stateChangeStart</h3>
+<div class="$statechangestart"><div class="ui-router-state-state-statechangestart-page"><p>Fired when the state transition <strong>begins</strong>. You can use <code>event.preventDefault()</code>
+to prevent the transition from happening and then the transition promise will be
+rejected with a <code>&#39;transition prevented&#39;</code> value.</p>
+</div><div class="inline"><h4 id="events_$statechangestart_type">Type:</h4>
+<div class="type">broadcast</div>
+</div>
+<div class="inline"><h4 id="events_$statechangestart_target">Target:</h4>
+<div class="target">root scope</div>
+</div>
+<h5 id="events_$statechangestart_target_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>event</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-state-statechangestart-page"><p>Event object.</p>
+</div></td></tr><tr><td>toState</td><td><a href="" class="label type-hint type-hint-state">State</a></td><td><div class="ui-router-state-state-statechangestart-page"><p>The state being transitioned to.</p>
+</div></td></tr><tr><td>toParams</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-state-statechangestart-page"><p>The params supplied to the <code>toState</code>.</p>
+</div></td></tr><tr><td>fromState</td><td><a href="" class="label type-hint type-hint-state">State</a></td><td><div class="ui-router-state-state-statechangestart-page"><p>The current state, pre-transition.</p>
+</div></td></tr><tr><td>fromParams</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-state-statechangestart-page"><p>The params supplied to the <code>fromState</code>.</p>
+</div></td></tr></tbody></table><h4 id="events_$statechangestart_example">Example</h4>
+<div class="example"><div class="ui-router-state-state-statechangestart-page"><pre class="prettyprint linenums">
+$rootScope.$on('$stateChangeStart',
+function(event, toState, toParams, fromState, fromParams){
+    event.preventDefault();
+    // transitionTo() promise will be rejected with
+    // a 'transition prevented' error
+})
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="events_$statechangesuccess">$stateChangeSuccess</h3>
+<div class="$statechangesuccess"><div class="ui-router-state-state-statechangesuccess-page"><p>Fired once the state transition is <strong>complete</strong>.</p>
+</div><div class="inline"><h4 id="events_$statechangesuccess_type">Type:</h4>
+<div class="type">broadcast</div>
+</div>
+<div class="inline"><h4 id="events_$statechangesuccess_target">Target:</h4>
+<div class="target">root scope</div>
+</div>
+<h5 id="events_$statechangesuccess_target_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>event</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-state-statechangesuccess-page"><p>Event object.</p>
+</div></td></tr><tr><td>toState</td><td><a href="" class="label type-hint type-hint-state">State</a></td><td><div class="ui-router-state-state-statechangesuccess-page"><p>The state being transitioned to.</p>
+</div></td></tr><tr><td>toParams</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-state-statechangesuccess-page"><p>The params supplied to the <code>toState</code>.</p>
+</div></td></tr><tr><td>fromState</td><td><a href="" class="label type-hint type-hint-state">State</a></td><td><div class="ui-router-state-state-statechangesuccess-page"><p>The current state, pre-transition.</p>
+</div></td></tr><tr><td>fromParams</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-state-statechangesuccess-page"><p>The params supplied to the <code>fromState</code>.</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="events_$statenotfound">$stateNotFound</h3>
+<div class="$statenotfound"><div class="ui-router-state-state-statenotfound-page"><p>Fired when a requested state <strong>cannot be found</strong> using the provided state name during transition.
+The event is broadcast allowing any handlers a single chance to deal with the error (usually by
+lazy-loading the unfound state). A special <code>unfoundState</code> object is passed to the listener handler,
+you can see its three properties in the example. You can use <code>event.preventDefault()</code> to abort the
+transition and the promise returned from <code>go</code> will be rejected with a <code>&#39;transition aborted&#39;</code> value.</p>
+</div><div class="inline"><h4 id="events_$statenotfound_type">Type:</h4>
+<div class="type">broadcast</div>
+</div>
+<div class="inline"><h4 id="events_$statenotfound_target">Target:</h4>
+<div class="target">root scope</div>
+</div>
+<h5 id="events_$statenotfound_target_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>event</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-state-statenotfound-page"><p>Event object.</p>
+</div></td></tr><tr><td>unfoundState</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-state-statenotfound-page"><p>Unfound State information. Contains: <code>to, toParams, options</code> properties.</p>
+</div></td></tr><tr><td>fromState</td><td><a href="" class="label type-hint type-hint-state">State</a></td><td><div class="ui-router-state-state-statenotfound-page"><p>Current state object.</p>
+</div></td></tr><tr><td>fromParams</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-state-statenotfound-page"><p>Current state params.</p>
+</div></td></tr></tbody></table><h4 id="events_$statenotfound_example">Example</h4>
+<div class="example"><div class="ui-router-state-state-statenotfound-page"><pre class="prettyprint linenums">
+// somewhere, assume lazy.state has not been defined
+$state.go("lazy.state", {a:1, b:2}, {inherit:false});
+
+// somewhere else
+$scope.$on('$stateNotFound',
+function(event, unfoundState, fromState, fromParams){
+    console.log(unfoundState.to); // "lazy.state"
+    console.log(unfoundState.toParams); // {a:1, b:2}
+    console.log(unfoundState.options); // {inherit:false} + default options
+})
+</pre>
+</div></div>
+</div>
+</li>
+</ul>
+</div>
+</div>

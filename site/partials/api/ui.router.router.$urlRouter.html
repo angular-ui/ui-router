@@ -1,0 +1,41 @@
+<h1><code ng:non-bindable="">$urlRouter</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ui.router.router</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"></div>
+<h2 id="dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/ng.$location">$location</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$rootScope">$rootScope</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$injector">$injector</a></code>
+</li>
+</ul>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_sync">sync()</h3>
+<div class="sync"><div class="ui-router-router-urlrouter-sync-page"><p>Triggers an update; the same update that happens when the address bar url changes, aka <code>$locationChangeSuccess</code>.
+This method is useful when you need to use <code>preventDefault()</code> on the <code>$locationChangeSuccess</code> event, 
+perform some custom logic (route protection, auth, config, redirection, etc) and then finally proceed 
+with the transition by calling <code>$urlRouter.sync()</code>.</p>
+</div><h4 id="methods_sync_example">Example</h4>
+<div class="example"><div class="ui-router-router-urlrouter-sync-page"><pre class="prettyprint linenums">
+angular.module('app', ['ui.router']);
+  .run(function($rootScope, $urlRouter) {
+    $rootScope.$on('$locationChangeSuccess', function(evt) {
+      // Halt state change from even starting
+      evt.preventDefault();
+      // Perform custom logic
+      var meetsRequirement = ...
+      // Continue with the update and state transition if logic allows
+      if (meetsRequirement) $urlRouter.sync();
+    });
+});
+</pre>
+</div></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
