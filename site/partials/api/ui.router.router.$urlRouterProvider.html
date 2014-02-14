@@ -1,0 +1,102 @@
+<h1><code ng:non-bindable="">$urlRouterProvider</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ui.router.router</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="ui-router-router-urlrouterprovider-page"><p><code>$urlRouterProvider</code> has the responsibility of watching <code>$location</code>. 
+When <code>$location</code> changes it runs through a list of rules one by one until a 
+match is found. <code>$urlRouterProvider</code> is used behind the scenes anytime you specify 
+a url in a state configuration. All urls are compiled into a UrlMatcher object.</p>
+<p>There are several methods on <code>$urlRouterProvider</code> that make it useful to use directly
+in your module config.</p>
+</div></div>
+<h2 id="dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/ui.router.util.$urlMatcherFactoryProvider">$urlMatcherFactoryProvider</a></code>
+</li>
+</ul>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_otherwise">otherwise(rule)</h3>
+<div class="otherwise"><div class="ui-router-router-urlrouterprovider-otherwise-page"><p>Defines a path that is used when an invalied route is requested.</p>
+</div><h5 id="methods_otherwise_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>rule</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-router-urlrouterprovider-otherwise-page"><p>The url path you want to redirect to or a function
+rule that returns the url path. The function version is passed two params: 
+<code>$injector</code> and <code>$location</code> services.</p>
+</div></td></tr></tbody></table><h5 id="methods_otherwise_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-router-urlrouterprovider-otherwise-page"><p>$urlRouterProvider - $urlRouterProvider instance</p>
+</div></td></tr></table><h4 id="methods_otherwise_example">Example</h4>
+<div class="example"><div class="ui-router-router-urlrouterprovider-otherwise-page"><pre class="prettyprint linenums">
+var app = angular.module('app', ['ui.router.router']);
+
+app.config(function ($urlRouterProvider) {
+  // if the path doesn't match any of the urls you configured
+  // otherwise will take care of routing the user to the
+  // specified url
+  $urlRouterProvider.otherwise('/index');
+
+  // Example of using function rule as param
+  $urlRouterProvider.otherwise(function ($injector, $location) {
+    ...
+  });
+});
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_rule">rule(rule)</h3>
+<div class="rule"><div class="ui-router-router-urlrouterprovider-rule-page"><p>Defines rules that are used by `$urlRouterProvider to find matches for
+specific URLs.</p>
+</div><h5 id="methods_rule_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>rule</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-router-urlrouterprovider-rule-page"><p>Handler function that takes <code>$injector</code> and <code>$location</code>
+services as arguments. You can use them to return a valid path as a string.</p>
+</div></td></tr></tbody></table><h5 id="methods_rule_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-router-urlrouterprovider-rule-page"><p>$urlRouterProvider - $urlRouterProvider instance</p>
+</div></td></tr></table><h4 id="methods_rule_example">Example</h4>
+<div class="example"><div class="ui-router-router-urlrouterprovider-rule-page"><pre class="prettyprint linenums">
+var app = angular.module('app', ['ui.router.router']);
+
+app.config(function ($urlRouterProvider) {
+  // Here's an example of how you might allow case insensitive urls
+  $urlRouterProvider.rule(function ($injector, $location) {
+    var path = $location.path(),
+        normalized = path.toLowerCase();
+
+    if (path !== normalized) {
+      return normalized;
+    }
+  });
+});
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_when">when(what, handler)</h3>
+<div class="when"><div class="ui-router-router-urlrouterprovider-when-page"><p>Registers a handler for a given url matching. if handle is a string, it is
+treated as a redirect, and is interpolated according to the syyntax of match
+(i.e. like String.replace() for RegExp, or like a UrlMatcher pattern otherwise).</p>
+<p>If the handler is a function, it is injectable. It gets invoked if <code>$location</code>
+matches. You have the option of inject the match object as <code>$match</code>.</p>
+<p>The handler can return</p>
+<ul>
+<li><strong>falsy</strong> to indicate that the rule didn&#39;t match after all, then <code>$urlRouter</code>
+will continue trying to find another one that matches.</li>
+<li><strong>string</strong> which is treated as a redirect and passed to <code>$location.url()</code></li>
+<li><strong>void</strong> or any <strong>truthy</strong> value tells <code>$urlRouter</code> that the url was handled.</li>
+</ul>
+</div><h5 id="methods_when_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>what</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-router-urlrouterprovider-when-page"><p>The incoming path that you want to redirect.</p>
+</div></td></tr><tr><td>handler</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-router-urlrouterprovider-when-page"><p>The path you want to redirect your user to.</p>
+</div></td></tr></tbody></table><h4 id="methods_when_example">Example</h4>
+<div class="example"><div class="ui-router-router-urlrouterprovider-when-page"><pre class="prettyprint linenums">
+var app = angular.module('app', ['ui.router.router']);
+
+app.config(function ($urlRouterProvider) {
+  $urlRouterProvider.when($state.url, function ($match, $stateParams) {
+    if ($state.$current.navigable !== state ||
+        !equalForKeys($match, $stateParams) {
+     $state.transitionTo(state, $match, false);
+    }
+  });
+});
+</pre>
+</div></div>
+</div>
+</li>
+</ul>
+</div>
+</div>

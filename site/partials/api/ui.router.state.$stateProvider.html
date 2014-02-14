@@ -1,0 +1,239 @@
+<h1><code ng:non-bindable="">$stateProvider</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ui.router.state</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="ui-router-state-stateprovider-page"><p>The new <code>$stateProvider</code> works similar to Angular&#39;s v1 router, but it focuses purely
+on state.</p>
+<p>A state corresponds to a &quot;place&quot; in the application in terms of the overall UI and
+navigation. A state describes (via the controller / template / view properties) what
+the UI looks like and does at that place.</p>
+<p>States often have things in common, and the primary way of factoring out these
+commonalities in this model is via the state hierarchy, i.e. parent/child states aka
+nested states.</p>
+<p>The <code>$stateProvider</code> provides interfaces to declare these states for your app.</p>
+</div></div>
+<h2 id="dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/ui.router.router.$urlRouterProvider">$urlRouterProvider</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ui.router.util.$urlMatcherFactoryProvider">$urlMatcherFactoryProvider</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$locationProvider">$locationProvider</a></code>
+</li>
+</ul>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_decorator">decorator(name, func)</h3>
+<div class="decorator"><div class="ui-router-state-stateprovider-decorator-page"><p>Allows you to extend (carefully) or override (at your own peril) the 
+<code>stateBuilder</code> object used internally by <code>$stateProvider</code>. This can be used 
+to add custom functionality to ui-router, for example inferring templateUrl 
+based on the state name.</p>
+<p>When passing only a name, it returns the current (original or decorated) builder
+function that matches <code>name</code>.</p>
+<p>The builder functions that can be decorated are listed below. Though not all
+necessarily have a good use case for decoration, that is up to you to decide.</p>
+<p>In addition, users can attach custom decorators, which will generate new 
+properties within the state&#39;s internal definition. There is currently no clear 
+use-case for this beyond accessing internal states (i.e. $state.$current), 
+however, expect this to become increasingly relevant as we introduce additional 
+meta-programming features.</p>
+<p><strong>Warning</strong>: Decorators should not be interdependent because the order of 
+execution of the builder functions in non-deterministic. Builder functions 
+should only be dependent on the state definition object and super function.</p>
+<p>Existing builder functions and current return values:</p>
+<ul>
+<li><strong>parent</strong> <code>{object}</code> - returns the parent state object.</li>
+<li><strong>data</strong> <code>{object}</code> - returns state data, including any inherited data that is not
+overridden by own values (if any).</li>
+<li><strong>url</strong> <code>{object}</code> - returns a {link ui.router.util.type:UrlMatcher} or null.</li>
+<li><strong>navigable</strong> <code>{object}</code> - returns closest ancestor state that has a URL (aka is 
+navigable).</li>
+<li><strong>params</strong> <code>{object}</code> - returns an array of state params that are ensured to 
+be a super-set of parent&#39;s params.</li>
+<li><strong>views</strong> <code>{object}</code> - returns a views object where each key is an absolute view 
+name (i.e. &quot;viewName@stateName&quot;) and each value is the config object 
+(template, controller) for the view. Even when you don&#39;t use the views object 
+explicitly on a state config, one is still created for you internally.
+So by decorating this builder function you have access to decorating template 
+and controller properties.</li>
+<li><strong>ownParams</strong> <code>{object}</code> - returns an array of params that belong to the state, 
+not including any params defined by ancestor states.</li>
+<li><strong>path</strong> <code>{string}</code> - returns the full path from the root down to this state. 
+Needed for state activation.</li>
+<li><strong>includes</strong> <code>{object}</code> - returns an object that includes every state that 
+would pass a &#39;$state.includes()&#39; test.</li>
+</ul>
+</div><h5 id="methods_decorator_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-stateprovider-decorator-page"><p>The name of the builder function to decorate.</p>
+</div></td></tr><tr><td>func</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-decorator-page"><p>A function that is responsible for decorating the original
+builder function. The function receives two parameters:</p>
+<ul>
+<li><code>{object}</code> - state - The state config object.</li>
+<li><code>{object}</code> - super - The original builder function.</li>
+</ul>
+</div></td></tr></tbody></table><h5 id="methods_decorator_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-decorator-page"><p>$stateProvider - $stateProvider instance</p>
+</div></td></tr></table><h4 id="methods_decorator_example">Example</h4>
+<div class="example"><div class="ui-router-state-stateprovider-decorator-page"><pre class="prettyprint linenums">
+// Override the internal 'views' builder with a function that takes the state
+// definition, and a reference to the internal function being overridden:
+$stateProvider.decorator('views', function ($state, parent) {
+  var result = {},
+      views = parent(state);
+
+  angular.forEach(view, function (config, name) {
+    var autoName = (state.name + '.' + name).replace('.', '/');
+    config.templateUrl = config.templateUrl || '/partials/' + autoName + '.html';
+    result[name] = config;
+  });
+  return result;
+});
+
+$stateProvider.state('home', {
+  views: {
+    'contact.list': { controller: 'ListController' },
+    'contact.item': { controller: 'ItemController' }
+  }
+});
+
+// ...
+
+$state.go('home');
+// Auto-populates list and item views with /partials/home/contact/list.html,
+// and /partials/home/contact/item.html, respectively.
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_state">state(name, definition)</h3>
+<div class="state"><div class="ui-router-state-stateprovider-state-page"><p>Registers a state configuration under a given state name. The stateConfig object
+has the following acceptable properties.</p>
+<p><a id='template'></a></p>
+<ul>
+<li><p><strong><code>template</code></strong> - {string|function=} - html template as a string or a function that returns
+an html template as a string which should be used by the uiView directives. This property 
+takes precedence over templateUrl.</p>
+<p>If <code>template</code> is a function, it will be called with the following parameters:</p>
+<ul>
+<li>{array.&lt;object&gt;} - state parameters extracted from the current $location.path() by
+applying the current state</li>
+</ul>
+</li>
+</ul>
+<p><a id='templateUrl'></a></p>
+<ul>
+<li><p><strong><code>templateUrl</code></strong> - {string|function=} - path or function that returns a path to an html 
+template that should be used by uiView.</p>
+<p>If <code>templateUrl</code> is a function, it will be called with the following parameters:</p>
+<ul>
+<li>{array.&lt;object&gt;} - state parameters extracted from the current $location.path() by 
+applying the current state</li>
+</ul>
+</li>
+</ul>
+<p><a id='templateProvider'></a></p>
+<ul>
+<li><strong><code>templateProvider</code></strong> - {function=} - Provider function that returns HTML content
+string.</li>
+</ul>
+<p><a id='controller'></a></p>
+<ul>
+<li><strong><code>controller</code></strong> - {string|function=} -  Controller fn that should be associated with newly 
+related scope or the name of a registered controller if passed as a string.</li>
+</ul>
+<p><a id='controllerProvider'></a></p>
+<ul>
+<li><strong><code>controllerProvider</code></strong> - {function=} - Injectable provider function that returns
+the actual controller or string.</li>
+</ul>
+<p><a id='controllerAs'></a></p>
+<ul>
+<li><strong><code>controllerAs</code></strong> – {string=} – A controller alias name. If present the controller will be 
+published to scope under the controllerAs name.</li>
+</ul>
+<p><a id='resolve'></a></p>
+<ul>
+<li><p><strong><code>resolve</code></strong> - {object.&lt;string, function&gt;=} - An optional map of dependencies which 
+should be injected into the controller. If any of these dependencies are promises, 
+the router will wait for them all to be resolved or one to be rejected before the 
+controller is instantiated. If all the promises are resolved successfully, the values 
+of the resolved promises are injected and $stateChangeSuccess event is fired. If any 
+of the promises are rejected the $stateChangeError event is fired. The map object is:</p>
+<ul>
+<li>key - {string}: name of dependency to be injected into controller</li>
+<li>factory - {string|function}: If string then it is alias for service. Otherwise if function, 
+it is injected and return value it treated as dependency. If result is a promise, it is 
+resolved before its value is injected into controller.</li>
+</ul>
+</li>
+</ul>
+<p><a id='url'></a></p>
+<ul>
+<li><strong><code>url</code></strong> - {string=} - A url with optional parameters. When a state is navigated or
+transitioned to, the <code>$stateParams</code> service will be populated with any 
+parameters that were passed.</li>
+</ul>
+<p><a id='params'></a></p>
+<ul>
+<li><strong><code>params</code></strong> - {object=} - An array of parameter names or regular expressions. Only 
+use this within a state if you are not using url. Otherwise you can specify your
+parameters within the url. When a state is navigated or transitioned to, the 
+$stateParams service will be populated with any parameters that were passed.</li>
+</ul>
+<p><a id='views'></a></p>
+<ul>
+<li><strong><code>views</code></strong> - {object=} - Use the views property to set up multiple views or to target views
+manually/explicitly.</li>
+</ul>
+<p><a id='abstract'></a></p>
+<ul>
+<li><strong><code>abstract</code></strong> - {boolean=} - An abstract state will never be directly activated, 
+but can provide inherited properties to its common children states.</li>
+</ul>
+<p><a id='onEnter'></a></p>
+<ul>
+<li><strong><code>onEnter</code></strong> - {object=} - Callback function for when a state is entered. Good way
+to trigger an action or dispatch an event, such as opening a dialog.</li>
+</ul>
+<p><a id='onExit'></a></p>
+<ul>
+<li><strong><code>onExit</code></strong> - {object=} - Callback function for when a state is exited. Good way to
+trigger an action or dispatch an event, such as opening a dialog.</li>
+</ul>
+<p><a id='reloadOnSearch'></a></p>
+<ul>
+<li><strong><code>reloadOnSearch = true</code></strong> - {boolean=} - If <code>false</code>, will not retrigger the same state 
+just because a search/query parameter has changed (via $location.search() or $location.hash()). 
+Useful for when you&#39;d like to modify $location.search() without triggering a reload.</li>
+</ul>
+<p><a id='data'></a></p>
+<ul>
+<li><strong><code>data</code></strong> - {object=} - Arbitrary data object, useful for custom configuration.</li>
+</ul>
+</div><h5 id="methods_state_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-stateprovider-state-page"><p>A unique state name, e.g. &quot;home&quot;, &quot;about&quot;, &quot;contacts&quot;.
+To create a parent/child state use a dot, e.g. &quot;about.sales&quot;, &quot;home.newest&quot;.</p>
+</div></td></tr><tr><td>definition</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p>State configuration object.</p>
+</div></td></tr></tbody></table><h4 id="methods_state_example">Example</h4>
+<div class="example"><div class="ui-router-state-stateprovider-state-page"><pre class="prettyprint linenums">
+// Some state name examples
+
+// stateName can be a single top-level name (must be unique).
+$stateProvider.state("home", {});
+
+// Or it can be a nested state name. This state is a child of the 
+// above "home" state.
+$stateProvider.state("home.newest", {});
+
+// Nest states as deeply as needed.
+$stateProvider.state("home.newest.abc.xyz.inception", {});
+
+// state() returns $stateProvider, so you can chain state declarations.
+$stateProvider
+  .state("home", {})
+  .state("about", {})
+  .state("contacts", {});
+</pre>
+</div></div>
+</div>
+</li>
+</ul>
+</div>
+</div>

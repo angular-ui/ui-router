@@ -1,0 +1,33 @@
+<h1><code ng:non-bindable=""></code>
+<div><span class="hint"></span>
+</div>
+</h1>
+<div><h2 id="dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/ui.router.state">state</a></code>
+</li>
+</ul>
+<div class="ui-router-page"><h2 id="uirouter">ui.router</h2>
+<h3 id="uirouter_the-main-module-for-uirouter">The main module for ui.router</h3>
+<p>There are several sub-modules included with the ui.router module, however only this module is needed
+as a dependency within your angular app. The other modules are for organization purposes. </p>
+<p>The modules are:
+<em> ui.router - the main &quot;umbrella&quot; module
+</em> ui.router.router - </p>
+<p><em>You&#39;ll need to include <strong>only</strong> this module as the dependency within your angular app.</em></p>
+<pre class="prettyprint linenums">
+&lt;!doctype html&gt;
+&lt;html ng-app="myApp"&gt;
+&lt;head&gt;
+  &lt;script src="js/angular.js"&gt;&lt;/script&gt;
+  &lt;!-- Include the ui-router script --&gt;
+  &lt;script src="js/angular-ui-router.min.js"&gt;&lt;/script&gt;
+  &lt;script&gt;
+    // ...and add 'ui.router' as a dependency
+    var myApp = angular.module('myApp', ['ui.router']);
+  &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+</div></div>

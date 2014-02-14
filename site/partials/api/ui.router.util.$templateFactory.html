@@ -1,0 +1,66 @@
+<h1><code ng:non-bindable="">$templateFactory</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ui.router.util</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="ui-router-util-templatefactory-page"><p>Service. Manages loading of templates.</p>
+</div></div>
+<h2 id="dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/ng.$http">$http</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$templateCache">$templateCache</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$injector">$injector</a></code>
+</li>
+</ul>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_fromconfig">fromConfig(config, params, locals)</h3>
+<div class="fromconfig"><div class="ui-router-util-templatefactory-fromconfig-page"><p>Creates a template from a configuration object. </p>
+</div><h5 id="methods_fromconfig_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>config</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-util-templatefactory-fromconfig-page"><p>Configuration object for which to load a template.
+The following properties are search in the specified order, and the first one 
+that is defined is used to create the template:</p>
+</div></td></tr><tr><td>config.template</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-util-templatefactory-fromconfig-page"><p>html string template or function to
+load via <a href="#/api/ui.router.util.$templateFactory#fromstring">fromString</a>.</p>
+</div></td></tr><tr><td>config.templateUrl</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-util-templatefactory-fromconfig-page"><p>url to load or a function returning
+the url to load via <a href="#/api/ui.router.util.$templateFactory#fromurl">fromUrl</a>.</p>
+</div></td></tr><tr><td>config.templateProvider</td><td><a href="" class="label type-hint type-hint-function">Function</a></td><td><div class="ui-router-util-templatefactory-fromconfig-page"><p>function to invoke via
+<a href="#/api/ui.router.util.$templateFactory#fromprovider">fromProvider</a>.</p>
+</div></td></tr><tr><td>params</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-util-templatefactory-fromconfig-page"><p>Parameters to pass to the template function.</p>
+</div></td></tr><tr><td>locals</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-util-templatefactory-fromconfig-page"><p>Locals to pass to <code>invoke</code> if the template is loaded
+via a <code>templateProvider</code>. Defaults to <code>{ params: params }</code>.</p>
+</div></td></tr></tbody></table><h5 id="methods_fromconfig_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string|object</a></td><td><div class="ui-router-util-templatefactory-fromconfig-page"><p>The template html as a string, or a promise for
+that string,or <code>null</code> if no template is configured.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_fromstring">fromString(template, params)</h3>
+<div class="fromstring"><div class="ui-router-util-templatefactory-fromstring-page"><p>Creates a template from a string or a function returning a string.</p>
+</div><h5 id="methods_fromstring_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>template</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-util-templatefactory-fromstring-page"><p>html template as a string or function that
+returns an html template as a string.</p>
+</div></td></tr><tr><td>params</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-util-templatefactory-fromstring-page"><p>Parameters to pass to the template function.</p>
+</div></td></tr></tbody></table><h5 id="methods_fromstring_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string|object</a></td><td><div class="ui-router-util-templatefactory-fromstring-page"><p>The template html as a string, or a promise for that
+string.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_fromurl">fromUrl(url, params)</h3>
+<div class="fromurl"><div class="ui-router-util-templatefactory-fromurl-page"><p>Loads a template from the a URL via <code>$http</code> and <code>$templateCache</code>.</p>
+</div><h5 id="methods_fromurl_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>url</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-function">Function</a></td><td><div class="ui-router-util-templatefactory-fromurl-page"><p>url of the template to load, or a function
+that returns a url.</p>
+</div></td></tr><tr><td>params</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-templatefactory-fromurl-page"><p>Parameters to pass to the url function.</p>
+</div></td></tr></tbody></table><h5 id="methods_fromurl_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string|Promise.&lt;string&gt;</a></td><td><div class="ui-router-util-templatefactory-fromurl-page"><p>The template html as a string, or a promise
+for that string.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_fromurl">fromUrl(provider, params, locals)</h3>
+<div class="fromurl"><div class="ui-router-util-templatefactory-fromurl-page"><p>Creates a template by invoking an injectable provider function.</p>
+</div><h5 id="methods_fromurl_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>provider</td><td><a href="" class="label type-hint type-hint-function">Function</a></td><td><div class="ui-router-util-templatefactory-fromurl-page"><p>Function to invoke via <code>$injector.invoke</code></p>
+</div></td></tr><tr><td>params</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-templatefactory-fromurl-page"><p>Parameters for the template.</p>
+</div></td></tr><tr><td>locals</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-templatefactory-fromurl-page"><p>Locals to pass to <code>invoke</code>. Defaults to
+<code>{ params: params }</code>.</p>
+</div></td></tr></tbody></table><h5 id="methods_fromurl_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string|Promise.&lt;string&gt;</a></td><td><div class="ui-router-util-templatefactory-fromurl-page"><p>The template html as a string, or a promise
+for that string.</p>
+</div></td></tr></table></div>
+</li>
+</ul>
+</div>
+</div>
