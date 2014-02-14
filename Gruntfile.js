@@ -119,7 +119,7 @@ module.exports = function (grunt) {
   grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
   grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
   grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
-  grunt.registerTask('dist-pages', 'Perform a clean build and generate documentation', ['dist', 'ngdocs']);
+  grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['dist', 'ngdocs']);
   grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'dist', 'perform-release']);
   grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect:server', 'karma:background', 'watch']);
   grunt.registerTask('sample', 'Run connect server with keepalive:true for sample app development', ['connect:sample']);
@@ -130,11 +130,26 @@ module.exports = function (grunt) {
         shjs.rm('-rf', 'build');
         return system('git checkout gh-pages');
       }).then(function () {
-        return system('git merge master');
+        return system('git rebase master');
       }).then(function () {
-        return system('grunt dist-pages');
+        return system('git pull');
+      }).then(function () {
+        return system('grunt dist-docs');
       }).then(function () {
         return system('git commit -a -m \'Automatic gh-pages build\'');
+      }).then(function () {
+        return system('git checkout master');
+      })
+    );
+  });
+
+  grunt.registerTask('push-pages', 'Push published pages', function () {
+    promising(this,
+      ensureCleanMaster().then(function () {
+        shjs.rm('-rf', 'build');
+        return system('git checkout gh-pages');
+      }).then(function () {
+        return system('git push origin gh-pages');
       }).then(function () {
         return system('git checkout master');
       })
