@@ -501,14 +501,15 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
    */
   // $urlRouter is injected just to ensure it gets instantiated
   this.$get = $get;
-  $get.$inject = ['$rootScope', '$q', '$view', '$injector', '$resolve', '$stateParams', '$location', '$urlRouter'];
-  function $get(   $rootScope,   $q,   $view,   $injector,   $resolve,   $stateParams,   $location,   $urlRouter) {
+  $get.$inject = ['$rootScope', '$q', '$view', '$injector', '$resolve', '$stateParams', '$location', '$urlRouter', '$browser'];
+  function $get(   $rootScope,   $q,   $view,   $injector,   $resolve,   $stateParams,   $location,   $urlRouter,   $browser) {
 
     var TransitionSuperseded = $q.reject(new Error('transition superseded'));
     var TransitionPrevented = $q.reject(new Error('transition prevented'));
     var TransitionAborted = $q.reject(new Error('transition aborted'));
     var TransitionFailed = $q.reject(new Error('transition failed'));
     var currentLocation = $location.url();
+    var baseHref = $browser.baseHref();
 
     function syncUrl() {
       if ($location.url() !== currentLocation) {
@@ -1038,6 +1039,15 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       if (!$locationProvider.html5Mode() && url) {
         url = "#" + $locationProvider.hashPrefix() + url;
       }
+
+      if (baseHref !== '/') {
+        if ($locationProvider.html5Mode()) {
+          url = baseHref.slice(0, -1) + url;
+        } else if (options.absolute){
+          url = baseHref.slice(1) + url;
+        }
+      }
+
       if (options.absolute && url) {
         url = $location.protocol() + '://' + 
               $location.host() + 

@@ -639,6 +639,28 @@ describe('state', function () {
       locationProvider.hashPrefix("!");
       expect($state.href("home")).toEqual("#!/");
     }));
+
+    describe('when $browser.baseHref() exists', function() {
+      beforeEach(inject(function($browser) {
+        spyOn($browser, 'baseHref').andCallFake(function() {
+          return '/base/';
+        });
+      }));
+
+      it('does not prepend relative urls', inject(function($state) {
+        expect($state.href("home")).toEqual("#/");
+      }));
+
+      it('prepends absolute urls', inject(function($state) {
+        expect($state.href("home", null, { absolute: true })).toEqual("http://server/base/#/");
+      }));
+
+      it('prepends relative and absolute urls in html5Mode', inject(function($state) {
+        locationProvider.html5Mode(true);
+        expect($state.href("home")).toEqual("/base/");
+        expect($state.href("home", null, { absolute: true })).toEqual("http://server/base/");
+      }));
+    });
   });
 
   describe('.get()', function () {
