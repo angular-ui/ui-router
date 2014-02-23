@@ -218,6 +218,41 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
     return state;
   }
 
+  // Checks text to see if it looks like a glob.
+  function isGlob (text) {
+    return text.indexOf('*') > -1;
+  }
+
+  // Returns true if glob matches current $state name.
+  function doesStateMatchGlob (glob) {
+    var globSegments = glob.split('.'),
+        segments = $state.$current.name.split('.');
+
+    //match greedy starts
+    if (globSegments[0] === '**') {
+       segments = segments.slice(segments.indexOf(globSegments[1]));
+       segments.unshift('**');
+    }
+    //match greedy ends
+    if (globSegments[globSegments.length - 1] === '**') {
+       segments.splice(segments.indexOf(globSegments[globSegments.length - 2]) + 1, Number.MAX_VALUE);
+       segments.push('**');
+    }
+
+    if (globSegments.length != segments.length) {
+      return false;
+    }
+
+    //match single stars
+    for (var i = 0, l = globSegments.length; i < l; i++) {
+      if (globSegments[i] === '*') {
+        segments[i] = '*';
+      }
+    }
+
+    return segments.join('') === globSegments.join('');
+  }
+
 
   // Implicit root state that is always active
   root = registerState({
@@ -970,6 +1005,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
      *
      * @example
      * <pre>
+     * $state.$current.name = 'contacts.details.item';
+     *
      * $state.includes("contacts"); // returns true
      * $state.includes("contacts.details"); // returns true
      * $state.includes("contacts.details.item"); // returns true
@@ -977,12 +1014,37 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
      * $state.includes("about"); // returns false
      * </pre>
      *
-     * @param {string|object} stateOrName A full or partial state name to be searched for within the current state name.
-     * @param {object=} params A param object, e.g. `{sectionId: section.id}`, 
+     * @description
+     * Basic globing patterns will also work.
+     *
+     * @example
+     * <pre>
+     * $state.$current.name = 'contacts.details.item.url';
+     *
+     * $state.includes("*.details.*.*"); // returns true
+     * $state.includes("*.details.**"); // returns true
+     * $state.includes("**.item.**"); // returns true
+     * $state.includes("*.details.item.url"); // returns true
+     * $state.includes("*.details.*.url"); // returns true
+     * $state.includes("*.details.*"); // returns false
+     * $state.includes("item.**"); // returns false
+     * </pre>
+     *
+     * @param {string} stateOrName A partial name to be searched for within the current state name.
+     * @param {object} params A param object, e.g. `{sectionId: section.id}`, 
      * that you'd like to test against the current active state.
      * @returns {boolean} Returns true if it does include the state
      */
+
     $state.includes = function includes(stateOrName, params) {
+      if (isString(stateOrName) && isGlob(stateOrName)) {
+        if (doesStateMatchGlob(stateOrName)) {
+          stateOrName = $state.$current.name;
+        } else {
+          return false;
+        }
+      }
+
       var state = findState(stateOrName);
       if (!isDefined(state)) {
         return undefined;
@@ -1000,6 +1062,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       });
       return validParams;
     };
+
 
     /**
      * @ngdoc function
