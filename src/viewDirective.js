@@ -170,15 +170,13 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $ui
 
   var directive = {
     restrict: 'ECA',
-    compile: function (element, attrs) {
-      var initial   = element.html(),
+    compile: function (compileEl, attrs) {
+      var initial   = compileEl.html(),
           isDefault = true,
-          anchor    = angular.element($document[0].createComment(' ui-view-anchor ')),
-          parentEl  = element.parent();
+          anchor    = angular.element($document[0].createComment(' ui-view-anchor '));
 
-      element.prepend(anchor);
-
-      return function ($scope) {
+      return function ($scope, element) {
+        var parentEl = element.parent();
         var inherited = parentEl.inheritedData('$uiView');
 
         var currentScope, currentEl, viewLocals,
