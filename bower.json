@@ -16,6 +16,8 @@
     "sample",
     "test",
     "tests",
-    "ngdoc_assets"
+    "ngdoc_assets",
+    "Gruntfile.js",
+    "files.js"
   ]
 }
