@@ -93,6 +93,10 @@ module.exports = function (grunt) {
       },
       unstable: {
         configFile: 'config/karma-1.1.5.js'
+      },
+      background: {
+          background: true,
+          browsers: [ grunt.option('browser') || 'PhantomJS' ]
       }
     },
     changelog: {
