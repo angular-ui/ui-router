@@ -39,7 +39,7 @@
         <!-- Here you can see ui-sref in action again. Also notice the use of $state.includes, which
              will set the links to 'active' if, for example on the first link, 'contacts' or any of
              its descendant states are activated. -->
-          <li ui-sref-active="active"><a ui-sref="contacts.list">Contacts</a></li>
+          <li ng-class="{active: $state.includes('contacts')}"><a ui-sref="contacts.list">Contacts</a></li>
           <li ui-sref-active="active"><a ui-sref="about">About</a></li>
         </ul>
 
