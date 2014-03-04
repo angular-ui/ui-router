@@ -207,10 +207,18 @@ function $StateActiveDirective($state, $stateParams, $interpolate) {
 
       // Update route state
       function update() {
-        if ($state.$current.self === state && matchesParams()) {
+        if (isMatch()) {
           $element.addClass(activeClass);
         } else {
           $element.removeClass(activeClass);
+        }
+      }
+
+      function isMatch() {
+        if (typeof $attrs.asParent !== 'undefined') {
+          return $state.includes(state.name) && matchesParams();
+        } else {
+          return $state.$current.self === state && matchesParams();
         }
       }
 
