@@ -304,6 +304,8 @@ describe('uiSrefActive', function() {
       url: '/:id',
     }).state('contacts.item.detail', {
       url: '/detail/:foo'
+    }).state('contacts.item.edit', {
+      url: '/edit'
     });
   }));
 
@@ -312,17 +314,17 @@ describe('uiSrefActive', function() {
   }));
 
   it('should update class for sibling uiSref', inject(function($rootScope, $q, $compile, $state) {
-    el = angular.element('<div><a ui-sref="contacts" ui-sref-active="active">Contacts</a></div>');
+    el = angular.element('<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active="active">Contacts</a><a ui-sref="contacts.item({ id: 2 })" ui-sref-active="active">Contacts</a></div>');
     template = $compile(el)($rootScope);
     $rootScope.$digest();
 
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
-    $state.transitionTo('contacts');
+    $state.transitionTo('contacts.item', { id: 1 });
     $q.flush();
 
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
 
-    $state.transitionTo('contacts.item', { id: 5 });
+    $state.transitionTo('contacts.item', { id: 2 });
     $q.flush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
   }));
@@ -340,6 +342,34 @@ describe('uiSrefActive', function() {
     $state.transitionTo('contacts.item.detail', { id: 5, foo: 'baz' });
     $q.flush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+  }));
+
+  it('should match on child states', inject(function($rootScope, $q, $compile, $state) {
+    template = $compile('<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active="active">Contacts</a></div>')($rootScope);
+    $rootScope.$digest();
+    var a = angular.element(template[0].getElementsByTagName('a')[0]);
+
+    $state.transitionTo('contacts.item.edit', { id: 1 });
+    $q.flush();
+    expect(a.attr('class')).toMatch(/active/);
+
+    $state.transitionTo('contacts.item.edit', { id: 4 });
+    $q.flush();
+    expect(a.attr('class')).not.toMatch(/active/);
+  }));
+
+  it('should NOT match on child states when active-equals is used', inject(function($rootScope, $q, $compile, $state) {
+    template = $compile('<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active-eq="active">Contacts</a></div>')($rootScope);
+    $rootScope.$digest();
+    var a = angular.element(template[0].getElementsByTagName('a')[0]);
+
+    $state.transitionTo('contacts.item', { id: 1 });
+    $q.flush();
+    expect(a.attr('class')).toMatch(/active/);
+
+    $state.transitionTo('contacts.item.edit', { id: 1 });
+    $q.flush();
+    expect(a.attr('class')).not.toMatch(/active/);
   }));
 
   it('should resolve relative state refs', inject(function($rootScope, $q, $compile, $state) {
