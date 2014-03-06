@@ -100,10 +100,6 @@
  * Examples for `autoscroll`:
  *
  * <pre>
- * <!-- If autoscroll unspecified, then scroll ui-view into view
- *     (Note: this default behavior is under review and may be reversed) -->
- * <ui-view/>
- *
  * <!-- If autoscroll present with no expression,
  *      then scroll ui-view into view -->
  * <ui-view autoscroll/>
@@ -214,7 +210,7 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
 
           var clone = $transclude(newScope, function(clone) {
             renderer.enter(clone, $element, function onUiViewEnter() {
-              if (!angular.isDefined(autoScrollExp) || !autoScrollExp || scope.$eval(autoScrollExp)) {
+              if (angular.isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
                 $uiViewScroll(clone);
               }
             });
