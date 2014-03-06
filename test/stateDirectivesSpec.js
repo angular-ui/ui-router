@@ -184,6 +184,30 @@ describe('uiStateRef', function() {
       expect($state.current.name).toEqual('');
       expect($stateParams).toEqual({ id: "5" });
     }));
+    
+    it('should allow passing params to current state', inject(function($compile, $rootScope, $state) {
+      $state.current.name = 'contacts.item.detail';
+      
+      el = angular.element("<a ui-sref=\"{id: $index}\">Details</a>");
+      $rootScope.$index = 3;
+      $rootScope.$apply();
+
+      $compile(el)($rootScope);
+      $rootScope.$digest();
+      expect(el.attr('href')).toBe('#/contacts/3');
+    }));
+    
+    it('should allow multi-line attribute values when passing params to current state', inject(function($compile, $rootScope, $state) {
+      $state.current.name = 'contacts.item.detail';
+      
+      el = angular.element("<a ui-sref=\"{\n\tid: $index\n}\">Details</a>");
+      $rootScope.$index = 3;
+      $rootScope.$apply();
+
+      $compile(el)($rootScope);
+      $rootScope.$digest();
+      expect(el.attr('href')).toBe('#/contacts/3');
+    }));
   });
 
   describe('forms', function() {
