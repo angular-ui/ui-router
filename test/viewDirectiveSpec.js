@@ -268,7 +268,7 @@ describe('uiView', function () {
   });
 
   describe('autoscroll attribute', function () {
-    it('should autoscroll when unspecified', inject(function ($state, $q, $uiViewScroll, $animate) {
+    it('should NOT autoscroll when unspecified', inject(function ($state, $q, $uiViewScroll, $animate) {
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
 
       $state.transitionTo(aState);
@@ -276,7 +276,7 @@ describe('uiView', function () {
 
       if ($animate) $animate.triggerCallbacks();
 
-      expect($uiViewScroll).toHaveBeenCalledWith(elem.find('span').parent());
+      expect($uiViewScroll).not.toHaveBeenCalled();
     }));
 
     it('should autoscroll when expression is missing', inject(function ($state, $q, $uiViewScroll, $animate) {
