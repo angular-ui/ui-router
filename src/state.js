@@ -180,14 +180,30 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       toString: function() { return this.name; }
     });
 
-    var name = state.name;
-    if (!isString(name) || name.indexOf('@') >= 0) throw new Error("State must have a valid name");
-    if (states.hasOwnProperty(name)) throw new Error("State '" + name + "'' is already defined");
+    var name = state.name,
+        parentName,
+        lastDot = name.lastIndexOf('.');
 
     // Get parent name
-    var parentName = (name.indexOf('.') !== -1) ? name.substring(0, name.lastIndexOf('.'))
-        : (isString(state.parent)) ? state.parent
-        : '';
+    if (lastDot !== -1) {
+      parentName = name.substring(0, lastDot);
+      name = name.substring(lastDot + 1);
+    } else if (isString(state.parent)) {
+      parentName = state.parent;
+    } else if (state.parent) {
+      parentName = state.parent.name;
+    } else {
+      parentName = null;
+    }
+
+    if (parentName) {
+      name = parentName + '.' + name;
+      state.name = name;
+      state.self.name = name;
+    }
+
+    if (!isString(name) || name.indexOf('@') >= 0) throw new Error("State must have a valid name");
+    if (states.hasOwnProperty(name)) throw new Error("State '" + name + "'' is already defined");
 
     // If parent is not registered yet, add state to queue and register later
     if (parentName && !states[parentName]) {
@@ -777,7 +793,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         toState = findState(to, options.relative);
         if (!isDefined(toState)) {
           if (options.relative) throw new Error("Could not resolve '" + to + "' from state '" + options.relative + "'");
-          throw new Error("No such state '" + to + "'");
+          throw new Error("No such state " + JSON.stringify(to));
         }
       }
       if (toState[abstractKey]) throw new Error("Cannot transition to abstract state '" + to + "'");
@@ -1112,10 +1128,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       }
 
       if (options.absolute && url) {
-        url = $location.protocol() + '://' + 
-              $location.host() + 
-              ($location.port() == 80 || $location.port() == 443 ? '' : ':' + $location.port()) + 
-              (!$locationProvider.html5Mode() && url ? '/' : '') + 
+        url = $location.protocol() + '://' +
+              $location.host() +
+              ($location.port() == 80 || $location.port() == 443 ? '' : ':' + $location.port()) +
+              (!$locationProvider.html5Mode() && url ? '/' : '') +
               url;
       }
       return url;
