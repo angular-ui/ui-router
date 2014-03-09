@@ -3,6 +3,10 @@ describe("UrlMatcher", function () {
     expect(new UrlMatcher('/hello/world').exec('/hello/world')).toEqual({});
   });
 
+  it("matches static case insensitive URLs", function () {
+    expect(new UrlMatcher('/hello/world', true).exec('/heLLo/World')).toEqual({});
+  });
+
   it("matches against the entire path", function () {
     var matcher = new UrlMatcher('/hello/world');
     expect(matcher.exec('/hello/world/')).toBeNull();
