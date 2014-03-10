@@ -143,4 +143,13 @@ describe("urlMatcherFactory", function () {
   it("recognizes matchers", function () {
     expect($umf.isMatcher(new UrlMatcher('/'))).toBe(true);
   });
+
+  it("should handle case sensistive URL by default", function () {
+    expect($umf.compile('/hello/world').exec('/heLLo/WORLD')).toBeNull();
+  });
+
+  it("should handle case insensistive URL", function () {
+  	$umf.caseInsensitiveMatch(true);
+    expect($umf.compile('/hello/world').exec('/heLLo/WORLD')).toEqual({});
+  });
 });
