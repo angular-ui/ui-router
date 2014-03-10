@@ -145,6 +145,20 @@ describe('uiView', function () {
       }
     }));
 
+    it('ui-state attribute should be updated to current state', inject(function ($state, $q) {
+      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+
+      $state.transitionTo(aState);
+      $q.flush();
+
+      expect(elem.find('ui-view').attr('ui-state')).toBe('a');
+
+      $state.transitionTo(bState);
+      $q.flush();
+
+      expect(elem.find('ui-view').attr('ui-state')).toBe('b');
+    }));
+
     it('should handle NOT nested ui-views', inject(function ($state, $q, $animate) {
       elem.append($compile('<div><div ui-view="dview1" class="dview1"></div><div ui-view="dview2" class="dview2"></div></div>')(scope));
 

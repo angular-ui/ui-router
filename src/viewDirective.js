@@ -130,6 +130,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $ui
             cleanupLastView();
             currentEl = element.clone();
             currentEl.html(initial);
+            element.removeAttr('ui-state');
             renderer(shouldAnimate).enter(currentEl, parentEl, anchor);
 
             currentScope = $scope.$new();
@@ -149,6 +150,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $ui
 
           viewLocals = locals;
           view.state = locals.$$state;
+          element.attr('ui-state', view.state.name);
 
           var link = $compile(currentEl.contents());
 
