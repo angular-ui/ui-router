@@ -3,6 +3,10 @@ describe("UrlMatcher", function () {
     expect(new UrlMatcher('/hello/world').exec('/hello/world')).toEqual({});
   });
 
+  it("matches static case insensitive URLs", function () {
+    expect(new UrlMatcher('/hello/world', true).exec('/heLLo/World')).toEqual({});
+  });
+
   it("matches against the entire path", function () {
     var matcher = new UrlMatcher('/hello/world');
     expect(matcher.exec('/hello/world/')).toBeNull();
@@ -138,5 +142,14 @@ describe("urlMatcherFactory", function () {
 
   it("recognizes matchers", function () {
     expect($umf.isMatcher(new UrlMatcher('/'))).toBe(true);
+  });
+
+  it("should handle case sensistive URL by default", function () {
+    expect($umf.compile('/hello/world').exec('/heLLo/WORLD')).toBeNull();
+  });
+
+  it("should handle case insensistive URL", function () {
+  	$umf.caseInsensitiveMatch(true);
+    expect($umf.compile('/hello/world').exec('/heLLo/WORLD')).toEqual({});
   });
 });
