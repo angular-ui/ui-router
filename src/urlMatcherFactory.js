@@ -39,6 +39,7 @@
  * * `'/files/*path'` - ditto.
  *
  * @param {string} pattern  the pattern to compile into a matcher.
+ * @param {bool} caseInsensitiveMatch true if url matching should be case insensitive, otherwise false, the default value (for backward compatibility) is false.
  *
  * @property {string} prefix  A static prefix of this pattern. The matcher guarantees that any
  *   URL matching this matcher (i.e. any string for which {@link ui.router.util.type:UrlMatcher#methods_exec exec()} returns
@@ -55,7 +56,7 @@
  *
  * @returns {Object}  New UrlMatcher object
  */
-function UrlMatcher(pattern) {
+function UrlMatcher(pattern, caseInsensitiveMatch) {
 
   // Find all placeholders and create a compiled pattern, using either classic or curly syntax:
   //   '*' name
@@ -119,7 +120,12 @@ function UrlMatcher(pattern) {
 
   compiled += quoteRegExp(segment) + '$';
   segments.push(segment);
-  this.regexp = new RegExp(compiled);
+  if(caseInsensitiveMatch){
+    this.regexp = new RegExp(compiled, 'i');
+  }else{
+    this.regexp = new RegExp(compiled);	
+  }
+  
   this.prefix = segments[0];
 }
 
@@ -263,6 +269,22 @@ UrlMatcher.prototype.format = function (values) {
  */
 function $UrlMatcherFactory() {
 
+  var useCaseInsensitiveMatch = false;
+
+  /**
+   * @ngdoc function
+   * @name ui.router.util.$urlMatcherFactory#caseInsensitiveMatch
+   * @methodOf ui.router.util.$urlMatcherFactory
+   *
+   * @description
+   * Define if url matching should be case sensistive, the default behavior, or not.
+   *   
+   * @param {bool} value false to match URL in a case sensitive manner; otherwise true;
+   */
+  this.caseInsensitiveMatch = function(value){
+    useCaseInsensitiveMatch = value;
+  };
+
   /**
    * @ngdoc function
    * @name ui.router.util.$urlMatcherFactory#compile
@@ -275,7 +297,7 @@ function $UrlMatcherFactory() {
    * @returns {ui.router.util.type:UrlMatcher}  The UrlMatcher.
    */
   this.compile = function (pattern) {
-    return new UrlMatcher(pattern);
+    return new UrlMatcher(pattern, useCaseInsensitiveMatch);
   };
 
   /**
