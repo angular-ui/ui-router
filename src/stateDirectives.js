@@ -35,6 +35,10 @@ function stateContext(el) {
  * to the state that the link lives in, in other words the state that loaded the 
  * template containing the link.
  *
+ * You can specify options to pass to {@link ui.router.state.$state#go $state.go()}
+ * using the `ui-sref-opts` attribute. Options are restricted to `location`, `inherit`,
+ * and `reload`.
+ *
  * @example
  * Here's an example of how you'd use ui-sref and how it would compile. If you have the 
  * following template:
@@ -63,12 +67,17 @@ function stateContext(el) {
  *         <a href="#/contacts/3" ui-sref="contacts.detail({ id: contact.id })">Bob</a>
  *     </li>
  * </ul>
+ *
+ * <a ui-sref="home" ui-sref-opts="{reload: true}">Home</a>
  * </pre>
  *
  * @param {string} ui-sref 'stateName' can be any valid absolute or relative state
+ * @param {Object} ui-sref-opts options to pass to {@link ui.router.state.$state#go $state.go()}
  */
 $StateRefDirective.$inject = ['$state', '$timeout'];
 function $StateRefDirective($state, $timeout) {
+  var allowedOptions = ['location', 'inherit', 'reload'];
+
   return {
     restrict: 'A',
     require: '?^uiSrefActive',
@@ -78,11 +87,21 @@ function $StateRefDirective($state, $timeout) {
       var isForm = element[0].nodeName === "FORM";
       var attr = isForm ? "action" : "href", nav = true;
 
+      var options = {
+        relative: base
+      };
+      var optionsOverride = scope.$eval(attrs.uiSrefOpts) || {};
+      angular.forEach(allowedOptions, function(option) {
+        if (option in optionsOverride) {
+          options[option] = optionsOverride[option];
+        }
+      });
+
       var update = function(newVal) {
         if (newVal) params = newVal;
         if (!nav) return;
 
-        var newHref = $state.href(ref.state, params, { relative: base });
+        var newHref = $state.href(ref.state, params, options);
 
         if (uiSrefActive) {
           uiSrefActive.$$setStateInfo(ref.state, params);
@@ -109,7 +128,7 @@ function $StateRefDirective($state, $timeout) {
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
           $timeout(function() {
-            $state.go(ref.state, params, { relative: base });
+            $state.go(ref.state, params, options);
           });
           e.preventDefault();
         }

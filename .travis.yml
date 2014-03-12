@@ -10,4 +10,4 @@ before_script:
   - ./nodeserver.sh > /dev/null &
 
 script:
-  - grunt
+  - grunt integrate

@@ -43,7 +43,6 @@ function $ViewProvider() {
          * @eventOf ui.router.state.$view
          * @eventType broadcast on root scope
          * @description
-         * **Known Bug:** This doesn't appear to be working (v0.2.8).
          *
          * Fired once the view **begins loading**, *before* the DOM is rendered.
          *

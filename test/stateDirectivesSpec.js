@@ -257,6 +257,32 @@ describe('uiStateRef', function() {
       expect($state.$current.name).toBe("contacts");
     }));
   });
+
+  describe('transition options', function() {
+
+    beforeEach(inject(function($rootScope, $compile, $state) {
+      el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })" ui-sref-opts="{ reload: true, notify: true }">Details</a>');
+      scope = $rootScope;
+      scope.contact = { id: 5 };
+
+      $compile(el)(scope);
+      scope.$digest();
+    }));
+
+    it('uses allowed transition options', inject(function($q, $timeout, $state) {
+      var transitionOptions;
+
+      spyOn($state, 'go').andCallFake(function(state, params, options) {
+        transitionOptions = options;
+      });
+
+      triggerClick(el);
+      $timeout.flush();
+
+      expect(transitionOptions.reload).toEqual(true);
+      expect(transitionOptions.notify).toBeUndefined();
+    }));
+  });
 });
 
 describe('uiSrefActive', function() {
