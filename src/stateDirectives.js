@@ -80,7 +80,7 @@ function $StateRefDirective($state, $timeout) {
 
   return {
     restrict: 'A',
-    require: '?^uiSrefActive',
+    require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
     link: function(scope, element, attrs, uiSrefActive) {
       var ref = parseStateRef(attrs.uiSref);
       var params = null, url = null, base = stateContext(element) || $state.$current;
@@ -103,8 +103,9 @@ function $StateRefDirective($state, $timeout) {
 
         var newHref = $state.href(ref.state, params, options);
 
-        if (uiSrefActive) {
-          uiSrefActive.$$setStateInfo(ref.state, params);
+        var activeDirective = uiSrefActive[1] || uiSrefActive[0];
+        if (activeDirective) {
+          activeDirective.$$setStateInfo(ref.state, params);
         }
         if (!newHref) {
           nav = false;
@@ -148,11 +149,19 @@ function $StateRefDirective($state, $timeout) {
  * @restrict A
  *
  * @description
- * A directive working alongside ui-sref to add classes to an element when the 
+ * A directive working alongside ui-sref to add classes to an element when the
  * related ui-sref directive's state is active, and removing them when it is inactive.
- * The primary use-case is to simplify the special appearance of navigation menus 
+ * The primary use-case is to simplify the special appearance of navigation menus
  * relying on `ui-sref`, by having the "active" state's menu button appear different,
  * distinguishing it from the inactive menu items.
+ *
+ * ui-sref-active can live on the same element as ui-sref or on a parent element. The first
+ * ui-sref-active found at the same level or above the ui-sref will be used.
+ *
+ * Will activate when the ui-sref's target state or any child state is active. If you
+ * need to activate only when the ui-sref target state is active and *not* any of
+ * it's children, then you will use
+ * {@link ui.router.state.directive:ui-sref-active-eq ui-sref-active-eq}
  *
  * @example
  * Given the following template:
@@ -163,8 +172,9 @@ function $StateRefDirective($state, $timeout) {
  *   </li>
  * </ul>
  * </pre>
- * 
- * When the app state is "app.user", and contains the state parameter "user" with value "bilbobaggins", 
+ *
+ *
+ * When the app state is "app.user" (or any children states), and contains the state parameter "user" with value "bilbobaggins",
  * the resulting HTML will appear as (note the 'active' class):
  * <pre>
  * <ul>
@@ -173,10 +183,10 @@ function $StateRefDirective($state, $timeout) {
  *   </li>
  * </ul>
  * </pre>
- * 
- * The class name is interpolated **once** during the directives link time (any further changes to the 
- * interpolated value are ignored). 
- * 
+ *
+ * The class name is interpolated **once** during the directives link time (any further changes to the
+ * interpolated value are ignored).
+ *
  * Multiple classes may be specified in a space-separated format:
  * <pre>
  * <ul>
@@ -186,18 +196,36 @@ function $StateRefDirective($state, $timeout) {
  * </ul>
  * </pre>
  */
-$StateActiveDirective.$inject = ['$state', '$stateParams', '$interpolate'];
-function $StateActiveDirective($state, $stateParams, $interpolate) {
-  return {
+
+/**
+ * @ngdoc directive
+ * @name ui.router.state.directive:ui-sref-active-eq
+ *
+ * @requires ui.router.state.$state
+ * @requires ui.router.state.$stateParams
+ * @requires $interpolate
+ *
+ * @restrict A
+ *
+ * @description
+ * The same as {@link ui.router.state.directive:ui-sref-active ui-sref-active} but will will only activate
+ * when the exact target state used in the `ui-sref` is active; no child states.
+ *
+ */
+$StateRefActiveDirective.$inject = ['$state', '$stateParams', '$interpolate'];
+function $StateRefActiveDirective($state, $stateParams, $interpolate) {
+  return  {
     restrict: "A",
-    controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
+    controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
       var state, params, activeClass;
 
       // There probably isn't much point in $observing this
-      activeClass = $interpolate($attrs.uiSrefActive || '', false)($scope);
+      // uiSrefActive and uiSrefActiveEq share the same directive object with some
+      // slight difference in logic routing
+      activeClass = $interpolate($attrs.uiSrefActiveEq || $attrs.uiSrefActive || '', false)($scope);
 
-      // Allow uiSref to communicate with uiSrefActive
-      this.$$setStateInfo = function(newState, newParams) {
+      // Allow uiSref to communicate with uiSrefActive[Equals]
+      this.$$setStateInfo = function (newState, newParams) {
         state = $state.get(newState, stateContext($element));
         params = newParams;
         update();
@@ -207,10 +235,18 @@ function $StateActiveDirective($state, $stateParams, $interpolate) {
 
       // Update route state
       function update() {
-        if ($state.$current.self === state && matchesParams()) {
+        if (isMatch()) {
           $element.addClass(activeClass);
         } else {
           $element.removeClass(activeClass);
+        }
+      }
+
+      function isMatch() {
+        if (typeof $attrs.uiSrefActiveEq !== 'undefined') {
+          return $state.$current.self === state && matchesParams();
+        } else {
+          return $state.includes(state.name) && matchesParams();
         }
       }
 
@@ -223,4 +259,5 @@ function $StateActiveDirective($state, $stateParams, $interpolate) {
 
 angular.module('ui.router.state')
   .directive('uiSref', $StateRefDirective)
-  .directive('uiSrefActive', $StateActiveDirective);
+  .directive('uiSrefActive', $StateRefActiveDirective)
+  .directive('uiSrefActiveEq', $StateRefActiveDirective);
