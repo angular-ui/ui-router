@@ -1,11 +1,10 @@
 <h1><code ng:non-bindable="">$urlRouter</code>
-<div><span class="hint">service in module <code ng:non-bindable="">ui.router.router</code>
-</span>
-</div>
+<span class="hint">(service in module <code ng:non-bindable="">ui.router.router</code>
+)</span>
 </h1>
-<div><h2 id="description">Description</h2>
+<div><h2 id="Description">Description</h2>
 <div class="description"></div>
-<h2 id="dependencies">Dependencies</h2>
+<h2 id="Dependencies">Dependencies</h2>
 <ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/ng.$location">$location</a></code>
 </li>
 <li><code ng:non-bindable=""><a href="#/api/ng.$rootScope">$rootScope</a></code>
@@ -13,14 +12,13 @@
 <li><code ng:non-bindable=""><a href="#/api/ng.$injector">$injector</a></code>
 </li>
 </ul>
-<div class="member method"><h2 id="methods">Methods</h2>
-<ul class="methods"><li><h3 id="methods_sync">sync()</h3>
-<div class="sync"><div class="ui-router-router-urlrouter-sync-page"><p>Triggers an update; the same update that happens when the address bar url changes, aka <code>$locationChangeSuccess</code>.
+<div class="member method"><h2 id="Methods">Methods</h2>
+<ul class="methods"><li><h3 id="sync">sync()</h3>
+<div class="sync"><p>Triggers an update; the same update that happens when the address bar url changes, aka <code>$locationChangeSuccess</code>.
 This method is useful when you need to use <code>preventDefault()</code> on the <code>$locationChangeSuccess</code> event, 
 perform some custom logic (route protection, auth, config, redirection, etc) and then finally proceed 
-with the transition by calling <code>$urlRouter.sync()</code>.</p>
-</div><h4 id="methods_sync_example">Example</h4>
-<div class="example"><div class="ui-router-router-urlrouter-sync-page"><pre class="prettyprint linenums">
+with the transition by calling <code>$urlRouter.sync()</code>.</p><h4 id="Example">Example</h4>
+<div class="example"><pre class="prettyprint linenums">
 angular.module('app', ['ui.router']);
   .run(function($rootScope, $urlRouter) {
     $rootScope.$on('$locationChangeSuccess', function(evt) {
@@ -32,8 +30,7 @@ angular.module('app', ['ui.router']);
       if (meetsRequirement) $urlRouter.sync();
     });
 });
-</pre>
-</div></div>
+</pre></div>
 </div>
 </li>
 </ul>

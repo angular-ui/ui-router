@@ -1,12 +1,10 @@
 <h1><code ng:non-bindable="">ui-view</code>
-<div><span class="hint">directive in module <code ng:non-bindable="">ui.router.state</code>
-</span>
-</div>
+<span class="hint">(directive in module <code ng:non-bindable="">ui.router.state</code>
+)</span>
 </h1>
-<div><h2 id="description">Description</h2>
-<div class="description"><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-page"><p>The ui-view directive tells $state where to place your templates.</p>
-</div></div>
-<h2 id="dependencies">Dependencies</h2>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>The ui-view directive tells $state where to place your templates.</p></div>
+<h2 id="Dependencies">Dependencies</h2>
 <ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/ui.router.state.$state">$state</a></code>
 </li>
 <li><code ng:non-bindable=""><a href="#/api/ng.$compile">$compile</a></code>
@@ -20,7 +18,7 @@
 <li><code ng:non-bindable=""><a href="#/api/ng.$document">$document</a></code>
 </li>
 </ul>
-<h2 id="usage">Usage</h2>
+<h2 id="Usage">Usage</h2>
 <div class="usage">as element:<pre class="prettyprint linenums">&lt;ui-view
        [ui-view="{string}"]
        [autoscroll="{string}"]
@@ -34,33 +32,41 @@ as attribute<pre class="prettyprint linenums">&lt;ANY ui-view="{string}"
 as class<pre class="prettyprint linenums">&lt;ANY class="ui-view: {string}; [autoscroll: {string};] [onload: {string};]"&gt;
    ...
 &lt;/ANY&gt;</pre>
-<h4 id="usage_parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>ui-view <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-page"><p>A view name. The name should be unique amongst the other views in the
-same state. You can have views of the same name that live in different states.</p>
-</div></td></tr><tr><td>autoscroll <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-page"><p>It allows you to set the scroll behavior of the browser window
-when a view is populated. By default, $anchorScroll is overridden by ui-router&#39;s custom scroll
-service, <a href="#/api/ui.router.state.$uiViewScroll">ui.router.state.$uiViewScroll</a>. This custom service let&#39;s you
+<h3 id="Parameters">Parameters</h3>
+<ul class="parameters"><li><code ng:non-bindable="">ui-view<i>(optional)</i> – {string=} – </code>
+<p>A view name. The name should be unique amongst the other views in the
+same state. You can have views of the same name that live in different states.</p></li>
+<li><code ng:non-bindable="">autoscroll<i>(optional)</i> – {string=} – </code>
+<p>It allows you to set the scroll behavior of the browser window
+when a view is populated. By default, $anchorScroll is overridden by ui-router's custom scroll
+service, <a href="#/api/ui.router.state.$uiViewScroll">ui.router.state.$uiViewScroll</a>. This custom service let's you
 scroll ui-view elements into view when they are populated during a state activation.</p>
+
 <p><em>Note: To revert back to old <a href="http://docs.angularjs.org/api/ng.$anchorScroll"><code>$anchorScroll</code></a>
-functionality, call <code>$uiViewScrollProvider.useAnchorScroll()</code>.</em></p>
-</div></td></tr><tr><td>onload <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-page"><p>Expression to evaluate whenever the view updates.</p>
-</div></td></tr></tbody></table></div>
-<div class="member event"><h2 id="events">Events</h2>
-<ul class="events"><li><h3 id="events_$viewcontentloaded">$viewContentLoaded</h3>
-<div class="$viewcontentloaded"><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-viewcontentloaded-page"><p><em>
-Fired once the view is <strong>loaded</strong>, </em>after* the DOM is rendered.</p>
-</div><div class="inline"><h4 id="events_$viewcontentloaded_type">Type:</h4>
-<div class="type">emits</div>
+functionality, call <code>$uiViewScrollProvider.useAnchorScroll()</code>.</em></p></li>
+<li><code ng:non-bindable="">onload<i>(optional)</i> – {string=} – </code>
+<p>Expression to evaluate whenever the view updates.</p></li>
+</ul>
 </div>
-<div class="inline"><h4 id="events_$viewcontentloaded_target">Target:</h4>
-<div class="target">ui-view directive scope</div>
+<div class="member event"><h2 id="Events">Events</h2>
+<ul class="events"><li><h3 id="$viewContentLoaded">$viewContentLoaded</h3>
+<div class="$viewcontentloaded"><p>*
+Fired once the view is <strong>loaded</strong>, <em>after</em> the DOM is rendered.</p><div class="inline"><h4 id="Type.">Type:</h4>
+<div class="type-">emits</div>
 </div>
-<h5 id="events_$viewcontentloaded_target_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>event</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-viewcontentloaded-page"><p>Event object.</p>
-</div></td></tr></tbody></table></div>
+<div class="inline"><h4 id="Target.">Target:</h4>
+<div class="target-">ui-view directive scope</div>
+</div>
+<h4 id="Parameters">Parameters</h4>
+<ul class="parameters"><li><code ng:non-bindable="">event – {Object} – </code>
+<p>Event object.</p></li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
-<h2 id="example">Example</h2>
-<div class="example"><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-page"><p>A view can be unnamed or named. 
+<h2 id="Example">Example</h2>
+<div class="example"><p>A view can be unnamed or named. 
 <pre class="prettyprint linenums">
 &lt;!-- Unnamed --&gt;
 &lt;div ui-view&gt;&lt;/div&gt; 
@@ -68,6 +74,7 @@ Fired once the view is <strong>loaded</strong>, </em>after* the DOM is rendered.
 &lt;!-- Named --&gt;
 &lt;div ui-view="viewName"&gt;&lt;/div&gt;
 </pre>
+
 <p>You can only have one unnamed view within any template (or root html). If you are only using a 
 single view and it is unnamed then you can populate it like so:
 <pre class="prettyprint linenums">
@@ -76,6 +83,7 @@ $stateProvider.state("home", {
   template: "&lt;h1&gt;HELLO!&lt;/h1&gt;"
 })
 </pre>
+
 <p>The above is a convenient shortcut equivalent to specifying your view explicitly with the <a href="#/api/ui.router.state.$stateProvider#views"><code>views</code></a>
 config property, by name, in this case an empty name:
 <pre class="prettyprint linenums">
@@ -87,8 +95,9 @@ $stateProvider.state("home", {
   }    
 })
 </pre>
-<p>But typically you&#39;ll only use the views property if you name your view or have more than one view 
-in the same template. There&#39;s not really a compelling reason to name a view if its the only one, 
+
+<p>But typically you'll only use the views property if you name your view or have more than one view 
+in the same template. There's not really a compelling reason to name a view if its the only one, 
 but you could if you wanted, like so:
 <pre class="prettyprint linenums">
 &lt;div ui-view="main"&gt;&lt;/div&gt;
@@ -102,12 +111,14 @@ $stateProvider.state("home", {
   }    
 })
 </pre>
-<p>Really though, you&#39;ll use views to set up multiple views:
+
+<p>Really though, you'll use views to set up multiple views:
 <pre class="prettyprint linenums">
 &lt;div ui-view&gt;&lt;/div&gt;
 &lt;div ui-view="chart"&gt;&lt;/div&gt; 
 &lt;div ui-view="data"&gt;&lt;/div&gt; 
 </pre>
+
 <pre class="prettyprint linenums">
 $stateProvider.state("home", {
   views: {
@@ -123,12 +134,10 @@ $stateProvider.state("home", {
   }    
 })
 </pre>
-<p>Examples for <code>autoscroll</code>:</p>
-<pre class="prettyprint linenums">
-&lt;!-- If autoscroll unspecified, then scroll ui-view into view
-    (Note: this default behavior is under review and may be reversed) --&gt;
-&lt;ui-view/&gt;
 
+<p>Examples for <code>autoscroll</code>:</p>
+
+<pre class="prettyprint linenums">
 &lt;!-- If autoscroll present with no expression,
      then scroll ui-view into view --&gt;
 &lt;ui-view autoscroll/&gt;
@@ -138,6 +147,5 @@ $stateProvider.state("home", {
 &lt;ui-view autoscroll='true'/&gt;
 &lt;ui-view autoscroll='false'/&gt;
 &lt;ui-view autoscroll='scopeVariable'/&gt;
-</pre>
-</div></div>
+</pre></div>
 </div>
