@@ -75,8 +75,9 @@ describe('uiStateRef', function() {
   });
 
   describe('links', function() {
+    var timeoutFlush;
 
-    beforeEach(inject(function($rootScope, $compile) {
+    beforeEach(inject(function($rootScope, $compile, $timeout) {
       el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })">Details</a>');
       scope = $rootScope;
       scope.contact = { id: 5 };
@@ -84,6 +85,15 @@ describe('uiStateRef', function() {
 
       $compile(el)(scope);
       scope.$digest();
+
+      timeoutFlush = function() {
+        try {
+          $timeout.flush();
+        } catch (e) {
+          // Angular 1.0.8 throws 'No deferred tasks to be flushed' if there is nothing in queue.
+          // Behave as Angular >=1.1.5 and do nothing in such case.
+        }
+      }
     }));
 
     it('should generate the correct href', function() {
@@ -107,18 +117,18 @@ describe('uiStateRef', function() {
       expect(el.attr('href')).toBe('#/contacts/3');
     }));
 
-    it('should transition states when left-clicked', inject(function($state, $stateParams, $document, $q, $timeout) {
+    it('should transition states when left-clicked', inject(function($state, $stateParams, $document, $q) {
       expect($state.$current.name).toEqual('');
 
       triggerClick(el);
-      $timeout.flush();
+      timeoutFlush();
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
       expect($stateParams).toEqual({ id: "5" });
     }));
 
-    it('should transition when given a click that contains no data (fake-click)', inject(function($state, $stateParams, $document, $q, $timeout) {
+    it('should transition when given a click that contains no data (fake-click)', inject(function($state, $stateParams, $document, $q) {
       expect($state.current.name).toEqual('');
 
       triggerClick(el, {
@@ -128,7 +138,7 @@ describe('uiStateRef', function() {
         altKey:   undefined,
         button:   undefined 
       });
-      $timeout.flush();
+      timeoutFlush();
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
@@ -139,7 +149,9 @@ describe('uiStateRef', function() {
       expect($state.$current.name).toEqual('');
       triggerClick(el, { ctrlKey: true });
 
+      timeoutFlush();
       $q.flush();
+      
       expect($state.current.name).toEqual('');
       expect($stateParams).toEqual({ id: "5" });
     }));
@@ -148,6 +160,7 @@ describe('uiStateRef', function() {
       expect($state.$current.name).toEqual('');
 
       triggerClick(el, { metaKey: true });
+      timeoutFlush();
       $q.flush();
 
       expect($state.current.name).toEqual('');
@@ -158,6 +171,7 @@ describe('uiStateRef', function() {
       expect($state.$current.name).toEqual('');
 
       triggerClick(el, { shiftKey: true });
+      timeoutFlush();
       $q.flush();
 
       expect($state.current.name).toEqual('');
@@ -168,17 +182,33 @@ describe('uiStateRef', function() {
       expect($state.$current.name).toEqual('');
 
       triggerClick(el, { button: 1 });
+      timeoutFlush();
       $q.flush();
 
       expect($state.current.name).toEqual('');
       expect($stateParams).toEqual({ id: "5" });
     }));
 
-    it('should not transition states when element has target specified', inject(function($state, $stateParams, $document, $q, $timeout) {
+    it('should not transition states when element has target specified', inject(function($state, $stateParams, $document, $q) {
       el.attr('target', '_blank');
       expect($state.$current.name).toEqual('');
 
       triggerClick(el);
+      timeoutFlush();
+      $q.flush();
+
+      expect($state.current.name).toEqual('');
+      expect($stateParams).toEqual({ id: "5" });
+    }));
+
+    it('should not transition states if preventDefault() is called in click handler', inject(function($state, $stateParams, $document, $q) {
+      expect($state.$current.name).toEqual('');
+      el.bind('click', function(e) {
+        e.preventDefault();
+      });
+
+      triggerClick(el);
+      timeoutFlush();
       $q.flush();
 
       expect($state.current.name).toEqual('');
