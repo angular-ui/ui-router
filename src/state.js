@@ -1165,7 +1165,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       forEach(state.views, function (view, name) {
         var injectables = (view.resolve && view.resolve !== state.resolve ? view.resolve : {});
         injectables.$template = [ function () {
-          return $view.load(name, { view: view, locals: locals, params: $stateParams, notify: false }) || '';
+          return $view.load(name, { view: view, locals: locals, params: $stateParams }) || '';
         }];
 
         promises.push($resolve.resolve(injectables, locals, dst.resolve, state).then(function (result) {
