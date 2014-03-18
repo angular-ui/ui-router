@@ -863,6 +863,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // keep only the outcome of the last transition.
       var transition = $state.transition = resolved.then(function () {
         var l, entering, exiting;
+        
+        evt = $rootScope.$broadcast('$stateResolved', to.self, toParams, from.self, fromParams);
+        if (evt.defaultPrevented) {
+          syncUrl();
+          return TransitionPrevented;
+        }
 
         if ($state.transition !== transition) return TransitionSuperseded;
 
