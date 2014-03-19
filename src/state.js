@@ -1096,7 +1096,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       var state = findState(stateOrName, options.relative);
       if (!isDefined(state)) return null;
 
-      params = inheritParams($stateParams, params || {}, $state.$current, state);
+      if (options.inherit) params = inheritParams($stateParams, params || {}, $state.$current, state);
+      
       var nav = (state && options.lossy) ? state.navigable : state;
       var url = (nav && nav.url) ? nav.url.format(normalize(state.params, params || {})) : null;
       if (!$locationProvider.html5Mode() && url) {
