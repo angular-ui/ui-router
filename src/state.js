@@ -946,8 +946,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
          * @param {Object} fromParams The params supplied to the `fromState`.
          * @param {Error} error The resolve error object.
          */
-        $rootScope.$broadcast('$stateChangeError', to.self, toParams, from.self, fromParams, error);
-        syncUrl();
+        evt = $rootScope.$broadcast('$stateChangeError', to.self, toParams, from.self, fromParams, error);
+
+        if (!evt.defaultPrevented) {
+            syncUrl();
+        }
 
         return $q.reject(error);
       });

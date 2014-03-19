@@ -777,6 +777,21 @@ describe('state', function () {
       expect($state.current.name).toBe("about");
     }));
 
+    it('should not revert to last known working url on state change failure', inject(function ($state, $rootScope, $location, $q) {
+      $state.transitionTo("about");
+      $q.flush();
+
+      $rootScope.$on("$stateChangeError", function(event){
+          event.defaultPrevented = true;
+      });
+
+      $location.path("/resolve-fail");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+
+      expect($location.path()).toBe("/resolve-fail");
+    }));
+
     it('should replace browser history when "replace" enabled', inject(function ($state, $rootScope, $location, $q) {
       var originalReplaceFn = $location.replace, replaceWasCalled = false;
 
