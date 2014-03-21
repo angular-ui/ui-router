@@ -553,6 +553,71 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       }
     }
 
+    // Handles the case where a state which is the target of a transition is not found, and the user
+    // can optionally retry or defer the transition
+    function handleRedirect(redirect, state, params, options) {
+      /**
+       * @ngdoc event
+       * @name ui.router.state.$state#$stateNotFound
+       * @eventOf ui.router.state.$state
+       * @eventType broadcast on root scope
+       * @description
+       * Fired when a requested state **cannot be found** using the provided state name during transition.
+       * The event is broadcast allowing any handlers a single chance to deal with the error (usually by
+       * lazy-loading the unfound state). A special `unfoundState` object is passed to the listener handler,
+       * you can see its three properties in the example. You can use `event.preventDefault()` to abort the
+       * transition and the promise returned from `go` will be rejected with a `'transition aborted'` value.
+       *
+       * @param {Object} event Event object.
+       * @param {Object} unfoundState Unfound State information. Contains: `to, toParams, options` properties.
+       * @param {State} fromState Current state object.
+       * @param {Object} fromParams Current state params.
+       *
+       * @example
+       *
+       * <pre>
+       * // somewhere, assume lazy.state has not been defined
+       * $state.go("lazy.state", {a:1, b:2}, {inherit:false});
+       *
+       * // somewhere else
+       * $scope.$on('$stateNotFound',
+       * function(event, unfoundState, fromState, fromParams){
+       *     console.log(unfoundState.to); // "lazy.state"
+       *     console.log(unfoundState.toParams); // {a:1, b:2}
+       *     console.log(unfoundState.options); // {inherit:false} + default options
+       * })
+       * </pre>
+       */
+      var evt = $rootScope.$broadcast('$stateNotFound', redirect, state, params);
+
+      if (evt.defaultPrevented) {
+        syncUrl();
+        return TransitionAborted;
+      }
+
+      if (!evt.retry) {
+        return null;
+      }
+
+      // Allow the handler to return a promise to defer state lookup retry
+      if (options.$retry) {
+        syncUrl();
+        return TransitionFailed;
+      }
+      var retryTransition = $state.transition = $q.when(evt.retry);
+
+      retryTransition.then(function() {
+        if (retryTransition !== $state.transition) return TransitionSuperseded;
+        redirect.options.$retry = true;
+        return $state.transitionTo(redirect.to, redirect.toParams, redirect.options);
+      }, function() {
+        return TransitionAborted;
+      });
+      syncUrl();
+
+      return retryTransition;
+    }
+
     root.locals = { resolve: null, globals: { $stateParams: {} } };
     $state = {
       params: {},
@@ -710,63 +775,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       var evt, toState = findState(to, options.relative);
 
       if (!isDefined(toState)) {
-        // Broadcast not found event and abort the transition if prevented
         var redirect = { to: to, toParams: toParams, options: options };
+        var redirectResult = handleRedirect(redirect, from.self, fromParams, options);
 
-        /**
-         * @ngdoc event
-         * @name ui.router.state.$state#$stateNotFound
-         * @eventOf ui.router.state.$state
-         * @eventType broadcast on root scope
-         * @description
-         * Fired when a requested state **cannot be found** using the provided state name during transition.
-         * The event is broadcast allowing any handlers a single chance to deal with the error (usually by
-         * lazy-loading the unfound state). A special `unfoundState` object is passed to the listener handler,
-         * you can see its three properties in the example. You can use `event.preventDefault()` to abort the
-         * transition and the promise returned from `go` will be rejected with a `'transition aborted'` value.
-         *
-         * @param {Object} event Event object.
-         * @param {Object} unfoundState Unfound State information. Contains: `to, toParams, options` properties.
-         * @param {State} fromState Current state object.
-         * @param {Object} fromParams Current state params.
-         *
-         * @example
-         *
-         * <pre>
-         * // somewhere, assume lazy.state has not been defined
-         * $state.go("lazy.state", {a:1, b:2}, {inherit:false});
-         *
-         * // somewhere else
-         * $scope.$on('$stateNotFound',
-         * function(event, unfoundState, fromState, fromParams){
-         *     console.log(unfoundState.to); // "lazy.state"
-         *     console.log(unfoundState.toParams); // {a:1, b:2}
-         *     console.log(unfoundState.options); // {inherit:false} + default options
-         * })
-         * </pre>
-         */
-        evt = $rootScope.$broadcast('$stateNotFound', redirect, from.self, fromParams);
-        if (evt.defaultPrevented) {
-          syncUrl();
-          return TransitionAborted;
-        }
-
-        // Allow the handler to return a promise to defer state lookup retry
-        if (evt.retry) {
-          if (options.$retry) {
-            syncUrl();
-            return TransitionFailed;
-          }
-          var retryTransition = $state.transition = $q.when(evt.retry);
-          retryTransition.then(function() {
-            if (retryTransition !== $state.transition) return TransitionSuperseded;
-            redirect.options.$retry = true;
-            return $state.transitionTo(redirect.to, redirect.toParams, redirect.options);
-          }, function() {
-            return TransitionAborted;
-          });
-          syncUrl();
-          return retryTransition;
+        if (redirectResult) {
+          return redirectResult;
         }
 
         // Always retry once if the $stateNotFound was not prevented
@@ -775,6 +788,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         toParams = redirect.toParams;
         options = redirect.options;
         toState = findState(to, options.relative);
+
         if (!isDefined(toState)) {
           if (options.relative) throw new Error("Could not resolve '" + to + "' from state '" + options.relative + "'");
           throw new Error("No such state '" + to + "'");
@@ -787,11 +801,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       var toPath = to.path;
 
       // Starting from the root of the path, keep all levels that haven't changed
-      var keep, state, locals = root.locals, toLocals = [];
-      for (keep = 0, state = toPath[keep];
-           state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams) && !options.reload;
-           keep++, state = toPath[keep]) {
-        locals = toLocals[keep] = state.locals;
+      var keep = 0, state = toPath[keep], locals = root.locals, toLocals = [];
+
+      if (!options.reload) {
+        while (state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams)) {
+          locals = toLocals[keep] = state.locals;
+          keep++;
+          state = toPath[keep];
+        }
       }
 
       // If we're going to the same state and all locals are kept, we've got nothing to do.
@@ -799,7 +816,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // TODO: We may not want to bump 'transition' if we're called from a location change that we've initiated ourselves,
       // because we might accidentally abort a legitimate transition initiated from code?
       if (shouldTriggerReload(to, from, locals, options) ) {
-        if ( to.self.reloadOnSearch !== false )
+        if (to.self.reloadOnSearch !== false)
           syncUrl();
         $state.transition = null;
         return $q.when($state.current);
@@ -837,8 +854,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
          * })
          * </pre>
          */
-        evt = $rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams);
-        if (evt.defaultPrevented) {
+        if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams).defaultPrevented) {
           syncUrl();
           return TransitionPrevented;
         }
@@ -852,9 +868,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // empty and gets filled asynchronously. We need to keep track of the promise for the
       // (fully resolved) current locals, and pass this down the chain.
       var resolved = $q.when(locals);
-      for (var l=keep; l<toPath.length; l++, state=toPath[l]) {
+      for (var l = keep; l < toPath.length; l++, state = toPath[l]) {
         locals = toLocals[l] = inherit(locals);
-        resolved = resolveState(state, toParams, state===to, resolved, locals);
+        resolved = resolveState(state, toParams, state === to, resolved, locals);
       }
 
       // Once everything is resolved, we are ready to perform the actual transition
@@ -867,7 +883,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         if ($state.transition !== transition) return TransitionSuperseded;
 
         // Exit 'from' states not kept
-        for (l=fromPath.length-1; l>=keep; l--) {
+        for (l = fromPath.length - 1; l >= keep; l--) {
           exiting = fromPath[l];
           if (exiting.self.onExit) {
             $injector.invoke(exiting.self.onExit, exiting.self, exiting.locals.globals);
@@ -876,7 +892,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         }
 
         // Enter 'to' states not kept
-        for (l=keep; l<toPath.length; l++) {
+        for (l = keep; l < toPath.length; l++) {
           entering = toPath[l];
           entering.locals = toLocals[l];
           if (entering.self.onEnter) {
@@ -1197,7 +1213,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
   }
 
   function shouldTriggerReload(to, from, locals, options) {
-    if ( to === from && ((locals === from.locals && !options.reload) || (to.self.reloadOnSearch === false)) ) {
+    if (to === from && ((locals === from.locals && !options.reload) || (to.self.reloadOnSearch === false))) {
       return true;
     }
   }
