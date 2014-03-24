@@ -4,7 +4,6 @@
  *
  * @requires ui.router.router.$urlRouterProvider
  * @requires ui.router.util.$urlMatcherFactoryProvider
- * @requires $locationProvider
  *
  * @description
  * The new `$stateProvider` works similar to Angular's v1 router, but it focuses purely
@@ -20,8 +19,8 @@
  *
  * The `$stateProvider` provides interfaces to declare these states for your app.
  */
-$StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider', '$locationProvider'];
-function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $locationProvider) {
+$StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
+function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
   var root, states = {}, $state, queue = {}, abstractKey = 'abstract';
 
@@ -521,6 +520,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
    * @requires $injector
    * @requires ui.router.util.$resolve
    * @requires ui.router.state.$stateParams
+   * @requires ui.router.router.$urlRouter
    *
    * @property {object} params A param object, e.g. {sectionId: section.id)}, that 
    * you'd like to test against the current active state.
@@ -534,24 +534,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
    * between them. It also provides interfaces to ask for current state or even states
    * you're coming from.
    */
-  // $urlRouter is injected just to ensure it gets instantiated
   this.$get = $get;
-  $get.$inject = ['$rootScope', '$q', '$view', '$injector', '$resolve', '$stateParams', '$location', '$urlRouter', '$browser'];
-  function $get(   $rootScope,   $q,   $view,   $injector,   $resolve,   $stateParams,   $location,   $urlRouter,   $browser) {
+  $get.$inject = ['$rootScope', '$q', '$view', '$injector', '$resolve', '$stateParams', '$urlRouter'];
+  function $get(   $rootScope,   $q,   $view,   $injector,   $resolve,   $stateParams,   $urlRouter) {
 
     var TransitionSuperseded = $q.reject(new Error('transition superseded'));
     var TransitionPrevented = $q.reject(new Error('transition prevented'));
     var TransitionAborted = $q.reject(new Error('transition aborted'));
     var TransitionFailed = $q.reject(new Error('transition failed'));
-    var currentLocation = $location.url();
-    var baseHref = $browser.baseHref();
-
-    function syncUrl() {
-      if ($location.url() !== currentLocation) {
-        $location.url(currentLocation);
-        $location.replace();
-      }
-    }
 
     // Handles the case where a state which is the target of a transition is not found, and the user
     // can optionally retry or defer the transition
@@ -591,7 +581,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       var evt = $rootScope.$broadcast('$stateNotFound', redirect, state, params);
 
       if (evt.defaultPrevented) {
-        syncUrl();
+        $urlRouter.update();
         return TransitionAborted;
       }
 
@@ -601,7 +591,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
       // Allow the handler to return a promise to defer state lookup retry
       if (options.$retry) {
-        syncUrl();
+        $urlRouter.update();
         return TransitionFailed;
       }
       var retryTransition = $state.transition = $q.when(evt.retry);
@@ -613,7 +603,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       }, function() {
         return TransitionAborted;
       });
-      syncUrl();
+      $urlRouter.update();
 
       return retryTransition;
     }
@@ -813,11 +803,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
 
       // If we're going to the same state and all locals are kept, we've got nothing to do.
       // But clear 'transition', as we still want to cancel any other pending transitions.
-      // TODO: We may not want to bump 'transition' if we're called from a location change that we've initiated ourselves,
-      // because we might accidentally abort a legitimate transition initiated from code?
+      // TODO: We may not want to bump 'transition' if we're called from a location change
+      // that we've initiated ourselves, because we might accidentally abort a legitimate
+      // transition initiated from code?
       if (shouldTriggerReload(to, from, locals, options) ) {
-        if (to.self.reloadOnSearch !== false)
-          syncUrl();
+        if (to.self.reloadOnSearch !== false) $urlRouter.update();
         $state.transition = null;
         return $q.when($state.current);
       }
@@ -855,7 +845,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
          * </pre>
          */
         if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams).defaultPrevented) {
-          syncUrl();
+          $urlRouter.update();
           return TransitionPrevented;
         }
       }
@@ -910,14 +900,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         copy($state.params, $stateParams);
         $state.transition = null;
 
-        // Update $location
-        var toNav = to.navigable;
-        if (options.location && toNav) {
-          $location.url(toNav.url.format(toNav.locals.globals.$stateParams));
-
-          if (options.location === 'replace') {
-            $location.replace();
-          }
+        if (options.location && to.navigable) {
+          $urlRouter.push(to.navigable.url, to.navigable.locals.globals.$stateParams, {
+            replace: options.location === 'replace'
+          });
         }
 
         if (options.notify) {
@@ -937,7 +923,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
          */
           $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
         }
-        currentLocation = $location.url();
+        $urlRouter.update(true);
 
         return $state.current;
       }, function (error) {
@@ -965,7 +951,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
         evt = $rootScope.$broadcast('$stateChangeError', to.self, toParams, from.self, fromParams, error);
 
         if (!evt.defaultPrevented) {
-            syncUrl();
+            $urlRouter.update();
         }
 
         return $q.reject(error);
@@ -1112,33 +1098,18 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
      */
     $state.href = function href(stateOrName, params, options) {
       options = extend({ lossy: true, inherit: false, absolute: false, relative: $state.$current }, options || {});
-      var state = findState(stateOrName, options.relative);
-      if (!isDefined(state)) return null;
 
+      var state = findState(stateOrName, options.relative);
+
+      if (!isDefined(state)) return null;
       if (options.inherit) params = inheritParams($stateParams, params || {}, $state.$current, state);
       
       var nav = (state && options.lossy) ? state.navigable : state;
-      var url = (nav && nav.url) ? nav.url.format(normalize(state.params, params || {})) : null;
-      if (!$locationProvider.html5Mode() && url) {
-        url = "#" + $locationProvider.hashPrefix() + url;
-      }
 
-      if (baseHref !== '/') {
-        if ($locationProvider.html5Mode()) {
-          url = baseHref.slice(0, -1) + url;
-        } else if (options.absolute){
-          url = baseHref.slice(1) + url;
-        }
+      if (!nav || !nav.url) {
+        return null;
       }
-
-      if (options.absolute && url) {
-        url = $location.protocol() + '://' + 
-              $location.host() + 
-              ($location.port() == 80 || $location.port() == 443 ? '' : ':' + $location.port()) + 
-              (!$locationProvider.html5Mode() && url ? '/' : '') + 
-              url;
-      }
-      return url;
+      return $urlRouter.href(nav.url, normalize(state.params, params || {}), { absolute: options.absolute });
     };
 
     /**
