@@ -106,6 +106,46 @@ describe("UrlRouter", function () {
       expect(called).toBeTruthy();
       expect(location.path()).toBe("/b4z");
     }));
+
+    describe("location updates", function() {
+      it('can push location changes', inject(function($urlRouter, $location) {
+        spyOn($location, "url");
+        spyOn($location, "replace");
+        $urlRouter.push(new UrlMatcher("/hello/:name"), { name: "world" });
+
+        expect($location.url).toHaveBeenCalledWith("/hello/world");
+        expect($location.replace).not.toHaveBeenCalled();
+      }));
+
+      it('can push a replacement location', inject(function($urlRouter, $location) {
+        spyOn($location, "url");
+        spyOn($location, "replace");
+        $urlRouter.push(new UrlMatcher("/hello/:name"), { name: "world" }, { replace: true });
+
+        expect($location.url).toHaveBeenCalledWith("/hello/world");
+        expect($location.replace).toHaveBeenCalled();
+      }));
+
+      it('can push location changes with no parameters', inject(function($urlRouter, $location) {
+        spyOn($location, "url");
+        $urlRouter.push(new UrlMatcher("/hello/:name"));
+
+        expect($location.url).toHaveBeenCalledWith("/hello/");
+      }));
+
+      it('can read and sync a copy of location URL', inject(function($urlRouter, $location) {
+        $location.url('/old');
+
+        spyOn($location, 'url').andCallThrough();
+        $urlRouter.update(true);
+        expect($location.url).toHaveBeenCalled();
+
+        $location.url('/new');
+        $urlRouter.update();
+
+        expect($location.url()).toBe('/old');
+      }));
+    });
   });
 
 });

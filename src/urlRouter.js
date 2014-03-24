@@ -287,7 +287,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
       },
 
       push: function(urlMatcher, params, options) {
-        $location.url(urlMatcher.format(params));
+        $location.url(urlMatcher.format(params || {}));
         if (options && options.replace) $location.replace();
       },
 
