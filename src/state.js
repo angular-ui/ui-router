@@ -1043,29 +1043,20 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
     $state.includes = function includes(stateOrName, params) {
       if (isString(stateOrName) && isGlob(stateOrName)) {
-        if (doesStateMatchGlob(stateOrName)) {
-          stateOrName = $state.$current.name;
-        } else {
+        if (!doesStateMatchGlob(stateOrName)) {
           return false;
         }
+        stateOrName = $state.$current.name;
       }
-
       var state = findState(stateOrName);
+
       if (!isDefined(state)) {
         return undefined;
       }
-
       if (!isDefined($state.$current.includes[state.name])) {
         return false;
       }
-
-      var validParams = true;
-      angular.forEach(params, function(value, key) {
-        if (!isDefined($stateParams[key]) || $stateParams[key] !== value) {
-          validParams = false;
-        }
-      });
-      return validParams;
+      return equalForKeys(params, $stateParams);
     };
 
 
