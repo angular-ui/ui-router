@@ -133,6 +133,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
   }
 
   function findState(stateOrName, base) {
+    if (!stateOrName) return undefined;
+
     var isStr = isString(stateOrName),
         name  = isStr ? stateOrName : stateOrName.name,
         path  = isRelative(name);
@@ -1116,7 +1118,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * @returns {object|array} State configuration object or array of all objects.
      */
     $state.get = function (stateOrName, context) {
-      if (!isDefined(stateOrName)) {
+      if (arguments.length === 0) {
         var list = [];
         forEach(states, function(state) { list.push(state.self); });
         return list;

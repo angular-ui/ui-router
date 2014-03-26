@@ -726,6 +726,12 @@ describe('state', function () {
       ];
       expect(list.map(function(state) { return state.name; })).toEqual(names);
     }));
+
+    it("should return undefined on invalid state query", inject(function ($state) {
+      expect($state.get(null)).toBeNull();
+      expect($state.get(false)).toBeNull();
+      expect($state.get(undefined)).toBeNull();
+    }));
   });
 
   describe('url handling', function () {
