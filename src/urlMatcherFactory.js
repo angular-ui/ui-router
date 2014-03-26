@@ -327,7 +327,23 @@ function $UrlMatcherFactory() {
       pattern: /0|1/
     },
     string: {
-      pattern: /.*/
+      pattern: /[^\/]*/
+    },
+    date: {
+      equals: function (a, b) {
+        return a.toISOString() === b.toISOString();
+      },
+      decode: function (val) {
+        return new Date(val);
+      },
+      encode: function (val) {
+        return [
+          val.getFullYear(),
+          ('0' + (val.getMonth() + 1)).slice(-2),
+          ('0' + val.getDate()).slice(-2)
+        ].join("-");
+      },
+      pattern: /[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])/
     }
   };
 

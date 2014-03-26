@@ -187,5 +187,14 @@ describe("urlMatcherFactory", function () {
       expect(m.exec("/1138/1")).toEqual({ foo: 1138, flag: true });
       expect(m.format({ foo: 5, flag: true })).toBe("/5/1");
     });
+
+    it("should encode/decode dates", function () {
+      var m = new UrlMatcher("/calendar/{date:date}"),
+          result = m.exec("/calendar/2014-03-26");
+
+      expect(result.date instanceof Date).toBe(true);
+      expect(result.date.toUTCString()).toEqual('Wed, 26 Mar 2014 00:00:00 GMT');
+      expect(m.format({ date: new Date(2014, 2, 26) })).toBe("/calendar/2014-03-26");
+    });
   });
 });
