@@ -72,15 +72,14 @@ function UrlMatcher(pattern, caseInsensitiveMatch) {
   //    \\.                       - a backslash escape
   //    \{(?:[^{}\\]+|\\.)*\}     - a matched set of curly braces containing other atoms
   var placeholder = /([:*])(\w+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
-      names = {}, compiled = '^', last = 0, m,
+      compiled = '^', last = 0, m,
       segments = this.segments = [],
-      params = this.params = [];
+      params = this.params = {};
 
-  function addParameter(id) {
+  function addParameter(id, type) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
-    if (names[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
-    names[id] = true;
-    params.push(id);
+    if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
+    params[id] = type;
   }
 
   function quoteRegExp(string) {
@@ -91,14 +90,18 @@ function UrlMatcher(pattern, caseInsensitiveMatch) {
 
   // Split into static segments separated by path parameter placeholders.
   // The number of segments is always 1 more than the number of parameters.
-  var id, regexp, segment;
+  var id, regexp, segment, type;
+
   while ((m = placeholder.exec(pattern))) {
-    id = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
-    regexp = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
+    id      = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
+    regexp  = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
     segment = pattern.substring(last, m.index);
+    type    = this.$types[regexp] || new Type({ pattern: new RegExp(regexp) });
+
     if (segment.indexOf('?') >= 0) break; // we're into the search part
-    compiled += quoteRegExp(segment) + '(' + regexp + ')';
-    addParameter(id);
+
+    compiled += quoteRegExp(segment) + '(' + type.$subPattern() + ')';
+    addParameter(id, type);
     segments.push(segment);
     last = placeholder.lastIndex;
   }
@@ -106,10 +109,11 @@ function UrlMatcher(pattern, caseInsensitiveMatch) {
 
   // Find any search parameter names and remove them from the last segment
   var i = segment.indexOf('?');
+
   if (i >= 0) {
     var search = this.sourceSearch = segment.substring(i);
     segment = segment.substring(0, i);
-    this.sourcePath = pattern.substring(0, last+i);
+    this.sourcePath = pattern.substring(0, last + i);
 
     // Allow parameters to be separated by '?' as well as '&' to make concat() easier
     forEach(search.substring(1).split(/[&?]/), addParameter);
@@ -120,12 +124,8 @@ function UrlMatcher(pattern, caseInsensitiveMatch) {
 
   compiled += quoteRegExp(segment) + '$';
   segments.push(segment);
-  if(caseInsensitiveMatch){
-    this.regexp = new RegExp(compiled, 'i');
-  }else{
-    this.regexp = new RegExp(compiled);	
-  }
-  
+
+  this.regexp = (caseInsensitiveMatch) ? new RegExp(compiled, 'i') : new RegExp(compiled);
   this.prefix = segments[0];
 }
 
@@ -187,14 +187,18 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
   var m = this.regexp.exec(path);
   if (!m) return null;
 
-  var params = this.params, nTotal = params.length,
-    nPath = this.segments.length-1,
-    values = {}, i;
+  var params = this.parameters(), nTotal = params.length,
+    nPath = this.segments.length - 1,
+    values = {}, i, type, param;
 
   if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
 
-  for (i=0; i<nPath; i++) values[params[i]] = m[i+1];
-  for (/**/; i<nTotal; i++) values[params[i]] = searchParams[params[i]];
+  for (i = 0; i < nPath; i++) {
+    param = params[i];
+    type = this.params[param];
+    values[param] = type.decode(m[i + 1]);
+  }
+  for (/**/; i < nTotal; i++) values[params[i]] = searchParams[params[i]];
 
   return values;
 };
@@ -211,7 +215,7 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
  *    pattern has no parameters, an empty array is returned.
  */
 UrlMatcher.prototype.parameters = function () {
-  return this.params;
+  return keys(this.params);
 };
 
 /**
@@ -234,30 +238,59 @@ UrlMatcher.prototype.parameters = function () {
  * @returns {string}  the formatted URL (path and optionally search part).
  */
 UrlMatcher.prototype.format = function (values) {
-  var segments = this.segments, params = this.params;
+  var segments = this.segments, params = this.parameters();
   if (!values) return segments.join('');
 
-  var nPath = segments.length-1, nTotal = params.length,
-    result = segments[0], i, search, value;
+  var nPath = segments.length - 1, nTotal = params.length,
+    result = segments[0], i, search, value, param, type;
 
-  for (i=0; i<nPath; i++) {
-    value = values[params[i]];
-    // TODO: Maybe we should throw on null here? It's not really good style to use '' and null interchangeabley
-    if (value != null) result += encodeURIComponent(value);
-    result += segments[i+1];
-  }
-  for (/**/; i<nTotal; i++) {
-    value = values[params[i]];
-    if (value != null) {
-      result += (search ? '&' : '?') + params[i] + '=' + encodeURIComponent(value);
-      search = true;
-    }
+  for (i = 0; i < nPath; i++) {
+    param = params[i];
+    value = values[param];
+    type  = this.params[param];
+    // TODO: Maybe we should throw on null here? It's not really good style
+    // to use '' and null interchangeabley
+    if (value != null) result += encodeURIComponent(type.encode(value));
+    result += segments[i + 1];
   }
 
+  for (/**/; i < nTotal; i++) {
+    param = params[i]
+    if (values[param] == null) continue;
+    result += (search ? '&' : '?') + param + '=' + encodeURIComponent(values[param]);
+    search = true;
+  }
   return result;
 };
 
+UrlMatcher.prototype.$types = {};
 
+function Type(options) {
+  extend(this, options);
+}
+
+Type.prototype.is = function(val, key) {
+  return angular.toJson(this.decode(this.encode(val))) === angular.toJson(val);
+};
+
+Type.prototype.encode = function(val, key) {
+  return String(val);
+};
+
+Type.prototype.decode = function(val, key) {
+  return val;
+}
+
+Type.prototype.equals = function(a, b) {
+  return a == b;
+};
+
+Type.prototype.$subPattern = function() {
+  var sub = this.pattern.toString();
+  return sub.substr(1, sub.length - 2);
+};
+
+Type.prototype.pattern = /.*/;
 
 /**
  * @ngdoc object
@@ -271,6 +304,33 @@ function $UrlMatcherFactory() {
 
   var useCaseInsensitiveMatch = false;
 
+  var enqueue = true, typeQueue = [], injector, defaultTypes = {
+    int: {
+      decode: function(val) {
+        return parseInt(val, 10);
+      },
+      is: function(val) {
+        return this.decode(val.toString()) === val;
+      },
+      pattern: /\d+/
+    },
+    bool: {
+      encode: function(val) {
+        return val ? 1 : 0;
+      },
+      decode: function(val) {
+        return parseInt(val, 10) === 0 ? false : true;
+      },
+      is: function(val) {
+        return val === true || val === false;
+      },
+      pattern: /0|1/
+    },
+    string: {
+      pattern: /.*/
+    }
+  };
+
   /**
    * @ngdoc function
    * @name ui.router.util.$urlMatcherFactory#caseInsensitiveMatch
@@ -281,7 +341,7 @@ function $UrlMatcherFactory() {
    *   
    * @param {bool} value false to match URL in a case sensitive manner; otherwise true;
    */
-  this.caseInsensitiveMatch = function(value){
+  this.caseInsensitiveMatch = function(value) {
     useCaseInsensitiveMatch = value;
   };
 
@@ -314,11 +374,36 @@ function $UrlMatcherFactory() {
   this.isMatcher = function (o) {
     return isObject(o) && isFunction(o.exec) && isFunction(o.format) && isFunction(o.concat);
   };
-  
-  /* No need to document $get, since it returns this */
-  this.$get = function () {
+
+  this.type = function (name, def) {
+    if (!isDefined(def)) return UrlMatcher.prototype.$types[name];
+    typeQueue.push({ name: name, def: def });
+    if (!enqueue) flushTypeQueue();
     return this;
   };
+
+  /* No need to document $get, since it returns this */
+  this.$get = ['$injector', function ($injector) {
+    injector = $injector;
+    enqueue = false;
+    UrlMatcher.prototype.$types = {};
+    flushTypeQueue();
+
+    forEach(defaultTypes, function(type, name) {
+      if (!UrlMatcher.prototype.$types[name]) UrlMatcher.prototype.$types[name] = new Type(type);
+    });
+    return this;
+  }];
+
+  function flushTypeQueue() {
+    forEach(typeQueue, function(type) {
+      if (UrlMatcher.prototype.$types[type.name]) {
+        throw new Error("A type named '" + type.name + "' has already been defined.");
+      }
+      var def = new Type(isFunction(type.def) ? injector.invoke(type.def) : type.def);
+      UrlMatcher.prototype.$types[type.name] = def;
+    });
+  }
 }
 
 // Register as a provider so it's available to other providers
