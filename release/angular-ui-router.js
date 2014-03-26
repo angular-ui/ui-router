@@ -1326,6 +1326,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
   }
 
   function findState(stateOrName, base) {
+    if(!stateOrName)return false // omit requests for undefined states
     var isStr = isString(stateOrName),
         name  = isStr ? stateOrName : stateOrName.name,
         path  = isRelative(name);
