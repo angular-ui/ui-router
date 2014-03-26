@@ -220,6 +220,28 @@ UrlMatcher.prototype.parameters = function () {
 
 /**
  * @ngdoc function
+ * @name ui.router.util.type:UrlMatcher#validate
+ * @methodOf ui.router.util.type:UrlMatcher
+ *
+ * @description
+ * Checks an object hash of parameters to validate their correctness according to the parameter
+ * types of this `UrlMatcher`.
+ *
+ * @param {Object} params The object hash of parameters to validate.
+ * @returns {Boolean} Returns `true` if `params` validates, otherwise `false`.
+ */
+UrlMatcher.prototype.validates = function (params) {
+  var result = true, self = this;
+
+  forEach(params, function(val, key) {
+    if (!self.params[key]) return;
+    result = result && self.params[key].is(val);
+  });
+  return result;
+}
+
+/**
+ * @ngdoc function
  * @name ui.router.util.type:UrlMatcher#format
  * @methodOf ui.router.util.type:UrlMatcher
  *

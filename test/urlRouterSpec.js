@@ -146,6 +146,20 @@ describe("UrlRouter", function () {
         expect($location.url()).toBe('/old');
       }));
     });
+
+    describe("URL generation", function() {
+      it("should return null when UrlMatcher rejects parameters", inject(function($urlRouter, $urlMatcherFactory) {
+        $urlMatcherFactory.type("custom", {
+          is: function(val) {
+            return val === 1138;
+          }
+        });
+        var matcher = new UrlMatcher("/foo/{param:custom}");
+
+        expect($urlRouter.href(matcher, { param: 1138 })).toBe('#/foo/1138');
+        expect($urlRouter.href(matcher, { param: 5 })).toBeNull();
+      }));
+    });
   });
 
 });

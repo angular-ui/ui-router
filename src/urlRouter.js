@@ -292,8 +292,11 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
       },
 
       href: function(urlMatcher, params, options) {
+        if (!urlMatcher.validates(params)) return null;
+
         var isHtml5 = $locationProvider.html5Mode();
         var url = urlMatcher.format(params);
+        options = options || {};
 
         if (!isHtml5 && url) {
           url = "#" + $locationProvider.hashPrefix() + url;
