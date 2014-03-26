@@ -248,8 +248,8 @@ UrlMatcher.prototype.format = function (values) {
     param = params[i];
     value = values[param];
     type  = this.params[param];
-    // TODO: Maybe we should throw on null here? It's not really good style
-    // to use '' and null interchangeabley
+
+    if (!type.is(value)) return null;
     if (value != null) result += encodeURIComponent(type.encode(value));
     result += segments[i + 1];
   }
@@ -270,11 +270,11 @@ function Type(options) {
 }
 
 Type.prototype.is = function(val, key) {
-  return angular.toJson(this.decode(this.encode(val))) === angular.toJson(val);
+  return true;
 };
 
 Type.prototype.encode = function(val, key) {
-  return String(val);
+  return val;
 };
 
 Type.prototype.decode = function(val, key) {

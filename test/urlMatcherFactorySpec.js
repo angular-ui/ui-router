@@ -196,5 +196,15 @@ describe("urlMatcherFactory", function () {
       expect(result.date.toUTCString()).toEqual('Wed, 26 Mar 2014 00:00:00 GMT');
       expect(m.format({ date: new Date(2014, 2, 26) })).toBe("/calendar/2014-03-26");
     });
+
+    it("should not match invalid typed parameter values", function () {
+      var m = new UrlMatcher('/users/{id:int}');
+
+      expect(m.exec('/users/1138').id).toBe(1138);
+      expect(m.exec('/users/alpha')).toBeNull();
+
+      expect(m.format({ id: 1138 })).toBe("/users/1138");
+      expect(m.format({ id: "alpha" })).toBeNull();
+    });
   });
 });
