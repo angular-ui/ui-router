@@ -255,7 +255,7 @@ UrlMatcher.prototype.format = function (values) {
   }
 
   for (/**/; i < nTotal; i++) {
-    param = params[i]
+    param = params[i];
     if (values[param] == null) continue;
     result += (search ? '&' : '?') + param + '=' + encodeURIComponent(values[param]);
     search = true;
@@ -279,7 +279,7 @@ Type.prototype.encode = function(val, key) {
 
 Type.prototype.decode = function(val, key) {
   return val;
-}
+};
 
 Type.prototype.equals = function(a, b) {
   return a == b;
