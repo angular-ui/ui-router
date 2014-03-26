@@ -160,18 +160,18 @@ describe("urlMatcherFactory", function () {
   });
 
   describe("typed parameters", function() {
-    it("should accept object definitions", function() {
+    it("should accept object definitions", function () {
       var type = { encode: function() {}, decode: function() {} };
       $umf.type("myType", type);
       expect($umf.type("myType").encode).toBe(type.encode);
     });
 
-    it("should reject duplicate definitions", function() {
-      $umf.type("myType", { encode: function() {}, decode: function() {} });
+    it("should reject duplicate definitions", function () {
+      $umf.type("myType", { encode: function () {}, decode: function () {} });
       expect(function() { $umf.type("myType", {}); }).toThrow("A type named 'myType' has already been defined.");
     });
 
-    it("should accept injected function definitions", inject(function($stateParams) {
+    it("should accept injected function definitions", inject(function ($stateParams) {
       $umf.type("myType", function($stateParams) {
         return {
           decode: function() {
@@ -182,7 +182,7 @@ describe("urlMatcherFactory", function () {
       expect($umf.type("myType").decode()).toBe($stateParams);
     }));
 
-    it("should match built-in types", function() {
+    it("should match built-in types", function () {
       var m = new UrlMatcher("/{foo:int}/{flag:bool}");
       expect(m.exec("/1138/1")).toEqual({ foo: 1138, flag: true });
       expect(m.format({ foo: 5, flag: true })).toBe("/5/1");
