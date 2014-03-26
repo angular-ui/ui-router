@@ -265,7 +265,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('DDD');
-      expect($state.params).toEqual({ x: '1', y: '2', z: '3', w: '4' });
+      expect($state.params).toEqual({ x: 1, y: 2, z: 3, w: 4 });
     }));
 
     it('can defer a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -282,7 +282,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('AA');
-      expect($state.params).toEqual({ a: '1' });
+      expect($state.params).toEqual({ a: 1 });
     }));
 
     it('can defer and supersede a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -475,7 +475,7 @@ describe('state', function () {
       $q.flush();
 
       expect($state.$current.name).toBe('about.person.item');
-      expect($stateParams).toEqual({ person: 'bob', id: '5' });
+      expect($stateParams).toEqual({ person: 'bob', id: 5 });
 
       $state.go('^.^.sidebar');
       $q.flush();
@@ -603,7 +603,7 @@ describe('state', function () {
 
     it('contains the parameter values for the current state', inject(function ($state, $q) {
       initStateTo(D, { x: 'x value', z: 'invalid value' });
-      expect($state.params).toEqual({ x: 'x value', y: null });
+      expect($state.params).toEqual({ x: 'x value', y: undefined });
     }));
   });
 
@@ -878,16 +878,16 @@ describe('state', function () {
 
   describe('substate and stateParams inheritance', function() {
     it('should inherit the parent param', inject(function ($state, $stateParams, $q) {
-      initStateTo($state.get('root'), {param1: 1});
-      $state.go('root.sub1', {param2: 2});
+      initStateTo($state.get('root'), { param1: 1 });
+      $state.go('root.sub1', { param2: 2 });
       $q.flush();
       expect($state.current.name).toEqual('root.sub1');
-      expect($stateParams).toEqual({param1: '1', param2: '2'});
+      expect($stateParams).toEqual({ param1: 1, param2: 2 });
     }));
 
     it('should not inherit siblings\' states', inject(function ($state, $stateParams, $q) {
-      initStateTo($state.get('root'), {param1: 1});
-      $state.go('root.sub1', {param2: 2});
+      initStateTo($state.get('root'), { param1: 1 });
+      $state.go('root.sub1', { param2: 2 });
       $q.flush();
       expect($state.current.name).toEqual('root.sub1');
 
@@ -895,7 +895,7 @@ describe('state', function () {
       $q.flush();
       expect($state.current.name).toEqual('root.sub2');
 
-      expect($stateParams).toEqual({param1: '1', param2: null});
+      expect($stateParams).toEqual({ param1: 1, param2: undefined });
     }));
   });
 

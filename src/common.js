@@ -109,23 +109,6 @@ function inheritParams(currentParams, newParams, $current, $to) {
 }
 
 /**
- * Normalizes a set of values to string or `null`, filtering them by a list of keys.
- *
- * @param {Array} keys The list of keys to normalize/return.
- * @param {Object} values An object hash of values to normalize.
- * @return {Object} Returns an object hash of normalized string values.
- */
-function normalize(keys, values) {
-  var normalized = {};
-
-  forEach(keys, function (name) {
-    var value = values[name];
-    normalized[name] = (value != null) ? String(value) : null;
-  });
-  return normalized;
-}
-
-/**
  * Performs a non-strict comparison of the subset of two objects, defined by a list of keys.
  *
  * @param {Object} a The first object.

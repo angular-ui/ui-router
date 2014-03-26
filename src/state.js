@@ -814,8 +814,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         return $q.when($state.current);
       }
 
-      // Normalize/filter parameters before we pass them to event handlers etc.
-      toParams = normalize(to.params, toParams || {});
+      // Filter parameters before we pass them to event handlers etc.
+      toParams = filterByKeys(to.params, toParams || {});
 
       // Broadcast start event and cancel the transition if requested
       if (options.notify) {
@@ -1102,7 +1102,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       if (!nav || !nav.url) {
         return null;
       }
-      return $urlRouter.href(nav.url, normalize(state.params, params || {}), { absolute: options.absolute });
+      return $urlRouter.href(nav.url, filterByKeys(state.params, params || {}), { absolute: options.absolute });
     };
 
     /**
