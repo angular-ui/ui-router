@@ -91,6 +91,9 @@ describe('state', function () {
           }
         }
       })
+      .state('badParam', {
+        url: "/bad/{param:int}"
+      })
 
       .state('first', { url: '^/first/subpath' })
       .state('second', { url: '^/second' })
@@ -712,6 +715,7 @@ describe('state', function () {
         'about.person.item',
         'about.sidebar',
         'about.sidebar.item',
+        'badParam',
         'dynamicController',
         'first',
         'home',
@@ -778,6 +782,29 @@ describe('state', function () {
       $rootScope.$apply();
       expect($state.current.name).toBe('');
     }));
+
+    describe("typed parameter handling", function() {
+
+      it('should initialize parameters without a hacky empty test', inject(function ($urlMatcherFactory, $state) {
+        new UrlMatcher("");
+      }));
+
+      it('should ignore bad url parameters', inject(function ($state, $rootScope, $location, $urlMatcherFactory) {
+        $location.path("/bad/5");
+        $rootScope.$broadcast("$locationChangeSuccess");
+        $rootScope.$apply();
+        expect($state.current.name).toBe("badParam");
+
+        $state.transitionTo("about");
+        $rootScope.$apply();
+        expect($state.current.name).toBe('about');
+
+        $location.path("/bad/foo");
+        $rootScope.$broadcast("$locationChangeSuccess");
+        $rootScope.$apply();
+        expect($state.current.name).toBe("about");
+      }));
+    });
 
     it('should revert to last known working url on state change failure', inject(function ($state, $rootScope, $location, $q) {
       $state.transitionTo("about");

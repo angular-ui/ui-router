@@ -79,7 +79,7 @@ function UrlMatcher(pattern, caseInsensitiveMatch) {
   function addParameter(id, type) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
-    params[id] = type;
+    params[id] = angular.isNumber(type) ? new Type() : type;
   }
 
   function quoteRegExp(string) {
@@ -238,7 +238,7 @@ UrlMatcher.prototype.validates = function (params) {
     result = result && self.params[key].is(val);
   });
   return result;
-}
+};
 
 /**
  * @ngdoc function
