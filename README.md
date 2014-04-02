@@ -20,6 +20,8 @@ which may optionally have routes, as well as other behavior, attached.
 
 States are bound to *named*, *nested* and *parallel views*, allowing you to powerfully manage your application's interface.
 
+Check out the sample app: http://angular-ui.github.io/ui-router/sample/
+
 -
 **Note:** *UI-Router is under active development. As such, while this library is well-tested, the API may change. Consider using it in production applications only if you're comfortable following a changelog and updating your usage accordingly.*
 
