@@ -3,12 +3,15 @@
 #### The de-facto solution to flexible routing with nested views
 ---
 **[Download 0.2.10](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)** (or **[Minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)**) **|**
-**[Learn](#resources) |**
+**[Guide](https://github.com/angular-ui/ui-router/wiki) |**
 **[API](http://angular-ui.github.io/ui-router/site) |**
-**[Discuss](https://groups.google.com/forum/#!categories/angular-ui/router) |**
-**[Get Help](http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router) |**
+**[Sample](http://angular-ui.github.com/ui-router/sample/) ([Src](https://github.com/angular-ui/ui-router/tree/gh-pages/sample)) |**
+**[FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions) |**
+**[Resources](#resources) |**
 **[Report an Issue](#report-an-issue) |**
-**[Contribute](#contribute)**
+**[Contribute](#contribute) |**
+**[Help!](http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router) |**
+**[Discuss](https://groups.google.com/forum/#!categories/angular-ui/router)**
 
 ---
 
@@ -222,8 +225,12 @@ myApp.config(function($stateProvider) {
 * [API Reference](http://angular-ui.github.io/ui-router/site)
 * [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/gh-pages/sample))
 * [FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions)
-* [Introduction Video](https://egghead.io/lessons/angularjs-introduction-ui-router)
 * [Slides comparing ngRoute to ui-router](http://slid.es/timkindberg/ui-router#/)
+ 
+### Videos
+
+* [Introduction Video](https://egghead.io/lessons/angularjs-introduction-ui-router)(egghead.io)
+* [Tim Kindberg on Angular UI-Router](https://www.youtube.com/watch?v=lBqiZSemrqg)
 
 ## Report an Issue
 
