@@ -23,6 +23,7 @@ $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
   var root, states = {}, $state, queue = {}, abstractKey = 'abstract';
+  this.$states=states;
 
   // Builds state properties from definition passed to registerState()
   var stateBuilder = {
