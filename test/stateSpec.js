@@ -110,6 +110,7 @@ describe('state', function () {
     $rootScope.$on('$stateChangeStart', eventLogger);
     $rootScope.$on('$stateChangeSuccess', eventLogger);
     $rootScope.$on('$stateChangeError', eventLogger);
+    $rootScope.$on('$stateChangeToSamePrevented', eventLogger);
     $rootScope.$on('$stateNotFound', eventLogger);
   }));
 
@@ -198,6 +199,39 @@ describe('state', function () {
       expect(called).toBeTruthy();
       expect($state.current).toBe(A);
       expect(resolvedError(promise)).toBeTruthy();
+    }));
+
+    it('triggers $stateChangeToSamePrevented', inject(function ($state, $q, $rootScope) {
+      var params = { i: 'iii' }, called;
+      initStateTo(E, params);
+      $rootScope.$on('$stateChangeToSamePrevented', function (ev, to, toParams, from, fromParams) {
+        expect(from).toBe(E);
+        expect(fromParams).toEqual(params);
+        expect(to).toBe(from);
+        expect(toParams).toEqual(fromParams);
+
+        expect($state.current).toBe(from); // no change
+        expect($state.params).toEqual(fromParams);
+        called = true;
+      });
+      $state.transitionTo(A);
+      $state.transitionTo(E, params);
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current).toBe(E);
+    }));
+
+    it('does not trigger $stateChangeToSamePrevented if suppressed', inject(function ($state, $q, $rootScope) {
+      var params = { i: 'iii' }, called;
+      initStateTo(E, params);
+      $rootScope.$on('$stateChangeToSamePrevented', function () {
+        called = true;
+      });
+      $state.transitionTo(A);
+      $state.transitionTo(E, params, { notify: false });
+      $q.flush();
+      expect(called).toBeFalsy();
+      expect($state.current).toBe(E);
     }));
 
     it('triggers $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -386,7 +420,7 @@ describe('state', function () {
       $q.flush();
       expect($state.current).toBe(A);
       expect(resolvedError(superseded)).toBeTruthy();
-      expect(log).toBe('$stateChangeStart(B,A);');
+      expect(log).toBe('$stateChangeStart(B,A);$stateChangeToSamePrevented(A,A);');
     }));
 
     it('aborts pending transitions when aborted from callbacks', inject(function ($state, $q) {
