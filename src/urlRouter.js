@@ -247,7 +247,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
   this.deferIntercept = function (defer) {
     if (defer === undefined) defer = true;
     interceptDeferred = defer;
-  }
+  };
 
   /**
    * @ngdoc object

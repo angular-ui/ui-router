@@ -140,7 +140,7 @@ function UrlMatcher(pattern, config) {
   compiled += quoteRegExp(segment) + '$';
   segments.push(segment);
 
-  this.regexp = RegExp(compiled, config.caseInsensitive ? 'i' : undefined);
+  this.regexp = new RegExp(compiled, config.caseInsensitive ? 'i' : undefined);
   this.prefix = segments[0];
 }
 
