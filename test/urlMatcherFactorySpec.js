@@ -29,6 +29,14 @@ describe("UrlMatcher", function () {
       provider.strictMode(false);
       expect(provider.compile('/hello').exec('/hello/')).toEqual({});
     });
+
+    it("should correctly validate UrlMatcher interface", function () {
+      var m = new UrlMatcher("/");
+      expect(provider.isMatcher(m)).toBe(true);
+
+      m.validates = null;
+      expect(provider.isMatcher(m)).toBe(false);
+    });
   });
 
   it("should match static URLs", function () {
@@ -177,7 +185,13 @@ describe("urlMatcherFactory", function () {
   it("recognizes matchers", function () {
     expect($umf.isMatcher(new UrlMatcher('/'))).toBe(true);
 
-    var custom = { format: angular.noop, exec: angular.noop, concat: angular.noop };
+    var custom = {
+      format:     angular.noop,
+      exec:       angular.noop,
+      concat:     angular.noop,
+      validates:  angular.noop,
+      parameters: angular.noop
+    };
     expect($umf.isMatcher(custom)).toBe(true);
   });
 

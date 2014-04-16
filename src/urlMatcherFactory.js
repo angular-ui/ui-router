@@ -449,13 +449,22 @@ function $UrlMatcherFactory() {
    * @methodOf ui.router.util.$urlMatcherFactory
    *
    * @description
-   * Returns true if the specified object is a UrlMatcher, or false otherwise.
+   * Returns true if the specified object is a `UrlMatcher`, or false otherwise.
    *
    * @param {Object} object  The object to perform the type check against.
-   * @returns {Boolean}  Returns `true` if the object has the following functions: `exec`, `format`, and `concat`.
+   * @returns {Boolean}  Returns `true` if the object matches the `UrlMatcher` interface, by
+   *          implementing all the same methods.
    */
   this.isMatcher = function (o) {
-    return isObject(o) && isFunction(o.exec) && isFunction(o.format) && isFunction(o.concat);
+    if (!isObject(o)) return false;
+    var result = true;
+
+    forEach(UrlMatcher.prototype, function(val, name) {
+      if (isFunction(val)) {
+        result = result && (isDefined(o[name]) && isFunction(o[name]));
+      }
+    });
+    return result;
   };
 
   this.type = function (name, def) {
