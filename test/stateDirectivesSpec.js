@@ -117,7 +117,7 @@ describe('uiStateRef', function() {
       expect(el.attr('href')).toBe('#/contacts/3');
     }));
 
-    it('should transition states when left-clicked', inject(function($state, $stateParams, $document, $q) {
+    it('should transition states when left-clicked', inject(function($state, $stateParams, $q) {
       expect($state.$current.name).toEqual('');
 
       triggerClick(el);
@@ -128,7 +128,7 @@ describe('uiStateRef', function() {
       expect($stateParams).toEqual({ id: 5 });
     }));
 
-    it('should transition when given a click that contains no data (fake-click)', inject(function($state, $stateParams, $document, $q) {
+    it('should transition when given a click that contains no data (fake-click)', inject(function($state, $stateParams, $q) {
       expect($state.current.name).toEqual('');
 
       triggerClick(el, {
@@ -145,7 +145,7 @@ describe('uiStateRef', function() {
       expect($stateParams).toEqual({ id: 5 });
     }));
 
-    it('should not transition states when ctrl-clicked', inject(function($state, $stateParams, $document, $q) {
+    it('should not transition states when ctrl-clicked', inject(function($state, $stateParams, $q) {
       expect($state.$current.name).toEqual('');
       triggerClick(el, { ctrlKey: true });
 
@@ -156,7 +156,7 @@ describe('uiStateRef', function() {
       expect($stateParams).toEqual({ id: 5 });
     }));
 
-    it('should not transition states when meta-clicked', inject(function($state, $stateParams, $document, $q) {
+    it('should not transition states when meta-clicked', inject(function($state, $stateParams, $q) {
       expect($state.$current.name).toEqual('');
 
       triggerClick(el, { metaKey: true });
@@ -167,7 +167,7 @@ describe('uiStateRef', function() {
       expect($stateParams).toEqual({ id: 5 });
     }));
 
-    it('should not transition states when shift-clicked', inject(function($state, $stateParams, $document, $q) {
+    it('should not transition states when shift-clicked', inject(function($state, $stateParams, $q) {
       expect($state.$current.name).toEqual('');
 
       triggerClick(el, { shiftKey: true });
@@ -178,7 +178,7 @@ describe('uiStateRef', function() {
       expect($stateParams).toEqual({ id: 5 });
     }));
 
-    it('should not transition states when middle-clicked', inject(function($state, $stateParams, $document, $q) {
+    it('should not transition states when middle-clicked', inject(function($state, $stateParams, $q) {
       expect($state.$current.name).toEqual('');
 
       triggerClick(el, { button: 1 });
@@ -189,7 +189,7 @@ describe('uiStateRef', function() {
       expect($stateParams).toEqual({ id: 5 });
     }));
 
-    it('should not transition states when element has target specified', inject(function($state, $stateParams, $document, $q) {
+    it('should not transition states when element has target specified', inject(function($state, $stateParams, $q) {
       el.attr('target', '_blank');
       expect($state.$current.name).toEqual('');
 
@@ -201,7 +201,7 @@ describe('uiStateRef', function() {
       expect($stateParams).toEqual({ id: 5 });
     }));
 
-    it('should not transition states if preventDefault() is called in click handler', inject(function($state, $stateParams, $document, $q) {
+    it('should not transition states if preventDefault() is called in click handler', inject(function($state, $stateParams, $q) {
       expect($state.$current.name).toEqual('');
       el.bind('click', function(e) {
         e.preventDefault();
