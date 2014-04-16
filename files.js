@@ -10,8 +10,7 @@ routerFiles = {
     'src/viewScroll.js',
     'src/viewDirective.js',
     'src/stateDirectives.js',
-    'src/stateFilters.js',
-    'src/compat.js',
+    'src/stateFilters.js'
   ],
   testUtils: [
     'test/testUtils.js'
@@ -19,7 +18,6 @@ routerFiles = {
   test: [
     'test/*Spec.js',
     'test/compat/matchers.js'
-    // 'test/compat/*Spec.js',
   ],
   angular: function(version) {
     return [
