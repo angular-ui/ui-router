@@ -137,7 +137,7 @@ function UrlMatcher(pattern, config) {
     this.sourceSearch = '';
   }
 
-  compiled += quoteRegExp(segment) + '$';
+  compiled += quoteRegExp(segment) + (config.strict === false ? '\/?' : '') + '$';
   segments.push(segment);
 
   this.regexp = new RegExp(compiled, config.caseInsensitive ? 'i' : undefined);
@@ -346,7 +346,7 @@ Type.prototype.pattern = /.*/;
  */
 function $UrlMatcherFactory() {
 
-  var isCaseInsensitive = false;
+  var isCaseInsensitive = false, isStrictMode = true;
 
   var enqueue = true, typeQueue = [], injector, defaultTypes = {
     int: {
@@ -392,18 +392,39 @@ function $UrlMatcherFactory() {
     }
   };
 
+  function getDefaultConfig() {
+    return {
+      strict: isStrictMode,
+      caseInsensitive: isCaseInsensitive
+    };
+  }
+
   /**
    * @ngdoc function
    * @name ui.router.util.$urlMatcherFactory#caseInsensitive
    * @methodOf ui.router.util.$urlMatcherFactory
    *
    * @description
-   * Define if url matching should be case sensistive, the default behavior, or not.
-   *   
-   * @param {bool} value false to match URL in a case sensitive manner; otherwise true;
+   * Defines whether URL matching should be case sensitive (the default behavior), or not.
+   *
+   * @param {bool} value `false` to match URL in a case sensitive manner; otherwise `true`;
    */
   this.caseInsensitive = function(value) {
     isCaseInsensitive = value;
+  };
+
+  /**
+   * @ngdoc function
+   * @name ui.router.util.$urlMatcherFactory#strictMode
+   * @methodOf ui.router.util.$urlMatcherFactory
+   *
+   * @description
+   * Defines whether URLs should match trailing slashes, or not (the default behavior).
+   *
+   * @param {bool} value `false` to match trailing slashes in URLs, otherwise `true`.
+   */
+  this.strictMode = function(value) {
+    isStrictMode = value;
   };
 
   /**
@@ -419,7 +440,7 @@ function $UrlMatcherFactory() {
    * @returns {ui.router.util.type:UrlMatcher}  The UrlMatcher.
    */
   this.compile = function (pattern, config) {
-    return new UrlMatcher(pattern, extend({ caseInsensitive: isCaseInsensitive }, config));
+    return new UrlMatcher(pattern, extend(getDefaultConfig(), config));
   };
 
   /**

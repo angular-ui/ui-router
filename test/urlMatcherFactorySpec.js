@@ -1,6 +1,37 @@
 describe("UrlMatcher", function () {
 
-  it("shoudl match static URLs", function () {
+  describe("provider", function () {
+
+    var provider;
+
+    beforeEach(function() {
+      angular.module('ui.router.router.test', function() {}).config(function ($urlMatcherFactoryProvider) {
+        provider = $urlMatcherFactoryProvider;
+      });
+
+      module('ui.router.router', 'ui.router.router.test');
+
+      inject(function($injector) {
+        $injector.invoke(provider.$get);
+      });
+    });
+
+    it("should factory matchers with correct configuration", function () {
+      provider.caseInsensitive(false);
+      expect(provider.compile('/hello').exec('/HELLO')).toBeNull();
+
+      provider.caseInsensitive(true);
+      expect(provider.compile('/hello').exec('/HELLO')).toEqual({});
+
+      provider.strictMode(true);
+      expect(provider.compile('/hello').exec('/hello/')).toBeNull();
+
+      provider.strictMode(false);
+      expect(provider.compile('/hello').exec('/hello/')).toEqual({});
+    });
+  });
+
+  it("should match static URLs", function () {
     expect(new UrlMatcher('/hello/world').exec('/hello/world')).toEqual({});
   });
 
@@ -14,7 +45,7 @@ describe("UrlMatcher", function () {
     expect(matcher.exec('/hello/world/suffix')).toBeNull();
   });
 
-  it("shoudl parse parameter placeholders", function () {
+  it("should parse parameter placeholders", function () {
     var matcher = new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?from&to');
     var params = matcher.parameters();
     expect(params.length).toBe(5);
@@ -265,6 +296,29 @@ describe("urlMatcherFactory", function () {
         expect(m.exec('/users/2/bar')).toEqual({ id: 2, test: "bar" });
         expect(m.exec('/users/bar/2')).toBeNull();
       });
+    });
+  });
+
+  describe("strict matching", function() {
+    it("should match with or without trailing slash", function() {
+      var m = new UrlMatcher('/users', { strict: false });
+      expect(m.exec('/users')).toEqual({});
+      expect(m.exec('/users/')).toEqual({});
+    });
+
+    it("should not match multiple trailing slashes", function() {
+      var m = new UrlMatcher('/users', { strict: false });
+      expect(m.exec('/users//')).toBeNull();
+    });
+
+    it("should match when defined with parameters", function() {
+      var m = new UrlMatcher('/users/{name}', { strict: false, params: {
+        name: { value: null }
+      }});
+      expect(m.exec('/users/')).toEqual({ name: null });
+      expect(m.exec('/users/bob')).toEqual({ name: "bob" });
+      expect(m.exec('/users/bob/')).toEqual({ name: "bob" });
+      expect(m.exec('/users/bob//')).toBeNull();
     });
   });
 });
