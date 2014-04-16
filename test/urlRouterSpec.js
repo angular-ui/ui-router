@@ -97,7 +97,13 @@ describe("UrlRouter", function () {
 
     it("should allow custom URL matchers", function () {
       var custom = {
-        url: { exec: function() {}, format: function() {}, concat: function() {} },
+        url: {
+          exec:       function() {},
+          format:     function() {},
+          concat:     function() {},
+          validates:  function() {},
+          parameters: function() {}
+        },
         handler: function() {}
       };
 
