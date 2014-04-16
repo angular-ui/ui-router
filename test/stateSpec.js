@@ -20,9 +20,9 @@ describe('state', function () {
   var A = { data: {} },
       B = {},
       C = {},
-      D = { params: [ 'x', 'y' ] },
-      DD = { parent: D, params: [ 'x', 'y', 'z' ] },
-      E = { params: [ 'i' ] },
+      D = { params: { x: {}, y: {} } },
+      DD = { parent: D, params: { x: {}, y: {}, z: {} } },
+      E = { params: { i: {} } },
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
       HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
@@ -261,7 +261,7 @@ describe('state', function () {
       initStateTo(DD, { x: 1, y: 2, z: 3 });
       var called;
       $rootScope.$on('$stateNotFound', function (ev, redirect) {
-        stateProvider.state(redirect.to, { parent: DD, params: [ 'x', 'y', 'z', 'w' ]});
+        stateProvider.state(redirect.to, { parent: DD, params: { x: {}, y: {}, z: {}, w: {} }});
         called = true;
       });
       var promise = $state.go('DDD', { w: 4 });
@@ -280,7 +280,7 @@ describe('state', function () {
         called = true;
       });
       var promise = $state.go('AA', { a: 1 });
-      stateProvider.state('AA', { parent: A, params: [ 'a' ]});
+      stateProvider.state('AA', { parent: A, params: { a: {} }});
       deferred.resolve();
       $q.flush();
       expect(called).toBeTruthy();
@@ -298,7 +298,7 @@ describe('state', function () {
       });
       var promise = $state.go('AA', { a: 1 });
       $state.go(B);
-      stateProvider.state('AA', { parent: A, params: [ 'a' ]});
+      stateProvider.state('AA', { parent: A, params: { a: {} }});
       deferred.resolve();
       $q.flush();
       expect(called).toBeTruthy();
@@ -439,7 +439,7 @@ describe('state', function () {
 
   describe('.go()', function () {
     it('transitions to a relative state', inject(function ($state, $q) {
-      $state.transitionTo('about.person.item', { id: 5 }); $q.flush();
+      $state.transitionTo('about.person.item', { person: "bob", id: 5 }); $q.flush();
       $state.go('^.^.sidebar'); $q.flush();
       expect($state.$current.name).toBe('about.sidebar');
 

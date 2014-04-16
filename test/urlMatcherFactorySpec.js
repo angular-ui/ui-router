@@ -5,7 +5,7 @@ describe("UrlMatcher", function () {
   });
 
   it("should match static case insensitive URLs", function () {
-    expect(new UrlMatcher('/hello/world', true).exec('/heLLo/World')).toEqual({});
+    expect(new UrlMatcher('/hello/world', { caseInsensitive: true }).exec('/heLLo/World')).toEqual({});
   });
 
   it("should match against the entire path", function () {
@@ -155,7 +155,7 @@ describe("urlMatcherFactory", function () {
   });
 
   it("should handle case insensistive URL", function () {
-    $umf.caseInsensitiveMatch(true);
+    $umf.caseInsensitive(true);
     expect($umf.compile('/hello/world').exec('/heLLo/WORLD')).toEqual({});
   });
 
@@ -197,7 +197,7 @@ describe("urlMatcherFactory", function () {
       expect(m.format({ date: new Date(2014, 2, 26) })).toBe("/calendar/2014-03-26");
     });
 
-    it("should not match invalid typed parameter values", function () {
+    it("should not match invalid typed parameter values", function() {
       var m = new UrlMatcher('/users/{id:int}');
 
       expect(m.exec('/users/1138').id).toBe(1138);
@@ -205,6 +205,66 @@ describe("urlMatcherFactory", function () {
 
       expect(m.format({ id: 1138 })).toBe("/users/1138");
       expect(m.format({ id: "alpha" })).toBeNull();
+    });
+  });
+
+  describe("optional parameters", function() {
+    it("should match with or without values", function () {
+      var m = new UrlMatcher('/users/{id:int}', {
+        params: { id: { value: null } }
+      });
+      expect(m.exec('/users/1138')).toEqual({ id: 1138 });
+      expect(m.exec('/users/').id.toString()).toBe("NaN");
+      expect(m.exec('/users').id.toString()).toBe("NaN");
+    });
+
+    it("should correctly match multiple", function() {
+      var m = new UrlMatcher('/users/{id:int}/{state:[A-Z]+}', {
+        params: { id: { value: null }, state: { value: null } }
+      });
+      expect(m.exec('/users/1138')).toEqual({ id: 1138, state: null });
+      expect(m.exec('/users/1138/NY')).toEqual({ id: 1138, state: "NY" });
+
+      expect(m.exec('/users/').id.toString()).toBe("NaN");
+      expect(m.exec('/users/').state).toBeNull();
+
+      expect(m.exec('/users').id.toString()).toBe("NaN");
+      expect(m.exec('/users').state).toBeNull();
+
+      expect(m.exec('/users/NY').state).toBe("NY");
+      expect(m.exec('/users/NY').id.toString()).toBe("NaN");
+    });
+
+    it("should correctly format with or without values", function() {
+      var m = new UrlMatcher('/users/{id:int}', {
+        params: { id: { value: null } }
+      });
+      expect(m.format()).toBe('/users/');
+      expect(m.format({ id: 1138 })).toBe('/users/1138');
+    });
+
+    it("should correctly format multiple", function() {
+      var m = new UrlMatcher('/users/{id:int}/{state:[A-Z]+}', {
+        params: { id: { value: null }, state: { value: null } }
+      });
+
+      expect(m.format()).toBe("/users/");
+      expect(m.format({ id: 1138 })).toBe("/users/1138/");
+      expect(m.format({ state: "NY" })).toBe("/users/NY");
+      expect(m.format({ id: 1138, state: "NY" })).toBe("/users/1138/NY");
+    });
+
+    describe("default values", function() {
+      it("should populate if not supplied in URL", function() {
+        var m = new UrlMatcher('/users/{id:int}/{test}', {
+          params: { id: { value: 0 }, test: { value: "foo" } }
+        });
+        expect(m.exec('/users')).toEqual({ id: 0, test: "foo" });
+        expect(m.exec('/users/2')).toEqual({ id: 2, test: "foo" });
+        expect(m.exec('/users/bar')).toEqual({ id: 0, test: "bar" });
+        expect(m.exec('/users/2/bar')).toEqual({ id: 2, test: "bar" });
+        expect(m.exec('/users/bar/2')).toBeNull();
+      });
     });
   });
 });

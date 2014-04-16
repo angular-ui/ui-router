@@ -38,8 +38,11 @@
  *   path into the parameter 'path'.
  * * `'/files/*path'` - ditto.
  *
- * @param {string} pattern  the pattern to compile into a matcher.
- * @param {bool} caseInsensitiveMatch true if url matching should be case insensitive, otherwise false, the default value (for backward compatibility) is false.
+ * @param {string} pattern  The pattern to compile into a matcher.
+ * @param {config} config  A configuration object hash:
+ *
+ * * `caseInsensitive` - `true` if URL matching should be case insensitive, otherwise `false`, the default value (for backward compatibility) is `false`.
+ * * `strict` - `false` if matching against a URL with a trailing slash should be treated as equivalent to a URL without a trailing slash, the default value is `true`.
  *
  * @property {string} prefix  A static prefix of this pattern. The matcher guarantees that any
  *   URL matching this matcher (i.e. any string for which {@link ui.router.util.type:UrlMatcher#methods_exec exec()} returns
@@ -54,9 +57,10 @@
  * @property {string} regex  The constructed regex that will be used to match against the url when 
  *   it is time to determine which url will match.
  *
- * @returns {Object}  New UrlMatcher object
+ * @returns {Object}  New `UrlMatcher` object
  */
-function UrlMatcher(pattern, caseInsensitiveMatch) {
+function UrlMatcher(pattern, config) {
+  config = angular.isObject(config) ? config : {};
 
   // Find all placeholders and create a compiled pattern, using either classic or curly syntax:
   //   '*' name
@@ -76,32 +80,41 @@ function UrlMatcher(pattern, caseInsensitiveMatch) {
       segments = this.segments = [],
       params = this.params = {};
 
-  function addParameter(id, type) {
+  function addParameter(id, type, config) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
-    params[id] = angular.isNumber(type) ? new Type() : type;
+    params[id] = extend({ type: type || new Type() }, config);
   }
 
-  function quoteRegExp(string) {
-    return string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
+  function quoteRegExp(string, pattern, isOptional) {
+    var result = string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
+    if (!pattern) return result;
+    var flag = isOptional ? '?' : '';
+    return result + flag + '(' + pattern + ')' + flag;
+  }
+
+  function paramConfig(param) {
+    if (!config.params || !config.params[param]) return {};
+    return config.params[param];
   }
 
   this.source = pattern;
 
   // Split into static segments separated by path parameter placeholders.
   // The number of segments is always 1 more than the number of parameters.
-  var id, regexp, segment, type;
+  var id, regexp, segment, type, cfg;
 
   while ((m = placeholder.exec(pattern))) {
     id      = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
     regexp  = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
     segment = pattern.substring(last, m.index);
     type    = this.$types[regexp] || new Type({ pattern: new RegExp(regexp) });
+    cfg     = paramConfig(id);
 
     if (segment.indexOf('?') >= 0) break; // we're into the search part
 
-    compiled += quoteRegExp(segment) + '(' + type.$subPattern() + ')';
-    addParameter(id, type);
+    compiled += quoteRegExp(segment, type.$subPattern(), isDefined(cfg.value));
+    addParameter(id, type, cfg);
     segments.push(segment);
     last = placeholder.lastIndex;
   }
@@ -116,7 +129,9 @@ function UrlMatcher(pattern, caseInsensitiveMatch) {
     this.sourcePath = pattern.substring(0, last + i);
 
     // Allow parameters to be separated by '?' as well as '&' to make concat() easier
-    forEach(search.substring(1).split(/[&?]/), addParameter);
+    forEach(search.substring(1).split(/[&?]/), function(key) {
+      addParameter(key, null, paramConfig(key));
+    });
   } else {
     this.sourcePath = pattern;
     this.sourceSearch = '';
@@ -125,7 +140,7 @@ function UrlMatcher(pattern, caseInsensitiveMatch) {
   compiled += quoteRegExp(segment) + '$';
   segments.push(segment);
 
-  this.regexp = (caseInsensitiveMatch) ? new RegExp(compiled, 'i') : new RegExp(compiled);
+  this.regexp = RegExp(compiled, config.caseInsensitive ? 'i' : undefined);
   this.prefix = segments[0];
 }
 
@@ -148,13 +163,14 @@ function UrlMatcher(pattern, caseInsensitiveMatch) {
  * ```
  *
  * @param {string} pattern  The pattern to append.
+ * @param {object} config  An object hash of the configuration for the matcher.
  * @returns {ui.router.util.type:UrlMatcher}  A matcher for the concatenated pattern.
  */
-UrlMatcher.prototype.concat = function (pattern) {
+UrlMatcher.prototype.concat = function (pattern, config) {
   // Because order of search parameters is irrelevant, we can add our own search
   // parameters to the end of the new pattern. Parse the new pattern by itself
   // and then join the bits together, but it's much easier to do this on a string level.
-  return new UrlMatcher(this.sourcePath + pattern + this.sourceSearch);
+  return new UrlMatcher(this.sourcePath + pattern + this.sourceSearch, config);
 };
 
 UrlMatcher.prototype.toString = function () {
@@ -189,14 +205,14 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
 
   var params = this.parameters(), nTotal = params.length,
     nPath = this.segments.length - 1,
-    values = {}, i, type, param;
+    values = {}, i, cfg, param;
 
   if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
 
   for (i = 0; i < nPath; i++) {
     param = params[i];
-    type = this.params[param];
-    values[param] = type.decode(m[i + 1]);
+    cfg = this.params[param];
+    values[param] = cfg.type.decode(isDefined(m[i + 1]) ? m[i + 1] : cfg.value);
   }
   for (/**/; i < nTotal; i++) values[params[i]] = searchParams[params[i]];
 
@@ -214,8 +230,9 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
  * @returns {Array.<string>}  An array of parameter names. Must be treated as read-only. If the
  *    pattern has no parameters, an empty array is returned.
  */
-UrlMatcher.prototype.parameters = function () {
-  return keys(this.params);
+UrlMatcher.prototype.parameters = function (param) {
+  if (!isDefined(param)) return keys(this.params);
+  return this.params[param] || null;
 };
 
 /**
@@ -231,11 +248,13 @@ UrlMatcher.prototype.parameters = function () {
  * @returns {Boolean} Returns `true` if `params` validates, otherwise `false`.
  */
 UrlMatcher.prototype.validates = function (params) {
-  var result = true, self = this;
+  var result = true, isOptional, cfg, self = this;
 
   forEach(params, function(val, key) {
     if (!self.params[key]) return;
-    result = result && self.params[key].is(val);
+    cfg = self.params[key];
+    isOptional = !val && isDefined(cfg.value);
+    result = result && (isOptional || cfg.type.is(val));
   });
   return result;
 };
@@ -261,18 +280,21 @@ UrlMatcher.prototype.validates = function (params) {
  */
 UrlMatcher.prototype.format = function (values) {
   var segments = this.segments, params = this.parameters();
-  if (!values) return segments.join('');
+
+  if (!values) return segments.join('').replace('//', '/');
 
   var nPath = segments.length - 1, nTotal = params.length,
-    result = segments[0], i, search, value, param, type;
+    result = segments[0], i, search, value, param, cfg;
+
+  if (!this.validates(values)) return null;
 
   for (i = 0; i < nPath; i++) {
     param = params[i];
     value = values[param];
-    type  = this.params[param];
+    cfg   = this.params[param];
 
-    if (!type.is(value)) return null;
-    if (value != null) result += encodeURIComponent(type.encode(value));
+    if (!isDefined(value) && (segments[i] === '/' || segments[i + 1] === '/')) continue;
+    if (value != null) result += encodeURIComponent(cfg.type.encode(value));
     result += segments[i + 1];
   }
 
@@ -324,7 +346,7 @@ Type.prototype.pattern = /.*/;
  */
 function $UrlMatcherFactory() {
 
-  var useCaseInsensitiveMatch = false;
+  var isCaseInsensitive = false;
 
   var enqueue = true, typeQueue = [], injector, defaultTypes = {
     int: {
@@ -332,6 +354,7 @@ function $UrlMatcherFactory() {
         return parseInt(val, 10);
       },
       is: function(val) {
+        if (!isDefined(val)) return false;
         return this.decode(val.toString()) === val;
       },
       pattern: /\d+/
@@ -371,7 +394,7 @@ function $UrlMatcherFactory() {
 
   /**
    * @ngdoc function
-   * @name ui.router.util.$urlMatcherFactory#caseInsensitiveMatch
+   * @name ui.router.util.$urlMatcherFactory#caseInsensitive
    * @methodOf ui.router.util.$urlMatcherFactory
    *
    * @description
@@ -379,8 +402,8 @@ function $UrlMatcherFactory() {
    *   
    * @param {bool} value false to match URL in a case sensitive manner; otherwise true;
    */
-  this.caseInsensitiveMatch = function(value) {
-    useCaseInsensitiveMatch = value;
+  this.caseInsensitive = function(value) {
+    isCaseInsensitive = value;
   };
 
   /**
@@ -392,10 +415,11 @@ function $UrlMatcherFactory() {
    * Creates a {@link ui.router.util.type:UrlMatcher} for the specified pattern.
    *   
    * @param {string} pattern  The URL pattern.
+   * @param {object} config  The config object hash.
    * @returns {ui.router.util.type:UrlMatcher}  The UrlMatcher.
    */
-  this.compile = function (pattern) {
-    return new UrlMatcher(pattern, useCaseInsensitiveMatch);
+  this.compile = function (pattern, config) {
+    return new UrlMatcher(pattern, extend({ caseInsensitive: isCaseInsensitive }, config));
   };
 
   /**
