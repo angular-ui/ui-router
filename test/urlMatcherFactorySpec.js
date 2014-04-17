@@ -317,6 +317,14 @@ describe("urlMatcherFactory", function () {
         });
         expect(m.exec("/foo")).toEqual({ foo: "bar" });
       });
+
+      it("should populate default values for query params", function() {
+        var defaults = { order: "name", limit: 25, page: 1 };
+        var m = new UrlMatcher('/foo?order&limit&page', {
+          params: defaults
+        });
+        expect(m.exec("/foo")).toEqual(defaults);
+      });
     });
   });
 

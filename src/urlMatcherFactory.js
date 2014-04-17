@@ -203,6 +203,7 @@ UrlMatcher.prototype.toString = function () {
 UrlMatcher.prototype.exec = function (path, searchParams) {
   var m = this.regexp.exec(path);
   if (!m) return null;
+  searchParams = searchParams || {};
 
   var params = this.parameters(), nTotal = params.length,
     nPath = this.segments.length - 1,
@@ -215,7 +216,11 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
     cfg = this.params[param];
     values[param] = cfg.type.decode(isDefined(m[i + 1]) ? m[i + 1] : cfg.value);
   }
-  for (/**/; i < nTotal; i++) values[params[i]] = searchParams[params[i]];
+  for (/**/; i < nTotal; i++) {
+    param = params[i];
+    cfg = this.params[param];
+    values[param] = cfg.type.decode(isDefined(searchParams[param]) ? searchParams[param] : cfg.value);
+  }
 
   return values;
 };
