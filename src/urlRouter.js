@@ -393,8 +393,8 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
           return url;
         }
 
-        var slash = (!isHtml5 && url ? '/' : ''),
-            port  = $location.port() == 80 || $location.port() == 443 ? '' : ':' + $location.port();
+        var slash = (!isHtml5 && url ? '/' : ''), port = $location.port();
+        port = (port === 80 || port === 443 ? '' : ':' + port);
 
         return [$location.protocol(), '://', $location.host(), port, slash, url].join('');
       }
