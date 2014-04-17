@@ -227,6 +227,17 @@ describe("urlMatcherFactory", function () {
       expect($umf.type("myType").decode()).toBe($stateParams);
     }));
 
+    it("should accept annotated function definitions", inject(function ($stateParams) {
+      $umf.type("myAnnotatedType", ['$stateParams', function(s) {
+        return {
+          decode: function() {
+            return s;
+          }
+        };
+      }]);
+      expect($umf.type("myAnnotatedType").decode()).toBe($stateParams);
+    }));
+
     it("should match built-in types", function () {
       var m = new UrlMatcher("/{foo:int}/{flag:bool}");
       expect(m.exec("/1138/1")).toEqual({ foo: 1138, flag: true });

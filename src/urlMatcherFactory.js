@@ -675,12 +675,16 @@ function $UrlMatcherFactory() {
     return this;
   }];
 
+  // To ensure proper order of operations in object configuration, and to allow internal
+  // types to be overridden, `flushTypeQueue()` waits until `$urlMatcherFactory` is injected
+  // before actually wiring up and assigning type definitions
   function flushTypeQueue() {
     forEach(typeQueue, function(type) {
       if (UrlMatcher.prototype.$types[type.name]) {
         throw new Error("A type named '" + type.name + "' has already been defined.");
       }
-      var def = new Type(isFunction(type.def) ? injector.invoke(type.def) : type.def);
+      var isAnnotated = isFunction(type.def) || isArray(type.def);
+      var def = new Type(isAnnotated ? injector.invoke(type.def) : type.def);
       UrlMatcher.prototype.$types[type.name] = def;
     });
   }
