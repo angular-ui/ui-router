@@ -39,7 +39,7 @@
  * * `'/files/*path'` - ditto.
  *
  * @param {string} pattern  The pattern to compile into a matcher.
- * @param {config} config  A configuration object hash:
+ * @param {Object} config  A configuration object hash:
  *
  * * `caseInsensitive` - `true` if URL matching should be case insensitive, otherwise `false`, the default value (for backward compatibility) is `false`.
  * * `strict` - `false` if matching against a URL with a trailing slash should be treated as equivalent to a URL without a trailing slash, the default value is `true`.
@@ -158,14 +158,14 @@ function UrlMatcher(pattern, config) {
  *
  * @example
  * The following two matchers are equivalent:
- * ```
+ * <pre>
  * new UrlMatcher('/user/{id}?q').concat('/details?date');
  * new UrlMatcher('/user/{id}/details?q&date');
- * ```
+ * </pre>
  *
  * @param {string} pattern  The pattern to append.
- * @param {object} config  An object hash of the configuration for the matcher.
- * @returns {ui.router.util.type:UrlMatcher}  A matcher for the concatenated pattern.
+ * @param {Object} config  An object hash of the configuration for the matcher.
+ * @returns {UrlMatcher}  A matcher for the concatenated pattern.
  */
 UrlMatcher.prototype.concat = function (pattern, config) {
   // Because order of search parameters is irrelevant, we can add our own search
@@ -191,10 +191,12 @@ UrlMatcher.prototype.toString = function () {
  * as optional.
  *
  * @example
- * ```
- * new UrlMatcher('/user/{id}?q&r').exec('/user/bob', { x:'1', q:'hello' });
- * // returns { id:'bob', q:'hello', r:null }
- * ```
+ * <pre>
+ * new UrlMatcher('/user/{id}?q&r').exec('/user/bob', {
+ *   x: '1', q: 'hello'
+ * });
+ * // returns { id: 'bob', q: 'hello', r: null }
+ * </pre>
  *
  * @param {string} path  The URL path to match, e.g. `$location.path()`.
  * @param {Object} searchParams  URL search parameters, e.g. `$location.search()`.
@@ -251,7 +253,7 @@ UrlMatcher.prototype.parameters = function (param) {
  * types of this `UrlMatcher`.
  *
  * @param {Object} params The object hash of parameters to validate.
- * @returns {Boolean} Returns `true` if `params` validates, otherwise `false`.
+ * @returns {boolean} Returns `true` if `params` validates, otherwise `false`.
  */
 UrlMatcher.prototype.validates = function (params) {
   var result = true, isOptional, cfg, self = this;
@@ -276,10 +278,10 @@ UrlMatcher.prototype.validates = function (params) {
  * treated as empty strings.
  *
  * @example
- * ```
+ * <pre>
  * new UrlMatcher('/user/{id}?q').format({ id:'bob', q:'yes' });
  * // returns '/user/bob?q=yes'
- * ```
+ * </pre>
  *
  * @param {Object} values  the values to substitute for the parameters in this pattern.
  * @returns {string}  the formatted URL (path and optionally search part).
@@ -315,22 +317,98 @@ UrlMatcher.prototype.format = function (values) {
 
 UrlMatcher.prototype.$types = {};
 
-function Type(options) {
-  extend(this, options);
+/**
+ * @ngdoc object
+ * @name ui.router.util.type:Type
+ *
+ * @description
+ * Implements an interface to define custom parameter types that can be decoded from and encoded to
+ * string parameters matched in a URL. Used by {@link ui.router.util.type:UrlMatcher `UrlMatcher`}
+ * objects when matching or formatting URLs, or comparing or validating parameter values.
+ *
+ * See {@link ui.router.util.$urlMatcherFactory#methods_type `$urlMatcherFactory#type()`} for more
+ * information on registering custom types.
+ *
+ * @param {Object} config  A configuration object hash that includes any method in `Type`'s public
+ *        interface, and/or `pattern`, which should contain a custom regular expression used to match
+ *        string parameters originating from a URL.
+ *
+ * @property {RegExp} pattern The regular expression pattern used to match values of this type when
+ *           coming from a substring of a URL.
+ *
+ * @returns {Object}  Returns a new `Type` object.
+ */
+function Type(config) {
+  extend(this, config);
 }
 
+/**
+ * @ngdoc function
+ * @name ui.router.util.type:Type#is
+ * @methodOf ui.router.util.type:Type
+ *
+ * @description
+ * Detects whether a value is of a particular type. Accepts a native (decoded) value
+ * and determines whether it matches the current `Type` object.
+ *
+ * @param {*} val  The value to check.
+ * @param {string} key  Optional. If the type check is happening in the context of a specific
+ *        {@link ui.router.util.type:UrlMatcher `UrlMatcher`} object, this is the name of the
+ *        parameter in which `val` is stored. Can be used for meta-programming of `Type` objects.
+ * @returns {Boolean}  Returns `true` if the value matches the type, otherwise `false`.
+ */
 Type.prototype.is = function(val, key) {
   return true;
 };
 
+/**
+ * @ngdoc function
+ * @name ui.router.util.type:Type#encode
+ * @methodOf ui.router.util.type:Type
+ *
+ * @description
+ * Encodes a custom/native type value to a string that can be embedded in a URL. Note that the
+ * return value does *not* need to be URL-safe (i.e. passed through `encodeURIComponent()`), it
+ * only needs to be a representation of `val` that has been coerced to a string.
+ *
+ * @param {*} val  The value to encode.
+ * @param {string} key  The name of the parameter in which `val` is stored. Can be used for
+ *        meta-programming of `Type` objects.
+ * @returns {string}  Returns a string representation of `val` that can be encoded in a URL.
+ */
 Type.prototype.encode = function(val, key) {
   return val;
 };
 
+/**
+ * @ngdoc function
+ * @name ui.router.util.type:Type#decode
+ * @methodOf ui.router.util.type:Type
+ *
+ * @description
+ * Converts a string URL parameter value to a custom/native value.
+ *
+ * @param {string} val  The URL parameter value to decode.
+ * @param {string} key  The name of the parameter in which `val` is stored. Can be used for
+ *        meta-programming of `Type` objects.
+ * @returns {*}  Returns a custom representation of the URL parameter value.
+ */
 Type.prototype.decode = function(val, key) {
   return val;
 };
 
+/**
+ * @ngdoc function
+ * @name ui.router.util.type:Type#equals
+ * @methodOf ui.router.util.type:Type
+ *
+ * @description
+ * Determines whether two decoded values are equivalent.
+ *
+ * @param {*} a  A value to compare against.
+ * @param {*} b  A value to compare against.
+ * @returns {Boolean}  Returns `true` if the values are equivalent/equal, otherwise `false`.
+ */
 Type.prototype.equals = function(a, b) {
   return a == b;
 };
@@ -347,8 +425,8 @@ Type.prototype.pattern = /.*/;
  * @name ui.router.util.$urlMatcherFactory
  *
  * @description
- * Factory for {@link ui.router.util.type:UrlMatcher} instances. The factory is also available to providers
- * under the name `$urlMatcherFactoryProvider`.
+ * Factory for {@link ui.router.util.type:UrlMatcher `UrlMatcher`} instances. The factory
+ * is also available to providers under the name `$urlMatcherFactoryProvider`.
  */
 function $UrlMatcherFactory() {
 
@@ -413,7 +491,7 @@ function $UrlMatcherFactory() {
    * @description
    * Defines whether URL matching should be case sensitive (the default behavior), or not.
    *
-   * @param {bool} value `false` to match URL in a case sensitive manner; otherwise `true`;
+   * @param {boolean} value `false` to match URL in a case sensitive manner; otherwise `true`;
    */
   this.caseInsensitive = function(value) {
     isCaseInsensitive = value;
@@ -427,7 +505,7 @@ function $UrlMatcherFactory() {
    * @description
    * Defines whether URLs should match trailing slashes, or not (the default behavior).
    *
-   * @param {bool} value `false` to match trailing slashes in URLs, otherwise `true`.
+   * @param {boolean} value `false` to match trailing slashes in URLs, otherwise `true`.
    */
   this.strictMode = function(value) {
     isStrictMode = value;
@@ -439,11 +517,11 @@ function $UrlMatcherFactory() {
    * @methodOf ui.router.util.$urlMatcherFactory
    *
    * @description
-   * Creates a {@link ui.router.util.type:UrlMatcher} for the specified pattern.
+   * Creates a {@link ui.router.util.type:UrlMatcher `UrlMatcher`} for the specified pattern.
    *   
    * @param {string} pattern  The URL pattern.
-   * @param {object} config  The config object hash.
-   * @returns {ui.router.util.type:UrlMatcher}  The UrlMatcher.
+   * @param {Object} config  The config object hash.
+   * @returns {UrlMatcher}  The UrlMatcher.
    */
   this.compile = function (pattern, config) {
     return new UrlMatcher(pattern, extend(getDefaultConfig(), config));
@@ -473,6 +551,110 @@ function $UrlMatcherFactory() {
     return result;
   };
 
+  /**
+   * @ngdoc function
+   * @name ui.router.util.$urlMatcherFactory#type
+   * @methodOf ui.router.util.$urlMatcherFactory
+   *
+   * @description
+   * Registers a custom {@link ui.router.util.type:Type `Type`} object that can be used to
+   * generate URLs with typed parameters.
+   *
+   * @param {string} name  The type name.
+   * @param {Object|Function} def  The type definition. See
+   *        {@link ui.router.util.type:Type `Type`} for information on the values accepted.
+   *
+   * @returns {Object}  Returns `$urlMatcherFactoryProvider`.
+   *
+   * @example
+   * This is a simple example of a custom type that encodes and decodes items from an
+   * array, using the array index as the URL-encoded value:
+   *
+   * <pre>
+   * var list = ['John', 'Paul', 'George', 'Ringo'];
+   *
+   * $urlMatcherFactoryProvider.type('listItem', {
+   *   encode: function(item) {
+   *     // Represent the list item in the URL using its corresponding index
+   *     return list.indexOf(item);
+   *   },
+   *   decode: function(item) {
+   *     // Look up the list item by index
+   *     return list[parseInt(item, 10)];
+   *   },
+   *   is: function(item) {
+   *     // Ensure the item is valid by checking to see that it appears
+   *     // in the list
+   *     return list.indexOf(item) > -1;
+   *   }
+   * });
+   *
+   * $stateProvider.state('list', {
+   *   url: "/list/{item:listItem}",
+   *   controller: function($scope, $stateParams) {
+   *     console.log($stateParams.item);
+   *   }
+   * });
+   *
+   * // ...
+   *
+   * // Changes URL to '/list/3', logs "Ringo" to the console
+   * $state.go('list', { item: "Ringo" });
+   * </pre>
+   *
+   * This is a more complex example of a type that relies on dependency injection to
+   * interact with services, and uses the parameter name from the URL to infer how to
+   * handle encoding and decoding parameter values:
+   *
+   * <pre>
+   * // Defines a custom type that gets a value from a service,
+   * // where each service gets different types of values from
+   * // a backend API:
+   * $urlMatcherFactoryProvider.type('dbObject', function(Users, Posts) {
+   *
+   *   // Matches up services to URL parameter names
+   *   var services = {
+   *     user: Users,
+   *     post: Posts
+   *   };
+   *
+   *   return {
+   *     encode: function(object) {
+   *       // Represent the object in the URL using its unique ID
+   *       return object.id;
+   *     },
+   *     decode: function(value, key) {
+   *       // Look up the object by ID, using the parameter
+   *       // name (key) to call the correct service
+   *       return services[key].findById(value);
+   *     },
+   *     is: function(object, key) {
+   *       // Check that object is a valid dbObject
+   *       return angular.isObject(object) && object.id && services[key];
+   *     }
+   *     equals: function(a, b) {
+   *       // Check the equality of decoded objects by comparing
+   *       // their unique IDs
+   *       return a.id === b.id;
+   *     }
+   *   };
+   * });
+   *
+   * // In a config() block, you can then attach URLs with
+   * // type-annotated parameters:
+   * $stateProvider.state('users', {
+   *   url: "/users",
+   *   // ...
+   * }).state('users.item', {
+   *   url: "/{user:dbObject}",
+   *   controller: function($scope, $stateParams) {
+   *     // $stateParams.user will now be an object returned from
+   *     // the Users service
+   *   },
+   *   // ...
+   * });
+   * </pre>
+   */
   this.type = function (name, def) {
     if (!isDefined(def)) return UrlMatcher.prototype.$types[name];
     typeQueue.push({ name: name, def: def });
