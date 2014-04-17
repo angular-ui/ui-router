@@ -310,6 +310,13 @@ describe("urlMatcherFactory", function () {
         expect(m.exec('/users/2/bar')).toEqual({ id: 2, test: "bar" });
         expect(m.exec('/users/bar/2')).toBeNull();
       });
+
+      it("should allow shorthand definitions", function() {
+        var m = new UrlMatcher('/foo/:foo', {
+          params: { foo: "bar" }
+        });
+        expect(m.exec("/foo")).toEqual({ foo: "bar" });
+      });
     });
   });
 

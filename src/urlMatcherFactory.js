@@ -95,7 +95,8 @@ function UrlMatcher(pattern, config) {
 
   function paramConfig(param) {
     if (!config.params || !config.params[param]) return {};
-    return config.params[param];
+    var cfg = config.params[param];
+    return isObject(cfg) ? cfg : { value: cfg };
   }
 
   this.source = pattern;
