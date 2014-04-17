@@ -49,7 +49,7 @@ function ancestors(first, second) {
  * @param {Object} object A JavaScript object.
  * @return {Array} Returns the keys of the object as an array.
  */
-function keys(object) {
+function objectKeys(object) {
   if (Object.keys) {
     return Object.keys(object);
   }
@@ -97,7 +97,7 @@ function inheritParams(currentParams, newParams, $current, $to) {
 
   for (var i in parents) {
     if (!parents[i].params) continue;
-    parentParams = keys(parents[i].params);
+    parentParams = objectKeys(parents[i].params);
     if (!parentParams.length) continue;
 
     for (var j in parentParams) {

@@ -91,7 +91,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       state.params = state.params || {};
 
       if (!state.parent) {
-          return keys(state.params);
+          return objectKeys(state.params);
       }
       var paramNames = {}; forEach(state.params, function (v, k) { paramNames[k] = true; });
 
@@ -811,7 +811,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       }
 
       // Filter parameters before we pass them to event handlers etc.
-      toParams = filterByKeys(keys(to.params), toParams || {});
+      toParams = filterByKeys(objectKeys(to.params), toParams || {});
 
       // Broadcast start event and cancel the transition if requested
       if (options.notify) {
@@ -1086,7 +1086,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * @returns {string} compiled state url
      */
     $state.href = function href(stateOrName, params, options) {
-      options = extend({ lossy: true, inherit: false, absolute: false, relative: $state.$current }, options || {});
+      options = extend({
+        lossy:    true,
+        inherit:  false,
+        absolute: false,
+        relative: $state.$current
+      }, options || {});
 
       var state = findState(stateOrName, options.relative);
 
@@ -1098,7 +1103,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       if (!nav || !nav.url) {
         return null;
       }
-      return $urlRouter.href(nav.url, filterByKeys(keys(state.params), params || {}), { absolute: options.absolute });
+      return $urlRouter.href(nav.url, filterByKeys(objectKeys(state.params), params || {}), {
+        absolute: options.absolute
+      });
     };
 
     /**
@@ -1128,7 +1135,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // necessary. In addition to being available to the controller and onEnter/onExit callbacks,
       // we also need $stateParams to be available for any $injector calls we make during the
       // dependency resolution process.
-      var $stateParams = (paramsAreFiltered) ? params : filterByKeys(keys(state.params), params);
+      var $stateParams = (paramsAreFiltered) ? params : filterByKeys(objectKeys(state.params), params);
       var locals = { $stateParams: $stateParams };
 
       // Resolve 'global' dependencies for the state, i.e. those not specific to a view.
