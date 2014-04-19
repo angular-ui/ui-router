@@ -20,9 +20,9 @@ describe('state', function () {
   var A = { data: {} },
       B = {},
       C = {},
-      D = { params: [ 'x', 'y' ] },
-      DD = { parent: D, params: [ 'x', 'y', 'z' ] },
-      E = { params: [ 'i' ] },
+      D = { params: { x: {}, y: {} } },
+      DD = { parent: D, params: { x: {}, y: {}, z: {} } },
+      E = { params: { i: {} } },
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
       HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
@@ -90,6 +90,9 @@ describe('state', function () {
             return $timeout(function() { log += "Success!"; }, 1);
           }
         }
+      })
+      .state('badParam', {
+        url: "/bad/{param:int}"
       })
 
       .state('first', { url: '^/first/subpath' })
@@ -258,14 +261,14 @@ describe('state', function () {
       initStateTo(DD, { x: 1, y: 2, z: 3 });
       var called;
       $rootScope.$on('$stateNotFound', function (ev, redirect) {
-        stateProvider.state(redirect.to, { parent: DD, params: [ 'x', 'y', 'z', 'w' ]});
+        stateProvider.state(redirect.to, { parent: DD, params: { x: {}, y: {}, z: {}, w: {} }});
         called = true;
       });
       var promise = $state.go('DDD', { w: 4 });
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('DDD');
-      expect($state.params).toEqual({ x: '1', y: '2', z: '3', w: '4' });
+      expect($state.params).toEqual({ x: 1, y: 2, z: 3, w: 4 });
     }));
 
     it('can defer a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -277,12 +280,12 @@ describe('state', function () {
         called = true;
       });
       var promise = $state.go('AA', { a: 1 });
-      stateProvider.state('AA', { parent: A, params: [ 'a' ]});
+      stateProvider.state('AA', { parent: A, params: { a: {} }});
       deferred.resolve();
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('AA');
-      expect($state.params).toEqual({ a: '1' });
+      expect($state.params).toEqual({ a: 1 });
     }));
 
     it('can defer and supersede a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -295,7 +298,7 @@ describe('state', function () {
       });
       var promise = $state.go('AA', { a: 1 });
       $state.go(B);
-      stateProvider.state('AA', { parent: A, params: [ 'a' ]});
+      stateProvider.state('AA', { parent: A, params: { a: {} }});
       deferred.resolve();
       $q.flush();
       expect(called).toBeTruthy();
@@ -436,7 +439,7 @@ describe('state', function () {
 
   describe('.go()', function () {
     it('transitions to a relative state', inject(function ($state, $q) {
-      $state.transitionTo('about.person.item', { id: 5 }); $q.flush();
+      $state.transitionTo('about.person.item', { person: "bob", id: 5 }); $q.flush();
       $state.go('^.^.sidebar'); $q.flush();
       expect($state.$current.name).toBe('about.sidebar');
 
@@ -475,7 +478,7 @@ describe('state', function () {
       $q.flush();
 
       expect($state.$current.name).toBe('about.person.item');
-      expect($stateParams).toEqual({ person: 'bob', id: '5' });
+      expect($stateParams).toEqual({ person: 'bob', id: 5 });
 
       $state.go('^.^.sidebar');
       $q.flush();
@@ -603,7 +606,7 @@ describe('state', function () {
 
     it('contains the parameter values for the current state', inject(function ($state, $q) {
       initStateTo(D, { x: 'x value', z: 'invalid value' });
-      expect($state.params).toEqual({ x: 'x value', y: null });
+      expect($state.params).toEqual({ x: 'x value', y: undefined });
     }));
   });
 
@@ -712,6 +715,7 @@ describe('state', function () {
         'about.person.item',
         'about.sidebar',
         'about.sidebar.item',
+        'badParam',
         'dynamicController',
         'first',
         'home',
@@ -778,6 +782,29 @@ describe('state', function () {
       $rootScope.$apply();
       expect($state.current.name).toBe('');
     }));
+
+    describe("typed parameter handling", function() {
+
+      it('should initialize parameters without a hacky empty test', inject(function ($urlMatcherFactory, $state) {
+        new UrlMatcher("");
+      }));
+
+      it('should ignore bad url parameters', inject(function ($state, $rootScope, $location, $urlMatcherFactory) {
+        $location.path("/bad/5");
+        $rootScope.$broadcast("$locationChangeSuccess");
+        $rootScope.$apply();
+        expect($state.current.name).toBe("badParam");
+
+        $state.transitionTo("about");
+        $rootScope.$apply();
+        expect($state.current.name).toBe('about');
+
+        $location.path("/bad/foo");
+        $rootScope.$broadcast("$locationChangeSuccess");
+        $rootScope.$apply();
+        expect($state.current.name).toBe("about");
+      }));
+    });
 
     it('should revert to last known working url on state change failure', inject(function ($state, $rootScope, $location, $q) {
       $state.transitionTo("about");
@@ -878,16 +905,16 @@ describe('state', function () {
 
   describe('substate and stateParams inheritance', function() {
     it('should inherit the parent param', inject(function ($state, $stateParams, $q) {
-      initStateTo($state.get('root'), {param1: 1});
-      $state.go('root.sub1', {param2: 2});
+      initStateTo($state.get('root'), { param1: 1 });
+      $state.go('root.sub1', { param2: 2 });
       $q.flush();
       expect($state.current.name).toEqual('root.sub1');
-      expect($stateParams).toEqual({param1: '1', param2: '2'});
+      expect($stateParams).toEqual({ param1: 1, param2: 2 });
     }));
 
     it('should not inherit siblings\' states', inject(function ($state, $stateParams, $q) {
-      initStateTo($state.get('root'), {param1: 1});
-      $state.go('root.sub1', {param2: 2});
+      initStateTo($state.get('root'), { param1: 1 });
+      $state.go('root.sub1', { param2: 2 });
       $q.flush();
       expect($state.current.name).toEqual('root.sub1');
 
@@ -895,7 +922,7 @@ describe('state', function () {
       $q.flush();
       expect($state.current.name).toEqual('root.sub2');
 
-      expect($stateParams).toEqual({param1: '1', param2: null});
+      expect($stateParams).toEqual({ param1: 1, param2: undefined });
     }));
   });
 
