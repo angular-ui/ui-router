@@ -310,6 +310,16 @@ describe("urlMatcherFactory", function () {
       expect(m.format({ id: 1138, state: "NY" })).toBe("/users/1138/NY");
     });
 
+    it("should match in between static segments", function() {
+      var m = new UrlMatcher('/users/{user:int}/photos', {
+        params: { user: 5 }
+      });
+      expect(m.exec('/users/photos').user).toBe(5);
+      expect(m.exec('/users/6/photos').user).toBe(6);
+      expect(m.format()).toBe("/users/photos");
+      expect(m.format({ user: 1138 })).toBe("/users/1138/photos");
+    });
+
     describe("default values", function() {
       it("should populate if not supplied in URL", function() {
         var m = new UrlMatcher('/users/{id:int}/{test}', {
