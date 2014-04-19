@@ -270,8 +270,8 @@ describe("urlMatcherFactory", function () {
         params: { id: { value: null } }
       });
       expect(m.exec('/users/1138')).toEqual({ id: 1138 });
-      expect(m.exec('/users/').id.toString()).toBe("NaN");
-      expect(m.exec('/users').id.toString()).toBe("NaN");
+      expect(m.exec('/users/').id).toBeNull();
+      expect(m.exec('/users').id).toBeNull();
     });
 
     it("should correctly match multiple", function() {
@@ -281,14 +281,14 @@ describe("urlMatcherFactory", function () {
       expect(m.exec('/users/1138')).toEqual({ id: 1138, state: null });
       expect(m.exec('/users/1138/NY')).toEqual({ id: 1138, state: "NY" });
 
-      expect(m.exec('/users/').id.toString()).toBe("NaN");
+      expect(m.exec('/users/').id).toBeNull();
       expect(m.exec('/users/').state).toBeNull();
 
-      expect(m.exec('/users').id.toString()).toBe("NaN");
+      expect(m.exec('/users').id).toBeNull();
       expect(m.exec('/users').state).toBeNull();
 
       expect(m.exec('/users/NY').state).toBe("NY");
-      expect(m.exec('/users/NY').id.toString()).toBe("NaN");
+      expect(m.exec('/users/NY').id).toBeNull();
     });
 
     it("should correctly format with or without values", function() {

@@ -216,12 +216,12 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
   for (i = 0; i < nPath; i++) {
     param = params[i];
     cfg = this.params[param];
-    values[param] = cfg.type.decode(isDefined(m[i + 1]) ? m[i + 1] : cfg.value);
+    values[param] = isDefined(m[i + 1]) ? cfg.type.decode(m[i + 1]) : cfg.value;
   }
   for (/**/; i < nTotal; i++) {
     param = params[i];
     cfg = this.params[param];
-    values[param] = cfg.type.decode(isDefined(searchParams[param]) ? searchParams[param] : cfg.value);
+    values[param] = isDefined(searchParams[param]) ? cfg.type.decode(searchParams[param]) : cfg.value;
   }
 
   return values;
