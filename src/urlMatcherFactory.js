@@ -80,10 +80,19 @@ function UrlMatcher(pattern, config) {
       segments = this.segments = [],
       params = this.params = {};
 
+  /**
+   * [Internal] Gets the decoded representation of a value if the value is defined, otherwise, returns the
+   * default value, which may be the result of an injectable function.
+   */
+  function $value(value) {
+    /*jshint validthis: true */
+    return isDefined(value) ? this.type.decode(value) : $UrlMatcherFactory.$$getDefaultValue(this);
+  }
+
   function addParameter(id, type, config) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
-    params[id] = extend({ type: type || new Type() }, config);
+    params[id] = extend({ type: type || new Type(), $value: $value }, config);
   }
 
   function quoteRegExp(string, pattern, isOptional) {
@@ -216,7 +225,7 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
   for (i = 0; i < nPath; i++) {
     param = params[i];
     cfg = this.params[param];
-    values[param] = isDefined(m[i + 1]) ? cfg.type.decode(m[i + 1]) : cfg.value;
+    values[param] = cfg.$value(m[i + 1]);
   }
   for (/**/; i < nTotal; i++) {
     param = params[i];
@@ -483,6 +492,19 @@ function $UrlMatcherFactory() {
     };
   }
 
+  function isInjectable(value) {
+    return (isFunction(value) || (isArray(value) && isFunction(value[value.length - 1])));
+  }
+
+  /**
+   * [Internal] Get the default value of a parameter, which may be an injectable function.
+   */
+  $UrlMatcherFactory.$$getDefaultValue = function(config) {
+    if (!isInjectable(config.value)) return config.value;
+    if (!injector) throw new Error("Injectable functions cannot be called at configuration time");
+    return injector.invoke(config.value);
+  };
+
   /**
    * @ngdoc function
    * @name ui.router.util.$urlMatcherFactory#caseInsensitive
@@ -683,8 +705,7 @@ function $UrlMatcherFactory() {
       if (UrlMatcher.prototype.$types[type.name]) {
         throw new Error("A type named '" + type.name + "' has already been defined.");
       }
-      var isAnnotated = isFunction(type.def) || isArray(type.def);
-      var def = new Type(isAnnotated ? injector.invoke(type.def) : type.def);
+      var def = new Type(isInjectable(type.def) ? injector.invoke(type.def) : type.def);
       UrlMatcher.prototype.$types[type.name] = def;
     });
   }

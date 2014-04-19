@@ -329,13 +329,38 @@ describe("urlMatcherFactory", function () {
         expect(m.exec("/foo")).toEqual({ foo: "bar" });
       });
 
-      it("should populate default values for query params", function() {
+      it("should populate query params", function() {
         var defaults = { order: "name", limit: 25, page: 1 };
         var m = new UrlMatcher('/foo?order&limit&page', {
           params: defaults
         });
         expect(m.exec("/foo")).toEqual(defaults);
       });
+
+      it("should allow function-calculated values", function() {
+        var m = new UrlMatcher('/foo/:bar', {
+          params: {
+            bar: function() {
+              return "Value from bar()";
+            }
+          }
+        });
+        expect(m.exec('/foo').bar).toBe("Value from bar()");
+      });
+
+      it("should allow injectable functions", inject(function($stateParams) {
+        var m = new UrlMatcher('/users/:user', {
+          params: {
+            user: function($stateParams) {
+              return $stateParams.user;
+            }
+          }
+        });
+        var user = { name: "Bob" };
+
+        $stateParams.user = user;
+        expect(m.exec('/users').user).toBe(user);
+      }));
     });
   });
 
