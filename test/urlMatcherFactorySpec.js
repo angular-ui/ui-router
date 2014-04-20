@@ -356,6 +356,15 @@ describe("urlMatcherFactory", function () {
           }
         });
         expect(m.exec('/foo').bar).toBe("Value from bar()");
+
+        var m = new UrlMatcher('/foo?bar', {
+          params: {
+            bar: function() {
+              return "Value from bar()";
+            }
+          }
+        });
+        expect(m.exec('/foo').bar).toBe("Value from bar()");
       });
 
       it("should allow injectable functions", inject(function($stateParams) {

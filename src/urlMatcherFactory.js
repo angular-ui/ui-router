@@ -230,7 +230,7 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
   for (/**/; i < nTotal; i++) {
     param = params[i];
     cfg = this.params[param];
-    values[param] = isDefined(searchParams[param]) ? cfg.type.decode(searchParams[param]) : cfg.value;
+    values[param] = cfg.$value(searchParams[param]);
   }
 
   return values;
