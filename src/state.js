@@ -294,7 +294,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
    * - **parent** `{object}` - returns the parent state object.
    * - **data** `{object}` - returns state data, including any inherited data that is not
    *   overridden by own values (if any).
-   * - **url** `{object}` - returns a {link ui.router.util.type:UrlMatcher} or null.
+   * - **url** `{object}` - returns a {@link ui.router.util.type:UrlMatcher UrlMatcher}
+   *   or `null`.
    * - **navigable** `{object}` - returns closest ancestor state that has a URL (aka is 
    *   navigable).
    * - **params** `{object}` - returns an array of state params that are ensured to 
@@ -310,7 +311,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
    * - **path** `{string}` - returns the full path from the root down to this state. 
    *   Needed for state activation.
    * - **includes** `{object}` - returns an object that includes every state that 
-   *   would pass a '$state.includes()' test.
+   *   would pass a `$state.includes()` test.
    *
    * @example
    * <pre>
@@ -607,6 +608,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     }
 
     root.locals = { resolve: null, globals: { $stateParams: {} } };
+
     $state = {
       params: {},
       current: root.self,
@@ -856,6 +858,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // empty and gets filled asynchronously. We need to keep track of the promise for the
       // (fully resolved) current locals, and pass this down the chain.
       var resolved = $q.when(locals);
+
       for (var l = keep; l < toPath.length; l++, state = toPath[l]) {
         locals = toLocals[l] = inherit(locals);
         resolved = resolveState(state, toParams, state === to, resolved, locals);
@@ -1018,7 +1021,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * </pre>
      *
      * @description
-     * Basic globing patterns will also work.
+     * Basic globbing patterns will also work.
      *
      * @example
      * <pre>
@@ -1038,7 +1041,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * that you'd like to test against the current active state.
      * @returns {boolean} Returns true if it does include the state
      */
-
     $state.includes = function includes(stateOrName, params) {
       if (isString(stateOrName) && isGlob(stateOrName)) {
         if (!doesStateMatchGlob(stateOrName)) {
@@ -1143,9 +1145,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // to the set that should be visible to the state, and are independent of when we update
       // the global $state and $stateParams values.
       dst.resolve = $resolve.resolve(state.resolve, locals, dst.resolve, state);
-      var promises = [ dst.resolve.then(function (globals) {
+      var promises = [dst.resolve.then(function (globals) {
         dst.globals = globals;
-      }) ];
+      })];
       if (inherited) promises.push(inherited);
 
       // Resolve template and dependencies for all views.
