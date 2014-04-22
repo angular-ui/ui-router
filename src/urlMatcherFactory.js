@@ -89,10 +89,10 @@ function UrlMatcher(pattern, config) {
     return isDefined(value) ? this.type.decode(value) : $UrlMatcherFactory.$$getDefaultValue(this);
   }
 
-  function addParameter(id, type, config) {
+  function addParameter(id, type, config, paramType) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
-    params[id] = extend({ type: type || new Type(), $value: $value }, config);
+    params[id] = extend({ type: type || new Type(), $value: $value , paramType: paramType}, config);
   }
 
   function quoteRegExp(string, pattern, isOptional) {
@@ -124,7 +124,7 @@ function UrlMatcher(pattern, config) {
     if (segment.indexOf('?') >= 0) break; // we're into the search part
 
     compiled += quoteRegExp(segment, type.$subPattern(), isDefined(cfg.value));
-    addParameter(id, type, cfg);
+    addParameter(id, type, cfg, 'path');
     segments.push(segment);
     last = placeholder.lastIndex;
   }
@@ -140,7 +140,7 @@ function UrlMatcher(pattern, config) {
 
     // Allow parameters to be separated by '?' as well as '&' to make concat() easier
     forEach(search.substring(1).split(/[&?]/), function(key) {
-      addParameter(key, null, paramConfig(key));
+      addParameter(key, null, paramConfig(key), 'query');
     });
   } else {
     this.sourcePath = pattern;
