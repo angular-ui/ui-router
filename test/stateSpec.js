@@ -27,6 +27,9 @@ describe('state', function () {
       HH = { parent: H },
       HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
       RS = { url: '^/search?term', reloadOnSearch: false },
+      RP = { url: '/path/:path?term', reloadOnPath: false },
+      RQ = { url: '/path2/:path?term', reloadOnQuery: false },
+      RPRQ = { url: '/path3/:path?term', reloadOnPath: false, reloadOnQuery: false },
       AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -47,6 +50,9 @@ describe('state', function () {
       .state('HH', HH)
       .state('HHH', HHH)
       .state('RS', RS)
+      .state('RP', RP)
+      .state('RQ', RQ)
+      .state('RPRQ', RPRQ)
 
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
@@ -161,7 +167,60 @@ describe('state', function () {
       });
       $q.flush();
       expect($location.search()).toEqual({term: 'hello'});
-      expect(called).toBeFalsy();        
+      expect(called).toBeFalsy();
+    }));
+
+    it('doesn\'t trigger state change and does change $stateParams if reloadOnPath is false',
+      inject(function ($state, $stateParams, $q, $location, $rootScope){
+      initStateTo(RP, { path: 'hello'});
+      var called;
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+        called = true
+      });
+      $state.go('RP', { path: 'world' });
+      $q.flush();
+      expect($location.path()).toEqual('/path/world');
+      expect(called).toBeFalsy();
+      expect($stateParams).toEqual({ path: 'world', term: undefined });
+      $state.go('RP', { path: 'hello', term: 'term' });     // test when search params change
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($location.path()).toEqual('/path/hello');
+      expect($stateParams).toEqual({ path: 'hello', term: 'term' });
+    }));
+
+    it('doesn\'t trigger state change and does change $stateParams if reloadOnQuery is false',
+      inject(function ($state, $stateParams, $q, $location, $rootScope){
+      initStateTo(RQ, { path: 'hello', term: 'term'});
+      var called;
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+        called = true
+      });
+      $state.go('RQ', { term: 'newTerm' });
+      $q.flush();
+      expect($location.search()).toEqual({ term: 'newTerm' });
+      expect(called).toBeFalsy();
+      expect($stateParams).toEqual({ path: 'hello', term: 'newTerm' });
+      $state.go('RQ', { path: 'world', term: 'term'});     // test when path params change
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($location.search()).toEqual({ term: 'term' });
+      expect($stateParams).toEqual({ path: 'world', term: 'term' });
+    }));
+
+    it('doesn\'t trigger state change and does change $stateParams if reloadOnPath and reloadOnQuery is false',
+      inject(function ($state, $stateParams, $q, $location, $rootScope){
+      initStateTo(RPRQ, { path: 'hello', term: 'term'});
+      var called;
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+        called = true
+      });
+      $state.go('RPRQ', {});  // visit same state with same params
+      $q.flush();
+      expect($location.search()).toEqual({ term: 'term' });
+      expect($location.path()).toEqual('/path3/hello');
+      expect(called).toBeFalsy();
+      expect($stateParams).toEqual({ path: 'hello', term: 'term' });
     }));
 
     it('ignores non-applicable state parameters', inject(function ($state, $q) {
@@ -709,6 +768,9 @@ describe('state', function () {
         'H',
         'HH',
         'HHH',
+        'RP',
+        'RPRQ',
+        'RQ',
         'RS',
         'about',
         'about.person',
