@@ -749,6 +749,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * - **`reload`** (v0.2.5) - {boolean=false}, If `true` will force transition even if the state or params 
      *    have not changed, aka a reload of the same state. It differs from reloadOnSearch because you'd
      *    use this when you want to force a reload when *everything* is the same, including search params.
+     * - **`reloadOnPath`** (v0.2.10)- {boolean=true}, If `false` controllers and views will not be reloaded when only the path params change.
+     *    'reloadOnQuery' value of 'true' with search params changed will override this.
+     *    In the event of reload is suppressed, the path params of url will still change.
+     * - **`reloadOnQuery`** (v0.2.10)- {boolean=true}, If `false` controllers and views will not be reloaded when only the search params change.
+     *    'reloadOnPath' value of 'true' with path params changed will override this.
+     *    In the event of reload is suppressed, the query string params of the url will still change.
      *
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
@@ -756,7 +762,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     $state.transitionTo = function transitionTo(to, toParams, options) {
       toParams = toParams || {};
       options = extend({
-        location: true, inherit: false, relative: null, notify: true, reload: false, $retry: false
+        location: true, inherit: false, relative: null, notify: true, reload: false, reloadOnPath: true, reloadOnQuery: true, $retry: false
       }, options || {});
 
       var from = $state.$current, fromParams = $state.params, fromPath = from.path;
@@ -812,6 +818,55 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
       // Filter parameters before we pass them to event handlers etc.
       toParams = filterByKeys(objectKeys(to.params), toParams || {});
+
+
+      // If we're going to the same state
+      // Let's handle the reloadOnPath and reloadOnQuery state configurations
+      if ( to === from ) {
+        var key, param, shouldNotReload, currentLocals,
+          isPathChanged = false,
+          isSearchChanged = false,
+          // Is the reloadOnPath set on the state or the options?
+          reloadOnPath = !(to.self.reloadOnPath === false || options.reloadOnPath === false),
+          // Is the reloadOnQuery set on the state or the options?
+          reloadOnQuery = !(to.self.reloadOnQuery === false || options.reloadOnQuery === false);
+
+        // If either reloadOnPath or reloadOnQuery is suppressed let's flag whether params of either type is changed
+        if(!reloadOnPath || !reloadOnQuery) {
+          for(key in to.params) {
+            param = to.params[key];
+            if(toParams[key]!==$stateParams[key]) {
+              if(param.paramType=='path')
+                isPathChanged = true;
+              else if (param.paramType=='query')
+                isSearchChanged = true;
+            }
+          }
+        }
+
+        // We should not reload if both reloadOnPath and reloadOnQuery is suppressed,
+        // reloadOnPath is suppressed and search parameters haven't changed, or
+        // reloadOnQuery is suppressed and path parameters haven't changed
+        shouldNotReload = ((!reloadOnPath && !reloadOnQuery) ||
+          (!reloadOnPath && !isSearchChanged) || (!reloadOnQuery && !isPathChanged));
+        if(shouldNotReload) {
+          //update the relevant parameters to reflect changes to the current state's $stateParams
+          $state.params = toParams;
+          copy($state.params, $stateParams);
+          currentLocals = to.locals;
+          copy($state.params, currentLocals.globals.$stateParams);
+          copy($state.params, currentLocals['@'].$stateParams);
+          if(currentLocals['@'].$$controller)
+            copy($state.params, currentLocals['@'].$$controller.$stateParams);
+          if(currentLocals.$$controller)
+            copy($state.params, currentLocals.$$controller.$stateParams);
+          $urlRouter.push(to.url, $stateParams);
+          $urlRouter.update(true);
+          $urlRouter.sync();
+          $state.transition = null;
+          return $q.when($state.current);
+        }
+      }
 
       // Broadcast start event and cancel the transition if requested
       if (options.notify) {
