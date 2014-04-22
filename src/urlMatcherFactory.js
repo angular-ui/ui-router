@@ -301,7 +301,7 @@ UrlMatcher.prototype.format = function (values) {
   if (!values) return segments.join('').replace('//', '/');
 
   var nPath = segments.length - 1, nTotal = params.length,
-    result = segments[0], i, search, value, param, cfg;
+    result = segments[0], i, search, value, param, cfg, array;
 
   if (!this.validates(values)) return null;
 
@@ -317,8 +317,14 @@ UrlMatcher.prototype.format = function (values) {
 
   for (/**/; i < nTotal; i++) {
     param = params[i];
-    if (values[param] == null) continue;
-    result += (search ? '&' : '?') + param + '=' + encodeURIComponent(values[param]);
+    value = values[param];
+    if (value == null) continue;
+    array = isArray(value);
+
+    if (array) {
+      value = value.map(encodeURIComponent).join('&' + param + '=');
+    }
+    result += (search ? '&' : '?') + param + '=' + (array ? value : encodeURIComponent(value));
     search = true;
   }
   return result;

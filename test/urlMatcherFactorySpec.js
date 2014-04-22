@@ -55,13 +55,13 @@ describe("UrlMatcher", function () {
 
   it("should parse parameter placeholders", function () {
     var matcher = new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?from&to');
-    var params = matcher.parameters();
-    expect(params.length).toBe(5);
-    expect(params).toContain('id');
-    expect(params).toContain('type');
-    expect(params).toContain('repeat');
-    expect(params).toContain('from');
-    expect(params).toContain('to');
+    expect(matcher.parameters()).toEqual(['id', 'type', 'repeat', 'from', 'to']);
+  });
+
+  it("should encode and decode duplicate query string values as array", function () {
+    var matcher = new UrlMatcher('/?foo'), array = { foo: ["bar", "baz"] };
+    expect(matcher.exec('/', array)).toEqual(array);
+    expect(matcher.format(array)).toBe('/?foo=bar&foo=baz');
   });
 
   describe("snake-case parameters", function() {
