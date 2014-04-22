@@ -1214,7 +1214,7 @@ function $StateParamsProvider() {
       forEach(key.split(" "), function(k) {
         observers[k].splice(observers[k].indexOf(func), 1);
       });
-    }
+    };
   }
 
   function observeChange(key, val) {
