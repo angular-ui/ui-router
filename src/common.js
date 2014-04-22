@@ -142,7 +142,7 @@ function filterByKeys(keys, values) {
   var filtered = {};
 
   forEach(keys, function (name) {
-    filtered[name] = values[name];
+    if (isDefined(values[name])) filtered[name] = values[name];
   });
   return filtered;
 }

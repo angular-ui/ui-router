@@ -397,6 +397,31 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
         port = (port === 80 || port === 443 ? '' : ':' + port);
 
         return [$location.protocol(), '://', $location.host(), port, slash, url].join('');
+      },
+
+      /**
+       * @ngdoc function
+       * @name ui.router.router.$urlRouter#shouldReload
+       * @methodOf ui.router.router.$urlRouter
+       *
+       * @description
+       * Accepts a set of parameters and determines whether a reload should be performed, or
+       * whether the parameters should be updated inline (i.e. if the parameters have been
+       * flagged as being dynamic).
+       *
+       * @param {UrlMatcher} url The URL against which the parameters are being checked.
+       * @param {Object} params The object hash of parameters to check.
+       * @return {Boolean} Returns `true` if the parameters should be updated inline, or `false`
+       *         if they should trigger a reload.
+       */
+      isDynamic: function(urlMatcher, params) {
+        var cfg, result = objectKeys(params).length > 0;
+
+        forEach(params, function(val, key) {
+          cfg = urlMatcher.parameters(key) || {};
+          result = result && (cfg.dynamic === true);
+        });
+        return result;
       }
     };
   }
