@@ -806,15 +806,30 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         }
       }
 
-      // If we're going to the same state and all locals are kept, we've got nothing to do.
-      // But clear 'transition', as we still want to cancel any other pending transitions.
-      // TODO: We may not want to bump 'transition' if we're called from a location change
-      // that we've initiated ourselves, because we might accidentally abort a legitimate
-      // transition initiated from code?
-      if (shouldTriggerReload(to, from, locals, options)) {
-        if (to.self.reloadOnSearch !== false) $urlRouter.update();
-        $state.transition = null;
-        return $q.when($state.current);
+      if (to === from && !options.reload) {
+        var isDynamic = false;
+
+        if (toState.url) {
+          var changes = {};
+
+          forEach(toParams, function(val, key) {
+            if (val != $stateParams[key]) changes[key] = val;
+          });
+
+          isDynamic = objectKeys(changes).length && $urlRouter.isDynamic(toState.url, changes);
+
+          if (isDynamic) {
+            $stateParams.$set(changes);
+            $urlRouter.push(toState.url, $stateParams, { replace: true });
+            $urlRouter.update(true);
+          }
+        }
+
+        if (isDynamic || locals === from.locals) {
+          if (!isDynamic) $urlRouter.update();
+          $state.transition = null;
+          return $q.when($state.current);
+        }
       }
 
       // Filter parameters before we pass them to event handlers etc.
@@ -905,6 +920,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         $state.params = toParams;
         copy($state.params, $stateParams);
         $state.transition = null;
+        $stateParams.$sync();
+        $stateParams.$off();
 
         if (options.location && to.navigable) {
           $urlRouter.push(to.navigable.url, to.navigable.locals.globals.$stateParams, {
@@ -1190,14 +1207,86 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
     return $state;
   }
+}
 
-  function shouldTriggerReload(to, from, locals, options) {
-    if (to === from && ((locals === from.locals && !options.reload) || (to.self.reloadOnSearch === false))) {
-      return true;
+$StateParamsProvider.$inject = [];
+function $StateParamsProvider() {
+
+  var observers = {}, current = {};
+
+  function unhook(key, func) {
+    return function() {
+      forEach(key.split(" "), function(k) {
+        observers[k].splice(observers[k].indexOf(func), 1);
+      });
     }
+  }
+
+  function observeChange(key, val) {
+    if (!observers[key] || !observers[key].length) return;
+
+    forEach(observers[key], function(func) {
+      func();
+    });
+  }
+
+  function StateParams() {
+  }
+
+  StateParams.prototype.$digest = function() {
+    forEach(this, function(val, key) {
+      if (val == current[key] || !this.hasOwnProperty(key)) return;
+      current[key] = val;
+      observeChange(key, val);
+    }, this);
+  };
+
+  StateParams.prototype.$set = function(params) {
+    forEach(params, function(val, key) {
+      this[key] = val;
+      observeChange(key);
+    }, this);
+    this.$sync();
+  };
+
+  StateParams.prototype.$sync = function() {
+    copy(this, current);
+  };
+
+  StateParams.prototype.$off = function() {
+    observers = {};
+  };
+
+  StateParams.prototype.$localize = function(state) {
+    var localized = new StateParams();
+
+    forEach(state.params, function(val, key) {
+      localized[key] = this[key];
+    }, this);
+    return localized;
+  };
+
+  StateParams.prototype.$observe = function(key, func) {
+    forEach(key.split(" "), function(k) {
+      (observers[k] || (observers[k] = [])).push(func);
+    });
+    return unhook(key, func);
+  };
+
+  this.$get = $get;
+  $get.$inject = ['$rootScope'];
+  function $get(   $rootScope) {
+
+    var global = new StateParams();
+
+    $rootScope.$watch(function() {
+      global.$digest();
+    });
+
+    return global;
   }
 }
 
 angular.module('ui.router.state')
-  .value('$stateParams', {})
+  .provider('$stateParams', $StateParamsProvider)
   .provider('$state', $StateProvider);

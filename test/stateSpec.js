@@ -26,7 +26,7 @@ describe('state', function () {
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
       HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
-      RS = { url: '^/search?term', reloadOnSearch: false },
+      RS = { url: '^/search?term', params: { term: { dynamic: true } } },
       AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -152,16 +152,27 @@ describe('state', function () {
       expect($state.current).toBe(A);
     }));
 
-    it('doesn\'t trigger state change if reloadOnSearch is false', inject(function ($state, $q, $location, $rootScope){
-      initStateTo(RS);
-      $location.search({term: 'hello'});
-      var called;
+    it('does not trigger state change if params are dynamic', inject(function ($state, $q, $location, $rootScope, $stateParams) {
+      var called = { change: false, observe: false };
+      initStateTo(RS, { term: 'goodbye' });
+
+      $location.search({ term: 'hello' });
+      expect($stateParams.term).toBe("goodbye");
+
       $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
-        called = true
+        called.change = true;
       });
+
+      $stateParams.$observe('term', function(val) {
+        called.observe = true;
+      });
+
       $q.flush();
-      expect($location.search()).toEqual({term: 'hello'});
-      expect(called).toBeFalsy();        
+      expect($location.search()).toEqual({ term: 'hello' });
+      expect($stateParams.term).toBe('hello');
+
+      expect(called.change).toBe(false);
+      expect(called.observe).toBe(true);
     }));
 
     it('ignores non-applicable state parameters', inject(function ($state, $q) {
@@ -478,7 +489,7 @@ describe('state', function () {
       $q.flush();
 
       expect($state.$current.name).toBe('about.person.item');
-      expect($stateParams).toEqual({ person: 'bob', id: 5 });
+      expect($stateParams).toEqualData({ person: 'bob', id: 5 });
 
       $state.go('^.^.sidebar');
       $q.flush();
@@ -908,7 +919,7 @@ describe('state', function () {
       $state.go('root.sub1', { param2: 2 });
       $q.flush();
       expect($state.current.name).toEqual('root.sub1');
-      expect($stateParams).toEqual({ param1: 1, param2: 2 });
+      expect($stateParams).toEqualData({ param1: 1, param2: 2 });
     }));
 
     it('should not inherit siblings\' states', inject(function ($state, $stateParams, $q) {
@@ -921,7 +932,7 @@ describe('state', function () {
       $q.flush();
       expect($state.current.name).toEqual('root.sub2');
 
-      expect($stateParams).toEqual({ param1: 1, param2: undefined });
+      expect($stateParams).toEqualData({ param1: 1, param2: undefined });
     }));
   });
 
@@ -1016,7 +1027,7 @@ describe('state', function () {
   });
 });
 
-describe('state queue', function(){
+describe('state queue', function() {
   angular.module('ui.router.queue.test', ['ui.router.queue.test.dependency'])
     .config(function($stateProvider) {
       $stateProvider
