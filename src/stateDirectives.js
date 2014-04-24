@@ -89,10 +89,9 @@ function $StateRefDirective($state, $timeout) {
       var isForm = element[0].nodeName === "FORM";
       var attr = isForm ? "action" : "href", nav = true;
 
-      var options = {
-        relative: base
-      };
+      var options = { relative: base, inherit: true };
       var optionsOverride = scope.$eval(attrs.uiSrefOpts) || {};
+
       angular.forEach(allowedOptions, function(option) {
         if (option in optionsOverride) {
           options[option] = optionsOverride[option];
