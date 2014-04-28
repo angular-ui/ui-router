@@ -1127,16 +1127,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * @description
      * Returns the state configuration object for any specific state or all states.
      *
-     * @param {string|object=} stateOrName (absolute or relative) If provided, will only get the config for
+     * @param {string|Sbject=} stateOrName (absolute or relative) If provided, will only get the config for
      * the requested state. If not provided, returns an array of ALL state configs.
-     * @returns {object|array} State configuration object or array of all objects.
+     * @returns {Object|Array} State configuration object or array of all objects.
      */
     $state.get = function (stateOrName, context) {
-      if (arguments.length === 0) {
-        var list = [];
-        forEach(states, function(state) { list.push(state.self); });
-        return list;
-      }
+      if (arguments.length === 0) return objectKeys(states).map(function(name) { return states[name].self; });
       var state = findState(stateOrName, context);
       return (state && state.self) ? state.self : null;
     };
