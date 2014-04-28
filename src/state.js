@@ -919,9 +919,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         $stateParams.$off();
 
         if (options.location && to.navigable) {
-          $urlRouter.push(to.navigable.url, to.navigable.locals.globals.$stateParams, {
-            replace: options.location === 'replace'
-          });
+          $urlRouter.push(to.navigable.url, $stateParams, { replace: options.location === 'replace' });
         }
 
         if (options.notify) {
@@ -1154,29 +1152,30 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       return (state && state.self) ? state.self : null;
     };
 
-    function resolveState(state, params, paramsAreFiltered, inherited, dst) {
+    function resolveState(state, params, filtered, inherited, dst) {
       // Make a restricted $stateParams with only the parameters that apply to this state if
       // necessary. In addition to being available to the controller and onEnter/onExit callbacks,
       // we also need $stateParams to be available for any $injector calls we make during the
       // dependency resolution process.
-      var $stateParams = (paramsAreFiltered) ? params : filterByKeys(objectKeys(state.params), params);
-      var locals = { $stateParams: $stateParams };
+      var locals = { $stateParams: (filtered) ? params : $stateParams.$localize(state, params) };
 
       // Resolve 'global' dependencies for the state, i.e. those not specific to a view.
       // We're also including $stateParams in this; that way the parameters are restricted
       // to the set that should be visible to the state, and are independent of when we update
       // the global $state and $stateParams values.
       dst.resolve = $resolve.resolve(state.resolve, locals, dst.resolve, state);
+
       var promises = [dst.resolve.then(function (globals) {
         dst.globals = globals;
       })];
+
       if (inherited) promises.push(inherited);
 
       // Resolve template and dependencies for all views.
       forEach(state.views, function (view, name) {
         var injectables = (view.resolve && view.resolve !== state.resolve ? view.resolve : {});
         injectables.$template = [ function () {
-          return $view.load(name, { view: view, locals: locals, params: $stateParams }) || '';
+          return $view.load(name, { view: view, locals: locals, params: locals.$stateParams }) || '';
         }];
 
         promises.push($resolve.resolve(injectables, locals, dst.resolve, state).then(function (result) {
@@ -1207,72 +1206,77 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 $StateParamsProvider.$inject = [];
 function $StateParamsProvider() {
 
-  var observers = {}, current = {};
+  function stateParamsFactory() {
+    var observers = {}, current = {};
 
-  function unhook(key, func) {
-    return function() {
-      forEach(key.split(" "), function(k) {
-        observers[k].splice(observers[k].indexOf(func), 1);
+    function unhook(key, func) {
+      return function() {
+        forEach(key.split(" "), function(k) {
+          observers[k].splice(observers[k].indexOf(func), 1);
+        });
+      };
+    }
+
+    function observeChange(key, val) {
+      if (!observers[key] || !observers[key].length) return;
+
+      forEach(observers[key], function(func) {
+        func(val);
       });
+    }
+
+    function StateParams() {
+    }
+
+    StateParams.prototype.$digest = function() {
+      forEach(this, function(val, key) {
+        if (val == current[key] || !this.hasOwnProperty(key)) return;
+        current[key] = val;
+        observeChange(key, val);
+      }, this);
     };
+
+    StateParams.prototype.$set = function(params) {
+      forEach(params, function(val, key) {
+        this[key] = val;
+        observeChange(key);
+      }, this);
+      this.$sync();
+    };
+
+    StateParams.prototype.$sync = function() {
+      copy(this, current);
+    };
+
+    StateParams.prototype.$off = function() {
+      observers = {};
+    };
+
+    StateParams.prototype.$localize = function(state, params) {
+      var localized = new StateParams();
+      params = params || this;
+
+      forEach(state.params, function(val, key) {
+        localized[key] = params[key];
+      });
+      return localized;
+    };
+
+    StateParams.prototype.$observe = function(key, func) {
+      forEach(key.split(" "), function(k) {
+        (observers[k] || (observers[k] = [])).push(func);
+      });
+      return unhook(key, func);
+    };
+
+    return new StateParams();
   }
 
-  function observeChange(key, val) {
-    if (!observers[key] || !observers[key].length) return;
-
-    forEach(observers[key], function(func) {
-      func();
-    });
-  }
-
-  function StateParams() {
-  }
-
-  StateParams.prototype.$digest = function() {
-    forEach(this, function(val, key) {
-      if (val == current[key] || !this.hasOwnProperty(key)) return;
-      current[key] = val;
-      observeChange(key, val);
-    }, this);
-  };
-
-  StateParams.prototype.$set = function(params) {
-    forEach(params, function(val, key) {
-      this[key] = val;
-      observeChange(key);
-    }, this);
-    this.$sync();
-  };
-
-  StateParams.prototype.$sync = function() {
-    copy(this, current);
-  };
-
-  StateParams.prototype.$off = function() {
-    observers = {};
-  };
-
-  StateParams.prototype.$localize = function(state) {
-    var localized = new StateParams();
-
-    forEach(state.params, function(val, key) {
-      localized[key] = this[key];
-    }, this);
-    return localized;
-  };
-
-  StateParams.prototype.$observe = function(key, func) {
-    forEach(key.split(" "), function(k) {
-      (observers[k] || (observers[k] = [])).push(func);
-    });
-    return unhook(key, func);
-  };
+  var global = stateParamsFactory();
 
   this.$get = $get;
   $get.$inject = ['$rootScope'];
   function $get(   $rootScope) {
-
-    var global = new StateParams();
 
     $rootScope.$watch(function() {
       global.$digest();
