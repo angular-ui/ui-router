@@ -923,20 +923,20 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         }
 
         if (options.notify) {
-        /**
-         * @ngdoc event
-         * @name ui.router.state.$state#$stateChangeSuccess
-         * @eventOf ui.router.state.$state
-         * @eventType broadcast on root scope
-         * @description
-         * Fired once the state transition is **complete**.
-         *
-         * @param {Object} event Event object.
-         * @param {State} toState The state being transitioned to.
-         * @param {Object} toParams The params supplied to the `toState`.
-         * @param {State} fromState The current state, pre-transition.
-         * @param {Object} fromParams The params supplied to the `fromState`.
-         */
+          /**
+           * @ngdoc event
+           * @name ui.router.state.$state#$stateChangeSuccess
+           * @eventOf ui.router.state.$state
+           * @eventType broadcast on root scope
+           * @description
+           * Fired once the state transition is **complete**.
+           *
+           * @param {Object} event Event object.
+           * @param {State} toState The state being transitioned to.
+           * @param {Object} toParams The params supplied to the `toState`.
+           * @param {State} fromState The current state, pre-transition.
+           * @param {Object} fromParams The params supplied to the `fromState`.
+           */
           $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
         }
         $urlRouter.update(true);
