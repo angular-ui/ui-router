@@ -1061,3 +1061,86 @@ describe('state queue', function() {
     });
   });
 });
+
+describe("state params", function() {
+
+  describe("observation", function() {
+    it("should broadcast updates when values change", inject(function($stateParams, $rootScope) {
+      var called = false;
+
+      $stateParams.$observe("a", function(newVal) {
+        called = (newVal === "Hello");
+      });
+
+      $stateParams.a = "Hello";
+      $rootScope.$digest();
+      expect(called).toBe(true);
+    }));
+
+    it("should broadcast once on change", inject(function($stateParams, $rootScope) {
+      var called = 0;
+
+      $stateParams.$observe("a", function(newVal) {
+        called++;
+      });
+
+      $stateParams.a = "Hello";
+      $rootScope.$digest();
+      expect(called).toBe(1);
+
+      $rootScope.$digest();
+      expect(called).toBe(1);
+
+      $stateParams.a = "Goodbye";
+      $rootScope.$digest();
+      expect(called).toBe(2);
+    }));
+
+    it("should be attachable to multiple fields", inject(function($stateParams, $rootScope) {
+      var called = 0;
+
+      $stateParams.$observe("a b", function(newVal) {
+        called += (newVal === "Hello") ? 1 : 0;
+      });
+
+      $stateParams.a = "Hello";
+      $rootScope.$digest();
+
+      expect(called).toBe(1);
+
+      $stateParams.b = "Hello";
+      $rootScope.$digest();
+
+      expect(called).toBe(2);
+    }));
+
+    it("should be detachable", inject(function($stateParams, $rootScope) {
+      var called = 0, off = $stateParams.$observe("a", function(newVal) {
+        called++;
+      });
+
+      $stateParams.a = "Hello";
+      $rootScope.$digest();
+      off();
+
+      $stateParams.a = "Goodbye";
+      $rootScope.$digest();
+
+      expect(called).toBe(1);
+
+      $stateParams.$observe("a", function(newVal) {
+        called++;
+      });
+
+      $stateParams.a = "Hello";
+      $rootScope.$digest();
+      expect(called).toBe(2);
+
+      $stateParams.$off();
+
+      $stateParams.a = "Hello";
+      $rootScope.$digest();
+      expect(called).toBe(2);
+    }));
+  });
+});
