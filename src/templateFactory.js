@@ -38,13 +38,18 @@ function $TemplateFactory(  $http,   $templateCache,   $injector) {
    * that string,or `null` if no template is configured.
    */
   this.fromConfig = function (config, params, locals) {
-    return (
-      isDefined(config.template) ? this.fromString(config.template, params) :
+    var template = isDefined(config.template) ? this.fromString(config.template, params) :
       isDefined(config.templateUrl) ? this.fromUrl(config.templateUrl, params) :
       isDefined(config.templateProvider) ? this.fromProvider(config.templateProvider, params, locals) :
-      null
-    );
+      null;
+      
+    if (template === null) {
+      throw new Error("template, templateUrl, or templateProvider must be defined.");
+    }
+    
+    return template;
   };
+
 
   /**
    * @ngdoc function
