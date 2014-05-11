@@ -115,7 +115,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect($stateParams).toEqual({ id: "5" });
+      expect($stateParams).toEqual({ id: 5 });
     }));
 
     it('should transition when given a click that contains no data (fake-click)', inject(function($state, $stateParams, $document, $q, $timeout) {
@@ -126,13 +126,13 @@ describe('uiStateRef', function() {
         ctrlKey:  undefined,
         shiftKey: undefined,
         altKey:   undefined,
-        button:   undefined 
+        button:   undefined
       });
       $timeout.flush();
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect($stateParams).toEqual({ id: "5" });
+      expect($stateParams).toEqual({ id: 5 });
     }));
 
     it('should not transition states when ctrl-clicked', inject(function($state, $stateParams, $document, $q) {
@@ -141,7 +141,7 @@ describe('uiStateRef', function() {
 
       $q.flush();
       expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: "5" });
+      expect($stateParams).toEqual({ id: 5 });
     }));
 
     it('should not transition states when meta-clicked', inject(function($state, $stateParams, $document, $q) {
@@ -151,7 +151,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: "5" });
+      expect($stateParams).toEqual({ id: 5 });
     }));
 
     it('should not transition states when shift-clicked', inject(function($state, $stateParams, $document, $q) {
@@ -161,7 +161,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: "5" });
+      expect($stateParams).toEqual({ id: 5 });
     }));
 
     it('should not transition states when middle-clicked', inject(function($state, $stateParams, $document, $q) {
@@ -171,7 +171,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: "5" });
+      expect($stateParams).toEqual({ id: 5 });
     }));
 
     it('should not transition states when element has target specified', inject(function($state, $stateParams, $document, $q, $timeout) {
@@ -182,7 +182,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: "5" });
+      expect($stateParams).toEqual({ id: 5 });
     }));
   });
 
@@ -199,8 +199,8 @@ describe('uiStateRef', function() {
       scope.$digest();
     }));
 
-    it('should generate the correct action', function() {
-      expect(el.attr('action')).toBe('#/contacts/5');
+    it('should not generate action', function() {
+      expect(el.attr('action')).toBeUndefined();
     });
   });
 
@@ -223,7 +223,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.$current.name).toBe("contacts.item.detail");
-      expect($state.params).toEqual({ id: '5' });
+      expect($state.params).toEqual({ id: 5 });
     }));
 
     it('should resolve states from parent uiView', inject(function ($state, $stateParams, $q, $timeout) {

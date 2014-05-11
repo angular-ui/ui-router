@@ -1,6 +1,14 @@
 function parseStateRef(ref) {
   var parsed = ref.replace(/\n/g, " ").match(/^([^(]+?)\s*(\((.*)\))?$/);
   if (!parsed || parsed.length !== 4) throw new Error("Invalid state ref '" + ref + "'");
+
+  // if no object notation, wrap object with varname as key
+  if (parsed[3] && /^[^{].*[^}]$/.test(parsed[3])) {
+    parsed[3] = '{' + parsed[3].split(',').map(function (p) {
+      return p + ':' + p;
+    }).join(',') + '}';
+  }
+
   return { state: parsed[1], paramExpr: parsed[3] || null };
 }
 
@@ -22,17 +30,17 @@ function stateContext(el) {
  * @restrict A
  *
  * @description
- * A directive that binds a link (`<a>` tag) to a state. If the state has an associated 
- * URL, the directive will automatically generate & update the `href` attribute via 
- * the {@link ui.router.state.$state#methods_href $state.href()} method. Clicking 
- * the link will trigger a state transition with optional parameters. 
+ * A directive that binds a link (`<a>` tag) to a state. If the state has an associated
+ * URL, the directive will automatically generate & update the `href` attribute via
+ * the {@link ui.router.state.$state#methods_href $state.href()} method. Clicking
+ * the link will trigger a state transition with optional parameters.
  *
- * Also middle-clicking, right-clicking, and ctrl-clicking on the link will be 
+ * Also middle-clicking, right-clicking, and ctrl-clicking on the link will be
  * handled natively by the browser.
  *
- * You can also use relative state paths within ui-sref, just like the relative 
+ * You can also use relative state paths within ui-sref, just like the relative
  * paths passed to `$state.go()`. You just need to be aware that the path is relative
- * to the state that the link lives in, in other words the state that loaded the 
+ * to the state that the link lives in, in other words the state that loaded the
  * template containing the link.
  *
  * You can specify options to pass to {@link ui.router.state.$state#go $state.go()}
@@ -40,22 +48,22 @@ function stateContext(el) {
  * and `reload`.
  *
  * @example
- * Here's an example of how you'd use ui-sref and how it would compile. If you have the 
+ * Here's an example of how you'd use ui-sref and how it would compile. If you have the
  * following template:
  * <pre>
  * <a ui-sref="home">Home</a> | <a ui-sref="about">About</a>
- * 
+ *
  * <ul>
  *     <li ng-repeat="contact in contacts">
  *         <a ui-sref="contacts.detail({ id: contact.id })">{{ contact.name }}</a>
  *     </li>
  * </ul>
  * </pre>
- * 
+ *
  * Then the compiled html would be (assuming Html5Mode is off):
  * <pre>
  * <a href="#/home" ui-sref="home">Home</a> | <a href="#/about" ui-sref="about">About</a>
- * 
+ *
  * <ul>
  *     <li ng-repeat="contact in contacts">
  *         <a href="#/contacts/1" ui-sref="contacts.detail({ id: contact.id })">Joe</a>
@@ -85,7 +93,9 @@ function $StateRefDirective($state, $timeout) {
       var ref = parseStateRef(attrs.uiSref);
       var params = null, url = null, base = stateContext(element) || $state.$current;
       var isForm = element[0].nodeName === "FORM";
-      var attr = isForm ? "action" : "href", nav = true;
+      var state = $state.get(ref.state, base);
+      var hasUrl = state && state.url;
+      var attr = (isForm && hasUrl) ? "action" : (!isForm) ? "href" : undefined, nav = true;
 
       var options = {
         relative: base
@@ -110,7 +120,7 @@ function $StateRefDirective($state, $timeout) {
           nav = false;
           return false;
         }
-        element[0][attr] = newHref;
+        if (attr) element[0][attr] = newHref;
       };
 
       if (ref.paramExpr) {
@@ -121,7 +131,15 @@ function $StateRefDirective($state, $timeout) {
       }
       update();
 
-      if (isForm) return;
+      if (isForm && !hasUrl) {
+        element.bind("submit", function (e) {
+          $timeout(function() {
+            $state.go(ref.state, params, options);
+          });
+          e.preventDefault();
+        });
+        return;
+      }
 
       element.bind("click", function(e) {
         var button = e.which || e.button;
@@ -148,9 +166,9 @@ function $StateRefDirective($state, $timeout) {
  * @restrict A
  *
  * @description
- * A directive working alongside ui-sref to add classes to an element when the 
+ * A directive working alongside ui-sref to add classes to an element when the
  * related ui-sref directive's state is active, and removing them when it is inactive.
- * The primary use-case is to simplify the special appearance of navigation menus 
+ * The primary use-case is to simplify the special appearance of navigation menus
  * relying on `ui-sref`, by having the "active" state's menu button appear different,
  * distinguishing it from the inactive menu items.
  *
@@ -163,8 +181,8 @@ function $StateRefDirective($state, $timeout) {
  *   </li>
  * </ul>
  * </pre>
- * 
- * When the app state is "app.user", and contains the state parameter "user" with value "bilbobaggins", 
+ *
+ * When the app state is "app.user", and contains the state parameter "user" with value "bilbobaggins",
  * the resulting HTML will appear as (note the 'active' class):
  * <pre>
  * <ul>
@@ -173,10 +191,10 @@ function $StateRefDirective($state, $timeout) {
  *   </li>
  * </ul>
  * </pre>
- * 
- * The class name is interpolated **once** during the directives link time (any further changes to the 
- * interpolated value are ignored). 
- * 
+ *
+ * The class name is interpolated **once** during the directives link time (any further changes to the
+ * interpolated value are ignored).
+ *
  * Multiple classes may be specified in a space-separated format:
  * <pre>
  * <ul>
