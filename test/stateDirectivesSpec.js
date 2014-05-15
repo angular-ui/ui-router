@@ -240,6 +240,37 @@ describe('uiStateRef', function() {
     }));
   });
 
+  describe('links with dynamic state name', function() {
+    var timeoutFlush;
+
+    beforeEach(inject(function($rootScope, $compile, $timeout) {
+      el = angular.element('<a ui-sref="{{state.name}}({ id: contact.id })">Details</a>');
+      scope = $rootScope;
+      scope.contact = { id: 5 };
+      scope.state = { name: 'contacts' };
+      scope.$apply();
+
+      $compile(el)(scope);
+      scope.$digest();
+
+      timeoutFlush = function() {
+        try {
+          $timeout.flush();
+        } catch (e) {
+          // Angular 1.0.8 throws 'No deferred tasks to be flushed' if there is nothing in queue.
+          // Behave as Angular >=1.1.5 and do nothing in such case.
+        }
+      }
+    }));
+
+    it('should update the href when the state name changes', function() {
+      expect(el.attr('href')).toBe('#/contacts');
+      scope.state.name = 'contacts.item';
+      scope.$apply();
+      expect(el.attr('href')).toBe('#/contacts/5');
+    });
+  });
+
   describe('forms', function() {
     var el, scope;
 
