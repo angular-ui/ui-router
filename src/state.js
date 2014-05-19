@@ -459,11 +459,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
    *
    * - **`onEnter`** - {object=} - Callback function for when a state is entered. Good way
    *   to trigger an action or dispatch an event, such as opening a dialog.
+   * If minifying your scripts, make sure to use the `['injection1', 'injection2', function(injection1, injection2){}]` syntax.
    *
    * <a id='onExit'></a>
    *
    * - **`onExit`** - {object=} - Callback function for when a state is exited. Good way to
    *   trigger an action or dispatch an event, such as opening a dialog.
+   * If minifying your scripts, make sure to use the `['injection1', 'injection2', function(injection1, injection2){}]` syntax.
    *
    * <a id='reloadOnSearch'></a>
    *
