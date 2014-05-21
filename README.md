@@ -17,7 +17,7 @@
 
 AngularUI Router is a routing framework for [AngularJS](http://angularjs.org), which allows you to organize the
 parts of your interface into a [*state machine*](https://en.wikipedia.org/wiki/Finite-state_machine). Unlike the
-[`$route` service](http://docs.angularjs.org/api/ngRoute.$route) in Angular core, which is organized around URL
+[`$route` service](http://docs.angularjs.org/api/ngRoute.$route) in the Angular ngRoute module, which is organized around URL
 routes, UI-Router is organized around [*states*](https://github.com/angular-ui/ui-router/wiki),
 which may optionally have routes, as well as other behavior, attached.
 
