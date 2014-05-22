@@ -106,25 +106,20 @@ describe("UrlMatcher", function () {
       expect(new UrlMatcher('/users/:id').exec('/users/100%25', {})).toEqual({ id: '100%25'});
     });
 
-    it('should throw on unbalanced capture list', function () {
-      var shouldThrow = {
-        "/url/{matchedParam:([a-z]+)}/child/{childParam}": '/url/someword/child/childParam',
-        "/url/{matchedParam:([a-z]+)}/child/{childParam}?foo": '/url/someword/child/childParam'
-      };
-
-      angular.forEach(shouldThrow, function(url, route) {
-        expect(function() { new UrlMatcher(route).exec(url, {}); }).toThrow(
-          "Unbalanced capture group in route '" + route + "'"
-        );
-      });
-
+    it('should capture regexp subgroups', function () {
       var shouldPass = {
-        "/url/{matchedParam:[a-z]+}/child/{childParam}": '/url/someword/child/childParam',
-        "/url/{matchedParam:[a-z]+}/child/{childParam}?foo": '/url/someword/child/childParam'
+        "/url/{matchedParam:([a-z]+)}/child/{childParam}": {
+          route: '/url/someword/child/childParam',
+          match: {matchedParam: 'someword', childParam: 'childParam'}
+        },
+        "/url/{matchedParam:(([a-z])[a-z]*)}/child/{childParam}?foo": {
+          route: '/url/someword/child/childParam',
+          match: {matchedParam: 'someword', childParam: 'childParam', foo: undefined}
+        }
       };
 
-      angular.forEach(shouldPass, function(url, route) {
-        expect(function() { new UrlMatcher(route).exec(url, {}); }).not.toThrow();
+      angular.forEach(shouldPass, function(v, url) {
+        expect(new UrlMatcher(url).exec(v.route, {})).toEqual(v.match);
       });
     });
   });

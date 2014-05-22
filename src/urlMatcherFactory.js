@@ -108,11 +108,39 @@ function UrlMatcher(pattern, config) {
     return isObject(cfg) ? cfg : { value: cfg };
   }
 
+  function countSubgroups(regexp) {
+    var balance = 0;
+    var n = 0;
+    var escaping = false;
+    for (var i = 0; i < regexp.length; i++) {
+      if (escaping) {
+        escaping = false;
+        continue;
+      }
+      switch (regexp[i]) {
+      case '(':
+        balance++;
+        break;
+      case ')':
+        balance--;
+        n++;
+        break;
+      case '\\':
+        escaping = true;
+        break;
+      }
+    }
+    if (balance != 0) {
+      throw new Error("Unbalanced subgroup in expression '" + regexp + "'");
+    }
+    return n;
+  }
+
   this.source = pattern;
 
   // Split into static segments separated by path parameter placeholders.
   // The number of segments is always 1 more than the number of parameters.
-  var id, regexp, segment, type, cfg;
+  var id, regexp, segment, type, cfg, subgroupsInSegment = [];
 
   while ((m = placeholder.exec(pattern))) {
     id      = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
@@ -122,6 +150,12 @@ function UrlMatcher(pattern, config) {
     cfg     = paramConfig(id);
 
     if (segment.indexOf('?') >= 0) break; // we're into the search part
+
+    try {
+      subgroupsInSegment.push(countSubgroups(regexp));
+    } catch(e) {
+      throw new Error(e.message + " in route '" + this.source + "'");
+    }
 
     compiled += quoteRegExp(segment, type.$subPattern(), isDefined(cfg.value));
     addParameter(id, type, cfg);
@@ -151,6 +185,7 @@ function UrlMatcher(pattern, config) {
   segments.push(segment);
 
   this.regexp = new RegExp(compiled, config.caseInsensitive ? 'i' : undefined);
+  this.subgroupsInSegment = subgroupsInSegment;
   this.prefix = segments[0];
 }
 
@@ -220,12 +255,24 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
     nPath = this.segments.length - 1,
     values = {}, i, cfg, param;
 
-  if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
+  // m must be as long as the path, plus the number of subgroups
+  // inside each segment in the path.
+  var nSubgroups = 0;
+  for (var i in this.subgroupsInSegment) {
+    nSubgroups += this.subgroupsInSegment[i];
+  }
 
+  if (nPath !== m.length - 1 - nSubgroups) throw new Error("Unbalanced capture group in route '" + this.source + "'");
+
+  m.shift(); // The first is always duplicate, so we need to discard it.
   for (i = 0; i < nPath; i++) {
+    // Extract as many elements from m as subgroups are in this segment,
+    // but then only select the first of them, which is the whole match,
+    // disregarding the submatches.
+    var matched = m.splice(0, this.subgroupsInSegment[i]+1)[0];
     param = params[i];
     cfg = this.params[param];
-    values[param] = cfg.$value(m[i + 1]);
+    values[param] = cfg.$value(matched);
   }
   for (/**/; i < nTotal; i++) {
     param = params[i];
