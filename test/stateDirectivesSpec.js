@@ -383,6 +383,25 @@ describe('uiSrefActive', function() {
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
   }));
 
+  it('should match any child uiSref state', inject(function($rootScope, $q, $compile, $state) {
+    el = angular.element('<div ui-sref-active="active"><a ui-sref="contacts.item({ id: 1 })">Contact 1</a><a ui-sref="contacts.item({ id: 2 })">Contact 2</a></div>');
+    template = $compile(el)($rootScope);
+    $rootScope.$digest();
+    var div = angular.element(template[0]);
+
+    $state.transitionTo('contacts.item.edit', { id: 1 });
+    $q.flush();
+    expect(div.attr('class')).toMatch(/active/);
+
+    $state.transitionTo('contacts.item.edit', { id: 4 });
+    $q.flush();
+    expect(div.attr('class')).not.toMatch(/active/);
+
+    $state.transitionTo('contacts.item.edit', { id: 2 });
+    $q.flush();
+    expect(div.attr('class')).toMatch(/active/);
+  }));
+
   it('should match state\'s parameters', inject(function($rootScope, $q, $compile, $state) {
     el = angular.element('<div><a ui-sref="contacts.item.detail({ foo: \'bar\' })" ui-sref-active="active">Contacts</a></div>');
     template = $compile(el)($rootScope);
