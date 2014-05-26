@@ -315,7 +315,7 @@ describe('uiStateRef', function() {
   describe('transition options', function() {
 
     beforeEach(inject(function($rootScope, $compile, $state) {
-      el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })" ui-sref-opts="{ reload: true, notify: true }">Details</a>');
+      el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })" ui-sref-opts="{ reload: true, notify: true, absolute: true }">Details</a>');
       scope = $rootScope;
       scope.contact = { id: 5 };
 
@@ -332,8 +332,10 @@ describe('uiStateRef', function() {
 
       triggerClick(el);
       $timeout.flush();
-
+      
       expect(transitionOptions.reload).toEqual(true);
+      expect(transitionOptions.absolute).toEqual(true);
+      expect(el[0].outerHTML).toMatch("http://server");
       expect(transitionOptions.notify).toBeUndefined();
     }));
   });
