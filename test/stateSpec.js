@@ -833,35 +833,24 @@ describe('state', function () {
     }));
 
     it('should replace browser history when "replace" enabled', inject(function ($state, $rootScope, $location, $q) {
-      var originalReplaceFn = $location.replace, replaceWasCalled = false;
 
-      // @todo Replace this with a spy
-      var decoratedReplaceFn = function() {
-        replaceWasCalled = true;
-        originalReplaceFn.call($location);
-      };
-      $location.replace = decoratedReplaceFn;
+      spyOn($location, 'replace');
 
       $state.transitionTo('about', {}, { location: 'replace' });
       $q.flush();
 
-      expect(replaceWasCalled).toEqual(true);
+      expect($location.replace).toHaveBeenCalled();
     }));
 
     it('should not replace history normally', inject(function ($state, $rootScope, $location, $q) {
-      var originalReplaceFn = $location.replace, replaceWasCalled = false;
 
-      // @todo Replace with spy
-      var decoratedReplaceFn = function() {
-        replaceWasCalled = true;
-        originalReplaceFn.call($location);
-      };
-      $location.replace = decoratedReplaceFn;
+      spyOn($location, 'replace');
 
       $state.transitionTo('about');
       $q.flush();
 
-      expect(replaceWasCalled).toEqual(false);
+      expect($location.replace).not.toHaveBeenCalled();
+
     }));
   });
 
