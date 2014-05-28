@@ -15,6 +15,11 @@ describe('uiStateRef', function() {
       template: '<a ui-sref=".detail" class="item-detail">Detail</a> | <a ui-sref="^" class="item-parent">Parent</a> | <ui-view></ui-view>'
     }).state('contacts.item.detail', {
       template: '<div class="title">Detail</div> | <a ui-sref="^" class="item-parent2">Item</a>'
+    }).state('brokenState', {
+      url    : '/broken',
+      resolve: {param: function () {
+        throw new Error("Exception during resolve");
+      }}
     });
   }));
 
@@ -238,6 +243,19 @@ describe('uiStateRef', function() {
       $rootScope.$digest();
       expect(el.attr('href')).toBe('#/contacts/3');
     }));
+	
+    it('should throw exceptions when error occurred during changing state', inject(function ($compile, $rootScope, $state, $q, $timeout) {
+      el = angular.element("<a ui-sref=\"brokenState\">Broken</a>");
+      $rootScope.$apply();
+
+      $compile(el)($rootScope);
+      $rootScope.$digest();
+	  
+      triggerClick(el);
+      expect($timeout.flush).toThrow(new Error("Exception during resolve"));
+	  
+      expect($state.current.name).toBe('');
+    }));
   });
 
   describe('forms', function() {
@@ -328,6 +346,7 @@ describe('uiStateRef', function() {
 
       spyOn($state, 'go').andCallFake(function(state, params, options) {
         transitionOptions = options;
+        return $q.defer().promise;
       });
 
       triggerClick(el);
