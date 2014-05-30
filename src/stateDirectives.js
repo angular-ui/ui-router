@@ -9,8 +9,8 @@ function parseStateRef(ref, current) {
 function stateContext(el) {
   var stateData = el.parent().inheritedData('$uiView');
 
-  if (stateData && stateData.state && stateData.state.name) {
-    return stateData.state;
+  if (stateData && stateData.context && stateData.context.name) {
+    return stateData.context;
   }
 }
 
@@ -230,8 +230,8 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
       activeClass = $interpolate($attrs.uiSrefActiveEq || $attrs.uiSrefActive || '', false)($scope);
 
       // Allow uiSref to communicate with uiSrefActive[Equals]
-      this.$$setStateInfo = function (newState, newParams) {
-        state = $state.get(newState, stateContext($element));
+      this.$$setStateInfo = function(newState, newParams) {
+        state = $state.get(newState, stateContext($element) || $state.$current);
         params = newParams;
         update();
       };

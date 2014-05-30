@@ -26,26 +26,26 @@
  * functionality, call `$uiViewScrollProvider.useAnchorScroll()`.*
  *
  * @param {string=} onload Expression to evaluate whenever the view updates.
- * 
+ *
  * @example
- * A view can be unnamed or named. 
+ * A view can be unnamed or named.
  * <pre>
  * <!-- Unnamed -->
- * <div ui-view></div> 
- * 
+ * <div ui-view></div>
+ *
  * <!-- Named -->
  * <div ui-view="viewName"></div>
  * </pre>
  *
- * You can only have one unnamed view within any template (or root html). If you are only using a 
+ * You can only have one unnamed view within any template (or root html). If you are only using a
  * single view and it is unnamed then you can populate it like so:
  * <pre>
- * <div ui-view></div> 
+ * <div ui-view></div>
  * $stateProvider.state("home", {
  *   template: "<h1>HELLO!</h1>"
  * })
  * </pre>
- * 
+ *
  * The above is a convenient shortcut equivalent to specifying your view explicitly with the {@link ui.router.state.$stateProvider#views `views`}
  * config property, by name, in this case an empty name:
  * <pre>
@@ -54,33 +54,33 @@
  *     "": {
  *       template: "<h1>HELLO!</h1>"
  *     }
- *   }    
+ *   }
  * })
  * </pre>
- * 
- * But typically you'll only use the views property if you name your view or have more than one view 
- * in the same template. There's not really a compelling reason to name a view if its the only one, 
+ *
+ * But typically you'll only use the views property if you name your view or have more than one view
+ * in the same template. There's not really a compelling reason to name a view if its the only one,
  * but you could if you wanted, like so:
  * <pre>
  * <div ui-view="main"></div>
- * </pre> 
+ * </pre>
  * <pre>
  * $stateProvider.state("home", {
  *   views: {
  *     "main": {
  *       template: "<h1>HELLO!</h1>"
  *     }
- *   }    
+ *   }
  * })
  * </pre>
- * 
+ *
  * Really though, you'll use views to set up multiple views:
  * <pre>
  * <div ui-view></div>
- * <div ui-view="chart"></div> 
- * <div ui-view="data"></div> 
+ * <div ui-view="chart"></div>
+ * <div ui-view="data"></div>
  * </pre>
- * 
+ *
  * <pre>
  * $stateProvider.state("home", {
  *   views: {
@@ -93,7 +93,7 @@
  *     "data": {
  *       template: "<data_thing/>"
  *     }
- *   }    
+ *   }
  * })
  * </pre>
  *
@@ -111,8 +111,10 @@
  * <ui-view autoscroll='scopeVariable'/>
  * </pre>
  */
-$ViewDirective.$inject = ['$state', '$injector', '$uiViewScroll'];
-function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
+$ViewDirective.$inject = ['$state', '$view', '$injector', '$uiViewScroll'];
+function $ViewDirective(   $state,   $view,   $injector,   $uiViewScroll) {
+
+  var views = {};
 
   function getService() {
     return ($injector.has) ? function(service) {
@@ -166,19 +168,41 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
     transclude: 'element',
     compile: function (tElement, tAttrs, $transclude) {
       return function (scope, $element, attrs) {
-        var previousEl, currentEl, currentScope, latestLocals,
+        var previousEl, currentEl, currentScope, latestLocals, unregister,
             onloadExp     = attrs.onload || '',
             autoScrollExp = attrs.autoscroll,
-            renderer      = getRenderer(attrs, scope);
-
-        scope.$on('$stateChangeSuccess', function() {
-          updateView(false);
-        });
-        scope.$on('$viewContentLoading', function() {
-          updateView(false);
-        });
+            renderer      = getRenderer(attrs, scope),
+            viewConfig    = {},
+            inherited     = $element.inheritedData('$uiView');
 
         updateView(true);
+
+
+
+        var viewData = { name: inherited ? inherited.name + "." + name : name };
+        $element.data('$uiView', viewData);
+
+        unregister = $view.register(viewData.name, function(config) {
+          var nothingToDo = (config === viewConfig) || (config && viewConfig && (
+            config.controller === viewConfig.controller &&
+            config.template   === viewConfig.template &&
+            config.locals     === viewConfig.locals
+          ));
+          if (nothingToDo) return;
+
+          updateView(false, config);
+        });
+
+
+        scope.$on("$destroy", function() {
+          unregister();
+        });
+
+        if (!viewConfig) updateView(false);
+
+
+
+
 
         function cleanupLastView() {
           if (previousEl) {
@@ -201,10 +225,10 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
           }
         }
 
-        function updateView(firstTime) {
+        function updateView(firstTime, config) {
           var newScope        = scope.$new(),
-              name            = currentEl && currentEl.data('$uiViewName'),
-              previousLocals  = name && $state.$current && $state.$current.locals[name];
+              name            = currentEl && currentEl.data('$uiView') && currentEl.data('$uiView').name,
+              previousLocals  = viewConfig && viewConfig.locals;
 
           if (!firstTime && previousLocals === latestLocals) return; // nothing to do
 
@@ -217,7 +241,7 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
             cleanupLastView();
           });
 
-          latestLocals = $state.$current.locals[clone.data('$uiViewName')];
+          latestLocals = viewConfig.locals;
 
           currentEl = clone;
           currentScope = newScope;
@@ -231,7 +255,7 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
            *
            * @param {Object} event Event object.
            */
-          currentScope.$emit('$viewContentLoaded');
+          currentScope.$emit('$viewContentLoaded', viewConfig);
           currentScope.$eval(onloadExp);
         }
       };
@@ -248,34 +272,20 @@ function $ViewDirectiveFill ($compile, $controller, $state) {
     priority: -400,
     compile: function (tElement) {
       var initial = tElement.html();
-      return function (scope, $element, attrs) {
-        var name      = attrs.uiView || attrs.name || '',
-            inherited = $element.inheritedData('$uiView');
 
-        if (name.indexOf('@') < 0) {
-          name = name + '@' + (inherited ? inherited.state.name : '');
-        }
+      return function (scope, $element) {
+        var locals = $element.data('$uiView').locals;
 
-        $element.data('$uiViewName', name);
+        if (!locals) return;
 
-        var current = $state.$current,
-            locals  = current && current.locals[name];
-
-        if (! locals) {
-          return;
-        }
-
-        $element.data('$uiView', { name: name, state: locals.$$state });
-        $element.html(locals.$template ? locals.$template : initial);
+        $element.html(locals.$template || initial);
 
         var link = $compile($element.contents());
 
         if (locals.$$controller) {
-          locals.$scope = scope;
-          var controller = $controller(locals.$$controller, locals);
-          if (locals.$$controllerAs) {
-            scope[locals.$$controllerAs] = controller;
-          }
+          var controller = $controller(locals.$$controller, extend(locals, { $scope: scope }));
+          if (locals.$$controllerAs) scope[locals.$$controllerAs] = controller;
+
           $element.data('$ngControllerController', controller);
           $element.children().data('$ngControllerController', controller);
         }

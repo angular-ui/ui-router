@@ -1,5 +1,5 @@
 describe("resolve", function () {
-  
+
   var $r, tick;
 
   beforeEach(module('ui.router.util'));
@@ -13,7 +13,7 @@ describe("resolve", function () {
     $r = $resolve;
     tick = $q.flush;
   }));
-  
+
   describe(".resolve()", function () {
     it("calls injectable functions and returns a promise", function () {
       var fun = jasmine.createSpy('fun').andReturn(42);
@@ -26,7 +26,7 @@ describe("resolve", function () {
       expect(fun.mostRecentCall.args.length).toBe(1);
       expect(fun.mostRecentCall.args[0]).toBe($r);
     });
-    
+
     it("resolves promises returned from the functions", inject(function ($q) {
       var d = $q.defer();
       var fun = jasmine.createSpy('fun').andReturn(d.promise);
@@ -37,7 +37,7 @@ describe("resolve", function () {
       tick();
       expect(resolvedValue(r)).toEqual({ fun: 'async' });
     }));
-    
+
     it("resolves dependencies between functions", function () {
       var a = jasmine.createSpy('a');
       var b = jasmine.createSpy('b').andReturn('bb');
@@ -47,12 +47,12 @@ describe("resolve", function () {
       expect(a.mostRecentCall.args).toEqual([ 'bb' ]);
       expect(b).toHaveBeenCalled();
     });
-    
+
     it("resolves dependencies between functions that return promises", inject(function ($q) {
       var ad = $q.defer(), a = jasmine.createSpy('a').andReturn(ad.promise);
       var bd = $q.defer(), b = jasmine.createSpy('b').andReturn(bd.promise);
       var cd = $q.defer(), c = jasmine.createSpy('c').andReturn(cd.promise);
-      
+
       var r = $r.resolve({ a: [ 'b', 'c', a ], b: [ 'c', b ], c: [ c ] });
       tick();
       expect(r).not.toBeResolved();
@@ -77,7 +77,7 @@ describe("resolve", function () {
       expect(b.callCount).toBe(1);
       expect(c.callCount).toBe(1);
     }));
-    
+
     it("refuses cyclic dependencies", function () {
       var a = jasmine.createSpy('a');
       var b = jasmine.createSpy('b');
@@ -87,13 +87,13 @@ describe("resolve", function () {
       expect(a).not.toHaveBeenCalled();
       expect(b).not.toHaveBeenCalled();
     });
-    
+
     it("allows a function to depend on an injector value of the same name", function () {
       var r = $r.resolve({ $resolve: function($resolve) { return $resolve === $r; } });
       tick();
       expect(resolvedValue(r)).toEqual({ $resolve: true });
     });
-    
+
     it("allows locals to be passed that override the injector", function () {
       var fun = jasmine.createSpy('fun');
       $r.resolve({ fun: [ '$resolve', fun ] }, { $resolve: 42 });
@@ -101,7 +101,7 @@ describe("resolve", function () {
       expect(fun).toHaveBeenCalled();
       expect(fun.mostRecentCall.args[0]).toBe(42);
     });
-    
+
     it("does not call injectables overridden by a local", function () {
       var fun = jasmine.createSpy('fun').andReturn("function");
       var r = $r.resolve({ fun: [ fun ] }, { fun: "local" });
@@ -109,14 +109,14 @@ describe("resolve", function () {
       expect(fun).not.toHaveBeenCalled();
       expect(resolvedValue(r)).toEqual({ fun: "local" });
     });
-    
+
     it("includes locals in the returned values", function () {
       var locals = { foo: 'hi', bar: 'mom' };
       var r = $r.resolve({}, locals);
       tick();
       expect(resolvedValue(r)).toEqual(locals);
     });
-    
+
     it("allows inheritance from a parent resolve()", function () {
       var r = $r.resolve({ fun: function () { return true; } });
       var s = $r.resolve({ games: function () { return true; } }, r);
@@ -124,13 +124,13 @@ describe("resolve", function () {
       expect(r).toBeResolved();
       expect(resolvedValue(s)).toEqual({ fun: true, games: true });
     });
-    
+
     it("only accepts promises from $resolve as parent", inject(function ($q) {
       expect(caught(function () {
         $r.resolve({}, null, $q.defer().promise);
       })).toMatch(/\$resolve\.resolve/);
     }));
-    
+
     it("resolves dependencies from a parent resolve()", function () {
       var r = $r.resolve({ a: [ function() { return 'aa' } ] });
       var b = jasmine.createSpy('b');
@@ -139,7 +139,7 @@ describe("resolve", function () {
       expect(b).toHaveBeenCalled();
       expect(b.mostRecentCall.args).toEqual([ 'aa' ]);
     });
-    
+
     it("allow access to ancestor resolves in descendent resolve blocks", inject(function ($q) {
       var gPromise = $q.defer(),
           gInjectable = jasmine.createSpy('gInjectable').andReturn(gPromise.promise),
@@ -172,7 +172,7 @@ describe("resolve", function () {
       tick();
       expect(resolvedValue(s)).toEqual({ a: 'a:(B)', b:'(B)', c:'c:(B)' });
     });
-    
+
     it("allows a function to override a parent value of the same name with a promise", inject(function ($q) {
       var r = $r.resolve({ b: function() { return 'B' } });
       var superb, bd = $q.defer();
@@ -206,7 +206,7 @@ describe("resolve", function () {
       var ad = $q.defer(), a = jasmine.createSpy('a').andReturn(ad.promise);
       var bd = $q.defer(), b = jasmine.createSpy('b').andReturn(bd.promise);
       var cd = $q.defer(), c = jasmine.createSpy('c').andReturn(cd.promise);
-      
+
       var r = $r.resolve({ c: [ c ] });
       var s = $r.resolve({ a: [ a ], b: [ 'c', b ] }, r);
       expect(c).toHaveBeenCalled(); // synchronously
@@ -218,28 +218,28 @@ describe("resolve", function () {
       expect(b).toHaveBeenCalled();
       expect(b.mostRecentCall.args).toEqual([ 'ccc' ]);
     }));
-        
+
     it("passes the specified 'self' argument as 'this'", function () {
       var self = {}, passed;
       $r.resolve({ fun: function () { passed = this; } }, null, null, self);
       tick();
       expect(passed).toBe(self);
     });
-    
+
     it("rejects missing dependencies but does not fail synchronously", function () {
       var r = $r.resolve({ fun: function (invalid) {} });
       expect(r).not.toBeResolved();
       tick();
       expect(resolvedError(r)).toMatch(/unknown provider/i);
     });
-    
+
     it("propagates exceptions thrown by the functions as a rejection", function () {
       var r = $r.resolve({ fun: function () { throw "i want cake" } });
       expect(r).not.toBeResolved();
       tick();
       expect(resolvedError(r)).toBe("i want cake");
     });
-    
+
     it("propagates errors from a parent resolve", function () {
       var error = [ "the cake is a lie" ];
       var r = $r.resolve({ foo: function () { throw error } });
@@ -248,7 +248,7 @@ describe("resolve", function () {
       expect(resolvedError(r)).toBe(error);
       expect(resolvedError(s)).toBe(error);
     });
-    
+
     it("does not invoke any functions if the parent resolve has already failed", function () {
       var r = $r.resolve({ foo: function () { throw "oops" } });
       tick();
@@ -259,7 +259,7 @@ describe("resolve", function () {
       expect(resolvedError(s)).toBeDefined();
       expect(a).not.toHaveBeenCalled();
     });
-    
+
     it("does not invoke any more functions after a failure", inject(function ($q) {
       var ad = $q.defer(), a = jasmine.createSpy('a').andReturn(ad.promise);
       var cd = $q.defer(), c = jasmine.createSpy('c').andReturn(cd.promise);
@@ -272,7 +272,7 @@ describe("resolve", function () {
       tick();
       expect(a).not.toHaveBeenCalled();
     }));
-    
+
     it("does not invoke any more functions after a parent failure", inject(function ($q) {
       var ad = $q.defer(), a = jasmine.createSpy('a').andReturn(ad.promise);
       var cd = $q.defer(), c = jasmine.createSpy('c').andReturn(cd.promise);
@@ -288,12 +288,12 @@ describe("resolve", function () {
       expect(a).not.toHaveBeenCalled();
     }));
   });
-  
+
   describe(".study()", function () {
     it("returns a resolver function", function () {
       expect(typeof $r.study({})).toBe('function');
     });
-    
+
     it("refuses cyclic dependencies", function () {
       var a = jasmine.createSpy('a');
       var b = jasmine.createSpy('b');
@@ -303,7 +303,7 @@ describe("resolve", function () {
       expect(a).not.toHaveBeenCalled();
       expect(b).not.toHaveBeenCalled();
     });
-    
+
     it("does not call the injectables", function () {
       var a = jasmine.createSpy('a');
       var b = jasmine.createSpy('b');
@@ -331,4 +331,3 @@ describe("resolve", function () {
     });
   });
 });
-

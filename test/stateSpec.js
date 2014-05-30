@@ -1,4 +1,207 @@
-describe('state', function () {
+describe('state helpers', function() {
+
+  var states;
+
+  beforeEach(function() {
+    states = {};
+    states[''] = { name: '', parent: null };
+    states['home'] = { name: 'home', parent: states[''] };
+    states['home.about'] = { name: 'home.about', parent: states['home'] };
+    states['home.about.people'] = { name: 'home.about.people', parent: states['home.about'] };
+    states['home.about.people.person'] = { name: 'home.about.people.person', parent: states['home.about.people'] };
+    states['home.about.company'] = { name: 'home.about.company', parent: states['home.about'] };
+    states['other'] = { name: 'other', parent: states[''] };
+    states['other.foo'] = { name: 'other.foo', parent: states['other'] };
+    states['other.foo.bar'] = { name: 'other.foo.bar' };
+
+    states['home.withData'] = {
+      name: 'home.withData',
+      data: { val1: "foo", val2: "bar" },
+      parent: states['home']
+    };
+    states['home.withData.child'] = {
+      name: 'home.withData.child',
+      data: { val2: "baz" },
+      parent: states['home.withData']
+    };
+  });
+
+
+  describe('GlobBuilder', function() {
+    it('should match glob strings', function() {
+      expect(GlobBuilder.is('*')).toBe(true);
+      expect(GlobBuilder.is('**')).toBe(true);
+      expect(GlobBuilder.is('*.*')).toBe(true);
+
+      expect(GlobBuilder.is('')).toBe(false);
+      expect(GlobBuilder.is('.')).toBe(false);
+    });
+
+    it('should construct glob matchers', function() {
+      expect(GlobBuilder.fromString('')).toBeNull();
+
+      var state = { name: 'about.person.item' };
+
+      expect(GlobBuilder.fromString('*.person.*').matches(state)).toBe(true);
+      expect(GlobBuilder.fromString('*.person.**').matches(state)).toBe(true);
+
+      expect(GlobBuilder.fromString('**.item.*').matches(state)).toBe(false);
+      expect(GlobBuilder.fromString('**.item').matches(state)).toBe(true);
+      expect(GlobBuilder.fromString('**.stuff.*').matches(state)).toBe(false);
+      expect(GlobBuilder.fromString('*.*.*').matches(state)).toBe(true);
+
+      expect(GlobBuilder.fromString('about.*.*').matches(state)).toBe(true);
+      expect(GlobBuilder.fromString('about.**').matches(state)).toBe(true);
+      expect(GlobBuilder.fromString('*.about.*').matches(state)).toBe(false);
+      expect(GlobBuilder.fromString('about.*.*').matches(state)).toBe(true);
+    });
+  });
+
+  describe('StateMatcher', function() {
+    it('should find states by name', function() {
+      var states = {}, matcher = new StateMatcher(states), home = { name: 'home' };
+      expect(matcher.find('home')).toBeUndefined();
+
+      states['home'] = home;
+      expect(matcher.find('home')).toBe(home);
+      expect(matcher.find(home)).toBe(home);
+
+      expect(matcher.find('home.about')).toBeUndefined();
+
+      states['home.about'] = { name: 'home.about' };
+      expect(matcher.find('home.about')).toEqual({ name: 'home.about' });
+
+      expect(matcher.find()).toBeUndefined();
+      expect(matcher.find('')).toBeUndefined();
+      expect(matcher.find(null)).toBeUndefined();
+    });
+
+    it('should determine whether a path is relative', function() {
+      var matcher = new StateMatcher();
+      expect(matcher.isRelative('.')).toBe(true);
+      expect(matcher.isRelative('.foo')).toBe(true);
+      expect(matcher.isRelative('^')).toBe(true);
+      expect(matcher.isRelative('^foo')).toBe(true);
+      expect(matcher.isRelative('^.foo')).toBe(true);
+      expect(matcher.isRelative('foo')).toBe(false);
+    });
+
+    it('should resolve relative paths', function() {
+      var matcher = new StateMatcher(states);
+
+      expect(matcher.find('^', states['home.about'])).toBe(states.home);
+      expect(matcher.find('^.company', states['home.about.people'])).toBe(states['home.about.company']);
+      expect(matcher.find('^.^.company', states['home.about.people.person'])).toBe(states['home.about.company']);
+      expect(matcher.find('^.foo', states.home)).toBeUndefined();
+      expect(matcher.find('^.other.foo', states.home)).toBe(states['other.foo']);
+      expect(function() { matcher.find('^.^', states.home); }).toThrow("Path '^.^' not valid for state 'home'");
+    });
+  });
+
+  describe('StateBuilder', function() {
+    var builder, root, matcher, urlMatcherFactoryProvider = {
+      compile: function() {},
+      isMatcher: function() {}
+    };
+
+    beforeEach(function() {
+      matcher = new StateMatcher(states);
+      builder = new StateBuilder(function() { return root; }, matcher, urlMatcherFactoryProvider);
+    });
+
+    describe('interface', function() {
+      describe('name()', function() {
+        it('should return dot-separated paths', function() {
+          expect(builder.name(states['home.about.people'])).toBe('home.about.people');
+          expect(builder.name(states['home.about'])).toBe('home.about');
+          expect(builder.name(states['home'])).toBe('home');
+        });
+
+        it('should concatenate parent names', function() {
+          expect(builder.name({ name: "bar", parent: "foo" })).toBe("foo.bar");
+          expect(builder.name({ name: "bar", parent: { name: "foo" } })).toBe("foo.bar");
+        });
+      });
+
+      describe('parentName()', function() {
+        it('should parse dot-separated paths', function() {
+          expect(builder.parentName(states['other.foo.bar'])).toBe('other.foo');
+        });
+        it('should always return parent name as string', function() {
+          expect(builder.parentName(states['other.foo'])).toBe('other');
+        });
+        it('should return empty string if state has no parent', function() {
+          expect(builder.parentName(states[''])).toBe("");
+        });
+      });
+    });
+
+    describe('state building', function() {
+      it('should build parent property', function() {
+        expect(builder.builder('parent')({ name: 'home.about' })).toBe(states['home']);
+      });
+
+      it('should inherit parent data', function() {
+        var state = angular.extend(states['home.withData.child'], { self: {} });
+        expect(builder.builder('data')(state)).toEqual({ val1: "foo", val2: "baz" });
+
+        var state = angular.extend(states['home.withData'], { self: {} });
+        expect(builder.builder('data')(state)).toEqual({ val1: "foo", val2: "bar" });
+      });
+
+      it('should compile a UrlMatcher for ^ URLs', function() {
+        var url = {};
+        spyOn(urlMatcherFactoryProvider, 'compile').andReturn(url);
+
+        expect(builder.builder('url')({ url: "^/foo" })).toBe(url);
+        expect(urlMatcherFactoryProvider.compile).toHaveBeenCalledWith("/foo", { params: {} });
+      });
+
+      it('should concatenate URLs from root', function() {
+        root = { url: { concat: function() {} } }, url = {};
+        spyOn(root.url, 'concat').andReturn(url);
+
+        expect(builder.builder('url')({ url: "/foo" })).toBe(url);
+        expect(root.url.concat).toHaveBeenCalledWith("/foo", { params: {} });
+      });
+
+      it('should pass through empty URLs', function() {
+        expect(builder.builder('url')({ url: null })).toBeNull();
+      });
+
+      it('should pass through custom UrlMatchers', function() {
+        var url = ["!"];
+        spyOn(urlMatcherFactoryProvider, 'isMatcher').andReturn(true);
+        expect(builder.builder('url')({ url: url })).toBe(url);
+        expect(urlMatcherFactoryProvider.isMatcher).toHaveBeenCalledWith(url);
+      });
+
+      it('should throw on invalid UrlMatchers', function() {
+        spyOn(urlMatcherFactoryProvider, 'isMatcher').andReturn(false);
+
+        expect(function() {
+          builder.builder('url')({ toString: function() { return "foo"; }, url: { foo: "bar" } });
+        }).toThrow("Invalid url '[object Object]' in state 'foo'");
+
+        expect(urlMatcherFactoryProvider.isMatcher).toHaveBeenCalledWith({ foo: "bar" });
+      });
+
+      it('should return filtered keys if view config is provided', function() {
+        var config = { url: "/foo", templateUrl: "/foo.html", controller: "FooController" };
+        expect(builder.builder('views')(config)).toEqual({
+          $default: { templateUrl: "/foo.html", controller: "FooController" }
+        });
+      });
+
+      it("should return unmodified view configs if defined", function() {
+        var config = { a: { foo: "bar", controller: "FooController" } };
+        expect(builder.builder('views')({ views: config })).toEqual(config);
+      });
+    });
+  });
+});
+
+xdescribe('state', function () {
 
   var stateProvider, locationProvider, templateParams, ctrlName;
 
@@ -8,7 +211,7 @@ describe('state', function () {
   }));
 
   var log, logEvents, logEnterExit;
-  function eventLogger(event, to, toParams, from, fromParams) {
+  function eventLogger(event, transition) {
     if (logEvents) log += event.name + '(' + to.name + ',' + from.name + ');';
   }
   function callbackLogger(what) {
@@ -26,8 +229,7 @@ describe('state', function () {
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
       HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
-      RS = { url: '^/search?term', params: { term: { dynamic: true } } },
-      AppInjectable = {};
+      RS = { url: '^/search?term', params: { term: { dynamic: true } } };
 
   beforeEach(module(function ($stateProvider, $provide) {
     angular.forEach([ A, B, C, D, DD, E, H, HH, HHH ], function (state) {
@@ -101,10 +303,8 @@ describe('state', function () {
       // State param inheritance tests. param1 is inherited by sub1 & sub2;
       // param2 should not be transferred (unless explicitly set).
       .state('root', { url: '^/root?param1' })
-      .state('root.sub1', {url: '/1?param2' })
-      .state('root.sub2', {url: '/2?param2' });
-
-    $provide.value('AppInjectable', AppInjectable);
+      .state('root.sub1', { url: '/1?param2' })
+      .state('root.sub2', { url: '/2?param2' });
   }));
 
   beforeEach(inject(function ($rootScope) {
@@ -121,9 +321,9 @@ describe('state', function () {
     return jasmine.getEnv().currentSpec.$injector.get(what);
   }
 
-  function initStateTo(state, optionalParams) {
+  function initStateTo(state, params) {
     var $state = $get('$state'), $q = $get('$q');
-    $state.transitionTo(state, optionalParams || {});
+    $state.transitionTo(state, params || {});
     $q.flush();
     expect($state.current).toBe(state);
   }
@@ -146,6 +346,9 @@ describe('state', function () {
       expect(resolvedValue(trans)).toBe(A);
     }));
 
+    // @todo this should fail:
+    // $state.transitionTo('about.person.item', { id: 5 }); $q.flush();
+
     it('allows transitions by name', inject(function ($state, $q) {
       $state.transitionTo('A', {});
       $q.flush();
@@ -159,7 +362,7 @@ describe('state', function () {
       $location.search({ term: 'hello' });
       expect($stateParams.term).toBe("goodbye");
 
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeStart', function (ev, transition) {
         called.change = true;
       });
 
@@ -184,14 +387,14 @@ describe('state', function () {
     it('triggers $stateChangeStart', inject(function ($state, $q, $rootScope) {
       initStateTo(E, { i: 'iii' });
       var called;
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeStart', function (ev, transition) {
         expect(from).toBe(E);
-        expect(fromParams).toEqual({ i: 'iii' });
+        expect(transition.params().from).toEqual({ i: 'iii' });
         expect(to).toBe(D);
         expect(toParams).toEqual({ x: '1', y: '2' });
 
         expect($state.current).toBe(from); // $state not updated yet
-        expect($state.params).toEqual(fromParams);
+        expect($state.params).toEqual(transition.params().from);
         called = true;
       });
       $state.transitionTo(D, { x: '1', y: '2' });
@@ -217,7 +420,7 @@ describe('state', function () {
     it('triggers $stateNotFound', inject(function ($state, $q, $rootScope) {
       initStateTo(E, { i: 'iii' });
       var called;
-      $rootScope.$on('$stateNotFound', function (ev, redirect, from, fromParams) {
+      $rootScope.$on('$stateNotFound', function (ev, transition) {
         expect(from).toBe(E);
         expect(fromParams).toEqual({ i: 'iii' });
         expect(redirect.to).toEqual('never_defined');
@@ -355,7 +558,7 @@ describe('state', function () {
       initStateTo(E, { x: 'iii' });
       var called;
 
-      $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeSuccess', function (ev, transition) {
         called = true;
       });
       $state.transitionTo(E, { i: '1', y: '2' }, { notify: false });
@@ -664,7 +867,7 @@ describe('state', function () {
       expect($state.href("root", {}, {inherit:false})).toEqual("#/root");
       expect($state.href("root", {}, {inherit:true})).toEqual("#/root?param1=1");
     }));
-    
+
     it('generates absolute url when absolute is true', inject(function ($state) {
       expect($state.href("about.sidebar", null, { absolute: true })).toEqual("http://server/#/about");
       locationProvider.html5Mode(true);
@@ -1036,6 +1239,7 @@ describe('state queue', function() {
         .state('queue-test-b-child', { parent: 'queue-test-b' })
         .state('queue-test-b', {});
     });
+
   angular.module('ui.router.queue.test.dependency', [])
     .config(function($stateProvider) {
       $stateProvider

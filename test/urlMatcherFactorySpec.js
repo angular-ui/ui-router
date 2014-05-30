@@ -16,6 +16,12 @@ describe("UrlMatcher", function () {
       });
     });
 
+    it("should allow prefix URLs", function() {
+      provider.prefix('/{lang:[a-z]{2}}', { params: { lang: "en" } });
+      expect(provider.compile('/foo').exec('/foo')).toEqual({ lang: "en" });
+      expect(provider.compile('/foo').exec('/de/foo')).toEqual({ lang: "de" });
+    });
+
     it("should factory matchers with correct configuration", function () {
       provider.caseInsensitive(false);
       expect(provider.compile('/hello').exec('/HELLO')).toBeNull();
@@ -151,13 +157,7 @@ describe("UrlMatcher", function () {
   describe(".concat()", function() {
     it("should concatenate matchers", function () {
       var matcher = new UrlMatcher('/users/:id/details/{type}?from').concat('/{repeat:[0-9]+}?to');
-      var params = matcher.parameters();
-      expect(params.length).toBe(5);
-      expect(params).toContain('id');
-      expect(params).toContain('type');
-      expect(params).toContain('repeat');
-      expect(params).toContain('from');
-      expect(params).toContain('to');
+      expect(matcher.parameters().sort()).toEqual(['id', 'type', 'repeat', 'from', 'to'].sort());
     });
 
     it("should return a new matcher", function () {
@@ -169,7 +169,7 @@ describe("UrlMatcher", function () {
 });
 
 describe("urlMatcherFactory", function () {
-  
+
   var $umf;
 
   beforeEach(module('ui.router.util'));
@@ -380,6 +380,14 @@ describe("urlMatcherFactory", function () {
         $stateParams.user = user;
         expect(m.exec('/users').user).toBe(user);
       }));
+
+      it("should match when used as prefix", function() {
+        var m = new UrlMatcher('/{lang:[a-z]{2}}/foo', {
+          params: { lang: "de" }
+        });
+        expect(m.exec('/de/foo')).toEqual({ lang: "de" });
+        expect(m.exec('/foo')).toEqual({ lang: "de" });
+      });
     });
   });
 
@@ -403,6 +411,30 @@ describe("urlMatcherFactory", function () {
       expect(m.exec('/users/bob')).toEqual({ name: "bob" });
       expect(m.exec('/users/bob/')).toEqual({ name: "bob" });
       expect(m.exec('/users/bob//')).toBeNull();
+    });
+  });
+
+  describe("parameter isolation", function() {
+    it("should allow parameters of the same name in different segments", function() {
+      var m = new UrlMatcher('/users/:id').concat('/photos/:id');
+      expect(m.exec('/users/11/photos/38', {}, { isolate: true })).toEqual([{ id: '11' }, { id: '38' }]);
+    });
+
+    it("should prioritize the last child when non-isolated", function() {
+      var m = new UrlMatcher('/users/:id').concat('/photos/:id');
+      expect(m.exec('/users/11/photos/38')).toEqual({ id: '38' });
+    });
+
+    it("should copy search parameter values to all matching segments", function() {
+      var m = new UrlMatcher('/users/:id?from').concat('/photos/:id?from');
+      var result = m.exec('/users/11/photos/38', { from: "bob" }, { isolate: true });
+      expect(result).toEqual([{ from: "bob", id: "11" }, { from: "bob", id: "38" }]);
+    });
+
+    it("should pair empty objects with static segments", function() {
+      var m = new UrlMatcher('/users/:id').concat('/foo').concat('/photos/:id');
+      var result = m.exec('/users/11/foo/photos/38', {}, { isolate: true });
+      expect(result).toEqual([{ id: '11' }, {}, { id: '38' }]);
     });
   });
 });
