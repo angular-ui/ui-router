@@ -22,8 +22,20 @@ angular.module('uiRouterSample', [
 )
 
 .config(
-  [          '$stateProvider', '$urlRouterProvider',
-    function ($stateProvider,   $urlRouterProvider) {
+  [          '$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider',
+    function ($stateProvider,   $urlRouterProvider,   $urlMatcherFactoryProvider) {
+
+      $urlMatcherFactoryProvider.type('contact', ['contacts', function(contacts) {
+        return {
+          encode: function(contact) {
+            return contact.id;
+          },
+          decode: function(id) {
+            return contacts.get(id);
+          },
+          pattern: /[0-9]{1,4}/
+        };
+      }]);
 
       /////////////////////////////
       // Redirects and Otherwise //
@@ -34,8 +46,8 @@ angular.module('uiRouterSample', [
 
         // The `when` method says if the url is ever the 1st param, then redirect to the 2nd param
         // Here we are just setting up some convenience urls.
-        .when('/c?id', '/contacts/:id')
-        .when('/user/:id', '/contacts/:id')
+        // .when('/c?id', '/contacts/:id')
+        // .when('/user/:id', '/contacts/:id')
 
         // If the url is ever invalid, e.g. '/asdf', then redirect to '/' aka the home state
         .otherwise('/');
