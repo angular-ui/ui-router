@@ -221,7 +221,7 @@ $StateRefActiveDirective.$inject = ['$state', '$stateParams', '$interpolate'];
 function $StateRefActiveDirective($state, $stateParams, $interpolate) {
   return  {
     restrict: "A",
-    controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+    controller: ['$scope', '$element', '$attrs', '$animate', function($scope, $element, $attrs, $animate) {
       var state, params, activeClass;
 
       // There probably isn't much point in $observing this
@@ -241,9 +241,9 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
       // Update route state
       function update() {
         if (isMatch()) {
-          $element.addClass(activeClass);
+          $animate.addClass($element, activeClass);
         } else {
-          $element.removeClass(activeClass);
+          $animate.removeClass($element, activeClass);
         }
       }
 
