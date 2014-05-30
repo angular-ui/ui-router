@@ -649,7 +649,7 @@ describe('state', function () {
 
     it('inherit url parameters from current url', inject(function ($state) {
       initStateTo($state.get('root'), {param1: 1});
-      expect($state.href("root", {}, {})).toEqual("#/root");
+      expect($state.href("root", {}, {})).toEqual("#/root?param1=1");
       expect($state.href("root", {}, {inherit:false})).toEqual("#/root");
       expect($state.href("root", {}, {inherit:true})).toEqual("#/root?param1=1");
     }));

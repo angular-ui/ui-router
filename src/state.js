@@ -1091,7 +1091,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * - **`lossy`** - {boolean=true} -  If true, and if there is no url associated with the state provided in the
      *    first parameter, then the constructed href url will be built from the first navigable ancestor (aka
      *    ancestor with a valid url).
-     * - **`inherit`** - {boolean=false}, If `true` will inherit url parameters from current url.
+     * - **`inherit`** - {boolean=true}, If `true` will inherit url parameters from current url.
      * - **`relative`** - {object=$state.$current}, When transitioning with relative path (e.g '^'), 
      *    defines which state to be relative from.
      * - **`absolute`** - {boolean=false},  If true will generate an absolute url, e.g. "http://www.example.com/fullurl".
@@ -1101,7 +1101,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     $state.href = function href(stateOrName, params, options) {
       options = extend({
         lossy:    true,
-        inherit:  false,
+        inherit:  true,
         absolute: false,
         relative: $state.$current
       }, options || {});
