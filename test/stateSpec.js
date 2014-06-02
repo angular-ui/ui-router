@@ -91,6 +91,15 @@ describe('state', function () {
           }
         }
       })
+      .state('resolveStateTransition',{
+          url: '/resolveStateTransition',
+          data: {id: 1},
+          resolve: {
+              value: function($state){
+                  return $state.$stateTransition;
+              }
+          }
+        })
       .state('badParam', {
         url: "/bad/{param:int}"
       })
@@ -750,6 +759,7 @@ describe('state', function () {
         'home.item',
         'home.redirect',
         'resolveFail',
+        'resolveStateTransition',
         'resolveTimeout',
         'root',
         'root.sub1',
@@ -858,6 +868,12 @@ describe('state', function () {
       $rootScope.$apply();
 
       expect($location.path()).toBe("/resolve-fail");
+    }));
+
+    it('should return $state.$stateTransition obj', inject(function($state, $q){
+          var resolvedState = $state.go('resolveStateTransition');
+          $q.flush();
+          expect(resolvedValue(resolvedState).data['id']).toBe(1);
     }));
 
     it('should replace browser history when "replace" enabled', inject(function ($state, $rootScope, $location, $q) {
