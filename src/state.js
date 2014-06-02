@@ -847,6 +847,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          * </pre>
          */
         if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams).defaultPrevented) {
+          $state.$stateTransition = toState.self;
           $urlRouter.update();
           return TransitionPrevented;
         }
