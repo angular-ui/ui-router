@@ -929,6 +929,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          */
           $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
         }
+        $state.$stateTransition = {};
         $urlRouter.update(true);
 
         return $state.current;
