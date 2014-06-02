@@ -873,7 +873,6 @@ describe('state', function () {
     it('should get an access to transition-state in resolve phase', inject(function($state, $q){
           var resolvedState = $state.go('resolveStateTransition');
           $q.flush();
-          expect(resolvedValue(resolvedState).data['id']).toBe(1);
           expect(resolvedValue(resolvedState).name).toBe('resolveStateTransition');
     }));
 
@@ -886,6 +885,17 @@ describe('state', function () {
         $q.flush();
         expect($state.$stateTransition).toEqual({});
       }));
+
+    it('set dynamic data and access it on the resolve phase', inject(function($state, $q){
+        $state.get('resolveStateTransition').data = { foo: 'bar' };
+        var resolvedState = $state.go('resolveStateTransition');
+        $q.flush();
+        expect(resolvedValue(resolvedState).data).toEqual({ foo: 'bar' });
+
+        $state.get('resolveStateTransition').data = { foo: 'baz' };
+        $q.flush();
+        expect(resolvedValue(resolvedState).data).toEqual({ foo: 'baz' });
+    }));
 
     it('should replace browser history when "replace" enabled', inject(function ($state, $rootScope, $location, $q) {
 
