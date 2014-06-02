@@ -870,11 +870,22 @@ describe('state', function () {
       expect($location.path()).toBe("/resolve-fail");
     }));
 
-    it('should return $state.$stateTransition obj', inject(function($state, $q){
+    it('should get an access to transition-state in resolve phase', inject(function($state, $q){
           var resolvedState = $state.go('resolveStateTransition');
           $q.flush();
           expect(resolvedValue(resolvedState).data['id']).toBe(1);
+          expect(resolvedValue(resolvedState).name).toBe('resolveStateTransition');
     }));
+
+    it('should strip $stateTransition property when transition is over', inject(function($state, $q){
+        $state.transitionTo(A);
+        $q.flush();
+        expect($state.$stateTransition).toEqual({});
+
+        $state.transitionTo(B);
+        $q.flush();
+        expect($state.$stateTransition).toEqual({});
+      }));
 
     it('should replace browser history when "replace" enabled', inject(function ($state, $rootScope, $location, $q) {
 
