@@ -916,7 +916,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          * @eventOf ui.router.state.$state
          * @eventType broadcast on root scope
          * @description
-         * Fired once the state transition is **complete**.
+         * Fired once the state transition is **success**.
          *
          * @param {Object} event Event object.
          * @param {State} toState The state being transitioned to.
@@ -925,6 +925,22 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          * @param {Object} fromParams The params supplied to the `fromState`.
          */
           $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
+
+         /**
+         * @ngdoc event
+         * @name ui.router.state.$state#stateChangeComplete
+         * @eventOf ui.router.state.$state
+         * @eventType broadcast on root scope
+         * @description
+         * Fired once the state transition is **complete**.
+         *
+         * @param {Object} event Event object.
+         * @param {State} toState The state being transitioned to.
+         * @param {Object} toParams The params supplied to the `toState`.
+         * @param {State} fromState The current state, pre-transition.
+         * @param {Object} fromParams The params supplied to the `fromState`.
+         */
+          $rootScope.$broadcast('stateChangeComplete', to.self, toParams, from.self, fromParams);
         }
         $urlRouter.update(true);
 
@@ -952,6 +968,22 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          * @param {Error} error The resolve error object.
          */
         evt = $rootScope.$broadcast('$stateChangeError', to.self, toParams, from.self, fromParams, error);
+
+         /**
+         * @ngdoc event
+         * @name ui.router.state.$state#stateChangeComplete
+         * @eventOf ui.router.state.$state
+         * @eventType broadcast on root scope
+         * @description
+         * Fired once the state transition is **complete**.
+         *
+         * @param {Object} event Event object.
+         * @param {State} toState The state being transitioned to.
+         * @param {Object} toParams The params supplied to the `toState`.
+         * @param {State} fromState The current state, pre-transition.
+         * @param {Object} fromParams The params supplied to the `fromState`.
+         */
+          $rootScope.$broadcast('stateChangeComplete', to.self, toParams, from.self, fromParams);
 
         if (!evt.defaultPrevented) {
             $urlRouter.update();
