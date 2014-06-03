@@ -1040,3 +1040,26 @@ describe('state queue', function(){
     });
   });
 });
+
+describe('state with strictMode false', function () {
+
+  beforeEach(module('ui.router', function($urlMatcherFactoryProvider) {
+    $urlMatcherFactoryProvider.strictMode(false);
+  }));
+
+  beforeEach(module(function ($stateProvider) {
+    $stateProvider
+      .state('product', { url: "/product" })	  
+  }));
+  
+  describe('url handling', function () {
+    it('should match regardless of trailing slash', inject(function ( $rootScope, $location, $state) {
+
+      $location.path("/product/");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      expect($state.current.name).toBe('product');
+    }));
+  });
+});
+
