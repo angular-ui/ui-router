@@ -716,7 +716,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      *
      */
     $state.go = function go(to, params, options) {
-      return this.transitionTo(to, params, extend({ inherit: true, relative: $state.$current }, options));
+      return $state.transitionTo(to, params, extend({ inherit: true, relative: $state.$current }, options));
     };
 
     /**
