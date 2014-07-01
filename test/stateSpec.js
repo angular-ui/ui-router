@@ -422,12 +422,32 @@ describe('state', function () {
       expect($state.current.name).toEqual('about.sidebar');
     }));
 
+    it('allows to pass state name as relative option', inject(function ($state, $q) {
+      $state.transitionTo('about.person', { person: "bob", id: 5 }); $q.flush();
+
+      $state.transitionTo("^", null, { relative: 'about.person.item' }); $q.flush();
+      expect($state.$current.name).toBe('about.person');
+
+      $state.transitionTo("^.^", null, { relative: 'about.person.item' }); $q.flush();
+      expect($state.$current.name).toBe('about');
+
+      $state.transitionTo("^.^.sidebar", null, { relative: 'about.person.item' }); $q.flush();
+      expect($state.$current.name).toBe('about.sidebar');
+
+      $state.transitionTo("about", null, { relative: 'home.item' }); $q.flush();
+      expect($state.$current.name).toBe('about');
+
+      $state.transitionTo(".item", null, { relative: 'home' }); $q.flush();
+      expect($state.$current.name).toBe('home.item');
+    }));
+
     it('notifies on failed relative state resolution', inject(function ($state, $q) {
       $state.transitionTo(DD);
       $q.flush();
 
       var err = "Could not resolve '^.Z' from state 'DD'";
       expect(function() { $state.transitionTo("^.Z", null, { relative: $state.$current }); }).toThrow(err);
+      expect(function() { $state.transitionTo("^.Z", null, { relative: DD.name }); }).toThrow(err);
     }));
 
     it('uses the controllerProvider to get controller dynamically', inject(function ($state, $q) {

@@ -10,3 +10,7 @@ bower_components
 
 # webstorm files
 .idea
+
+# sublime text files
+.sublime-project
+.sublime-workspace
