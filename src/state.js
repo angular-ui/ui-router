@@ -763,7 +763,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         location: true, inherit: false, relative: null, notify: true, reload: false, $retry: false
       }, options || {});
 
-      var from = $state.$current, fromParams = $state.params, fromPath = from.path;
+      var from         = $state.$current,
+          fromResolved = from.locals,
+          fromParams   = $state.params, 
+          fromPath     = from.path;
+
       var evt, toState = findState(to, options.relative);
 
       if (!isDefined(toState)) {
@@ -870,7 +874,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // and return a promise for the new state. We also keep track of what the
       // current promise is, so that we can detect overlapping transitions and
       // keep only the outcome of the last transition.
-      var transition = $state.transition = resolved.then(function () {
+      var transition = $state.transition = resolved.then(function (toResolved) {
         var l, entering, exiting;
 
         if ($state.transition !== transition) return TransitionSuperseded;
@@ -924,7 +928,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          * @param {State} fromState The current state, pre-transition.
          * @param {Object} fromParams The params supplied to the `fromState`.
          */
-          $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
+          $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, toResolved, from.self, fromParams, fromResolved);
         }
         $urlRouter.update(true);
 
