@@ -815,7 +815,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       }
 
       // Filter parameters before we pass them to event handlers etc.
-      toParams = filterByKeys(objectKeys(to.params), toParams || {});
+      toParams = filterByKeys(objectKeys(to.params).concat('#'), toParams || {});
 
       // Broadcast start event and cancel the transition if requested
       if (options.notify) {
@@ -1116,7 +1116,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       if (!nav || !nav.url) {
         return null;
       }
-      return $urlRouter.href(nav.url, filterByKeys(objectKeys(state.params), params || {}), {
+      return $urlRouter.href(nav.url, filterByKeys(objectKeys(state.params).concat('#'), params || {}), {
         absolute: options.absolute
       });
     };

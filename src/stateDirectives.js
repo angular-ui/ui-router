@@ -1,9 +1,9 @@
 function parseStateRef(ref, current) {
   var preparsed = ref.match(/^\s*({[^}]*})\s*$/), parsed;
   if (preparsed) ref = current + '(' + preparsed[1] + ')';
-  parsed = ref.replace(/\n/g, " ").match(/^([^(]+?)\s*(\((.*)\))?$/);
-  if (!parsed || parsed.length !== 4) throw new Error("Invalid state ref '" + ref + "'");
-  return { state: parsed[1], paramExpr: parsed[3] || null };
+  parsed = ref.replace(/\n/g, " ").match(/^([^(]+?)\s*(\((.*)\))?(#(.*?))?$/);
+  if (!parsed || parsed.length < 4) throw new Error("Invalid state ref '" + ref + "'");
+  return { state: parsed[1], paramExpr: parsed[3] || null, '#': parsed[5] };
 }
 
 function stateContext(el) {
@@ -102,8 +102,16 @@ function $StateRefDirective($state, $timeout) {
         if (newVal) params = newVal;
         if (!nav) return;
 
-        var newHref = $state.href(ref.state, params, options);
+        if (ref['#']) {
+          if (angular.isObject(params)) {
+            params['#'] = ref['#'];
+          } else {
+            params = { '#': ref['#'] };
+          }
+        }
 
+        var newHref = $state.href(ref.state, params, options);
+          
         var activeDirective = uiSrefActive[1] || uiSrefActive[0];
         if (activeDirective) {
           activeDirective.$$setStateInfo(ref.state, params);
