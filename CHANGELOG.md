@@ -1,4 +1,4 @@
-### 0.2.10 (2014-07-03)
+### 0.2.10 (2014-03-12)
 
 
 #### Bug Fixes
@@ -21,13 +21,13 @@
 * **uiView:** add controllerAs config with function ([1ee7334a](https://github.com/angular-ui/ui-router/commit/1ee7334a73efeccc9b95340e315cdfd59944762d))
 
 
-### 0.2.9 (2014-07-03)
+### 0.2.9 (2014-01-17)
 
 
 This release is identical to 0.2.8. 0.2.8 was re-tagged in git to fix a problem with bower.
 
 
-### 0.2.8 (2014-07-03)
+### 0.2.8 (2014-01-16)
 
 
 #### Bug Fixes
