@@ -226,11 +226,13 @@ myApp.config(function($stateProvider) {
 * [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/gh-pages/sample))
 * [FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions)
 * [Slides comparing ngRoute to ui-router](http://slid.es/timkindberg/ui-router#/)
+* [UI-Router Extras / Addons](http://christopherthielen.github.io/ui-router-extras/#/home) (@christopherthielen)
  
 ### Videos
 
-* [Introduction Video](https://egghead.io/lessons/angularjs-introduction-ui-router)(egghead.io)
+* [Introduction Video](https://egghead.io/lessons/angularjs-introduction-ui-router) (egghead.io)
 * [Tim Kindberg on Angular UI-Router](https://www.youtube.com/watch?v=lBqiZSemrqg)
+* [Activating States](https://egghead.io/lessons/angularjs-ui-router-activating-states) (egghead.io)
 
 ## Report an Issue
 
