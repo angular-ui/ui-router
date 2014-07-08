@@ -1,3 +1,12 @@
+/** 
+ * Shared ui-view code for both directives:
+ * Given attributes and inherited $uiView data, return the view's name
+ */
+function getUiViewName(attrs, inherited) {
+    var name = attrs.uiView || attrs.name || '';
+    return name.indexOf('@') >= 0 ?  name :  (name + '@' + (inherited ? inherited.state.name : ''));
+}
+
 /**
  * @ngdoc directive
  * @name ui.router.state.directive:ui-view
@@ -203,12 +212,14 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
 
         function updateView(firstTime) {
           var newScope        = scope.$new(),
-              name            = currentEl && currentEl.data('$uiViewName'),
+              name            = getUiViewName(attrs, $element.inheritedData('$uiView')),
               previousLocals  = name && $state.$current && $state.$current.locals[name];
 
           if (!firstTime && previousLocals === latestLocals) return; // nothing to do
 
           var clone = $transclude(newScope, function(clone) {
+            clone.data('$uiViewName', name);
+            latestLocals = $state.$current.locals[clone.data('$uiViewName')];
             renderer.enter(clone, $element, function onUiViewEnter() {
               if (angular.isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
                 $uiViewScroll(clone);
@@ -217,7 +228,6 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
             cleanupLastView();
           });
 
-          latestLocals = $state.$current.locals[clone.data('$uiViewName')];
 
           currentEl = clone;
           currentScope = newScope;
@@ -249,16 +259,8 @@ function $ViewDirectiveFill ($compile, $controller, $state) {
     compile: function (tElement) {
       var initial = tElement.html();
       return function (scope, $element, attrs) {
-        var name      = attrs.uiView || attrs.name || '',
-            inherited = $element.inheritedData('$uiView');
-
-        if (name.indexOf('@') < 0) {
-          name = name + '@' + (inherited ? inherited.state.name : '');
-        }
-
-        $element.data('$uiViewName', name);
-
         var current = $state.$current,
+            name = getUiViewName(attrs, $element.inheritedData('$uiView')),
             locals  = current && current.locals[name];
 
         if (! locals) {
