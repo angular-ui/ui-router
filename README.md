@@ -64,7 +64,7 @@ When you're done, your setup should look similar to the following:
 </html>
 ```
 
-### Nested States & Views
+### [Nested States & Views](http://plnkr.co/edit/u18KQc?p=preview)
 
 The majority of UI-Router's power is in its ability to nest states & views.
 
@@ -165,7 +165,7 @@ myApp.config(function($stateProvider, $urlRouterProvider) {
 >**[Dive Deeper!](https://github.com/angular-ui/ui-router/wiki)**
 
 
-### Multiple & Named Views
+### [Multiple & Named Views](http://plnkr.co/edit/SDOcGS?p=preview)
 
 Another great feature is the ability to have multiple `ui-view`s view per template.
 
