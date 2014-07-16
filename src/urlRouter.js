@@ -88,14 +88,14 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
    *
    *   // Example of using function rule as param
    *   $urlRouterProvider.otherwise(function ($injector, $location) {
-   *     ...
+   *     return '/a/valid/url';
    *   });
    * });
    * </pre>
    *
    * @param {string|object} rule The url path you want to redirect to or a function 
    * rule that returns the url path. The function version is passed two params: 
-   * `$injector` and `$location` services.
+   * `$injector` and `$location` services, and must return a url string.
    *
    * @return {object} `$urlRouterProvider` - `$urlRouterProvider` instance
    */
