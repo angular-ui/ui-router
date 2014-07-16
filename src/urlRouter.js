@@ -350,6 +350,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
       push: function(urlMatcher, params, options) {
         $location.url(urlMatcher.format(params || {}));
         if (options && options.replace) $location.replace();
+        if (params && params['#']) $location.hash(params['#']);
       },
 
       /**
@@ -386,6 +387,9 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
 
         if (!isHtml5 && url) {
           url = "#" + $locationProvider.hashPrefix() + url;
+        }
+        else if (isHtml5 && params['#']) {
+	      url += '#' + params['#'];
         }
         url = appendBasePath(url, isHtml5, options.absolute);
 
