@@ -102,6 +102,7 @@ function $Resolve(  $q,    $injector) {
           if (!merged) merge(values, parent.$$values); 
           result.$$values = values;
           result.$$promises = true; // keep for isResolve()
+          delete result.$$inheritedValues;
           resolution.resolve(values);
         }
       }
@@ -117,12 +118,20 @@ function $Resolve(  $q,    $injector) {
         return result;
       }
       
+      if (parent.$$inheritedValues) {
+        merge(values, parent.$$inheritedValues);
+      }
+
       // Merge parent values if the parent has already resolved, or merge
       // parent promises and wait if the parent resolve is still in progress.
       if (parent.$$values) {
         merged = merge(values, parent.$$values);
+        result.$$inheritedValues = parent.$$values;
         done();
       } else {
+        if (parent.$$inheritedValues) {
+          result.$$inheritedValues = parent.$$inheritedValues;
+        }        
         extend(promises, parent.$$promises);
         parent.then(done, fail);
       }
