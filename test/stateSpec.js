@@ -75,6 +75,10 @@ describe('state', function () {
           $state.transitionTo("about");
         }
       })
+      .state('home.redirectloop', {
+        onEnter: function($state) { $state.transitionTo("home.redirectloop.infinite"); }
+      })
+      .state('home.redirectloop.infinite', { })
       .state('resolveFail', {
         url: "/resolve-fail",
         resolve: {
@@ -721,6 +725,8 @@ describe('state', function () {
         'home',
         'home.item',
         'home.redirect',
+        'home.redirectloop',
+        'home.redirectloop.infinite',
         'resolveFail',
         'resolveTimeout',
         'root',
@@ -1014,6 +1020,16 @@ describe('state', function () {
       expect($state.$current.views['viewB@'].templateProvider()).toBe('Template for viewB@');
     }));
 
+  });
+
+  describe('infinite loop detection', function () {
+    it('should detect looping onEnter TransitionSuperceded', inject(function ($q, $state) {
+      $state.transitionTo('home');
+      $q.flush();
+      $state.transitionTo('home.redirectloop');
+      expect(function() { $q.flush() }).toThrow(new Error("Redirect count exceeded " + stateProvider.maxRedirects() + ". [ home.redirectloop -> home.redirectloop.infinite -> home.redirectloop.infinite -> home.redirectloop.infinite -> home.redirectloop.infinite -> home.redirectloop.infinite -> home.redirectloop.infinite -> home.redirectloop.infinite -> home.redirectloop.infinite -> home.redirectloop.infinite ]") );
+      expect($state.current.name).toBe('home');
+    }));
   });
 });
 
