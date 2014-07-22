@@ -202,12 +202,12 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
         }
 
         function updateView(firstTime) {
-          var newScope        = scope.$new(),
+          var newScope,
               name            = currentEl && currentEl.data('$uiViewName'),
               previousLocals  = name && $state.$current && $state.$current.locals[name];
 
           if (!firstTime && previousLocals === latestLocals) return; // nothing to do
-
+          newScope = scope.$new();
           var clone = $transclude(newScope, function(clone) {
             renderer.enter(clone, $element, function onUiViewEnter() {
               if (angular.isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
