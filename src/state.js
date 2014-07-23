@@ -527,6 +527,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
    * you'd like to test against the current active state.
    * @property {object} current A reference to the state's config object. However 
    * you passed it in. Useful for accessing custom data.
+   * @property {object} previous A reference to the previous state's config object.
+   * @property {object} previousParams A param object, e.g. {sectionId: section.id)}, 
+   * represents the param's of the previous state.
    * @property {object} transition Currently pending transition. A promise that'll 
    * resolve or reject.
    *
@@ -615,6 +618,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       params: {},
       current: root.self,
       $current: root,
+      previous: root.self,
+      $previous: root,
+      previousParams: {},
       transition: null
     };
 
@@ -900,6 +906,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         $state.$current = to;
         $state.current = to.self;
         $state.params = toParams;
+        $state.$previous = from;
+        $state.previous = from.self;
+        $state.previousParams = fromParams;
         copy($state.params, $stateParams);
         $state.transition = null;
 

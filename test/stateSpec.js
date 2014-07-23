@@ -586,6 +586,20 @@ describe('state', function () {
   });
 
 
+  describe('.previous', function () {
+    it('is always defined', inject(function ($state) {
+      expect($state.previous).toBeDefined();
+    }));
+
+    it('updates asynchronously as the transitionTo() promise is resolved', inject(function ($state, $q) {
+      initStateTo(A);
+      var trans = $state.transitionTo(B, {});
+      $q.flush();
+      expect($state.previous).toBe(A);
+    }));
+  });
+
+
   describe('$current', function () {
     it('is always defined', inject(function ($state) {
       expect($state.$current).toBeDefined();
@@ -594,6 +608,20 @@ describe('state', function () {
     it('wraps the raw state object', inject(function ($state) {
       initStateTo(A);
       expect($state.$current.data).toBe(A.data); // 'data' is reserved for app use
+    }));
+  });
+
+
+  describe('$previous', function () {
+    it('is always defined', inject(function ($state) {
+      expect($state.$previous).toBeDefined();
+    }));
+
+    it('wraps the raw state object', inject(function ($state, $q) {
+      initStateTo(A);
+      var trans = $state.transitionTo(B, {});
+      $q.flush();
+      expect($state.$previous.data).toBe(A.data); // 'data' is reserved for app use
     }));
   });
 
@@ -607,6 +635,21 @@ describe('state', function () {
     it('contains the parameter values for the current state', inject(function ($state, $q) {
       initStateTo(D, { x: 'x value', z: 'invalid value' });
       expect($state.params).toEqual({ x: 'x value', y: undefined });
+    }));
+  });
+
+
+  describe('.previousParams', function () {
+    it('is always defined', inject(function ($state) {
+      expect($state.previousParams).toBeDefined();
+      expect(angular.isObject($state.previousParams)).toBe(true);
+    }));
+
+    it('contains the parameter values for the previous state', inject(function ($state, $q) {
+      initStateTo(D, { x: 'x value', z: 'invalid value' });
+      var trans = $state.transitionTo(A, {});
+      $q.flush();
+      expect($state.previousParams).toEqual({ x: 'x value', y: undefined });
     }));
   });
 
