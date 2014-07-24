@@ -239,24 +239,13 @@ describe("urlMatcherFactory", function () {
     }));
 
     it("should return undefined for non-matching item", function () {
-      var list = ['bar'];
-      var type = {
-        decode: function(item, v) {
-          return list[list.indexOf(item)];
-        }
-      };
+      var type = { decode: function() {} };
       $umf.type("myType", type);
       expect($umf.compile("/{foo:myType}").exec("/biz")).toEqual({ foo: undefined });
     });
 
     it("should return null for non-matching item when nullOnNoMatch set to true", function () {
-      var list = ['bar'];
-      var type = {
-        nullOnNoMatch: true,
-        decode: function(item, v) {
-          return list[list.indexOf(item)];
-        }
-      };
+      var type = { nullOnNoMatch: true, decode: function() {} };
       $umf.type("myType", type);
       expect($umf.compile("/{foo:myType}").exec("/biz")).toBeNull();
     });
