@@ -234,6 +234,7 @@ myApp.config(function($stateProvider) {
 * [Introduction Video](https://egghead.io/lessons/angularjs-introduction-ui-router) (egghead.io)
 * [Tim Kindberg on Angular UI-Router](https://www.youtube.com/watch?v=lBqiZSemrqg)
 * [Activating States](https://egghead.io/lessons/angularjs-ui-router-activating-states) (egghead.io)
+* [Learn Angular.js using UI-Router](http://youtu.be/QETUuZ27N0w) (LearnCode.academy)
 
 ## Report an Issue
 
