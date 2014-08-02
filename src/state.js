@@ -317,11 +317,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
    * <pre>
    * // Override the internal 'views' builder with a function that takes the state
    * // definition, and a reference to the internal function being overridden:
-   * $stateProvider.decorator('views', function ($state, parent) {
+   * $stateProvider.decorator('views', function (state, parent) {
    *   var result = {},
    *       views = parent(state);
    *
-   *   angular.forEach(view, function (config, name) {
+   *   angular.forEach(views, function (config, name) {
    *     var autoName = (state.name + '.' + name).replace('.', '/');
    *     config.templateUrl = config.templateUrl || '/partials/' + autoName + '.html';
    *     result[name] = config;
