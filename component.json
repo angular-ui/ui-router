@@ -8,8 +8,14 @@
     "routing"
   ],
   "main": "release/angular-ui-router.min.js",
+  "typescript": {
+    "definition": "api/angular-ui-router.d.ts"
+  },
   "scripts": [
     "release/angular-ui-router.min.js"
+  ],
+  "files": [
+    "api/angular-ui-router.d.ts"
   ],
   "license": "MIT",
   "repo": "angular-ui/ui-router"
