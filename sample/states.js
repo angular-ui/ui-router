@@ -167,7 +167,7 @@ angular.module('uiRouterSample')
                 template: 'This is contacts.detail populating the "hint" ui-view'
               },
 
-              // This one is targeting the ui-view="menu" within the parent state's template.
+              // This one is targeting the ui-view="menuTip" within the parent state's template.
               'menuTip': {
                 // templateProvider is the final method for supplying a template.
                 // There is: template, templateUrl, and templateProvider.
