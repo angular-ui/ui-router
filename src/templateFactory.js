@@ -81,6 +81,7 @@ function $TemplateFactory(  $http,   $templateCache,   $injector) {
    */
   this.fromUrl = function (url, params) {
     if (isFunction(url)) url = url(params);
+    if (isArray(url)) url = $injector.invoke(url, null, { params: params });
     if (url == null) return null;
     else return $http
         .get(url, { cache: $templateCache })
