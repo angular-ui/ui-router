@@ -1189,7 +1189,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
   }
 
   function shouldTriggerReload(to, from, locals, options) {
-    if (to === from && ((locals === from.locals && !options.reload) || (to.self.reloadOnSearch === false))) {
+    if (to === from && ((locals === from.locals) || (to.self.reloadOnSearch === false)) && !options.reload) {
       return true;
     }
   }
