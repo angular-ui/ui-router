@@ -512,6 +512,44 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
   }
 
   /**
+   * @ngdoc function
+   * @name ui.router.state.$stateProvider#abstractState
+   * @methodOf ui.router.state.$stateProvider
+   *
+   * @description
+   * Registers an abstract state configuration under a given state name.
+   * It only needs the name of the state.
+   *
+   * @example
+   * <pre>
+   * // Some abstractState name examples
+   *
+   * // stateName can be a single top-level name (must be unique).
+   * $stateProvider.abstractState("contacts");
+   *
+   * // abstractState() returns $stateProvider, so you can chain state declarations.
+   * $stateProvider
+   *   .abstractState("contacts")
+   *   .state("contacts.list", {})
+   *   .state("contacts.edit", {});
+   * </pre>
+   *
+   * @param {string} name A unique state name, e.g. "home", "about", "contacts". 
+   */
+  this.abstractState = abstractState;
+  function abstractState(name) {
+    if (isString(name) {
+      var definition = {
+        abstract: true,
+        url: "/"+name,
+        template: '<div><div ui-view></div></div>'
+      };
+      registerState(definition);
+    }
+    return this; 
+  }
+
+  /**
    * @ngdoc object
    * @name ui.router.state.$state
    *
