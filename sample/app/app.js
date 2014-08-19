@@ -94,16 +94,16 @@ angular.module('uiRouterSample', [
 
         .state('me', {
           url: '/me',
-          template: "<h1>Me, <a ui-sref=\"giserman\">Giserman</a></h1>"
+          template: "<h1>Me, <a ui-sref=\"myself\">myself</a></h1>"
         })
 
-        .state('giserman', {
+        .state('myself', {
           parent: 'me',
           independent: true,
-          url: '/giserman',
+          url: '/myself',
           views: {
-            'giserman@': {
-              template: "<h1>Giserman, <a ui-sref=\"^\">me</a></h1>"
+            'myself@': {
+              template: "<h1>Myself, <a ui-sref=\"^\">me</a></h1>"
             }
           }
         })
