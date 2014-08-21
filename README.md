@@ -150,12 +150,12 @@ myApp.config(function($stateProvider, $urlRouterProvider) {
     })
     .state('state2.list', {
       url: "/list",
-        templateUrl: "partials/state2.list.html",
-        controller: function($scope) {
-          $scope.things = ["A", "Set", "Of", "Things"];
-        }
-      })
-    });
+      templateUrl: "partials/state2.list.html",
+      controller: function($scope) {
+        $scope.things = ["A", "Set", "Of", "Things"];
+      }
+    })
+ });
 ```
 
 **(6)** See this quick start example in action.
