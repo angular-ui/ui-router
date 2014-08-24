@@ -346,7 +346,7 @@ describe('uiSrefActive', function() {
 
   beforeEach(module(function($stateProvider) {
     $stateProvider.state('index', {
-      url: '',
+      url: ''
     }).state('contacts', {
       url: '/contacts',
       views: {
@@ -355,7 +355,7 @@ describe('uiSrefActive', function() {
         }
       }
     }).state('contacts.item', {
-      url: '/:id',
+      url: '/:id'
     }).state('contacts.item.detail', {
       url: '/detail/:foo'
     }).state('contacts.item.edit', {
@@ -442,5 +442,52 @@ describe('uiSrefActive', function() {
     $state.transitionTo('contacts.item', { id: 5 });
     $q.flush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('ng-scope');
+  }));
+});
+
+describe('uiView controllers or onEnter handlers', function() {
+    var el, template, scope, document, count;
+
+  beforeEach(module('ui.router'));
+
+  beforeEach(module(function($stateProvider) {
+    count = 0;
+    $stateProvider
+        .state('aside',         { url: '/aside', template: '<div class="aside"></div>' })
+        .state('A',           { url: '/A', template: '<div class="A" ui-view="fwd"></div>' })
+        .state('A.fwd', {
+            url: '/fwd', views: { 'fwd@A': {
+                template: '<div class="fwd" ui-view>',
+                controller: function($state) { if (count++ < 20 && $state.current.name == 'A.fwd') $state.go(".nest"); }
+            }}
+        })
+        .state('A.fwd.nest',  { url: '/nest', template: '<div class="nest"></div>' });
+  }));
+
+  beforeEach(inject(function($document) {
+    document = $document[0];
+  }));
+
+  it('should not go into an infinite loop when controller uses $state.go', inject(function($rootScope, $q, $compile, $state) {
+    el = angular.element('<div><ui-view></ui-view></div>');
+    template = $compile(el)($rootScope);
+    $rootScope.$digest();
+
+    $state.transitionTo('aside');
+    $q.flush();
+    expect(template[0].querySelector('.aside')).toBeDefined();
+    expect(template[0].querySelector('.fwd')).toBeNull();
+
+    $state.transitionTo('A');
+    $q.flush();
+    expect(template[0].querySelector('.A')).not.toBeNull();
+    expect(template[0].querySelector('.fwd')).toBeNull();
+      
+    $state.transitionTo('A.fwd');
+    $q.flush();
+    expect(template[0].querySelector('.A')).not.toBeNull();
+    expect(template[0].querySelector('.fwd')).not.toBeNull();
+    expect(template[0].querySelector('.nest')).not.toBeNull();
+    expect(count).toBe(1);
   }));
 });
