@@ -658,7 +658,7 @@ angular.module('ui.router.util').service('$templateFactory', $TemplateFactory);
  *   URL matching this matcher (i.e. any string for which {@link ui.router.util.type:UrlMatcher#methods_exec exec()} returns
  *   non-null) will start with this prefix.
  *
- * @property {string} source  The pattern that was passed into the contructor
+ * @property {string} source  The pattern that was passed into the constructor
  *
  * @property {string} sourcePath  The path portion of the source property
  *
