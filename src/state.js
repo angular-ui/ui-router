@@ -538,6 +538,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
    */
   this.abstractState = abstractState;
   function abstractState(name) {
+    /*jshint validthis: true */
     if (isString(name)) {
       var definition = {
         abstract: true,
