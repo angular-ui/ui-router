@@ -384,7 +384,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
         var url = urlMatcher.format(params);
         options = options || {};
 
-        if (!isHtml5 && url) {
+        if (!isHtml5 && url !== null) {
           url = "#" + $locationProvider.hashPrefix() + url;
         }
         url = appendBasePath(url, isHtml5, options.absolute);
