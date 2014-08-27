@@ -203,10 +203,11 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
 
         function updateView(firstTime) {
           var newScope        = scope.$new(),
-              name            = currentEl && currentEl.data('$uiViewName'),
+              name            = getUiViewName(attrs, $element.inheritedData('$uiView')),
               previousLocals  = name && $state.$current && $state.$current.locals[name];
 
           if (!firstTime && previousLocals === latestLocals) return; // nothing to do
+          latestLocals = $state.$current.locals[name];
 
           var clone = $transclude(newScope, function(clone) {
             renderer.enter(clone, $element, function onUiViewEnter() {
@@ -216,8 +217,6 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
             });
             cleanupLastView();
           });
-
-          latestLocals = $state.$current.locals[clone.data('$uiViewName')];
 
           currentEl = clone;
           currentScope = newScope;
@@ -249,16 +248,8 @@ function $ViewDirectiveFill ($compile, $controller, $state) {
     compile: function (tElement) {
       var initial = tElement.html();
       return function (scope, $element, attrs) {
-        var name      = attrs.uiView || attrs.name || '',
-            inherited = $element.inheritedData('$uiView');
-
-        if (name.indexOf('@') < 0) {
-          name = name + '@' + (inherited ? inherited.state.name : '');
-        }
-
-        $element.data('$uiViewName', name);
-
         var current = $state.$current,
+            name = getUiViewName(attrs, $element.inheritedData('$uiView')),
             locals  = current && current.locals[name];
 
         if (! locals) {
@@ -284,6 +275,15 @@ function $ViewDirectiveFill ($compile, $controller, $state) {
       };
     }
   };
+}
+
+/**
+ * Shared ui-view code for both directives:
+ * Given attributes and inherited $uiView data, return the view's name
+ */
+function getUiViewName(attrs, inherited) {
+  var name = attrs.uiView || attrs.name || '';
+  return name.indexOf('@') >= 0 ?  name :  (name + '@' + (inherited ? inherited.state.name : ''));
 }
 
 angular.module('ui.router.state').directive('uiView', $ViewDirective);
