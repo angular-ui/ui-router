@@ -5,8 +5,8 @@ describe('uiStateRef', function() {
   beforeEach(module('ui.router'));
 
   beforeEach(module(function($stateProvider) {
-    $stateProvider.state('index', {
-      url: '/'
+    $stateProvider.state('top', {
+      url: ''
     }).state('contacts', {
       url: '/contacts',
       template: '<a ui-sref=".item({ id: 5 })" class="item">Person</a> <ui-view></ui-view>'
@@ -75,15 +75,17 @@ describe('uiStateRef', function() {
   });
 
   describe('links', function() {
-    var timeoutFlush;
+    var timeoutFlush, el2;
 
     beforeEach(inject(function($rootScope, $compile, $timeout) {
       el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })">Details</a>');
+      el2 = angular.element('<a ui-sref="top">Top</a>');
       scope = $rootScope;
       scope.contact = { id: 5 };
       scope.$apply();
 
       $compile(el)(scope);
+      $compile(el2)(scope);
       scope.$digest();
 
       timeoutFlush = function() {
@@ -98,6 +100,7 @@ describe('uiStateRef', function() {
 
     it('should generate the correct href', function() {
       expect(el.attr('href')).toBe('#/contacts/5');
+      expect(el2.attr('href')).toBe('#');
     });
 
     it('should update the href when parameters change', function() {
@@ -118,7 +121,7 @@ describe('uiStateRef', function() {
     }));
 
     it('should transition states when left-clicked', inject(function($state, $stateParams, $q) {
-      expect($state.$current.name).toEqual('');
+      expect($state.$current.name).toEqual('top');
 
       triggerClick(el);
       timeoutFlush();
@@ -129,7 +132,7 @@ describe('uiStateRef', function() {
     }));
 
     it('should transition when given a click that contains no data (fake-click)', inject(function($state, $stateParams, $q) {
-      expect($state.current.name).toEqual('');
+      expect($state.current.name).toEqual('top');
 
       triggerClick(el, {
         metaKey:  undefined,
@@ -146,63 +149,63 @@ describe('uiStateRef', function() {
     }));
 
     it('should not transition states when ctrl-clicked', inject(function($state, $stateParams, $q) {
-      expect($state.$current.name).toEqual('');
+      expect($state.$current.name).toEqual('top');
       triggerClick(el, { ctrlKey: true });
 
       timeoutFlush();
       $q.flush();
       
-      expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: 5 });
+      expect($state.current.name).toEqual('top');
+      expect($stateParams).toEqualData({ });
     }));
 
     it('should not transition states when meta-clicked', inject(function($state, $stateParams, $q) {
-      expect($state.$current.name).toEqual('');
+      expect($state.$current.name).toEqual('top');
 
       triggerClick(el, { metaKey: true });
       timeoutFlush();
       $q.flush();
 
-      expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: 5 });
+      expect($state.current.name).toEqual('top');
+      expect($stateParams).toEqualData({});
     }));
 
     it('should not transition states when shift-clicked', inject(function($state, $stateParams, $q) {
-      expect($state.$current.name).toEqual('');
+      expect($state.$current.name).toEqual('top');
 
       triggerClick(el, { shiftKey: true });
       timeoutFlush();
       $q.flush();
 
-      expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: 5 });
+      expect($state.current.name).toEqual('top');
+      expect($stateParams).toEqualData({});
     }));
 
     it('should not transition states when middle-clicked', inject(function($state, $stateParams, $q) {
-      expect($state.$current.name).toEqual('');
+      expect($state.$current.name).toEqual('top');
 
       triggerClick(el, { button: 1 });
       timeoutFlush();
       $q.flush();
 
-      expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: 5 });
+      expect($state.current.name).toEqual('top');
+      expect($stateParams).toEqualData({});
     }));
 
     it('should not transition states when element has target specified', inject(function($state, $stateParams, $q) {
       el.attr('target', '_blank');
-      expect($state.$current.name).toEqual('');
+      expect($state.$current.name).toEqual('top');
 
       triggerClick(el);
       timeoutFlush();
       $q.flush();
 
-      expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: 5 });
+      expect($state.current.name).toEqual('top');
+      expect($stateParams).toEqualData({});
     }));
 
     it('should not transition states if preventDefault() is called in click handler', inject(function($state, $stateParams, $q) {
-      expect($state.$current.name).toEqual('');
+      expect($state.$current.name).toEqual('top');
       el.bind('click', function(e) {
         e.preventDefault();
       });
@@ -211,8 +214,8 @@ describe('uiStateRef', function() {
       timeoutFlush();
       $q.flush();
 
-      expect($state.current.name).toEqual('');
-      expect($stateParams).toEqual({ id: 5 });
+      expect($state.current.name).toEqual('top');
+      expect($stateParams).toEqualData({});
     }));
     
     it('should allow passing params to current state', inject(function($compile, $rootScope, $state) {
@@ -345,8 +348,8 @@ describe('uiSrefActive', function() {
   beforeEach(module('ui.router'));
 
   beforeEach(module(function($stateProvider) {
-    $stateProvider.state('index', {
-      url: '',
+    $stateProvider.state('top', {
+      url: ''
     }).state('contacts', {
       url: '/contacts',
       views: {
