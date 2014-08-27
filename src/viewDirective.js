@@ -204,11 +204,13 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
         function updateView(firstTime) {
           var newScope        = scope.$new(),
               name            = currentEl && currentEl.data('$uiViewName'),
-              previousLocals  = name && $state.$current && $state.$current.locals[name];
+              previousLocals  = name && $state.$current && $state.$current.locals[name],
+              independent     = $state.$current.independent;
 
-          if (!firstTime && previousLocals === latestLocals) return; // nothing to do
+          if ( (!firstTime && previousLocals === latestLocals) && !independent ) return; // nothing to do
 
           var clone = $transclude(newScope, function(clone) {
+
             renderer.enter(clone, $element, function onUiViewEnter() {
               if (angular.isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
                 $uiViewScroll(clone);
@@ -258,15 +260,28 @@ function $ViewDirectiveFill ($compile, $controller, $state) {
 
         $element.data('$uiViewName', name);
 
-        var current = $state.$current,
-            locals  = current && current.locals[name];
+        var current     = $state.$current,
+            locals      = current && current.locals[name],
+            independent = current.independent,
+            split       = [];
+
+        if (name.length > 1) split.push(name.split("@")[0]);
+          else split.push(name);
 
         if (! locals) {
           return;
         }
 
+        var template = locals.$template || initial;
+
+        if ( independent ) {
+          if (split[0] !== locals.$$state.self.name) {
+            template = null;
+          }
+        }
+
         $element.data('$uiView', { name: name, state: locals.$$state });
-        $element.html(locals.$template ? locals.$template : initial);
+        $element.html(template);
 
         var link = $compile($element.contents());
 

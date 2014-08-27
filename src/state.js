@@ -27,6 +27,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
   // Builds state properties from definition passed to registerState()
   var stateBuilder = {
 
+    // Independent child state inherits everything from it's parent, as usual, but won't render nor keep inherited views.
+    independent: function(state) {
+      if (isDefined(state.parent)) return isDefined(state.independent) ? state.independent : false;
+    },
+
     // Derive parent state from a hierarchical name only if 'parent' is not explicitly defined.
     // state.children = [];
     // if (parent) parent.children.push(state);
@@ -795,7 +800,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // Starting from the root of the path, keep all levels that haven't changed
       var keep = 0, state = toPath[keep], locals = root.locals, toLocals = [];
 
-      if (!options.reload) {
+      // Force state to reload if coming from an independent child
+      if (!options.reload && !from.independent) {
         while (state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams)) {
           locals = toLocals[keep] = state.locals;
           keep++;

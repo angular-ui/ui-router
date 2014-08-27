@@ -50,6 +50,7 @@
              its descendant states are activated. -->
           <li ng-class="{active: $state.includes('contacts')}"><a ui-sref="contacts.list">Contacts</a></li>
           <li ui-sref-active="active"><a ui-sref="about">About</a></li>
+          <li ui-sref-active="me"><a ui-sref="me">Me</a></li>
         </ul>
 
         <!-- Here is a named ui-view. ui-views don't have to be named, but we'll be populate this
@@ -61,6 +62,7 @@
     <!-- Here is the main ui-view (unnamed) and will be populated by its immediate children's templates
          unless otherwise explicitly named views are targeted. It's also employing ng-animate. -->
     <div ui-view class="container slide" style="padding-top: 80px;"></div>
+    <div ui-view="myself" class="container slide"></div>
 
 
     <hr>

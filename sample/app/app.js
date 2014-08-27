@@ -91,6 +91,22 @@ angular.module('uiRouterSample', [
               }, 100);
             }]
         })
+
+        .state('me', {
+          url: '/me',
+          template: "<h1>Me, <a ui-sref=\"myself\">myself</a></h1>"
+        })
+
+        .state('myself', {
+          parent: 'me',
+          independent: true,
+          url: '/myself',
+          views: {
+            'myself@': {
+              template: "<h1>Myself, <a ui-sref=\"^\">me</a></h1>"
+            }
+          }
+        })
     }
   ]
 );
