@@ -262,7 +262,7 @@ Please keep in mind that the issue tracker is for *issues*. Please do *not* post
 
 **(1)** See the **[Developing](#developing)** section below, to get the development version of UI-Router up and running on your local machine.
 
-**(2)** Check out the [roadmap](https://github.com/angular-ui/ui-router/issues/milestones) to see where the project is headed, and if your feature idea fits with where we're headed.
+**(2)** Check out the [roadmap](https://github.com/angular-ui/ui-router/milestones) to see where the project is headed, and if your feature idea fits with where we're headed.
 
 **(3)** If you're not sure, [open an RFC](https://github.com/angular-ui/ui-router/issues/new?title=RFC:%20My%20idea) to get some feedback on your idea.
 
