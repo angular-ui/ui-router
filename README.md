@@ -1,4 +1,4 @@
-# AngularUI Router &nbsp;[![Build Status](https://travis-ci.org/angular-ui/ui-router.png?branch=master)](https://travis-ci.org/angular-ui/ui-router)
+# AngularUI Router &nbsp;[![Build Status](https://travis-ci.org/angular-ui/ui-router.svg?branch=master)](https://travis-ci.org/angular-ui/ui-router)
 
 #### The de-facto solution to flexible routing with nested views
 ---
@@ -154,8 +154,8 @@ myApp.config(function($stateProvider, $urlRouterProvider) {
       controller: function($scope) {
         $scope.things = ["A", "Set", "Of", "Things"];
       }
-    })
- });
+    });
+});
 ```
 
 **(6)** See this quick start example in action.
