@@ -22,7 +22,7 @@
 $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
-  var root, states = {}, $state, queue = {}, abstractKey = 'abstract';
+  var root, states = {}, $state, queue = {}, abstractKey = 'abstract', maximumRedirects = 10;
 
   // Builds state properties from definition passed to registerState()
   var stateBuilder = {
@@ -511,6 +511,40 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     return this;
   }
 
+    /**
+     * @ngdoc function
+     * @name ui.router.state.$stateProvider#maxRedirects
+     * @methodOf ui.router.state.$stateProvider
+     *
+     * @description
+     * A method that sets the maximum number of nested Transition Superceded (application redirects) before UI-Router
+     * throws an Error.
+     *
+     * @example
+     * Set max redirects:
+     * <pre>
+     * angular.module('app', ['ui.router']);
+     * app.config(function ($stateProvider) {
+     *   var newMax = $stateProvider.maxRedirects(30);
+     * });
+     * </pre>
+     *
+     * Get max redirects
+     * <pre>
+     * angular.module('app', ['ui.router']);
+     * app.config(function ($stateProvider) {
+     *   var max = $stateProvider.maxRedirects();
+     * });
+     * </pre>
+     */
+  this.maxRedirects = maxRedirects;
+  function maxRedirects(newMaximum) {
+    if (isDefined(newMaximum)) {
+      maximumRedirects = newMaximum;
+    }
+    return maximumRedirects;
+  }
+
   /**
    * @ngdoc object
    * @name ui.router.state.$state
@@ -615,7 +649,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       params: {},
       current: root.self,
       $current: root,
-      transition: null
+      transition: null,
+      redirects: []
     };
 
     /**
@@ -786,6 +821,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
           throw new Error("Could not resolve '" + to + "' from state '" + options.relative + "'");
         }
       }
+
+      $state.redirects.push(toState.name);
+      if ($state.redirects.length >= maximumRedirects)
+        throw new Error("Redirect count exceeded " + maximumRedirects + ". [ " + $state.redirects.join(" -> ") + " ]");
+
       if (toState[abstractKey]) throw new Error("Cannot transition to abstract state '" + to + "'");
       if (options.inherit) toParams = inheritParams($stateParams, toParams || {}, $state.$current, toState);
       to = toState;
@@ -957,6 +997,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
             $urlRouter.update();
         }
 
+        return $q.reject(error);
+      })
+      .then(function(result) {
+        $state.redirects.pop();
+        return result;
+      }, function(error) {
+        if (error === TransitionSuperseded) {
+          $state.redirects.push($state.current.name);
+          return error;
+        }
         return $q.reject(error);
       });
 
