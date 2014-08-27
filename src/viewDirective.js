@@ -202,11 +202,12 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
         }
 
         function updateView(firstTime) {
-          var newScope        = scope.$new(),
+          var newScope,
               name            = getUiViewName(attrs, $element.inheritedData('$uiView')),
               previousLocals  = name && $state.$current && $state.$current.locals[name];
 
           if (!firstTime && previousLocals === latestLocals) return; // nothing to do
+          newScope = scope.$new();
           latestLocals = $state.$current.locals[name];
 
           var clone = $transclude(newScope, function(clone) {
