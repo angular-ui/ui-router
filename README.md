@@ -154,8 +154,8 @@ myApp.config(function($stateProvider, $urlRouterProvider) {
       controller: function($scope) {
         $scope.things = ["A", "Set", "Of", "Things"];
       }
-    })
- });
+    });
+});
 ```
 
 **(6)** See this quick start example in action.
