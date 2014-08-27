@@ -1704,6 +1704,33 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
   }
 
   /**
+   * @ngdoc function
+   * @name ui.router.state.$stateProvider#removeState
+   * @methodOf ui.router.state.$stateProvider
+   *
+   * @description
+   * Removes a given state from $stateProvider state list.
+   * Returns true on success, false on failure
+   *
+   * @example
+   * <pre>
+   * // Remove 'home' from defined state list
+   * $stateProvider.removeState('home');
+   * </pre>
+   *
+   * @param {string} state A unique state name, e.g. "home", "about", "contacts".
+   */
+  this.removeState = removeState;
+  function removeState(state) {
+    if (states[state]) {
+      delete states[state];
+      return true;
+    } else {
+      return false
+    }
+  }
+
+  /**
    * @ngdoc object
    * @name ui.router.state.$state
    *
