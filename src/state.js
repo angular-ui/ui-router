@@ -847,6 +847,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          * </pre>
          */
         if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams).defaultPrevented) {
+          $state.$stateTransition = toState.self;
           $urlRouter.update();
           return TransitionPrevented;
         }
@@ -899,6 +900,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         // Update globals in $state
         $state.$current = to;
         $state.current = to.self;
+        $state.$previous = from;
+        $state.previous = from.self;
         $state.params = toParams;
         copy($state.params, $stateParams);
         $state.transition = null;
@@ -926,6 +929,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          */
           $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
         }
+        $state.$stateTransition = {};
         $urlRouter.update(true);
 
         return $state.current;

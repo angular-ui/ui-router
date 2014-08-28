@@ -91,6 +91,15 @@ describe('state', function () {
           }
         }
       })
+      .state('resolveStateTransition',{
+          url: '/resolveStateTransition',
+          data: {id: 1},
+          resolve: {
+              value: function($state){
+                  return $state.$stateTransition;
+              }
+          }
+        })
       .state('badParam', {
         url: "/bad/{param:int}"
       })
@@ -315,6 +324,7 @@ describe('state', function () {
         expect(to).toBe(D);
         expect(toParams).toEqual({ x: '1', y: '2' });
 
+        expect($state.previous).toBe(from);
         expect($state.current).toBe(to); // $state has been updated
         expect($state.params).toEqual(toParams);
         called = true;
@@ -323,6 +333,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(D);
+      expect($state.previous).toBe(E);
     }));
 
     it('does not trigger $stateChangeSuccess when suppressed, but changes state', inject(function ($state, $q, $rootScope) {
@@ -338,6 +349,7 @@ describe('state', function () {
 
       expect(called).toBeFalsy();
       expect($state.current).toBe(D);
+      expect($state.previous).toBe(E);
     }));
 
     it('does not trigger $stateChangeSuccess when suppressed, but updates params', inject(function ($state, $q, $rootScope) {
@@ -362,6 +374,7 @@ describe('state', function () {
       $q.flush();
       expect(resolvedValue(trans)).toBe(A);
       expect($state.current).toBe(A);
+      expect($state.previous.abstract).toBe(true);
       expect(log).toBe('');
     }));
 
@@ -373,6 +386,7 @@ describe('state', function () {
       $state.transitionTo(C, {});
       $q.flush();
       expect($state.current).toBe(C);
+      expect($state.previous).toBe(A);
       expect(resolvedError(superseded)).toBeTruthy();
       expect(log).toBe(
         '$stateChangeStart(B,A);' +
@@ -446,28 +460,34 @@ describe('state', function () {
       // Transitions to absolute state
       $state.go("home"); $q.flush();
       expect($state.$current.name).toBe('home');
+      expect($state.$previous.name).toBe('about.sidebar');
 
 
       // Transition to a child state
       $state.go(".item", { id: 5 }); $q.flush();
       expect($state.$current.name).toBe('home.item');
+      expect($state.$previous.name).toBe('home');
 
       // Transition to grandparent's sibling through root
       // (Equivalent to absolute transition, assuming the root is known).
       $state.go("^.^.about"); $q.flush();
       expect($state.$current.name).toBe('about');
+      expect($state.$previous.name).toBe('home.item');
 
       // Transition to grandchild
       $state.go(".person.item", { person: "bob", id: 13 }); $q.flush();
       expect($state.$current.name).toBe('about.person.item');
+      expect($state.$previous.name).toBe('about');
 
       // Transition to immediate parent
       $state.go("^"); $q.flush();
       expect($state.$current.name).toBe('about.person');
+      expect($state.$previous.name).toBe('about.person.item');
 
       // Transition to sibling
       $state.go("^.sidebar"); $q.flush();
       expect($state.$current.name).toBe('about.sidebar');
+      expect($state.$previous.name).toBe('about.person');
     }));
 
     it('keeps parameters from common ancestor states', inject(function ($state, $stateParams, $q) {
@@ -478,6 +498,7 @@ describe('state', function () {
       $q.flush();
 
       expect($state.$current.name).toBe('about.person.item');
+      expect($state.$previous.name).toBe('about.person');
       expect($stateParams).toEqual({ person: 'bob', id: 5 });
 
       $state.go('^.^.sidebar');
@@ -585,8 +606,24 @@ describe('state', function () {
     }));
   });
 
+    describe('$previous', function () {
+        it('should\'nt be defined', inject(function ($state) {
+            expect($state.$previous).not.toBeDefined();
+        }));
 
-  describe('$current', function () {
+        it('should be defined', inject(function ($state) {
+            initStateTo(A);
+            expect($state.$previous).toBeDefined();
+        }));
+
+        it('should be abstract', inject(function ($state) {
+            initStateTo(A);
+            expect($state.$previous.abstract).toBeTruthy();
+        }));
+    });
+
+
+    describe('$current', function () {
     it('is always defined', inject(function ($state) {
       expect($state.$current).toBeDefined();
     }));
@@ -722,6 +759,7 @@ describe('state', function () {
         'home.item',
         'home.redirect',
         'resolveFail',
+        'resolveStateTransition',
         'resolveTimeout',
         'root',
         'root.sub1',
@@ -830,6 +868,33 @@ describe('state', function () {
       $rootScope.$apply();
 
       expect($location.path()).toBe("/resolve-fail");
+    }));
+
+    it('should get an access to transition-state in resolve phase', inject(function($state, $q){
+          var resolvedState = $state.go('resolveStateTransition');
+          $q.flush();
+          expect(resolvedValue(resolvedState).name).toBe('resolveStateTransition');
+    }));
+
+    it('should strip $stateTransition property when transition is over', inject(function($state, $q){
+        $state.transitionTo(A);
+        $q.flush();
+        expect($state.$stateTransition).toEqual({});
+
+        $state.transitionTo(B);
+        $q.flush();
+        expect($state.$stateTransition).toEqual({});
+      }));
+
+    it('set dynamic data and access it on the resolve phase', inject(function($state, $q){
+        $state.get('resolveStateTransition').data = { foo: 'bar' };
+        var resolvedState = $state.go('resolveStateTransition');
+        $q.flush();
+        expect(resolvedValue(resolvedState).data).toEqual({ foo: 'bar' });
+
+        $state.get('resolveStateTransition').data = { foo: 'baz' };
+        $q.flush();
+        expect(resolvedValue(resolvedState).data).toEqual({ foo: 'baz' });
     }));
 
     it('should replace browser history when "replace" enabled', inject(function ($state, $rootScope, $location, $q) {
