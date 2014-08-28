@@ -811,6 +811,23 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       if (shouldTriggerReload(to, from, locals, options)) {
         if (to.self.reloadOnSearch !== false) $urlRouter.update();
         $state.transition = null;
+        if (options.notify) {
+          /**
+           * @ngdoc event
+           * @name ui.router.state.$state#$stateChangeToSamePrevented
+           * @eventOf ui.router.state.$state
+           * @eventType broadcast on root scope
+           * @description
+           * Fired if transition to the same state is **prevented** (ex.: A->B->A).
+           *
+           * @param {Object} event Event object.
+           * @param {State} toState The state being transitioned to, same as fromState.
+           * @param {Object} toParams The params supplied to the `toState`, same as fromParams.
+           * @param {State} fromState The current state, pre-transition, same as toState.
+           * @param {Object} fromParams The params supplied to the `fromState`, same as toParams.
+           */
+          $rootScope.$broadcast('$stateChangeToSamePrevented', from.self, fromParams, from.self, fromParams);
+        }
         return $q.when($state.current);
       }
 
