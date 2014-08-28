@@ -112,7 +112,7 @@ function $StateRefDirective($state, $timeout) {
           nav = false;
           return false;
         }
-        element[0][attr] = newHref;
+        attrs.$set(attr, newHref);
       };
 
       if (ref.paramExpr) {
