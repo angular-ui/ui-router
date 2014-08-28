@@ -11,6 +11,11 @@ describe('state', function () {
   function eventLogger(event, to, toParams, from, fromParams) {
     if (logEvents) log += event.name + '(' + to.name + ',' + from.name + ');';
   }
+
+  function eventLoggerSuccess(event, to, toParams, toResolved, from, fromParams, fromResolved) {
+    if (logEvents) log += event.name + '(' + to.name + ',' + from.name + ');';
+  }
+
   function callbackLogger(what) {
     return function () {
       if (logEnterExit) log += this.name + '.' + what + ';';
@@ -111,7 +116,7 @@ describe('state', function () {
     log = '';
     logEvents = logEnterExit = false;
     $rootScope.$on('$stateChangeStart', eventLogger);
-    $rootScope.$on('$stateChangeSuccess', eventLogger);
+    $rootScope.$on('$stateChangeSuccess', eventLoggerSuccess);
     $rootScope.$on('$stateChangeError', eventLogger);
     $rootScope.$on('$stateNotFound', eventLogger);
   }));
@@ -309,7 +314,7 @@ describe('state', function () {
     it('triggers $stateChangeSuccess', inject(function ($state, $q, $rootScope) {
       initStateTo(E, { i: 'iii' });
       var called;
-      $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, toResolved, from, fromParams, fromResolved) {
         expect(from).toBe(E);
         expect(fromParams).toEqual({ i: 'iii' });
         expect(to).toBe(D);
