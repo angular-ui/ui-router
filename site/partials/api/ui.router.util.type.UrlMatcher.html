@@ -1,141 +1,142 @@
 <h1><code ng:non-bindable="">UrlMatcher</code>
-<span class="hint">(type in module <code ng:non-bindable="">ui.router.util</code>
-)</span>
+<div><span class="hint">type in module <code ng:non-bindable="">ui.router.util</code>
+</span>
+</div>
 </h1>
-<div><h2 id="Description">Description</h2>
-<div class="description"><p>Matches URLs against patterns and extracts named parameters from the path or the search
-part of the URL. A URL pattern consists of a path pattern, optionally followed by '?' and a list
-of search parameters. Multiple search parameter names are separated by '&amp;'. Search parameters
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-page"><p>Matches URLs against patterns and extracts named parameters from the path or the search
+part of the URL. A URL pattern consists of a path pattern, optionally followed by &#39;?&#39; and a list
+of search parameters. Multiple search parameter names are separated by &#39;&amp;&#39;. Search parameters
 do not influence whether or not a URL is matched, but their values are passed through into
 the matched parameters returned by <a href="#/api/ui.router.util.type:UrlMatcher#methods_exec">exec</a>.</p>
-
 <p>Path parameter placeholders can be specified using simple colon/catch-all syntax or curly brace
 syntax, which optionally allows a regular expression for the parameter to be specified:</p>
-
 <ul>
-<li><code>':'</code> name - colon placeholder</li>
-<li><code>'*'</code> name - catch-all placeholder</li>
-<li><code>'{' name '}'</code> - curly placeholder</li>
-<li><code>'{' name ':' regexp '}'</code> - curly placeholder with regexp. Should the regexp itself contain
+<li><code>&#39;:&#39;</code> name - colon placeholder</li>
+<li><code>&#39;*&#39;</code> name - catch-all placeholder</li>
+<li><code>&#39;{&#39; name &#39;}&#39;</code> - curly placeholder</li>
+<li><code>&#39;{&#39; name &#39;:&#39; regexp &#39;}&#39;</code> - curly placeholder with regexp. Should the regexp itself contain
 curly braces, they must be in matched pairs or escaped with a backslash.</li>
 </ul>
-
 <p>Parameter names may contain only word characters (latin letters, digits, and underscore) and
 must be unique within the pattern (across both path and search parameters). For colon 
 placeholders or curly placeholders without an explicit regexp, a path parameter matches any
-number of characters other than '/'. For catch-all placeholders the path parameter matches
+number of characters other than &#39;/&#39;. For catch-all placeholders the path parameter matches
 any number of characters.</p>
-
 <p>Examples:</p>
-
 <ul>
-<li><code>'/hello/'</code> - Matches only if the path is exactly '/hello/'. There is no special treatment for
+<li><code>&#39;/hello/&#39;</code> - Matches only if the path is exactly &#39;/hello/&#39;. There is no special treatment for
 trailing slashes, and patterns have to match the entire path, not just a prefix.</li>
-<li><code>'/user/:id'</code> - Matches '/user/bob' or '/user/1234!!!' or even '/user/' but not '/user' or
-'/user/bob/details'. The second path segment will be captured as the parameter 'id'.</li>
-<li><code>'/user/{id}'</code> - Same as the previous example, but using curly brace syntax.</li>
-<li><code>'/user/{id:[^/]*}'</code> - Same as the previous example.</li>
-<li><code>'/user/{id:[0-9a-fA-F]{1,8}}'</code> - Similar to the previous example, but only matches if the id
+<li><code>&#39;/user/:id&#39;</code> - Matches &#39;/user/bob&#39; or &#39;/user/1234!!!&#39; or even &#39;/user/&#39; but not &#39;/user&#39; or
+&#39;/user/bob/details&#39;. The second path segment will be captured as the parameter &#39;id&#39;.</li>
+<li><code>&#39;/user/{id}&#39;</code> - Same as the previous example, but using curly brace syntax.</li>
+<li><code>&#39;/user/{id:[^/]*}&#39;</code> - Same as the previous example.</li>
+<li><code>&#39;/user/{id:[0-9a-fA-F]{1,8}}&#39;</code> - Similar to the previous example, but only matches if the id
 parameter consists of 1 to 8 hex digits.</li>
-<li><code>'/files/{path:.*}'</code> - Matches any URL starting with '/files/' and captures the rest of the
-path into the parameter 'path'.</li>
-<li><code>'/files/*path'</code> - ditto.</li>
-</ul></div>
-<h2 id="Usage">Usage</h2>
-<div class="usage"><pre class="prettyprint linenums">type:UrlMatcher(pattern, caseInsensitiveMatch);</pre>
-<h3 id="Parameters">Parameters</h3>
-<ul class="parameters"><li><code ng:non-bindable="">pattern – {string} – </code>
-<p>the pattern to compile into a matcher.</p></li>
-<li><code ng:non-bindable="">caseInsensitiveMatch – {bool} – </code>
-<p>true if url matching should be case insensitive, otherwise false, the default value (for backward compatibility) is false.</p></li>
+<li><code>&#39;/files/{path:.*}&#39;</code> - Matches any URL starting with &#39;/files/&#39; and captures the rest of the
+path into the parameter &#39;path&#39;.</li>
+<li><code>&#39;/files/*path&#39;</code> - ditto.</li>
 </ul>
-<h3 id="Returns">Returns</h3>
-<div class="returns"><code ng:non-bindable="">{Object}</code>
-– <p>New UrlMatcher object</p></div>
-</div>
-<div class="member method"><h2 id="Methods">Methods</h2>
-<ul class="methods"><li><h3 id="concat">concat(pattern)</h3>
-<div class="concat"><p>Returns a new matcher for a pattern constructed by appending the path part and adding the
+</div></div>
+<h2 id="usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">UrlMatcher(pattern, config);</pre>
+<h4 id="usage_parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>pattern</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-page"><p>The pattern to compile into a matcher.</p>
+</div></td></tr><tr><td>config</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-page"><p>A configuration object hash:</p>
+<ul>
+<li><code>caseInsensitive</code> - <code>true</code> if URL matching should be case insensitive, otherwise <code>false</code>, the default value (for backward compatibility) is <code>false</code>.</li>
+<li><code>strict</code> - <code>false</code> if matching against a URL with a trailing slash should be treated as equivalent to a URL without a trailing slash, the default value is <code>true</code>.</li>
+</ul>
+</div></td></tr></tbody></table><h4 id="usage_returns">Returns</h4><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-page"><p>New <code>UrlMatcher</code> object</p>
+</div></td></tr></table></div>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_concat">concat(pattern, config)</h3>
+<div class="concat"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-concat-page"><p>Returns a new matcher for a pattern constructed by appending the path part and adding the
 search parameters of the specified pattern to this pattern. The current pattern is not
 modified. This can be understood as creating a pattern for URLs that are relative to (or
-suffixes of) the current pattern.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">pattern – {string} – </code>
-<p>The pattern to append.</p></li>
-</ul>
-<h4 id="Returns">Returns</h4>
-<div class="returns"><code ng:non-bindable="">{ui.router.util.type:UrlMatcher}</code>
-– <p>A matcher for the concatenated pattern.</p></div>
-<h4 id="Example">Example</h4>
-<div class="example"><p>The following two matchers are equivalent:</p>
-
-<pre><code>new UrlMatcher('/user/{id}?q').concat('/details?date');
-new UrlMatcher('/user/{id}/details?q&amp;date');
-</code></pre></div>
+suffixes of) the current pattern.</p>
+</div><h5 id="methods_concat_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>pattern</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-concat-page"><p>The pattern to append.</p>
+</div></td></tr><tr><td>config</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-concat-page"><p>An object hash of the configuration for the matcher.</p>
+</div></td></tr></tbody></table><h5 id="methods_concat_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-urlmatcher">UrlMatcher</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-concat-page"><p>A matcher for the concatenated pattern.</p>
+</div></td></tr></table><h4 id="methods_concat_example">Example</h4>
+<div class="example"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-concat-page"><p>The following two matchers are equivalent:
+<pre class="prettyprint linenums">
+new UrlMatcher('/user/{id}?q').concat('/details?date');
+new UrlMatcher('/user/{id}/details?q&date');
+</pre>
+</div></div>
 </div>
 </li>
-<li><h3 id="exec">exec(path, searchParams)</h3>
-<div class="exec"><p>Tests the specified path against this matcher, and returns an object containing the captured
+<li><h3 id="methods_exec">exec(path, searchParams)</h3>
+<div class="exec"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-exec-page"><p>Tests the specified path against this matcher, and returns an object containing the captured
 parameter values, or null if the path does not match. The returned object contains the values
 of any search parameters that are mentioned in the pattern, but their value may be null if
 they are not present in <code>searchParams</code>. This means that search parameters are always treated
-as optional.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">path – {string} – </code>
-<p>The URL path to match, e.g. <code>$location.path()</code>.</p></li>
-<li><code ng:non-bindable="">searchParams – {Object} – </code>
-<p>URL search parameters, e.g. <code>$location.search()</code>.</p></li>
-</ul>
-<h4 id="Returns">Returns</h4>
-<div class="returns"><code ng:non-bindable="">{Object}</code>
-– <p>The captured parameter values.</p></div>
-<h4 id="Example">Example</h4>
-<div class="example"><pre><code>new UrlMatcher('/user/{id}?q&amp;r').exec('/user/bob', { x:'1', q:'hello' });
-// returns { id:'bob', q:'hello', r:null }
-</code></pre></div>
+as optional.</p>
+</div><h5 id="methods_exec_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>path</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-exec-page"><p>The URL path to match, e.g. <code>$location.path()</code>.</p>
+</div></td></tr><tr><td>searchParams</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-exec-page"><p>URL search parameters, e.g. <code>$location.search()</code>.</p>
+</div></td></tr></tbody></table><h5 id="methods_exec_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-exec-page"><p>The captured parameter values.</p>
+</div></td></tr></table><h4 id="methods_exec_example">Example</h4>
+<div class="example"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-exec-page"><pre class="prettyprint linenums">
+new UrlMatcher('/user/{id}?q&r').exec('/user/bob', {
+  x: '1', q: 'hello'
+});
+// returns { id: 'bob', q: 'hello', r: null }
+</pre>
+</div></div>
 </div>
 </li>
-<li><h3 id="format">format(values)</h3>
-<div class="format"><p>Creates a URL that matches this pattern by substituting the specified values
+<li><h3 id="methods_format">format(values)</h3>
+<div class="format"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-format-page"><p>Creates a URL that matches this pattern by substituting the specified values
 for the path and search parameters. Null values for path parameters are
-treated as empty strings.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">values – {Object} – </code>
-<p>the values to substitute for the parameters in this pattern.</p></li>
-</ul>
-<h4 id="Returns">Returns</h4>
-<div class="returns"><code ng:non-bindable="">{string}</code>
-– <p>the formatted URL (path and optionally search part).</p></div>
-<h4 id="Example">Example</h4>
-<div class="example"><pre><code>new UrlMatcher('/user/{id}?q').format({ id:'bob', q:'yes' });
+treated as empty strings.</p>
+</div><h5 id="methods_format_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>values</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-format-page"><p>the values to substitute for the parameters in this pattern.</p>
+</div></td></tr></tbody></table><h5 id="methods_format_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-format-page"><p>the formatted URL (path and optionally search part).</p>
+</div></td></tr></table><h4 id="methods_format_example">Example</h4>
+<div class="example"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-format-page"><pre class="prettyprint linenums">
+new UrlMatcher('/user/{id}?q').format({ id:'bob', q:'yes' });
 // returns '/user/bob?q=yes'
-</code></pre></div>
+</pre>
+</div></div>
 </div>
 </li>
-<li><h3 id="parameters">parameters()</h3>
-<div class="parameters"><p>Returns the names of all path and search parameters of this pattern in an unspecified order.</p><h4 id="Returns">Returns</h4>
-<div class="returns"><code ng:non-bindable="">{Array.&lt;string&gt;}</code>
-– <p>An array of parameter names. Must be treated as read-only. If the
-pattern has no parameters, an empty array is returned.</p></div>
-</div>
+<li><h3 id="methods_parameters">parameters()</h3>
+<div class="parameters"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-parameters-page"><p>Returns the names of all path and search parameters of this pattern in an unspecified order.</p>
+</div><h5 id="methods_parameters_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-array">Array.&lt;string&gt;</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-parameters-page"><p>An array of parameter names. Must be treated as read-only. If the
+pattern has no parameters, an empty array is returned.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_validate">validate(params)</h3>
+<div class="validate"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-validate-page"><p>Checks an object hash of parameters to validate their correctness according to the parameter
+types of this <code>UrlMatcher</code>.</p>
+</div><h5 id="methods_validate_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>params</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-validate-page"><p>The object hash of parameters to validate.</p>
+</div></td></tr></tbody></table><h5 id="methods_validate_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-validate-page"><p>Returns <code>true</code> if <code>params</code> validates, otherwise <code>false</code>.</p>
+</div></td></tr></table></div>
 </li>
 </ul>
 </div>
-<div class="member property"><h2 id="Properties">Properties</h2>
-<ul class="properties"><li><h3 id="prefix">prefix</h3>
-<div class="prefix"><p>A static prefix of this pattern. The matcher guarantees that any
+<div class="member property"><h2 id="properties">Properties</h2>
+<ul class="properties"><li><h3 id="properties_prefix">prefix</h3>
+<div class="prefix"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-page"><p>A static prefix of this pattern. The matcher guarantees that any
 URL matching this matcher (i.e. any string for which <a href="#/api/ui.router.util.type:UrlMatcher#methods_exec">exec()</a> returns
-non-null) will start with this prefix.</p></div>
+non-null) will start with this prefix.</p>
+</div></div>
 </li>
-<li><h3 id="source">source</h3>
-<div class="source"><p>The pattern that was passed into the contructor</p></div>
+<li><h3 id="properties_source">source</h3>
+<div class="source"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-page"><p>The pattern that was passed into the constructor</p>
+</div></div>
 </li>
-<li><h3 id="sourcePath">sourcePath</h3>
-<div class="sourcepath"><p>The path portion of the source property</p></div>
+<li><h3 id="properties_sourcepath">sourcePath</h3>
+<div class="sourcepath"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-page"><p>The path portion of the source property</p>
+</div></div>
 </li>
-<li><h3 id="sourceSearch">sourceSearch</h3>
-<div class="sourcesearch"><p>The search portion of the source property</p></div>
+<li><h3 id="properties_sourcesearch">sourceSearch</h3>
+<div class="sourcesearch"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-page"><p>The search portion of the source property</p>
+</div></div>
 </li>
-<li><h3 id="regex">regex</h3>
-<div class="regex"><p>The constructed regex that will be used to match against the url when 
-it is time to determine which url will match.</p></div>
+<li><h3 id="properties_regex">regex</h3>
+<div class="regex"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-page"><p>The constructed regex that will be used to match against the url when
+it is time to determine which url will match.</p>
+</div></div>
 </li>
 </ul>
 </div>

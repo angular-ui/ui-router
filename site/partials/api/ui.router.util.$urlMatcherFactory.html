@@ -1,36 +1,130 @@
 <h1><code ng:non-bindable="">$urlMatcherFactory</code>
-<span class="hint">(service in module <code ng:non-bindable="">ui.router.util</code>
-)</span>
+<div><span class="hint">service in module <code ng:non-bindable="">ui.router.util</code>
+</span>
+</div>
 </h1>
-<div><h2 id="Description">Description</h2>
-<div class="description"><p>Factory for <a href="#/api/ui.router.util.type:UrlMatcher">ui.router.util.type:UrlMatcher</a> instances. The factory is also available to providers
-under the name <code>$urlMatcherFactoryProvider</code>.</p></div>
-<div class="member method"><h2 id="Methods">Methods</h2>
-<ul class="methods"><li><h3 id="caseInsensitiveMatch">caseInsensitiveMatch(value)</h3>
-<div class="caseinsensitivematch"><p>Define if url matching should be case sensistive, the default behavior, or not.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">value – {bool} – </code>
-<p>false to match URL in a case sensitive manner; otherwise true;</p></li>
-</ul>
-</div>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="ui-router-util-urlmatcherfactory-page"><p>Factory for <a href="#/api/ui.router.util.type:UrlMatcher"><code>UrlMatcher</code></a> instances. The factory
+is also available to providers under the name <code>$urlMatcherFactoryProvider</code>.</p>
+</div></div>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_caseinsensitive">caseInsensitive(value)</h3>
+<div class="caseinsensitive"><div class="ui-router-util-urlmatcherfactory-caseinsensitive-page"><p>Defines whether URL matching should be case sensitive (the default behavior), or not.</p>
+</div><h5 id="methods_caseinsensitive_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-util-urlmatcherfactory-caseinsensitive-page"><p><code>false</code> to match URL in a case sensitive manner; otherwise <code>true</code>;</p>
+</div></td></tr></tbody></table></div>
 </li>
-<li><h3 id="compile">compile(pattern)</h3>
-<div class="compile"><p>Creates a <a href="#/api/ui.router.util.type:UrlMatcher">ui.router.util.type:UrlMatcher</a> for the specified pattern.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">pattern – {string} – </code>
-<p>The URL pattern.</p></li>
-</ul>
-<h4 id="Returns">Returns</h4>
-<div class="returns"><code ng:non-bindable="">{ui.router.util.type:UrlMatcher}</code>
-– <p>The UrlMatcher.</p></div>
-</div>
+<li><h3 id="methods_compile">compile(pattern, config)</h3>
+<div class="compile"><div class="ui-router-util-urlmatcherfactory-compile-page"><p>Creates a <a href="#/api/ui.router.util.type:UrlMatcher"><code>UrlMatcher</code></a> for the specified pattern.</p>
+</div><h5 id="methods_compile_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>pattern</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-util-urlmatcherfactory-compile-page"><p>The URL pattern.</p>
+</div></td></tr><tr><td>config</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-urlmatcherfactory-compile-page"><p>The config object hash.</p>
+</div></td></tr></tbody></table><h5 id="methods_compile_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-urlmatcher">UrlMatcher</a></td><td><div class="ui-router-util-urlmatcherfactory-compile-page"><p>The UrlMatcher.</p>
+</div></td></tr></table></div>
 </li>
-<li><h3 id="isMatcher">isMatcher(object)</h3>
-<div class="ismatcher"><p>Returns true if the specified object is a UrlMatcher, or false otherwise.</p><h4 id="Parameters">Parameters</h4>
-<ul class="parameters"><li><code ng:non-bindable="">object – {Object} – </code>
-<p>The object to perform the type check against.</p></li>
-</ul>
-<h4 id="Returns">Returns</h4>
-<div class="returns"><code ng:non-bindable="">{Boolean}</code>
-– <p>Returns <code>true</code> if the object has the following functions: <code>exec</code>, <code>format</code>, and <code>concat</code>.</p></div>
+<li><h3 id="methods_ismatcher">isMatcher(object)</h3>
+<div class="ismatcher"><div class="ui-router-util-urlmatcherfactory-ismatcher-page"><p>Returns true if the specified object is a <code>UrlMatcher</code>, or false otherwise.</p>
+</div><h5 id="methods_ismatcher_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>object</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-urlmatcherfactory-ismatcher-page"><p>The object to perform the type check against.</p>
+</div></td></tr></tbody></table><h5 id="methods_ismatcher_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-boolean">Boolean</a></td><td><div class="ui-router-util-urlmatcherfactory-ismatcher-page"><p>Returns <code>true</code> if the object matches the <code>UrlMatcher</code> interface, by
+implementing all the same methods.</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_strictmode">strictMode(value)</h3>
+<div class="strictmode"><div class="ui-router-util-urlmatcherfactory-strictmode-page"><p>Defines whether URLs should match trailing slashes, or not (the default behavior).</p>
+</div><h5 id="methods_strictmode_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-util-urlmatcherfactory-strictmode-page"><p><code>false</code> to match trailing slashes in URLs, otherwise <code>true</code>.</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_type">type(name, def)</h3>
+<div class="type"><div class="ui-router-util-urlmatcherfactory-type-page"><p>Registers a custom <a href="#/api/ui.router.util.type:Type"><code>Type</code></a> object that can be used to
+generate URLs with typed parameters.</p>
+</div><h5 id="methods_type_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-util-urlmatcherfactory-type-page"><p>The type name.</p>
+</div></td></tr><tr><td>def</td><td><a href="" class="label type-hint type-hint-object">Object</a><a href="" class="label type-hint type-hint-function">Function</a></td><td><div class="ui-router-util-urlmatcherfactory-type-page"><p>The type definition. See
+<a href="#/api/ui.router.util.type:Type"><code>Type</code></a> for information on the values accepted.</p>
+</div></td></tr></tbody></table><h5 id="methods_type_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-urlmatcherfactory-type-page"><p>Returns <code>$urlMatcherFactoryProvider</code>.</p>
+</div></td></tr></table><h4 id="methods_type_example">Example</h4>
+<div class="example"><div class="ui-router-util-urlmatcherfactory-type-page"><p>This is a simple example of a custom type that encodes and decodes items from an
+array, using the array index as the URL-encoded value:</p>
+<pre class="prettyprint linenums">
+var list = ['John', 'Paul', 'George', 'Ringo'];
+
+$urlMatcherFactoryProvider.type('listItem', {
+  encode: function(item) {
+    // Represent the list item in the URL using its corresponding index
+    return list.indexOf(item);
+  },
+  decode: function(item) {
+    // Look up the list item by index
+    return list[parseInt(item, 10)];
+  },
+  is: function(item) {
+    // Ensure the item is valid by checking to see that it appears
+    // in the list
+    return list.indexOf(item) &gt; -1;
+  }
+});
+
+$stateProvider.state('list', {
+  url: "/list/{item:listItem}",
+  controller: function($scope, $stateParams) {
+    console.log($stateParams.item);
+  }
+});
+
+// ...
+
+// Changes URL to '/list/3', logs "Ringo" to the console
+$state.go('list', { item: "Ringo" });
+</pre>
+<p>This is a more complex example of a type that relies on dependency injection to
+interact with services, and uses the parameter name from the URL to infer how to
+handle encoding and decoding parameter values:</p>
+<pre class="prettyprint linenums">
+// Defines a custom type that gets a value from a service,
+// where each service gets different types of values from
+// a backend API:
+$urlMatcherFactoryProvider.type('dbObject', function(Users, Posts) {
+
+  // Matches up services to URL parameter names
+  var services = {
+    user: Users,
+    post: Posts
+  };
+
+  return {
+    encode: function(object) {
+      // Represent the object in the URL using its unique ID
+      return object.id;
+    },
+    decode: function(value, key) {
+      // Look up the object by ID, using the parameter
+      // name (key) to call the correct service
+      return services[key].findById(value);
+    },
+    is: function(object, key) {
+      // Check that object is a valid dbObject
+      return angular.isObject(object) && object.id && services[key];
+    }
+    equals: function(a, b) {
+      // Check the equality of decoded objects by comparing
+      // their unique IDs
+      return a.id === b.id;
+    }
+  };
+});
+
+// In a config() block, you can then attach URLs with
+// type-annotated parameters:
+$stateProvider.state('users', {
+  url: "/users",
+  // ...
+}).state('users.item', {
+  url: "/{user:dbObject}",
+  controller: function($scope, $stateParams) {
+    // $stateParams.user will now be an object returned from
+    // the Users service
+  },
+  // ...
+});
+</pre>
+</div></div>
 </div>
 </li>
 </ul>
