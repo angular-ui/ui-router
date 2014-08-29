@@ -20,8 +20,8 @@ routerFiles = {
     // 'test/stateSpec.js',
     // 'test/resolveSpec.js',
     // 'test/urlMatcherFactorySpec.js',
-    // 'test/urlRouterSpec.js',
-    'test/*Spec.js',
+    'test/transitionSpec.js',
+//    'test/*Spec.js',
     'test/compat/matchers.js'
   ],
   angular: function(version) {

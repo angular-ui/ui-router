@@ -97,6 +97,12 @@ module.exports = function (grunt) {
       background: {
           background: true,
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
+      },
+      watch: {
+        configFile: 'config/karma.js',
+        singleRun: false,
+        autoWatch: true,
+        autoWatchInterval: 1
       }
     },
     changelog: {

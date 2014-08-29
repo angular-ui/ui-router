@@ -146,6 +146,27 @@ function filterByKeys(keys, values) {
   });
   return filtered;
 }
+
+// like _.indexBy
+// when you know that your index values will be unique, or you want last-one-in to win
+function indexBy(array, propName) {
+  var result = {};
+  forEach(array, function(item) {
+    result[item[propName]] = item;
+  });
+}
+
+// extracted from underscore.js 1.6.0
+// Return a copy of the object only containing the whitelisted properties.
+function pick(obj) {
+  var copy = {};
+  var keys = Array.prototype.concat.apply(Array.prototype, Array.prototype.slice.call(arguments, 1));
+  forEach(keys, function(key) {
+    if (key in obj) copy[key] = obj[key];
+  });
+  return copy;
+}
+
 /**
  * @ngdoc overview
  * @name ui.router.util

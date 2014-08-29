@@ -59,7 +59,10 @@ function StateQueueManager(states, builder, $urlRouterProvider) {
 
       if (!isString(state.name)) throw new Error("State must have a valid name");
       // if (registered.hasOwnProperty(name)) throw new Error("State '" + name + "'' is already defined");
-      pre ? queue.unshift(state) : queue.push(state);
+      if (pre)
+        queue.unshift(state);
+      else
+        queue.push(state);
       return state;
     },
 
@@ -67,7 +70,8 @@ function StateQueueManager(states, builder, $urlRouterProvider) {
       var result, state, orphans = [];
 
       while (queue.length > 0) {
-        state = queue.shift(), result = builder.build(state);
+        state = queue.shift();
+        result = builder.build(state);
 
         if (result) {
           states[state.name] = state;
