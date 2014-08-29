@@ -1,3 +1,7 @@
+# master only
+build
+site
+
 # common
 node_modules
 bower_components
