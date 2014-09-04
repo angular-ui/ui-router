@@ -644,9 +644,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      *   reload: true, inherit: false, notify: false 
      * });
      * </pre>
+     *
+     * @returns {promise} A promise representing the state of the new transition. See
+     * {@link ui.router.state.$state#methods_go $state.go}.
      */
     $state.reload = function reload() {
-      $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: false });
+      return $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: false });
     };
 
     /**
