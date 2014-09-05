@@ -487,6 +487,16 @@ describe('state', function () {
   });
 
   describe('.reload()', function () {
+   it('returns a promise for the state transition', inject(function ($state, $q) {
+      var trans = $state.transitionTo(A, {});
+      $q.flush();
+      expect(resolvedValue(trans)).toBe(A);
+
+      trans = $state.reload();
+      $q.flush();
+      expect(resolvedValue(trans)).toBe(A);
+    }));
+
     it('should reload the current state with the current parameters', inject(function ($state, $q, $timeout) {
       $state.transitionTo('resolveTimeout', { foo: "bar" });
       $q.flush();
