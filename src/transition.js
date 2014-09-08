@@ -9,24 +9,6 @@ function $TransitionProvider() {
 
   var $transition = {}, events, stateMatcher = angular.noop, abstractKey = 'abstract';
 
-  function pluck(collection, key) {
-    var result = isArray(collection) ? [] : {};
-
-    forEach(collection, function(val, i) {
-      result[i] = isFunction(key) ? key(val) : val[key];
-    });
-    return result;
-  }
-
-  function map(collection, callback) {
-    var result = isArray(collection) ? [] : {};
-
-    forEach(collection, function(val, i) {
-      result[i] = callback(val, i);
-    });
-    return result;
-  }
-
   // $transitionProvider.on({ from: "home", to: "somewhere.else" }, function($transition$, $http) {
   //   // ...
   // });
