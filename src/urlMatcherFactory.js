@@ -134,12 +134,12 @@ UrlMatcher.prototype.exec = function (path, searchParams, options) {
 
   searchParams = searchParams || {};
 
-  var result = [], i, cfg, params, param, current = this;
+  var result = [], i, cfg, param, current = this;
 
   while (current) {
     var local = {}, params = current.parameters(true), searchVal;
 
-    for (var i = params.length - 1; i >= 0; i--) {
+    for (i = params.length - 1; i >= 0; i--) {
       param = params[i];
       cfg = current.params[param];
 
@@ -159,7 +159,7 @@ UrlMatcher.prototype.exec = function (path, searchParams, options) {
 
   var collapsed = {};
 
-  for (var i = 0; i < result.length; i++) {
+  for (i = 0; i < result.length; i++) {
     extend(collapsed, result[i]);
   }
   return collapsed;
@@ -236,7 +236,7 @@ UrlMatcher.prototype.format = function (values) {
   }
 
   function clean(string) {
-    return string.replace(/__ \d+ __/g, '').replace(/\/{2,}/g, '/')
+    return string.replace(/__ \d+ __/g, '').replace(/\/{2,}/g, '/');
   }
 
   if (!values || isObject(values) && objectKeys(values).length === 0) return clean(format);
@@ -463,7 +463,7 @@ function $UrlMatcherFactory() {
     enqueue = false;
     UrlMatcher.prototype.$types = {};
     flushTypeQueue();
-  }
+  };
 
   /**
    * [Internal] Used to configure new UrlMatcher instances by UrlMatcher() and UrlMatcher#concat().
@@ -556,7 +556,7 @@ function $UrlMatcherFactory() {
 
     this.formatString   = formatString;
     this.formatMap      = formatMap;
-    this.idMap          = idMap
+    this.idMap          = idMap;
     this.source.pattern = compiled;
     this.search         = search;
 
@@ -565,7 +565,7 @@ function $UrlMatcherFactory() {
       config.caseInsensitive ? 'i' : undefined
     );
     // this.prefix = segments[0];
-  }
+  };
 
   /**
    * @ngdoc function
