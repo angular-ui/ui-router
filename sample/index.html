@@ -9,7 +9,7 @@
     <!-- styles for ng-animate are located here -->
     <link rel="stylesheet" type="text/css" href="css/styles.css">
 
-    <!-- Include both angular.js and angular-ui-router.js-->
+    <!-- Include angular.js, angular-animate.js and angular-ui-router.js-->
     <script src="../lib/angular-1.2.14/angular.js"></script>
     <script src="../lib/angular-1.2.14/angular-animate.js"></script>
     <script src="../release/angular-ui-router.js"></script>
@@ -24,8 +24,8 @@
     -->
     <script src="app/contacts/contacts.js"></script>
 
-    <!-- contacts-service.js, and utils-service.js define services for use by the contacts 
-         module.
+    <!-- contacts-service.js, and utils-service.js define services for use by the 
+         uiRouterSample.contacts module.
     -->
     <script src="app/contacts/contacts-service.js"></script>
     <script src="common/utils/utils-service.js"></script>
@@ -52,8 +52,8 @@
           <li ui-sref-active="active"><a ui-sref="about">About</a></li>
         </ul>
 
-        <!-- Here is a named ui-view. ui-views don't have to be named, but we'll be populate this
-             on from various different child states and we want a name to help us target. -->
+        <!-- Here is a named ui-view. ui-views don't have to be named, but we'll populate this
+             one from various different child states and we want a name to help us target. -->
         <p ui-view="hint" class="navbar-text pull-right"></p>
       </div></div>
     </div>
