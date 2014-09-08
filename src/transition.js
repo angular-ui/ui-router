@@ -287,68 +287,6 @@ function $TransitionProvider() {
     Transition.prototype.ABORTED    = 3;
     Transition.prototype.INVALID    = 4;
 
-    function Path(states) {
-
-      function invoke(hook, self, locals) {
-        if (!hook) return;
-        return $injector.invoke(hook, self, locals);
-      }
-
-                                                  /* resolved, locals */
-      function resolveState(state, params, filtered, inherited, dst) {
-        var locals = { $stateParams: (filtered) ? params : $stateParams.$localize(state, params) };
-
-        // Resolve 'global' dependencies for the state, i.e. those not specific to a view.
-        // We're also including $stateParams in this; that way the parameters are restricted
-        // to the set that should be visible to the state, and are independent of when we update
-        // the global $state and $stateParams values.
-        dst.resolve = $resolve.resolve(state.resolve, locals, dst.resolve, state);
-
-        var promises = [dst.resolve.then(function (globals) {
-          dst.globals = globals;
-        })];
-
-        if (inherited) promises.push(inherited);
-
-        // Resolve template and dependencies for all views.
-        forEach(state.views, function (view, name) {
-          var injectables = (view.resolve && view.resolve !== state.resolve ? view.resolve : {});
-
-          promises.push($view.load(name, extend({}, view, {
-            locals: extend({}, locals, injectables),
-            params: locals.$stateParams,
-            context: state,
-            parent: (name.indexOf(".") > -1 || state.parent === root) ? null : state.parent
-          })));
-
-          promises.push($resolve.resolve(injectables, locals, dst.resolve, state).then(function (result) {
-            dst[name] = result;
-          }));
-        });
-
-        // Wait for all the promises and then return the activation object
-        return $q.all(promises).then(function (values) {
-          return dst;
-        });
-      }
-
-      extend(this, {
-        $$enter: function(/* locals */) {
-          for (var i = 0; i < states.length; i++) {
-            // entering.locals = toLocals[i];
-            if (invoke(states[i].self.onEnter, states[i].self, locals(states[i])) === false) return false;
-          }
-          return true;
-        },
-        $$exit: function(/* locals */) {
-          for (var i = states.length - 1; i >= 0; i--) {
-            if (invoke(states[i].self.onExit, states[i].self, locals(states[i])) === false) return false;
-            // states[i].locals = null;
-          }
-          return true;
-        }
-      });
-    }
 
     $transition.init = function init(state, params, matcher) {
       from = { state: state, params: params };
