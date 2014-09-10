@@ -155,6 +155,8 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
    */
   this.when = function (what, handler) {
     var redirect, handlerIsString = isString(handler);
+
+    // @todo Queue this
     if (isString(what)) what = $urlMatcherFactory.compile(what);
 
     if (!handlerIsString && !isFunction(handler) && !isArray(handler))

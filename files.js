@@ -4,6 +4,7 @@ routerFiles = {
     'src/resolve.js',
     'src/templateFactory.js',
     'src/urlMatcherFactory.js',
+    'src/transition.js',
     'src/urlRouter.js',
     'src/state.js',
     'src/view.js',
@@ -16,6 +17,10 @@ routerFiles = {
     'test/testUtils.js'
   ],
   test: [
+    // 'test/stateSpec.js',
+    // 'test/resolveSpec.js',
+    // 'test/urlMatcherFactorySpec.js',
+    // 'test/urlRouterSpec.js',
     'test/*Spec.js',
     'test/compat/matchers.js'
   ],
