@@ -124,7 +124,7 @@ function $Resolve(  $q,    $injector) {
     // resolveContext is a ResolveContext which is for injecting state Resolvable(s)
     function invokeLater(fn, locals, resolveContext) {
       var deps = $injector.annotate(fn);
-      var resolvables = pick(resolveContext.getResolvableLocals(self.$$state.name), deps);
+      var resolvables = pick(resolveContext.getResolvableLocals(self.state.name), deps);
       var promises = map(resolvables, function(resolvable) { return resolvable.get(resolveContext); });
       return $q.all(promises).then(function() {
         try {
@@ -141,18 +141,16 @@ function $Resolve(  $q,    $injector) {
     // Injects a function at this PathElement level with available Resolvables
     // Does not wait until all Resolvables have been resolved; you must call PathElement.resolve() (or manually resolve each dep) first
     function invokeNow(fn, locals, resolveContext) {
-      var resolvables = resolveContext.getResolvableLocals(self.$$state.name);
+      var resolvables = resolveContext.getResolvableLocals(self.state.name);
       var moreLocals = map(resolvables, function(resolvable) { return resolvable.data; });
       var combinedLocals = extend({}, locals, moreLocals);
-      return $injector.invoke(fn, self.$$state, combinedLocals);
+      return $injector.invoke(fn, self.state, combinedLocals);
     }
 
     // public API so far
     extend(this, {
-      state: function() { return state; },
-      $$state: state,
-      resolvables: function() { return resolvables; },
-      $$resolvables: resolvables,
+      state: state,
+      resolvables: resolvables,
       resolve: resolvePathElement, // aliased function for stacktraces
       invokeNow: invokeNow, // this might be private later
       invokeLater: invokeLater
@@ -189,15 +187,15 @@ function $Resolve(  $q,    $injector) {
     // Public API
     extend(this, {
       resolve: resolvePath,
-      $$elements: elements, // for development at least
+      elements: elements,
       concat: function(path) {
-        return new Path(elements.concat(path.elements()));
+        return new Path(elements.concat(path.elements));
       },
       slice: function(start, end) {
         return new Path(elements.slice(start, end));
       },
-      elements: function() {
-        return elements;
+      states: function() {
+        return pluck(elements, "state");
       },
       // I haven't looked at how $$enter and $$exit are going be used.
       $$enter: function(/* locals */) {
@@ -235,11 +233,11 @@ function $Resolve(  $q,    $injector) {
     if (path === undefined) path = new Path([]);
     var resolvablesByState = {}, previousIteration = {};
 
-    forEach(path.elements(), function (pathElem) {
-      var resolvablesForPE = pathElem.resolvables();
+    forEach(path.elements, function (pathElem) {
+      var resolvablesForPE = pathElem.resolvables;
       var resolvesbyName = indexBy(resolvablesForPE, 'name');
       var resolvables = inherit(previousIteration, resolvesbyName); // note prototypal inheritance
-      previousIteration = resolvablesByState[pathElem.state().name] = resolvables;
+      previousIteration = resolvablesByState[pathElem.state.name] = resolvables;
     });
 
     // Gets resolvables available for a particular state.
