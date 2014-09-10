@@ -1,8 +1,8 @@
-# AngularUI Router &nbsp;[![Build Status](https://travis-ci.org/angular-ui/ui-router.png?branch=master)](https://travis-ci.org/angular-ui/ui-router)
+# AngularUI Router &nbsp;[![Build Status](https://travis-ci.org/angular-ui/ui-router.svg?branch=master)](https://travis-ci.org/angular-ui/ui-router)
 
 #### The de-facto solution to flexible routing with nested views
 ---
-**[Download 0.2.10](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)** (or **[Minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)**) **|**
+**[Download 0.2.11](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)** (or **[Minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)**) **|**
 **[Guide](https://github.com/angular-ui/ui-router/wiki) |**
 **[API](http://angular-ui.github.io/ui-router/site) |**
 **[Sample](http://angular-ui.github.com/ui-router/sample/) ([Src](https://github.com/angular-ui/ui-router/tree/gh-pages/sample)) |**
@@ -17,7 +17,7 @@
 
 AngularUI Router is a routing framework for [AngularJS](http://angularjs.org), which allows you to organize the
 parts of your interface into a [*state machine*](https://en.wikipedia.org/wiki/Finite-state_machine). Unlike the
-[`$route` service](http://docs.angularjs.org/api/ngRoute.$route) in Angular core, which is organized around URL
+[`$route` service](http://docs.angularjs.org/api/ngRoute.$route) in the Angular ngRoute module, which is organized around URL
 routes, UI-Router is organized around [*states*](https://github.com/angular-ui/ui-router/wiki),
 which may optionally have routes, as well as other behavior, attached.
 
@@ -35,6 +35,7 @@ Check out the sample app: http://angular-ui.github.io/ui-router/sample/
  - clone & [build](#developing) this repository
  - [download the release](http://angular-ui.github.io/ui-router/release/angular-ui-router.js) (or [minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js))
  - via **[Bower](http://bower.io/)**: by running `$ bower install angular-ui-router` from your console
+ - or via **[npm](https://www.npmjs.org/)**: by running `$ npm install angular-ui-router` from your console
  - or via **[Component](https://github.com/component/component)**: by running `$ component install angular-ui/ui-router` from your console
 
 **(2)** Include `angular-ui-router.js` (or `angular-ui-router.min.js`) in your `index.html`, after including Angular itself (For Component users: ignore this step)
@@ -63,7 +64,7 @@ When you're done, your setup should look similar to the following:
 </html>
 ```
 
-### Nested States & Views
+### [Nested States & Views](http://plnkr.co/edit/u18KQc?p=preview)
 
 The majority of UI-Router's power is in its ability to nest states & views.
 
@@ -149,12 +150,12 @@ myApp.config(function($stateProvider, $urlRouterProvider) {
     })
     .state('state2.list', {
       url: "/list",
-        templateUrl: "partials/state2.list.html",
-        controller: function($scope) {
-          $scope.things = ["A", "Set", "Of", "Things"];
-        }
-      })
+      templateUrl: "partials/state2.list.html",
+      controller: function($scope) {
+        $scope.things = ["A", "Set", "Of", "Things"];
+      }
     });
+});
 ```
 
 **(6)** See this quick start example in action.
@@ -164,7 +165,7 @@ myApp.config(function($stateProvider, $urlRouterProvider) {
 >**[Dive Deeper!](https://github.com/angular-ui/ui-router/wiki)**
 
 
-### Multiple & Named Views
+### [Multiple & Named Views](http://plnkr.co/edit/SDOcGS?p=preview)
 
 Another great feature is the ability to have multiple `ui-view`s view per template.
 
@@ -226,11 +227,14 @@ myApp.config(function($stateProvider) {
 * [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/gh-pages/sample))
 * [FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions)
 * [Slides comparing ngRoute to ui-router](http://slid.es/timkindberg/ui-router#/)
+* [UI-Router Extras / Addons](http://christopherthielen.github.io/ui-router-extras/#/home) (@christopherthielen)
  
 ### Videos
 
-* [Introduction Video](https://egghead.io/lessons/angularjs-introduction-ui-router)(egghead.io)
+* [Introduction Video](https://egghead.io/lessons/angularjs-introduction-ui-router) (egghead.io)
 * [Tim Kindberg on Angular UI-Router](https://www.youtube.com/watch?v=lBqiZSemrqg)
+* [Activating States](https://egghead.io/lessons/angularjs-ui-router-activating-states) (egghead.io)
+* [Learn Angular.js using UI-Router](http://youtu.be/QETUuZ27N0w) (LearnCode.academy)
 
 ## Report an Issue
 
@@ -258,7 +262,7 @@ Please keep in mind that the issue tracker is for *issues*. Please do *not* post
 
 **(1)** See the **[Developing](#developing)** section below, to get the development version of UI-Router up and running on your local machine.
 
-**(2)** Check out the [roadmap](https://github.com/angular-ui/ui-router/issues/milestones) to see where the project is headed, and if your feature idea fits with where we're headed.
+**(2)** Check out the [roadmap](https://github.com/angular-ui/ui-router/milestones) to see where the project is headed, and if your feature idea fits with where we're headed.
 
 **(3)** If you're not sure, [open an RFC](https://github.com/angular-ui/ui-router/issues/new?title=RFC:%20My%20idea) to get some feedback on your idea.
 

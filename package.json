@@ -1,7 +1,7 @@
 {
   "name": "angular-ui-router",
   "description": "State-based routing for AngularJS",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "homepage": "http://angular-ui.github.com/",
   "contributors": [
     {

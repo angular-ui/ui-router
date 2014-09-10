@@ -701,6 +701,16 @@ xdescribe('state', function () {
   });
 
   describe('.reload()', function () {
+   it('returns a promise for the state transition', inject(function ($state, $q) {
+      var trans = $state.transitionTo(A, {});
+      $q.flush();
+      expect(resolvedValue(trans)).toBe(A);
+
+      trans = $state.reload();
+      $q.flush();
+      expect(resolvedValue(trans)).toBe(A);
+    }));
+
     it('should reload the current state with the current parameters', inject(function ($state, $q, $timeout) {
       $state.transitionTo('resolveTimeout', { foo: "bar" });
       $q.flush();
@@ -863,7 +873,7 @@ xdescribe('state', function () {
 
     it('inherit url parameters from current url', inject(function ($state) {
       initStateTo($state.get('root'), {param1: 1});
-      expect($state.href("root", {}, {})).toEqual("#/root");
+      expect($state.href("root", {}, {})).toEqual("#/root?param1=1");
       expect($state.href("root", {}, {inherit:false})).toEqual("#/root");
       expect($state.href("root", {}, {inherit:true})).toEqual("#/root?param1=1");
     }));
@@ -1047,35 +1057,24 @@ xdescribe('state', function () {
     }));
 
     it('should replace browser history when "replace" enabled', inject(function ($state, $rootScope, $location, $q) {
-      var originalReplaceFn = $location.replace, replaceWasCalled = false;
 
-      // @todo Replace this with a spy
-      var decoratedReplaceFn = function() {
-        replaceWasCalled = true;
-        originalReplaceFn.call($location);
-      };
-      $location.replace = decoratedReplaceFn;
+      spyOn($location, 'replace');
 
       $state.transitionTo('about', {}, { location: 'replace' });
       $q.flush();
 
-      expect(replaceWasCalled).toEqual(true);
+      expect($location.replace).toHaveBeenCalled();
     }));
 
     it('should not replace history normally', inject(function ($state, $rootScope, $location, $q) {
-      var originalReplaceFn = $location.replace, replaceWasCalled = false;
 
-      // @todo Replace with spy
-      var decoratedReplaceFn = function() {
-        replaceWasCalled = true;
-        originalReplaceFn.call($location);
-      };
-      $location.replace = decoratedReplaceFn;
+      spyOn($location, 'replace');
 
       $state.transitionTo('about');
       $q.flush();
 
-      expect(replaceWasCalled).toEqual(false);
+      expect($location.replace).not.toHaveBeenCalled();
+
     }));
   });
 

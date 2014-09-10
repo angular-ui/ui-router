@@ -79,7 +79,7 @@ function $Resolve(  $q,    $injector) {
       }).then(function(data) {
         self.data = data;
         return self.promise;
-      })
+      });
     }
 
     // Public API
@@ -273,7 +273,7 @@ function $Resolve(  $q,    $injector) {
       // Create a shallow clone referencing the original prototype chain.  This is so we can alter the clone's
       // prototype without affecting the actual object (for options.omitPropsFromPrototype)
       var shallowClone = Object.create(Object.getPrototypeOf(resolvables));
-      for (property in resolvables) {
+      for (var property in resolvables) {
         if (resolvables.hasOwnProperty(property)) { shallowClone[property] = resolvables[property]; }
       }
 
@@ -416,7 +416,7 @@ function $Resolve(  $q,    $injector) {
       } else {
         if (parent.$$inheritedValues) {
           result.$$inheritedValues = parent.$$inheritedValues;
-        }
+        }        
         extend(promises, parent.$$promises);
         parent.then(done, fail);
       }

@@ -590,17 +590,17 @@ describe("legacy resolve", function () {
           pInjectable = jasmine.createSpy('pInjectable').andReturn(pPromise.promise);
 
       var g = $r.resolve({ gP: [ gInjectable ] }, g);
-
+      
       gPromise.resolve('grandparent');
       tick();
 
       var s = jasmine.createSpy('s');
       var p = $r.resolve({ p: [ pInjectable ] }, g);
       var c = $r.resolve({ c: [ 'p', 'gP', s ] }, p);
-
+      
       pPromise.resolve('parent');
       tick();
-
+      
       expect(s).toHaveBeenCalled();
       expect(s.mostRecentCall.args).toEqual([ 'parent', 'grandparent' ]);
     }));
