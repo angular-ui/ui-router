@@ -108,11 +108,11 @@ function $StateRefDirective($state, $timeout) {
         if (activeDirective) {
           activeDirective.$$setStateInfo(ref.state, params);
         }
-        if (!newHref) {
+        if (newHref === null) {
           nav = false;
           return false;
         }
-        element[0][attr] = newHref;
+        attrs.$set(attr, newHref);
       };
 
       if (ref.paramExpr) {

@@ -14,7 +14,7 @@
  * @description
  * The ui-view directive tells $state where to place your templates.
  *
- * @param {string=} ui-view A view name. The name should be unique amongst the other views in the
+ * @param {string=} name A view name. The name should be unique amongst the other views in the
  * same state. You can have views of the same name that live in different states.
  *
  * @param {string=} autoscroll It allows you to set the scroll behavior of the browser window
@@ -226,14 +226,20 @@ function $ViewDirective(   $state,   $view,   $injector,   $uiViewScroll) {
         }
 
         function updateView(firstTime, config) {
-          var newScope        = scope.$new(),
-              name            = currentEl && currentEl.data('$uiView') && currentEl.data('$uiView').name,
+          var newScope,
+              name            = getUiViewName(attrs, $element.inheritedData('$uiView')),
               previousLocals  = viewConfig && viewConfig.locals;
 
           if (!firstTime && previousLocals === latestLocals) return; // nothing to do
+          newScope = scope.$new();
+          latestLocals = $state.$current.locals[name];
 
           var clone = $transclude(newScope, function(clone) {
             renderer.enter(clone, $element, function onUiViewEnter() {
+              if(currentScope) {
+                currentScope.$emit('$viewContentAnimationEnded');
+              }
+
               if (angular.isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
                 $uiViewScroll(clone);
               }
@@ -294,6 +300,15 @@ function $ViewDirectiveFill ($compile, $controller, $state) {
       };
     }
   };
+}
+
+/**
+ * Shared ui-view code for both directives:
+ * Given attributes and inherited $uiView data, return the view's name
+ */
+function getUiViewName(attrs, inherited) {
+  var name = attrs.uiView || attrs.name || '';
+  return name.indexOf('@') >= 0 ?  name :  (name + '@' + (inherited ? inherited.state.name : ''));
 }
 
 angular.module('ui.router.state').directive('uiView', $ViewDirective);

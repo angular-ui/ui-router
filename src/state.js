@@ -350,11 +350,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
    * <pre>
    * // Override the internal 'views' builder with a function that takes the state
    * // definition, and a reference to the internal function being overridden:
-   * $stateProvider.decorator('views', function ($state, parent) {
+   * $stateProvider.decorator('views', function (state, parent) {
    *   var result = {},
    *       views = parent(state);
    *
-   *   angular.forEach(view, function (config, name) {
+   *   angular.forEach(views, function (config, name) {
    *     var autoName = (state.name + '.' + name).replace('.', '/');
    *     config.templateUrl = config.templateUrl || '/partials/' + autoName + '.html';
    *     result[name] = config;
@@ -482,11 +482,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
    *
    * - **`onEnter`** - {object=} - Callback function for when a state is entered. Good way
    *   to trigger an action or dispatch an event, such as opening a dialog.
+   * If minifying your scripts, make sure to use the `['injection1', 'injection2', function(injection1, injection2){}]` syntax.
    *
    * <a id='onExit'></a>
    *
    * - **`onExit`** - {object=} - Callback function for when a state is exited. Good way to
    *   trigger an action or dispatch an event, such as opening a dialog.
+   * If minifying your scripts, make sure to use the `['injection1', 'injection2', function(injection1, injection2){}]` syntax.
    *
    * <a id='reloadOnSearch'></a>
    *
@@ -621,9 +623,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *   reload: true, inherit: false, notify: false
      * });
      * </pre>
+     *
+     * @returns {promise} A promise representing the state of the new transition. See
+     * {@link ui.router.state.$state#methods_go $state.go}.
      */
     $state.reload = function reload() {
-      $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: false });
+      return $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: false });
     };
 
     /**
@@ -693,7 +698,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      */
     $state.go = function go(to, params, options) {
-      return this.transitionTo(to, params, extend({ inherit: true, relative: $state.$current }, options));
+      return $state.transitionTo(to, params, extend({ inherit: true, relative: $state.$current }, options));
     };
 
     /**
@@ -1034,8 +1039,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * - **`lossy`** - {boolean=true} -  If true, and if there is no url associated with the state provided in the
      *    first parameter, then the constructed href url will be built from the first navigable ancestor (aka
      *    ancestor with a valid url).
-     * - **`inherit`** - {boolean=false}, If `true` will inherit url parameters from current url.
-     * - **`relative`** - {object=$state.$current}, When transitioning with relative path (e.g '^'),
+     * - **`inherit`** - {boolean=true}, If `true` will inherit url parameters from current url.
+     * - **`relative`** - {object=$state.$current}, When transitioning with relative path (e.g '^'), 
      *    defines which state to be relative from.
      * - **`absolute`** - {boolean=false},  If true will generate an absolute url, e.g. "http://www.example.com/fullurl".
      *
@@ -1044,7 +1049,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     $state.href = function href(stateOrName, params, options) {
       options = extend({
         lossy:    true,
-        inherit:  false,
+        inherit:  true,
         absolute: false,
         relative: $state.$current
       }, options || {});

@@ -201,7 +201,7 @@ function flattenPrototypeChain(obj) {
   var objs = [];
   do {
     objs.push(obj);
-  } while (obj = Object.getPrototypeOf(obj));
+  } while ((obj = Object.getPrototypeOf(obj)));
   objs.reverse();
 
   var result = {};
