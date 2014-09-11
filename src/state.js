@@ -902,6 +902,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         // Update globals in $state
         $state.$current = to;
         $state.current = to.self;
+        $state.$previous = from;
+        $state.previous = from.self;
         $state.params = toParams;
         copy($state.params, $stateParams);
         $state.transition = null;
