@@ -1,10 +1,11 @@
 describe('uiStateRef', function() {
 
-  var el, template, scope, document;
+  var timeoutFlush, el, el2, template, scope, document, _locationProvider;
 
   beforeEach(module('ui.router'));
 
-  beforeEach(module(function($stateProvider) {
+  beforeEach(module(function($stateProvider, $locationProvider) {
+    _locationProvider = $locationProvider;
     $stateProvider.state('top', {
       url: ''
     }).state('contacts', {
@@ -74,29 +75,30 @@ describe('uiStateRef', function() {
     }));
   });
 
-  describe('links', function() {
-    var timeoutFlush, el2;
 
-    beforeEach(inject(function($rootScope, $compile, $timeout) {
-      el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })">Details</a>');
-      el2 = angular.element('<a ui-sref="top">Top</a>');
-      scope = $rootScope;
-      scope.contact = { id: 5 };
-      scope.$apply();
+  function buildDOM($rootScope, $compile, $timeout) {
+    el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })">Details</a>');
+    el2 = angular.element('<a ui-sref="top">Top</a>');
+    scope = $rootScope;
+    scope.contact = { id: 5 };
+    scope.$apply();
 
-      $compile(el)(scope);
-      $compile(el2)(scope);
-      scope.$digest();
+    $compile(el)(scope);
+    $compile(el2)(scope);
+    scope.$digest();
 
-      timeoutFlush = function() {
-        try {
-          $timeout.flush();
-        } catch (e) {
-          // Angular 1.0.8 throws 'No deferred tasks to be flushed' if there is nothing in queue.
-          // Behave as Angular >=1.1.5 and do nothing in such case.
-        }
+    timeoutFlush = function () {
+      try {
+        $timeout.flush();
+      } catch (e) {
+        // Angular 1.0.8 throws 'No deferred tasks to be flushed' if there is nothing in queue.
+        // Behave as Angular >=1.1.5 and do nothing in such case.
       }
-    }));
+    }
+  };
+
+  describe('links', function() {
+    beforeEach(inject(buildDOM));
 
     it('should generate the correct href', function() {
       expect(el.attr('href')).toBe('#/contacts/5');
@@ -217,7 +219,7 @@ describe('uiStateRef', function() {
       expect($state.current.name).toEqual('top');
       expect($stateParams).toEqualData({});
     }));
-    
+
     it('should allow passing params to current state', inject(function($compile, $rootScope, $state) {
       $state.current.name = 'contacts.item.detail';
       
@@ -240,6 +242,38 @@ describe('uiStateRef', function() {
       $compile(el)($rootScope);
       $rootScope.$digest();
       expect(el.attr('href')).toBe('#/contacts/3');
+    }));
+  });
+
+  describe('links in html5 mode', function() {
+    beforeEach(function() {
+      _locationProvider.html5Mode(true);
+    });
+
+    beforeEach(inject(buildDOM));
+
+    it('should generate the correct href', function() {
+      expect(el.attr('href')).toBe('/contacts/5');
+      expect(el2.attr('href')).toBe('');
+    });
+
+    it('should update the href when parameters change', function() {
+      expect(el.attr('href')).toBe('/contacts/5');
+      scope.contact.id = 6;
+      scope.$apply();
+      expect(el.attr('href')).toBe('/contacts/6');
+    });
+
+    it('should transition states when the url is empty', inject(function($state, $stateParams, $q) {
+      // Odd, in html5Mode, the initial state isn't matching on empty url, but does match if top.url is "/".
+//      expect($state.$current.name).toEqual('top');
+
+      triggerClick(el2);
+      timeoutFlush();
+      $q.flush();
+
+      expect($state.current.name).toEqual('top');
+      expect($stateParams).toEqualData({});
     }));
   });
 

@@ -1116,7 +1116,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       
       var nav = (state && options.lossy) ? state.navigable : state;
 
-      if (!nav || !nav.url) {
+      if (!nav || nav.url === undefined || nav.url === null) {
         return null;
       }
       return $urlRouter.href(nav.url, filterByKeys(objectKeys(state.params), params || {}), {
