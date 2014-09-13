@@ -162,6 +162,24 @@ describe("resolve", function () {
       expect(s.mostRecentCall.args).toEqual([ 'parent', 'grandparent' ]);
     }));
 
+    // test for #1353
+    it("allow parent resolve to override grandparent resolve", inject(function ($q) {
+      var gPromise = $q.defer(),
+          gInjectable = jasmine.createSpy('gInjectable').andReturn(gPromise.promise);
+
+      var g = $r.resolve({ item: [ function() { return "grandparent"; } ] }, g);
+      gPromise.resolve('grandparent');
+      tick();
+
+      var p = $r.resolve({ item: [ function() { return "parent"; } ] }, {}, g);
+      var s = jasmine.createSpy('s');
+      var c = $r.resolve({ c: [ s ] }, {}, p);
+      tick();
+
+      expect(s).toHaveBeenCalled();
+      expect(c.$$values.item).toBe('parent');
+    }));
+
     it("allows a function to override a parent value of the same name", function () {
       var r = $r.resolve({ b: function() { return 'B' } });
       var s = $r.resolve({

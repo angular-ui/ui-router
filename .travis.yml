@@ -11,3 +11,6 @@ before_script:
 
 script:
   - grunt integrate
+
+git:
+  depth: 10
