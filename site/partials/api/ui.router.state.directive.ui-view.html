@@ -22,19 +22,20 @@
 </ul>
 <h2 id="usage">Usage</h2>
 <div class="usage">as element:<pre class="prettyprint linenums">&lt;ui-view
-       [ui-view="{string}"]
+       [name="{string}"]
        [autoscroll="{string}"]
        [onload="{string}"]&gt;
 &lt;/ui-view&gt;</pre>
-as attribute<pre class="prettyprint linenums">&lt;ANY ui-view="{string}"
+as attribute<pre class="prettyprint linenums">&lt;ANY ui-view
+     [name="{string}"]
      [autoscroll="{string}"]
      [onload="{string}"]&gt;
    ...
 &lt;/ANY&gt;</pre>
-as class<pre class="prettyprint linenums">&lt;ANY class="ui-view: {string}; [autoscroll: {string};] [onload: {string};]"&gt;
+as class<pre class="prettyprint linenums">&lt;ANY class="ui-view [name: {string};] [autoscroll: {string};] [onload: {string};]"&gt;
    ...
 &lt;/ANY&gt;</pre>
-<h4 id="usage_parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>ui-view <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-page"><p>A view name. The name should be unique amongst the other views in the
+<h4 id="usage_parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-page"><p>A view name. The name should be unique amongst the other views in the
 same state. You can have views of the same name that live in different states.</p>
 </div></td></tr><tr><td>autoscroll <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-page"><p>It allows you to set the scroll behavior of the browser window
 when a view is populated. By default, $anchorScroll is overridden by ui-router&#39;s custom scroll
