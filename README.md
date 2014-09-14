@@ -8,8 +8,8 @@
 **[Sample](http://angular-ui.github.com/ui-router/sample/) ([Src](https://github.com/angular-ui/ui-router/tree/gh-pages/sample)) |**
 **[FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions) |**
 **[Resources](#resources) |**
-**[Report an Issue](#report-an-issue) |**
-**[Contribute](#contribute) |**
+**[Report an Issue](https://github.com/angular-ui/ui-router/blob/master/CONTRIBUTING.md#report-an-issue) |**
+**[Contribute](https://github.com/angular-ui/ui-router/blob/master/CONTRIBUTING.md#contribute) |**
 **[Help!](http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router) |**
 **[Discuss](https://groups.google.com/forum/#!categories/angular-ui/router)**
 
