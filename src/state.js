@@ -854,19 +854,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         });
 
 
-      // Once everything is resolved, we are ready to perform the actual transition
-      // and return a promise for the new state. We also keep track of what the
-      // current promise is, so that we can detect overlapping transitions and
-      // keep only the outcome of the last transition.
-      var current = resolved.then(function() {
-        var result = transition.begin(function() { return $state.transition === current; }, function() {
-          return transition.run();
-        });
-
-        if (result === transition.SUPERSEDED) return TransitionSuperseded;
-        if (result === transition.ABORTED) return TransitionAborted;
-        transition.end();
-
+      function transitionSuccess() {
         // Update globals in $state
         $state.$current = to;
         $state.current = to.self;
@@ -899,10 +887,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           $rootScope.$broadcast('$stateChangeSuccess', transition);
         }
         $urlRouter.update(true);
+      }
 
-        return $state.current;
-
-      }, function (error) {
+      function transitionFailure(error) {
 
         if ($state.transition !== transition) return TransitionSuperseded;
 
@@ -925,7 +912,23 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           $urlRouter.update();
         }
         return $q.reject(error);
-      });
+      }
+
+      // Once everything is resolved, we are ready to perform the actual transition
+      // and return a promise for the new state. We also keep track of what the
+      // current promise is, so that we can detect overlapping transitions and
+      // keep only the outcome of the last transition.
+      var current = resolved.then(function() {
+        var isCurrentTransition = function () { return $state.transition === current; };
+        var result = transition.begin(isCurrentTransition, transition.run);
+
+        if (result === transition.SUPERSEDED) return TransitionSuperseded;
+        if (result === transition.ABORTED) return TransitionAborted;
+        transition.end();
+        transitionSuccess();
+        return $state.current;
+
+      }, transitionFailure);
 
       return transition;
     };

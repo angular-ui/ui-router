@@ -18,13 +18,13 @@ function $TransitionProvider() {
   // $transitionProvider.onEnter({ from: "home", to: "somewhere.else" }, function($transition$, $http) {
   //   // ...
   // });
-  this.onEnter = function(states, callback) {
+  this.entering = function(states, callback) {
   };
 
   // $transitionProvider.onExit({ from: "home", to: "somewhere.else" }, function($transition$, $http) {
   //   // ...
   // });
-  this.onExit = function(states, callback) {
+  this.exiting = function(states, callback) {
   };
 
   // $transitionProvider.onSuccess({ from: "home", to: "somewhere.else" }, function($transition$, $http) {
@@ -104,19 +104,27 @@ function $TransitionProvider() {
 
         state = toState.path[keep];
 
+        var retainedStates = [], exitingStates = [], enteringStates = [];
         while (state && state === fromState.path[keep] && equalForKeys(toParams, fromParams, state.ownParams)) {
-          retained.push(state);
+          retainedStates.push(state);
           keep++;
           state = toState.path[keep];
         }
+        // TODO: This Path needs to be come from $state so it has its loaded Resolvables filled
+        // It should look something like `var retained = currentPath.slice(0, keep);`
+        // i.e., get-rid-of-locals-madness
+        retained = new Path(retainedStates);
 
         for (var i = fromState.path.length - 1; i >= keep; i--) {
-          exiting.push(fromState.path[i]);
+          exitingStates.push(fromState.path[i]);
         }
+        exiting = new Path(exitingStates);
 
         for (i = keep; i < toState.path.length; i++) {
-          entering.push(toState.path[i]);
+          enteringStates.push(toState.path[i]);
         }
+        entering = new Path(enteringStates);
+
         hasCalculated = true;
       }
 
@@ -215,21 +223,21 @@ function $TransitionProvider() {
 
         entering: function() {
           calculateTreeChanges();
-          return extend(pluck(entering, 'self'), new Path(entering));
+          return entering;
         },
 
         exiting: function() {
           calculateTreeChanges();
-          return extend(pluck(entering, 'self'), new Path(exiting));
+          return exiting;
         },
 
         retained: function() {
           calculateTreeChanges();
-          return pluck(retained, 'self');
+          return retained;
         },
 
         views: function() {
-          return map(entering, function(state) {
+          return map(entering.states(), function(state) {
             return [state.self, state.views];
           });
         },
@@ -260,13 +268,20 @@ function $TransitionProvider() {
         },
 
         run: function() {
-          var exiting = this.exiting().$$exit();
+          var exiting = $get.exiting().$$exit();
           if (exiting !== true) return exiting;
 
-          var entering = this.entering().$$enter();
+          var entering = $get.entering().$$enter();
           if (entering !== true) return entering;
 
           return true;
+        },
+        runAsync: function() {
+          var context = PathContext(this.retained());
+          var exitingPath = $get.exiting();
+          var enteringPath = $get.entering();
+
+          enteringPath.elements();
         },
 
         begin: function(compare, exec) {
