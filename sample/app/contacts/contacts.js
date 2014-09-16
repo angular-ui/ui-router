@@ -92,7 +92,7 @@ angular.module('uiRouterSample.contacts', [
           // between 1 and 4.
 
           // Since this state is also a child of 'contacts' its url is appended as well.
-          // So its url will end up being '/contacts/{contactId:[0-9]{1,8}}'. When the
+          // So its url will end up being '/contacts/{contactId:[0-9]{1,4}}'. When the
           // url becomes something like '/contacts/42' then this state becomes active
           // and the $stateParams object becomes { contactId: 42 }.
           url: '/{contactId:[0-9]{1,4}}',
