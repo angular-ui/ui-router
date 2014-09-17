@@ -320,6 +320,17 @@ describe("urlMatcherFactory", function () {
       expect(m.format({ user: 1138 })).toBe("/users/1138/photos");
     });
 
+    it("should correctly format with an optional followed by a required parameter", function() {
+      var m = new UrlMatcher('/:user/gallery/photos/:photo', {
+        params: { 
+          user: {value: null},
+          photo: {} 
+        }
+      });
+      expect(m.format({ photo: 12 })).toBe("/gallery/photos/12");
+      expect(m.format({ user: 1138, photo: 13 })).toBe("/1138/gallery/photos/13");
+    });
+
     describe("default values", function() {
       it("should populate if not supplied in URL", function() {
         var m = new UrlMatcher('/users/{id:int}/{test}', {

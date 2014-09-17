@@ -310,7 +310,7 @@ UrlMatcher.prototype.format = function (values) {
     value = values[param];
     cfg   = this.params[param];
 
-    if (!isDefined(value) && (segments[i] === '/' || segments[i + 1] === '/')) continue;
+    if (!isDefined(value) && (segments[i] === '/' && segments[i + 1] === '/')) continue;
     if (value != null) result += encodeURIComponent(cfg.type.encode(value));
     result += segments[i + 1];
   }
@@ -327,7 +327,7 @@ UrlMatcher.prototype.format = function (values) {
     result += (search ? '&' : '?') + param + '=' + (array ? value : encodeURIComponent(value));
     search = true;
   }
-  return result;
+  return result.replace('//', '/');
 };
 
 UrlMatcher.prototype.$types = {};
