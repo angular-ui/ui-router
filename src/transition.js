@@ -57,6 +57,7 @@ function $TransitionProvider() {
 
     var from = { state: null, params: null },
         to   = { state: null, params: null };
+    var _fromPath = null; // contains resolved data
 
     /**
      * @ngdoc object
@@ -76,8 +77,12 @@ function $TransitionProvider() {
      * @returns {Object} New `Transition` object
      */
     function Transition(fromState, fromParams, toState, toParams, options) {
+      var transition = this;
       var keep = 0, state, retained = [], entering = [], exiting = [];
       var hasRun = false, hasCalculated = false;
+
+      // grab $transition's current path
+      var toPath, fromPath = _fromPath;
 
       var states = {
         to: stateMatcher(toState, options),
@@ -103,27 +108,16 @@ function $TransitionProvider() {
         if (hasCalculated) return;
 
         state = toState.path[keep];
-
-        var retainedStates = [], exitingStates = [], enteringStates = [];
         while (state && state === fromState.path[keep] && equalForKeys(toParams, fromParams, state.ownParams)) {
-          retainedStates.push(state);
           keep++;
           state = toState.path[keep];
         }
-        // TODO: This Path needs to be come from $state so it has its loaded Resolvables filled
-        // It should look something like `var retained = currentPath.slice(0, keep);`
-        // i.e., get-rid-of-locals-madness
-        retained = new Path(retainedStates);
 
-        for (var i = fromState.path.length - 1; i >= keep; i--) {
-          exitingStates.push(fromState.path[i]);
-        }
-        exiting = new Path(exitingStates);
-
-        for (i = keep; i < toState.path.length; i++) {
-          enteringStates.push(toState.path[i]);
-        }
-        entering = new Path(enteringStates);
+        // fromPath contains previously resolved data; emptyToPath has nothing resolved yet.
+        retained = fromPath.slice(0, keep);
+        exiting = fromPath.slice(keep);
+        entering = new Path(toState.path).slice(keep);
+        toPath = retained.concat(entering);
 
         hasCalculated = true;
       }
@@ -236,6 +230,8 @@ function $TransitionProvider() {
           return retained;
         },
 
+        // Should this return views for `retained.concat(entering).states()` ?
+        // As it stands, it will only return views for the entering states
         views: function() {
           return map(entering.states(), function(state) {
             return [state.self, state.views];
@@ -268,21 +264,23 @@ function $TransitionProvider() {
         },
 
         run: function() {
-          var exiting = $get.exiting().$$exit();
+          var exiting = transition.exiting().$$exit();
           if (exiting !== true) return exiting;
 
-          var entering = $get.entering().$$enter();
+          var entering = transition.entering().$$enter();
           if (entering !== true) return entering;
 
           return true;
         },
-        runAsync: function() {
-          var context = PathContext(this.retained());
-          var exitingPath = $get.exiting();
-          var enteringPath = $get.entering();
-
-          enteringPath.elements();
-        },
+//        runAsync: function() {
+//          var fromContext = new PathContext(fromPath);
+//          var exitingPath = transition.exiting();
+//
+//          var toContext = new PathContext(toPath);
+//          var enteringPath = transition.entering();
+//
+//          enteringPath.elements();
+//        },
 
         begin: function(compare, exec) {
           if (!compare()) return this.SUPERSEDED;
@@ -294,6 +292,8 @@ function $TransitionProvider() {
         end: function() {
           from = { state: toState, params: toParams };
           to   = { state: null, params: null };
+          // Save the Path which contains the Resolvables data
+          paths.from = toPath;
         }
       });
     }
