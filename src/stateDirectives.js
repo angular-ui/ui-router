@@ -117,9 +117,7 @@ function $StateRefDirective($state, $timeout) {
       };
 
       if (ref.paramExpr) {
-        scope.$watch(ref.paramExpr, function(newVal, oldVal) {
-          if (newVal !== params) update(newVal);
-        }, true);
+        scope.$watch(ref.paramExpr, update, true);
         params = scope.$eval(ref.paramExpr);
       }
       update();

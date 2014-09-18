@@ -243,6 +243,20 @@ describe('uiStateRef', function() {
       $rootScope.$digest();
       expect(el.attr('href')).toBe('#/contacts/3');
     }));
+
+    it('should allow paramExpr is a $scope property', inject(function($compile, $rootScope) {
+      $scope = $rootScope.$new();
+      $scope.urlParams = {};
+      var el = $compile("<a ui-sref='contacts.item.detail(urlParams)'>Details</a>")($scope);
+
+      $scope.urlParams.id = 1;
+      $scope.$apply();
+      expect(el.attr('href')).toBe('#/contacts/1');
+
+      $scope.urlParams.id = 2;
+      $scope.$apply();
+      expect(el.attr('href')).toBe('#/contacts/2');
+    }));
   });
 
   describe('links in html5 mode', function() {
