@@ -154,7 +154,6 @@ UrlMatcher.prototype.exec = function (path, searchParams, options) {
     current = current.parent;
   }
 
-  if (match.length !== 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
   if (options.isolate) return result;
 
   var collapsed = {};
@@ -513,24 +512,20 @@ function $UrlMatcherFactory() {
       return isObject(cfg) ? cfg : { value: cfg };
     }
 
-    var idMap = {}, formatMap = {}, search = [];
+    var idMap = {}, formatMap = {}, search = [], query, url = pattern;
 
-    if (pattern.indexOf('?') >= 0) {
-      var split = pattern.split('?');
-      pattern = split.shift();
-
-      forEach(split.join("?").split("&"), function(key) {
-        search.push(key);
-        addParameter(key, null, extend({ search: true }, paramConfig(key)));
-      });
+    if (url.indexOf('?') >= 0) {
+      var split = url.split('?');
+      url = split.shift();
+      query = split.join("&").split("&").filter(function(val) { return !!val; });
     }
 
-    var formatString = pattern.replace(placeholder, function(_, wild, name1, name2, typeName) {
+    var formatString = url.replace(placeholder, function(_, wild, name1, name2, typeName) {
       var id   = Math.round(Math.random() * 100000) + "",
           name = name1 || name2,
           cfg  = paramConfig(name),
           type = (typeName && self.$types[typeName]) || new Type({
-            pattern: new RegExp(type || (wild === "*" ? '.*' : '[^/]*'))
+            pattern: new RegExp(typeName || (wild === "*" ? '.*' : '[^/]*'))
           });
 
       addParameter(name, type, cfg);
@@ -538,6 +533,14 @@ function $UrlMatcherFactory() {
       idMap[id] = { name: name, type: type, config: cfg };
       return "__ " + id + " __";
     });
+
+    if (query) {
+      forEach(query, function(key) {
+        search.push(key);
+        addParameter(key, null, extend({ search: true }, paramConfig(key)));
+      });
+    }
+
     var prefix = this.parent ? this.parent.source.pattern : '^';
 
     var compiled = prefix + quoteRegExp(formatString).replace(/__ (\d+) __/g, function(_, id) {
@@ -545,7 +548,7 @@ function $UrlMatcherFactory() {
       return mapped.type.$subPattern({ optional: isDefined(mapped.config.value), wrap: true });
     });
 
-    var fullPattern = this.parent ? this.parent.source.append(pattern) : pattern;
+    var fullPattern = this.parent ? this.parent.source.append(url) : url;
 
     this.source = {
       toString: function() { return fullPattern; },

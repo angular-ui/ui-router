@@ -67,7 +67,7 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
       return state;
     },
 
-    flush: function() {
+    flush: function($state) {
       var result, state, orphans = [], orphanIdx, previousQueueLength = {};
 
       while (queue.length > 0) {
@@ -79,7 +79,7 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
           if (states[state.name] !== undefined)
             throw new Error("State '" + name + "' is already defined");
           states[state.name] = state;
-          this.attachRoute(state);
+          this.attachRoute($state, state);
           if (orphanIdx >= 0) orphans.splice(orphanIdx, 1);
           continue;
         }
@@ -98,7 +98,7 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
       return states;
     },
 
-    attachRoute: function(state) {
+    attachRoute: function($state, state) {
       if (state[abstractKey] || !state.url) return;
 
       $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
@@ -593,6 +593,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       views: null,
       'abstract': true
     }, true);
+
     root.navigable = null;
 
     extend($state, {
@@ -602,7 +603,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       transition: null
     });
 
-    queue.flush();
+    queue.flush($state);
 
     $transition.init(root, $state.params, function(ref, options) {
       return matcher.find(ref, options.relative);
@@ -760,6 +761,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         reload:   false
       }, options));
 
+      // Rejected by $transitionProvider handler... TODO: add unit test
+      if (!transition) return REJECT.prevented;
+
       var stateHandler = {
         retryIfNotFound: function(transition) {
           /**
@@ -800,6 +804,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         },
 
         checkIgnoredOrPrevented: function(transition) {
+          var notify = transition.options().notify;
+
           if (transition.ignored()) {
             var isDynamic = $stateParams.$set(toParams, toState.url);
 
@@ -810,7 +816,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
             if (isDynamic || to.locals === from.locals) {
               if (!isDynamic) $urlRouter.update();
-              if (options.notify) $rootScope.$broadcast('$stateChangeIgnored', transition);
+              if (notify) $rootScope.$broadcast('$stateChangeIgnored', transition);
               $state.transition = null;
               return $state.current;
             }
@@ -840,7 +846,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
            * })
            * </pre>
            */
-          if (options.notify && $rootScope.$broadcast('$stateChangeStart', transition).defaultPrevented) {
+          if (notify && $rootScope.$broadcast('$stateChangeStart', transition).defaultPrevented) {
             $urlRouter.update();
             return TransitionPrevented;
           }
@@ -851,10 +857,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
       transition.ensureValid(stateHandler.retryIfNotFound)
         .then(stateHandler.checkIgnoredOrPrevented, REJECT.aborted)
-        .then(function() {
-          console.log("WIN", arguments);
-        }, function() {
-          console.log("FALE", arguments);
+        .then(function(transition) {
+          console.log("WIN", transition);
+        }, function(transition) {
+          console.log("FALE", transition);
         });
 
 

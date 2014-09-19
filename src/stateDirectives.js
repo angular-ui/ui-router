@@ -240,19 +240,14 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
 
       // Update route state
       function update() {
-        if (isMatch()) {
-          $element.addClass(activeClass);
-        } else {
-          $element.removeClass(activeClass);
-        }
+        $element[(isMatch() ? "add" : "remove") + "Class"](activeClass);
       }
 
       function isMatch() {
         if (typeof $attrs.uiSrefActiveEq !== 'undefined') {
           return $state.$current.self === state && matchesParams();
-        } else {
-          return $state.includes(state.name) && matchesParams();
         }
+        return $state.includes(state.name) && matchesParams();
       }
 
       function matchesParams() {

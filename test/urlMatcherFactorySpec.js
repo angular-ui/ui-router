@@ -67,7 +67,7 @@ describe("UrlMatcher", function () {
   it("should encode and decode duplicate query string values as array", function () {
     var matcher = new UrlMatcher('/?foo'), array = { foo: ["bar", "baz"] };
     expect(matcher.exec('/', array)).toEqual(array);
-    expect(matcher.format(array)).toBe('/?foo=bar&foo=baz');
+    expect(matcher.format(array)).toBe('/?foo[]=bar&foo[]=baz');
   });
 
   describe("snake-case parameters", function() {
@@ -112,25 +112,17 @@ describe("UrlMatcher", function () {
       expect(new UrlMatcher('/users/:id').exec('/users/100%25', {})).toEqual({ id: '100%25'});
     });
 
-    it('should throw on unbalanced capture list', function () {
-      var shouldThrow = {
+    it('should allow embedded capture groups', function () {
+      var shouldPass = {
         "/url/{matchedParam:([a-z]+)}/child/{childParam}": '/url/someword/child/childParam',
         "/url/{matchedParam:([a-z]+)}/child/{childParam}?foo": '/url/someword/child/childParam'
       };
 
-      angular.forEach(shouldThrow, function(url, route) {
-        expect(function() { new UrlMatcher(route).exec(url, {}); }).toThrow(
-          "Unbalanced capture group in route '" + route + "'"
-        );
-      });
-
-      var shouldPass = {
-        "/url/{matchedParam:[a-z]+}/child/{childParam}": '/url/someword/child/childParam',
-        "/url/{matchedParam:[a-z]+}/child/{childParam}?foo": '/url/someword/child/childParam'
-      };
-
       angular.forEach(shouldPass, function(url, route) {
-        expect(function() { new UrlMatcher(route).exec(url, {}); }).not.toThrow();
+        expect(new UrlMatcher(route).exec(url, {})).toEqual({
+          childParam: "childParam",
+          matchedParam: "someword"
+        });
       });
     });
   });
