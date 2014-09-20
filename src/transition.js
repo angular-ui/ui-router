@@ -264,24 +264,17 @@ function $TransitionProvider() {
         },
 
         run: function() {
-          var exiting = transition.exiting().$$exit();
+          // TODO: $$exit and $$enter now loads Resolvables JIT (async and lazy) and returns a promise, so .run needs to be rethought.
+          // TODO: Alternatively, we can do static analysis of what resolvables are needed for a transition, pre-resolve
+          // only the stuff necessary, and then run the onEnter/onExit callbacks synchronously to get a true/false here.
+          var exiting = transition.exiting().$$exit(fromPath);
           if (exiting !== true) return exiting;
 
-          var entering = transition.entering().$$enter();
+          var entering = transition.entering().$$enter(toPath);
           if (entering !== true) return entering;
 
           return true;
         },
-//        runAsync: function() {
-//          var fromContext = new PathContext(fromPath);
-//          var exitingPath = transition.exiting();
-//
-//          var toContext = new PathContext(toPath);
-//          var enteringPath = transition.entering();
-//
-//          enteringPath.elements();
-//        },
-
         begin: function(compare, exec) {
           if (!compare()) return this.SUPERSEDED;
           if (!exec()) return this.ABORTED;

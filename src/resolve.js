@@ -178,15 +178,62 @@ function $Resolve(  $q,    $injector) {
       return $q.all(map(elements, function(element) { return element.resolve(resolveContext); }));
     }
 
+    // returns a ResolveContext for a subpath of this path.
+    // The subpath is from the root path element up to and including the toPathElement parameter
+    function resolveContext(toPathElement) {
+      toPathElement = toPathElement || elements[elements.length - 1];
+      var elementIdx = elements.indexOf(toPathElement);
+//      if (angular.isNumber(toPathElement)) // maybe allow the param to be the index too
+//        elementIdx = toPathElement;
+      if (elementIdx == -1) throw new Error("this Path does not contain the toPathElement");
+      return new ResolveContext(self.slice(0, elementIdx));
+    }
+
     // Not used
     function invoke(hook, self, locals) {
       if (!hook) return;
       return $injector.invoke(hook, self, locals);
     }
 
+    // Invokes a callback function for each path element in order.  It uses a promise chain to ensure the previous path elements'
+    // functions are invoked before proceeding to the next path element.
+    // TODO: Instead of a just element.state[fnName] lookup, this should allow the $transition callbacks to be run too.
+    // TODO: maybe use an options parameter; maybe use a "PathElement function provider" callback
+    function invokeFunctionsAsync(path, fnName, reverse) {
+      var promises = $q.when(true);
+      var pathElements = elements.slice(0);
+      if (reverse) pathElements.reverse();
+
+      forEach(pathElements, function(pathElement) {
+        var fn = pathElement.state[fnName];
+        if (fn) {
+          function step(parentResult) {
+            return parentResult ? pathElement.invokeLater(fn, {}, path.resolveContext(pathElement)) : parentResult;
+          }
+          promises = promises.then(step);
+        }
+      });
+      return promises;
+    }
+
+    function invokeFunctionsSync(path, fnName, reverse) {
+      var pathElements = elements.slice(0);
+      if (reverse) pathElements.reverse();
+
+      forEach(pathElements, function(pathElement) {
+        var fn = pathElement.state[fnName];
+        if (fn) {
+          var result = pathElement.invokeNow(fn, {}, path.resolveContext(pathElement));
+          if (!result) return result;
+        }
+      });
+      return true;
+    }
+
     // Public API
     extend(this, {
       resolve: resolvePath,
+      resolveContext: resolveContext,
       elements: elements,
       concat: function(path) {
         return new Path(elements.concat(path.elements));
@@ -197,23 +244,16 @@ function $Resolve(  $q,    $injector) {
       states: function() {
         return pluck(elements, "state");
       },
-      // I haven't looked at how $$enter and $$exit are going be used.
-      $$enter: function(/* locals */) {
-        // TODO: Replace with PathElement.invoke(Now|Later)
-        // TODO: If invokeNow (synchronous) then we have to .get() all Resolvables for all functions first.
-        for (var i = 0; i < states.length; i++) {
-          // entering.locals = toLocals[i];
-          if (invoke(states[i].self.onEnter, states[i].self, locals(states[i])) === false) return false;
-        }
-        return true;
+      $$enter: function(toPath) {
+        // Async returns promise for true/false. Don't need to pre-resolve anything
+        // return invokeFunctionsAsync(toPath, 'onEnter', false);
+
+        // Sync returns truthy/falsy ... all deps must be pre-resolved in toPath
+        return invokeFunctionsSync(toPath, 'onEnter', false);
       },
-      $$exit: function(/* locals */) {
-        // TODO: Replace with PathElement.invoke(Now|Later)
-        for (var i = states.length - 1; i >= 0; i--) {
-          if (invoke(states[i].self.onExit, states[i].self, locals(states[i])) === false) return false;
-          // states[i].locals = null;
-        }
-        return true;
+      $$exit: function(fromPath) {
+//        return invokeFunctionsAsync(fromPath, 'onExit', true);
+        return invokeFunctionsSync(fromPath, 'onExit', true);
       }
     });
   };
