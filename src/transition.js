@@ -78,7 +78,7 @@ function $TransitionProvider() {
      */
     function Transition(fromState, fromParams, toState, toParams, options) {
       var transition = this;
-      var keep = 0, state, retained = [], entering = [], exiting = [];
+      var keep = 0, state, retained, entering, exiting;
       var hasRun = false, hasCalculated = false;
 
       // grab $transition's current path
@@ -122,6 +122,53 @@ function $TransitionProvider() {
         hasCalculated = true;
       }
 
+      function transitionStep(fn, resolveContext) {
+        return function() {
+          if ($transition.transition !== transition) return transition.SUPERSEDED;
+          return pathElement.invokeAsync(fn, { $stateParams: undefined, $transition$: transition }, resolveContext)
+            .then(function(result) {
+              return result ? result : $q.reject(transition.ABORTED);
+            });
+        }
+      }
+
+      function buildTransitionSteps() {
+        // create invokeFn fn.
+        // - checks if current transition has been superseded
+        // - invokes Fn async
+        // - checks result.  If falsey, rejects promise
+
+        // get exiting & reverse them
+        // get entering
+
+        // walk exiting()
+        // - InvokeAsync
+        // resolve all eager Path resolvables
+        // walk entering()
+        // - resolve PathElement lazy resolvables
+        // - then, invokeAsync onEnter
+
+        var exitingElements = transition.exiting().slice(0);
+        exitingElements.reverse();
+        var enteringElements = transition.entering();
+        var promiseChain = $q.when(true);
+        forEach(exitingElements, function(elem) {
+          if (elem.state.onExit) {
+            var nextStep = transitionStep(elem.state.onExit, fromPath.resolveContext(elem));
+            promiseChain.then(nextStep);
+          }
+        });
+        forEach(enteringElements, function(elem) {
+          var resolveContext = fromPath.resolveContext(elem);
+          promiseChain.then(function() { return elem.resolve(resolveContext, { policy: "lazy" }); });
+          if (elem.state.onEnter) {
+            var nextStep = transitionStep(elem.state.onEnter, resolveContext);
+            promiseChain.then(nextStep);
+          }
+        });
+
+        return promiseChain;
+      }
 
       extend(this, {
         /**
@@ -262,10 +309,12 @@ function $TransitionProvider() {
         ignored: function() {
           return (toState === fromState && !options.reload);
         },
-
+        runAsync: function() {
+          var pathContext = new PathContext(toPath);
+          return toPath.resolve(pathContext, { policy: "eager" })
+            .then( buildTransitionSteps );
+        },
         run: function() {
-          // TODO: $$exit and $$enter now loads Resolvables JIT (async and lazy) and returns a promise, so .run needs to be rethought.
-          // TODO: Alternatively, we can do static analysis of what resolvables are needed for a transition, pre-resolve
           // only the stuff necessary, and then run the onEnter/onExit callbacks synchronously to get a true/false here.
           var exiting = transition.exiting().$$exit(fromPath);
           if (exiting !== true) return exiting;

@@ -918,17 +918,24 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       // and return a promise for the new state. We also keep track of what the
       // current promise is, so that we can detect overlapping transitions and
       // keep only the outcome of the last transition.
-      var current = resolved.then(function() {
-        var isCurrentTransition = function () { return $state.transition === current; };
-        var result = transition.begin(isCurrentTransition, transition.run);
-
-        if (result === transition.SUPERSEDED) return TransitionSuperseded;
-        if (result === transition.ABORTED) return TransitionAborted;
-        transition.end();
-        transitionSuccess();
-        return $state.current;
-
+      var current = transition.run()
+        .then(function(data) {
+          console.log("hur", data);
+          transitionSuccess();
+          return data;
       }, transitionFailure);
+
+//      var current = resolved.then(function() {
+//        var isCurrentTransition = function () { return $state.transition === current; };
+//        var result = transition.begin(isCurrentTransition, transition.run);
+//
+//        if (result === transition.SUPERSEDED) return TransitionSuperseded;
+//        if (result === transition.ABORTED) return TransitionAborted;
+//        transition.end();
+//        transitionSuccess();
+//        return $state.current;
+//
+//      }, transitionFailure);
 
       return transition;
     };

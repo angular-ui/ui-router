@@ -211,27 +211,6 @@ function $Resolve(  $q,    $injector) {
       return $injector.invoke(hook, self, locals);
     }
 
-    // Invokes a callback function for each path element in order.  It uses a promise chain to ensure the previous path elements'
-    // functions are invoked before proceeding to the next path element.
-    // TODO: Instead of a just element.state[fnName] lookup, this should allow the $transition callbacks to be run too.
-    // TODO: maybe use an options parameter; maybe use a "PathElement function provider" callback
-    function invokeFunctionsAsync(path, fnName, reverse) {
-      var promises = $q.when(true);
-      var pathElements = elements.slice(0);
-      if (reverse) pathElements.reverse();
-
-      forEach(pathElements, function(pathElement) {
-        var fn = pathElement.state[fnName];
-        if (fn) {
-          function step(parentResult) {
-            return parentResult ? pathElement.invokeLater(fn, {}, path.resolveContext(pathElement)) : parentResult;
-          }
-          promises = promises.then(step);
-        }
-      });
-      return promises;
-    }
-
     function invokeFunctionsSync(path, fnName, reverse) {
       var pathElements = elements.slice(0);
       if (reverse) pathElements.reverse();
@@ -260,15 +239,15 @@ function $Resolve(  $q,    $injector) {
       states: function() {
         return pluck(elements, "state");
       },
-      $$enter: function(toPath) {
+      $$enter: function(toPath, async) {
         // Async returns promise for true/false. Don't need to pre-resolve anything
-        // return invokeFunctionsAsync(toPath, 'onEnter', false);
-
+        if (async) return invokeFunctionsAsync(toPath, 'onEnter', false);
         // Sync returns truthy/falsy ... all deps must be pre-resolved in toPath
-        return invokeFunctionsSync(toPath, 'onEnter', false);
+        if (async)
+          return invokeFunctionsSync(toPath, 'onEnter', false);
       },
-      $$exit: function(fromPath) {
-//        return invokeFunctionsAsync(fromPath, 'onExit', true);
+      $$exit: function(fromPath, async) {
+        if (async) return invokeFunctionsAsync(fromPath, 'onExit', true);
         return invokeFunctionsSync(fromPath, 'onExit', true);
       }
     });
