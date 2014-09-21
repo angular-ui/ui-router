@@ -31,12 +31,17 @@ describe('Resolvables system:', function () {
           L: { resolve: { _L: function(_K) { counts['_L']++; return _K + "L"; }},
             M: { resolve: { _M: function(_L) { counts['_M']++; return _L + "M"; }} }
           }
+        },
+        N: {
+          resolve: { _N: function(_J) { return _J + "N"; }, _N2: function(_J) { return _J + "N2"; }, _N3: function(_J) { return _J + "N3"; } },
+          resolvePolicy: { _N: "eager", _N2: "lazy", _N3: "jit" }
         }
       },
-      N: { resolve: { _N: function(_N2) { return _N2 + "N"; }, _N2: function(_N) { return _N + "N2"; } }}
+      O: { resolve: { _O: function(_O2) { return _O2 + "O"; }, _O2: function(_O) { return _O + "O2"; } }
+      }
     };
 
-    var stateProps = ["resolve"];
+    var stateProps = ["resolve", "resolvePolicy"];
     statesTree = loadStates({}, states, '');
 
     function loadStates(parent, state, name) {
@@ -74,9 +79,7 @@ describe('Resolvables system:', function () {
       $q.flush();
       expect(asyncCount).toBe(1);
     }));
-  });
 
-  describe('PathElement.resolve()', function () {
     it('should not resolve non-dep parent PathElements', inject(function ($q) {
       var path = makePath([ "A", "B" ]);
       var promise = path.elements[1].resolve(new ResolveContext(path)); // B
@@ -86,6 +89,38 @@ describe('Resolvables system:', function () {
         expect(path.elements[0].resolvables['_A2'].data).toBeUndefined();
         expect(path.elements[1].resolvables['_B'].data).toBe("B");
         expect(path.elements[1].resolvables['_B2'].data).toBe("B2");
+        asyncCount++;
+      });
+
+      $q.flush();
+      expect(asyncCount).toBe(1);
+    }));
+
+    it('should resolve only eager resolves when run with "eager" policy', inject(function ($q) {
+      var path = makePath([ "J", "N" ]);
+      var promise = path.elements[1].resolve(new ResolveContext(path), { policy: "eager" });
+      promise.then(function () {
+        expect(path.elements[0].resolvables['_J'].data).toBe("J");
+        expect(path.elements[0].resolvables['_J2'].data).toBeUndefined();
+        expect(path.elements[1].resolvables['_N'].data).toBe("JN");
+        expect(path.elements[1].resolvables['_N2'].data).toBeUndefined();
+        expect(path.elements[1].resolvables['_N3'].data).toBeUndefined();
+        asyncCount++;
+      });
+
+      $q.flush();
+      expect(asyncCount).toBe(1);
+    }));
+
+    it('should resolve only eager and lazy resolves in PathElement when run with "lazy" policy', inject(function ($q) {
+      var path = makePath([ "J", "N" ]);
+      var promise = path.elements[1].resolve(new ResolveContext(path), { policy: "lazy" });
+      promise.then(function () {
+        expect(path.elements[0].resolvables['_J'].data).toBe("J");
+        expect(path.elements[0].resolvables['_J2'].data).toBeUndefined();
+        expect(path.elements[1].resolvables['_N'].data).toBe("JN");
+        expect(path.elements[1].resolvables['_N2'].data).toBe("JN2");
+        expect(path.elements[1].resolvables['_N3'].data).toBeUndefined();
         asyncCount++;
       });
 
@@ -113,6 +148,38 @@ describe('Resolvables system:', function () {
         expect(path.elements[0].resolvables['_A2'].data).toBe("A2");
         expect(path.elements[1].resolvables['_B'].data).toBe("B");
         expect(path.elements[1].resolvables['_B2'].data).toBe("B2");
+        asyncCount++;
+      });
+
+      $q.flush();
+      expect(asyncCount).toBe(1);
+    }));
+
+    it('should resolve only eager resolves when run with "eager" policy', inject(function ($q) {
+      var path = makePath([ "J", "N" ]);
+      var promise = path.resolve(new ResolveContext(path), { policy: "eager" });
+      promise.then(function () {
+        expect(path.elements[0].resolvables['_J'].data).toBe("J");
+        expect(path.elements[0].resolvables['_J2'].data).toBe("JJ2");
+        expect(path.elements[1].resolvables['_N'].data).toBe("JN");
+        expect(path.elements[1].resolvables['_N2'].data).toBeUndefined();
+        expect(path.elements[1].resolvables['_N3'].data).toBeUndefined();
+        asyncCount++;
+      });
+
+      $q.flush();
+      expect(asyncCount).toBe(1);
+    }));
+
+    it('should resolve only lazy and eager resolves when run with "lazy" policy', inject(function ($q) {
+      var path = makePath([ "J", "N" ]);
+      var promise = path.resolve(new ResolveContext(path), { policy: "lazy" });
+      promise.then(function () {
+        expect(path.elements[0].resolvables['_J'].data).toBe("J");
+        expect(path.elements[0].resolvables['_J2'].data).toBe("JJ2");
+        expect(path.elements[1].resolvables['_N'].data).toBe("JN");
+        expect(path.elements[1].resolvables['_N2'].data).toBe("JN2");
+        expect(path.elements[1].resolvables['_N3'].data).toBeUndefined();
         asyncCount++;
       });
 
@@ -325,11 +392,11 @@ describe('Resolvables system:', function () {
 
   xdescribe('Resolvables', function () {
     it('should fail to inject circular dependency', inject(function ($q) {
-      var path = makePath([ "N" ]);
+      var path = makePath([ "O" ]);
       var context = new ResolveContext(path);
 
       var iPathElement = path.elements[0];
-      var iOnEnter = function (_N) {  };
+      var iOnEnter = function (_O) {  };
       var caught;
       var promise = iPathElement.invokeLater(iOnEnter, {}, context);
       promise.catch(function (err) {

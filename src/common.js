@@ -188,6 +188,15 @@ function pluck(collection, key) {
   return result;
 }
 
+function filter(collection, callback) {
+  var result = isArray(collection) ? [] : {};
+  forEach(collection, function(val, i) {
+    if (callback(val, i))
+      result[i] = val;
+  });
+  return result;
+}
+
 function map(collection, callback) {
   var result = isArray(collection) ? [] : {};
 

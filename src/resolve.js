@@ -97,6 +97,9 @@ function $Resolve(  $q,    $injector) {
     });
   };
 
+  var resolvePolicies = { eager: 3, lazy: 2, jit: 1 };
+  var defaultResolvePolicy = "eager"; // TODO: make this configurable
+
   // An element in the path which represents a state and that state's Resolvables and their resolve statuses.
   // When the resolved data is ready, it is stored in each Resolvable object within the PathElement
 
@@ -109,10 +112,23 @@ function $Resolve(  $q,    $injector) {
       return new Resolvable(resolveName, resolveFn, state);
     });
 
-    // private function
     // returns a promise for all resolvables on this PathElement
-    function resolvePathElement(resolveContext) {
-      return $q.all(map(resolvables, function(resolvable) { return resolvable.get(resolveContext); }));
+    // options.policy: only return promises for those Resolvables which are at the specified policy strictness, or above.
+    function resolvePathElement(resolveContext, options) {
+      var policyOrdinal = resolvePolicies[options && options.policy || defaultResolvePolicy];
+
+      var policyConf = {
+        $$state: angular.isString(self.state.resolvePolicy) ? self.state.resolvePolicy : defaultResolvePolicy,
+        $$resolves: angular.isObject(self.state.resolvePolicy) ? self.state.resolvePolicy : defaultResolvePolicy
+      };
+
+      forEach(self.resolvables, function(resolvable) {
+        var policyString = policyConf.$$resolves[resolvable.name] || policyConf.$$state;
+        policyConf[resolvable.name] = resolvePolicies[policyString];
+      });
+
+      var resolvablesForPolicy = filter(resolvables, function(resolvable) { return policyConf[resolvable.name] >= policyOrdinal });
+      return $q.all(map(resolvablesForPolicy, function(resolvable) { return resolvable.get(resolveContext); }));
     }
 
     // Injects a function at this PathElement level with available Resolvables
@@ -174,8 +190,8 @@ function $Resolve(  $q,    $injector) {
     }
 
     // resolveContext holds stateful Resolvables (containing possibly resolved data), mapped per state-name.
-    function resolvePath(resolveContext) {
-      return $q.all(map(elements, function(element) { return element.resolve(resolveContext); }));
+    function resolvePath(resolveContext, options) {
+      return $q.all(map(elements, function(element) { return element.resolve(resolveContext, options); }));
     }
 
     // returns a ResolveContext for a subpath of this path.
