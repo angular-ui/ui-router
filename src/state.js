@@ -51,7 +51,7 @@ function StateQueueManager(states, builder, $urlRouterProvider) {
     register: function(config, pre) {
       // Wrap a new object around the state so we can store our private details easily.
       state = inherit(config, {
-        name: builder.name(config),
+//        name: builder.name(config),
         self: config,
         resolve: config.resolve || {},
         toString: function() { return this.name; }
