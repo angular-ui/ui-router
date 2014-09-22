@@ -67,21 +67,29 @@ function StateQueueManager(states, builder, $urlRouterProvider) {
     },
 
     flush: function() {
-      var result, state, orphans = [];
+      var result, state, orphans = [], orphanIdx, previousQueueLength = {};
 
       while (queue.length > 0) {
         state = queue.shift();
         result = builder.build(state);
+        orphanIdx = orphans.indexOf(state);
 
         if (result) {
           states[state.name] = state;
           this.attachRoute(state);
+          if (orphanIdx >= 0) orphans.splice(orphanIdx, 1);
           continue;
         }
-        if (orphans.indexOf(state) >= 0) {
+
+        var prev = previousQueueLength[state.name];
+        previousQueueLength[state.name] = queue.length;
+        if (orphanIdx >= 0 && prev === queue.length) {
+          // Wait until two consecutive iterations where no additional states were dequeued successfully.
           throw new Error("Cannot register orphaned state '" + state.name + "'");
+        } else if (orphanIdx < 0) {
+          orphans.push(state);
         }
-        orphans.push(state);
+
         queue.push(state);
       }
       return states;
