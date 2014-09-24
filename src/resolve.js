@@ -127,7 +127,7 @@ function $Resolve(  $q,    $injector) {
         policyConf[resolvable.name] = resolvePolicies[policyString];
       });
 
-      var resolvablesForPolicy = filter(resolvables, function(resolvable) { return policyConf[resolvable.name] >= policyOrdinal });
+      var resolvablesForPolicy = filter(resolvables, function(resolvable) { return policyConf[resolvable.name] >= policyOrdinal; });
       return $q.all(map(resolvablesForPolicy, function(resolvable) { return resolvable.get(resolveContext); }));
     }
 
@@ -179,6 +179,9 @@ function $Resolve(  $q,    $injector) {
 
   // statesOrPathElements must be an array of either state(s) or PathElement(s)
   // states could be "public" state objects for this?
+  /*
+   Path becomes the replacement data structure for $state.$current.locals. This is now stored on the $transition closure in _fromPath.
+   */
   Path = function Path(statesOrPathElements) {
     var self = this;
     if (!isArray(statesOrPathElements)) throw new Error("states must be an array of state(s) or PathElement(s)", statesOrPathElements);
@@ -199,30 +202,8 @@ function $Resolve(  $q,    $injector) {
     function resolveContext(toPathElement) {
       toPathElement = toPathElement || elements[elements.length - 1];
       var elementIdx = elements.indexOf(toPathElement);
-//      if (angular.isNumber(toPathElement)) // maybe allow the param to be the index too
-//        elementIdx = toPathElement;
       if (elementIdx == -1) throw new Error("this Path does not contain the toPathElement");
       return new ResolveContext(self.slice(0, elementIdx));
-    }
-
-    // Not used
-    function invoke(hook, self, locals) {
-      if (!hook) return;
-      return $injector.invoke(hook, self, locals);
-    }
-
-    function invokeFunctionsSync(path, fnName, reverse) {
-      var pathElements = elements.slice(0);
-      if (reverse) pathElements.reverse();
-
-      forEach(pathElements, function(pathElement) {
-        var fn = pathElement.state[fnName];
-        if (fn) {
-          var result = pathElement.invokeNow(fn, {}, path.resolveContext(pathElement));
-          if (!result) return result;
-        }
-      });
-      return true;
     }
 
     // Public API
@@ -242,67 +223,63 @@ function $Resolve(  $q,    $injector) {
       },
       states: function() {
         return pluck(elements, "state");
-      },
-      $$enter: function(toPath, async) {
-        // Async returns promise for true/false. Don't need to pre-resolve anything
-        if (async) return invokeFunctionsAsync(toPath, 'onEnter', false);
-        // Sync returns truthy/falsy ... all deps must be pre-resolved in toPath
-        if (async)
-          return invokeFunctionsSync(toPath, 'onEnter', false);
-      },
-      $$exit: function(fromPath, async) {
-        if (async) return invokeFunctionsAsync(fromPath, 'onExit', true);
-        return invokeFunctionsSync(fromPath, 'onExit', true);
       }
     });
   };
 
-  // ResolveContext is passed into each resolve() function, and is used to statefully manage Resolve status.
-  // ResolveContext is essentially the replacement data structure for $state.$current.locals and we'll have to
-  // figure out where to store/manage this data structure.
-  // It manages a set of Resolvables that are available at each level of the Path.
-  // It follows the list of PathElements and inherit()s the PathElement's Resolvables on top of the
-  // previous PathElement's Resolvables.  i.e., it builds a prototypal chain for the PathElements' Resolvables.
-  // Before moving on to the next PathElement, it makes a note of what Resolvables are available for the current
-  // PathElement, and maps it by state name.
-
-  // ResolveContext constructor takes a path which is assumed to be partially resolved, or
-  // not resolved at all, which we're in process of resolving
+  /**
+   *  ResolveContext provides injectable dependencies (Resolvables) to the three resolve() functions (Path.resolve,
+   *  PathElement.resolve, and Resolvable.resolve).
+   *
+   *  The ResolveContext constructor takes a Path(), from which the ResolvableContext is built.  The Path contains
+   *  PathElements, which each in turn contain a Resolvables map.  Each Resolvable may or may not be pre-resolved.
+   *
+   *  For each PathElement in the Path, ResolveContext maps the available Resolvables.  Each PathElement is provided with
+   *  the Resolvables at its own level, as well as the aggregated Resolvables of its parent PathElement(s).  Aggregation is
+   *  done using prototypal inheritance from the parent's Resolvable(s) map.
+   */
   ResolveContext = function ResolveContext(path) {
     if (path === undefined) path = new Path([]);
     var resolvablesByState = {}, previousIteration = {};
 
     forEach(path.elements, function (pathElem) {
       var resolvablesForPE = pathElem.resolvables;
-      var resolvesbyName = indexBy(resolvablesForPE, 'name');
-      var resolvables = inherit(previousIteration, resolvesbyName); // note prototypal inheritance
+      var resolvesByName = indexBy(resolvablesForPE, 'name');
+      var resolvables = inherit(previousIteration, resolvesByName); // note prototypal inheritance
       previousIteration = resolvablesByState[pathElem.state.name] = resolvables;
     });
 
-    // Gets resolvables available for a particular state.
-    // TODO: This should probably be "for a particular PathElement" instead of state, but PathElements encapsulate a state.
-    // This returns the Resolvable map by state name.
 
-    // options.omitPropsFromPrototype
-    // Remove the props specified in options.omitPropsFromPrototype from the prototype of the object.
 
-    // This hides a top-level resolvable by name, potentially exposing a parent resolvable of the same name
-    // further down the prototype chain.
-
-    // This is used to provide a Resolvable access to all other Resolvables in its same PathElement, yet disallow
-    // that Resolvable access to its own injectable Resolvable reference.
-
-    // This is also used to allow a state to override a parent state's resolve while also injecting
-    // that parent state's resolve:
-
-    // state({ name: 'G', resolve: { _G: function() { return "G"; } } });
-    // state({ name: 'G.G2', resolve: { _G: function(_G) { return _G + "G2"; } } });
-    // where injecting _G into a controller will yield "GG2"
-
-    // options.flatten
-    // $$resolvablesByState has resolvables organized in a prototypal inheritance chain.  options.flatten will
-    // flatten the object from prototypal inheritance to a simple object with all its prototype chain properties
-    // exposed with child properties taking precedence over parent properties.
+    /**
+     *  Gets the available Resolvables for a particular PathElement (mapped by the PathElement's state name).
+     *
+     * @param stateName
+     * @param options
+     *
+     * options.flatten
+     *   Return the Resolvables as a standard object map, not a prototypally inherited object map.
+     *
+     *   $$resolvablesByState has resolvables organized in a prototypal inheritance chain.  options.flatten will
+     *   flatten the object from prototypal inheritance to a simple object with all its prototype chain properties
+     *   exposed, where child properties take precedence over parent properties.
+     *
+     * options.omitPropsFromPrototype
+     *   Remove the props specified in options.omitPropsFromPrototype from the prototype of the object.
+     *
+     *   This will hide a top-level resolvable (by name), potentially exposing a parent resolvable of the same name
+     *   further down the prototype chain.
+     *
+     *   This is used by Resolvable.resolve(resolveContext) in order to provide the Resolvable access to all the other
+     *   Resolvables at its own PathElement level, yet disallow that Resolvable access to its own injectable Resolvable.
+     *
+     *   This is also used to allow a state to override a parent state's resolve while also injecting
+     *   that parent state's resolve:
+     *
+     *   state({ name: 'G', resolve: { _G: function() { return "G"; } } });
+     *   state({ name: 'G.G2', resolve: { _G: function(_G) { return _G + "G2"; } } });
+     *   where injecting _G into a controller will yield "GG2"
+     */
     function getResolvableLocals(stateName, options) {
       var resolvables = (resolvablesByState[stateName] || {});
       options = extend({ flatten: true, omitPropsFromPrototype: [] }, options);

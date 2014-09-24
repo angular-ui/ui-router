@@ -44,7 +44,7 @@ var GlobBuilder = (function() {
 })();
 
 
-function StateQueueManager(states, builder, $urlRouterProvider) {
+function StateQueueManager(states, builder, $urlRouterProvider, $state) {
   var queue = [], abstractKey = 'abstract';
 
   extend(this, {
@@ -301,7 +301,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
   var matcher = new StateMatcher(states);
   var builder = new StateBuilder(function() { return root; }, matcher, $urlMatcherFactoryProvider);
-  var queue   = new StateQueueManager(states, builder, $urlRouterProvider);
+  var queue   = new StateQueueManager(states, builder, $urlRouterProvider, $state);
 
   function $state() {}
 
@@ -751,13 +751,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
     $state.transitionTo = function transitionTo(to, toParams, options) {
+      options = options || {};
       var transition = $transition.start(to, toParams || {}, extend({
         location: true,
         relative: null,
         inherit:  false,
         notify:   true,
         reload:   false
-      }, options || {}));
+      }, options));
 
       var stateHandler = {
         retryIfNotFound: function(transition) {
@@ -858,6 +859,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
 
       function transitionSuccess() {
+        var to = transition.to();
         // Update globals in $state
         $state.$current = to;
         $state.current = to.self;
@@ -921,24 +923,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       // and return a promise for the new state. We also keep track of what the
       // current promise is, so that we can detect overlapping transitions and
       // keep only the outcome of the last transition.
-      var current = transition.runAsync()
+      var current = transition.run()
         .then(function(data) {
-          console.log("hur", data);
           transitionSuccess();
           return data;
       }, transitionFailure);
-
-//      var current = resolved.then(function() {
-//        var isCurrentTransition = function () { return $state.transition === current; };
-//        var result = transition.begin(isCurrentTransition, transition.run);
-//
-//        if (result === transition.SUPERSEDED) return TransitionSuperseded;
-//        if (result === transition.ABORTED) return TransitionAborted;
-//        transition.end();
-//        transitionSuccess();
-//        return $state.current;
-//
-//      }, transitionFailure);
 
       return transition;
     };

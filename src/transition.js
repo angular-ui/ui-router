@@ -129,7 +129,7 @@ function $TransitionProvider() {
             .then(function(result) {
               return result ? result : $q.reject(transition.ABORTED);
             });
-        }
+        };
       }
 
       function buildTransitionSteps() {
@@ -308,21 +308,11 @@ function $TransitionProvider() {
         ignored: function() {
           return (toState === fromState && !options.reload);
         },
-        runAsync: function() {
+        run: function() {
           calculateTreeChanges();
           var pathContext = new ResolveContext(toPath);
           return toPath.resolve(pathContext, { policy: "eager" })
             .then( buildTransitionSteps );
-        },
-        run: function() {
-          // only the stuff necessary, and then run the onEnter/onExit callbacks synchronously to get a true/false here.
-          var exiting = transition.exiting().$$exit(fromPath);
-          if (exiting !== true) return exiting;
-
-          var entering = transition.entering().$$enter(toPath);
-          if (entering !== true) return entering;
-
-          return true;
         },
         begin: function(compare, exec) {
           if (!compare()) return this.SUPERSEDED;
