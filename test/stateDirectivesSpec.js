@@ -243,6 +243,20 @@ describe('uiStateRef', function() {
       $rootScope.$digest();
       expect(el.attr('href')).toBe('#/contacts/3');
     }));
+
+    it('should take an object as a parameter and update properly on digest churns', inject(function($rootScope, $q, $compile, $state) {
+
+      el = angular.element('<div><a ui-sref="contacts.item.detail(urlParams)">Contacts</a></div>');
+      template = $compile(el)($rootScope);
+
+      $rootScope.urlParams = { id:1 };
+      $rootScope.$digest();
+      expect(angular.element(template[0].querySelector('a')).attr('href')).toBe('#/contacts/1');
+
+      $rootScope.urlParams.id = 2;
+      $rootScope.$digest();
+      expect(angular.element(template[0].querySelector('a')).attr('href')).toBe('#/contacts/2');
+    }));
   });
 
   describe('links in html5 mode', function() {
