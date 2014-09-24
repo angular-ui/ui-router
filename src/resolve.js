@@ -236,6 +236,10 @@ function $Resolve(  $q,    $injector) {
       slice: function(start, end) {
         return new Path(elements.slice(start, end));
       },
+      reverse: function() {
+        elements.reverse();
+        return self;
+      },
       states: function() {
         return pluck(elements, "state");
       },

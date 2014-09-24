@@ -50,7 +50,7 @@ function StateQueueManager(states, builder, $urlRouterProvider) {
   extend(this, {
     register: function(config, pre) {
       // Wrap a new object around the state so we can store our private details easily.
-      state = inherit(config, {
+      var state = inherit(config, {
 //        name: builder.name(config),
         self: config,
         resolve: config.resolve || {},
@@ -58,7 +58,8 @@ function StateQueueManager(states, builder, $urlRouterProvider) {
       });
 
       if (!isString(state.name)) throw new Error("State must have a valid name");
-      // if (registered.hasOwnProperty(name)) throw new Error("State '" + name + "'' is already defined");
+      if (states[state.name] || pluck(queue, 'name').indexOf(state.name) !== -1)
+        throw new Error("State '" + state.name + "' is already defined");
       if (pre)
         queue.unshift(state);
       else
@@ -75,6 +76,8 @@ function StateQueueManager(states, builder, $urlRouterProvider) {
         orphanIdx = orphans.indexOf(state);
 
         if (result) {
+          if (states[state.name] !== undefined)
+            throw new Error("State '" + name + "' is already defined");
           states[state.name] = state;
           this.attachRoute(state);
           if (orphanIdx >= 0) orphans.splice(orphanIdx, 1);
@@ -918,7 +921,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       // and return a promise for the new state. We also keep track of what the
       // current promise is, so that we can detect overlapping transitions and
       // keep only the outcome of the last transition.
-      var current = transition.run()
+      var current = transition.runAsync()
         .then(function(data) {
           console.log("hur", data);
           transitionSuccess();

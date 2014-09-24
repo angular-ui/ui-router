@@ -52,16 +52,14 @@ describe('$transition:', function () {
       var substates = omit.apply(null, [state].concat(stateProps));
 
       thisState.name = name;
-//      if (parent && parent.name) {
-//        thisState.name = parent.name + "." + name;
-//      }
-      thisState.parent = parent;
+      thisState.parent = parent.name;
       thisState.data = { children: [] };
 
       angular.forEach(substates, function (value, key) {
         thisState.data.children.push(loadStates(thisState, value, key));
       });
-      statesMap[name] = thisState;
+      if (name)
+        statesMap[name] = thisState;
       return thisState;
     }
 

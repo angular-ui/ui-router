@@ -77,20 +77,20 @@ function $TransitionProvider() {
      * @returns {Object} New `Transition` object
      */
     function Transition(fromState, fromParams, toState, toParams, options) {
-      var transition = this;
-      var keep = 0, state, retained, entering, exiting;
-      var hasRun = false, hasCalculated = false;
-
+      var transition = this; // Transition() object
       // grab $transition's current path
-      var toPath, fromPath = _fromPath;
+      var toPath, fromPath = _fromPath; // Path() objects
+      var retained, entering, exiting; // Path() objects
+      var keep = 0, state, hasRun = false, hasCalculated = false;
 
       var states = {
         to: stateMatcher(toState, options),
         from: stateMatcher(fromState, options)
       };
+      toState = states.to; fromState = states.from;
 
       function isTargetStateValid() {
-        var state = stateMatcher(toState, options);
+        var state = states.to;
 
         if (!isDefined(state)) {
           if (!options || !options.relative) return "No such state " + angular.toJson(toState);
@@ -148,9 +148,8 @@ function $TransitionProvider() {
         // - resolve PathElement lazy resolvables
         // - then, invokeAsync onEnter
 
-        var exitingElements = transition.exiting().slice(0);
-        exitingElements.reverse();
-        var enteringElements = transition.entering();
+        var exitingElements = transition.exiting().slice(0).reverse().elements;
+        var enteringElements = transition.entering().elements;
         var promiseChain = $q.when(true);
         forEach(exitingElements, function(elem) {
           if (elem.state.onExit) {
@@ -159,7 +158,7 @@ function $TransitionProvider() {
           }
         });
         forEach(enteringElements, function(elem) {
-          var resolveContext = fromPath.resolveContext(elem);
+          var resolveContext = toPath.resolveContext(elem);
           promiseChain.then(function() { return elem.resolve(resolveContext, { policy: "lazy" }); });
           if (elem.state.onEnter) {
             var nextStep = transitionStep(elem.state.onEnter, resolveContext);
@@ -310,7 +309,8 @@ function $TransitionProvider() {
           return (toState === fromState && !options.reload);
         },
         runAsync: function() {
-          var pathContext = new PathContext(toPath);
+          calculateTreeChanges();
+          var pathContext = new ResolveContext(toPath);
           return toPath.resolve(pathContext, { policy: "eager" })
             .then( buildTransitionSteps );
         },
@@ -346,6 +346,7 @@ function $TransitionProvider() {
 
 
     $transition.init = function init(state, params, matcher) {
+      _fromPath = new Path(state.path);
       from = { state: state, params: params };
       to = { state: null, params: null };
       stateMatcher = matcher;
