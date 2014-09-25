@@ -23,7 +23,7 @@ describe('transition', function () {
 
     describe('events', function() {
 
-      it('should fire matching "on" events regardless of outcome', inject(function($transition) {
+      it('should fire matching "on" events regardless of outcome', inject(function($transition, $q) {
         var t = null;
 
         transitionProvider.on({ from: "first", to: "second" }, function($transition$) {
@@ -34,10 +34,12 @@ describe('transition', function () {
           return matcher.find(ref, options.relative);
         });
 
-        $transition.start("third");
+        $transition.start("third").run();
+        $q.flush();
         expect(t).toBeNull();
 
-        $transition.start("second");
+        $transition.start("second").run();
+        $q.flush();
         expect(t).not.toBeNull();
       }));
 

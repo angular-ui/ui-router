@@ -97,6 +97,9 @@ function $Resolve(  $q,    $injector) {
     });
   };
 
+  // Eager resolves are resolved before the transition starts.
+  // Lazy resolves are resolved before their state is entered.
+  // JIT resolves are resolved just-in-time, right before an injected function that depends on them is invoked.
   var resolvePolicies = { eager: 3, lazy: 2, jit: 1 };
   var defaultResolvePolicy = "eager"; // TODO: make this configurable
 
@@ -203,7 +206,7 @@ function $Resolve(  $q,    $injector) {
       toPathElement = toPathElement || elements[elements.length - 1];
       var elementIdx = elements.indexOf(toPathElement);
       if (elementIdx == -1) throw new Error("this Path does not contain the toPathElement");
-      return new ResolveContext(self.slice(0, elementIdx));
+      return new ResolveContext(self.slice(0, elementIdx + 1));
     }
 
     // Public API

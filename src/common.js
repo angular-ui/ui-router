@@ -220,6 +220,23 @@ function flattenPrototypeChain(obj) {
   return result;
 }
 
+// Return a completely flattened version of an array.
+function flatten (array) {
+  function _flatten(input, output) {
+    forEach(input, function(value) {
+      if (angular.isArray(value)) {
+        _flatten(value, output);
+      } else {
+        output.push(value);
+      }
+    });
+    return output;
+  }
+
+  return _flatten(array, []);
+}
+
+
 var GlobBuilder = (function() {
 
   function Glob(text) {
