@@ -7,51 +7,125 @@
 $TransitionProvider.$inject = [];
 function $TransitionProvider() {
 
-  var $transition = {}, events, stateMatcher = angular.noop, abstractKey = 'abstract';
+  var $transition = {}, stateMatcher = angular.noop, abstractKey = 'abstract';
+  var transitionEvents = { on: [], entering: [], exiting: [], success: [], error: [] };
 
-  function matchState(current, states) {
-    var toMatch = angular.isArray(states) ? states : [states];
+  function matchState(state, globStrings) {
+    var toMatch = angular.isArray(globStrings) ? globStrings : [globStrings];
 
     for (var i = 0; i < toMatch.length; i++) {
       var glob = GlobBuilder.fromString(toMatch[i]);
 
-      if ((glob && glob.matches(current.name)) || (!glob && toMatch[i] === current.name)) {
+      if ((glob && glob.matches(state.name)) || (!glob && toMatch[i] === state.name)) {
         return true;
       }
     }
     return false;
   }
 
-  // $transitionProvider.on({ from: "home", to: "somewhere.else" }, function($transition$, $http) {
-  //   // ...
-  // });
-  this.on = function(states, callback) {
-  };
+  // Return a registration function of the requested type.
+  function registerEventHook(eventType) {
+    return function(stateGlobs, callback) {
+      transitionEvents[eventType].push(new EventHook(stateGlobs, callback));
+    };
+  }
 
-  // $transitionProvider.onEnter({ from: "home", to: "somewhere.else" }, function($transition$, $http) {
-  //   // ...
-  // });
-  this.entering = function(states, callback) {
-  };
+  /**
+   * @ngdoc function
+   * @name ui.router.state.$transitionProvider#on
+   * @methodOf ui.router.state.$transitionProvider
+   *
+   * @description
+   * Registers a function to be injected and invoked when a transition between the matched 'to' and 'from' states
+   * starts.
+   *
+   * @param {object} transitionCriteria An object that specifies which transitions to invoke the callback for.
+   *
+   * - **`to`** - {string} - A glob string that matches the 'to' state's name.
+   * - **`from`** - {string|RegExp} - A glob string that matches the 'from' state's name.
+   *
+   * @param {function} callback The function which will be injected and invoked, when a matching transition is started.
+   *
+   * @return {boolean|object|array} May optionally return:
+   * - **`false`** to abort the current transition
+   * - **A promise** to suspend the current transition until the promise resolves
+   * - **Array of Resolvable objects** to add additional resolves to the current transition, which will be available
+   *           for injection to further steps in the transition.
+   */
+  this.on = registerEventHook("on");
 
-  // $transitionProvider.onExit({ from: "home", to: "somewhere.else" }, function($transition$, $http) {
-  //   // ...
-  // });
-  this.exiting = function(states, callback) {
-  };
+  /**
+   * @ngdoc function
+   * @name ui.router.state.$transitionProvider#entering
+   * @methodOf ui.router.state.$transitionProvider
+   *
+   * @description
+   * Registers a function to be injected and invoked during a transition between the matched 'to' and 'from' states,
+   * when the matched 'to' state is being entered. This function is in injected with the entering state's resolves.
+   * @param {object} transitionCriteria See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   *
+   * @return {boolean|object|array} May optionally return:
+   * - **`false`** to abort the current transition
+   * - **A promise** to suspend the current transition until the promise resolves
+   * - **Array of Resolvable objects** to add additional resolves to the current transition, which will be available
+   *           for injection to further steps in the transition.
+   */
+  this.entering = registerEventHook("entering");
 
-  // $transitionProvider.onSuccess({ from: "home", to: "somewhere.else" }, function($transition$, $http) {
-  //   // ...
-  // });
-  this.onSuccess = function(states, callback) {
-  };
+  /**
+   * @ngdoc function
+   * @name ui.router.state.$transitionProvider#exiting
+   * @methodOf ui.router.state.$transitionProvider
+   *
+   * @description
+   * Registers a function to be injected and invoked during a transition between the matched 'to' and 'from states,
+   * when the matched 'from' state is being exited. This function is in injected with the exiting state's resolves.
+   * @param {object} transitionCriteria See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   *
+   * @return {boolean|object|array} May optionally return:
+   * - **`false`** to abort the current transition
+   * - **A promise** to suspend the current transition until the promise resolves
+   * - **Array of Resolvable objects** to add additional resolves to the current transition, which will be available
+   *           for injection to further steps in the transition.
+   */
+  this.exiting = registerEventHook("exiting");
 
-  // $transitionProvider.onError({ from: "home", to: "somewhere.else" }, function($transition$, $http) {
-  //   // ...
-  // });
-  this.onError = function(states, callback) {
-  };
+  /**
+   * @ngdoc function
+   * @name ui.router.state.$transitionProvider#onSuccess
+   * @methodOf ui.router.state.$transitionProvider
+   *
+   * @description
+   * Registers a function to be injected and invoked when a transition has successfully completed between the matched
+   * 'to' and 'from' state is being exited.
+   * This function is in injected with the 'to' state's resolves.
+   * @param {object} transitionCriteria See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   */
+  this.onSuccess = registerEventHook("success");
 
+  /**
+   * @ngdoc function
+   * @name ui.router.state.$transitionProvider#onError
+   * @methodOf ui.router.state.$transitionProvider
+   *
+   * @description
+   * Registers a function to be injected and invoked when a transition has failed for any reason between the matched
+   * 'to' and 'from' state is being exited. This function is in injected with the 'to' state's resolves. The transition
+   * rejection reason is injected as `$transitionError$`.
+   * @param {object} transitionCriteria See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   */
+  this.onError = registerEventHook("error");
+
+  function EventHook(stateGlobs, callback) {
+    this.callback = callback;
+    this.matches = function matches(to, from) {
+      return matchState(to, stateGlobs.to) && matchState(from, stateGlobs.from);
+    };
+  }
 
   /**
    * @ngdoc service
@@ -67,7 +141,6 @@ function $TransitionProvider() {
   this.$get = $get;
   $get.$inject = ['$q', '$injector', '$resolve', '$stateParams'];
   function $get(   $q,   $injector,   $resolve,   $stateParams) {
-
     var from = { state: null, params: null },
         to   = { state: null, params: null };
     var _fromPath = null; // contains resolved data
@@ -140,55 +213,6 @@ function $TransitionProvider() {
         toPath = retained.concat(entering);
 
         hasCalculated = true;
-      }
-
-      function transitionStep(fn, resolveContext) {
-        return function() {
-          if ($transition.transition !== transition) return transition.SUPERSEDED;
-          return pathElement.invokeAsync(fn, { $stateParams: undefined, $transition$: transition }, resolveContext)
-            .then(function(result) {
-              return result ? result : $q.reject(transition.ABORTED);
-            });
-        };
-      }
-
-      function buildTransitionSteps() {
-        // create invokeFn fn.
-        // - checks if current transition has been superseded
-        // - invokes Fn async
-        // - checks result.  If falsey, rejects promise
-
-        // get exiting & reverse them
-        // get entering
-
-        // walk exiting()
-        // - InvokeAsync
-        // resolve all eager Path resolvables
-        // walk entering()
-        // - resolve PathElement lazy resolvables
-        // - then, invokeAsync onEnter
-
-        var exitingElements = transition.exiting().slice(0).reverse().elements;
-        var enteringElements = transition.entering().elements;
-        var promiseChain = $q.when(true);
-
-        forEach(exitingElements, function(elem) {
-          if (elem.state.onExit) {
-            var nextStep = transitionStep(elem.state.onExit, fromPath.resolveContext(elem));
-            promiseChain.then(nextStep);
-          }
-        });
-
-        forEach(enteringElements, function(elem) {
-          var resolveContext = toPath.resolveContext(elem);
-          promiseChain.then(function() { return elem.resolve(resolveContext, { policy: "lazy" }); });
-          if (elem.state.onEnter) {
-            var nextStep = transitionStep(elem.state.onEnter, resolveContext);
-            promiseChain.then(nextStep);
-          }
-        });
-
-        return promiseChain;
       }
 
       extend(this, {
@@ -341,12 +365,93 @@ function $TransitionProvider() {
         ignored: function() {
           return (toState === fromState && !options.reload);
         },
+
         run: function() {
           calculateTreeChanges();
-          var pathContext = new ResolveContext(toPath);
-          return toPath.resolve(pathContext, { policy: "eager" })
-            .then( buildTransitionSteps );
+
+          function TransitionStep(pathElement, fn, locals, resolveContext, otherData) {
+            this.state = pathElement.state;
+            this.otherData = otherData;
+            this.fn = fn;
+
+            this.invokeStep = function invokeStep() {
+              if ($transition.transition !== transition) return transition.SUPERSEDED;
+
+              /** Returns a map containing any Resolvables found in result as an object or Array */
+              function resolvablesFromResult(result) {
+                var resolvables = [];
+                if (result instanceof Resolvable) {
+                  resolvables.push(result);
+                } else if (angular.isArray(result)) {
+                  resolvables.push(filter(result, function(obj) { return obj instanceof Resolvable; }));
+                }
+                return indexBy(resolvables, 'name');
+              }
+
+              /** Adds any returned resolvables to the resolveContext for the current state */
+              function handleHookResult(result) {
+                var newResolves = resolvablesFromResult(result);
+                extend(resolveContext.$$resolvablesByState[pathElement.state.name], newResolves);
+                return result === false ? transition.ABORTED : result;
+              }
+
+              return pathElement.invokeLater(fn, locals, resolveContext).then(handleHookResult);
+            };
+          }
+
+          /**
+           * returns an array of transition steps (promises) that matched
+           * 1) the eventType
+           * 2) the to state
+           * 3) the from state
+           */
+          function makeSteps(eventType, to, from, pathElement, locals, resolveContext) {
+            var extraData = { eventType: eventType, to: to, from: from, pathElement: pathElement, locals: locals, resolveContext: resolveContext }; // internal debugging stuff
+            var hooks = transitionEvents[eventType];
+            var matchingHooks = filter(hooks, function(hook) { return hook.matches(to, from); });
+            return map(matchingHooks, function(hook) {
+              return new TransitionStep(pathElement, hook.callback, locals, resolveContext, extraData);
+            });
+          }
+
+          var tLocals = { $transition$: transition };
+          var rootPE = new PathElement(stateMatcher("", {}));
+          var rootPath = new Path([rootPE]);
+          var exitingElements = transition.exiting().slice(0).reverse().elements;
+          var enteringElements = transition.entering().elements;
+          var to = transition.to(),  from = transition.from();
+
+          // Build a bunch of arrays of promises for each step of the transition
+          var transitionOnHooks = makeSteps("on", to, from, rootPE, tLocals, rootPath.resolveContext());
+
+          var exitingStateHooks = map(exitingElements, function(elem) {
+            var enterLocals = extend({}, tLocals, { $stateParams: $stateParams.$localize(elem.state, $stateParams) });
+            return makeSteps("exiting", to, from, elem, enterLocals, fromPath.resolveContext(elem));
+          });
+          var enteringStateHooks = map(enteringElements, function(elem) {
+            var exitLocals = extend({}, tLocals, { $stateParams: $stateParams.$localize(elem.state, $stateParams) });
+            return makeSteps("entering", to, from, elem, exitLocals, toPath.resolveContext(elem));
+          });
+
+          var successHooks = makeSteps("onSuccess", to, from, rootPE, tLocals, rootPath.resolveContext());
+          var errorHooks = makeSteps("onError", to, from, rootPE, tLocals, rootPath.resolveContext());
+
+          var eagerResolves = function () { return toPath.resolve(toPath.resolveContext(), { policy: "eager" }); };
+
+          var allSteps = flatten(transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks, successHooks);
+
+
+          // Set up a promise chain. Add the promises in appropriate order to the promise chain.
+          var chain = $q.when(true);
+          forEach(allSteps, function (step) {
+            chain.then(step.invokeStep);
+          });
+
+          // TODO: call errorHooks.
+
+          return chain;
         },
+
         begin: function(compare, exec) {
           if (!compare()) return this.SUPERSEDED;
           if (!exec()) return this.ABORTED;
@@ -377,7 +482,8 @@ function $TransitionProvider() {
 
     $transition.start = function start(state, params, options) {
       to = { state: state, params: params || {} };
-      return new Transition(from.state, from.params, state, params || {}, options || {});
+      this.transition = new Transition(from.state, from.params, state, params || {}, options || {});
+      return this.transition;
     };
 
     $transition.isActive = function isActive() {

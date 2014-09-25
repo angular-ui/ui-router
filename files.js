@@ -21,7 +21,7 @@ routerFiles = {
     // 'test/resolveSpec.js',
     // 'test/urlMatcherFactorySpec.js',
     // 'test/urlRouterSpec.js',
-    'test/*Spec.js',
+    'test/transitionSpec.js',
     'test/compat/matchers.js'
   ],
   angular: function(version) {
