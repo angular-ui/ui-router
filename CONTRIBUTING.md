@@ -5,7 +5,7 @@ Help us make UI-Router better! If you think you might have found a bug, or some 
 it hasn't already been reported. You can [search through existing issues](https://github.com/angular-ui/ui-router/search?q=wat%3F&type=Issues)
 to see if someone's reported one similar to yours.
 
-If not, then [create a plunkr](http://plnkr.co/edit/u18KQc?p=preview) that demonstrates the problem (try to use as little code
+If not, then [create a plunkr](http://bit.ly/UIR-Plunk) that demonstrates the problem (try to use as little code
 as possible: the more minimalist, the faster we can debug it).
 
 Next, [create a new issue](https://github.com/angular-ui/ui-router/issues/new) that briefly explains the problem,
@@ -25,7 +25,7 @@ Please keep in mind that the issue tracker is for *issues*. Please do *not* post
 ####Purple Labels
 A purple label means that **you** need to take some further action.  
  - ![Not Actionable - Need Info](http://angular-ui.github.io/ui-router/images/notactionable.png): Your issue is not specific enough, or there is no clear action that we can take. Please clarify and refine your issue.
- - ![Plunkr Please](http://angular-ui.github.io/ui-router/images/plunkrplease.png): Please [create a plunkr](http://plnkr.co/edit/u18KQc?p=preview)
+ - ![Plunkr Please](http://angular-ui.github.io/ui-router/images/plunkrplease.png): Please [create a plunkr](http://bit.ly/UIR-Plunk)
  - ![StackOverflow](http://angular-ui.github.io/ui-router/images/stackoverflow.png): We suspect your issue is really a help request, or could be answered by the community.  Please ask your question on [StackOverflow](http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router).  If you determine that is an actual issue, please explain why.
  
 If your issue gets labeled with purple label, no further action will be taken until you respond to the label appropriately.
