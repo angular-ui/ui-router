@@ -219,6 +219,52 @@ function flattenPrototypeChain(obj) {
   });
   return result;
 }
+
+var GlobBuilder = (function() {
+
+  function Glob(text) {
+
+    var glob = text.split('.');
+
+    // Returns true if glob matches current $state name.
+    this.matches = function(name) {
+      var segments = name.split('.');
+
+      // match greedy starts
+      if (glob[0] === '**') {
+         segments = segments.slice(segments.indexOf(glob[1]));
+         segments.unshift('**');
+      }
+      // match greedy ends
+      if (glob[glob.length - 1] === '**') {
+         segments.splice(segments.indexOf(glob[glob.length - 2]) + 1, Number.MAX_VALUE);
+         segments.push('**');
+      }
+      if (glob.length != segments.length) return false;
+
+      // match single stars
+      for (var i = 0, l = glob.length; i < l; i++) {
+        if (glob[i] === '*') segments[i] = '*';
+      }
+
+      return segments.join('') === glob.join('');
+    };
+  }
+
+  return {
+    // Checks text to see if it looks like a glob.
+    is: function(text) {
+      return text.indexOf('*') > -1;
+    },
+
+    // Factories a glob matcher from a string
+    fromString: function(text) {
+      if (!this.is(text)) return null;
+      return new Glob(text);
+    }
+  };
+})();
+
 /**
  * @ngdoc overview
  * @name ui.router.util

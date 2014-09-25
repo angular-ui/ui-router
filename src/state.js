@@ -1,49 +1,3 @@
-var GlobBuilder = (function() {
-
-  function Glob(text) {
-
-    var glob = text.split('.');
-
-    // Returns true if glob matches current $state name.
-    this.matches = function(state) {
-      var segments = state.name.split('.');
-
-      // match greedy starts
-      if (glob[0] === '**') {
-         segments = segments.slice(segments.indexOf(glob[1]));
-         segments.unshift('**');
-      }
-      // match greedy ends
-      if (glob[glob.length - 1] === '**') {
-         segments.splice(segments.indexOf(glob[glob.length - 2]) + 1, Number.MAX_VALUE);
-         segments.push('**');
-      }
-      if (glob.length != segments.length) return false;
-
-      // match single stars
-      for (var i = 0, l = glob.length; i < l; i++) {
-        if (glob[i] === '*') segments[i] = '*';
-      }
-
-      return segments.join('') === glob.join('');
-    };
-  }
-
-  return {
-    // Checks text to see if it looks like a glob.
-    is: function(text) {
-      return text.indexOf('*') > -1;
-    },
-
-    // Factories a glob matcher from a string
-    fromString: function(text) {
-      if (!this.is(text)) return null;
-      return new Glob(text);
-    }
-  };
-})();
-
-
 function StateQueueManager(states, builder, $urlRouterProvider, $state) {
   var queue = [], abstractKey = 'abstract';
 
@@ -1024,7 +978,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       var glob = isString(stateOrName) && GlobBuilder.fromString(stateOrName);
 
       if (glob) {
-        if (!glob.matches($state.$current)) return false;
+        if (!glob.matches($state.$current.name)) return false;
         stateOrName = $state.$current.name;
       }
       var state = matcher.find(stateOrName), include = $state.$current.includes;
