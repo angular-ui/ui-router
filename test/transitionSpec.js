@@ -1,10 +1,54 @@
-describe('$transition:', function () {
+describe('transition', function () {
+
+  var transitionProvider, root = { name: "", path: [] }, matcher, matchStates = {
+    "": root,
+    "first": { name: "first", path: [root] },
+    "second": { name: "second", path: [root] },
+    "third": { name: "third", path: [root] }
+  };
+
+  describe('provider', function() {
+
+    beforeEach(module('ui.router', function($transitionProvider) {
+      transitionProvider = $transitionProvider;
+    }));
+
+    beforeEach(inject(function($transition) {
+      matcher = new StateMatcher(matchStates);
+
+      $transition.init(root, {}, function(ref, options) {
+        return matcher.find(ref, options.relative);
+      });
+    }));
+
+    describe('events', function() {
+
+      it('should fire matching "on" events regardless of outcome', inject(function($transition) {
+        var t = null;
+
+        transitionProvider.on({ from: "first", to: "second" }, function($transition$) {
+          t = $transition$;
+        });
+
+        $transition.init(matchStates.first, {}, function(ref, options) {
+          return matcher.find(ref, options.relative);
+        });
+
+        $transition.start("third");
+        expect(t).toBeNull();
+
+        $transition.start("second");
+        expect(t).not.toBeNull();
+      }));
+
+    });
+  });
+
+
   var statesTree, statesMap = {};
   var emptyPath;
   var counts;
   var asyncCount;
-
-
 
   beforeEach(module('ui.router', function($stateProvider, $locationProvider) {
     locationProvider = $locationProvider;
@@ -74,10 +118,42 @@ describe('$transition:', function () {
     return new Path(map(names, function(name) { return statesMap[name]; }));
   }
 
-  describe('Transition().runAsync', function () {
-    it('should resolve all resolves in a PathElement', inject(function ($q, $state) {
-      $state.go("B");
-      $q.flush();
+  describe('instance', function() {
+    beforeEach(inject(function($transition) {
+      matcher = new StateMatcher(matchStates);
+
+      $transition.init(root, {}, function(ref, options) {
+        return matcher.find(ref, options.relative);
+      });
     }));
+
+    describe('is', function() {
+      it('should match rules', inject(function($transition) {
+        var t = $transition.start("first");
+
+        expect(t.is({ to: "first" })).toBe(true);
+        expect(t.is({ from: "" })).toBe(true);
+        expect(t.is({ to: "first", from: "" })).toBe(true);
+
+        expect(t.is({ to: ["first", "second"] })).toBe(true);
+        expect(t.is({ to: ["first", "second"], from: ["", "third"] })).toBe(true);
+        expect(t.is({ to: "first", from: "**" })).toBe(true);
+
+        expect(t.is({ to: "second" })).toBe(false);
+        expect(t.is({ from: "first" })).toBe(false);
+        expect(t.is({ to: "first", from: "second" })).toBe(false);
+
+        expect(t.is({ to: ["", "third"] })).toBe(false);
+        expect(t.is({ to: "**", from: "first" })).toBe(false);
+      }));
+    });
+
+    describe('runAsync', function () {
+      it('should resolve all resolves in a PathElement', inject(function ($q, $state) {
+        $state.go("B");
+        $q.flush();
+      }));
+    });
   });
+
 });

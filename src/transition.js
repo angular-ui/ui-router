@@ -9,6 +9,19 @@ function $TransitionProvider() {
 
   var $transition = {}, events, stateMatcher = angular.noop, abstractKey = 'abstract';
 
+  function matchState(current, states) {
+    var toMatch = angular.isArray(states) ? states : [states];
+
+    for (var i = 0; i < toMatch.length; i++) {
+      var glob = GlobBuilder.fromString(toMatch[i]);
+
+      if ((glob && glob.matches(current.name)) || (!glob && toMatch[i] === current.name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // $transitionProvider.on({ from: "home", to: "somewhere.else" }, function($transition$, $http) {
   //   // ...
   // });
@@ -78,6 +91,7 @@ function $TransitionProvider() {
      */
     function Transition(fromState, fromParams, toState, toParams, options) {
       var transition = this; // Transition() object
+
       // grab $transition's current path
       var toPath, fromPath = _fromPath; // Path() objects
       var retained, entering, exiting; // Path() objects
@@ -88,6 +102,12 @@ function $TransitionProvider() {
         from: stateMatcher(fromState, options)
       };
       toState = states.to; fromState = states.from;
+
+      if (!toState || !fromState) {
+        throw new Error("To or from state not valid for transition: " + angular.toJson({
+          to: toState, from: fromState
+        }));
+      }
 
       function isTargetStateValid() {
         var state = states.to;
@@ -151,12 +171,14 @@ function $TransitionProvider() {
         var exitingElements = transition.exiting().slice(0).reverse().elements;
         var enteringElements = transition.entering().elements;
         var promiseChain = $q.when(true);
+
         forEach(exitingElements, function(elem) {
           if (elem.state.onExit) {
             var nextStep = transitionStep(elem.state.onExit, fromPath.resolveContext(elem));
             promiseChain.then(nextStep);
           }
         });
+
         forEach(enteringElements, function(elem) {
           var resolveContext = toPath.resolveContext(elem);
           promiseChain.then(function() { return elem.resolve(resolveContext, { policy: "lazy" }); });
@@ -231,6 +253,17 @@ function $TransitionProvider() {
             return states.to;
           }
         }),
+
+        is: function(compare) {
+          if (compare instanceof Transition) {
+            // TODO: Also compare parameters
+            return this.is({ to: compare.to.$state().name, from: compare.from.$state().name });
+          }
+          return !(
+            (compare.to && !matchState(this.to.$state(), compare.to)) ||
+            (compare.from && !matchState(this.from.$state(), compare.from))
+          );
+        },
 
         isValid: function() {
           return isTargetStateValid() === null && !hasBeenSuperseded();
@@ -343,8 +376,8 @@ function $TransitionProvider() {
     };
 
     $transition.start = function start(state, params, options) {
-      to = { state: state, params: params };
-      return new Transition(from.state, from.params, state, params, options || {});
+      to = { state: state, params: params || {} };
+      return new Transition(from.state, from.params, state, params || {}, options || {});
     };
 
     $transition.isActive = function isActive() {
