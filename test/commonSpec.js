@@ -12,7 +12,7 @@ describe('common', function() {
     it('should construct glob matchers', function() {
       expect(GlobBuilder.fromString('')).toBeNull();
 
-      var state = { name: 'about.person.item' };
+      var state = 'about.person.item';
 
       expect(GlobBuilder.fromString('*.person.*').matches(state)).toBe(true);
       expect(GlobBuilder.fromString('*.person.**').matches(state)).toBe(true);
