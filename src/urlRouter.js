@@ -381,6 +381,12 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
         if (!urlMatcher.validates(params)) return null;
 
         var isHtml5 = $locationProvider.html5Mode();
+
+        // Angular 1.3.X +
+        if (isObject(isHtml5)) {
+          isHtml5 = isHtml5.enabled;
+        }
+
         var url = urlMatcher.format(params);
         options = options || {};
 
