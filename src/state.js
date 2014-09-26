@@ -719,7 +719,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (!transition) return REJECT.prevented;
 
       var stateHandler = {
-        retryIfNotFound: function(transition) {
+        retryIfNotFound: function retryIfNotFound(transition) {
           /**
            * @ngdoc event
            * @name ui.router.state.$state#$stateNotFound
@@ -757,7 +757,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           return e.retry;
         },
 
-        checkIgnoredOrPrevented: function(transition) {
+        checkIgnoredOrPrevented: function checkIgnoredOrPrevented(transition) {
           var notify = transition.options().notify;
 
           if (transition.ignored()) {
@@ -806,86 +806,79 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           }
 
           return transition;
-        }
-      };
+        },
 
-      transition.ensureValid(stateHandler.retryIfNotFound)
-        .then(stateHandler.checkIgnoredOrPrevented, REJECT.aborted)
-        .then(function(transition) {
-          console.log("WIN", transition);
-        }, function(transition) {
-          console.log("FALE", transition);
-        });
+        runTransition: function runTransition(transition) {
+          return transition.run().then(function() { return transition; });
+        },
 
+        transitionSuccess: function transitionSuccess(transition) {
+          var to = transition.to(), options = transition.options();
 
-      function transitionSuccess() {
-        var to = transition.to();
-        // Update globals in $state
-        $state.$current = to;
-        $state.current = to.self;
+          // Update globals in $state
+          $state.$current = to;
+          $state.current = to.self;
 
-        $state.params = toParams;
-        copy($state.params, $stateParams);
-        $state.transition = null;
-        $stateParams.$sync().$off();
+          $state.params = toParams;
+          copy($state.params, $stateParams);
+          $state.transition = null;
+          $stateParams.$sync().$off();
 
-        if (options.location && to.navigable) {
-          $urlRouter.push(to.navigable.url, $stateParams, { replace: options.location === 'replace' });
-        }
+          if (options.location && to.navigable) {
+            $urlRouter.push(to.navigable.url, $stateParams, { replace: options.location === 'replace' });
+          }
 
-        if (options.notify) {
+          if (options.notify) {
+            /**
+             * @ngdoc event
+             * @name ui.router.state.$state#$stateChangeSuccess
+             * @eventOf ui.router.state.$state
+             * @eventType broadcast on root scope
+             * @description
+             * Fired once the state transition is **complete**.
+             *
+             * @param {Object} event Event object.
+             * @param {Transition} transition The object encapsulating the transition info.
+             */
+            $rootScope.$broadcast('$stateChangeSuccess', transition);
+          }
+          $urlRouter.update(true);
+
+          return transition;
+        },
+
+        transitionFailure: function transitionFailure(error) {
+
+          if ($state.transition !== transition) return TransitionSuperseded;
+
           /**
            * @ngdoc event
-           * @name ui.router.state.$state#$stateChangeSuccess
+           * @name ui.router.state.$state#$stateChangeError
            * @eventOf ui.router.state.$state
            * @eventType broadcast on root scope
            * @description
-           * Fired once the state transition is **complete**.
+           * Fired when an **error occurs** during transition. It's important to note that if you
+           * have any errors in your resolve functions (javascript errors, non-existent services, etc)
+           * they will not throw traditionally. You must listen for this $stateChangeError event to
+           * catch **ALL** errors.
            *
-           * @param {Object} event Event object.
-           * @param {Transition} transition The object encapsulating the transition info.
+           * @param {Object}     event      Event object.
+           * @param {Transition} transition The `Transition` object.
+           * @param {Error}      error      The resolve error object.
            */
-          $rootScope.$broadcast('$stateChangeSuccess', transition);
+          if (!$rootScope.$broadcast('$stateChangeError', transition, error).defaultPrevented) {
+            $urlRouter.update();
+          }
+          return $q.reject(error);
         }
-        $urlRouter.update(true);
-      }
+      };
 
-      function transitionFailure(error) {
-
-        if ($state.transition !== transition) return TransitionSuperseded;
-
-        /**
-         * @ngdoc event
-         * @name ui.router.state.$state#$stateChangeError
-         * @eventOf ui.router.state.$state
-         * @eventType broadcast on root scope
-         * @description
-         * Fired when an **error occurs** during transition. It's important to note that if you
-         * have any errors in your resolve functions (javascript errors, non-existent services, etc)
-         * they will not throw traditionally. You must listen for this $stateChangeError event to
-         * catch **ALL** errors.
-         *
-         * @param {Object}     event      Event object.
-         * @param {Transition} transition The `Transition` object.
-         * @param {Error}      error      The resolve error object.
-         */
-        if (!$rootScope.$broadcast('$stateChangeError', transition, error).defaultPrevented) {
-          $urlRouter.update();
-        }
-        return $q.reject(error);
-      }
-
-      // Once everything is resolved, we are ready to perform the actual transition
-      // and return a promise for the new state. We also keep track of what the
-      // current promise is, so that we can detect overlapping transitions and
-      // keep only the outcome of the last transition.
-      var current = transition.run()
-        .then(function(data) {
-          transitionSuccess();
-          return data;
-      }, transitionFailure);
-
-      return transition;
+      return transition.ensureValid(stateHandler.retryIfNotFound)
+        .then(stateHandler.checkIgnoredOrPrevented, function(reason) {
+          return REJECT.aborted;
+        })
+        .then(stateHandler.doTransition)
+        .then(stateHandler.transitionSuccess, stateHandler.transitionFailure);
     };
 
     /**
