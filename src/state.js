@@ -809,7 +809,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         },
 
         runTransition: function runTransition(transition) {
-          return transition.run().then(function() { return transition; });
+          return transition.run().then(function() {
+            return transition;
+          });
         },
 
         transitionSuccess: function transitionSuccess(transition) {
@@ -877,7 +879,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         .then(stateHandler.checkIgnoredOrPrevented, function(reason) {
           return REJECT.aborted;
         })
-        .then(stateHandler.doTransition)
+        .then(stateHandler.runTransition)
         .then(stateHandler.transitionSuccess, stateHandler.transitionFailure);
     };
 

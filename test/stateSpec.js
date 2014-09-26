@@ -170,7 +170,7 @@ describe('state helpers', function() {
   });
 });
 
-xdescribe('state', function () {
+describe('state', function () {
 
   var stateProvider, locationProvider, templateParams, ctrlName;
 
