@@ -824,14 +824,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         $state.$current = to;
         $state.current = to.self;
 
-        // Filter parameters before we pass them to event handlers etc.
-        // ??? toParams = filterByKeys(objectKeys(to.params), /* transition.params().$to */ toParams || {}); ??? //
-
         $state.params = toParams;
         copy($state.params, $stateParams);
         $state.transition = null;
-        $stateParams.$sync();
-        $stateParams.$off();
+        $stateParams.$sync().$off();
 
         if (options.location && to.navigable) {
           $urlRouter.push(to.navigable.url, $stateParams, { replace: options.location === 'replace' });
@@ -1117,10 +1113,12 @@ function $StateParamsProvider() {
 
     StateParams.prototype.$sync = function() {
       copy(this, current);
+      return this;
     };
 
     StateParams.prototype.$off = function() {
       observers = {};
+      return this;
     };
 
     StateParams.prototype.$localize = function(state, params) {
