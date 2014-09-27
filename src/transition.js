@@ -139,8 +139,8 @@ function $TransitionProvider() {
    * The `$transition` service manages changes in states and parameters.
    */
   this.$get = $get;
-  $get.$inject = ['$q', '$injector', '$resolve', '$stateParams'];
-  function $get(   $q,   $injector,   $resolve,   $stateParams) {
+  $get.$inject = ['$q', '$injector', '$resolve', '$stateParams', '$timeout'];
+  function $get(   $q,   $injector,   $resolve,   $stateParams,   $timeout) {
     var from = { state: null, params: null },
         to   = { state: null, params: null };
     var _fromPath = null; // contains resolved data
@@ -372,30 +372,56 @@ function $TransitionProvider() {
           function TransitionStep(pathElement, fn, locals, resolveContext, otherData) {
             this.state = pathElement.state;
             this.otherData = otherData;
-            this.fn = fn;
-
             this.invokeStep = function invokeStep() {
               if ($transition.transition !== transition) return transition.SUPERSEDED;
 
-              /** Returns a map containing any Resolvables found in result as an object or Array */
-              function resolvablesFromResult(result) {
-                var resolvables = [];
-                if (result instanceof Resolvable) {
-                  resolvables.push(result);
-                } else if (angular.isArray(result)) {
-                  resolvables.push(filter(result, function(obj) { return obj instanceof Resolvable; }));
+              /**
+               * Validates the result map as a "resolve:" style object.
+               * Creates Resolvable objects from the result object and adds them to the target object
+               */
+              function registerNewResolves(result, target) {
+                if (angular.isObject(result)) {
+                  // If result is an object, it should be a map of strings to functions.
+                  angular.forEach(result, function(value, key) {
+                    if (!angular.isString(key) || !angular.isFunction(value)) {
+                      throw new Error("Invalid resolve key/value: " + key + "/", value);
+                    }
+                    // Add a new Resolvable to the target map
+                    target[key] = new Resolvable(key, value, pathElement.state);
+                  });
                 }
-                return indexBy(resolvables, 'name');
               }
 
-              /** Adds any returned resolvables to the resolveContext for the current state */
+              /**
+               * Handles transition abort and transition redirect. Also adds any returned resolvables
+               * to the resolveContext for the current state.
+               */
               function handleHookResult(result) {
-                var newResolves = resolvablesFromResult(result);
-                extend(resolveContext.$$resolvablesByState[pathElement.state.name], newResolves);
-                return result === false ? transition.ABORTED : result;
+                if (result === false) return transition.ABORTED;
+
+                // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
+                if (result instanceof Transition) {
+                  // TODO: Do the redirect using new API.
+                  // We need to run some logic in $state too, however, so we can't just
+                  // call result.run(); We might need to reorganize some stuff for this to happen.
+
+                  $timeout(function() { // For now, punting via $state.transitionTo(
+                    $state.transitionTo(transition.to(), transition.params().to, transition.options());
+                  });
+
+                  return transition.ABORTED;
+                }
+
+                registerNewResolves(result, resolveContext.$$resolvablesByState[pathElement.state.name]);
+
+                return result;
               }
 
               return pathElement.invokeLater(fn, locals, resolveContext).then(handleHookResult);
+            };
+
+            this.invokeStepSynchronously = function invokeStepSynchronously() {
+              return pathElement.invokeNow(fn, locals, resolveContext);
             };
           }
 
@@ -406,7 +432,8 @@ function $TransitionProvider() {
            * 3) the from state
            */
           function makeSteps(eventType, to, from, pathElement, locals, resolveContext) {
-            var extraData = { eventType: eventType, to: to, from: from, pathElement: pathElement, locals: locals, resolveContext: resolveContext }; // internal debugging stuff
+            // internal debugging stuff
+            var extraData = { eventType: eventType, to: to, from: from, pathElement: pathElement, locals: locals, resolveContext: resolveContext };
             var hooks = transitionEvents[eventType];
             var matchingHooks = filter(hooks, function(hook) { return hook.matches(to, from); });
             return map(matchingHooks, function(hook) {
@@ -425,29 +452,43 @@ function $TransitionProvider() {
           var transitionOnHooks = makeSteps("on", to, from, rootPE, tLocals, rootPath.resolveContext());
 
           var exitingStateHooks = map(exitingElements, function(elem) {
-            var enterLocals = extend({}, tLocals, { $stateParams: $stateParams.$localize(elem.state, $stateParams) });
-            return makeSteps("exiting", to, from, elem, enterLocals, fromPath.resolveContext(elem));
-          });
-          var enteringStateHooks = map(enteringElements, function(elem) {
-            var exitLocals = extend({}, tLocals, { $stateParams: $stateParams.$localize(elem.state, $stateParams) });
-            return makeSteps("entering", to, from, elem, exitLocals, toPath.resolveContext(elem));
+            var stepLocals = { $state$: elem.state,  $stateParams: $stateParams.$localize(elem.state, $stateParams) };
+            var locals = extend({},  tLocals, stepLocals);
+            return makeSteps("exiting", to, elem.state, elem, locals, fromPath.resolveContext(elem));
           });
 
-          var successHooks = makeSteps("onSuccess", to, from, rootPE, tLocals, rootPath.resolveContext());
-          var errorHooks = makeSteps("onError", to, from, rootPE, tLocals, rootPath.resolveContext());
+          var enteringStateHooks = map(enteringElements, function(elem) {
+            var stepLocals = { $state$: elem.state,  $stateParams: $stateParams.$localize(elem.state, $stateParams) };
+            var locals = extend({}, tLocals, stepLocals);
+            return makeSteps("entering", elem.state, from, elem, locals, toPath.resolveContext(elem));
+          });
 
           var eagerResolves = function () { return toPath.resolve(toPath.resolveContext(), { policy: "eager" }); };
 
-          var allSteps = flatten(transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks, successHooks);
-
+          var asyncSteps = flatten(transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks);
 
           // Set up a promise chain. Add the promises in appropriate order to the promise chain.
           var chain = $q.when(true);
-          forEach(allSteps, function (step) {
+          forEach(asyncSteps, function (step) {
             chain.then(step.invokeStep);
           });
 
-          // TODO: call errorHooks.
+          function runSynchronousHooks(hookName, locals) {
+            var hooks = makeSteps(hookName, to, from, rootPE, locals, rootPath.resolveContext());
+            forEach(hooks, function (hook) {
+              try {
+                hook.invokeStepSynchronously();
+              } catch (ex) {
+                // return $q.reject(ex);
+                // TODO: to catch, or not to catch?
+                console.log("Error thrown during " + hookName + " handler:", ex);
+              }
+            });
+          }
+          function successHooks() { runSynchronousHooks("onSuccess", tLocals);  }
+          function errorHooks(error) { runSynchronousHooks("onError", extend({}, tLocals, { $error$: error })); }
+
+          chain.then(successHooks).catch(errorHooks);
 
           return chain;
         },
@@ -463,7 +504,7 @@ function $TransitionProvider() {
           from = { state: toState, params: toParams };
           to   = { state: null, params: null };
           // Save the Path which contains the Resolvables data
-          paths.from = toPath;
+          _fromPath = toPath;
         }
       });
     }
@@ -482,8 +523,8 @@ function $TransitionProvider() {
 
     $transition.start = function start(state, params, options) {
       to = { state: state, params: params || {} };
-      this.transition = new Transition(from.state, from.params, state, params || {}, options || {});
-      return this.transition;
+      $transition.transition = new Transition(from.state, from.params, state, params || {}, options || {});
+      return $transition.transition;
     };
 
     $transition.isActive = function isActive() {
