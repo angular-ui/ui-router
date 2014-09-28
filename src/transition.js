@@ -25,8 +25,8 @@ function $TransitionProvider() {
 
   // Return a registration function of the requested type.
   function registerEventHook(eventType) {
-    return function(stateGlobs, callback) {
-      transitionEvents[eventType].push(new EventHook(stateGlobs, callback));
+    return function(matchObject, callback) {
+      transitionEvents[eventType].push(new EventHook(matchObject, callback));
     };
   }
 
@@ -37,20 +37,26 @@ function $TransitionProvider() {
    *
    * @description
    * Registers a function to be injected and invoked when a transition between the matched 'to' and 'from' states
-   * starts.
+   * starts.  This function can be injected with one additional special value:
+   * - **`$transition$`**: The current transition
    *
-   * @param {object} transitionCriteria An object that specifies which transitions to invoke the callback for.
+   * @param {object} matchObject An object that specifies which transitions to invoke the callback for.
    *
-   * - **`to`** - {string} - A glob string that matches the 'to' state's name.
-   * - **`from`** - {string|RegExp} - A glob string that matches the 'from' state's name.
+   * - **`to`** - {string|function=} - A glob string that matches the 'to' state's name.
+   *    Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
+   * - **`from`** - {string|function=} - A glob string that matches the 'from' state's name.
+   *    Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
    *
-   * @param {function} callback The function which will be injected and invoked, when a matching transition is started.
+   * @param {function} callback
+   *   The function which will be injected and invoked, when a matching transition is started.
+   *   The function may optionally return a {boolean|Transition|object} value which will affect the current transition:
    *
-   * @return {boolean|object|array} May optionally return:
-   * - **`false`** to abort the current transition
-   * - **A promise** to suspend the current transition until the promise resolves
-   * - **Array of Resolvable objects** to add additional resolves to the current transition, which will be available
-   *           for injection to further steps in the transition.
+   *     - **`false`** to abort the current transition
+   *     - **{Transition}** A Transition object from the $transition$.redirect() factory. If returned, the
+   *        current transition will be aborted and the returned Transition will supersede it.
+   *     - **{object}** A map of resolve functions to be added to the current transition. These resolves will be made
+   *        available for injection to further steps in the transition.  The object should have {string}s for keys and
+   *        {function}s for values, like the `resolve` object in {@link ui.router.state.$stateProvider#state $stateProvider.state}.
    */
   this.on = registerEventHook("on");
 
@@ -62,14 +68,13 @@ function $TransitionProvider() {
    * @description
    * Registers a function to be injected and invoked during a transition between the matched 'to' and 'from' states,
    * when the matched 'to' state is being entered. This function is in injected with the entering state's resolves.
-   * @param {object} transitionCriteria See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
-   * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
    *
-   * @return {boolean|object|array} May optionally return:
-   * - **`false`** to abort the current transition
-   * - **A promise** to suspend the current transition until the promise resolves
-   * - **Array of Resolvable objects** to add additional resolves to the current transition, which will be available
-   *           for injection to further steps in the transition.
+   * This function can be injected with two additional special value:
+   * - **`$transition$`**: The current transition
+   * - **`$state$`**: The state being entered
+   *
+   * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
    */
   this.entering = registerEventHook("entering");
 
@@ -81,14 +86,13 @@ function $TransitionProvider() {
    * @description
    * Registers a function to be injected and invoked during a transition between the matched 'to' and 'from states,
    * when the matched 'from' state is being exited. This function is in injected with the exiting state's resolves.
-   * @param {object} transitionCriteria See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
-   * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
    *
-   * @return {boolean|object|array} May optionally return:
-   * - **`false`** to abort the current transition
-   * - **A promise** to suspend the current transition until the promise resolves
-   * - **Array of Resolvable objects** to add additional resolves to the current transition, which will be available
-   *           for injection to further steps in the transition.
+   * This function can be injected with two additional special value:
+   * - **`$transition$`**: The current transition
+   * - **`$state$`**: The state being entered
+   *
+   * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
    */
   this.exiting = registerEventHook("exiting");
 
@@ -100,10 +104,15 @@ function $TransitionProvider() {
    * @description
    * Registers a function to be injected and invoked when a transition has successfully completed between the matched
    * 'to' and 'from' state is being exited.
-   * This function is in injected with the 'to' state's resolves.
-   * @param {object} transitionCriteria See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
-   * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
-   */
+   * This function is in injected with the 'to' state's resolves (note: `JIT` resolves are not injected).
+   *
+   * This function can be injected with two additional special value:
+   * - **`$transition$`**: The current transition
+   *
+   * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   * @param {function} callback The function which will be injected and invoked, when a matching transition is started.
+   *   The function's return value is ignored.
+  */
   this.onSuccess = registerEventHook("success");
 
   /**
@@ -113,10 +122,11 @@ function $TransitionProvider() {
    *
    * @description
    * Registers a function to be injected and invoked when a transition has failed for any reason between the matched
-   * 'to' and 'from' state is being exited. This function is in injected with the 'to' state's resolves. The transition
-   * rejection reason is injected as `$transitionError$`.
-   * @param {object} transitionCriteria See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
-   * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   * 'to' and 'from' state. The transition rejection reason is injected as `$error$`.
+   *
+   * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   * @param {function} callback The function which will be injected and invoked, when a matching transition is started.
+   *   The function's return value is ignored.
    */
   this.onError = registerEventHook("error");
 
@@ -368,6 +378,7 @@ function $TransitionProvider() {
 
         run: function() {
           calculateTreeChanges();
+          $transition.transition = transition;
 
           function TransitionStep(pathElement, fn, locals, resolveContext, otherData) {
             this.state = pathElement.state;
@@ -489,6 +500,7 @@ function $TransitionProvider() {
           function errorHooks(error) { runSynchronousHooks("onError", extend({}, tLocals, { $error$: error })); }
 
           chain.then(successHooks).catch(errorHooks);
+          chain.finally(function() { $transition.transition = null; });
 
           return chain;
         },
@@ -523,7 +535,7 @@ function $TransitionProvider() {
 
     $transition.start = function start(state, params, options) {
       to = { state: state, params: params || {} };
-      $transition.transition = new Transition(from.state, from.params, state, params || {}, options || {});
+      return    new Transition(from.state, from.params, state, params || {}, options || {});
       return $transition.transition;
     };
 
