@@ -174,6 +174,7 @@ function $TransitionProvider() {
      */
     function Transition(fromState, fromParams, toState, toParams, options) {
       var transition = this; // Transition() object
+      var deferred = $q.defer();
 
       // grab $transition's current path
       var toPath, fromPath = _fromPath; // Path() objects
@@ -481,7 +482,7 @@ function $TransitionProvider() {
           // Set up a promise chain. Add the promises in appropriate order to the promise chain.
           var chain = $q.when(true);
           forEach(asyncSteps, function (step) {
-            chain.then(step.invokeStep);
+            chain = chain.then(step.invokeStep);
           });
 
           function runSynchronousHooks(hookName, locals) {
@@ -500,6 +501,11 @@ function $TransitionProvider() {
           function errorHooks(error) { runSynchronousHooks("onError", extend({}, tLocals, { $error$: error })); }
 
           chain.then(successHooks).catch(errorHooks);
+          chain.then(deferred.resolve).catch(deferred.reject);
+//          function yay(data) { console.log("yay!"); return deferred.resolve(data); }
+//          function boo(err) { console.log("boo!"); return deferred.reject(err); }
+//          chain.then(yay).catch(boo);
+
           chain.finally(function() { $transition.transition = null; });
 
           return chain;
@@ -517,7 +523,8 @@ function $TransitionProvider() {
           to   = { state: null, params: null };
           // Save the Path which contains the Resolvables data
           _fromPath = toPath;
-        }
+        },
+        promise: deferred.promise
       });
     }
 

@@ -2,9 +2,9 @@ describe('transition', function () {
 
   var transitionProvider, root = { name: "", path: [] }, matcher, matchStates = {
     "": root,
-    "first": { name: "first", path: [root] },
-    "second": { name: "second", path: [root] },
-    "third": { name: "third", path: [root] }
+    "first": {  name: "first",  path: [root], data: { foo: true } },
+    "second": { name: "second", path: [root], data: { bar: true } },
+    "third": {  name: "third",  path: [root] }
   };
 
   describe('provider', function() {
@@ -15,13 +15,92 @@ describe('transition', function () {
 
     beforeEach(inject(function($transition) {
       matcher = new StateMatcher(matchStates);
-
       $transition.init(root, {}, function(ref, options) {
         return matcher.find(ref, options.relative);
       });
     }));
 
-    describe('events', function() {
+    describe('events:', function() {
+      describe('.on()', function() {
+        it('should fire matching events when transition starts', inject(function($transition, $q) {
+          var t = null;
+          transitionProvider.on({ from: "first", to: "second" }, function($transition$) {
+            t = $transition$;
+          });
+
+          $transition.init(matchStates.first, {}, function(ref, options) {
+            return matcher.find(ref, options.relative);
+          });
+
+          $transition.start("third").run();
+          $q.flush();
+          expect(t).toBeNull();
+
+          $transition.start("second").run();
+          $q.flush();
+          expect(t).not.toBeNull();
+        }));
+
+        it('should inject $transition$', inject(function($transition, $q) {
+          var t = null;
+          var tsecond = $transition.start("second");
+
+          transitionProvider.on({ from: "*", to: "second" }, function($transition$) {
+            t = $transition$;
+          });
+
+          tsecond.run();
+          $q.flush();
+          expect(t).toBe(tsecond);
+        }));
+
+        it('$transition$.promise should resolve on success', inject(function($transition, $q) {
+          var success, failure, completed;
+          transitionProvider.on({ from: "**", to: "second" }, function($transition$) {
+            $transition$.promise
+              .then(function () { success = true; })
+              .catch(function () { failure = true; })
+              .finally(function () { completed = true; });
+          });
+
+          $transition.start("second").run();
+          $q.flush();
+          expect(success).toBe(true);
+          expect(failure).toBeUndefined();
+          expect(completed).toBe(true);
+        }));
+
+        it('$transition$.promise should reject on error', inject(function($transition, $q) {
+          var success, failure, completed;
+          transitionProvider.on({ from: "**", to: "third" }, function($transition$) {
+            $transition$.promise
+              .then(function () { success = true; })
+              .catch(function (err) { failure = err; })
+              .finally(function () { completed = true; });
+            throw new Error("transition failed");
+          });
+
+          $transition.start("third").run();
+          $q.flush();
+          expect(success).toBeUndefined();
+          expect(failure.message).toBe("transition failed");
+          expect(completed).toBe(true);
+        }));
+
+//        it('should not inject $state$', inject(function($transition, $q) {
+//          var t = null;
+//          transitionProvider.on({ from: "*", to: "second" }, function($transition$, $state$) {
+//            t = $transition$;
+//          });
+//          transitionProvider.onError({ from: "*", to: "second" }, function(error) {
+//            t = error;
+//          });
+//
+//          $transition.start("second").run();
+//          $q.flush();
+//          expect(t).toBeNull()
+//        }));
+      });
 
       it('should fire matching "on" events regardless of outcome', inject(function($transition, $q) {
         var t = null;
