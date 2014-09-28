@@ -542,8 +542,7 @@ function $TransitionProvider() {
 
     $transition.start = function start(state, params, options) {
       to = { state: state, params: params || {} };
-      return    new Transition(from.state, from.params, state, params || {}, options || {});
-      return $transition.transition;
+      return new Transition(from.state, from.params, state, params || {}, options || {});
     };
 
     $transition.isActive = function isActive() {
