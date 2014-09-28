@@ -20,7 +20,60 @@ describe('transition', function () {
       });
     }));
 
-    describe('events:', function() {
+    describe('async event hooks:', function() {
+      function PromiseResult(promise) {
+        var self = this, _promise;
+        var resolve, reject, complete;
+
+        this.setPromise = function(promise) {
+          if (_promise) throw new Error("Already have with'd a promise.");
+          _promise = promise;
+          _promise.
+            then(function (data) { resolve = data || true; })
+            .catch(function (err) { reject = err || true; })
+            .finally(function () { complete = true; });
+        };
+        this.get = function() { return { resolve: resolve, reject: reject, complete: complete }; };
+        this.called = function() { return map(self.get(), function(val, key) { return val !== undefined }); };
+
+        if (promise) this.setPromise(promise);
+      }
+
+
+      it('$transition$.promise should resolve on success', inject(function($transition, $q) {
+        var result = new PromiseResult();
+        transitionProvider.on({ from: "*", to: "second" }, function($transition$) {
+          result.setPromise($transition$.promise);
+        });
+
+        $transition.start("second").run(); $q.flush();
+        expect(result.called()).toEqual({ resolve: true, reject: false, complete: true });
+      }));
+
+      it('$transition$.promise should reject on error', inject(function($transition, $q) {
+        var result = new PromiseResult();
+        transitionProvider.on({ from: "*", to: "third" }, function($transition$) {
+          result.setPromise($transition$.promise);
+          throw new Error("transition failed");
+        });
+
+        $transition.start("third").run(); $q.flush();
+        expect(result.called()).toEqual({ resolve: false, reject: true, complete: true });
+        expect(result.get().reject.message).toEqual("transition failed");
+      }));
+
+      it('should inject $transition$', inject(function($transition, $q) {
+        var t = null;
+
+        transitionProvider.on({ from: "*", to: "second" }, function($transition$) {
+          t = $transition$;
+        });
+
+        var tsecond = $transition.start("second");
+        tsecond.run(); $q.flush();
+        expect(t).toBe(tsecond);
+      }));
+
       describe('.on()', function() {
         it('should fire matching events when transition starts', inject(function($transition, $q) {
           var t = null;
@@ -41,87 +94,19 @@ describe('transition', function () {
           expect(t).not.toBeNull();
         }));
 
-        it('should inject $transition$', inject(function($transition, $q) {
-          var t = null;
-          var tsecond = $transition.start("second");
-
-          transitionProvider.on({ from: "*", to: "second" }, function($transition$) {
-            t = $transition$;
-          });
-
-          tsecond.run();
-          $q.flush();
-          expect(t).toBe(tsecond);
-        }));
-
-        it('$transition$.promise should resolve on success', inject(function($transition, $q) {
-          var success, failure, completed;
-          transitionProvider.on({ from: "**", to: "second" }, function($transition$) {
-            $transition$.promise
-              .then(function () { success = true; })
-              .catch(function () { failure = true; })
-              .finally(function () { completed = true; });
-          });
-
-          $transition.start("second").run();
-          $q.flush();
-          expect(success).toBe(true);
-          expect(failure).toBeUndefined();
-          expect(completed).toBe(true);
-        }));
-
-        it('$transition$.promise should reject on error', inject(function($transition, $q) {
-          var success, failure, completed;
-          transitionProvider.on({ from: "**", to: "third" }, function($transition$) {
-            $transition$.promise
-              .then(function () { success = true; })
-              .catch(function (err) { failure = err; })
-              .finally(function () { completed = true; });
+        it('should not inject $state$', inject(function($transition, $q) {
+          transitionProvider.on({ from: "*", to: "third" }, function($transition$, $state$) {
             throw new Error("transition failed");
           });
 
-          $transition.start("third").run();
-          $q.flush();
-          expect(success).toBeUndefined();
-          expect(failure.message).toBe("transition failed");
-          expect(completed).toBe(true);
+          var transition = $transition.start("third");
+          var result = new PromiseResult(transition.promise);
+          transition.run(); $q.flush();
+
+          expect(result.called()).toEqual({ resolve: false, reject: true, complete: true });
+          expect(result.get().reject.message).toContain("Unknown provider: $state$");
         }));
-
-//        it('should not inject $state$', inject(function($transition, $q) {
-//          var t = null;
-//          transitionProvider.on({ from: "*", to: "second" }, function($transition$, $state$) {
-//            t = $transition$;
-//          });
-//          transitionProvider.onError({ from: "*", to: "second" }, function(error) {
-//            t = error;
-//          });
-//
-//          $transition.start("second").run();
-//          $q.flush();
-//          expect(t).toBeNull()
-//        }));
       });
-
-      it('should fire matching "on" events regardless of outcome', inject(function($transition, $q) {
-        var t = null;
-
-        transitionProvider.on({ from: "first", to: "second" }, function($transition$) {
-          t = $transition$;
-        });
-
-        $transition.init(matchStates.first, {}, function(ref, options) {
-          return matcher.find(ref, options.relative);
-        });
-
-        $transition.start("third").run();
-        $q.flush();
-        expect(t).toBeNull();
-
-        $transition.start("second").run();
-        $q.flush();
-        expect(t).not.toBeNull();
-      }));
-
     });
   });
 
@@ -191,13 +176,7 @@ describe('transition', function () {
     angular.forEach(statesMap, function(state, name) {
       $stateProvider.state(state);
     });
-
-//    console.log(map(makePath([ "A", "B", "C" ]), function(s) { return s.name; }));
   }));
-
-  function makePath(names) {
-    return new Path(map(names, function(name) { return statesMap[name]; }));
-  }
 
   describe('instance', function() {
     beforeEach(inject(function($transition) {
@@ -226,13 +205,6 @@ describe('transition', function () {
 
         expect(t.is({ to: ["", "third"] })).toBe(false);
         expect(t.is({ to: "**", from: "first" })).toBe(false);
-      }));
-    });
-
-    describe('runAsync', function () {
-      it('should resolve all resolves in a PathElement', inject(function ($q, $state) {
-        $state.go("B");
-        $q.flush();
       }));
     });
   });
