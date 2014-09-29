@@ -10,17 +10,32 @@ function $TransitionProvider() {
   var $transition = {}, stateMatcher = angular.noop, abstractKey = 'abstract';
   var transitionEvents = { on: [], entering: [], exiting: [], success: [], error: [] };
 
-  function matchState(state, globStrings) {
-    var toMatch = angular.isArray(globStrings) ? globStrings : [globStrings];
+  /**
+   * Determines if the given state matches the matchCriteria
+   * @param state a State Object to test against
+   * @param matchCriteria {string|array|function}
+   * - If a string, matchState uses the string as a glob-matcher against the state name
+   * - If an array (of strings), matchState uses each string in the array as a glob-matchers against the state name
+   *   and returns a positive match if any of the globs match.
+   * - If a function, matchState calls the function with the state and returns true if the function's result is truthy.
+   * @returns {boolean}
+   */
+  function matchState(state, matchCriteria) {
+    var toMatch = angular.isString(matchCriteria) ? [matchCriteria] : matchCriteria;
+    var matchFn = angular.isFunction(toMatch) ? toMatch : matchGlobs;
 
-    for (var i = 0; i < toMatch.length; i++) {
-      var glob = GlobBuilder.fromString(toMatch[i]);
+    function matchGlobs(state) {
+      for (var i = 0; i < toMatch.length; i++) {
+        var glob = GlobBuilder.fromString(toMatch[i]);
 
-      if ((glob && glob.matches(state.name)) || (!glob && toMatch[i] === state.name)) {
-        return true;
+        if ((glob && glob.matches(state.name)) || (!glob && toMatch[i] === state.name)) {
+          return true;
+        }
       }
+      return false;
     }
-    return false;
+
+    return matchFn(state) ? true : false;
   }
 
   // Return a registration function of the requested type.
@@ -130,10 +145,12 @@ function $TransitionProvider() {
    */
   this.onError = registerEventHook("error");
 
-  function EventHook(stateGlobs, callback) {
+  function trueFn() { return true; }
+  function EventHook(matchCriteria, callback) {
+    matchCriteria = extend({to: trueFn, from: trueFn}, matchCriteria);
     this.callback = callback;
     this.matches = function matches(to, from) {
-      return matchState(to, stateGlobs.to) && matchState(from, stateGlobs.from);
+      return matchState(to, matchCriteria.to) && matchState(from, matchCriteria.from);
     };
   }
 
@@ -331,17 +348,17 @@ function $TransitionProvider() {
 
         entering: function() {
           calculateTreeChanges();
-          return entering;
+          return pluck(entering.elements, 'state');
         },
 
         exiting: function() {
           calculateTreeChanges();
-          return exiting;
+          return pluck(exiting.elements, 'state');
         },
 
         retained: function() {
           calculateTreeChanges();
-          return retained;
+          return pluck(retained.elements, 'state');
         },
 
         // Should this return views for `retained.concat(entering).states()` ?
@@ -456,8 +473,8 @@ function $TransitionProvider() {
           var tLocals = { $transition$: transition };
           var rootPE = new PathElement(stateMatcher("", {}));
           var rootPath = new Path([rootPE]);
-          var exitingElements = transition.exiting().slice(0).reverse().elements;
-          var enteringElements = transition.entering().elements;
+          var exitingElements = exiting.slice(0).reverse().elements;
+          var enteringElements = entering.elements;
           var to = transition.to(),  from = transition.from();
 
           // Build a bunch of arrays of promises for each step of the transition
@@ -475,9 +492,11 @@ function $TransitionProvider() {
             return makeSteps("entering", elem.state, from, elem, locals, toPath.resolveContext(elem));
           });
 
-          var eagerResolves = function () { return toPath.resolve(toPath.resolveContext(), { policy: "eager" }); };
+          var eagerResolves = {
+            invokeStep: function () { return toPath.resolve(toPath.resolveContext(), { policy: "eager" }); }
+          };
 
-          var asyncSteps = flatten(transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks);
+          var asyncSteps = flatten([transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]);
 
           // Set up a promise chain. Add the promises in appropriate order to the promise chain.
           var chain = $q.when(true);

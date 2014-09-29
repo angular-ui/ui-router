@@ -36,8 +36,8 @@ describe('transition', function () {
       var thisState = pick.apply(null, [state].concat(stateProps));
       extend(thisState, { name: name, parent: parent, data: { children: [] }});
       thisState.path = [];
-      var p = parent;
-      while (p !== undefined) {
+      var p = thisState;
+      while (p !== undefined && p.name !== "") {
         thisState.path.push(p);
         p = p.parent;
       }
@@ -50,11 +50,17 @@ describe('transition', function () {
     }
   }));
 
+  var initialState = angular.noop;
   beforeEach(inject(function ($transition) {
     matcher = new StateMatcher(statesMap);
-    $transition.init(statesMap[""], {}, function (ref, options) {
-      return matcher.find(ref, options.relative);
-    });
+    initialState = function initialState(state) {
+      if (angular.isString(state)) state = matcher.find(state);
+      $transition.init(state, {}, function(ref, options) {
+        return matcher.find(ref, options.relative);
+      });
+    };
+
+    initialState("");
   }));
 
   describe('provider', function() {
@@ -117,10 +123,7 @@ describe('transition', function () {
           transitionProvider.on({ from: "first", to: "second" }, function($transition$) {
             t = $transition$;
           });
-
-          $transition.init(statesMap.first, {}, function(ref, options) {
-            return matcher.find(ref, options.relative);
-          });
+          initialState(statesMap.first);
 
           $transition.start("third").run(); $q.flush();
           expect(t).toBeNull();
@@ -143,28 +146,43 @@ describe('transition', function () {
         }));
       });
 
-      xdescribe('.entering()', function() {
-        it('should not inject $state$', inject(function($transition, $q) {
-          transitionProvider.on({ from: "A", to: "D" }, function() {
-            throw new Error("transition failed");
+      describe('.entering()', function() {
+        it('should inject $state$', inject(function($transition, $q) {
+          initialState("A");
+          var state, count = 0;
+          transitionProvider.entering({ from: "*", to: "D" }, function($state$) {
+            count++;
+            state = $state$;
           });
 
-          // todo: set up a helper init fn to prep transitions
-//          var transition = $transition.start("first");
-//          var result = new PromiseResult(transition.promise);
-//          transition.run(); $q.flush();
-//
-//          expect(result.called()).toEqual({ resolve: false, reject: true, complete: true });
-//          expect(result.get().reject.message).toContain("Unknown provider: $state$");
-        }));
+          $transition.start("D").run(); $q.flush();
 
+          expect(state.name).toEqual("D");
+          expect(count).toEqual(1);
+        }));
       });
     });
   });
 
-  describe('instance', function() {
-    describe('is', function() {
-      it('should match rules', inject(function($transition) {
+  describe('Transition() instance', function() {
+    describe('.entering', function() {
+      it('should return the path elements being entered', inject(function($transition) {
+        var t = $transition.start("A");
+        expect(pluck(t.entering(), 'name')).toEqual([ "A" ]);
+
+        t = $transition.start("D");
+        expect(pluck(t.entering(), 'name')).toEqual([ "A", "B", "C", "D" ]);
+      }));
+
+      it('should not include already entered elements', inject(function($transition) {
+        initialState("B");
+        t = $transition.start("D");
+        expect(pluck(t.entering(), 'name')).toEqual([ "C", "D" ]);
+      }));
+    });
+
+    describe('.is', function() {
+      it('should match globs', inject(function($transition) {
         var t = $transition.start("first");
 
         expect(t.is({ to: "first" })).toBe(true);
@@ -182,6 +200,25 @@ describe('transition', function () {
         expect(t.is({ to: ["", "third"] })).toBe(false);
         expect(t.is({ to: "**", from: "first" })).toBe(false);
       }));
+
+//      it('should match functions', inject(function($transition) {
+//        var t = $transition.start("first");
+//
+//        expect(t.is({ to: "first" })).toBe(true);
+//        expect(t.is({ from: "" })).toBe(true);
+//        expect(t.is({ to: "first", from: "" })).toBe(true);
+//
+//        expect(t.is({ to: ["first", "second"] })).toBe(true);
+//        expect(t.is({ to: ["first", "second"], from: ["", "third"] })).toBe(true);
+//        expect(t.is({ to: "first", from: "**" })).toBe(true);
+//
+//        expect(t.is({ to: "second" })).toBe(false);
+//        expect(t.is({ from: "first" })).toBe(false);
+//        expect(t.is({ to: "first", from: "second" })).toBe(false);
+//
+//        expect(t.is({ to: ["", "third"] })).toBe(false);
+//        expect(t.is({ to: "**", from: "first" })).toBe(false);
+//      }));
     });
   });
 
