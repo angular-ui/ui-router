@@ -201,24 +201,31 @@ describe('transition', function () {
         expect(t.is({ to: "**", from: "first" })).toBe(false);
       }));
 
-//      it('should match functions', inject(function($transition) {
-//        var t = $transition.start("first");
-//
-//        expect(t.is({ to: "first" })).toBe(true);
-//        expect(t.is({ from: "" })).toBe(true);
-//        expect(t.is({ to: "first", from: "" })).toBe(true);
-//
-//        expect(t.is({ to: ["first", "second"] })).toBe(true);
-//        expect(t.is({ to: ["first", "second"], from: ["", "third"] })).toBe(true);
-//        expect(t.is({ to: "first", from: "**" })).toBe(true);
-//
-//        expect(t.is({ to: "second" })).toBe(false);
-//        expect(t.is({ from: "first" })).toBe(false);
-//        expect(t.is({ to: "first", from: "second" })).toBe(false);
-//
+      it('should match using functions', inject(function($transition) {
+        var t = $transition.start("first");
+
+        expect(t.is({ to: function(state) { return state.name === "first"; } })).toBe(true);
+        expect(t.is({ from: function(state) { return state.name === ""; } })).toBe(true);
+        expect(t.is({
+          to: function(state) { return state.name === "first"; },
+          from: function(state) { return state.name === ""; }
+        })).toBe(true);
+
+        expect(t.is({
+          to: function(state) { return state.name === "first"; },
+          from: "**"
+        })).toBe(true);
+
+        expect(t.is({ to: function(state) { return state.name === "second"; } })).toBe(false);
+        expect(t.is({ from: function(state) { return state.name === "first"; } })).toBe(false);
+        expect(t.is({
+          to: function(state) { return state.name === "first"; },
+          from: function(state) { return state.name === "second"; }
+        })).toBe(false);
+
 //        expect(t.is({ to: ["", "third"] })).toBe(false);
 //        expect(t.is({ to: "**", from: "first" })).toBe(false);
-//      }));
+      }));
     });
   });
 
