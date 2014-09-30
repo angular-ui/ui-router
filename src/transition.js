@@ -1,4 +1,4 @@
-
+var TransitionRejection;
 
 /**
  * @ngdoc object
@@ -397,12 +397,23 @@ function $TransitionProvider() {
         run: function() {
           calculateTreeChanges();
           $transition.transition = transition;
+//          console.log("running " + transition.from().name + "->" + transition.to().name);
 
           function TransitionStep(pathElement, fn, locals, resolveContext, otherData) {
+//            var self = this;
             this.state = pathElement.state;
             this.otherData = otherData;
+            this.toString = function() {
+              var str = "." + otherData.eventType +
+                "({ from: " + otherData.from.name + ", to: " + otherData.to.name + " }) " +
+                "(state: " + otherData.pathElement.state.name + ")";
+              return "Step( " + str + " )";
+            };
             this.invokeStep = function invokeStep() {
-              if ($transition.transition !== transition) return transition.SUPERSEDED;
+              if ($transition.transition !== transition) {
+//                console.log("Before invoking " + self + ", " + transition + " superseded by " + $transition.transition);
+                return Rejections.superseded($transition.transition);
+              }
 
               /**
                * Validates the result map as a "resolve:" style object.
@@ -426,23 +437,17 @@ function $TransitionProvider() {
                * to the resolveContext for the current state.
                */
               function handleHookResult(result) {
-                if (result === false) return transition.ABORTED;
-
-                // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
-                if (result instanceof Transition) {
-                  // TODO: Do the redirect using new API.
-                  // We need to run some logic in $state too, however, so we can't just
-                  // call result.run(); We might need to reorganize some stuff for this to happen.
-
-                  $timeout(function() { // For now, punting via $state.transitionTo(
-                    $state.transitionTo(transition.to(), transition.params().to, transition.options());
-                  });
-
-                  return transition.ABORTED;
+                if ($transition.transition !== transition) {
+//                  console.log("After invoking " + self + ", " + transition + " superseded by " + $transition.transition);
+                  return Rejections.superseded($transition.transition);
                 }
 
+                // If the hook returns false, abort the current Transition
+                if (result === false) return Rejections.aborted("Hook aborted transition");
+                // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
+                if (result instanceof Transition) return Rejections.redirected(result);
+                // If the hook returns any new resolves, add them to the ResolveContext
                 registerNewResolves(result, resolveContext.$$resolvablesByState[pathElement.state.name]);
-
                 return result;
               }
 
@@ -520,12 +525,14 @@ function $TransitionProvider() {
           function errorHooks(error) { runSynchronousHooks("onError", extend({}, tLocals, { $error$: error })); }
 
           chain.then(successHooks).catch(errorHooks);
-          chain.then(deferred.resolve).catch(deferred.reject);
-//          function yay(data) { console.log("yay!"); return deferred.resolve(data); }
-//          function boo(err) { console.log("boo!"); return deferred.reject(err); }
+//          function yay(data) { console.log(transition + " yay!"); return deferred.resolve(data); }
+//          function boo(err) { console.log(transition + " boo :(", err); return deferred.reject(err); }
 //          chain.then(yay).catch(boo);
-
-          chain.finally(function() { $transition.transition = null; });
+          chain.then(deferred.resolve).catch(deferred.reject);
+          chain.finally(function() {
+            if ($transition.transition === transition)
+              $transition.transition = null;
+          });
 
           return chain;
         },
@@ -543,6 +550,10 @@ function $TransitionProvider() {
           // Save the Path which contains the Resolvables data
           _fromPath = toPath;
         },
+        toString: function() {
+          return "Transition( " + transition.to().name + angular.toJson(transition.params().to) + " -> " +
+            transition.from().name + angular.toJson(transition.params().from) + " )";
+        },
         promise: deferred.promise
       });
     }
@@ -551,6 +562,27 @@ function $TransitionProvider() {
     Transition.prototype.ABORTED    = 3;
     Transition.prototype.INVALID    = 4;
 
+    TransitionRejection = function TransitionRejection(type, message, object, flags) {
+      this.type = type;
+      this.message = message;
+      this.object = object;
+      this.flags = extend({}, flags);
+    };
+
+    var Rejections = {
+      superseded: function (detail, flags) {
+        var message = "The transition has been superseded by a different transition (see detail).";
+        return $q.reject(new TransitionRejection(Transition.prototype.SUPERSEDED, message, detail, flags));
+      },
+      redirected: function (detail, flags) {
+        return Rejections.superseded(detail, extend({}, flags, { redirected: true }));
+      },
+      aborted: function (detail, flags) {
+        // TODO think about how to encapsulate an Error() object
+        var message = "The transition has been aborted.";
+        return $q.reject(new TransitionRejection(Transition.prototype.ABORTED, message, detail));
+      }
+    };
 
     $transition.init = function init(state, params, matcher) {
       _fromPath = new Path(state.path);

@@ -148,19 +148,102 @@ describe('transition', function () {
 
       describe('.entering()', function() {
         it('should inject $state$', inject(function($transition, $q) {
-          initialState("A");
-          var state, count = 0;
-          transitionProvider.entering({ from: "*", to: "D" }, function($state$) {
-            count++;
-            state = $state$;
+          var states = [];
+          transitionProvider.entering({ from: "*", to: "*" }, function($state$) {
+            states.push($state$);
           });
 
           $transition.start("D").run(); $q.flush();
 
-          expect(state.name).toEqual("D");
-          expect(count).toEqual(1);
+          expect(pluck(states, 'name')).toEqual([ 'A', 'B', 'C', 'D' ]);
+        }));
+
+        it('should be called on only states being entered', inject(function($transition, $q) {
+          transitionProvider.entering({ from: "*", to: "*" }, function($state$) { states.push($state$); });
+
+          var states = [];
+          initialState("B");
+          $transition.start("D").run(); $q.flush();
+          expect(pluck(states, 'name')).toEqual([ 'C', 'D' ]);
+
+          states = [];
+          initialState("H");
+          $transition.start("D").run(); $q.flush();
+          expect(pluck(states, 'name')).toEqual([ 'B', 'C', 'D' ]);
+        }));
+
+        it('should enter be called only when to and from match', inject(function($transition, $q) {
+          transitionProvider.entering({ from: "*", to: "C" }, function($state$) { states.push($state$); });
+          transitionProvider.entering({ from: "B", to: "C" }, function($state$) { states2.push($state$); });
+
+          var states = [], states2 = [];
+          initialState("A");
+          $transition.start("D").run(); $q.flush();
+          expect(pluck(states, 'name')).toEqual([ 'C' ]);
+          expect(pluck(states2, 'name')).toEqual([ ]);
+
+          states = []; states2 = [];
+          initialState("B");
+          $transition.start("C").run(); $q.flush();
+          expect(pluck(states, 'name')).toEqual([ 'C' ]);
+          expect(pluck(states2, 'name')).toEqual([ 'C' ]);
         }));
       });
+
+      // TODO: exiting, onSuccess/onError
+
+      it("return value of 'false' should reject the transition with ABORT status", inject(function($transition, $q) {
+        var states = [], rejection, transition = $transition.start("D");
+        transitionProvider.entering({ from: "*", to: "*" }, function($state$) { states.push($state$); });
+        transitionProvider.entering({ from: "*", to: "C" }, function() { return false; });
+
+        transition.promise.catch(function(err) { rejection = err; });
+        transition.run(); $q.flush();
+        expect(pluck(states, 'name')).toEqual([ 'A', 'B', 'C' ]);
+        expect(rejection.type).toEqual(transition.ABORTED);
+      }));
+
+      it("return value of type Transition should abort the transition with SUPERSEDED status", inject(function($transition, $q) {
+        initialState("A");
+        var states = [], rejection, transition = $transition.start("D");
+        transitionProvider.entering({ from: "*", to: "*" }, function($state$) { states.push($state$); });
+        transitionProvider.entering({ from: "*", to: "C" }, function($transition$) { return $transition$.redirect("B"); });
+        transition.promise.catch(function(err) { rejection = err; });
+
+        transition.run(); $q.flush();
+
+        expect(pluck(states, 'name')).toEqual([ 'B', 'C' ]);
+        expect(rejection.type).toEqual(transition.SUPERSEDED);
+        expect(rejection.object.to().name).toEqual("B");
+        expect(rejection.object.from().name).toEqual("A");
+        expect(rejection.flags.redirected).toEqual(true);
+      }));
+
+      it("hooks which start a new transition should cause the old transition to be rejected.", inject(function($transition, $q) {
+        initialState("A");
+        var states = [], rejection, transition = $transition.start("D"), transition2, transition2success;
+        transitionProvider.entering({ from: "*", to: "*" }, function($state$) { states.push($state$); });
+        transitionProvider.entering({ from: "A", to: "C" }, function() {
+          transition2 = $transition.start("G"); // similar to using $state.go() in a controller, etc.
+          transition2.run();
+        });
+        transition.promise.catch(function(err) { rejection = err; });
+        transition.run();
+        $q.flush();
+
+        // .entering() from A->C should have set transition2.
+        transition2.promise.then(function() { transition2success = true; });
+        $q.flush();
+
+        expect(pluck(states, 'name')).toEqual([ 'B', 'C', 'G' ]);
+        expect(rejection instanceof TransitionRejection).toBe(true);
+        expect(rejection.type).toEqual(transition.SUPERSEDED);
+        expect(rejection.object.to().name).toEqual("G");
+        expect(rejection.object.from().name).toEqual("A");
+        expect(rejection.flags.redirected).toBeUndefined();
+
+        expect(transition2success).toBe(true);
+      }));
     });
   });
 
@@ -180,6 +263,8 @@ describe('transition', function () {
         expect(pluck(t.entering(), 'name')).toEqual([ "C", "D" ]);
       }));
     });
+
+    // TODO: .exiting
 
     describe('.is', function() {
       it('should match globs', inject(function($transition) {
