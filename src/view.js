@@ -212,9 +212,73 @@ function $View(   $rootScope,   $templateFactory,   $q,   $injector) {
    * @param {String} name The fully-qualified name of the view to reset.
    * @return {Boolean} Returns `true` if the view exists, otherwise `false`.
    */
-  this.sync = function sync (views, locals, options) {
-    var defaults = {
-      eager: false
+  this.sync = function sync (views, options) {
+    forEach(views, function(view) {
+      // (1) Determine locals for template (should be packed in the view config)
+      // (2) Determine locals for controller
+      // (3) Maybe move the above logic to load()
+      this.load(view[0], extend(copy(options), view[1], { locals: $q.all() })
+    }, this);
+  };
+
+  /**
+   * Allows a `ui-view` element to register its canonical name with a callback that allows it to
+   * be updated with a template, controller, and local variables.
+   *
+   * @param {String} name The fully-qualified name of the `ui-view` object being registered.
+   * @param {Function} callback A callback that receives updates to the content & configuration
+   *                   of the view.
+   * @return {Function} Returns a de-registration function used when the view is destroyed.
+   */
+  this.register = function register (name, callback) {
+    views[name] = callback;
+    views[name].$config = null;
+    pop(name, callback);
+
+    return function() {
+      delete views[name];
+    };
+  };
+
+  /**
+   * Determines whether a particular view exists on the page, by querying the fully-qualified name.
+   *
+   * @param {String} name The fully-qualified dot-separated name of the view, if `context` is not
+            specified. If `context` is specified, `name` should be relative to the parent `context`.
+   * @param {Object} context Optional parent context in which to look for the named view.
+   * @return {Boolean} Returns `true` if the view exists on the page, otherwise `false`.
+   */
+  this.exists = function exists (name, context) {
+    return isDefined(views[context ? this.find(name, context) : name]);
+  };
+
+  /**
+   * Resolves a view's relative name to a fully-qualified name by looking up the parent of the view,
+   * by the parent view's context object.
+   *
+   * @param {String} name A relative view name.
+   * @param {Object} context The context object of the parent view in which to look up the view to
+   *        return.
+   * @return {String} Returns the fully-qualified view name, or `null`, if `context` cannot be found.
+   */
+  this.find = function find (name, context) {
+    var result;
+
+    if (angular.isArray(name)) {
+      result = [];
+
+      angular.forEach(name, function(name) {
+        result.push(this.find(name, context));
+      }, this);
+
+      return result;
+    }
+
+    angular.forEach(views, function(def, absName) {
+      if (!def || !def.$config || context !== def.$config.$context) {
+        return;
+      }
+      // @TODO
     };
     options = extend(defaults, options);
   };
