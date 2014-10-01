@@ -850,7 +850,19 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         },
 
         transitionFailure: function transitionFailure(error) {
+          // Handle redirect and abort
+          if (error instanceof TransitionRejection) {
+            if (error.type === transition.ABORTED) return REJECT.aborted();
+            if (error.type === transition.SUPERSEDED) {
+              if (error.redirected && error.detail instanceof Transition) {
+                stateHandler.doTransition(error.detail);
+              }
+              // Return $q.reject(error)?  i.e., the original rejection? It has more information.
+              return REJECT.superseded();
+            }
+          }
 
+          // TODO: Tracking of current transition in $state should no longer be necessary?
           if ($state.transition !== transition) return TransitionSuperseded;
 
           /**

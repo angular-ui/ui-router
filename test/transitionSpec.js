@@ -214,9 +214,9 @@ describe('transition', function () {
 
         expect(pluck(states, 'name')).toEqual([ 'B', 'C' ]);
         expect(rejection.type).toEqual(transition.SUPERSEDED);
-        expect(rejection.object.to().name).toEqual("B");
-        expect(rejection.object.from().name).toEqual("A");
-        expect(rejection.flags.redirected).toEqual(true);
+        expect(rejection.detail.to().name).toEqual("B");
+        expect(rejection.detail.from().name).toEqual("A");
+        expect(rejection.redirected).toEqual(true);
       }));
 
       it("hooks which start a new transition should cause the old transition to be rejected.", inject(function($transition, $q) {
@@ -238,9 +238,9 @@ describe('transition', function () {
         expect(pluck(states, 'name')).toEqual([ 'B', 'C', 'G' ]);
         expect(rejection instanceof TransitionRejection).toBe(true);
         expect(rejection.type).toEqual(transition.SUPERSEDED);
-        expect(rejection.object.to().name).toEqual("G");
-        expect(rejection.object.from().name).toEqual("A");
-        expect(rejection.flags.redirected).toBeUndefined();
+        expect(rejection.detail.to().name).toEqual("G");
+        expect(rejection.detail.from().name).toEqual("A");
+        expect(rejection.redirected).toBeUndefined();
 
         expect(transition2success).toBe(true);
       }));

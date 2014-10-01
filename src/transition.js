@@ -376,7 +376,17 @@ function $TransitionProvider() {
 
         ensureValid: function(failHandler) {
           if (this.isValid()) return $q.when(this);
+
           return $q.when(failHandler(this));
+
+          // Chain off the failHandler promise to reject the overall transition promise
+//          var promise = $q.when(failHandler(this));
+//          return promise.then(function (retry) {
+//            if (!retry)
+//              deferred.reject(REJECT.invalid("No such state"));
+//            return retry;
+//          });
+
         },
 
         /**
@@ -412,7 +422,7 @@ function $TransitionProvider() {
             this.invokeStep = function invokeStep() {
               if ($transition.transition !== transition) {
 //                console.log("Before invoking " + self + ", " + transition + " superseded by " + $transition.transition);
-                return Rejections.superseded($transition.transition);
+                return REJECT.superseded($transition.transition);
               }
 
               /**
@@ -439,13 +449,13 @@ function $TransitionProvider() {
               function handleHookResult(result) {
                 if ($transition.transition !== transition) {
 //                  console.log("After invoking " + self + ", " + transition + " superseded by " + $transition.transition);
-                  return Rejections.superseded($transition.transition);
+                  return REJECT.superseded($transition.transition);
                 }
 
                 // If the hook returns false, abort the current Transition
-                if (result === false) return Rejections.aborted("Hook aborted transition");
+                if (result === false) return REJECT.aborted("Hook aborted transition");
                 // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
-                if (result instanceof Transition) return Rejections.redirected(result);
+                if (result instanceof Transition) return REJECT.redirected(result);
                 // If the hook returns any new resolves, add them to the ResolveContext
                 registerNewResolves(result, resolveContext.$$resolvablesByState[pathElement.state.name]);
                 return result;
@@ -534,7 +544,7 @@ function $TransitionProvider() {
               $transition.transition = null;
           });
 
-          return chain;
+          return transition.promise;
         },
 
         begin: function(compare, exec) {
@@ -550,11 +560,13 @@ function $TransitionProvider() {
           // Save the Path which contains the Resolvables data
           _fromPath = toPath;
         },
+
+        promise: deferred.promise,
+
         toString: function() {
           return "Transition( " + transition.to().name + angular.toJson(transition.params().to) + " -> " +
             transition.from().name + angular.toJson(transition.params().from) + " )";
-        },
-        promise: deferred.promise
+        }
       });
     }
 
@@ -562,22 +574,27 @@ function $TransitionProvider() {
     Transition.prototype.ABORTED    = 3;
     Transition.prototype.INVALID    = 4;
 
-    TransitionRejection = function TransitionRejection(type, message, object, flags) {
+    TransitionRejection = function TransitionRejection(type, message, detail) {
       this.type = type;
       this.message = message;
-      this.object = object;
-      this.flags = extend({}, flags);
+      this.detail = detail;
     };
 
-    var Rejections = {
-      superseded: function (detail, flags) {
+    var REJECT = {
+      superseded: function (detail, options) {
         var message = "The transition has been superseded by a different transition (see detail).";
-        return $q.reject(new TransitionRejection(Transition.prototype.SUPERSEDED, message, detail, flags));
+        var rejection = new TransitionRejection(Transition.prototype.SUPERSEDED, message, detail);
+        if (options && options.redirected) { rejection.redirected = true; }
+        return $q.reject(rejection);
       },
-      redirected: function (detail, flags) {
-        return Rejections.superseded(detail, extend({}, flags, { redirected: true }));
+      redirected: function (detail) {
+        return REJECT.superseded(detail, { redirected: true } );
       },
-      aborted: function (detail, flags) {
+      invalid: function(detail) {
+        var rejection = new TransitionRejection(Transition.prototype.INVALID, message, detail);
+        return $q.reject(rejection);
+      },
+      aborted: function (detail) {
         // TODO think about how to encapsulate an Error() object
         var message = "The transition has been aborted.";
         return $q.reject(new TransitionRejection(Transition.prototype.ABORTED, message, detail));
