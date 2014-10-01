@@ -872,15 +872,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
             $urlRouter.update();
           }
           return $q.reject(error);
+        },
+        doTransition: function doTransition(transition) {
+          return transition.ensureValid(stateHandler.retryIfNotFound)
+            .then(stateHandler.checkIgnoredOrPrevented, function(reason) { return REJECT.aborted; })
+            .then(stateHandler.runTransition)
+            .then(stateHandler.transitionSuccess, stateHandler.transitionFailure);
         }
       };
 
-      return transition.ensureValid(stateHandler.retryIfNotFound)
-        .then(stateHandler.checkIgnoredOrPrevented, function(reason) {
-          return REJECT.aborted;
-        })
-        .then(stateHandler.runTransition)
-        .then(stateHandler.transitionSuccess, stateHandler.transitionFailure);
+      return stateHandler.doTransition(transition);
     };
 
     /**
