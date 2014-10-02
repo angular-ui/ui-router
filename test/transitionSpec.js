@@ -172,7 +172,7 @@ describe('transition', function () {
           expect(pluck(states, 'name')).toEqual([ 'B', 'C', 'D' ]);
         }));
 
-        it('should enter be called only when to and from match', inject(function($transition, $q) {
+        it('should be called only when from state matches and the state being enter matches to', inject(function($transition, $q) {
           transitionProvider.entering({ from: "*", to: "C" }, function($state$) { states.push($state$); });
           transitionProvider.entering({ from: "B", to: "C" }, function($state$) { states2.push($state$); });
 
@@ -184,13 +184,115 @@ describe('transition', function () {
 
           states = []; states2 = [];
           initialState("B");
-          $transition.start("C").run(); $q.flush();
+          $transition.start("D").run(); $q.flush();
           expect(pluck(states, 'name')).toEqual([ 'C' ]);
           expect(pluck(states2, 'name')).toEqual([ 'C' ]);
         }));
       });
 
-      // TODO: exiting, onSuccess/onError
+      describe('.exiting()', function() {
+        it('should inject the state being exited as $state$', inject(function($transition, $q) {
+          transitionProvider.exiting({ from: "*", to: "*" }, function($state$) { states.push($state$); });
+
+          var states = [];
+          initialState("D");
+          $transition.start("H").run(); $q.flush();
+
+          expect(pluck(states, 'name')).toEqual([ 'D', 'C', 'B' ]);
+        }));
+
+        it('should be called on only states being exited', inject(function($transition, $q) {
+          transitionProvider.exiting({ from: "*", to: "*" }, function($state$) { states.push($state$); });
+
+          var states = [];
+          initialState("D");
+          $transition.start("B").run(); $q.flush();
+          expect(pluck(states, 'name')).toEqual([ 'D', 'C' ]);
+
+          states = [];
+          initialState("H");
+          $transition.start("D").run(); $q.flush();
+          expect(pluck(states, 'name')).toEqual([ 'H', 'G' ]);
+        }));
+
+        it('should be called only when the to state matches and the state being exited matches the from state', inject(function($transition, $q) {
+          transitionProvider.exiting({ from: "D", to: "*" }, function($state$) { states.push($state$); });
+          transitionProvider.exiting({ from: "D", to: "C" }, function($state$) { states2.push($state$); });
+
+          var states = [], states2 = [];
+          initialState("D");
+          $transition.start("B").run(); $q.flush();
+          expect(pluck(states, 'name')).toEqual([ 'D' ]);
+          expect(pluck(states2, 'name')).toEqual([ ]);
+
+          states = []; states2 = [];
+          initialState("D");
+          $transition.start("C").run(); $q.flush();
+          expect(pluck(states, 'name')).toEqual([ 'D' ]);
+          expect(pluck(states2, 'name')).toEqual([ 'D' ]);
+        }));
+      });
+
+      describe('.onSuccess()', function() {
+        it('should only be called if the transition succeeds', inject(function($transition, $q) {
+          transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to()); });
+          transitionProvider.entering({ from: "A", to: "C" }, function() { return false; });
+
+          var states = [];
+          initialState("A");
+          $transition.start("C").run(); $q.flush();
+          expect(pluck(states, 'name')).toEqual([ ]);
+
+          states = [];
+          initialState("B");
+          $transition.start("C").run(); $q.flush();
+          expect(pluck(states, 'name')).toEqual([ 'C' ]);
+        }));
+
+        it('should only be called even if other .onSuccess() callbacks fail (throw errors, etc)', inject(function($transition, $q) {
+          transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { throw new Error("oops!"); });
+          transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to()); });
+
+          var states = [];
+          initialState("B");
+          $transition.start("C").run(); $q.flush();
+          expect(pluck(states, 'name')).toEqual([ 'C' ]);
+        }));
+      });
+
+      describe('.onError()', function() {
+        it('should be called if the transition aborts.', inject(function($transition, $q) {
+          transitionProvider.entering({ from: "A", to: "C" }, function($transition$) { return false;  });
+          transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to()); });
+
+          var states = [];
+          initialState("A");
+          $transition.start("D").run(); $q.flush();
+          expect(pluck(states, 'name')).toEqual([ 'D' ]);
+        }));
+
+        it('should be called if any part of the transition fails.', inject(function($transition, $q) {
+          transitionProvider.entering({ from: "A", to: "C" }, function($transition$) { throw new Erorr("oops!");  });
+          transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to()); });
+
+          var states = [];
+          initialState("A");
+          $transition.start("D").run(); $q.flush();
+          expect(pluck(states, 'name')).toEqual([ 'D' ]);
+        }));
+
+        it('should be called for only handlers matching the transition.', inject(function($transition, $q) {
+          transitionProvider.entering({ from: "A", to: "C" }, function($transition$) { throw new Erorr("oops!");  });
+          transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { hooks.push("splatsplat"); });
+          transitionProvider.onError({ from: "A", to: "C" }, function($transition$) { hooks.push("AC"); });
+          transitionProvider.onError({ from: "A", to: "D" }, function($transition$) { hooks.push("AD"); });
+
+          var hooks = [];
+          initialState("A");
+          $transition.start("D").run(); $q.flush();
+          expect(hooks).toEqual([ 'splatsplat', 'AD' ]);
+        }));
+      });
 
       it("return value of 'false' should reject the transition with ABORT status", inject(function($transition, $q) {
         var states = [], rejection, transition = $transition.start("D");
@@ -261,6 +363,18 @@ describe('transition', function () {
         initialState("B");
         t = $transition.start("D");
         expect(pluck(t.entering(), 'name')).toEqual([ "C", "D" ]);
+      }));
+    });
+
+    describe('.exiting', function() {
+      it('should return the path elements being exited', inject(function($transition) {
+        initialState("D");
+        var t = $transition.start("C");
+        expect(pluck(t.exiting(), 'name')).toEqual([ 'D' ]);
+
+        initialState("D");
+        t = $transition.start("A");
+        expect(pluck(t.exiting(), 'name')).toEqual([ "D", "C", "B" ]);
       }));
     });
 

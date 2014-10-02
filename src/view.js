@@ -217,7 +217,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $injector) {
       // (1) Determine locals for template (should be packed in the view config)
       // (2) Determine locals for controller
       // (3) Maybe move the above logic to load()
-      this.load(view[0], extend(copy(options), view[1], { locals: $q.all() })
+      this.load(view[0], extend(copy(options), view[1], { locals: $q.all() }));
     }, this);
   };
 
@@ -279,7 +279,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $injector) {
         return;
       }
       // @TODO
-    };
+    });
     options = extend(defaults, options);
   };
 

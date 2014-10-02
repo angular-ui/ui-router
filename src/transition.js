@@ -8,7 +8,7 @@ $TransitionProvider.$inject = [];
 function $TransitionProvider() {
 
   var $transition = {}, stateMatcher = angular.noop, abstractKey = 'abstract';
-  var transitionEvents = { on: [], entering: [], exiting: [], success: [], error: [] };
+  var transitionEvents = { on: [], entering: [], exiting: [], onSuccess: [], onError: [] };
 
   /**
    * Determines if the given state matches the matchCriteria
@@ -128,7 +128,7 @@ function $TransitionProvider() {
    * @param {function} callback The function which will be injected and invoked, when a matching transition is started.
    *   The function's return value is ignored.
   */
-  this.onSuccess = registerEventHook("success");
+  this.onSuccess = registerEventHook("onSuccess");
 
   /**
    * @ngdoc function
@@ -143,7 +143,7 @@ function $TransitionProvider() {
    * @param {function} callback The function which will be injected and invoked, when a matching transition is started.
    *   The function's return value is ignored.
    */
-  this.onError = registerEventHook("error");
+  this.onError = registerEventHook("onError");
 
   function trueFn() { return true; }
   function EventHook(matchCriteria, callback) {
@@ -353,7 +353,9 @@ function $TransitionProvider() {
 
         exiting: function() {
           calculateTreeChanges();
-          return pluck(exiting.elements, 'state');
+          var exitingStates = pluck(exiting.elements, 'state');
+          exitingStates.reverse();
+          return  exitingStates;
         },
 
         retained: function() {
@@ -525,9 +527,20 @@ function $TransitionProvider() {
               try {
                 hook.invokeStepSynchronously();
               } catch (ex) {
-                // return $q.reject(ex);
-                // TODO: to catch, or not to catch?
-                console.log("Error thrown during " + hookName + " handler:", ex);
+                // TODO: What should we do bout this? I don't like just dumping them to the console.
+
+                // TODO: we could allow them to cause the transition to fail by not-catching or rethrowing,
+                // but I don't like that either because I don't think errors in the post-transition hooks
+                // should affect the outcome of the transition. The transition is effectively completed at this point.
+//                throw ex;
+
+                // TODO: We could fire an event or have yet-another-callback or some other ugly thing
+                // I can't think of a behavior that I really like.  I'm leaning slightly towards letting the error
+                // propagate up and appear in the console.  If we do, I think the transition is completed regardless.
+                // Hopefully the devs will notice their error during dev?
+
+//                console.log("Error thrown during " + hookName + " handler", ex);
+                console.log("Error thrown during " + hookName + " handler");
               }
             });
           }
@@ -535,9 +548,6 @@ function $TransitionProvider() {
           function errorHooks(error) { runSynchronousHooks("onError", extend({}, tLocals, { $error$: error })); }
 
           chain.then(successHooks).catch(errorHooks);
-//          function yay(data) { console.log(transition + " yay!"); return deferred.resolve(data); }
-//          function boo(err) { console.log(transition + " boo :(", err); return deferred.reject(err); }
-//          chain.then(yay).catch(boo);
           chain.then(deferred.resolve).catch(deferred.reject);
           chain.finally(function() {
             if ($transition.transition === transition)
