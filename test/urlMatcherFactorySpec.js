@@ -1,21 +1,18 @@
 describe("UrlMatcher", function () {
-
-  describe("provider", function () {
-
-    var provider;
-
-    beforeEach(function() {
-      angular.module('ui.router.router.test', function() {}).config(function ($urlMatcherFactoryProvider) {
-        provider = $urlMatcherFactoryProvider;
-      });
-
-      module('ui.router.router', 'ui.router.router.test');
-
-      inject(function($injector) {
-        $injector.invoke(provider.$get);
-      });
+  var provider;
+  beforeEach(function() {
+    angular.module('ui.router.router.test', function() {}).config(function ($urlMatcherFactoryProvider) {
+      provider = $urlMatcherFactoryProvider;
     });
 
+    module('ui.router.router', 'ui.router.router.test');
+
+    inject(function($injector) {
+      $injector.invoke(provider.$get);
+    });
+  });
+
+  describe("provider", function () {
     it("should factory matchers with correct configuration", function () {
       provider.caseInsensitive(false);
       expect(provider.compile('/hello').exec('/HELLO')).toBeNull();
@@ -164,6 +161,22 @@ describe("UrlMatcher", function () {
       var base = new UrlMatcher('/users/:id/details/{type}?from');
       var matcher = base.concat('/{repeat:[0-9]+}?to');
       expect(matcher).toNotBe(base);
+    });
+
+    it("should respect $urlMatcherFactoryProvider.strictMode", function() {
+      var m = new UrlMatcher('/');
+      provider.strictMode(false);
+      m = m.concat("foo");
+      expect(m.exec("/foo")).toEqual({});
+      expect(m.exec("/foo/")).toEqual({})
+    });
+
+    it("should respect $urlMatcherFactoryProvider.caseInsensitive", function() {
+      var m = new UrlMatcher('/');
+      provider.caseInsensitive(true);
+      m = m.concat("foo");
+      expect(m.exec("/foo")).toEqual({});
+      expect(m.exec("/FOO")).toEqual({});
     });
   });
 });
