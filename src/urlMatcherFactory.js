@@ -92,7 +92,8 @@ function UrlMatcher(pattern, config) {
   function addParameter(id, type, config) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
-    params[id] = extend({ type: type || new Type(), $value: $value }, config);
+    params[id] = new $$UrlMatcherFactoryProvider.Param(id, type, config);
+//    params[id] = extend({ type: type || new Type(), $value: $value }, config);
   }
 
   function quoteRegExp(string, pattern, isOptional) {
@@ -180,7 +181,7 @@ UrlMatcher.prototype.concat = function (pattern, config) {
   // Because order of search parameters is irrelevant, we can add our own search
   // parameters to the end of the new pattern. Parse the new pattern by itself
   // and then join the bits together, but it's much easier to do this on a string level.
-  return new $$UrlMatcherFactoryProvider.compile(this.sourcePath + pattern + this.sourceSearch, config);
+  return $$UrlMatcherFactoryProvider.compile(this.sourcePath + pattern + this.sourceSearch, config);
 };
 
 UrlMatcher.prototype.toString = function () {
@@ -216,21 +217,19 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
   if (!m) return null;
   searchParams = searchParams || {};
 
-  var params = this.parameters(), nTotal = params.length,
+  var paramNames = this.parameters(), nTotal = paramNames.length,
     nPath = this.segments.length - 1,
-    values = {}, i, cfg, param;
+    values = {}, i, cfg, paramName;
 
   if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
 
   for (i = 0; i < nPath; i++) {
-    param = params[i];
-    cfg = this.params[param];
-    values[param] = cfg.$value(m[i + 1]);
+    paramName = paramNames[i];
+    values[paramName] = this.params[paramName].value(m[i + 1]);
   }
   for (/**/; i < nTotal; i++) {
-    param = params[i];
-    cfg = this.params[param];
-    values[param] = cfg.$value(searchParams[param]);
+    paramName = paramNames[i];
+    values[paramName] = this.params[paramName].value(searchParams[paramName]);
   }
 
   return values;
@@ -265,13 +264,13 @@ UrlMatcher.prototype.parameters = function (param) {
  * @returns {boolean} Returns `true` if `params` validates, otherwise `false`.
  */
 UrlMatcher.prototype.validates = function (params) {
-  var result = true, isOptional, cfg, self = this;
+  var result = true, isOptional, param, self = this;
 
   forEach(params, function(val, key) {
     if (!self.params[key]) return;
-    cfg = self.params[key];
-    isOptional = !val && isDefined(cfg.value);
-    result = result && (isOptional || cfg.type.is(val));
+    param = self.params[key];
+    isOptional = !val && isDefined(param.defaultValue);
+    result = result && (isOptional || param.type.is(val));
   });
   return result;
 };
@@ -715,6 +714,39 @@ function $UrlMatcherFactory() {
       }
       var def = new Type(isInjectable(type.def) ? injector.invoke(type.def) : type.def);
       UrlMatcher.prototype.$types[type.name] = def;
+    });
+  }
+
+  this.Param = function Param(id, type, config) {
+    var self = this;
+    type = type || new Type();
+    config = config || {};
+    var defaultValue = config.value; // todo: handle null, function, object
+
+    /**
+     * [Internal] Get the default value of a parameter, which may be an injectable function.
+     */
+    function $$getDefaultValue(config) {
+      if (!isInjectable(defaultValue)) return defaultValue;
+      if (!injector) throw new Error("Injectable functions cannot be called at configuration time");
+      return injector.invoke(defaultValue);
+    }
+
+    /**
+     * [Internal] Gets the decoded representation of a value if the value is defined, otherwise, returns the
+     * default value, which may be the result of an injectable function.
+     */
+    function $value(value) {
+      return isDefined(value) ? self.type.decode(value) : $$getDefaultValue(this);
+    }
+
+    extend(this, {
+      id: id,
+      type: type,
+      config: config,
+      dynamic: undefined,
+      defaultValue: defaultValue,
+      value: $value
     });
   }
 }
