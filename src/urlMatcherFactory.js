@@ -80,20 +80,10 @@ function UrlMatcher(pattern, config) {
       segments = this.segments = [],
       params = this.params = {};
 
-  /**
-   * [Internal] Gets the decoded representation of a value if the value is defined, otherwise, returns the
-   * default value, which may be the result of an injectable function.
-   */
-  function $value(value) {
-    /*jshint validthis: true */
-    return isDefined(value) ? this.type.decode(value) : $UrlMatcherFactory.$$getDefaultValue(this);
-  }
-
   function addParameter(id, type, config) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
     params[id] = new $$UrlMatcherFactoryProvider.Param(id, type, config);
-//    params[id] = extend({ type: type || new Type(), $value: $value }, config);
   }
 
   function quoteRegExp(string, pattern, isOptional) {
@@ -719,9 +709,15 @@ function $UrlMatcherFactory() {
 
   this.Param = function Param(id, type, config) {
     var self = this;
-    type = type || new Type();
     config = config || {};
+    type = getType(config, type);
     var defaultValue = config.value; // todo: handle null, function, object
+
+    function getType(config, urlType) {
+      if (config.type && urlType) throw new Error("Param '"+id+"' has two type configurations.");
+      if (urlType && !config.type) return urlType;
+      return config.type instanceof Type ? config.type : new Type(config.type || {});
+    }
 
     /**
      * [Internal] Get the default value of a parameter, which may be an injectable function.
