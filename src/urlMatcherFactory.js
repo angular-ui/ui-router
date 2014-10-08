@@ -94,6 +94,14 @@ function UrlMatcher(pattern, config) {
     return result + flag + '(' + pattern + ')' + flag;
   }
 
+  function regexpType(regexp) {
+    var type = new Type({
+      pattern: new RegExp(regexp),
+      is: function(value) { return type.pattern.exec(type.encode(value)); }
+    });
+    return type;
+  }
+
   this.source = pattern;
 
   // Split into static segments separated by path parameter placeholders.
@@ -104,7 +112,7 @@ function UrlMatcher(pattern, config) {
     id      = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
     regexp  = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
     segment = pattern.substring(last, m.index);
-    type    = this.$types[regexp] || new Type({ pattern: new RegExp(regexp) });
+    type    = this.$types[regexp] || regexpType(regexp);
     cfg     = config.params[id];
 
     if (segment.indexOf('?') >= 0) break; // we're into the search part

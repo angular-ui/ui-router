@@ -96,6 +96,9 @@ describe('state', function () {
       .state('badParam', {
         url: "/bad/{param:int}"
       })
+      .state('badParam2', {
+        url: "/bad2/{param:[0-9]{5}}"
+      })
 
       .state('first', { url: '^/first/subpath' })
       .state('second', { url: '^/second' })
@@ -755,6 +758,7 @@ describe('state', function () {
         'about.sidebar',
         'about.sidebar.item',
         'badParam',
+        'badParam2',
         'dynamicController',
         'first',
         'home',
@@ -872,6 +876,29 @@ describe('state', function () {
 
         $location.path("/bad/foo");
         $rootScope.$broadcast("$locationChangeSuccess");
+        $rootScope.$apply();
+        expect($state.current.name).toBe("about");
+      }));
+
+      it('should ignore bad state parameters', inject(function ($state, $rootScope, $location, $stateParams) {
+        $state.go("badParam", { param: 5 });
+        $rootScope.$apply();
+        expect($state.current.name).toBe("badParam");
+        expect($stateParams).toEqual({param: 5});
+
+        $state.go("badParam2", { param: '12345' }); // must be 5 digits
+        $rootScope.$apply();
+        expect($state.current.name).toBe("badParam2");
+
+        $state.go("about");
+        $rootScope.$apply();
+        expect($state.current.name).toBe('about');
+
+        $state.go("badParam", { param: 'foo' });
+        $rootScope.$apply();
+        expect($state.current.name).toBe("about");
+
+        $state.go("badParam2", { param: '1234' }); // must be 5 digits
         $rootScope.$apply();
         expect($state.current.name).toBe("about");
       }));
