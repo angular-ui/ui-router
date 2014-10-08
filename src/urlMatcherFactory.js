@@ -78,7 +78,7 @@ function UrlMatcher(pattern, config) {
   var placeholder = /([:*])(\w+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
       compiled = '^', last = 0, m,
       segments = this.segments = [],
-      params = this.params = {};
+      params = this.params = new $$UrlMatcherFactoryProvider.ParamSet();
 
   function addParameter(id, type, config) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
@@ -249,15 +249,7 @@ UrlMatcher.prototype.parameters = function (param) {
  * @returns {boolean} Returns `true` if `params` validates, otherwise `false`.
  */
 UrlMatcher.prototype.validates = function (params) {
-  var result = true, isOptional, param, self = this;
-
-  forEach(params, function(val, key) {
-    if (!self.params[key]) return;
-    param = self.params[key];
-    isOptional = !val && param.isOptional;
-    result = result && (isOptional || param.type.is(val));
-  });
-  return result;
+  return this.params.$$validates(params);
 };
 
 /**
@@ -748,7 +740,37 @@ function $UrlMatcherFactory() {
       isOptional: defaultValueConfig.value !== undefined,
       value: $value
     });
+  };
+
+  function ParamSet(params) {
+    extend(this, params || {});
   }
+
+  ParamSet.prototype = {
+    $$keys: function () {
+      return protoKeys(this, ["$$keys", "$$values", "$$validates"]);
+    },
+    $$values: function(paramValues) {
+      var values = {};
+      forEach(this.$$keys(), function(key) {
+        return this[key].value(paramValues[key]);
+      });
+      return values;
+    },
+    $$validates: function $$validate(paramValues) {
+      var result = true, isOptional, param, self = this;
+
+      forEach(paramValues, function (val, key) {
+        if (!self[key]) return;
+        param = self[key];
+        isOptional = !val && param.isOptional;
+        result = result && (isOptional || param.type.is(val));
+      });
+      return result;
+    }
+  };
+
+  this.ParamSet = ParamSet;
 }
 
 // Register as a provider so it's available to other providers
