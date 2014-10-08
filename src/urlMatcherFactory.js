@@ -751,9 +751,9 @@ function $UrlMatcherFactory() {
       return protoKeys(this, ["$$keys", "$$values", "$$validates"]);
     },
     $$values: function(paramValues) {
-      var values = {};
-      forEach(this.$$keys(), function(key) {
-        return this[key].value(paramValues[key]);
+      var values = {}, self = this;
+      forEach(self.$$keys(), function(key) {
+        values[key] = self[key].value(paramValues && paramValues[key]);
       });
       return values;
     },
