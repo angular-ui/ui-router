@@ -60,7 +60,7 @@
  * @returns {Object}  New `UrlMatcher` object
  */
 function UrlMatcher(pattern, config) {
-  config = angular.isObject(config) ? config : {};
+  config = extend({ params: {} }, isObject(config) ? config : {});
 
   // Find all placeholders and create a compiled pattern, using either classic or curly syntax:
   //   '*' name
@@ -84,6 +84,7 @@ function UrlMatcher(pattern, config) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
     params[id] = new $$UrlMatcherFactoryProvider.Param(id, type, config);
+    return params[id];
   }
 
   function quoteRegExp(string, pattern, isOptional) {
@@ -91,12 +92,6 @@ function UrlMatcher(pattern, config) {
     if (!pattern) return result;
     var flag = isOptional ? '?' : '';
     return result + flag + '(' + pattern + ')' + flag;
-  }
-
-  function paramConfig(param) {
-    if (!config.params || !config.params[param]) return {};
-    var cfg = config.params[param];
-    return isObject(cfg) ? cfg : { value: cfg };
   }
 
   this.source = pattern;
@@ -110,12 +105,12 @@ function UrlMatcher(pattern, config) {
     regexp  = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
     segment = pattern.substring(last, m.index);
     type    = this.$types[regexp] || new Type({ pattern: new RegExp(regexp) });
-    cfg     = paramConfig(id);
+    cfg     = config.params[id];
 
     if (segment.indexOf('?') >= 0) break; // we're into the search part
 
-    compiled += quoteRegExp(segment, type.$subPattern(), isDefined(cfg.value));
-    addParameter(id, type, cfg);
+    var param = addParameter(id, type, cfg);
+    compiled += quoteRegExp(segment, type.$subPattern(), param.isOptional);
     segments.push(segment);
     last = placeholder.lastIndex;
   }
@@ -131,7 +126,7 @@ function UrlMatcher(pattern, config) {
 
     // Allow parameters to be separated by '?' as well as '&' to make concat() easier
     forEach(search.substring(1).split(/[&?]/), function(key) {
-      addParameter(key, null, paramConfig(key));
+      addParameter(key, null, config.params[key]);
     });
   } else {
     this.sourcePath = pattern;
@@ -259,7 +254,7 @@ UrlMatcher.prototype.validates = function (params) {
   forEach(params, function(val, key) {
     if (!self.params[key]) return;
     param = self.params[key];
-    isOptional = !val && isDefined(param.defaultValue);
+    isOptional = !val && param.isOptional;
     result = result && (isOptional || param.type.is(val));
   });
   return result;
@@ -709,9 +704,19 @@ function $UrlMatcherFactory() {
 
   this.Param = function Param(id, type, config) {
     var self = this;
+    var defaultValueConfig = getDefaultValueConfig(config);
     config = config || {};
     type = getType(config, type);
-    var defaultValue = config.value; // todo: handle null, function, object
+
+    function getDefaultValueConfig(config) {
+      var keys = isObject(config) ? objectKeys(config) : [];
+      var isShorthand = keys.indexOf("value") === -1 && keys.indexOf("type") === -1;
+      var configValue = isShorthand ? config : config.value;
+      return {
+        fn: isInjectable(configValue) ? configValue : function () { return configValue; },
+        value: configValue
+      };
+    }
 
     function getType(config, urlType) {
       if (config.type && urlType) throw new Error("Param '"+id+"' has two type configurations.");
@@ -722,10 +727,9 @@ function $UrlMatcherFactory() {
     /**
      * [Internal] Get the default value of a parameter, which may be an injectable function.
      */
-    function $$getDefaultValue(config) {
-      if (!isInjectable(defaultValue)) return defaultValue;
+    function $$getDefaultValue() {
       if (!injector) throw new Error("Injectable functions cannot be called at configuration time");
-      return injector.invoke(defaultValue);
+      return injector.invoke(defaultValueConfig.fn);
     }
 
     /**
@@ -733,7 +737,7 @@ function $UrlMatcherFactory() {
      * default value, which may be the result of an injectable function.
      */
     function $value(value) {
-      return isDefined(value) ? self.type.decode(value) : $$getDefaultValue(this);
+      return isDefined(value) ? self.type.decode(value) : $$getDefaultValue();
     }
 
     extend(this, {
@@ -741,7 +745,7 @@ function $UrlMatcherFactory() {
       type: type,
       config: config,
       dynamic: undefined,
-      defaultValue: defaultValue,
+      isOptional: defaultValueConfig.value !== undefined,
       value: $value
     });
   }
