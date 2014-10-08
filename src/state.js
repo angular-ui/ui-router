@@ -786,7 +786,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       var keep = 0, state = toPath[keep], locals = root.locals, toLocals = [];
 
       if (!options.reload) {
-        while (state && state === fromPath[keep] && equalForKeys(toParams, fromParams, objectKeys(state.ownParams))) {
+        while (state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams.$$keys())) {
           locals = toLocals[keep] = state.locals;
           keep++;
           state = toPath[keep];
