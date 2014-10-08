@@ -20,13 +20,14 @@ describe('state', function () {
   var A = { data: {} },
       B = {},
       C = {},
-      D = { params: { x: {}, y: {} } },
-      DD = { parent: D, params: { x: {}, y: {}, z: {} } },
+      D = { params: { x: null, y: null } },
+      DD = { parent: D, params: { x: null, y: null, z: null } },
       E = { params: { i: {} } },
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
       HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
       RS = { url: '^/search?term', reloadOnSearch: false },
+      OPT = { url: '/opt/:param', params: { param: 100 } },
       AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -46,6 +47,7 @@ describe('state', function () {
       .state('H', H)
       .state('HH', HH)
       .state('HHH', HHH)
+      .state('OPT', OPT)
       .state('RS', RS)
 
       .state('home', { url: "/" })
@@ -101,8 +103,8 @@ describe('state', function () {
       // State param inheritance tests. param1 is inherited by sub1 & sub2;
       // param2 should not be transferred (unless explicitly set).
       .state('root', { url: '^/root?param1' })
-      .state('root.sub1', {url: '/1?param2' })
-      .state('root.sub2', {url: '/2?param2' });
+      .state('root.sub1', {url: '/1?param2' });
+    $stateProvider.state('root.sub2', {url: '/2?param2' });
 
     $provide.value('AppInjectable', AppInjectable);
   }));
@@ -642,7 +644,7 @@ describe('state', function () {
 
     it('contains the parameter values for the current state', inject(function ($state, $q) {
       initStateTo(D, { x: 'x value', z: 'invalid value' });
-      expect($state.params).toEqual({ x: 'x value', y: undefined });
+      expect($state.params).toEqual({ x: 'x value', y: null });
     }));
   });
 
@@ -745,6 +747,7 @@ describe('state', function () {
         'H',
         'HH',
         'HHH',
+        'OPT',
         'RS',
         'about',
         'about.person',
@@ -783,6 +786,26 @@ describe('state', function () {
       expect($state.get(null)).toBeNull();
       expect($state.get(false)).toBeNull();
       expect($state.get(undefined)).toBeNull();
+    }));
+  });
+
+  describe('optional parameters', function() {
+    it("should be populated during transition, if unspecified", inject(function($state, $q) {
+      var stateParams;
+      $state.get("OPT").onEnter = function($stateParams) { stateParams = $stateParams; };
+      $state.go("OPT"); $q.flush();
+      expect($state.current.name).toBe("OPT");
+      expect($state.params).toEqual({ param: 100 });
+      expect(stateParams).toEqual({ param: 100 });
+    }));
+
+    it("should be populated during primary transition, if unspecified", inject(function($state, $q) {
+      var count = 0;
+      $state.get("OPT").onEnter = function($stateParams) { count++; };
+      $state.go("OPT"); $q.flush();
+      expect($state.current.name).toBe("OPT");
+      expect($state.params).toEqual({ param: 100 });
+      expect(count).toEqual(1);
     }));
   });
 

@@ -778,6 +778,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       }
       if (toState[abstractKey]) throw new Error("Cannot transition to abstract state '" + to + "'");
       if (options.inherit) toParams = inheritParams($stateParams, toParams || {}, $state.$current, toState);
+      var defaultParams = toState.params.$$values();
+      toParams = extend(defaultParams, toParams);
       to = toState;
 
       var toPath = to.path;
