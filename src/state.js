@@ -120,7 +120,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       includes[state.name] = true;
       return includes;
     },
-
+    
+    // Allows to use abstract state in ui-sref
+    defaultChild: function(state) {
+      return state.defaultChild;
+    },
+    
     $delegates: {}
   };
 
