@@ -779,8 +779,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // handle default child sequence
       while(toState[abstractKey] && (typeof to == 'string') && toState.defaultChild)
       {
-    	  to = to+'.'+toState.defaultChild;
-    	  toState = findState(to, options.relative);
+        to = to + '.' + toState.defaultChild;
+        toState = findState(to, options.relative);
       }
       
       if (!isDefined(toState)) {
