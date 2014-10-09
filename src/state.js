@@ -775,7 +775,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
       var from = $state.$current, fromParams = $state.params, fromPath = from.path;
       var evt, toState = findState(to, options.relative);
-
+      
+      // handle default child sequence
+      while(toState[abstractKey] && (typeof to == 'string') && toState.defaultChild)
+      {
+    	  to = to+'.'+toState.defaultChild;
+    	  toState = findState(to, options.relative);
+      }
+      
       if (!isDefined(toState)) {
         var redirect = { to: to, toParams: toParams, options: options };
         var redirectResult = handleRedirect(redirect, from.self, fromParams, options);
