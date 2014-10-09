@@ -86,6 +86,7 @@ function $StateRefDirective($state, $timeout) {
     link: function(scope, element, attrs, uiSrefActive) {
       var ref = parseStateRef(attrs.uiSref, $state.current.name);
       var params = null, url = null, base = stateContext(element) || $state.$current;
+      var newHref = null, isAnchor = element.prop("tagName") === "A";
       var isForm = element[0].nodeName === "FORM";
       var attr = isForm ? "action" : "href", nav = true;
 
@@ -99,27 +100,27 @@ function $StateRefDirective($state, $timeout) {
       });
 
       var update = function(newVal) {
-        if (newVal) params = newVal;
+        if (newVal) params = angular.copy(newVal);
         if (!nav) return;
 
-        var newHref = $state.href(ref.state, params, options);
+        newHref = $state.href(ref.state, params, options);
 
         var activeDirective = uiSrefActive[1] || uiSrefActive[0];
         if (activeDirective) {
           activeDirective.$$setStateInfo(ref.state, params);
         }
-        if (!newHref) {
+        if (newHref === null) {
           nav = false;
           return false;
         }
-        element[0][attr] = newHref;
+        attrs.$set(attr, newHref);
       };
 
       if (ref.paramExpr) {
         scope.$watch(ref.paramExpr, function(newVal, oldVal) {
           if (newVal !== params) update(newVal);
         }, true);
-        params = scope.$eval(ref.paramExpr);
+        params = angular.copy(scope.$eval(ref.paramExpr));
       }
       update();
 
@@ -134,8 +135,11 @@ function $StateRefDirective($state, $timeout) {
           });
           e.preventDefault();
 
+          // if the state has no URL, ignore one preventDefault from the <a> directive.
+          var ignorePreventDefaultCount = isAnchor && !newHref ? 1: 0;
           e.preventDefault = function() {
-            $timeout.cancel(transition);
+            if (ignorePreventDefaultCount-- <= 0)
+              $timeout.cancel(transition);
           };
         }
       });
@@ -251,7 +255,7 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
         if (typeof $attrs.uiSrefActiveEq !== 'undefined') {
           return $state.$current.self === state && matchesParams();
         } else {
-          return $state.includes(state.name) && matchesParams();
+          return state && $state.includes(state.name) && matchesParams();
         }
       }
 

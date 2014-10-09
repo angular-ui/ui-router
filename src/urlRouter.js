@@ -88,14 +88,14 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
    *
    *   // Example of using function rule as param
    *   $urlRouterProvider.otherwise(function ($injector, $location) {
-   *     ...
+   *     return '/a/valid/url';
    *   });
    * });
    * </pre>
    *
    * @param {string|object} rule The url path you want to redirect to or a function 
    * rule that returns the url path. The function version is passed two params: 
-   * `$injector` and `$location` services.
+   * `$injector` and `$location` services, and must return a url string.
    *
    * @return {object} `$urlRouterProvider` - `$urlRouterProvider` instance
    */
@@ -315,7 +315,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
        *
        * @example
        * <pre>
-       * angular.module('app', ['ui.router']);
+       * angular.module('app', ['ui.router'])
        *   .run(function($rootScope, $urlRouter) {
        *     $rootScope.$on('$locationChangeSuccess', function(evt) {
        *       // Halt state change from even starting
@@ -381,10 +381,14 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
         if (!urlMatcher.validates(params)) return null;
 
         var isHtml5 = $locationProvider.html5Mode();
+        if (angular.isObject(isHtml5)) {
+          isHtml5 = isHtml5.enabled;
+        }
+        
         var url = urlMatcher.format(params);
         options = options || {};
 
-        if (!isHtml5 && url) {
+        if (!isHtml5 && url !== null) {
           url = "#" + $locationProvider.hashPrefix() + url;
         }
         url = appendBasePath(url, isHtml5, options.absolute);

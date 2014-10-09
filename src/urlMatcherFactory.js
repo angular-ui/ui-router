@@ -48,7 +48,7 @@
  *   URL matching this matcher (i.e. any string for which {@link ui.router.util.type:UrlMatcher#methods_exec exec()} returns
  *   non-null) will start with this prefix.
  *
- * @property {string} source  The pattern that was passed into the contructor
+ * @property {string} source  The pattern that was passed into the constructor
  *
  * @property {string} sourcePath  The path portion of the source property
  *
@@ -180,7 +180,7 @@ UrlMatcher.prototype.concat = function (pattern, config) {
   // Because order of search parameters is irrelevant, we can add our own search
   // parameters to the end of the new pattern. Parse the new pattern by itself
   // and then join the bits together, but it's much easier to do this on a string level.
-  return new UrlMatcher(this.sourcePath + pattern + this.sourceSearch, config);
+  return new $$UrlMatcherFactoryProvider.compile(this.sourcePath + pattern + this.sourceSearch, config);
 };
 
 UrlMatcher.prototype.toString = function () {
@@ -310,7 +310,7 @@ UrlMatcher.prototype.format = function (values) {
     value = values[param];
     cfg   = this.params[param];
 
-    if (!isDefined(value) && (segments[i] === '/' || segments[i + 1] === '/')) continue;
+    if (!isDefined(value) && (segments[i] === '/' && segments[i + 1] === '/')) continue;
     if (value != null) result += encodeURIComponent(cfg.type.encode(value));
     result += segments[i + 1];
   }
@@ -327,7 +327,7 @@ UrlMatcher.prototype.format = function (values) {
     result += (search ? '&' : '?') + param + '=' + (array ? value : encodeURIComponent(value));
     search = true;
   }
-  return result;
+  return result.replace('//', '/');
 };
 
 UrlMatcher.prototype.$types = {};
@@ -435,6 +435,7 @@ Type.prototype.$subPattern = function() {
 
 Type.prototype.pattern = /.*/;
 
+var $$UrlMatcherFactoryProvider;
 /**
  * @ngdoc object
  * @name ui.router.util.$urlMatcherFactory
@@ -444,6 +445,7 @@ Type.prototype.pattern = /.*/;
  * is also available to providers under the name `$urlMatcherFactoryProvider`.
  */
 function $UrlMatcherFactory() {
+  $$UrlMatcherFactoryProvider = this;
 
   var isCaseInsensitive = false, isStrictMode = true;
 
@@ -546,7 +548,7 @@ function $UrlMatcherFactory() {
    *
    * @description
    * Creates a {@link ui.router.util.type:UrlMatcher `UrlMatcher`} for the specified pattern.
-   *   
+   *
    * @param {string} pattern  The URL pattern.
    * @param {Object} config  The config object hash.
    * @returns {UrlMatcher}  The UrlMatcher.

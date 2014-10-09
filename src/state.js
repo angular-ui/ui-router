@@ -137,6 +137,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
     if (path) {
       if (!base) throw new Error("No reference point given for path '"  + name + "'");
+      base = findState(base);
+      
       var rel = name.split("."), i = 0, pathLength = rel.length, current = base;
 
       for (; i < pathLength; i++) {
@@ -317,11 +319,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
    * <pre>
    * // Override the internal 'views' builder with a function that takes the state
    * // definition, and a reference to the internal function being overridden:
-   * $stateProvider.decorator('views', function ($state, parent) {
+   * $stateProvider.decorator('views', function (state, parent) {
    *   var result = {},
    *       views = parent(state);
    *
-   *   angular.forEach(view, function (config, name) {
+   *   angular.forEach(views, function (config, name) {
    *     var autoName = (state.name + '.' + name).replace('.', '/');
    *     config.templateUrl = config.templateUrl || '/partials/' + autoName + '.html';
    *     result[name] = config;
@@ -644,9 +646,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      *   reload: true, inherit: false, notify: false 
      * });
      * </pre>
+     *
+     * @returns {promise} A promise representing the state of the new transition. See
+     * {@link ui.router.state.$state#methods_go $state.go}.
      */
     $state.reload = function reload() {
-      $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: false });
+      return $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: false });
     };
 
     /**
@@ -716,7 +721,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      *
      */
     $state.go = function go(to, params, options) {
-      return this.transitionTo(to, params, extend({ inherit: true, relative: $state.$current }, options));
+      return $state.transitionTo(to, params, extend({ inherit: true, relative: $state.$current }, options));
     };
 
     /**
@@ -970,8 +975,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      *
      * @description
      * Similar to {@link ui.router.state.$state#methods_includes $state.includes},
-     * but only checks for the full state name. If params is supplied then it will be 
-     * tested for strict equality against the current active params object, so all params 
+     * but only checks for the full state name. If params is supplied then it will be
+     * tested for strict equality against the current active params object, so all params
      * must match with none missing and no extras.
      *
      * @example
@@ -987,13 +992,19 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * <div ng-class="{highlighted: $state.is('.item')}">Item</div>
      * </pre>
      *
-     * @param {string|object} stateName The state name (absolute or relative) or state object you'd like to check.
-     * @param {object=} params A param object, e.g. `{sectionId: section.id}`, that you'd like 
+     * @param {string|object} stateOrName The state name (absolute or relative) or state object you'd like to check.
+     * @param {object=} params A param object, e.g. `{sectionId: section.id}`, that you'd like
      * to test against the current active state.
+     * @param {object=} options An options object.  The options are:
+     *
+     * - **`relative`** - {string|object} -  If `stateOrName` is a relative state name and `options.relative` is set, .is will
+     * test relative to `options.relative` state (or name).
+     *
      * @returns {boolean} Returns true if it is the state.
      */
-    $state.is = function is(stateOrName, params) {
-      var state = findState(stateOrName);
+    $state.is = function is(stateOrName, params, options) {
+      options = extend({ relative: $state.$current }, options || {});
+      var state = findState(stateOrName, options.relative);
 
       if (!isDefined(state)) {
         return undefined;
@@ -1048,19 +1059,25 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      *
      * @param {string} stateOrName A partial name, relative name, or glob pattern
      * to be searched for within the current state name.
-     * @param {object} params A param object, e.g. `{sectionId: section.id}`,
+     * @param {object=} params A param object, e.g. `{sectionId: section.id}`,
      * that you'd like to test against the current active state.
+     * @param {object=} options An options object.  The options are:
+     *
+     * - **`relative`** - {string|object=} -  If `stateOrName` is a relative state reference and `options.relative` is set,
+     * .includes will test relative to `options.relative` state (or name).
+     *
      * @returns {boolean} Returns true if it does include the state
      */
-    $state.includes = function includes(stateOrName, params) {
+    $state.includes = function includes(stateOrName, params, options) {
+      options = extend({ relative: $state.$current }, options || {});
       if (isString(stateOrName) && isGlob(stateOrName)) {
         if (!doesStateMatchGlob(stateOrName)) {
           return false;
         }
         stateOrName = $state.$current.name;
       }
-      var state = findState(stateOrName);
 
+      var state = findState(stateOrName, options.relative);
       if (!isDefined(state)) {
         return undefined;
       }
@@ -1091,7 +1108,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * - **`lossy`** - {boolean=true} -  If true, and if there is no url associated with the state provided in the
      *    first parameter, then the constructed href url will be built from the first navigable ancestor (aka
      *    ancestor with a valid url).
-     * - **`inherit`** - {boolean=false}, If `true` will inherit url parameters from current url.
+     * - **`inherit`** - {boolean=true}, If `true` will inherit url parameters from current url.
      * - **`relative`** - {object=$state.$current}, When transitioning with relative path (e.g '^'), 
      *    defines which state to be relative from.
      * - **`absolute`** - {boolean=false},  If true will generate an absolute url, e.g. "http://www.example.com/fullurl".
@@ -1101,7 +1118,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     $state.href = function href(stateOrName, params, options) {
       options = extend({
         lossy:    true,
-        inherit:  false,
+        inherit:  true,
         absolute: false,
         relative: $state.$current
       }, options || {});
@@ -1113,7 +1130,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       
       var nav = (state && options.lossy) ? state.navigable : state;
 
-      if (!nav || !nav.url) {
+      if (!nav || nav.url === undefined || nav.url === null) {
         return null;
       }
       return $urlRouter.href(nav.url, filterByKeys(objectKeys(state.params), params || {}), {
@@ -1129,13 +1146,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * @description
      * Returns the state configuration object for any specific state or all states.
      *
-     * @param {string|Sbject=} stateOrName (absolute or relative) If provided, will only get the config for
+     * @param {string|object=} stateOrName (absolute or relative) If provided, will only get the config for
      * the requested state. If not provided, returns an array of ALL state configs.
+     * @param {string|object=} context When stateOrName is a relative state reference, the state will be retrieved relative to context.
      * @returns {Object|Array} State configuration object or array of all objects.
      */
     $state.get = function (stateOrName, context) {
       if (arguments.length === 0) return objectKeys(states).map(function(name) { return states[name].self; });
-      var state = findState(stateOrName, context);
+      var state = findState(stateOrName, context || $state.$current);
       return (state && state.self) ? state.self : null;
     };
 
