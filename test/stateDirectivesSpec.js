@@ -130,7 +130,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect($stateParams).toEqual({ id: 5 });
+      expect($stateParams).toEqual({ id: "5" });
     }));
 
     it('should transition when given a click that contains no data (fake-click)', inject(function($state, $stateParams, $q) {
@@ -147,7 +147,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect($stateParams).toEqual({ id: 5 });
+      expect($stateParams).toEqual({ id: "5" });
     }));
 
     it('should not transition states when ctrl-clicked', inject(function($state, $stateParams, $q) {
@@ -328,7 +328,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.$current.name).toBe("contacts.item.detail");
-      expect($state.params).toEqual({ id: 5 });
+      expect($state.params).toEqual({ id: "5" });
     }));
 
     it('should resolve states from parent uiView', inject(function ($state, $stateParams, $q, $timeout) {

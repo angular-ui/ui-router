@@ -784,8 +784,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       if (options.inherit) toParams = inheritParams($stateParams, toParams || {}, $state.$current, toState);
       if (!toState.params.$$validates(toParams)) return TransitionFailed;
 
-      var defaultParams = toState.params.$$values();
-      toParams = extend(defaultParams, toParams);
+      toParams = toState.params.$$values(toParams);
       to = toState;
 
       var toPath = to.path;
@@ -794,7 +793,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       var keep = 0, state = toPath[keep], locals = root.locals, toLocals = [];
 
       if (!options.reload) {
-        while (state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams.$$keys())) {
+        while (state && state === fromPath[keep] && state.ownParams.$$equals(toParams, fromParams)) {
           locals = toLocals[keep] = state.locals;
           keep++;
           state = toPath[keep];

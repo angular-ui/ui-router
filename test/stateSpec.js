@@ -27,7 +27,8 @@ describe('state', function () {
       HH = { parent: H },
       HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
       RS = { url: '^/search?term', reloadOnSearch: false },
-      OPT = { url: '/opt/:param', params: { param: 100 } },
+      OPT = { url: '/opt/:param', params: { param: "100" } },
+      OPT2 = { url: '/opt2/:param2/:param3', params: { param3: "300", param4: "400" } },
       AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -48,6 +49,7 @@ describe('state', function () {
       .state('HH', HH)
       .state('HHH', HHH)
       .state('OPT', OPT)
+      .state('OPT.OPT2', OPT2)
       .state('RS', RS)
 
       .state('home', { url: "/" })
@@ -273,7 +275,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('DDD');
-      expect($state.params).toEqual({ x: 1, y: 2, z: 3, w: 4 });
+      expect($state.params).toEqual({ x: "1", y: "2", z: "3", w: "4" });
     }));
 
     it('can defer a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -290,7 +292,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('AA');
-      expect($state.params).toEqual({ a: 1 });
+      expect($state.params).toEqual({ a: "1" });
     }));
 
     it('can defer and supersede a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -479,11 +481,11 @@ describe('state', function () {
       $state.transitionTo('about.person', { person: 'bob' });
       $q.flush();
 
-      $state.go('.item', { id: 5 });
+      $state.go('.item', { id: "5" });
       $q.flush();
 
       expect($state.$current.name).toBe('about.person.item');
-      expect($stateParams).toEqual({ person: 'bob', id: 5 });
+      expect($stateParams).toEqual({ person: 'bob', id: "5" });
 
       $state.go('^.^.sidebar');
       $q.flush();
@@ -751,6 +753,7 @@ describe('state', function () {
         'HH',
         'HHH',
         'OPT',
+        'OPT.OPT2',
         'RS',
         'about',
         'about.person',
@@ -799,8 +802,8 @@ describe('state', function () {
       $state.get("OPT").onEnter = function($stateParams) { stateParams = $stateParams; };
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
-      expect($state.params).toEqual({ param: 100 });
-      expect(stateParams).toEqual({ param: 100 });
+      expect($state.params).toEqual({ param: "100" });
+      expect(stateParams).toEqual({ param: "100" });
     }));
 
     it("should be populated during primary transition, if unspecified", inject(function($state, $q) {
@@ -808,7 +811,43 @@ describe('state', function () {
       $state.get("OPT").onEnter = function($stateParams) { count++; };
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
-      expect($state.params).toEqual({ param: 100 });
+      expect($state.params).toEqual({ param: "100" });
+      expect(count).toEqual(1);
+    }));
+
+    it("should allow mixed URL and config params", inject(function($state, $q) {
+      var count = 0;
+      $state.get("OPT").onEnter =      function($stateParams) { count++; };
+      $state.get("OPT.OPT2").onEnter = function($stateParams) { count++; };
+      $state.go("OPT"); $q.flush();
+      expect($state.current.name).toBe("OPT");
+      expect($state.params).toEqual({ param: "100" });
+      expect(count).toEqual(1);
+
+      $state.go("OPT.OPT2", { param2: 200 }); $q.flush();
+      expect($state.current.name).toBe("OPT.OPT2");
+      expect($state.params).toEqual({ param: "100", param2: "200", param3: "300", param4: "400" });
+      expect(count).toEqual(2);
+    }));
+  });
+
+  // TODO: Enforce by default in next major release (1.0.0)
+  xdescribe('non-optional parameters', function() {
+    it("should cause transition failure, when unspecified.", inject(function($state, $q) {
+      var count = 0;
+      $state.get("OPT").onEnter =      function() { count++; };
+      $state.get("OPT.OPT2").onEnter = function() { count++; };
+      $state.go("OPT"); $q.flush();
+      expect($state.current.name).toBe("OPT");
+      expect($state.params).toEqual({ param: "100" });
+      expect(count).toEqual(1);
+
+      var result;
+      $state.go("OPT.OPT2").then(function(data) { result = data; });
+      $q.flush();
+      expect($state.current.name).toBe("OPT");
+      expect($state.params).toEqual({ param: "100" });
+      expect(result).toEqual("asdfasdf");
       expect(count).toEqual(1);
     }));
   });
@@ -996,7 +1035,7 @@ describe('state', function () {
       $state.go('root.sub1', { param2: 2 });
       $q.flush();
       expect($state.current.name).toEqual('root.sub1');
-      expect($stateParams).toEqual({ param1: 1, param2: 2 });
+      expect($stateParams).toEqual({ param1: "1", param2: "2" });
     }));
 
     it('should not inherit siblings\' states', inject(function ($state, $stateParams, $q) {
@@ -1009,7 +1048,7 @@ describe('state', function () {
       $q.flush();
       expect($state.current.name).toEqual('root.sub2');
 
-      expect($stateParams).toEqual({ param1: 1, param2: undefined });
+      expect($stateParams).toEqual({ param1: "1", param2: undefined });
     }));
   });
 

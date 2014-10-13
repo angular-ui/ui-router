@@ -70,12 +70,14 @@ function UrlMatcher(pattern, config) {
   // The regular expression is somewhat complicated due to the need to allow curly braces
   // inside the regular expression. The placeholder regexp breaks down as follows:
   //    ([:*])(\w+)               classic placeholder ($1 / $2)
-  //    \{(\w+)(?:\:( ... ))?\}   curly brace placeholder ($3) with optional regexp ... ($4)
+  //    ([:]?)([\w-]+)            classic search placeholder (supports snake-case-params) ($1 / $2)
+  //    \{(\w+)(?:\:( ... ))?\}   curly brace placeholder ($3) with optional regexp/type ... ($4)
   //    (?: ... | ... | ... )+    the regexp consists of any number of atoms, an atom being either
   //    [^{}\\]+                  - anything other than curly braces or backslash
   //    \\.                       - a backslash escape
   //    \{(?:[^{}\\]+|\\.)*\}     - a matched set of curly braces containing other atoms
   var placeholder = /([:*])(\w+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
+      searchPlaceholder = /([:]?)([\w-]+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
       compiled = '^', last = 0, m,
       segments = this.segments = [],
       params = this.params = new $$UrlMatcherFactoryProvider.ParamSet();
@@ -94,32 +96,33 @@ function UrlMatcher(pattern, config) {
     return result + flag + '(' + pattern + ')' + flag;
   }
 
-  function regexpType(regexp) {
-    var type = new Type({
-      pattern: new RegExp(regexp),
-      is: function(value) { return type.pattern.exec(type.encode(value)); }
-    });
-    return type;
-  }
-
   this.source = pattern;
 
   // Split into static segments separated by path parameter placeholders.
   // The number of segments is always 1 more than the number of parameters.
-  var id, regexp, segment, type, cfg;
-
-  while ((m = placeholder.exec(pattern))) {
+  function matchDetails(m, isSearch) {
+    var id, regexp, segment, type, typeId, cfg;
+    var $types = UrlMatcher.prototype.$types;
+    var defaultTypeId = (isSearch ? "searchParam" : "pathParam");
     id      = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
-    regexp  = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
     segment = pattern.substring(last, m.index);
-    type    = this.$types[regexp] || regexpType(regexp);
+    regexp  = isSearch ? m[4] : m[4] || (m[1] == '*' ? '.*' : null);
+    typeId  = regexp || defaultTypeId;
+    type    = $types[typeId] || extend({}, $types[defaultTypeId], { pattern: new RegExp(regexp) });
     cfg     = config.params[id];
+    return {
+      id: id, regexp: regexp, segment: segment, type: type, cfg: cfg
+    };
+  }
 
-    if (segment.indexOf('?') >= 0) break; // we're into the search part
+  var p, param, segment;
+  while ((m = placeholder.exec(pattern))) {
+    p = matchDetails(m, false);
+    if (p.segment.indexOf('?') >= 0) break; // we're into the search part
 
-    var param = addParameter(id, type, cfg);
-    compiled += quoteRegExp(segment, type.$subPattern(), param.isOptional);
-    segments.push(segment);
+    param = addParameter(p.id, p.type, p.cfg);
+    compiled += quoteRegExp(p.segment, param.type.pattern.source, param.isOptional);
+    segments.push(p.segment);
     last = placeholder.lastIndex;
   }
   segment = pattern.substring(last);
@@ -132,10 +135,15 @@ function UrlMatcher(pattern, config) {
     segment = segment.substring(0, i);
     this.sourcePath = pattern.substring(0, last + i);
 
-    // Allow parameters to be separated by '?' as well as '&' to make concat() easier
-    forEach(search.substring(1).split(/[&?]/), function(key) {
-      addParameter(key, null, config.params[key]);
-    });
+    if (search.length > 0) {
+      last = 0;
+      while ((m = searchPlaceholder.exec(search))) {
+        p = matchDetails(m, true);
+        param = addParameter(p.id, p.type, p.cfg);
+        last = placeholder.lastIndex;
+        // check if ?&
+      }
+    }
   } else {
     this.sourcePath = pattern;
     this.sourceSearch = '';
@@ -385,7 +393,7 @@ Type.prototype.encode = function(val, key) {
  * @methodOf ui.router.util.type:Type
  *
  * @description
- * Converts a string URL parameter value to a custom/native value.
+ * Converts a parameter value (from URL string or transition param) to a custom/native value.
  *
  * @param {string} val  The URL parameter value to decode.
  * @param {string} key  The name of the parameter in which `val` is stored. Can be used for
@@ -433,7 +441,36 @@ function $UrlMatcherFactory() {
 
   var isCaseInsensitive = false, isStrictMode = true;
 
+  function safeString(val) { return isDefined(val) ? val.toString() : val; }
+  function coerceEquals(left, right) { return left == right; }
+  function angularEquals(left, right) { return angular.equals(left, right); }
+// TODO:  function regexpMatches(val) { return isDefined(val) && this.pattern.test(val); }
+  function regexpMatches(val) { /*jshint validthis:true */ return this.pattern.test(val); }
+  function normalizeStringOrArray(val) {
+    if (isArray(val)) {
+      var encoded = [];
+      forEach(val, function(item) { encoded.push(safeString(item)); });
+      return encoded;
+    } else {
+      return safeString(val);
+    }
+  }
+
   var enqueue = true, typeQueue = [], injector, defaultTypes = {
+    "searchParam": {
+      encode: normalizeStringOrArray,
+      decode: normalizeStringOrArray,
+      equals: angularEquals,
+      is: regexpMatches,
+      pattern: /[^&?]*/
+    },
+    "pathParam": {
+      encode: safeString,
+      decode: safeString,
+      equals: coerceEquals,
+      is: regexpMatches,
+      pattern: /[^/]*/
+    },
     int: {
       decode: function(val) {
         return parseInt(val, 10);
@@ -449,7 +486,7 @@ function $UrlMatcherFactory() {
         return val ? 1 : 0;
       },
       decode: function(val) {
-        return parseInt(val, 10) === 0 ? false : true;
+        return parseInt(val, 10) !== 0;
       },
       is: function(val) {
         return val === true || val === false;
@@ -720,8 +757,9 @@ function $UrlMatcherFactory() {
 
     function getType(config, urlType) {
       if (config.type && urlType) throw new Error("Param '"+id+"' has two type configurations.");
-      if (urlType && !config.type) return urlType;
-      return config.type instanceof Type ? config.type : new Type(config.type || {});
+      if (urlType) return urlType;
+      if (!config.type) return UrlMatcher.prototype.$types.pathParam;
+      return config.type instanceof Type ? config.type : new Type(config.type);
     }
 
     /**
