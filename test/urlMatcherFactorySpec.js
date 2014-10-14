@@ -182,7 +182,7 @@ describe("UrlMatcher", function () {
 });
 
 describe("urlMatcherFactory", function () {
-  
+
   var $umf;
 
   beforeEach(module('ui.router.util'));
@@ -250,6 +250,18 @@ describe("urlMatcherFactory", function () {
       }]);
       expect($umf.type("myAnnotatedType").decode()).toBe($stateParams);
     }));
+
+    it("should return undefined for non-matching item", function () {
+      var type = { decode: function() {} };
+      $umf.type("myType", type);
+      expect($umf.compile("/{foo:myType}").exec("/biz")).toEqual({ foo: undefined });
+    });
+
+    it("should return null for non-matching item when nullOnNoMatch set to true", function () {
+      var type = { nullOnNoMatch: true, decode: function() {} };
+      $umf.type("myType", type);
+      expect($umf.compile("/{foo:myType}").exec("/biz")).toBeNull();
+    });
 
     it("should match built-in types", function () {
       var m = new UrlMatcher("/{foo:int}/{flag:bool}");
