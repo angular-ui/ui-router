@@ -1,16 +1,15 @@
 describe("UrlMatcher", function () {
 
   describe("provider", function () {
-
+    
     var provider;
-
     beforeEach(function() {
       angular.module('ui.router.router.test', function() {}).config(function ($urlMatcherFactoryProvider) {
         provider = $urlMatcherFactoryProvider;
       });
-
+  
       module('ui.router.router', 'ui.router.router.test');
-
+  
       inject(function($injector) {
         $injector.invoke(provider.$get);
       });
@@ -156,6 +155,22 @@ describe("UrlMatcher", function () {
       var base = new UrlMatcher('/users/:id/details/{type}?from');
       var matcher = base.concat('/{repeat:[0-9]+}?to');
       expect(matcher).toNotBe(base);
+    });
+
+    it("should respect $urlMatcherFactoryProvider.strictMode", function() {
+      var m = new UrlMatcher('/');
+      provider.strictMode(false);
+      m = m.concat("foo");
+      expect(m.exec("/foo")).toEqual({});
+      expect(m.exec("/foo/")).toEqual({})
+    });
+
+    it("should respect $urlMatcherFactoryProvider.caseInsensitive", function() {
+      var m = new UrlMatcher('/');
+      provider.caseInsensitive(true);
+      m = m.concat("foo");
+      expect(m.exec("/foo")).toEqual({});
+      expect(m.exec("/FOO")).toEqual({});
     });
   });
 });
@@ -310,6 +325,17 @@ describe("urlMatcherFactory", function () {
       expect(m.exec('/users/6/photos').user).toBe(6);
       expect(m.format()).toBe("/users/photos");
       expect(m.format({ user: 1138 })).toBe("/users/1138/photos");
+    });
+
+    it("should correctly format with an optional followed by a required parameter", function() {
+      var m = new UrlMatcher('/:user/gallery/photos/:photo', {
+        params: { 
+          user: {value: null},
+          photo: {} 
+        }
+      });
+      expect(m.format({ photo: 12 })).toBe("/gallery/photos/12");
+      expect(m.format({ user: 1138, photo: 13 })).toBe("/1138/gallery/photos/13");
     });
 
     describe("default values", function() {

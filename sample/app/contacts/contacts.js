@@ -93,7 +93,7 @@ angular.module('uiRouterSample.contacts', [
           // between 1 and 4.
 
           // Since this state is also a child of 'contacts' its url is appended as well.
-          // So its url will end up being '/contacts/{contactId:[0-9]{1,8}}'. When the
+          // So its url will end up being '/contacts/{contactId:[0-9]{1,4}}'. When the
           // url becomes something like '/contacts/42' then this state becomes active
           // and the $stateParams object becomes { contactId: 42 }.
           url: '/{contact:contact}',
@@ -124,7 +124,7 @@ angular.module('uiRouterSample.contacts', [
               template: 'This is contacts.detail populating the "hint" ui-view'
             },
 
-            // This one is targeting the ui-view="menu" within the parent state's template.
+            // This one is targeting the ui-view="menuTip" within the parent state's template.
             'menuTip': {
               // templateProvider is the final method for supplying a template.
               // There is: template, templateUrl, and templateProvider.
@@ -169,7 +169,7 @@ angular.module('uiRouterSample.contacts', [
                 }]
             },
 
-            // Here we see we are overriding the template that was set by 'contact.detail'
+            // Here we see we are overriding the template that was set by 'contacts.detail'
             'hint@': {
               template: ' This is contacts.detail.item overriding the "hint" ui-view'
             }
@@ -186,9 +186,9 @@ angular.module('uiRouterSample.contacts', [
         .state('contacts.detail.item.edit', {
           views: {
 
-            // This is targeting the unnamed view within the 'contact.detail' state
-            // essentially swapping out the template that 'contact.detail.item' had
-            // had inserted with this state's template.
+            // This is targeting the unnamed view within the 'contacts.detail' state
+            // essentially swapping out the template that 'contacts.detail.item' had
+            // inserted with this state's template.
             '@contacts.detail': {
               templateUrl: 'app/contacts/contacts.detail.item.edit.html',
               controller: ['$scope', '$stateParams', '$state', 'utils',

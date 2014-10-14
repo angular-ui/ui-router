@@ -710,9 +710,24 @@ describe('state', function () {
 
     it('should return true when the current state is passed with matching parameters', inject(function ($state, $q) {
       $state.transitionTo(D, {x: 'foo', y: 'bar'}); $q.flush();
+      expect($state.is(D)).toBe(true);
       expect($state.is(D, {x: 'foo', y: 'bar'})).toBe(true);
       expect($state.is('D', {x: 'foo', y: 'bar'})).toBe(true);
       expect($state.is(D, {x: 'bar', y: 'foo'})).toBe(false);
+    }));
+
+    it('should work for relative states', inject(function ($state, $q) {
+      var options = { relative: $state.get('about') };
+      
+      $state.transitionTo('about.person'); $q.flush();
+      expect($state.is('.person', undefined, options)).toBe(true);
+
+      $state.transitionTo('about.person', { person: 'bob' }); $q.flush();
+      expect($state.is('.person', { person: 'bob' }, options)).toBe(true);
+      expect($state.is('.person', { person: 'john' }, options)).toBe(false);
+
+      options.relative = $state.get('about.person.item');
+      expect($state.is('^', undefined, options)).toBe(true);
     }));
   });
 
@@ -763,6 +778,18 @@ describe('state', function () {
       expect($state.includes('about.*.*', {person: 'bob'})).toBe(true);
       expect($state.includes('about.*.*', {person: 'shawn'})).toBe(false);
     }));
+
+    it('should work for relative states', inject(function ($state, $q) {
+      $state.transitionTo('about.person.item', { person: 'bob', id: 5 }); $q.flush();
+
+      expect($state.includes('.person', undefined, { relative: 'about' } )).toBe(true);
+      expect($state.includes('.person', null, { relative: 'about' } )).toBe(true);
+
+      expect($state.includes('^', undefined, { relative: $state.get('about.person.item') })).toBe(true);
+
+      expect($state.includes('.person', { person: 'bob' }, { relative: $state.get('about') } )).toBe(true);
+      expect($state.includes('.person', { person: 'steve' }, { relative: $state.get('about') } )).toBe(false);
+    }));
   });
 
   describe('.current', function () {
@@ -777,7 +804,6 @@ describe('state', function () {
       expect($state.current).toBe(A);
     }));
   });
-
 
   describe('$current', function () {
     it('is always defined', inject(function ($state) {
@@ -922,6 +948,18 @@ describe('state', function () {
         'second'
       ];
       expect(list.map(function(state) { return state.name; })).toEqual(names);
+    }));
+
+    it('should work for relative states', inject(function ($state) {
+      var about = $state.get('about');
+
+      var person = $state.get('.person', about);
+      expect(person.url).toBe('/:person');
+      expect($state.get('^', 'about.person').url).toBe('/about');
+
+      var item = $state.get('.person.item', about);
+      expect(item.url).toBe('/:id');
+      expect($state.get('^.^', item).url).toBe('/about');
     }));
 
     it("should return undefined on invalid state query", inject(function ($state) {

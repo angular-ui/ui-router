@@ -1,6 +1,6 @@
 describe("UrlRouter", function () {
 
-  var $urp, $ur, location, match, scope;
+  var $urp, $lp, $ur, location, match, scope;
 
   describe("provider", function () {
 
@@ -46,8 +46,9 @@ describe("UrlRouter", function () {
   describe("service", function() {
 
     beforeEach(function() {
-      angular.module('ui.router.router.test', function() {}).config(function ($urlRouterProvider) {
+      angular.module('ui.router.router.test', function() {}).config(function ($urlRouterProvider, $locationProvider) {
         $urp = $urlRouterProvider;
+        $lp  = $locationProvider;
 
         $urp.rule(function ($injector, $location) {
           var path = $location.path();
@@ -197,6 +198,15 @@ describe("UrlRouter", function () {
 
         expect($urlRouter.href(matcher, { param: 1138 })).toBe('#/foo/1138');
         expect($urlRouter.href(matcher, { param: 5 })).toBeNull();
+      }));
+
+      it('should handle the new html5Mode object config from Angular 1.3', inject(function($urlRouter) {
+        
+        $lp.html5Mode({
+          enabled: false
+        });
+
+        expect($urlRouter.href(new UrlMatcher('/hello'))).toBe('#/hello');
       }));
     });
   });
