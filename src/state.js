@@ -581,7 +581,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
        * })
        * </pre>
        */
-      var evt = $rootScope.$broadcast('$stateNotFound', redirect, state, params);
+      var evt = $rootScope.$broadcast('$stateNotFound', redirect, state, params, options);
 
       if (evt.defaultPrevented) {
         $urlRouter.update();
@@ -851,7 +851,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          * })
          * </pre>
          */
-        if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams).defaultPrevented) {
+        if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams, options).defaultPrevented) {
           $urlRouter.update();
           return TransitionPrevented;
         }
@@ -929,7 +929,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          * @param {State} fromState The current state, pre-transition.
          * @param {Object} fromParams The params supplied to the `fromState`.
          */
-          $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
+          $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams, options);
         }
         $urlRouter.update(true);
 
@@ -956,7 +956,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          * @param {Object} fromParams The params supplied to the `fromState`.
          * @param {Error} error The resolve error object.
          */
-        evt = $rootScope.$broadcast('$stateChangeError', to.self, toParams, from.self, fromParams, error);
+        evt = $rootScope.$broadcast('$stateChangeError', to.self, toParams, from.self, fromParams, error, options);
 
         if (!evt.defaultPrevented) {
             $urlRouter.update();
