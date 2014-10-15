@@ -289,6 +289,12 @@ describe('uiStateRef', function() {
       expect($state.current.name).toEqual('top');
       expect($stateParams).toEqualData({});
     }));
+
+    it('should support URL fragments', inject(function ($rootScope, $compile) {
+      var el = angular.element('<a ui-sref="contacts.item.detail({id: 1})#contact-info"></a>');
+      $compile(el)($rootScope);
+      expect(el.attr('href')).toBe('/contacts/1#contact-info');
+    }));
   });
 
   describe('forms', function() {

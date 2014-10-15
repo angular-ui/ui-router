@@ -1112,10 +1112,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * - **`relative`** - {object=$state.$current}, When transitioning with relative path (e.g '^'), 
      *    defines which state to be relative from.
      * - **`absolute`** - {boolean=false},  If true will generate an absolute url, e.g. "http://www.example.com/fullurl".
-     * 
+     * @param {string} fragment (optional) The URL fragment to append (only for HTML5Mode).
+     *
      * @returns {string} compiled state url
      */
-    $state.href = function href(stateOrName, params, options) {
+    $state.href = function href(stateOrName, params, options, fragment) {
       options = extend({
         lossy:    true,
         inherit:  true,
@@ -1135,7 +1136,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       }
       return $urlRouter.href(nav.url, filterByKeys(objectKeys(state.params), params || {}), {
         absolute: options.absolute
-      });
+      }, fragment);
     };
 
     /**
