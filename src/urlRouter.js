@@ -374,10 +374,11 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
        * @param {object=} options Options object. The options are:
        *
        * - **`absolute`** - {boolean=false},  If true will generate an absolute url, e.g. "http://www.example.com/fullurl".
+       * @param {string} fragment (optional) The URL fragment to append (only for HTML5Mode).
        *
        * @returns {string} Returns the fully compiled URL, or `null` if `params` fail validation against `urlMatcher`
        */
-      href: function(urlMatcher, params, options) {
+      href: function(urlMatcher, params, options, fragment) {
         if (!urlMatcher.validates(params)) return null;
 
         var isHtml5 = $locationProvider.html5Mode();
@@ -390,6 +391,9 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
 
         if (!isHtml5 && url !== null) {
           url = "#" + $locationProvider.hashPrefix() + url;
+        }
+        else if (isHtml5 && url !== null && fragment !== undefined) {
+          url += '#' + fragment;
         }
         url = appendBasePath(url, isHtml5, options.absolute);
 

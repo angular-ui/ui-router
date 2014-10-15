@@ -208,6 +208,13 @@ describe("UrlRouter", function () {
 
         expect($urlRouter.href(new UrlMatcher('/hello'))).toBe('#/hello');
       }));
+
+      it('should support fragments in html5Mode', inject(function($urlRouter, $urlMatcherFactory) {
+        $lp.html5Mode(true);
+
+        var matcher = new UrlMatcher("/foo#item-:id");
+        expect($urlRouter.href(matcher, {id: 1})).toBe('/foo#item-1');
+      }));
     });
   });
 
