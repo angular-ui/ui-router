@@ -1,6 +1,6 @@
 /**
  * State-based routing for AngularJS
- * @version v0.2.11
+ * @version v0.2.11-dev-2014-10-14
  * @link http://angular-ui.github.com/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -3467,6 +3467,11 @@ function $StateRefDirective($state, $timeout) {
         }
         element[0][attr] = newHref;
       };
+
+      attrs.$observe('uiSref', function(newVal) {
+        ref = parseStateRef(newVal);
+        update(scope.$eval(ref.paramExpr));
+      });
 
       if (ref.paramExpr) {
         scope.$watch(ref.paramExpr, function(newVal, oldVal) {
