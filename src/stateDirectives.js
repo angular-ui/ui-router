@@ -24,17 +24,17 @@ function stateContext(el) {
  * @restrict A
  *
  * @description
- * A directive that binds a link (`<a>` tag) to a state. If the state has an associated 
- * URL, the directive will automatically generate & update the `href` attribute via 
- * the {@link ui.router.state.$state#methods_href $state.href()} method. Clicking 
- * the link will trigger a state transition with optional parameters. 
+ * A directive that binds a link (`<a>` tag) to a state. If the state has an associated
+ * URL, the directive will automatically generate & update the `href` attribute via
+ * the {@link ui.router.state.$state#methods_href $state.href()} method. Clicking
+ * the link will trigger a state transition with optional parameters.
  *
- * Also middle-clicking, right-clicking, and ctrl-clicking on the link will be 
+ * Also middle-clicking, right-clicking, and ctrl-clicking on the link will be
  * handled natively by the browser.
  *
- * You can also use relative state paths within ui-sref, just like the relative 
+ * You can also use relative state paths within ui-sref, just like the relative
  * paths passed to `$state.go()`. You just need to be aware that the path is relative
- * to the state that the link lives in, in other words the state that loaded the 
+ * to the state that the link lives in, in other words the state that loaded the
  * template containing the link.
  *
  * You can specify options to pass to {@link ui.router.state.$state#go $state.go()}
@@ -42,22 +42,22 @@ function stateContext(el) {
  * and `reload`.
  *
  * @example
- * Here's an example of how you'd use ui-sref and how it would compile. If you have the 
+ * Here's an example of how you'd use ui-sref and how it would compile. If you have the
  * following template:
  * <pre>
  * <a ui-sref="home">Home</a> | <a ui-sref="about">About</a> | <a ui-sref="{page: 2}">Next page</a>
- * 
+ *
  * <ul>
  *     <li ng-repeat="contact in contacts">
  *         <a ui-sref="contacts.detail({ id: contact.id })">{{ contact.name }}</a>
  *     </li>
  * </ul>
  * </pre>
- * 
+ *
  * Then the compiled html would be (assuming Html5Mode is off and current state is contacts):
  * <pre>
  * <a href="#/home" ui-sref="home">Home</a> | <a href="#/about" ui-sref="about">About</a> | <a href="#/contacts?page=2" ui-sref="{page: 2}">Next page</a>
- * 
+ *
  * <ul>
  *     <li ng-repeat="contact in contacts">
  *         <a href="#/contacts/1" ui-sref="contacts.detail({ id: contact.id })">Joe</a>
@@ -83,7 +83,7 @@ function $StateRefDirective($state, $timeout) {
   return {
     restrict: 'A',
     require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
-    link: function(scope, element, attrs, uiSrefActive) {
+    compile: function(element, attrs){
       var ref = parseStateRef(attrs.uiSref, $state.current.name);
       var params = null, url = null, base = stateContext(element) || $state.$current;
       var newHref = null, isAnchor = element.prop("tagName") === "A";
@@ -91,21 +91,13 @@ function $StateRefDirective($state, $timeout) {
       var attr = isForm ? "action" : "href", nav = true;
 
       var options = { relative: base, inherit: true };
-      var optionsOverride = scope.$eval(attrs.uiSrefOpts) || {};
-
-      angular.forEach(allowedOptions, function(option) {
-        if (option in optionsOverride) {
-          options[option] = optionsOverride[option];
-        }
-      });
-
-      var update = function(newVal) {
+      
+      var update = function(newVal, activeDirective) {
         if (newVal) params = angular.copy(newVal);
         if (!nav) return;
 
         newHref = $state.href(ref.state, params, options);
 
-        var activeDirective = uiSrefActive[1] || uiSrefActive[0];
         if (activeDirective) {
           activeDirective.$$setStateInfo(ref.state, params);
         }
@@ -115,34 +107,50 @@ function $StateRefDirective($state, $timeout) {
         }
         attrs.$set(attr, newHref);
       };
-
-      if (ref.paramExpr) {
-        scope.$watch(ref.paramExpr, function(newVal, oldVal) {
-          if (newVal !== params) update(newVal);
-        }, true);
-        params = angular.copy(scope.$eval(ref.paramExpr));
-      }
+      
       update();
+      
+      return {
+        pre:function preLink(scope, element, attrs, uiSrefActive) {
+          update(params, uiSrefActive[1] || uiSrefActive[0]);
+        },
+        post: function postLink(scope, element, attrs, uiSrefActive) {
+          var optionsOverride = scope.$eval(attrs.uiSrefOpts) || {};
 
-      if (isForm) return;
-
-      element.bind("click", function(e) {
-        var button = e.which || e.button;
-        if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
-          // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
-          var transition = $timeout(function() {
-            $state.go(ref.state, params, options);
+          angular.forEach(allowedOptions, function(option) {
+            if (option in optionsOverride) {
+              options[option] = optionsOverride[option];
+            }
           });
-          e.preventDefault();
 
-          // if the state has no URL, ignore one preventDefault from the <a> directive.
-          var ignorePreventDefaultCount = isAnchor && !newHref ? 1: 0;
-          e.preventDefault = function() {
-            if (ignorePreventDefaultCount-- <= 0)
-              $timeout.cancel(transition);
-          };
+          if (ref.paramExpr) {
+            scope.$watch(ref.paramExpr, function(newVal, oldVal) {
+              if (newVal !== params) update(newVal);
+            }, true);
+            params = angular.copy(scope.$eval(ref.paramExpr));
+          }
+
+          if (isForm) return;
+
+          element.bind("click", function(e) {
+            var button = e.which || e.button;
+            if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
+              // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
+              var transition = $timeout(function() {
+                $state.go(ref.state, params, options);
+              });
+              e.preventDefault();
+
+              // if the state has no URL, ignore one preventDefault from the <a> directive.
+              var ignorePreventDefaultCount = isAnchor && !newHref ? 1: 0;
+              e.preventDefault = function() {
+                if (ignorePreventDefaultCount-- <= 0)
+                  $timeout.cancel(transition);
+              };
+            }
+          });
         }
-      });
+      };
     }
   };
 }
