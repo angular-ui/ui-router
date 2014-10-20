@@ -207,6 +207,8 @@ function StateMatcher(states) {
 
     resolvePath: function(name, base) {
       if (!base) throw new Error("No reference point given for path '"  + name + "'");
+      base = findState(base);
+      
       var rel = name.split("."), i = 0, pathLength = rel.length, current = base;
 
       for (; i < pathLength; i++) {
@@ -920,13 +922,19 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * <div ng-class="{highlighted: $state.is('.item')}">Item</div>
      * </pre>
      *
-     * @param {string|object} stateName The state name (absolute or relative) or state object you'd like to check.
+     * @param {string|object} stateOrName The state name (absolute or relative) or state object you'd like to check.
      * @param {object=} params A param object, e.g. `{sectionId: section.id}`, that you'd like
      * to test against the current active state.
+     * @param {object=} options An options object.  The options are:
+     *
+     * - **`relative`** - {string|object} -  If `stateOrName` is a relative state name and `options.relative` is set, .is will
+     * test relative to `options.relative` state (or name).
+     *
      * @returns {boolean} Returns true if it is the state.
      */
-    $state.is = function is(stateOrName, params) {
-      var state = matcher.find(stateOrName);
+    $state.is = function is(stateOrName, params, options) {
+      options = extend({ relative: $state.$current }, options || {});
+      var state = matcher.find(stateOrName, options.relative);
       if (!isDefined(state)) return undefined;
       if ($state.$current !== state) return false;
       return isDefined(params) && params !== null ? angular.equals($stateParams, params) : true;
@@ -974,18 +982,24 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      * @param {string} stateOrName A partial name, relative name, or glob pattern
      * to be searched for within the current state name.
-     * @param {object} params A param object, e.g. `{sectionId: section.id}`,
+     * @param {object=} params A param object, e.g. `{sectionId: section.id}`,
      * that you'd like to test against the current active state.
+     * @param {object=} options An options object.  The options are:
+     *
+     * - **`relative`** - {string|object=} -  If `stateOrName` is a relative state reference and `options.relative` is set,
+     * .includes will test relative to `options.relative` state (or name).
+     *
      * @returns {boolean} Returns true if it does include the state
      */
     $state.includes = function includes(stateOrName, params) {
+      options = extend({ relative: $state.$current }, options || {});
       var glob = isString(stateOrName) && GlobBuilder.fromString(stateOrName);
 
       if (glob) {
         if (!glob.matches($state.$current.name)) return false;
         stateOrName = $state.$current.name;
       }
-      var state = matcher.find(stateOrName), include = $state.$current.includes;
+      var state = matcher.find(stateOrName, options.relative), include = $state.$current.includes;
 
       if (!isDefined(state)) return undefined;
       if (!isDefined(include[state.name])) return false;
@@ -1035,7 +1049,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
       var nav = (state && options.lossy) ? state.navigable : state;
 
-      if (!nav || !nav.url) {
+      if (!nav || nav.url === undefined || nav.url === null) {
         return null;
       }
       return $urlRouter.href(nav.url, filterByKeys(objectKeys(state.params), params || {}), {
@@ -1053,11 +1067,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      * @param {string|Object=} stateOrName (absolute or relative) If provided, will only get the config for
      * the requested state. If not provided, returns an array of ALL state configs.
+     * @param {string|object=} context When stateOrName is a relative state reference, the state will be retrieved relative to context.
      * @returns {Object|Array} State configuration object or array of all objects.
      */
     $state.get = function (stateOrName, context) {
       if (arguments.length === 0) return objectKeys(states).map(function(name) { return states[name].self; });
-      return (matcher.find(stateOrName, context) || {}).self || null;
+      return (matcher.find(stateOrName, context || $state.$current) || {}).self || null;
     };
 
     return $state;

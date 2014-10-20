@@ -96,6 +96,7 @@ UrlMatcher.prototype.concat = function (pattern, config) {
   child.parent = this;
   $UrlMatcherFactory.$$instance.call(child, pattern, config);
   return child;
+//  return new $$UrlMatcherFactoryProvider.compile(this.sourcePath + pattern + this.sourceSearch, config);
 };
 
 UrlMatcher.prototype.toString = function () {
@@ -378,6 +379,7 @@ Type.prototype.$subPattern = function(options) {
 
 Type.prototype.pattern = /.*/;
 
+var $$UrlMatcherFactoryProvider;
 /**
  * @ngdoc object
  * @name ui.router.util.$urlMatcherFactory
@@ -387,6 +389,7 @@ Type.prototype.pattern = /.*/;
  * is also available to providers under the name `$urlMatcherFactoryProvider`.
  */
 function $UrlMatcherFactory() {
+  $$UrlMatcherFactoryProvider = this;
 
   var isCaseInsensitive = false, isStrictMode = true, basePrefixUrl = null;
 
