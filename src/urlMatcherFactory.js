@@ -454,7 +454,7 @@ function $UrlMatcherFactory() {
     }
   }
 
-  var $types, enqueue = true, typeQueue = [], injector, defaultTypes = {
+  var $types = {}, enqueue = true, typeQueue = [], injector, defaultTypes = {
     "searchParam": {
       encode: normalizeStringOrArray,
       decode: normalizeStringOrArray,
@@ -610,8 +610,11 @@ function $UrlMatcherFactory() {
    * generate URLs with typed parameters.
    *
    * @param {string} name  The type name.
-   * @param {Object|Function} def  The type definition. See
+   * @param {Object|Function} definition   The type definition. See
    *        {@link ui.router.util.type:Type `Type`} for information on the values accepted.
+   * @param {Object|Function} definitionFn (optional) A function that is injected before the app
+   *        runtime starts.  The result of this function is merged into the existing `definition`.
+   *        See {@link ui.router.util.type:Type `Type`} for information on the values accepted.
    *
    * @returns {Object}  Returns `$urlMatcherFactoryProvider`.
    *
@@ -659,7 +662,7 @@ function $UrlMatcherFactory() {
    * // Defines a custom type that gets a value from a service,
    * // where each service gets different types of values from
    * // a backend API:
-   * $urlMatcherFactoryProvider.type('dbObject', function(Users, Posts) {
+   * $urlMatcherFactoryProvider.type('dbObject', {}, function(Users, Posts) {
    *
    *   // Matches up services to URL parameter names
    *   var services = {
@@ -704,21 +707,35 @@ function $UrlMatcherFactory() {
    * });
    * </pre>
    */
-  this.type = function (name, def) {
-    if (!isDefined(def)) {
-      if (!isDefined($types)) throw new Error("Please wait until runtime to retrieve types.");
-      return $types[name];
+  this.type = function (name, definition, definitionFn) {
+    if (!isDefined(definition)) return $types[name];
+    if ($types.hasOwnProperty(name)) throw new Error("A type named '" + name + "' has already been defined.");
+
+    $types[name] = new Type(definition);
+    if (definitionFn) {
+      typeQueue.push({ name: name, def: definitionFn });
+      if (!enqueue) flushTypeQueue();
     }
-    typeQueue.push({ name: name, def: def });
-    if (!enqueue) flushTypeQueue();
     return this;
   };
+
+  // `flushTypeQueue()` waits until `$urlMatcherFactory` is injected before invoking the queued `definitionFn`s
+  function flushTypeQueue() {
+    while(typeQueue.length) {
+      var type = typeQueue.shift();
+      if (type.pattern) throw new Error("You cannot override a type's .pattern at runtime.");
+      angular.extend($types[type.name], injector.invoke(type.def));
+    }
+  }
+
+  // Register default types. Store them in the prototype of $types.
+  forEach(defaultTypes, function(type, name) { $types[name] = new Type(type); });
+  $types = inherit($types, {});
 
   /* No need to document $get, since it returns this */
   this.$get = ['$injector', function ($injector) {
     injector = $injector;
     enqueue = false;
-    $types = {};
     flushTypeQueue();
 
     forEach(defaultTypes, function(type, name) {
@@ -726,19 +743,6 @@ function $UrlMatcherFactory() {
     });
     return this;
   }];
-
-  // To ensure proper order of operations in object configuration, and to allow internal
-  // types to be overridden, `flushTypeQueue()` waits until `$urlMatcherFactory` is injected
-  // before actually wiring up and assigning type definitions
-  function flushTypeQueue() {
-    forEach(typeQueue, function(type) {
-      if ($types[type.name]) {
-        throw new Error("A type named '" + type.name + "' has already been defined.");
-      }
-      var def = new Type(isInjectable(type.def) ? injector.invoke(type.def) : type.def);
-      $types[type.name] = def;
-    });
-  }
 
   this.Param = function Param(id, type, config) {
     var self = this;

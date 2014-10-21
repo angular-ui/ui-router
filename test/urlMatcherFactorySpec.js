@@ -230,7 +230,7 @@ describe("urlMatcherFactory", function () {
     });
 
     it("should accept injected function definitions", inject(function ($stateParams) {
-      $umf.type("myType", function($stateParams) {
+      $umf.type("myType", {}, function($stateParams) {
         return {
           decode: function() {
             return $stateParams;
@@ -241,7 +241,7 @@ describe("urlMatcherFactory", function () {
     }));
 
     it("should accept annotated function definitions", inject(function ($stateParams) {
-      $umf.type("myAnnotatedType", ['$stateParams', function(s) {
+      $umf.type("myAnnotatedType", {},['$stateParams', function(s) {
         return {
           decode: function() {
             return s;

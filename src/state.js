@@ -22,7 +22,7 @@
 $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
-  var root, states = {}, $state, queue = {}, abstractKey = 'abstract', isRuntime = false;
+  var root, states = {}, $state, queue = {}, abstractKey = 'abstract';
 
   // Builds state properties from definition passed to registerState()
   var stateBuilder = {
@@ -182,7 +182,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         : '';
 
     // If parent is not registered yet, add state to queue and register later
-    if (name !== "" && (!isRuntime || !states[parentName])) {
+    if (parentName && !states[parentName]) {
       return queueState(parentName, state.self);
     }
 
@@ -1194,9 +1194,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         return dst;
       });
     }
-
-    isRuntime = true;
-    flushQueuedChildren("");
 
     return $state;
   }
