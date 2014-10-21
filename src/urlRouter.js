@@ -16,7 +16,7 @@
  */
 $UrlRouterProvider.$inject = ['$locationProvider', '$urlMatcherFactoryProvider'];
 function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
-  var self = this, rules = [], otherwise = null, interceptDeferred = false, listener;
+  var rules = [], otherwise = null, interceptDeferred = false, listener;
 
   // Returns a string that is a prefix of all strings matching the RegExp
   function regExpPrefix(re) {
@@ -154,20 +154,6 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
    * @param {string|object} handler The path you want to redirect your user to.
    */
   this.when = function (what, handler) {
-    if (whenQueue)
-      whenQueue.push({ what: what, handler: handler });
-    else
-      _when(what, handler);
-    return self;
-  };
-
-  var whenQueue = [];
-  function flushWhenQueue() {
-    forEach(whenQueue, function(queuedWhen) { _when(queuedWhen.what, queuedWhen.handler); });
-    whenQueue = null;
-  }
-
-  function _when(what, handler) {
     var redirect, handlerIsString = isString(handler);
     if (isString(what)) what = $urlMatcherFactory.compile(what);
 
@@ -204,11 +190,11 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
     var check = { matcher: $urlMatcherFactory.isMatcher(what), regex: what instanceof RegExp };
 
     for (var n in check) {
-      if (check[n]) return self.rule(strategies[n](what, handler));
+      if (check[n]) return this.rule(strategies[n](what, handler));
     }
 
     throw new Error("invalid 'what' in when()");
-  }
+  };
 
   /**
    * @ngdoc function
@@ -278,7 +264,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
   this.$get = $get;
   $get.$inject = ['$location', '$rootScope', '$injector', '$browser'];
   function $get(   $location,   $rootScope,   $injector,   $browser) {
-    flushWhenQueue();
+
     var baseHref = $browser.baseHref(), location = $location.url();
 
     function appendBasePath(url, isHtml5, absolute) {
