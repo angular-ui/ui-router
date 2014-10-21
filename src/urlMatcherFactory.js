@@ -1,3 +1,5 @@
+var $$UMFP; // reference to $UrlMatcherFactoryProvider
+
 /**
  * @ngdoc object
  * @name ui.router.util.type:UrlMatcher
@@ -60,7 +62,7 @@
  * @returns {Object}  New `UrlMatcher` object
  */
 function UrlMatcher(pattern, config) {
-  config = angular.isObject(config) ? config : {};
+  config = extend({ params: {} }, isObject(config) ? config : {});
 
   // Find all placeholders and create a compiled pattern, using either classic or curly syntax:
   //   '*' name
@@ -70,29 +72,23 @@ function UrlMatcher(pattern, config) {
   // The regular expression is somewhat complicated due to the need to allow curly braces
   // inside the regular expression. The placeholder regexp breaks down as follows:
   //    ([:*])(\w+)               classic placeholder ($1 / $2)
-  //    \{(\w+)(?:\:( ... ))?\}   curly brace placeholder ($3) with optional regexp ... ($4)
+  //    ([:]?)([\w-]+)            classic search placeholder (supports snake-case-params) ($1 / $2)
+  //    \{(\w+)(?:\:( ... ))?\}   curly brace placeholder ($3) with optional regexp/type ... ($4)
   //    (?: ... | ... | ... )+    the regexp consists of any number of atoms, an atom being either
   //    [^{}\\]+                  - anything other than curly braces or backslash
   //    \\.                       - a backslash escape
   //    \{(?:[^{}\\]+|\\.)*\}     - a matched set of curly braces containing other atoms
   var placeholder = /([:*])(\w+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
+      searchPlaceholder = /([:]?)([\w-]+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
       compiled = '^', last = 0, m,
       segments = this.segments = [],
-      params = this.params = {};
-
-  /**
-   * [Internal] Gets the decoded representation of a value if the value is defined, otherwise, returns the
-   * default value, which may be the result of an injectable function.
-   */
-  function $value(value) {
-    /*jshint validthis: true */
-    return isDefined(value) ? this.type.decode(value) : $UrlMatcherFactory.$$getDefaultValue(this);
-  }
+      params = this.params = new $$UMFP.ParamSet();
 
   function addParameter(id, type, config) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
-    params[id] = extend({ type: type || new Type(), $value: $value }, config);
+    params[id] = new $$UMFP.Param(id, type, config);
+    return params[id];
   }
 
   function quoteRegExp(string, pattern, isOptional) {
@@ -102,30 +98,32 @@ function UrlMatcher(pattern, config) {
     return result + flag + '(' + pattern + ')' + flag;
   }
 
-  function paramConfig(param) {
-    if (!config.params || !config.params[param]) return {};
-    var cfg = config.params[param];
-    return isObject(cfg) ? cfg : { value: cfg };
-  }
-
   this.source = pattern;
 
   // Split into static segments separated by path parameter placeholders.
   // The number of segments is always 1 more than the number of parameters.
-  var id, regexp, segment, type, cfg;
-
-  while ((m = placeholder.exec(pattern))) {
+  function matchDetails(m, isSearch) {
+    var id, regexp, segment, type, typeId, cfg;
+    var defaultTypeId = (isSearch ? "searchParam" : "pathParam");
     id      = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
-    regexp  = m[4] || (m[1] == '*' ? '.*' : '[^/]*');
     segment = pattern.substring(last, m.index);
-    type    = this.$types[regexp] || new Type({ pattern: new RegExp(regexp) });
-    cfg     = paramConfig(id);
+    regexp  = isSearch ? m[4] : m[4] || (m[1] == '*' ? '.*' : null);
+    typeId  = regexp || defaultTypeId;
+    type    = $$UMFP.type(typeId) || extend({}, $$UMFP.type(defaultTypeId), { pattern: new RegExp(regexp) });
+    cfg     = config.params[id];
+    return {
+      id: id, regexp: regexp, segment: segment, type: type, cfg: cfg
+    };
+  }
 
-    if (segment.indexOf('?') >= 0) break; // we're into the search part
+  var p, param, segment;
+  while ((m = placeholder.exec(pattern))) {
+    p = matchDetails(m, false);
+    if (p.segment.indexOf('?') >= 0) break; // we're into the search part
 
-    compiled += quoteRegExp(segment, type.$subPattern(), isDefined(cfg.value));
-    addParameter(id, type, cfg);
-    segments.push(segment);
+    param = addParameter(p.id, p.type, p.cfg);
+    compiled += quoteRegExp(p.segment, param.type.pattern.source, param.isOptional);
+    segments.push(p.segment);
     last = placeholder.lastIndex;
   }
   segment = pattern.substring(last);
@@ -138,10 +136,15 @@ function UrlMatcher(pattern, config) {
     segment = segment.substring(0, i);
     this.sourcePath = pattern.substring(0, last + i);
 
-    // Allow parameters to be separated by '?' as well as '&' to make concat() easier
-    forEach(search.substring(1).split(/[&?]/), function(key) {
-      addParameter(key, null, paramConfig(key));
-    });
+    if (search.length > 0) {
+      last = 0;
+      while ((m = searchPlaceholder.exec(search))) {
+        p = matchDetails(m, true);
+        param = addParameter(p.id, p.type, p.cfg);
+        last = placeholder.lastIndex;
+        // check if ?&
+      }
+    }
   } else {
     this.sourcePath = pattern;
     this.sourceSearch = '';
@@ -180,7 +183,7 @@ UrlMatcher.prototype.concat = function (pattern, config) {
   // Because order of search parameters is irrelevant, we can add our own search
   // parameters to the end of the new pattern. Parse the new pattern by itself
   // and then join the bits together, but it's much easier to do this on a string level.
-  return new $$UrlMatcherFactoryProvider.compile(this.sourcePath + pattern + this.sourceSearch, config);
+  return $$UMFP.compile(this.sourcePath + pattern + this.sourceSearch, config);
 };
 
 UrlMatcher.prototype.toString = function () {
@@ -216,21 +219,19 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
   if (!m) return null;
   searchParams = searchParams || {};
 
-  var params = this.parameters(), nTotal = params.length,
+  var paramNames = this.parameters(), nTotal = paramNames.length,
     nPath = this.segments.length - 1,
-    values = {}, i, cfg, param;
+    values = {}, i, cfg, paramName;
 
   if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
 
   for (i = 0; i < nPath; i++) {
-    param = params[i];
-    cfg = this.params[param];
-    values[param] = cfg.$value(m[i + 1]);
+    paramName = paramNames[i];
+    values[paramName] = this.params[paramName].value(m[i + 1]);
   }
   for (/**/; i < nTotal; i++) {
-    param = params[i];
-    cfg = this.params[param];
-    values[param] = cfg.$value(searchParams[param]);
+    paramName = paramNames[i];
+    values[paramName] = this.params[paramName].value(searchParams[paramName]);
   }
 
   return values;
@@ -265,15 +266,7 @@ UrlMatcher.prototype.parameters = function (param) {
  * @returns {boolean} Returns `true` if `params` validates, otherwise `false`.
  */
 UrlMatcher.prototype.validates = function (params) {
-  var result = true, isOptional, cfg, self = this;
-
-  forEach(params, function(val, key) {
-    if (!self.params[key]) return;
-    cfg = self.params[key];
-    isOptional = !val && isDefined(cfg.value);
-    result = result && (isOptional || cfg.type.is(val));
-  });
-  return result;
+  return this.params.$$validates(params);
 };
 
 /**
@@ -329,8 +322,6 @@ UrlMatcher.prototype.format = function (values) {
   }
   return result.replace('//', '/');
 };
-
-UrlMatcher.prototype.$types = {};
 
 /**
  * @ngdoc object
@@ -401,7 +392,7 @@ Type.prototype.encode = function(val, key) {
  * @methodOf ui.router.util.type:Type
  *
  * @description
- * Converts a string URL parameter value to a custom/native value.
+ * Converts a parameter value (from URL string or transition param) to a custom/native value.
  *
  * @param {string} val  The URL parameter value to decode.
  * @param {string} key  The name of the parameter in which `val` is stored. Can be used for
@@ -435,7 +426,6 @@ Type.prototype.$subPattern = function() {
 
 Type.prototype.pattern = /.*/;
 
-var $$UrlMatcherFactoryProvider;
 /**
  * @ngdoc object
  * @name ui.router.util.$urlMatcherFactory
@@ -445,11 +435,40 @@ var $$UrlMatcherFactoryProvider;
  * is also available to providers under the name `$urlMatcherFactoryProvider`.
  */
 function $UrlMatcherFactory() {
-  $$UrlMatcherFactoryProvider = this;
+  $$UMFP = this;
 
   var isCaseInsensitive = false, isStrictMode = true;
 
-  var enqueue = true, typeQueue = [], injector, defaultTypes = {
+  function safeString(val) { return isDefined(val) ? val.toString() : val; }
+  function coerceEquals(left, right) { return left == right; }
+  function angularEquals(left, right) { return angular.equals(left, right); }
+// TODO:  function regexpMatches(val) { return isDefined(val) && this.pattern.test(val); }
+  function regexpMatches(val) { /*jshint validthis:true */ return this.pattern.test(val); }
+  function normalizeStringOrArray(val) {
+    if (isArray(val)) {
+      var encoded = [];
+      forEach(val, function(item) { encoded.push(safeString(item)); });
+      return encoded;
+    } else {
+      return safeString(val);
+    }
+  }
+
+  var $types, enqueue = true, typeQueue = [], injector, defaultTypes = {
+    "searchParam": {
+      encode: normalizeStringOrArray,
+      decode: normalizeStringOrArray,
+      equals: angularEquals,
+      is: regexpMatches,
+      pattern: /[^&?]*/
+    },
+    "pathParam": {
+      encode: safeString,
+      decode: safeString,
+      equals: coerceEquals,
+      is: regexpMatches,
+      pattern: /[^/]*/
+    },
     int: {
       decode: function(val) {
         return parseInt(val, 10);
@@ -465,7 +484,7 @@ function $UrlMatcherFactory() {
         return val ? 1 : 0;
       },
       decode: function(val) {
-        return parseInt(val, 10) === 0 ? false : true;
+        return parseInt(val, 10) !== 0;
       },
       is: function(val) {
         return val === true || val === false;
@@ -686,7 +705,10 @@ function $UrlMatcherFactory() {
    * </pre>
    */
   this.type = function (name, def) {
-    if (!isDefined(def)) return UrlMatcher.prototype.$types[name];
+    if (!isDefined(def)) {
+      if (!isDefined($types)) throw new Error("Please wait until runtime to retrieve types.");
+      return $types[name];
+    }
     typeQueue.push({ name: name, def: def });
     if (!enqueue) flushTypeQueue();
     return this;
@@ -696,11 +718,11 @@ function $UrlMatcherFactory() {
   this.$get = ['$injector', function ($injector) {
     injector = $injector;
     enqueue = false;
-    UrlMatcher.prototype.$types = {};
+    $types = {};
     flushTypeQueue();
 
     forEach(defaultTypes, function(type, name) {
-      if (!UrlMatcher.prototype.$types[name]) UrlMatcher.prototype.$types[name] = new Type(type);
+      if (!$types[name]) $types[name] = new Type(type);
     });
     return this;
   }];
@@ -710,14 +732,102 @@ function $UrlMatcherFactory() {
   // before actually wiring up and assigning type definitions
   function flushTypeQueue() {
     forEach(typeQueue, function(type) {
-      if (UrlMatcher.prototype.$types[type.name]) {
+      if ($types[type.name]) {
         throw new Error("A type named '" + type.name + "' has already been defined.");
       }
       var def = new Type(isInjectable(type.def) ? injector.invoke(type.def) : type.def);
-      UrlMatcher.prototype.$types[type.name] = def;
+      $types[type.name] = def;
     });
   }
+
+  this.Param = function Param(id, type, config) {
+    var self = this;
+    var defaultValueConfig = getDefaultValueConfig(config);
+    config = config || {};
+    type = getType(config, type);
+
+    function getDefaultValueConfig(config) {
+      var keys = isObject(config) ? objectKeys(config) : [];
+      var isShorthand = keys.indexOf("value") === -1 && keys.indexOf("type") === -1;
+      var configValue = isShorthand ? config : config.value;
+      return {
+        fn: isInjectable(configValue) ? configValue : function () { return configValue; },
+        value: configValue
+      };
+    }
+
+    function getType(config, urlType) {
+      if (config.type && urlType) throw new Error("Param '"+id+"' has two type configurations.");
+      if (urlType) return urlType;
+      if (!config.type) return $types.pathParam;
+      return config.type instanceof Type ? config.type : new Type(config.type);
+    }
+
+    /**
+     * [Internal] Get the default value of a parameter, which may be an injectable function.
+     */
+    function $$getDefaultValue() {
+      if (!injector) throw new Error("Injectable functions cannot be called at configuration time");
+      return injector.invoke(defaultValueConfig.fn);
+    }
+
+    /**
+     * [Internal] Gets the decoded representation of a value if the value is defined, otherwise, returns the
+     * default value, which may be the result of an injectable function.
+     */
+    function $value(value) {
+      return isDefined(value) ? self.type.decode(value) : $$getDefaultValue();
+    }
+
+    extend(this, {
+      id: id,
+      type: type,
+      config: config,
+      dynamic: undefined,
+      isOptional: defaultValueConfig.value !== undefined,
+      value: $value
+    });
+  };
+
+  function ParamSet(params) {
+    extend(this, params || {});
+  }
+
+  ParamSet.prototype = {
+    $$keys: function () {
+      return protoKeys(this, ["$$keys", "$$values", "$$equals", "$$validates"]);
+    },
+    $$values: function(paramValues) {
+      var values = {}, self = this;
+      forEach(self.$$keys(), function(key) {
+        values[key] = self[key].value(paramValues && paramValues[key]);
+      });
+      return values;
+    },
+    $$equals: function(paramValues1, paramValues2) {
+      var equal = true; self = this;
+      forEach(self.$$keys(), function(key) {
+        var left = paramValues1 && paramValues1[key], right = paramValues2 && paramValues2[key];
+        if (!self[key].type.equals(left, right)) equal = false;
+      });
+      return equal;
+    },
+    $$validates: function $$validate(paramValues) {
+      var result = true, isOptional, val, param, self = this;
+
+      forEach(this.$$keys(), function(key) {
+        param = self[key];
+        val = paramValues[key];
+        isOptional = !val && param.isOptional;
+        result = result && (isOptional || param.type.is(val));
+      });
+      return result;
+    }
+  };
+
+  this.ParamSet = ParamSet;
 }
 
 // Register as a provider so it's available to other providers
 angular.module('ui.router.util').provider('$urlMatcherFactory', $UrlMatcherFactory);
+angular.module('ui.router.util').run(['$urlMatcherFactory', function($urlMatcherFactory) { }]);

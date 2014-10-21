@@ -22,7 +22,7 @@
 $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
-  var root, states = {}, $state, queue = {}, abstractKey = 'abstract';
+  var root, states = {}, $state, queue = {}, abstractKey = 'abstract', isRuntime = false;
 
   // Builds state properties from definition passed to registerState()
   var stateBuilder = {
@@ -64,12 +64,19 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       return state.url ? state : (state.parent ? state.parent.navigable : null);
     },
 
+    // Own parameters for this state. state.url.params is already built at this point. Create and add non-url params
+    ownParams: function(state) {
+      var params = state.url && state.url.params || new $$UMFP.ParamSet();
+      forEach(state.params || {}, function(config, id) {
+        if (!params[id]) params[id] = new $$UMFP.Param(id, null, config);
+      });
+      return params;
+    },
+
     // Derive parameters for this state and ensure they're a super-set of parent's parameters
     params: function(state) {
-      if (!state.params) {
-        return state.url ? state.url.params : state.parent.params;
-      }
-      return state.params;
+      var parentParams = state.parent && state.parent.params || new $$UMFP.ParamSet();
+      return inherit(parentParams, state.ownParams);
     },
 
     // If there is no explicit multi-view configuration, make one up so we don't have
@@ -85,28 +92,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         views[name] = view;
       });
       return views;
-    },
-
-    ownParams: function(state) {
-      state.params = state.params || {};
-
-      if (!state.parent) {
-          return objectKeys(state.params);
-      }
-      var paramNames = {}; forEach(state.params, function (v, k) { paramNames[k] = true; });
-
-      forEach(state.parent.params, function (v, k) {
-        if (!paramNames[k]) {
-          throw new Error("Missing required parameter '" + k + "' in state '" + state.name + "'");
-        }
-        paramNames[k] = false;
-      });
-      var ownParams = [];
-
-      forEach(paramNames, function (own, p) {
-        if (own) ownParams.push(p);
-      });
-      return ownParams;
     },
 
     // Keep a full path from the root down to this state as this is needed for state activation.
@@ -171,6 +156,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     queue[parentName].push(state);
   }
 
+  function flushQueuedChildren(parentName) {
+    var queued = queue[parentName] || [];
+    while(queued.length) {
+      registerState(queued.shift());
+    }
+  }
+
   function registerState(state) {
     // Wrap a new object around the state so we can store our private details easily.
     state = inherit(state, {
@@ -186,10 +178,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     // Get parent name
     var parentName = (name.indexOf('.') !== -1) ? name.substring(0, name.lastIndexOf('.'))
         : (isString(state.parent)) ? state.parent
+        : (isObject(state.parent) && isString(state.parent.name)) ? state.parent.name
         : '';
 
     // If parent is not registered yet, add state to queue and register later
-    if (parentName && !states[parentName]) {
+    if (name !== "" && (!isRuntime || !states[parentName])) {
       return queueState(parentName, state.self);
     }
 
@@ -208,11 +201,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     }
 
     // Register any queued children
-    if (queue[name]) {
-      for (var i = 0; i < queue[name].length; i++) {
-        registerState(queue[name][i]);
-      }
-    }
+    flushQueuedChildren(name);
 
     return state;
   }
@@ -538,8 +527,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
    * you're coming from.
    */
   this.$get = $get;
-  $get.$inject = ['$rootScope', '$q', '$view', '$injector', '$resolve', '$stateParams', '$urlRouter'];
-  function $get(   $rootScope,   $q,   $view,   $injector,   $resolve,   $stateParams,   $urlRouter) {
+  $get.$inject = ['$rootScope', '$q', '$view', '$injector', '$resolve', '$stateParams', '$urlRouter', '$location', '$urlMatcherFactory'];
+  function $get(   $rootScope,   $q,   $view,   $injector,   $resolve,   $stateParams,   $urlRouter,   $location,   $urlMatcherFactory) {
 
     var TransitionSuperseded = $q.reject(new Error('transition superseded'));
     var TransitionPrevented = $q.reject(new Error('transition prevented'));
@@ -793,6 +782,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       }
       if (toState[abstractKey]) throw new Error("Cannot transition to abstract state '" + to + "'");
       if (options.inherit) toParams = inheritParams($stateParams, toParams || {}, $state.$current, toState);
+      if (!toState.params.$$validates(toParams)) return TransitionFailed;
+
+      toParams = toState.params.$$values(toParams);
       to = toState;
 
       var toPath = to.path;
@@ -801,7 +793,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       var keep = 0, state = toPath[keep], locals = root.locals, toLocals = [];
 
       if (!options.reload) {
-        while (state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams)) {
+        while (state && state === fromPath[keep] && state.ownParams.$$equals(toParams, fromParams)) {
           locals = toLocals[keep] = state.locals;
           keep++;
           state = toPath[keep];
@@ -820,7 +812,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       }
 
       // Filter parameters before we pass them to event handlers etc.
-      toParams = filterByKeys(objectKeys(to.params), toParams || {});
+      toParams = filterByKeys(to.params.$$keys(), toParams || {});
 
       // Broadcast start event and cancel the transition if requested
       if (options.notify) {
@@ -1133,7 +1125,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       if (!nav || nav.url === undefined || nav.url === null) {
         return null;
       }
-      return $urlRouter.href(nav.url, filterByKeys(objectKeys(state.params), params || {}), {
+      return $urlRouter.href(nav.url, filterByKeys(state.params.$$keys(), params || {}), {
         absolute: options.absolute
       });
     };
@@ -1162,7 +1154,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // necessary. In addition to being available to the controller and onEnter/onExit callbacks,
       // we also need $stateParams to be available for any $injector calls we make during the
       // dependency resolution process.
-      var $stateParams = (paramsAreFiltered) ? params : filterByKeys(objectKeys(state.params), params);
+      var $stateParams = (paramsAreFiltered) ? params : filterByKeys(state.params.$$keys(), params);
       var locals = { $stateParams: $stateParams };
 
       // Resolve 'global' dependencies for the state, i.e. those not specific to a view.
@@ -1202,6 +1194,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         return dst;
       });
     }
+
+    isRuntime = true;
+    flushQueuedChildren("");
 
     return $state;
   }
