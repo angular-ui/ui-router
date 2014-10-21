@@ -66,16 +66,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
     // Own parameters for this state. state.url.params is already built at this point. Create and add non-url params
     ownParams: function(state) {
-      var params = state.url && state.url.params || new $$UrlMatcherFactoryProvider.ParamSet();
+      var params = state.url && state.url.params || new $$UMFP.ParamSet();
       forEach(state.params || {}, function(config, id) {
-        if (!params[id]) params[id] = new $$UrlMatcherFactoryProvider.Param(id, null, config);
+        if (!params[id]) params[id] = new $$UMFP.Param(id, null, config);
       });
       return params;
     },
 
     // Derive parameters for this state and ensure they're a super-set of parent's parameters
     params: function(state) {
-      var parentParams = state.parent && state.parent.params || new $$UrlMatcherFactoryProvider.ParamSet();
+      var parentParams = state.parent && state.parent.params || new $$UMFP.ParamSet();
       return inherit(parentParams, state.ownParams);
     },
 

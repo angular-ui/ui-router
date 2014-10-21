@@ -1,3 +1,5 @@
+var $$UMFP; // reference to $UrlMatcherFactoryProvider
+
 /**
  * @ngdoc object
  * @name ui.router.util.type:UrlMatcher
@@ -80,12 +82,12 @@ function UrlMatcher(pattern, config) {
       searchPlaceholder = /([:]?)([\w-]+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
       compiled = '^', last = 0, m,
       segments = this.segments = [],
-      params = this.params = new $$UrlMatcherFactoryProvider.ParamSet();
+      params = this.params = new $$UMFP.ParamSet();
 
   function addParameter(id, type, config) {
     if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
-    params[id] = new $$UrlMatcherFactoryProvider.Param(id, type, config);
+    params[id] = new $$UMFP.Param(id, type, config);
     return params[id];
   }
 
@@ -102,13 +104,12 @@ function UrlMatcher(pattern, config) {
   // The number of segments is always 1 more than the number of parameters.
   function matchDetails(m, isSearch) {
     var id, regexp, segment, type, typeId, cfg;
-    var $types = UrlMatcher.prototype.$types;
     var defaultTypeId = (isSearch ? "searchParam" : "pathParam");
     id      = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
     segment = pattern.substring(last, m.index);
     regexp  = isSearch ? m[4] : m[4] || (m[1] == '*' ? '.*' : null);
     typeId  = regexp || defaultTypeId;
-    type    = $types[typeId] || extend({}, $types[defaultTypeId], { pattern: new RegExp(regexp) });
+    type    = $$UMFP.type(typeId) || extend({}, $$UMFP.type(defaultTypeId), { pattern: new RegExp(regexp) });
     cfg     = config.params[id];
     return {
       id: id, regexp: regexp, segment: segment, type: type, cfg: cfg
@@ -182,7 +183,7 @@ UrlMatcher.prototype.concat = function (pattern, config) {
   // Because order of search parameters is irrelevant, we can add our own search
   // parameters to the end of the new pattern. Parse the new pattern by itself
   // and then join the bits together, but it's much easier to do this on a string level.
-  return $$UrlMatcherFactoryProvider.compile(this.sourcePath + pattern + this.sourceSearch, config);
+  return $$UMFP.compile(this.sourcePath + pattern + this.sourceSearch, config);
 };
 
 UrlMatcher.prototype.toString = function () {
@@ -322,8 +323,6 @@ UrlMatcher.prototype.format = function (values) {
   return result.replace('//', '/');
 };
 
-UrlMatcher.prototype.$types = {};
-
 /**
  * @ngdoc object
  * @name ui.router.util.type:Type
@@ -427,7 +426,6 @@ Type.prototype.$subPattern = function() {
 
 Type.prototype.pattern = /.*/;
 
-var $$UrlMatcherFactoryProvider;
 /**
  * @ngdoc object
  * @name ui.router.util.$urlMatcherFactory
@@ -437,7 +435,7 @@ var $$UrlMatcherFactoryProvider;
  * is also available to providers under the name `$urlMatcherFactoryProvider`.
  */
 function $UrlMatcherFactory() {
-  $$UrlMatcherFactoryProvider = this;
+  $$UMFP = this;
 
   var isCaseInsensitive = false, isStrictMode = true;
 
@@ -456,7 +454,7 @@ function $UrlMatcherFactory() {
     }
   }
 
-  var enqueue = true, typeQueue = [], injector, defaultTypes = {
+  var $types, enqueue = true, typeQueue = [], injector, defaultTypes = {
     "searchParam": {
       encode: normalizeStringOrArray,
       decode: normalizeStringOrArray,
@@ -707,7 +705,10 @@ function $UrlMatcherFactory() {
    * </pre>
    */
   this.type = function (name, def) {
-    if (!isDefined(def)) return UrlMatcher.prototype.$types[name];
+    if (!isDefined(def)) {
+      if (!isDefined($types)) throw new Error("Please wait until runtime to retrieve types.");
+      return $types[name];
+    }
     typeQueue.push({ name: name, def: def });
     if (!enqueue) flushTypeQueue();
     return this;
@@ -717,11 +718,11 @@ function $UrlMatcherFactory() {
   this.$get = ['$injector', function ($injector) {
     injector = $injector;
     enqueue = false;
-    UrlMatcher.prototype.$types = {};
+    $types = {};
     flushTypeQueue();
 
     forEach(defaultTypes, function(type, name) {
-      if (!UrlMatcher.prototype.$types[name]) UrlMatcher.prototype.$types[name] = new Type(type);
+      if (!$types[name]) $types[name] = new Type(type);
     });
     return this;
   }];
@@ -731,11 +732,11 @@ function $UrlMatcherFactory() {
   // before actually wiring up and assigning type definitions
   function flushTypeQueue() {
     forEach(typeQueue, function(type) {
-      if (UrlMatcher.prototype.$types[type.name]) {
+      if ($types[type.name]) {
         throw new Error("A type named '" + type.name + "' has already been defined.");
       }
       var def = new Type(isInjectable(type.def) ? injector.invoke(type.def) : type.def);
-      UrlMatcher.prototype.$types[type.name] = def;
+      $types[type.name] = def;
     });
   }
 
@@ -758,7 +759,7 @@ function $UrlMatcherFactory() {
     function getType(config, urlType) {
       if (config.type && urlType) throw new Error("Param '"+id+"' has two type configurations.");
       if (urlType) return urlType;
-      if (!config.type) return UrlMatcher.prototype.$types.pathParam;
+      if (!config.type) return $types.pathParam;
       return config.type instanceof Type ? config.type : new Type(config.type);
     }
 
