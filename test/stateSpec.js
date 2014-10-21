@@ -22,6 +22,7 @@ describe('state', function () {
       C = {},
       D = { params: { x: null, y: null } },
       DD = { parent: D, params: { x: null, y: null, z: null } },
+      DDDD = { parent: D, controller: function() {}, template: "hey"},
       E = { params: { i: {} } },
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
@@ -44,6 +45,7 @@ describe('state', function () {
       .state('C', C)
       .state('D', D)
       .state('DD', DD)
+      .state('DDDD', DDDD)
       .state('E', E)
       .state('H', H)
       .state('HH', HH)
@@ -332,28 +334,24 @@ describe('state', function () {
       expect($state.current).toBe(D);
     }));
 
-    it('does not trigger $stateChangeSuccess when suppressed, but changes state', inject(function ($state, $q, $rootScope) {
+    it('does not trigger $stateChangeSuccess or $viewContentLoading when suppressed, but changes state', inject(function ($state, $q, $rootScope, $httpBackend) {
       initStateTo(E, { i: 'iii' });
       var called;
 
-      $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {
-        called = true;
-      });
-
-      $state.transitionTo(D, { x: '1', y: '2' }, { notify: false });
+      $rootScope.$on('$stateChangeSuccess', function () { called = true; });
+      $rootScope.$on('$viewContentLoading', function (evt, foo) { called = true; });
+      $state.transitionTo(DDDD, {}, { notify: false });
       $q.flush();
 
       expect(called).toBeFalsy();
-      expect($state.current).toBe(D);
+      expect($state.current).toBe(DDDD);
     }));
 
     it('does not trigger $stateChangeSuccess when suppressed, but updates params', inject(function ($state, $q, $rootScope) {
       initStateTo(E, { x: 'iii' });
       var called;
 
-      $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {
-        called = true;
-      });
+      $rootScope.$on('$stateChangeSuccess', function () { called = true; });
       $state.transitionTo(E, { i: '1', y: '2' }, { notify: false });
       $q.flush();
 
@@ -748,6 +746,7 @@ describe('state', function () {
         'C',
         'D',
         'DD',
+        'DDDD',
         'E',
         'H',
         'HH',
