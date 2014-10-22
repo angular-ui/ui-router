@@ -193,11 +193,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
     // Register the state in the global state list and with $urlRouter if necessary.
     if (!state[abstractKey] && state.url) {
-      $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
+      state.urlHandler = state.urlHandler || ['$match', '$stateParams', function ($match, $stateParams) {
         if ($state.$current.navigable != state || !equalForKeys($match, $stateParams)) {
           $state.transitionTo(state, $match, { location: false });
         }
-      }]);
+      }];
+      $urlRouterProvider.when(state.url, state.urlHandler);
     }
 
     // Register any queued children
@@ -428,6 +429,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
    * - **`url`** - {string=} - A url with optional parameters. When a state is navigated or
    *   transitioned to, the `$stateParams` service will be populated with any 
    *   parameters that were passed.
+   *
+   * <a id='urlHandler'></a>
+   *
+   * - **`urlHandler`** - {object=} - A function that defines a custom url handler that will
+   *   be used by $urlRouterProvider when redirects are made or states are transitioned to by url.
+   *   If minifying your scripts, make sure to use the `['injection1', 'injection2', function(injection1, injection2){}]`
+   *   syntax.
    *
    * <a id='params'></a>
    *

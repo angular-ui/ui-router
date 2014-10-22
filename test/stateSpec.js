@@ -1140,6 +1140,31 @@ describe('state', function () {
     }));
 
   });
+
+  describe('.urlHandler', function() {
+    it('should use default urlHandler when none is defined', inject(function($state, $rootScope, $location, $q) {
+      initStateTo(A);
+
+      spyOn($state, 'transitionTo').andCallThrough();
+      $location.path('/first/subpath');
+      $rootScope.$broadcast('$locationChangeSuccess');
+      $rootScope.$apply();
+      expect($state.transitionTo).toHaveBeenCalled();
+      expect($state.current.name).toBe('first');
+    }));
+
+    it('should use custom urlHandler when defined', inject(function($state, $rootScope, $location, $q) {
+      stateProvider.state('custom2', {
+        url: '^/custom/url/some',
+        urlHandler: function() {
+          log += 'Custom url handler function';
+        }
+      });
+      $location.path('/custom/url/some');
+      $rootScope.$broadcast('$locationChangeSuccess');
+      expect(log).toBe('Custom url handler function');
+    }));
+  });
 });
 
 describe('state queue', function(){

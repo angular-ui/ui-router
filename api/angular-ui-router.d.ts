@@ -15,6 +15,7 @@ declare module ng.ui {
         controllerProvider?: any;
         resolve?: {};
         url?: string;
+        urlHandler?: any;
         params?: any[];
         views?: {};
         abstract?: boolean;
@@ -33,6 +34,7 @@ declare module ng.ui {
         controllerProvider?: any;
         resolve?: {};
         url?: string;
+        urlHandler?: any;
         params?: any[];
         views?: {};
         abstract?: boolean;
