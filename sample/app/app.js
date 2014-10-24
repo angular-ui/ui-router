@@ -54,7 +54,7 @@ angular.module('uiRouterSample', [
 
         .state("home", {
 
-          // Use a url of "/" to set a states as the "index".
+          // Use a url of "/" to set a state as the "index".
           url: "/",
 
           // Example of an inline template string. By default, templates
