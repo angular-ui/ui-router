@@ -62,6 +62,20 @@ function objectKeys(object) {
 }
 
 /**
+ * like objectKeys, but includes keys from prototype chain.
+ * @param object the object whose prototypal keys will be returned
+ * @param ignoreKeys an array of keys to ignore
+ */
+function protoKeys(object, ignoreKeys) {
+  var result = [];
+  for (var key in object) {
+    if (!ignoreKeys || ignoreKeys.indexOf(key) === -1)
+      result.push(key);
+  }
+  return result;
+}
+
+/**
  * IE8-safe wrapper for `Array.prototype.indexOf()`.
  *
  * @param {Array} array A JavaScript array.

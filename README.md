@@ -31,7 +31,7 @@ Check out the sample app: http://angular-ui.github.io/ui-router/sample/
 
 ## Get Started
 
-**(1)** Get UI-Router in one of 4 ways:
+**(1)** Get UI-Router in one of the following ways:
  - clone & [build](CONTRIBUTING.md#developing) this repository
  - [download the release](http://angular-ui.github.io/ui-router/release/angular-ui-router.js) (or [minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js))
  - via **[Bower](http://bower.io/)**: by running `$ bower install angular-ui-router` from your console
