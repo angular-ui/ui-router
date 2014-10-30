@@ -280,7 +280,7 @@ describe("urlMatcherFactory", function () {
   describe("optional parameters", function() {
     it("should match with or without values", function () {
       var m = new UrlMatcher('/users/{id:int}', {
-        params: { id: { value: null } }
+        params: { id: { value: null, squash: true } }
       });
       expect(m.exec('/users/1138')).toEqual({ id: 1138 });
       expect(m.exec('/users/').id).toBeNull();
@@ -289,7 +289,7 @@ describe("urlMatcherFactory", function () {
 
     it("should correctly match multiple", function() {
       var m = new UrlMatcher('/users/{id:int}/{state:[A-Z]+}', {
-        params: { id: { value: null }, state: { value: null } }
+        params: { id: { value: null, squash: true }, state: { value: null, squash: true } }
       });
       expect(m.exec('/users/1138')).toEqual({ id: 1138, state: null });
       expect(m.exec('/users/1138/NY')).toEqual({ id: 1138, state: "NY" });
@@ -314,7 +314,7 @@ describe("urlMatcherFactory", function () {
 
     it("should correctly format multiple", function() {
       var m = new UrlMatcher('/users/{id:int}/{state:[A-Z]+}', {
-        params: { id: { value: null }, state: { value: null } }
+        params: { id: { value: null, squash: true }, state: { value: null, squash: true } }
       });
 
       expect(m.format()).toBe("/users/");
@@ -325,7 +325,7 @@ describe("urlMatcherFactory", function () {
 
     it("should match in between static segments", function() {
       var m = new UrlMatcher('/users/{user:int}/photos', {
-        params: { user: 5 }
+        params: { user: { value: 5, squash: true } }
       });
       expect(m.exec('/users/photos').user).toBe(5);
       expect(m.exec('/users/6/photos').user).toBe(6);
@@ -334,20 +334,20 @@ describe("urlMatcherFactory", function () {
     });
 
     it("should correctly format with an optional followed by a required parameter", function() {
-      var m = new UrlMatcher('/:user/gallery/photos/:photo', {
+      var m = new UrlMatcher('/home/:user/gallery/photos/:photo', {
         params: { 
-          user: {value: null},
-          photo: {} 
+          user: {value: null, squash: true},
+          photo: undefined
         }
       });
-      expect(m.format({ photo: 12 })).toBe("/gallery/photos/12");
-      expect(m.format({ user: 1138, photo: 13 })).toBe("/1138/gallery/photos/13");
+      expect(m.format({ photo: 12 })).toBe("/home/gallery/photos/12");
+      expect(m.format({ user: 1138, photo: 13 })).toBe("/home/1138/gallery/photos/13");
     });
 
     describe("default values", function() {
       it("should populate if not supplied in URL", function() {
         var m = new UrlMatcher('/users/{id:int}/{test}', {
-          params: { id: { value: 0 }, test: { value: "foo" } }
+          params: { id: { value: 0, squash: true }, test: { value: "foo", squash: true } }
         });
         expect(m.exec('/users')).toEqual({ id: 0, test: "foo" });
         expect(m.exec('/users/2')).toEqual({ id: 2, test: "foo" });
@@ -360,7 +360,7 @@ describe("urlMatcherFactory", function () {
         var m = new UrlMatcher('/foo/:foo', {
           params: { foo: "bar" }
         });
-        expect(m.exec("/foo")).toEqual({ foo: "bar" });
+        expect(m.exec("/foo/")).toEqual({ foo: "bar" });
       });
 
       it("should populate query params", function() {
@@ -372,21 +372,19 @@ describe("urlMatcherFactory", function () {
       });
 
       it("should allow function-calculated values", function() {
+        function barFn() { return "Value from bar()"; }
         var m = new UrlMatcher('/foo/:bar', {
-          params: {
-            bar: function() {
-              return "Value from bar()";
-            }
-          }
+          params: { bar: barFn }
+        });
+        expect(m.exec('/foo/').bar).toBe("Value from bar()");
+
+        m = new UrlMatcher('/foo/:bar', {
+          params: { bar: { value: barFn, squash: true } }
         });
         expect(m.exec('/foo').bar).toBe("Value from bar()");
 
-        var m = new UrlMatcher('/foo?bar', {
-          params: {
-            bar: function() {
-              return "Value from bar()";
-            }
-          }
+        m = new UrlMatcher('/foo?bar', {
+          params: { bar: barFn }
         });
         expect(m.exec('/foo').bar).toBe("Value from bar()");
       });
@@ -402,7 +400,7 @@ describe("urlMatcherFactory", function () {
         var user = { name: "Bob" };
 
         $stateParams.user = user;
-        expect(m.exec('/users').user).toBe(user);
+        expect(m.exec('/users/').user).toBe(user);
       }));
     });
   });

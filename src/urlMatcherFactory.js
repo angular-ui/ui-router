@@ -91,11 +91,15 @@ function UrlMatcher(pattern, config) {
     return params[id];
   }
 
-  function quoteRegExp(string, pattern, isOptional) {
-    var result = string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
+  function quoteRegExp(string, pattern, squashPolicy) {
+    var flags = ['',''], result = string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
     if (!pattern) return result;
-    var flag = isOptional ? '?' : '';
-    return result + flag + '(' + pattern + ')' + flag;
+    switch(squashPolicy) {
+      case "nosquash": flags = ['', ''];   break;
+      case "value":    flags = ['', '?'];  break;
+      case "slash":   flags = ['?', '?']; break;
+    }
+    return result + flags[0] + '(' + pattern + ')' + flags[1];
   }
 
   this.source = pattern;
@@ -122,7 +126,7 @@ function UrlMatcher(pattern, config) {
     if (p.segment.indexOf('?') >= 0) break; // we're into the search part
 
     param = addParameter(p.id, p.type, p.cfg);
-    compiled += quoteRegExp(p.segment, param.type.pattern.source, param.isOptional);
+    compiled += quoteRegExp(p.segment, param.type.pattern.source, param.squash);
     segments.push(p.segment);
     last = placeholder.lastIndex;
   }
@@ -290,37 +294,47 @@ UrlMatcher.prototype.validates = function (params) {
  */
 UrlMatcher.prototype.format = function (values) {
   var segments = this.segments, params = this.parameters();
-
-  if (!values) return segments.join('').replace('//', '/');
+  var paramset = this.params;
+  values = values || {};
 
   var nPath = segments.length - 1, nTotal = params.length,
-    result = segments[0], i, search, value, param, cfg, array;
+    result = segments[0], i, search, value, name, param, array, isDefaultValue;
 
   if (!this.validates(values)) return null;
 
   for (i = 0; i < nPath; i++) {
-    param = params[i];
-    value = values[param];
-    cfg   = this.params[param];
+    name = params[i];
+    param = paramset[name];
+    value = param.value(values[name]);
+    isDefaultValue = param.isOptional && param.type.equals(param.value(), value);
+    var squash = isDefaultValue ? param.squash : "nosquash";
+    var encoded = param.type.encode(value);
 
-    if (!isDefined(value) && (segments[i] === '/' && segments[i + 1] === '/')) continue;
-    if (value != null) result += encodeURIComponent(cfg.type.encode(value));
-    result += segments[i + 1];
+    var nextSegment = segments[i + 1];
+    if (squash === "nosquash") {
+      if (encoded != null) result += encodeURIComponent(encoded);
+      result += nextSegment;
+    } else if (squash === "value") {
+      result += nextSegment;
+    } else if (squash === "slash") {
+      var capture = result.match(/\/$/) ? /\/?(.*)/ : /(.*)/;
+      result += nextSegment.match(capture)[1];
+    }
   }
 
   for (/**/; i < nTotal; i++) {
-    param = params[i];
-    value = values[param];
+    name = params[i];
+    value = values[name];
     if (value == null) continue;
     array = isArray(value);
 
     if (array) {
-      value = value.map(encodeURIComponent).join('&' + param + '=');
+      value = value.map(encodeURIComponent).join('&' + name + '=');
     }
-    result += (search ? '&' : '?') + param + '=' + (array ? value : encodeURIComponent(value));
+    result += (search ? '&' : '?') + name + '=' + (array ? value : encodeURIComponent(value));
     search = true;
   }
-  return result.replace('//', '/');
+  return result;
 };
 
 /**
@@ -446,9 +460,9 @@ Type.prototype.pattern = /.*/;
 function $UrlMatcherFactory() {
   $$UMFP = this;
 
-  var isCaseInsensitive = false, isStrictMode = true;
+  var isCaseInsensitive = false, isStrictMode = true, defaultSquashPolicy = "nosquash";
 
-  function safeString(val) { return isDefined(val) ? val.toString() : val; }
+  function safeString(val) { return val != null ? val.toString() : val; }
   function coerceEquals(left, right) { return left == right; }
   function angularEquals(left, right) { return angular.equals(left, right); }
 // TODO:  function regexpMatches(val) { return isDefined(val) && this.pattern.test(val); }
@@ -567,6 +581,28 @@ function $UrlMatcherFactory() {
    */
   this.strictMode = function(value) {
     isStrictMode = value;
+  };
+
+  /**
+   * @ngdoc function
+   * @name ui.router.util.$urlMatcherFactory#defaultSquashPolicy
+   * @methodOf ui.router.util.$urlMatcherFactory
+   *
+   * @description
+   * Sets the default behavior when generating or matching URLs with default parameter values.
+   *
+   * @param {string} value A string that defines the default parameter URL squashing behavior.
+   *    `nosquash`: When generating an href with a default parameter value, do not squash the parameter value from the URL
+   *    `value`: When generating an href with a default parameter value, squash (remove) the parameter value from the URL
+   *    `slash`: When generating an href with a default parameter value, squash (remove) the parameter value, and, if the
+   *             parameter is surrounded by slashes, squash (remove) one slash from the URL
+   */
+  this.defaultSquashPolicy = function(value) {
+    if (!value) return defaultSquashPolicy;
+    if (value !== "nosquash" && value !== "value" && value !== "slash")
+      throw new Error("Invalid squash policy: " + value + ". Valid policies: 'nosquash', 'value', 'slash'");
+    defaultSquashPolicy = value;
+    return value;
   };
 
   /**
@@ -758,10 +794,12 @@ function $UrlMatcherFactory() {
     var defaultValueConfig = getDefaultValueConfig(config);
     config = config || {};
     type = getType(config, type);
+    var isOptional = defaultValueConfig.value !== undefined;
+    var squash = getSquashPolicy(config, isOptional);
 
     function getDefaultValueConfig(config) {
       var keys = isObject(config) ? objectKeys(config) : [];
-      var isShorthand = keys.indexOf("value") === -1 && keys.indexOf("type") === -1;
+      var isShorthand = keys.indexOf("value") === -1 && keys.indexOf("type") === -1 && keys.indexOf("squash") === -1;
       var configValue = isShorthand ? config : config.value;
       return {
         fn: isInjectable(configValue) ? configValue : function () { return configValue; },
@@ -774,6 +812,19 @@ function $UrlMatcherFactory() {
       if (urlType) return urlType;
       if (!config.type) return $types.pathParam;
       return config.type instanceof Type ? config.type : new Type(config.type);
+    }
+
+    /**
+     * returns "nosquash", "value", "slash" to indicate the "default parameter url squash policy".
+     * undefined aliases to urlMatcherFactory default. `false` aliases to "nosquash". `true` aliases to "slash".
+     */
+    function getSquashPolicy(config, isOptional) {
+      var squash = config.squash;
+      if (!isOptional || squash === false) return "nosquash";
+      if (!isDefined(squash)) return defaultSquashPolicy;
+      if (squash === true) return "slash";
+      if (squash === "nosquash" || squash === "value" || squash === "slash") return squash;
+      throw new Error("Invalid squash policy: '" + squash + "'. Valid policies: 'nosquash' (false), 'value', 'slash' (true)");
     }
 
     /**
@@ -796,8 +847,9 @@ function $UrlMatcherFactory() {
       id: id,
       type: type,
       config: config,
+      squash: squash,
       dynamic: undefined,
-      isOptional: defaultValueConfig.value !== undefined,
+      isOptional: isOptional,
       value: $value
     });
   };
