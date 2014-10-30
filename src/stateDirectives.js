@@ -244,6 +244,8 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
 
       // Update route state
       function update() {
+        if(angular.isUndefined(state)) 
+          throw 'StateRefActiveDirective cant find a valid ui-sref in ' + $element.context.innerHTML;
         if (isMatch()) {
           $element.addClass(activeClass);
         } else {
