@@ -97,7 +97,7 @@ function UrlMatcher(pattern, config) {
     switch(squashPolicy) {
       case "nosquash": flags = ['', ''];   break;
       case "value":    flags = ['', '?'];  break;
-      case "slash":   flags = ['?', '?']; break;
+      case "slash":    flags = ['?', '?']; break;
     }
     return result + flags[0] + '(' + pattern + ')' + flags[1];
   }
@@ -107,13 +107,12 @@ function UrlMatcher(pattern, config) {
   // Split into static segments separated by path parameter placeholders.
   // The number of segments is always 1 more than the number of parameters.
   function matchDetails(m, isSearch) {
-    var id, regexp, segment, type, typeId, cfg;
-    var defaultTypeId = (isSearch ? "searchParam" : "pathParam");
+    var id, regexp, segment, type, cfg;
     id      = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
     segment = pattern.substring(last, m.index);
     regexp  = isSearch ? m[4] : m[4] || (m[1] == '*' ? '.*' : null);
-    typeId  = regexp || defaultTypeId;
-    type    = $$UMFP.type(typeId) || extend({}, $$UMFP.type(defaultTypeId), { pattern: new RegExp(regexp) });
+    type    = $$UMFP.type(regexp || "string") || inherit($$UMFP.type("string"), { pattern: new RegExp(regexp) });
+    type    = isSearch ? type.$asSearchType() : type;
     cfg     = config.params[id];
     return {
       id: id, regexp: regexp, segment: segment, type: type, cfg: cfg
@@ -293,47 +292,39 @@ UrlMatcher.prototype.validates = function (params) {
  * @returns {string}  the formatted URL (path and optionally search part).
  */
 UrlMatcher.prototype.format = function (values) {
-  var segments = this.segments, params = this.parameters();
-  var paramset = this.params;
   values = values || {};
-
-  var nPath = segments.length - 1, nTotal = params.length,
-    result = segments[0], i, search, value, name, param, array, isDefaultValue;
-
+  var segments = this.segments, params = this.parameters(), paramset = this.params;
   if (!this.validates(values)) return null;
 
-  for (i = 0; i < nPath; i++) {
-    name = params[i];
-    param = paramset[name];
-    value = param.value(values[name]);
-    isDefaultValue = param.isOptional && param.type.equals(param.value(), value);
+  var i, search = false, nPath = segments.length - 1, nTotal = params.length, result = segments[0];
+
+  for (i = 0; i < nTotal; i++) {
+    var isPathParam = i < nPath;
+    var name = params[i], param = paramset[name], value = param.value(values[name]);
+    var isDefaultValue = param.isOptional && param.type.equals(param.value(), value);
     var squash = isDefaultValue ? param.squash : "nosquash";
     var encoded = param.type.encode(value);
 
-    var nextSegment = segments[i + 1];
-    if (squash === "nosquash") {
-      if (encoded != null) result += encodeURIComponent(encoded);
-      result += nextSegment;
-    } else if (squash === "value") {
-      result += nextSegment;
-    } else if (squash === "slash") {
-      var capture = result.match(/\/$/) ? /\/?(.*)/ : /(.*)/;
-      result += nextSegment.match(capture)[1];
+    if (isPathParam) {
+      var nextSegment = segments[i + 1];
+      if (squash === "nosquash") {
+        if (encoded != null) result += encodeURIComponent(encoded);
+        result += nextSegment;
+      } else if (squash === "value") {
+        result += nextSegment;
+      } else if (squash === "slash") {
+        var capture = result.match(/\/$/) ? /\/?(.*)/ : /(.*)/;
+        result += nextSegment.match(capture)[1];
+      }
+    } else {
+      if (encoded == null || (isDefaultValue && squash !== "nosquash")) continue;
+      if (!isArray(encoded)) encoded = [ encoded ];
+      encoded = encoded.map(encodeURIComponent).join('&' + name + '=');
+      result += (search ? '&' : '?') + (name + '=' + encoded);
+      search = true;
     }
   }
 
-  for (/**/; i < nTotal; i++) {
-    name = params[i];
-    value = values[name];
-    if (value == null) continue;
-    array = isArray(value);
-
-    if (array) {
-      value = value.map(encodeURIComponent).join('&' + name + '=');
-    }
-    result += (search ? '&' : '?') + name + '=' + (array ? value : encodeURIComponent(value));
-    search = true;
-  }
   return result;
 };
 
@@ -449,6 +440,57 @@ Type.prototype.$subPattern = function() {
 
 Type.prototype.pattern = /.*/;
 
+Type.prototype.toString = function() { return "{Type:" + this.name + "}"; };
+
+/*
+ * Wraps an existing custom Type as a search-query aware type which adds multi-value support.
+ * e.g.:
+ * - urlmatcher pattern "/path?{queryParam:int}"
+ * - url: "/path?queryParam=1&queryParam=2
+ * - $stateParams.queryParam will be [1, 2]
+ */
+Type.prototype.$asSearchType = function() {
+  return new SearchType(this);
+
+  function SearchType(type) {
+    var self = this;
+    if (type.$$autoSearchArray === false) return type;
+
+    function allTruthy(array) { // TODO: use reduce fn
+      var result = true;
+      forEach(array, function (val) { result = result && !!val; });
+      return result;
+    }
+
+    function map(array, callback) { // TODO: move to common.js in 1.0
+      var result = [];
+      forEach(array, function (val) { result.push(callback(val)); });
+      return result;
+    }
+
+    function autoHandleArray(callback, reducefn) {
+      return function (val) {
+        if (isArray(val)) {
+          var result = map(val, callback);
+          return reducefn ? reducefn(result) : result;
+        } else {
+          return callback(val);
+        }
+      };
+    }
+
+    function bindTo(thisObj, callback) { return function() { return callback.apply(thisObj, arguments); }; }
+
+    this.encode = autoHandleArray(bindTo(this, type.encode));
+    this.decode = autoHandleArray(bindTo(this, type.decode));
+    this.equals = autoHandleArray(bindTo(this, type.equals), allTruthy);
+    this.is =     autoHandleArray(bindTo(this, type.is), allTruthy);
+    this.pattern = type.pattern;
+  }
+};
+
+
+
 /**
  * @ngdoc object
  * @name ui.router.util.$urlMatcherFactory
@@ -462,75 +504,41 @@ function $UrlMatcherFactory() {
 
   var isCaseInsensitive = false, isStrictMode = true, defaultSquashPolicy = "nosquash";
 
-  function safeString(val) { return val != null ? val.toString() : val; }
-  function coerceEquals(left, right) { return left == right; }
+  function valToString(val) { return val != null ? val.toString() : val; }
   function angularEquals(left, right) { return angular.equals(left, right); }
-// TODO:  function regexpMatches(val) { return isDefined(val) && this.pattern.test(val); }
+//  TODO: in 1.0, make string .is() return false if value is undefined by default.
+//  function regexpMatches(val) { /*jshint validthis:true */ return isDefined(val) && this.pattern.test(val); }
   function regexpMatches(val) { /*jshint validthis:true */ return this.pattern.test(val); }
-  function normalizeStringOrArray(val) {
-    if (isArray(val)) {
-      var encoded = [];
-      forEach(val, function(item) { encoded.push(safeString(item)); });
-      return encoded;
-    } else {
-      return safeString(val);
-    }
-  }
 
   var $types = {}, enqueue = true, typeQueue = [], injector, defaultTypes = {
-    "searchParam": {
-      encode: normalizeStringOrArray,
-      decode: normalizeStringOrArray,
-      equals: angularEquals,
-      is: regexpMatches,
-      pattern: /[^&?]*/
-    },
-    "pathParam": {
-      encode: safeString,
-      decode: safeString,
-      equals: coerceEquals,
+    string: {
+      encode: valToString,
+      decode: valToString,
       is: regexpMatches,
       pattern: /[^/]*/
     },
     int: {
-      decode: function(val) {
-        return parseInt(val, 10);
-      },
-      is: function(val) {
-        if (!isDefined(val)) return false;
-        return this.decode(val.toString()) === val;
-      },
+      encode: valToString,
+      decode: function(val) { return parseInt(val, 10); },
+      is: function(val) { return isDefined(val) && this.decode(val.toString()) === val; },
       pattern: /\d+/
     },
     bool: {
-      encode: function(val) {
-        return val ? 1 : 0;
-      },
-      decode: function(val) {
-        return parseInt(val, 10) !== 0;
-      },
-      is: function(val) {
-        return val === true || val === false;
-      },
+      encode: function(val) { return val ? 1 : 0; },
+      decode: function(val) { return parseInt(val, 10) !== 0; },
+      is: function(val) { return val === true || val === false; },
       pattern: /0|1/
     },
-    string: {
-      pattern: /[^\/]*/
-    },
     date: {
-      equals: function (a, b) {
-        return a.toISOString() === b.toISOString();
-      },
-      decode: function (val) {
-        return new Date(val);
-      },
-      encode: function (val) {
-        return [
+      encode: function (val) { return [
           val.getFullYear(),
           ('0' + (val.getMonth() + 1)).slice(-2),
           ('0' + val.getDate()).slice(-2)
         ].join("-");
       },
+      decode: function (val) { return new Date(val); },
+      is: function(val) { return val instanceof Date && !isNaN(val.valueOf()); },
+      equals: function (a, b) { return a.toISOString() === b.toISOString(); },
       pattern: /[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])/
     }
   };
@@ -756,7 +764,7 @@ function $UrlMatcherFactory() {
     if (!isDefined(definition)) return $types[name];
     if ($types.hasOwnProperty(name)) throw new Error("A type named '" + name + "' has already been defined.");
 
-    $types[name] = new Type(definition);
+    $types[name] = new Type(extend({}, { name: name }, definition));
     if (definitionFn) {
       typeQueue.push({ name: name, def: definitionFn });
       if (!enqueue) flushTypeQueue();
@@ -810,7 +818,7 @@ function $UrlMatcherFactory() {
     function getType(config, urlType) {
       if (config.type && urlType) throw new Error("Param '"+id+"' has two type configurations.");
       if (urlType) return urlType;
-      if (!config.type) return $types.pathParam;
+      if (!config.type) return $types.string;
       return config.type instanceof Type ? config.type : new Type(config.type);
     }
 
@@ -843,6 +851,8 @@ function $UrlMatcherFactory() {
       return isDefined(value) ? self.type.decode(value) : $$getDefaultValue();
     }
 
+    function toString() { return "{Param:" + id + " " + type + " squash: " + squash + " optional: " + isOptional + "}"; }
+
     extend(this, {
       id: id,
       type: type,
@@ -850,7 +860,8 @@ function $UrlMatcherFactory() {
       squash: squash,
       dynamic: undefined,
       isOptional: isOptional,
-      value: $value
+      value: $value,
+      toString: toString
     });
   };
 
@@ -870,7 +881,7 @@ function $UrlMatcherFactory() {
       return values;
     },
     $$equals: function(paramValues1, paramValues2) {
-      var equal = true; self = this;
+      var equal = true, self = this;
       forEach(self.$$keys(), function(key) {
         var left = paramValues1 && paramValues1[key], right = paramValues2 && paramValues2[key];
         if (!self[key].type.equals(left, right)) equal = false;

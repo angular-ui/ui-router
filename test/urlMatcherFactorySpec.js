@@ -275,6 +275,40 @@ describe("urlMatcherFactory", function () {
       expect(m.format({ id: 1138 })).toBe("/users/1138");
       expect(m.format({ id: "alpha" })).toBeNull();
     });
+
+    it("should automatically handle multiple search param values", inject(function($location) {
+      var m = new UrlMatcher("/foo/{fooid:int}?{bar:int}");
+
+      $location.url("/foo/5?bar=1");
+      expect(m.exec($location.path(), $location.search())).toEqual( { fooid: 5, bar: 1 } );
+      expect(m.format({ fooid: 5, bar: 1 })).toEqual("/foo/5?bar=1");
+
+      $location.url("/foo/5?bar=1&bar=2&bar=3");
+      expect(m.exec($location.path(), $location.search())).toEqual( { fooid: 5, bar: [ 1, 2, 3 ] } );
+      expect(m.format({ fooid: 5, bar: [ 1, 2, 3 ] })).toEqual("/foo/5?bar=1&bar=2&bar=3");
+
+      m.format()
+    }));
+
+    it("should allow custom types to handle multiple search param values manually", inject(function($location) {
+      $umf.type("array", {
+        encode: function(array)  { return array.join("-"); },
+        decode: function(val) { return angular.isArray(val) ? val : val.split(/-/); },
+        equals: angular.equals,
+        is: angular.isArray,
+        $$autoSearchArray: false
+      });
+
+      var m = new UrlMatcher("/foo?{bar:array}");
+
+      $location.url("/foo?bar=fox");
+      expect(m.exec($location.path(), $location.search())).toEqual( { bar: [ 'fox' ] } );
+      expect(m.format({ bar: [ 'fox' ] })).toEqual("/foo?bar=fox");
+
+      $location.url("/foo?bar=quick-brown-fox");
+      expect(m.exec($location.path(), $location.search())).toEqual( { bar: [ 'quick', 'brown', 'fox' ] } );
+      expect(m.format({ bar: [ 'quick', 'brown', 'fox' ] })).toEqual("/foo?bar=quick-brown-fox");
+    }));
   });
 
   describe("optional parameters", function() {
