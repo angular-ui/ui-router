@@ -12,7 +12,7 @@ angular.module('uiRouterSample.contacts', [
         .state('contacts', {
 
           // With abstract set to true, that means this state can not be explicitly activated.
-          // It can only be implicitly activated by activating one of it's children.
+          // It can only be implicitly activated by activating one of its children.
           abstract: true,
 
           // This abstract state will prepend '/contacts' onto the urls of all its children.
