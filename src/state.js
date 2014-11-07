@@ -172,6 +172,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
   }
 
   function registerState(state) {
+    if (isArray(state)) {
+      for (var stateLen = state.length, stateIndex = 0; stateIndex < stateLen; stateIndex++) {
+        registerState(state[stateIndex]);
+      }
+      return;
+    }
     // Wrap a new object around the state so we can store our private details easily.
     state = inherit(state, {
       self: state,
