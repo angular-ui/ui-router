@@ -68,7 +68,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     ownParams: function(state) {
       var params = state.url && state.url.params || new $$UMFP.ParamSet();
       forEach(state.params || {}, function(config, id) {
-        if (!params[id]) params[id] = new $$UMFP.Param(id, null, config);
+        if (!params[id]) params[id] = new $$UMFP.Param(id, null, config, false);
       });
       return params;
     },

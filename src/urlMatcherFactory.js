@@ -71,23 +71,22 @@ function UrlMatcher(pattern, config) {
   //   '{' name ':' regexp '}'
   // The regular expression is somewhat complicated due to the need to allow curly braces
   // inside the regular expression. The placeholder regexp breaks down as follows:
-  //    ([:*])(\w+)               classic placeholder ($1 / $2)
-  //    ([:]?)([\w-]+)            classic search placeholder (supports snake-case-params) ($1 / $2)
-  //    \{(\w+)(?:\:( ... ))?\}   curly brace placeholder ($3) with optional regexp/type ... ($4)
-  //    (?: ... | ... | ... )+    the regexp consists of any number of atoms, an atom being either
-  //    [^{}\\]+                  - anything other than curly braces or backslash
-  //    \\.                       - a backslash escape
-  //    \{(?:[^{}\\]+|\\.)*\}     - a matched set of curly braces containing other atoms
-  var placeholder = /([:*])(\w+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
-      searchPlaceholder = /([:]?)([\w-]+)|\{(\w+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
+  //    ([:*])([\w\[\]]+)              - classic placeholder ($1 / $2) (search version has - for snake-case)
+  //    \{([\w\[\]]+)(?:\:( ... ))?\}  - curly brace placeholder ($3) with optional regexp/type ... ($4) (search version has - for snake-case
+  //    (?: ... | ... | ... )+         - the regexp consists of any number of atoms, an atom being either
+  //    [^{}\\]+                       - anything other than curly braces or backslash
+  //    \\.                            - a backslash escape
+  //    \{(?:[^{}\\]+|\\.)*\}          - a matched set of curly braces containing other atoms
+  var placeholder       = /([:*])([\w\[\]]+)|\{([\w\[\]]+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
+      searchPlaceholder = /([:]?)([\w\[\]-]+)|\{([\w\[\]-]+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
       compiled = '^', last = 0, m,
       segments = this.segments = [],
       params = this.params = new $$UMFP.ParamSet();
 
-  function addParameter(id, type, config) {
-    if (!/^\w+(-+\w+)*$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
+  function addParameter(id, type, config, isSearch) {
+    if (!/^\w+(-+\w+)*(?:\[\])?$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
-    params[id] = new $$UMFP.Param(id, type, config);
+    params[id] = new $$UMFP.Param(id, type, config, isSearch);
     return params[id];
   }
 
@@ -107,13 +106,12 @@ function UrlMatcher(pattern, config) {
   // Split into static segments separated by path parameter placeholders.
   // The number of segments is always 1 more than the number of parameters.
   function matchDetails(m, isSearch) {
-    var id, regexp, segment, type, cfg;
-    id      = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
-    segment = pattern.substring(last, m.index);
-    regexp  = isSearch ? m[4] : m[4] || (m[1] == '*' ? '.*' : null);
-    type    = $$UMFP.type(regexp || "string") || inherit($$UMFP.type("string"), { pattern: new RegExp(regexp) });
-    type    = isSearch ? type.$asSearchType() : type;
-    cfg     = config.params[id];
+    var id, regexp, segment, type, cfg, arrayMode;
+    id          = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
+    cfg         = config.params[id];
+    segment     = pattern.substring(last, m.index);
+    regexp      = isSearch ? m[4] : m[4] || (m[1] == '*' ? '.*' : null);
+    type        = $$UMFP.type(regexp || "string") || inherit($$UMFP.type("string"), { pattern: new RegExp(regexp) });
     return {
       id: id, regexp: regexp, segment: segment, type: type, cfg: cfg
     };
@@ -124,7 +122,7 @@ function UrlMatcher(pattern, config) {
     p = matchDetails(m, false);
     if (p.segment.indexOf('?') >= 0) break; // we're into the search part
 
-    param = addParameter(p.id, p.type, p.cfg);
+    param = addParameter(p.id, p.type, p.cfg, false);
     compiled += quoteRegExp(p.segment, param.type.pattern.source, param.squash);
     segments.push(p.segment);
     last = placeholder.lastIndex;
@@ -143,7 +141,7 @@ function UrlMatcher(pattern, config) {
       last = 0;
       while ((m = searchPlaceholder.exec(search))) {
         p = matchDetails(m, true);
-        param = addParameter(p.id, p.type, p.cfg);
+        param = addParameter(p.id, p.type, p.cfg, true);
         last = placeholder.lastIndex;
         // check if ?&
       }
@@ -228,9 +226,19 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
 
   if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
 
+  function decodePathArray(string) {
+    function reverseString(str) { return str.split("").reverse().join(""); }
+    function unquoteDashes(str) { return str.replace(/\\-/, "-"); }
+    return reverseString(string).split(/-(?!\\)/).map(reverseString).map(unquoteDashes).reverse();
+  }
+
   for (i = 0; i < nPath; i++) {
     paramName = paramNames[i];
-    values[paramName] = this.params[paramName].value(m[i + 1]);
+    var param = this.params[paramName];
+    // if the param is optional, convert an empty string to `undefined`
+    var paramVal = m[i+1] === "" ? param.emptyString : m[i+1];
+    if (paramVal && param.array === true) paramVal = decodePathArray(paramVal);
+    values[paramName] = param.value(paramVal);
   }
   for (/**/; i < nTotal; i++) {
     paramName = paramNames[i];
@@ -298,6 +306,10 @@ UrlMatcher.prototype.format = function (values) {
 
   var i, search = false, nPath = segments.length - 1, nTotal = params.length, result = segments[0];
 
+  function encodeDashes(str) { // Replace dashes with encoded "\-"
+    return encodeURIComponent(str).replace(/-/g, function(c) { return '%5C%' + c.charCodeAt(0).toString(16).toUpperCase(); });
+  }
+
   for (i = 0; i < nTotal; i++) {
     var isPathParam = i < nPath;
     var name = params[i], param = paramset[name], value = param.value(values[name]);
@@ -308,7 +320,13 @@ UrlMatcher.prototype.format = function (values) {
     if (isPathParam) {
       var nextSegment = segments[i + 1];
       if (squash === "nosquash") {
-        if (encoded != null) result += encodeURIComponent(encoded);
+        if (encoded != null) {
+          if (isArray(encoded)) {
+            result += encoded.map(encodeDashes).join("-");
+          } else {
+            result += encodeURIComponent(encoded);
+          }
+        }
         result += nextSegment;
       } else if (squash === "value") {
         result += nextSegment;
@@ -443,49 +461,45 @@ Type.prototype.pattern = /.*/;
 Type.prototype.toString = function() { return "{Type:" + this.name + "}"; };
 
 /*
- * Wraps an existing custom Type as a search-query aware type which adds multi-value support.
+ * Wraps an existing custom Type as an array of Type, depending on 'mode'.
  * e.g.:
- * - urlmatcher pattern "/path?{queryParam:int}"
+ * - urlmatcher pattern "/path?{queryParam[]:int}"
  * - url: "/path?queryParam=1&queryParam=2
  * - $stateParams.queryParam will be [1, 2]
+ * if `mode` is "auto", then
+ * - url: "/path?queryParam=1 will create $stateParams.queryParam: 1
+ * - url: "/path?queryParam=1&queryParam=2 will create $stateParams.queryParam: [1, 2]
  */
-Type.prototype.$asSearchType = function() {
-  return new SearchType(this);
+Type.prototype.$asArray = function(mode, isSearch) {
+  if (!mode) return this;
+  if (mode === "auto" && !isSearch) throw new Error("'auto' array mode is for query parameters only");
+  return new ArrayType(this, mode);
 
-  function SearchType(type) {
-    var self = this;
-    if (type.$$autoSearchArray === false) return type;
-
-    function allTruthy(array) { // TODO: use reduce fn
-      var result = true;
-      forEach(array, function (val) { result = result && !!val; });
-      return result;
-    }
-
-    function map(array, callback) { // TODO: move to common.js in 1.0
-      var result = [];
-      forEach(array, function (val) { result.push(callback(val)); });
-      return result;
-    }
-
-    function autoHandleArray(callback, reducefn) {
-      return function (val) {
-        if (isArray(val)) {
-          var result = map(val, callback);
-          return reducefn ? reducefn(result) : result;
-        } else {
-          return callback(val);
-        }
+  function ArrayType(type, mode) {
+    function bindTo(thisObj, callback) {
+      return function() {
+        return callback.apply(thisObj, arguments);
       };
     }
 
-    function bindTo(thisObj, callback) { return function() { return callback.apply(thisObj, arguments); }; }
+    function arrayHandler(callback, reducefn) {
+      // Wraps type functions to operate on each value of an array
+      return function handleArray(val) {
+        if (!isArray(val)) val = [ val ];
+        var result = val.map(callback);
+        if (reducefn)
+          return result.reduce(reducefn, true);
+        return (result && result.length == 1 && mode === "auto") ? result[0] : result;
+      };
+    }
 
-    this.encode = autoHandleArray(bindTo(this, type.encode));
-    this.decode = autoHandleArray(bindTo(this, type.decode));
-    this.equals = autoHandleArray(bindTo(this, type.equals), allTruthy);
-    this.is =     autoHandleArray(bindTo(this, type.is), allTruthy);
+    function alltruthy(val, memo) { return val && memo; }
+    this.encode = arrayHandler(bindTo(this, type.encode));
+    this.decode = arrayHandler(bindTo(this, type.decode));
+    this.equals = arrayHandler(bindTo(this, type.equals), alltruthy);
+    this.is     = arrayHandler(bindTo(this, type.is),     alltruthy);
     this.pattern = type.pattern;
+    this.$arrayMode = mode;
   }
 };
 
@@ -797,17 +811,21 @@ function $UrlMatcherFactory() {
     return this;
   }];
 
-  this.Param = function Param(id, type, config) {
+  this.Param = function Param(id, type, config, isSearch) {
     var self = this;
     var defaultValueConfig = getDefaultValueConfig(config);
     config = config || {};
     type = getType(config, type);
+    var arrayMode = getArrayMode();
+    type = arrayMode ? type.$asArray(arrayMode, isSearch) : type;
     var isOptional = defaultValueConfig.value !== undefined;
     var squash = getSquashPolicy(config, isOptional);
+    var emptyString = getEmptyStringValue(config, arrayMode, isOptional);
 
     function getDefaultValueConfig(config) {
       var keys = isObject(config) ? objectKeys(config) : [];
-      var isShorthand = keys.indexOf("value") === -1 && keys.indexOf("type") === -1 && keys.indexOf("squash") === -1;
+      var isShorthand = keys.indexOf("value") === -1 && keys.indexOf("type") === -1 &&
+                        keys.indexOf("squash") === -1 && keys.indexOf("array") === -1;
       var configValue = isShorthand ? config : config.value;
       return {
         fn: isInjectable(configValue) ? configValue : function () { return configValue; },
@@ -822,6 +840,13 @@ function $UrlMatcherFactory() {
       return config.type instanceof Type ? config.type : new Type(config.type);
     }
 
+    // array config: param name (param[]) overrides default settings.  explicit config overrides param name.
+    function getArrayMode() {
+      var arrayDefaults = { array: isSearch ? "auto" : false };
+      var arrayParamNomenclature = id.match(/\[\]$/) ? { array: true } : {};
+      return extend(arrayDefaults, arrayParamNomenclature, config).array;
+    }
+
     /**
      * returns "nosquash", "value", "slash" to indicate the "default parameter url squash policy".
      * undefined aliases to urlMatcherFactory default. `false` aliases to "nosquash". `true` aliases to "slash".
@@ -833,6 +858,15 @@ function $UrlMatcherFactory() {
       if (squash === true) return "slash";
       if (squash === "nosquash" || squash === "value" || squash === "slash") return squash;
       throw new Error("Invalid squash policy: '" + squash + "'. Valid policies: 'nosquash' (false), 'value', 'slash' (true)");
+    }
+
+    /**
+     * Returns "" or undefined, or whatever is defined in the param's config.emptyString.
+     * If the parameter was matched in a URL, but was matched as an empty string, this value will be used instead.
+     */
+    function getEmptyStringValue(config, arrayMode, isOptional) {
+      var defaultPolicy = { emptyString: (isOptional || arrayMode ? undefined : "") };
+      return extend(defaultPolicy, config).emptyString;
     }
 
     /**
@@ -856,10 +890,12 @@ function $UrlMatcherFactory() {
     extend(this, {
       id: id,
       type: type,
+      array: arrayMode,
       config: config,
       squash: squash,
-      dynamic: undefined,
+      emptyString: emptyString,
       isOptional: isOptional,
+      dynamic: undefined,
       value: $value,
       toString: toString
     });
