@@ -17,7 +17,7 @@ describe('state', function () {
     };
   }
 
-  var A = { data: {} },
+  var A = { data: {}, controller: function() { log += "controller;"; } },
       B = {},
       C = {},
       D = { params: { x: null, y: null } },
@@ -95,7 +95,8 @@ describe('state', function () {
           value: function ($timeout) {
             return $timeout(function() { log += "Success!"; }, 1);
           }
-        }
+        },
+        controller: function() { log += "controller;"}
       })
       .state('badParam', {
         url: "/bad/{param:int}"
@@ -514,6 +515,19 @@ describe('state', function () {
       $q.flush();
       $timeout.flush();
       expect(log).toBe('Success!Success!');
+    }));
+
+    it('should invoke the controller', inject(function ($state, $q, $timeout, $rootScope, $compile) {
+      $compile('<div ui-view/>')($rootScope);
+      $state.transitionTo('resolveTimeout', { foo: "bar" });
+      $timeout.flush();
+      $q.flush();
+      expect(log).toBe('Success!controller;');
+
+      $state.reload();
+      $timeout.flush();
+      $q.flush();
+      expect(log).toBe('Success!controller;Success!controller;');
     }));
   });
 

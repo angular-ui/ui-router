@@ -632,7 +632,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * `reload()` is just an alias for:
      * <pre>
      * $state.transitionTo($state.current, $stateParams, { 
-     *   reload: true, inherit: false, notify: false 
+     *   reload: true, inherit: false, notify: true
      * });
      * </pre>
      *
@@ -640,7 +640,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
     $state.reload = function reload() {
-      return $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: false });
+      return $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: true });
     };
 
     /**
