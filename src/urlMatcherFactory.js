@@ -883,6 +883,7 @@ function $UrlMatcherFactory() {
      * default value, which may be the result of an injectable function.
      */
     function $value(value) {
+      if (value === "") value = self.emptyString;
       return isDefined(value) ? self.type.decode(value) : $$getDefaultValue();
     }
 
