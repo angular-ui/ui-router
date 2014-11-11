@@ -184,7 +184,12 @@ UrlMatcher.prototype.concat = function (pattern, config) {
   // Because order of search parameters is irrelevant, we can add our own search
   // parameters to the end of the new pattern. Parse the new pattern by itself
   // and then join the bits together, but it's much easier to do this on a string level.
-  return $$UMFP.compile(this.sourcePath + pattern + this.sourceSearch, config);
+  var defaultConfig = {
+    caseInsensitive: $$UMFP.caseInsensitive(),
+    strict: $$UMFP.strictMode(),
+    squash: $$UMFP.defaultSquashPolicy()
+  };
+  return new UrlMatcher(this.sourcePath + pattern + this.sourceSearch, extend(defaultConfig, config));
 };
 
 UrlMatcher.prototype.toString = function () {
@@ -587,9 +592,12 @@ function $UrlMatcherFactory() {
    * Defines whether URL matching should be case sensitive (the default behavior), or not.
    *
    * @param {boolean} value `false` to match URL in a case sensitive manner; otherwise `true`;
+   * @return the current value of caseInsensitive
    */
   this.caseInsensitive = function(value) {
-    isCaseInsensitive = value;
+    if (isDefined(value))
+      isCaseInsensitive = value;
+    return isCaseInsensitive;
   };
 
   /**
@@ -600,10 +608,13 @@ function $UrlMatcherFactory() {
    * @description
    * Defines whether URLs should match trailing slashes, or not (the default behavior).
    *
-   * @param {boolean} value `false` to match trailing slashes in URLs, otherwise `true`.
+   * @param {boolean=} value `false` to match trailing slashes in URLs, otherwise `true`.
+   * @return the current value of strictMode
    */
   this.strictMode = function(value) {
-    isStrictMode = value;
+    if (isDefined(value))
+      isStrictMode = value;
+    return isStrictMode;
   };
 
   /**
