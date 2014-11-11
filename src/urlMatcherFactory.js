@@ -42,6 +42,8 @@ var $$UMFP; // reference to $UrlMatcherFactoryProvider
  *
  * @param {string} pattern  The pattern to compile into a matcher.
  * @param {Object} config  A configuration object hash:
+ * @param {Object=} parentMatcher Used to concatenate the pattern/config onto
+ *   an existing UrlMatcher
  *
  * * `caseInsensitive` - `true` if URL matching should be case insensitive, otherwise `false`, the default value (for backward compatibility) is `false`.
  * * `strict` - `false` if matching against a URL with a trailing slash should be treated as equivalent to a URL without a trailing slash, the default value is `true`.
@@ -61,7 +63,7 @@ var $$UMFP; // reference to $UrlMatcherFactoryProvider
  *
  * @returns {Object}  New `UrlMatcher` object
  */
-function UrlMatcher(pattern, config) {
+function UrlMatcher(pattern, config, parentMatcher) {
   config = extend({ params: {} }, isObject(config) ? config : {});
 
   // Find all placeholders and create a compiled pattern, using either classic or curly syntax:
@@ -81,9 +83,11 @@ function UrlMatcher(pattern, config) {
       searchPlaceholder = /([:]?)([\w\[\]-]+)|\{([\w\[\]-]+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
       compiled = '^', last = 0, m,
       segments = this.segments = [],
-      params = this.params = new $$UMFP.ParamSet();
+      parentParams = parentMatcher ? parentMatcher.params : {},
+      params = this.params = parentMatcher ? parentMatcher.params.$$new() : new $$UMFP.ParamSet();
 
   function addParameter(id, type, config, isSearch) {
+    if (parentParams[id]) return parentParams[id];
     if (!/^\w+(-+\w+)*(?:\[\])?$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
     params[id] = new $$UMFP.Param(id, type, config, isSearch);
@@ -189,7 +193,7 @@ UrlMatcher.prototype.concat = function (pattern, config) {
     strict: $$UMFP.strictMode(),
     squash: $$UMFP.defaultSquashPolicy()
   };
-  return new UrlMatcher(this.sourcePath + pattern + this.sourceSearch, extend(defaultConfig, config));
+  return new UrlMatcher(this.sourcePath + pattern + this.sourceSearch, extend(defaultConfig, config), this);
 };
 
 UrlMatcher.prototype.toString = function () {
@@ -265,7 +269,7 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
  *    pattern has no parameters, an empty array is returned.
  */
 UrlMatcher.prototype.parameters = function (param) {
-  if (!isDefined(param)) return objectKeys(this.params);
+  if (!isDefined(param)) return this.params.$$keys();
   return this.params[param] || null;
 };
 
@@ -919,8 +923,20 @@ function $UrlMatcherFactory() {
   }
 
   ParamSet.prototype = {
+    $$new: function() {
+      return inherit(this, extend(new ParamSet(), { $$parent: this}));
+    },
     $$keys: function () {
-      return protoKeys(this, ["$$keys", "$$values", "$$equals", "$$validates"]);
+      var keys = [], chain = [], parent = this,
+        ignore = ["$$keys", "$$values", "$$equals", "$$validates", "$$parent"];
+      while (parent) { chain.push(parent); parent = parent.$$parent; }
+      chain.reverse();
+      forEach(chain, function(paramset) {
+        forEach(objectKeys(paramset), function(key) {
+            if (keys.indexOf(key) === -1 && ignore.indexOf(key) === -1) keys.push(key);
+        });
+      });
+      return keys;
     },
     $$values: function(paramValues) {
       var values = {}, self = this;
