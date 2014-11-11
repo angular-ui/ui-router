@@ -554,6 +554,68 @@ describe("urlMatcherFactory", function () {
         $stateParams.user = user;
         expect(m.exec('/users/').user).toBe(user);
       }));
+
+      describe("squash policy", function() {
+        var Session = { username: "loggedinuser" };
+        function getMatcher(squash) {
+          return new UrlMatcher('/user/:userid/gallery/:galleryid/photo/:photoid', {
+            params: {
+              userid: { squash: squash, value: function () { return Session.username; } },
+              galleryid: { squash: squash, value: "favorites" }
+            }
+          });
+        }
+
+        it(": true should squash the default value and one slash", inject(function($stateParams) {
+          var m = getMatcher(true);
+
+          var defaultParams = { userid: 'loggedinuser', galleryid: 'favorites', photoid: '123'};
+          expect(m.exec('/user/gallery/photo/123')).toEqual(defaultParams);
+          expect(m.exec('/user//gallery//photo/123')).toEqual(defaultParams);
+          expect(m.format(defaultParams)).toBe('/user/gallery/photo/123');
+
+          var nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987'};
+          expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
+          expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
+        }));
+
+        it(": false should not squash default values", inject(function($stateParams) {
+          var m = getMatcher(false);
+
+          var defaultParams = { userid: 'loggedinuser', galleryid: 'favorites', photoid: '123'};
+          expect(m.exec('/user/loggedinuser/gallery/favorites/photo/123')).toEqual(defaultParams);
+          expect(m.format(defaultParams)).toBe('/user/loggedinuser/gallery/favorites/photo/123');
+
+          var nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987'};
+          expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
+          expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
+        }));
+
+        it(": '' should squash the default value to an empty string", inject(function($stateParams) {
+          var m = getMatcher("");
+
+          var defaultParams = { userid: 'loggedinuser', galleryid: 'favorites', photoid: '123'};
+          expect(m.exec('/user//gallery//photo/123')).toEqual(defaultParams);
+          expect(m.format(defaultParams)).toBe('/user//gallery//photo/123');
+
+          var nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987'};
+          expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
+          expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
+        }));
+
+        it(": '~' should squash the default value and replace it with '~'", inject(function($stateParams) {
+          var m = getMatcher("~");
+
+          var defaultParams = { userid: 'loggedinuser', galleryid: 'favorites', photoid: '123'};
+          expect(m.exec('/user//gallery//photo/123')).toEqual(defaultParams);
+          expect(m.exec('/user/~/gallery/~/photo/123')).toEqual(defaultParams);
+          expect(m.format(defaultParams)).toBe('/user/~/gallery/~/photo/123');
+
+          var nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987'};
+          expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
+          expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
+        }));
+      });
     });
   });
 

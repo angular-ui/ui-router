@@ -94,15 +94,15 @@ function UrlMatcher(pattern, config, parentMatcher) {
     return params[id];
   }
 
-  function quoteRegExp(string, pattern, squashPolicy) {
-    var flags = ['',''], result = string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
+  function quoteRegExp(string, pattern, squash) {
+    var surroundPattern = ['',''], result = string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
     if (!pattern) return result;
-    switch(squashPolicy) {
-      case "nosquash": flags = ['', ''];   break;
-      case "value":    flags = ['', '?'];  break;
-      case "slash":    flags = ['?', '?']; break;
+    switch(squash) {
+      case false: surroundPattern = ['(', ')'];   break;
+      case true:  surroundPattern = ['?(', ')?']; break;
+      default:    surroundPattern = ['(' + squash + "|", ')?'];  break;
     }
-    return result + flags[0] + '(' + pattern + ')' + flags[1];
+    return result + surroundPattern[0] + pattern + surroundPattern[1];
   }
 
   this.source = pattern;
@@ -231,7 +231,7 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
 
   var paramNames = this.parameters(), nTotal = paramNames.length,
     nPath = this.segments.length - 1,
-    values = {}, i, cfg, paramName;
+    values = {}, i, j, cfg, paramName;
 
   if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
 
@@ -244,8 +244,11 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
   for (i = 0; i < nPath; i++) {
     paramName = paramNames[i];
     var param = this.params[paramName];
-    // if the param is optional, convert an empty string to `undefined`
-    var paramVal = m[i+1] === "" ? param.emptyString : m[i+1];
+    var paramVal = m[i+1];
+    // if the param value matches a pre-replace pair, replace the value before decoding.
+    for (j = 0; j < param.replace; j++) {
+      if (param.replace[j].from === paramVal) paramVal = param.replace[j].to;
+    }
     if (paramVal && param.array === true) paramVal = decodePathArray(paramVal);
     values[paramName] = param.value(paramVal);
   }
@@ -323,12 +326,12 @@ UrlMatcher.prototype.format = function (values) {
     var isPathParam = i < nPath;
     var name = params[i], param = paramset[name], value = param.value(values[name]);
     var isDefaultValue = param.isOptional && param.type.equals(param.value(), value);
-    var squash = isDefaultValue ? param.squash : "nosquash";
+    var squash = isDefaultValue ? param.squash : false;
     var encoded = param.type.encode(value);
 
     if (isPathParam) {
       var nextSegment = segments[i + 1];
-      if (squash === "nosquash") {
+      if (squash === false) {
         if (encoded != null) {
           if (isArray(encoded)) {
             result += encoded.map(encodeDashes).join("-");
@@ -337,14 +340,14 @@ UrlMatcher.prototype.format = function (values) {
           }
         }
         result += nextSegment;
-      } else if (squash === "value") {
-        result += nextSegment;
-      } else if (squash === "slash") {
+      } else if (squash === true) {
         var capture = result.match(/\/$/) ? /\/?(.*)/ : /(.*)/;
         result += nextSegment.match(capture)[1];
+      } else if (isString(squash)) {
+        result += squash + nextSegment;
       }
     } else {
-      if (encoded == null || (isDefaultValue && squash !== "nosquash")) continue;
+      if (encoded == null || (isDefaultValue && squash !== false)) continue;
       if (!isArray(encoded)) encoded = [ encoded ];
       encoded = encoded.map(encodeURIComponent).join('&' + name + '=');
       result += (search ? '&' : '?') + (name + '=' + encoded);
@@ -525,7 +528,7 @@ Type.prototype.$asArray = function(mode, isSearch) {
 function $UrlMatcherFactory() {
   $$UMFP = this;
 
-  var isCaseInsensitive = false, isStrictMode = true, defaultSquashPolicy = "nosquash";
+  var isCaseInsensitive = false, isStrictMode = true, defaultSquashPolicy = false;
 
   function valToString(val) { return val != null ? val.toString().replace("/", "%2F") : val; }
   function valFromString(val) { return val != null ? val.toString().replace("%2F", "/") : val; }
@@ -631,14 +634,15 @@ function $UrlMatcherFactory() {
    *
    * @param {string} value A string that defines the default parameter URL squashing behavior.
    *    `nosquash`: When generating an href with a default parameter value, do not squash the parameter value from the URL
-   *    `value`: When generating an href with a default parameter value, squash (remove) the parameter value from the URL
    *    `slash`: When generating an href with a default parameter value, squash (remove) the parameter value, and, if the
    *             parameter is surrounded by slashes, squash (remove) one slash from the URL
+   *    any other string, e.g. "~": When generating an href with a default parameter value, squash (remove)
+   *             the parameter value from the URL and replace it with this string.
    */
   this.defaultSquashPolicy = function(value) {
-    if (!value) return defaultSquashPolicy;
-    if (value !== "nosquash" && value !== "value" && value !== "slash")
-      throw new Error("Invalid squash policy: " + value + ". Valid policies: 'nosquash', 'value', 'slash'");
+    if (!isDefined(value)) return defaultSquashPolicy;
+    if (value !== true && value !== false && !isString(value))
+      throw new Error("Invalid squash policy: " + value + ". Valid policies: false, true, arbitrary-string");
     defaultSquashPolicy = value;
     return value;
   };
@@ -836,7 +840,7 @@ function $UrlMatcherFactory() {
     type = arrayMode ? type.$asArray(arrayMode, isSearch) : type;
     var isOptional = defaultValueConfig.value !== undefined;
     var squash = getSquashPolicy(config, isOptional);
-    var emptyString = getEmptyStringValue(config, arrayMode, isOptional);
+    var replace = getReplace(config, arrayMode, isOptional, squash);
 
     function getDefaultValueConfig(config) {
       var keys = isObject(config) ? objectKeys(config) : [];
@@ -864,25 +868,26 @@ function $UrlMatcherFactory() {
     }
 
     /**
-     * returns "nosquash", "value", "slash" to indicate the "default parameter url squash policy".
-     * undefined aliases to urlMatcherFactory default. `false` aliases to "nosquash". `true` aliases to "slash".
+     * returns false, true, or the squash value to indicate the "default parameter url squash policy".
      */
     function getSquashPolicy(config, isOptional) {
       var squash = config.squash;
-      if (!isOptional || squash === false) return "nosquash";
-      if (!isDefined(squash)) return defaultSquashPolicy;
-      if (squash === true) return "slash";
-      if (squash === "nosquash" || squash === "value" || squash === "slash") return squash;
-      throw new Error("Invalid squash policy: '" + squash + "'. Valid policies: 'nosquash' (false), 'value', 'slash' (true)");
+      if (!isOptional || squash === false) return false;
+      if (!isDefined(squash) || squash == null) return defaultSquashPolicy;
+      if (squash === true || isString(squash)) return squash;
+      throw new Error("Invalid squash policy: '" + squash + "'. Valid policies: false, true, or arbitrary string");
     }
 
-    /**
-     * Returns "" or undefined, or whatever is defined in the param's config.emptyString.
-     * If the parameter was matched in a URL, but was matched as an empty string, this value will be used instead.
-     */
-    function getEmptyStringValue(config, arrayMode, isOptional) {
-      var defaultPolicy = { emptyString: (isOptional || arrayMode ? undefined : "") };
-      return extend(defaultPolicy, config).emptyString;
+    function getReplace(config, arrayMode, isOptional, squash) {
+      var replace, configuredKeys, defaultPolicy = [
+        { from: "",   to: (isOptional || arrayMode ? undefined : "") },
+        { from: null, to: (isOptional || arrayMode ? undefined : "") }
+      ];
+      replace = isArray(config.replace) ? config.replace : [];
+      if (isString(squash))
+        replace.push({ from: squash, to: undefined });
+      configuredKeys = replace.map(function(item) { return item.from; } );
+      return defaultPolicy.filter(function(item) { return configuredKeys.indexOf(item.from) === -1; }).concat(replace);
     }
 
     /**
@@ -898,11 +903,16 @@ function $UrlMatcherFactory() {
      * default value, which may be the result of an injectable function.
      */
     function $value(value) {
-      if (value === "") value = self.emptyString;
+      function hasReplaceVal(val) { return function(obj) { return obj.from === val; }; }
+      function $replace(value) {
+        var replacement = self.replace.filter(hasReplaceVal(value)).map(function(obj) { return obj.to; });
+        return replacement.length ? replacement[0] : value;
+      }
+      value = $replace(value);
       return isDefined(value) ? self.type.decode(value) : $$getDefaultValue();
     }
 
-    function toString() { return "{Param:" + id + " " + type + " squash: " + squash + " optional: " + isOptional + "}"; }
+    function toString() { return "{Param:" + id + " " + type + " squash: '" + squash + "' optional: " + isOptional + "}"; }
 
     extend(this, {
       id: id,
@@ -910,7 +920,7 @@ function $UrlMatcherFactory() {
       array: arrayMode,
       config: config,
       squash: squash,
-      emptyString: emptyString,
+      replace: replace,
       isOptional: isOptional,
       dynamic: undefined,
       value: $value,
