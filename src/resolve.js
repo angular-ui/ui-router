@@ -41,7 +41,7 @@ function $Resolve(  $q,    $injector) {
    */
   this.study = function (invocables) {
     if (!isObject(invocables)) throw new Error("'invocables' must be an object");
-    var invocableKeys = Object.keys(invocables || {});
+    var invocableKeys = objectKeys(invocables || {});
     
     // Perform a topological sort of invocables to build an ordered plan
     var plan = [], cycle = [], visited = {};
@@ -50,7 +50,7 @@ function $Resolve(  $q,    $injector) {
       
       cycle.push(key);
       if (visited[key] === VISIT_IN_PROGRESS) {
-        cycle.splice(0, cycle.indexOf(key));
+        cycle.splice(0, indexOf(cycle, key));
         throw new Error("Cyclic dependency: " + cycle.join(" -> "));
       }
       visited[key] = VISIT_IN_PROGRESS;
@@ -111,14 +111,6 @@ function $Resolve(  $q,    $injector) {
       function fail(reason) {
         result.$$failure = reason;
         resolution.reject(reason);
-      }
-
-      // TODO: Remove this when we merge in 'new' branch
-      function omit(obj) {
-        var copy = {}, keys = angular.isArray(arguments[1]) ? arguments[1] : arguments.slice(1);
-        for (var key in obj)
-          if (keys.indexOf(key) == -1) copy[key] = obj[key];
-        return copy;
       }
 
       // Short-circuit if parent has already failed

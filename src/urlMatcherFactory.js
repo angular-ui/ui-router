@@ -238,7 +238,10 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
   function decodePathArray(string) {
     function reverseString(str) { return str.split("").reverse().join(""); }
     function unquoteDashes(str) { return str.replace(/\\-/, "-"); }
-    return reverseString(string).split(/-(?!\\)/).map(reverseString).map(unquoteDashes).reverse();
+
+    var split = reverseString(string).split(/-(?!\\)/);
+    var allReversed = map(split, reverseString);
+    return map(allReversed, unquoteDashes).reverse();
   }
 
   for (i = 0; i < nPath; i++) {
@@ -334,7 +337,7 @@ UrlMatcher.prototype.format = function (values) {
       if (squash === false) {
         if (encoded != null) {
           if (isArray(encoded)) {
-            result += encoded.map(encodeDashes).join("-");
+            result += map(encoded, encodeDashes).join("-");
           } else {
             result += encodeURIComponent(encoded);
           }
@@ -349,7 +352,7 @@ UrlMatcher.prototype.format = function (values) {
     } else {
       if (encoded == null || (isDefaultValue && squash !== false)) continue;
       if (!isArray(encoded)) encoded = [ encoded ];
-      encoded = encoded.map(encodeURIComponent).join('&' + name + '=');
+      encoded = map(encoded, encodeURIComponent).join('&' + name + '=');
       result += (search ? '&' : '?') + (name + '=' + encoded);
       search = true;
     }
@@ -498,7 +501,7 @@ Type.prototype.$asArray = function(mode, isSearch) {
       // Wraps type functions to operate on each value of an array
       return function handleArray(val) {
         if (!isArray(val)) val = [ val ];
-        var result = val.map(callback);
+        var result = map(val, callback);
         if (reducefn)
           return result.reduce(reducefn, true);
         return (result && result.length == 1 && mode === "auto") ? result[0] : result;
@@ -844,8 +847,8 @@ function $UrlMatcherFactory() {
 
     function getDefaultValueConfig(config) {
       var keys = isObject(config) ? objectKeys(config) : [];
-      var isShorthand = keys.indexOf("value") === -1 && keys.indexOf("type") === -1 &&
-                        keys.indexOf("squash") === -1 && keys.indexOf("array") === -1;
+      var isShorthand = indexOf(keys, "value") === -1 && indexOf(keys, "type") === -1 &&
+                        indexOf(keys, "squash") === -1 && indexOf(keys, "array") === -1;
       var configValue = isShorthand ? config : config.value;
       return {
         fn: isInjectable(configValue) ? configValue : function () { return configValue; },
@@ -886,8 +889,8 @@ function $UrlMatcherFactory() {
       replace = isArray(config.replace) ? config.replace : [];
       if (isString(squash))
         replace.push({ from: squash, to: undefined });
-      configuredKeys = replace.map(function(item) { return item.from; } );
-      return defaultPolicy.filter(function(item) { return configuredKeys.indexOf(item.from) === -1; }).concat(replace);
+      configuredKeys = map(replace, function(item) { return item.from; } );
+      return filter(defaultPolicy, function(item) { return indexOf(configuredKeys, item.from) === -1; }).concat(replace);
     }
 
     /**
@@ -905,7 +908,7 @@ function $UrlMatcherFactory() {
     function $value(value) {
       function hasReplaceVal(val) { return function(obj) { return obj.from === val; }; }
       function $replace(value) {
-        var replacement = self.replace.filter(hasReplaceVal(value)).map(function(obj) { return obj.to; });
+        var replacement = map(filter(self.replace, hasReplaceVal(value)), function(obj) { return obj.to; });
         return replacement.length ? replacement[0] : value;
       }
       value = $replace(value);
@@ -943,7 +946,7 @@ function $UrlMatcherFactory() {
       chain.reverse();
       forEach(chain, function(paramset) {
         forEach(objectKeys(paramset), function(key) {
-            if (keys.indexOf(key) === -1 && ignore.indexOf(key) === -1) keys.push(key);
+            if (indexOf(keys, key) === -1 && indexOf(ignore, key) === -1) keys.push(key);
         });
       });
       return keys;
