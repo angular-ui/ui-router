@@ -61,7 +61,7 @@
     "karma-phantomjs-launcher": "~0.1.0",
     "load-grunt-tasks": "~0.4.0",
     "grunt-conventional-changelog": "~1.1.0",
-    "grunt-ngdocs": "~0.1.7"
+    "grunt-ngdocs": "~0.2.6"
   },
   "main": "release/angular-ui-router.js"
 }
