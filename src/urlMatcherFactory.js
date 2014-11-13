@@ -88,11 +88,11 @@ function UrlMatcher(pattern, config, parentMatcher) {
       parentParams = parentMatcher ? parentMatcher.params : {},
       params = this.params = parentMatcher ? parentMatcher.params.$$new() : new $$UMFP.ParamSet();
 
-  function addParameter(id, type, config, isSearch) {
+  function addParameter(id, type, config, location) {
     if (parentParams[id]) return parentParams[id];
     if (!/^\w+(-+\w+)*(?:\[\])?$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
-    params[id] = new $$UMFP.Param(id, type, config, isSearch);
+    params[id] = new $$UMFP.Param(id, type, config, location);
     return params[id];
   }
 
@@ -128,7 +128,7 @@ function UrlMatcher(pattern, config, parentMatcher) {
     p = matchDetails(m, false);
     if (p.segment.indexOf('?') >= 0) break; // we're into the search part
 
-    param = addParameter(p.id, p.type, p.cfg, false);
+    param = addParameter(p.id, p.type, p.cfg, "path");
     compiled += quoteRegExp(p.segment, param.type.pattern.source, param.squash);
     segments.push(p.segment);
     last = placeholder.lastIndex;
@@ -147,7 +147,7 @@ function UrlMatcher(pattern, config, parentMatcher) {
       last = 0;
       while ((m = searchPlaceholder.exec(search))) {
         p = matchDetails(m, true);
-        param = addParameter(p.id, p.type, p.cfg, true);
+        param = addParameter(p.id, p.type, p.cfg, "search");
         last = placeholder.lastIndex;
         // check if ?&
       }
@@ -803,7 +803,7 @@ function $UrlMatcherFactory() {
     if (!isDefined(definition)) return $types[name];
     if ($types.hasOwnProperty(name)) throw new Error("A type named '" + name + "' has already been defined.");
 
-    $types[name] = new Type(extend({}, { name: name }, definition));
+    $types[name] = new Type(extend({ name: name }, definition));
     if (definitionFn) {
       typeQueue.push({ name: name, def: definitionFn });
       if (!enqueue) flushTypeQueue();
@@ -821,7 +821,7 @@ function $UrlMatcherFactory() {
   }
 
   // Register default types. Store them in the prototype of $types.
-  forEach(defaultTypes, function(type, name) { $types[name] = new Type(type); });
+  forEach(defaultTypes, function(type, name) { $types[name] = new Type(extend({name: name}, type)); });
   $types = inherit($types, {});
 
   /* No need to document $get, since it returns this */
@@ -836,13 +836,15 @@ function $UrlMatcherFactory() {
     return this;
   }];
 
-  this.Param = function Param(id, type, config, isSearch) {
+  this.Param = function Param(id, type, config, location) {
     var self = this;
     var defaultValueConfig = getDefaultValueConfig(config);
     config = config || {};
     type = getType(config, type);
     var arrayMode = getArrayMode();
-    type = arrayMode ? type.$asArray(arrayMode, isSearch) : type;
+    type = arrayMode ? type.$asArray(arrayMode, location === "search") : type;
+    if (type.name === "string" && !arrayMode && location === "path" && defaultValueConfig.value === undefined)
+      defaultValueConfig.value = ""; // for 0.2.x; in 0.3.0+ do not automatically default to ""
     var isOptional = defaultValueConfig.value !== undefined;
     var squash = getSquashPolicy(config, isOptional);
     var replace = getReplace(config, arrayMode, isOptional, squash);
@@ -852,10 +854,11 @@ function $UrlMatcherFactory() {
       var isShorthand = indexOf(keys, "value") === -1 && indexOf(keys, "type") === -1 &&
                         indexOf(keys, "squash") === -1 && indexOf(keys, "array") === -1;
       var configValue = isShorthand ? config : config.value;
-      return {
-        fn: isInjectable(configValue) ? configValue : function () { return configValue; },
+      var result = {
+        fn: isInjectable(configValue) ? configValue : function () { return result.value; },
         value: configValue
       };
+      return result;
     }
 
     function getType(config, urlType) {
@@ -867,7 +870,7 @@ function $UrlMatcherFactory() {
 
     // array config: param name (param[]) overrides default settings.  explicit config overrides param name.
     function getArrayMode() {
-      var arrayDefaults = { array: isSearch ? "auto" : false };
+      var arrayDefaults = { array: (location === "search" ? "auto" : false) };
       var arrayParamNomenclature = id.match(/\[\]$/) ? { array: true } : {};
       return extend(arrayDefaults, arrayParamNomenclature, config).array;
     }
