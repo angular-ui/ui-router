@@ -116,6 +116,7 @@ module.exports = function (grunt) {
     ngdocs: {
       options: {
         dest: 'site',
+        styles: [ 'ngdoc_assets/uirouter-docs.css' ],
         html5Mode: false,
         title: 'UI Router',
         startPage: '/api/ui.router',
@@ -132,10 +133,17 @@ module.exports = function (grunt) {
   grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
   grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
   grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
-  grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['dist', 'ngdocs']);
+  grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['dist', 'ngdocs', 'widedocs']);
   grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'dist', 'perform-release']);
   grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect:server', 'karma:background', 'watch']);
   grunt.registerTask('sample', 'Run connect server with keepalive:true for sample app development', ['connect:sample']);
+
+  grunt.registerTask('widedocs', 'Convert to bootstrap container-fluid', function () {
+    promising(this,
+      system('sed -i.bak -e \'s/class="row"/class="row-fluid"/\' -e \'s/role="main" class="container"/role="main" class="container-fluid"/\' site/index.html')
+    );
+  });
+
 
   grunt.registerTask('publish-pages', 'Publish a clean build, docs, and sample to github.io', function () {
     promising(this,
