@@ -946,7 +946,7 @@ function $UrlMatcherFactory() {
     },
     $$keys: function () {
       var keys = [], chain = [], parent = this,
-        ignore = ["$$keys", "$$values", "$$equals", "$$validates", "$$parent"];
+        ignore = objectKeys(ParamSet.prototype);
       while (parent) { chain.push(parent); parent = parent.$$parent; }
       chain.reverse();
       forEach(chain, function(paramset) {
@@ -981,7 +981,8 @@ function $UrlMatcherFactory() {
         result = result && (isOptional || param.type.is(val));
       });
       return result;
-    }
+    },
+    $$parent: undefined
   };
 
   this.ParamSet = ParamSet;
