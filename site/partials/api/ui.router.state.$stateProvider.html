@@ -102,12 +102,14 @@ $state.go('home');
 </div></div>
 </div>
 </li>
-<li><h3 id="methods_state">state(name, definition)</h3>
+<li><h3 id="methods_state">state(name, stateConfig)</h3>
 <div class="state"><div class="ui-router-state-stateprovider-state-page"><p>Registers a state configuration under a given state name. The stateConfig object
 has the following acceptable properties.</p>
-<p><a id='template'></a></p>
-<ul>
-<li><p><strong><code>template</code></strong> - {string|function=} - html template as a string or a function that returns
+</div><h5 id="methods_state_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-stateprovider-state-page"><p>A unique state name, e.g. &quot;home&quot;, &quot;about&quot;, &quot;contacts&quot;.
+To create a parent/child state use a dot, e.g. &quot;about.sales&quot;, &quot;home.newest&quot;.</p>
+</div></td></tr><tr><td>stateConfig</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p>State configuration object.</p>
+</div><table><thead><tr><th>Property</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>template <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='template'></a>
+html template as a string or a function that returns
 an html template as a string which should be used by the uiView directives. This property 
 takes precedence over templateUrl.</p>
 <p>If <code>template</code> is a function, it will be called with the following parameters:</p>
@@ -115,111 +117,225 @@ takes precedence over templateUrl.</p>
 <li>{array.&lt;object&gt;} - state parameters extracted from the current $location.path() by
 applying the current state</li>
 </ul>
-</li>
-</ul>
-<p><a id='templateUrl'></a></p>
-<ul>
-<li><p><strong><code>templateUrl</code></strong> - {string|function=} - path or function that returns a path to an html 
-template that should be used by uiView.</p>
-<p>If <code>templateUrl</code> is a function, it will be called with the following parameters:</p>
+<pre class="prettyprint linenums">template:
+"&lt;h1&gt;inline template definition&lt;/h1&gt;" +
+"&lt;div ui-view&gt;&lt;/div&gt;"</pre>
+<pre class="prettyprint linenums">template: function(params) {
+    return "&lt;h1&gt;generated template&lt;/h1&gt;"; }</pre>
+</div></p>
+</div></td></tr><tr><td>templateUrl <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='templateUrl'></a></p>
+<p>  path or function that returns a path to an html
+  template that should be used by uiView.</p>
+<p>  If <code>templateUrl</code> is a function, it will be called with the following parameters:</p>
 <ul>
 <li>{array.&lt;object&gt;} - state parameters extracted from the current $location.path() by 
 applying the current state</li>
 </ul>
-</li>
-</ul>
-<p><a id='templateProvider'></a></p>
-<ul>
-<li><strong><code>templateProvider</code></strong> - {function=} - Provider function that returns HTML content
-string.</li>
-</ul>
-<p><a id='controller'></a></p>
-<ul>
-<li><strong><code>controller</code></strong> - {string|function=} -  Controller fn that should be associated with newly 
-related scope or the name of a registered controller if passed as a string.</li>
-</ul>
-<p><a id='controllerProvider'></a></p>
-<ul>
-<li><strong><code>controllerProvider</code></strong> - {function=} - Injectable provider function that returns
-the actual controller or string.</li>
-</ul>
-<p><a id='controllerAs'></a></p>
-<ul>
-<li><strong><code>controllerAs</code></strong> – {string=} – A controller alias name. If present the controller will be 
-published to scope under the controllerAs name.</li>
-</ul>
-<p><a id='resolve'></a></p>
-<ul>
-<li><p><strong><code>resolve</code></strong> - {object.&lt;string, function&gt;=} - An optional map of dependencies which 
-should be injected into the controller. If any of these dependencies are promises, 
-the router will wait for them all to be resolved or one to be rejected before the 
-controller is instantiated. If all the promises are resolved successfully, the values 
-of the resolved promises are injected and $stateChangeSuccess event is fired. If any 
-of the promises are rejected the $stateChangeError event is fired. The map object is:</p>
+<pre class="prettyprint linenums">templateUrl: "home.html"</pre>
+<pre class="prettyprint linenums">templateUrl: function(params) {
+    return myTemplates[params.pageId]; }</pre>
+</div></td></tr><tr><td>templateProvider <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='templateProvider'></a>
+Provider function that returns HTML content string.
+<pre class="prettyprint linenums"> templateProvider:
+   function(MyTemplateService, params) {
+     return MyTemplateService.getTemplate(params.pageId);
+   }</pre>
+</div></td></tr><tr><td>controller <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='controller'></a></p>
+<p> Controller fn that should be associated with newly
+  related scope or the name of a registered controller if passed as a string.
+  Optionally, the ControllerAs may be declared here.
+<pre class="prettyprint linenums">controller: "MyRegisteredController"</pre>
+<pre class="prettyprint linenums">controller:
+    "MyRegisteredController as fooCtrl"}</pre>
+<pre class="prettyprint linenums">controller: function($scope, MyService) {
+    $scope.data = MyService.getData(); }</pre>
+</div></td></tr><tr><td>controllerProvider <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='controllerProvider'></a></p>
+<p>Injectable provider function that returns the actual controller or string.
+<pre class="prettyprint linenums">controllerProvider:
+  function(MyResolveData) {
+    if (MyResolveData.foo)
+      return "FooCtrl"
+    else if (MyResolveData.bar)
+      return "BarCtrl";
+    else return function($scope) {
+      $scope.baz = "Qux";
+    }
+  }</pre>
+</div></td></tr><tr><td>controllerAs <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='controllerAs'></a></p>
+<p>A controller alias name. If present the controller will be
+  published to scope under the controllerAs name.
+<pre class="prettyprint linenums">controllerAs: "myCtrl"</pre>
+</div></td></tr><tr><td>resolve <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='resolve'></a></p>
+<p>An optional map&lt;string, function&gt; of dependencies which
+  should be injected into the controller. If any of these dependencies are promises, 
+  the router will wait for them all to be resolved before the controller is instantiated.
+  If all the promises are resolved successfully, the $stateChangeSuccess event is fired
+  and the values of the resolved promises are injected into any controllers that reference them.
+  If any  of the promises are rejected the $stateChangeError event is fired.</p>
+<p>  The map object is:</p>
 <ul>
 <li>key - {string}: name of dependency to be injected into controller</li>
 <li>factory - {string|function}: If string then it is alias for service. Otherwise if function, 
 it is injected and return value it treated as dependency. If result is a promise, it is 
 resolved before its value is injected into controller.</li>
 </ul>
+<pre class="prettyprint linenums">resolve: {
+    myResolve1:
+      function($http, $stateParams) {
+        return $http.get("/api/foos/"+stateParams.fooID);
+      }
+    }</pre>
+</div></td></tr><tr><td>url <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='url'></a></p>
+<p>  A url fragment with optional parameters. When a state is navigated or
+  transitioned to, the <code>$stateParams</code> service will be populated with any 
+  parameters that were passed.</p>
+<p>examples:
+<pre class="prettyprint linenums">url: "/home"
+url: "/users/:userid"
+url: "/books/{bookid:[a-zA-Z_-]}"
+url: "/books/{categoryid:int}"
+url: "/books/{publishername:string}/{categoryid:int}"
+url: "/messages?before&after"
+url: "/messages?{before:date}&{after:date}"</pre>
+url: &quot;/messages/:mailboxid?{before:date}&amp;{after:date}&quot;</p>
+</div></td></tr><tr><td>views <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='views'></a>
+an optional map&lt;string, object&gt; which defined multiple views, or targets views
+manually/explicitly.</p>
+<p>Examples:</p>
+<p>Targets three named <code>ui-view</code>s in the parent state&#39;s template
+<pre class="prettyprint linenums">views: {
+    header: {
+      controller: "headerCtrl",
+      templateUrl: "header.html"
+    }, body: {
+      controller: "bodyCtrl",
+      templateUrl: "body.html"
+    }, footer: {
+      controller: "footCtrl",
+      templateUrl: "footer.html"
+    }
+  }</pre>
+<p>Targets named <code>ui-view=&quot;header&quot;</code> from grandparent state &#39;top&#39;&#39;s template, and named `ui-view=&quot;body&quot; from parent state&#39;s template.
+<pre class="prettyprint linenums">views: {
+    'header@top': {
+      controller: "msgHeaderCtrl",
+      templateUrl: "msgHeader.html"
+    }, 'body': {
+      controller: "messagesCtrl",
+      templateUrl: "messages.html"
+    }
+  }</pre>
+</div></td></tr><tr><td>abstract <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='abstract'></a>
+An abstract state will never be directly activated,
+  but can provide inherited properties to its common children states.
+<pre class="prettyprint linenums">abstract: true</pre>
+</div> <p><em>(default: false)</em></p></td></tr><tr><td>onEnter <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='onEnter'></a></p>
+<p>Callback function for when a state is entered. Good way
+  to trigger an action or dispatch an event, such as opening a dialog.
+If minifying your scripts, make sure to explictly annotate this function,
+because it won&#39;t be automatically annotated by your build tools.</p>
+<pre class="prettyprint linenums">onEnter: function(MyService, $stateParams) {
+    MyService.foo($stateParams.myParam);
+}</pre>
+</div></td></tr><tr><td>onExit <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='onExit'></a></p>
+<p>Callback function for when a state is exited. Good way to
+  trigger an action or dispatch an event, such as opening a dialog.
+If minifying your scripts, make sure to explictly annotate this function,
+because it won&#39;t be automatically annotated by your build tools.</p>
+<pre class="prettyprint linenums">onExit: function(MyService, $stateParams) {
+    MyService.cleanup($stateParams.myParam);
+}</pre>
+</div></td></tr><tr><td>reloadOnSearch <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='reloadOnSearch'></a></p>
+<p>If <code>false</code>, will not retrigger the same state
+  just because a search/query parameter has changed (via $location.search() or $location.hash()). 
+  Useful for when you&#39;d like to modify $location.search() without triggering a reload.
+<pre class="prettyprint linenums">reloadOnSearch: false</pre>
+</div> <p><em>(default: true)</em></p></td></tr><tr><td>data <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='data'></a></p>
+<p>Arbitrary data object, useful for custom configuration.  The parent state&#39;s <code>data</code> is
+  prototypally inherited.  In other words, adding a data property to a state adds it to
+  the entire subtree via prototypal inheritance.</p>
+<pre class="prettyprint linenums">data: {
+    requiredRole: 'foo'
+} </pre>
+</div></td></tr><tr><td>params <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='params'></a></p>
+<p>A map which optionally configures parameters declared in the <code>url</code>, or
+  defines additional non-url parameters.  For each parameter being
+  configured, add a configuration object keyed to the name of the parameter.</p>
+<p>  Each parameter configuration object may contain the following properties:</p>
+<ul>
+<li><p><strong> value </strong> - {object|function=}: specifies the default value for this
+parameter.  This implicitly sets this parameter as optional.</p>
+<p>When UI-Router routes to a state and no value is
+specified for this parameter in the URL or transition, the
+default value will be used instead.  If <code>value</code> is a function,
+it will be injected and invoked, and the return value used.</p>
+<p><em>Note</em>: <code>undefined</code> is treated as &quot;no default value&quot; while <code>null</code>
+is treated as &quot;the default value is <code>null</code>&quot;.</p>
+<p><em>Shorthand</em>: If you only need to configure the default value of the
+parameter, you may use a shorthand syntax.   In the <strong><code>params</code></strong>
+map, instead mapping the param name to a full parameter configuration
+object, simply set map it to the default parameter value, e.g.:</p>
 </li>
 </ul>
-<p><a id='url'></a></p>
+<pre class="prettyprint linenums">// define a parameter's default value
+params: {
+    param1: { value: "defaultValue" }
+}
+// shorthand default values
+params: {
+    param1: "defaultValue",
+    param2: "param2Default"
+}</pre>
 <ul>
-<li><strong><code>url</code></strong> - {string=} - A url with optional parameters. When a state is navigated or
-transitioned to, the <code>$stateParams</code> service will be populated with any 
-parameters that were passed.</li>
+<li><p><strong> array </strong> - {boolean=}: <em>(default: false)</em> If true, the param value will be
+treated as an array of values.  If you specified a Type, the value will be
+treated as an array of the specified Type.  Note: query parameter values
+default to a special <code>&quot;auto&quot;</code> mode.</p>
+<p>For query parameters in <code>&quot;auto&quot;</code> mode, if multiple  values for a single parameter
+are present in the URL (e.g.: <code>/foo?bar=1&amp;bar=2&amp;bar=3</code>) then the values
+are mapped to an array (e.g.: <code>{ foo: [ &#39;1&#39;, &#39;2&#39;, &#39;3&#39; ] }</code>).  However, if
+only one value is present (e.g.: <code>/foo?bar=1</code>) then the value is treated as single
+value (e.g.: <code>{ foo: &#39;1&#39; }</code>).</p>
+</li>
 </ul>
-<p><a id='params'></a></p>
+<pre class="prettyprint linenums">params: {
+    param1: { array: true }
+}</pre>
 <ul>
-<li><strong><code>params</code></strong> - {object=} - An array of parameter names or regular expressions. Only 
-use this within a state if you are not using url. Otherwise you can specify your
-parameters within the url. When a state is navigated or transitioned to, the 
-$stateParams service will be populated with any parameters that were passed.</li>
-</ul>
-<p><a id='views'></a></p>
+<li><p><strong> squash </strong> - {bool|string=}: <code>squash</code> configures how a default parameter value is represented in the URL when
+the current parameter value is the same as the default value. If <code>squash</code> is not set, it uses the
+configured default squash policy.
+(See <a href="#/api/ui.router.util.$urlMatcherFactory#methods_defaultsquashpolicy"><code>defaultSquashPolicy()</code></a>)</p>
+<p>There are three squash settings:</p>
 <ul>
-<li><strong><code>views</code></strong> - {object=} - Use the views property to set up multiple views or to target views
-manually/explicitly.</li>
+<li>false: The parameter&#39;s default value is not squashed.  It is encoded and included in the URL</li>
+<li>true: The parameter&#39;s default value is omitted from the URL.  If the parameter is preceeded and followed
+by slashes in the state&#39;s <code>url</code> declaration, then one of those slashes are omitted.
+This can allow for cleaner looking URLs.</li>
+<li><code>&quot;&lt;arbitrary string&gt;&quot;</code>: The parameter&#39;s default value is replaced with an arbitrary placeholder of  your choice.</li>
 </ul>
-<p><a id='abstract'></a></p>
-<ul>
-<li><strong><code>abstract</code></strong> - {boolean=} - An abstract state will never be directly activated, 
-but can provide inherited properties to its common children states.</li>
+</li>
 </ul>
-<p><a id='onEnter'></a></p>
-<ul>
-<li><strong><code>onEnter</code></strong> - {object=} - Callback function for when a state is entered. Good way
-to trigger an action or dispatch an event, such as opening a dialog.
-If minifying your scripts, make sure to use the <code>[&#39;injection1&#39;, &#39;injection2&#39;, function(injection1, injection2){}]</code> syntax.</li>
-</ul>
-<p><a id='onExit'></a></p>
-<ul>
-<li><strong><code>onExit</code></strong> - {object=} - Callback function for when a state is exited. Good way to
-trigger an action or dispatch an event, such as opening a dialog.
-If minifying your scripts, make sure to use the <code>[&#39;injection1&#39;, &#39;injection2&#39;, function(injection1, injection2){}]</code> syntax.</li>
-</ul>
-<p><a id='reloadOnSearch'></a></p>
-<ul>
-<li><strong><code>reloadOnSearch = true</code></strong> - {boolean=} - If <code>false</code>, will not retrigger the same state 
-just because a search/query parameter has changed (via $location.search() or $location.hash()). 
-Useful for when you&#39;d like to modify $location.search() without triggering a reload.</li>
-</ul>
-<p><a id='data'></a></p>
-<ul>
-<li><strong><code>data</code></strong> - {object=} - Arbitrary data object, useful for custom configuration.</li>
-</ul>
-</div><h5 id="methods_state_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-stateprovider-state-page"><p>A unique state name, e.g. &quot;home&quot;, &quot;about&quot;, &quot;contacts&quot;.
-To create a parent/child state use a dot, e.g. &quot;about.sales&quot;, &quot;home.newest&quot;.</p>
-</div></td></tr><tr><td>definition</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p>State configuration object.</p>
-</div></td></tr></tbody></table><h4 id="methods_state_example">Example</h4>
+<pre class="prettyprint linenums">params: {
+    param1: {
+      value: "defaultId",
+      squash: true
+} }
+// squash "defaultValue" to "~"
+params: {
+    param1: {
+      value: "defaultValue",
+      squash: "~"
+} }
+</pre>
+</div></td></tr></tbody></table></td></tr></tbody></table><h4 id="methods_state_example">Example</h4>
 <div class="example"><div class="ui-router-state-stateprovider-state-page"><pre class="prettyprint linenums">
 // Some state name examples
 
 // stateName can be a single top-level name (must be unique).
 $stateProvider.state("home", {});
 
-// Or it can be a nested state name. This state is a child of the 
+// Or it can be a nested state name. This state is a child of the
 // above "home" state.
 $stateProvider.state("home.newest", {});
 

@@ -1,32 +1,20 @@
-.reveal {
-  -webkit-transition:1s linear all;
-  -moz-transition:1s linear all;
-  -o-transition:1s linear all;
-  transition:1s linear all;
-
-  opacity:0;
-}
-.reveal.reveal-active {
-  opacity:1;
-}
-
-.slide-reveal {
+.slide-reveal.ng-enter {
   -webkit-transition:0.5s linear all;
   -moz-transition:0.5s linear all;
   -o-transition:0.5s linear all;
   transition:0.5s linear all;
-  opacity:0.5;
 
+  opacity:0.5;
   position:relative;
   opacity:0;
   top:10px;
 }
-.slide-reveal.slide-reveal-active {
+.slide-reveal.ng-enter-active {
   top:0;
   opacity:1;
 }
 
-.expand-enter {
+.expand.ng-enter {
   -webkit-transition:0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) all;
   -moz-transition:0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) all;
   -o-transition:0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) all;
@@ -36,12 +24,12 @@
   max-height:0;
   overflow:hidden;
 }
-.expand-enter.expand-enter-active {
+.expand.ng-enter-active {
   opacity:1;
   max-height:40px;
 }
 
-.expand-leave {
+.expand.ng-leave {
   -webkit-transition:0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) all;
   -moz-transition:0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) all;
   -o-transition:0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) all;
@@ -51,26 +39,7 @@
   max-height:40px;
   overflow:hidden;
 }
-.expand-leave.expand-leave-active {
+.expand.ng-leave-active {
   opacity:0;
   max-height:0;
-}
-
-.example-animate-container {
-  position:relative;
-  background:white;
-  border:1px solid black;
-  height:40px;
-  overflow:hidden;
-}
-
-.example-animate-container > div {
-  padding:1em;
-}
-
-.animator-container.animations-off * {
-  -webkit-transition: none;
-  -moz-transition: none;
-  -o-transition: color 0 ease-in; /* opera is special :) */
-  transition: none;
 }

@@ -99,10 +99,10 @@
     </div>
   </header>
 
-  <div role="main" class="container-fluid">
+  <div role="main" class="container">
     <div class="row clear-navbar"></div>
 
-    <div class="row-fluid">
+    <div class="row">
       <div class="span12">
         <!--[if lt IE 7]>
         <p class="alert alert-error">Your browser is <em>ancient!</em>
@@ -123,7 +123,7 @@
 
     </div>
 
-    <div class="row-fluid">
+    <div class="row">
       <div class="span3">
         <form class="form-search" ng-submit="submitForm()">
           

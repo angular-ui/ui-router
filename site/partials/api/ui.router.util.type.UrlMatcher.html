@@ -1,5 +1,5 @@
 <h1><code ng:non-bindable="">UrlMatcher</code>
-<div><span class="hint">type in module <code ng:non-bindable="">ui.router.util</code>
+<div><span class="hint">object in module <code ng:non-bindable="">ui.router.util</code>
 </span>
 </div>
 </h1>
@@ -15,8 +15,8 @@ syntax, which optionally allows a regular expression for the parameter to be spe
 <li><code>&#39;:&#39;</code> name - colon placeholder</li>
 <li><code>&#39;*&#39;</code> name - catch-all placeholder</li>
 <li><code>&#39;{&#39; name &#39;}&#39;</code> - curly placeholder</li>
-<li><code>&#39;{&#39; name &#39;:&#39; regexp &#39;}&#39;</code> - curly placeholder with regexp. Should the regexp itself contain
-curly braces, they must be in matched pairs or escaped with a backslash.</li>
+<li><code>&#39;{&#39; name &#39;:&#39; regexp|type &#39;}&#39;</code> - curly placeholder with regexp or type name. Should the
+regexp itself contain curly braces, they must be in matched pairs or escaped with a backslash.</li>
 </ul>
 <p>Parameter names may contain only word characters (latin letters, digits, and underscore) and
 must be unique within the pattern (across both path and search parameters). For colon 
@@ -36,12 +36,16 @@ parameter consists of 1 to 8 hex digits.</li>
 <li><code>&#39;/files/{path:.*}&#39;</code> - Matches any URL starting with &#39;/files/&#39; and captures the rest of the
 path into the parameter &#39;path&#39;.</li>
 <li><code>&#39;/files/*path&#39;</code> - ditto.</li>
+<li><code>&#39;/calendar/{start:date}&#39;</code> - Matches &quot;/calendar/2014-11-12&quot; (because the pattern defined
+in the built-in  <code>date</code> Type matches <code>2014-11-12</code>) and provides a Date object in $stateParams.start</li>
 </ul>
 </div></div>
 <h2 id="usage">Usage</h2>
-<div class="usage"><pre class="prettyprint linenums">UrlMatcher(pattern, config);</pre>
+<div class="usage"><pre class="prettyprint linenums">UrlMatcher(pattern, config[, parentMatcher]);</pre>
 <h4 id="usage_parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>pattern</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-page"><p>The pattern to compile into a matcher.</p>
 </div></td></tr><tr><td>config</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-page"><p>A configuration object hash:</p>
+</div></td></tr><tr><td>parentMatcher <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-page"><p>Used to concatenate the pattern/config onto
+an existing UrlMatcher</p>
 <ul>
 <li><code>caseInsensitive</code> - <code>true</code> if URL matching should be case insensitive, otherwise <code>false</code>, the default value (for backward compatibility) is <code>false</code>.</li>
 <li><code>strict</code> - <code>false</code> if matching against a URL with a trailing slash should be treated as equivalent to a URL without a trailing slash, the default value is <code>true</code>.</li>

@@ -11,7 +11,8 @@ is also available to providers under the name <code>$urlMatcherFactoryProvider</
 <ul class="methods"><li><h3 id="methods_caseinsensitive">caseInsensitive(value)</h3>
 <div class="caseinsensitive"><div class="ui-router-util-urlmatcherfactory-caseinsensitive-page"><p>Defines whether URL matching should be case sensitive (the default behavior), or not.</p>
 </div><h5 id="methods_caseinsensitive_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-util-urlmatcherfactory-caseinsensitive-page"><p><code>false</code> to match URL in a case sensitive manner; otherwise <code>true</code>;</p>
-</div></td></tr></tbody></table></div>
+</div></td></tr></tbody></table><h5 id="methods_caseinsensitive_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-util-urlmatcherfactory-caseinsensitive-page"><p>the current value of caseInsensitive</p>
+</div></td></tr></table></div>
 </li>
 <li><h3 id="methods_compile">compile(pattern, config)</h3>
 <div class="compile"><div class="ui-router-util-urlmatcherfactory-compile-page"><p>Creates a <a href="#/api/ui.router.util.type:UrlMatcher"><code>UrlMatcher</code></a> for the specified pattern.</p>
@@ -19,6 +20,16 @@ is also available to providers under the name <code>$urlMatcherFactoryProvider</
 </div></td></tr><tr><td>config</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-urlmatcherfactory-compile-page"><p>The config object hash.</p>
 </div></td></tr></tbody></table><h5 id="methods_compile_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-urlmatcher">UrlMatcher</a></td><td><div class="ui-router-util-urlmatcherfactory-compile-page"><p>The UrlMatcher.</p>
 </div></td></tr></table></div>
+</li>
+<li><h3 id="methods_defaultsquashpolicy">defaultSquashPolicy(value)</h3>
+<div class="defaultsquashpolicy"><div class="ui-router-util-urlmatcherfactory-defaultsquashpolicy-page"><p>Sets the default behavior when generating or matching URLs with default parameter values.</p>
+</div><h5 id="methods_defaultsquashpolicy_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-util-urlmatcherfactory-defaultsquashpolicy-page"><p>A string that defines the default parameter URL squashing behavior.
+<code>nosquash</code>: When generating an href with a default parameter value, do not squash the parameter value from the URL
+<code>slash</code>: When generating an href with a default parameter value, squash (remove) the parameter value, and, if the
+         parameter is surrounded by slashes, squash (remove) one slash from the URL
+any other string, e.g. &quot;~&quot;: When generating an href with a default parameter value, squash (remove)
+         the parameter value from the URL and replace it with this string.</p>
+</div></td></tr></tbody></table></div>
 </li>
 <li><h3 id="methods_ismatcher">isMatcher(object)</h3>
 <div class="ismatcher"><div class="ui-router-util-urlmatcherfactory-ismatcher-page"><p>Returns true if the specified object is a <code>UrlMatcher</code>, or false otherwise.</p>
@@ -29,15 +40,19 @@ implementing all the same methods.</p>
 </li>
 <li><h3 id="methods_strictmode">strictMode(value)</h3>
 <div class="strictmode"><div class="ui-router-util-urlmatcherfactory-strictmode-page"><p>Defines whether URLs should match trailing slashes, or not (the default behavior).</p>
-</div><h5 id="methods_strictmode_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-util-urlmatcherfactory-strictmode-page"><p><code>false</code> to match trailing slashes in URLs, otherwise <code>true</code>.</p>
-</div></td></tr></tbody></table></div>
+</div><h5 id="methods_strictmode_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-util-urlmatcherfactory-strictmode-page"><p><code>false</code> to match trailing slashes in URLs, otherwise <code>true</code>.</p>
+</div></td></tr></tbody></table><h5 id="methods_strictmode_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-util-urlmatcherfactory-strictmode-page"><p>the current value of strictMode</p>
+</div></td></tr></table></div>
 </li>
-<li><h3 id="methods_type">type(name, def)</h3>
+<li><h3 id="methods_type">type(name, definition, definitionFn)</h3>
 <div class="type"><div class="ui-router-util-urlmatcherfactory-type-page"><p>Registers a custom <a href="#/api/ui.router.util.type:Type"><code>Type</code></a> object that can be used to
 generate URLs with typed parameters.</p>
 </div><h5 id="methods_type_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-util-urlmatcherfactory-type-page"><p>The type name.</p>
-</div></td></tr><tr><td>def</td><td><a href="" class="label type-hint type-hint-object">Object</a><a href="" class="label type-hint type-hint-function">Function</a></td><td><div class="ui-router-util-urlmatcherfactory-type-page"><p>The type definition. See
+</div></td></tr><tr><td>definition</td><td><a href="" class="label type-hint type-hint-object">Object</a><a href="" class="label type-hint type-hint-function">Function</a></td><td><div class="ui-router-util-urlmatcherfactory-type-page"><p>The type definition. See
 <a href="#/api/ui.router.util.type:Type"><code>Type</code></a> for information on the values accepted.</p>
+</div></td></tr><tr><td>definitionFn</td><td><a href="" class="label type-hint type-hint-object">Object</a><a href="" class="label type-hint type-hint-function">Function</a></td><td><div class="ui-router-util-urlmatcherfactory-type-page"><p>(optional) A function that is injected before the app
+runtime starts.  The result of this function is merged into the existing <code>definition</code>.
+See <a href="#/api/ui.router.util.type:Type"><code>Type</code></a> for information on the values accepted.</p>
 </div></td></tr></tbody></table><h5 id="methods_type_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-urlmatcherfactory-type-page"><p>Returns <code>$urlMatcherFactoryProvider</code>.</p>
 </div></td></tr></table><h4 id="methods_type_example">Example</h4>
 <div class="example"><div class="ui-router-util-urlmatcherfactory-type-page"><p>This is a simple example of a custom type that encodes and decodes items from an
@@ -80,7 +95,7 @@ handle encoding and decoding parameter values:</p>
 // Defines a custom type that gets a value from a service,
 // where each service gets different types of values from
 // a backend API:
-$urlMatcherFactoryProvider.type('dbObject', function(Users, Posts) {
+$urlMatcherFactoryProvider.type('dbObject', {}, function(Users, Posts) {
 
   // Matches up services to URL parameter names
   var services = {
