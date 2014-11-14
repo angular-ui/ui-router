@@ -130,7 +130,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect($stateParams).toEqual({ id: 5 });
+      expect($stateParams).toEqual({ id: "5" });
     }));
 
     it('should transition when given a click that contains no data (fake-click)', inject(function($state, $stateParams, $q) {
@@ -147,7 +147,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect($stateParams).toEqual({ id: 5 });
+      expect($stateParams).toEqual({ id: "5" });
     }));
 
     it('should not transition states when ctrl-clicked', inject(function($state, $stateParams, $q) {
@@ -243,6 +243,20 @@ describe('uiStateRef', function() {
       $rootScope.$digest();
       expect(el.attr('href')).toBe('#/contacts/3');
     }));
+
+    it('should take an object as a parameter and update properly on digest churns', inject(function($rootScope, $q, $compile, $state) {
+
+      el = angular.element('<div><a ui-sref="contacts.item.detail(urlParams)">Contacts</a></div>');
+      template = $compile(el)($rootScope);
+
+      $rootScope.urlParams = { id:1 };
+      $rootScope.$digest();
+      expect(angular.element(template[0].querySelector('a')).attr('href')).toBe('#/contacts/1');
+
+      $rootScope.urlParams.id = 2;
+      $rootScope.$digest();
+      expect(angular.element(template[0].querySelector('a')).attr('href')).toBe('#/contacts/2');
+    }));
   });
 
   describe('links in html5 mode', function() {
@@ -314,7 +328,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.$current.name).toBe("contacts.item.detail");
-      expect($state.params).toEqual({ id: 5 });
+      expect($state.params).toEqual({ id: "5" });
     }));
 
     it('should resolve states from parent uiView', inject(function ($state, $stateParams, $q, $timeout) {

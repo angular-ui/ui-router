@@ -17,16 +17,19 @@ describe('state', function () {
     };
   }
 
-  var A = { data: {} },
+  var A = { data: {}, controller: function() { log += "controller;"; } },
       B = {},
       C = {},
-      D = { params: { x: {}, y: {} } },
-      DD = { parent: D, params: { x: {}, y: {}, z: {} } },
+      D = { params: { x: null, y: null } },
+      DD = { parent: D, params: { x: null, y: null, z: null } },
+      DDDD = { parent: D, controller: function() {}, template: "hey"},
       E = { params: { i: {} } },
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
       HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
       RS = { url: '^/search?term', reloadOnSearch: false },
+      OPT = { url: '/opt/:param', params: { param: "100" } },
+      OPT2 = { url: '/opt2/:param2/:param3', params: { param3: "300", param4: "400" } },
       AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -42,10 +45,13 @@ describe('state', function () {
       .state('C', C)
       .state('D', D)
       .state('DD', DD)
+      .state('DDDD', DDDD)
       .state('E', E)
       .state('H', H)
       .state('HH', HH)
       .state('HHH', HHH)
+      .state('OPT', OPT)
+      .state('OPT.OPT2', OPT2)
       .state('RS', RS)
 
       .state('home', { url: "/" })
@@ -89,10 +95,14 @@ describe('state', function () {
           value: function ($timeout) {
             return $timeout(function() { log += "Success!"; }, 1);
           }
-        }
+        },
+        controller: function() { log += "controller;"}
       })
       .state('badParam', {
         url: "/bad/{param:int}"
+      })
+      .state('badParam2', {
+        url: "/bad2/{param:[0-9]{5}}"
       })
 
       .state('first', { url: '^/first/subpath' })
@@ -101,8 +111,8 @@ describe('state', function () {
       // State param inheritance tests. param1 is inherited by sub1 & sub2;
       // param2 should not be transferred (unless explicitly set).
       .state('root', { url: '^/root?param1' })
-      .state('root.sub1', {url: '/1?param2' })
-      .state('root.sub2', {url: '/2?param2' });
+      .state('root.sub1', {url: '/1?param2' });
+    $stateProvider.state('root.sub2', {url: '/2?param2' });
 
     $provide.value('AppInjectable', AppInjectable);
   }));
@@ -268,7 +278,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('DDD');
-      expect($state.params).toEqual({ x: 1, y: 2, z: 3, w: 4 });
+      expect($state.params).toEqual({ x: "1", y: "2", z: "3", w: "4" });
     }));
 
     it('can defer a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -285,7 +295,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('AA');
-      expect($state.params).toEqual({ a: 1 });
+      expect($state.params).toEqual({ a: "1" });
     }));
 
     it('can defer and supersede a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -325,28 +335,24 @@ describe('state', function () {
       expect($state.current).toBe(D);
     }));
 
-    it('does not trigger $stateChangeSuccess when suppressed, but changes state', inject(function ($state, $q, $rootScope) {
+    it('does not trigger $stateChangeSuccess or $viewContentLoading when suppressed, but changes state', inject(function ($state, $q, $rootScope, $httpBackend) {
       initStateTo(E, { i: 'iii' });
       var called;
 
-      $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {
-        called = true;
-      });
-
-      $state.transitionTo(D, { x: '1', y: '2' }, { notify: false });
+      $rootScope.$on('$stateChangeSuccess', function () { called = true; });
+      $rootScope.$on('$viewContentLoading', function (evt, foo) { called = true; });
+      $state.transitionTo(DDDD, {}, { notify: false });
       $q.flush();
 
       expect(called).toBeFalsy();
-      expect($state.current).toBe(D);
+      expect($state.current).toBe(DDDD);
     }));
 
     it('does not trigger $stateChangeSuccess when suppressed, but updates params', inject(function ($state, $q, $rootScope) {
       initStateTo(E, { x: 'iii' });
       var called;
 
-      $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {
-        called = true;
-      });
+      $rootScope.$on('$stateChangeSuccess', function () { called = true; });
       $state.transitionTo(E, { i: '1', y: '2' }, { notify: false });
       $q.flush();
 
@@ -474,11 +480,11 @@ describe('state', function () {
       $state.transitionTo('about.person', { person: 'bob' });
       $q.flush();
 
-      $state.go('.item', { id: 5 });
+      $state.go('.item', { id: "5" });
       $q.flush();
 
       expect($state.$current.name).toBe('about.person.item');
-      expect($stateParams).toEqual({ person: 'bob', id: 5 });
+      expect($stateParams).toEqual({ person: 'bob', id: "5" });
 
       $state.go('^.^.sidebar');
       $q.flush();
@@ -510,6 +516,19 @@ describe('state', function () {
       $timeout.flush();
       expect(log).toBe('Success!Success!');
     }));
+
+    it('should invoke the controller', inject(function ($state, $q, $timeout, $rootScope, $compile) {
+      $compile('<div ui-view/>')($rootScope);
+      $state.transitionTo('resolveTimeout', { foo: "bar" });
+      $timeout.flush();
+      $q.flush();
+      expect(log).toBe('Success!controller;');
+
+      $state.reload();
+      $timeout.flush();
+      $q.flush();
+      expect(log).toBe('Success!controller;Success!controller;');
+    }));
   });
 
   describe('.is()', function () {
@@ -527,9 +546,24 @@ describe('state', function () {
 
     it('should return true when the current state is passed with matching parameters', inject(function ($state, $q) {
       $state.transitionTo(D, {x: 'foo', y: 'bar'}); $q.flush();
+      expect($state.is(D)).toBe(true);
       expect($state.is(D, {x: 'foo', y: 'bar'})).toBe(true);
       expect($state.is('D', {x: 'foo', y: 'bar'})).toBe(true);
       expect($state.is(D, {x: 'bar', y: 'foo'})).toBe(false);
+    }));
+
+    it('should work for relative states', inject(function ($state, $q) {
+      var options = { relative: $state.get('about') };
+      
+      $state.transitionTo('about.person'); $q.flush();
+      expect($state.is('.person', undefined, options)).toBe(true);
+
+      $state.transitionTo('about.person', { person: 'bob' }); $q.flush();
+      expect($state.is('.person', { person: 'bob' }, options)).toBe(true);
+      expect($state.is('.person', { person: 'john' }, options)).toBe(false);
+
+      options.relative = $state.get('about.person.item');
+      expect($state.is('^', undefined, options)).toBe(true);
     }));
   });
 
@@ -580,6 +614,18 @@ describe('state', function () {
       expect($state.includes('about.*.*', {person: 'bob'})).toBe(true);
       expect($state.includes('about.*.*', {person: 'shawn'})).toBe(false);
     }));
+
+    it('should work for relative states', inject(function ($state, $q) {
+      $state.transitionTo('about.person.item', { person: 'bob', id: 5 }); $q.flush();
+
+      expect($state.includes('.person', undefined, { relative: 'about' } )).toBe(true);
+      expect($state.includes('.person', null, { relative: 'about' } )).toBe(true);
+
+      expect($state.includes('^', undefined, { relative: $state.get('about.person.item') })).toBe(true);
+
+      expect($state.includes('.person', { person: 'bob' }, { relative: $state.get('about') } )).toBe(true);
+      expect($state.includes('.person', { person: 'steve' }, { relative: $state.get('about') } )).toBe(false);
+    }));
   });
 
   describe('.current', function () {
@@ -594,7 +640,6 @@ describe('state', function () {
       expect($state.current).toBe(A);
     }));
   });
-
 
   describe('$current', function () {
     it('is always defined', inject(function ($state) {
@@ -616,7 +661,7 @@ describe('state', function () {
 
     it('contains the parameter values for the current state', inject(function ($state, $q) {
       initStateTo(D, { x: 'x value', z: 'invalid value' });
-      expect($state.params).toEqual({ x: 'x value', y: undefined });
+      expect($state.params).toEqual({ x: 'x value', y: null });
     }));
   });
 
@@ -715,10 +760,13 @@ describe('state', function () {
         'C',
         'D',
         'DD',
+        'DDDD',
         'E',
         'H',
         'HH',
         'HHH',
+        'OPT',
+        'OPT.OPT2',
         'RS',
         'about',
         'about.person',
@@ -726,6 +774,7 @@ describe('state', function () {
         'about.sidebar',
         'about.sidebar.item',
         'badParam',
+        'badParam2',
         'dynamicController',
         'first',
         'home',
@@ -741,10 +790,78 @@ describe('state', function () {
       expect(list.map(function(state) { return state.name; })).toEqual(names);
     }));
 
+    it('should work for relative states', inject(function ($state) {
+      var about = $state.get('about');
+
+      var person = $state.get('.person', about);
+      expect(person.url).toBe('/:person');
+      expect($state.get('^', 'about.person').url).toBe('/about');
+
+      var item = $state.get('.person.item', about);
+      expect(item.url).toBe('/:id');
+      expect($state.get('^.^', item).url).toBe('/about');
+    }));
+
     it("should return undefined on invalid state query", inject(function ($state) {
       expect($state.get(null)).toBeNull();
       expect($state.get(false)).toBeNull();
       expect($state.get(undefined)).toBeNull();
+    }));
+  });
+
+  describe('optional parameters', function() {
+    it("should be populated during transition, if unspecified", inject(function($state, $q) {
+      var stateParams;
+      $state.get("OPT").onEnter = function($stateParams) { stateParams = $stateParams; };
+      $state.go("OPT"); $q.flush();
+      expect($state.current.name).toBe("OPT");
+      expect($state.params).toEqual({ param: "100" });
+      expect(stateParams).toEqual({ param: "100" });
+    }));
+
+    it("should be populated during primary transition, if unspecified", inject(function($state, $q) {
+      var count = 0;
+      $state.get("OPT").onEnter = function($stateParams) { count++; };
+      $state.go("OPT"); $q.flush();
+      expect($state.current.name).toBe("OPT");
+      expect($state.params).toEqual({ param: "100" });
+      expect(count).toEqual(1);
+    }));
+
+    it("should allow mixed URL and config params", inject(function($state, $q) {
+      var count = 0;
+      $state.get("OPT").onEnter =      function($stateParams) { count++; };
+      $state.get("OPT.OPT2").onEnter = function($stateParams) { count++; };
+      $state.go("OPT"); $q.flush();
+      expect($state.current.name).toBe("OPT");
+      expect($state.params).toEqual({ param: "100" });
+      expect(count).toEqual(1);
+
+      $state.go("OPT.OPT2", { param2: 200 }); $q.flush();
+      expect($state.current.name).toBe("OPT.OPT2");
+      expect($state.params).toEqual({ param: "100", param2: "200", param3: "300", param4: "400" });
+      expect(count).toEqual(2);
+    }));
+  });
+
+  // TODO: Enforce by default in next major release (1.0.0)
+  xdescribe('non-optional parameters', function() {
+    it("should cause transition failure, when unspecified.", inject(function($state, $q) {
+      var count = 0;
+      $state.get("OPT").onEnter =      function() { count++; };
+      $state.get("OPT.OPT2").onEnter = function() { count++; };
+      $state.go("OPT"); $q.flush();
+      expect($state.current.name).toBe("OPT");
+      expect($state.params).toEqual({ param: "100" });
+      expect(count).toEqual(1);
+
+      var result;
+      $state.go("OPT.OPT2").then(function(data) { result = data; });
+      $q.flush();
+      expect($state.current.name).toBe("OPT");
+      expect($state.params).toEqual({ param: "100" });
+      expect(result).toEqual("asdfasdf");
+      expect(count).toEqual(1);
     }));
   });
 
@@ -811,6 +928,29 @@ describe('state', function () {
 
         $location.path("/bad/foo");
         $rootScope.$broadcast("$locationChangeSuccess");
+        $rootScope.$apply();
+        expect($state.current.name).toBe("about");
+      }));
+
+      it('should ignore bad state parameters', inject(function ($state, $rootScope, $location, $stateParams) {
+        $state.go("badParam", { param: 5 });
+        $rootScope.$apply();
+        expect($state.current.name).toBe("badParam");
+        expect($stateParams).toEqual({param: 5});
+
+        $state.go("badParam2", { param: '12345' }); // must be 5 digits
+        $rootScope.$apply();
+        expect($state.current.name).toBe("badParam2");
+
+        $state.go("about");
+        $rootScope.$apply();
+        expect($state.current.name).toBe('about');
+
+        $state.go("badParam", { param: 'foo' });
+        $rootScope.$apply();
+        expect($state.current.name).toBe("about");
+
+        $state.go("badParam2", { param: '1234' }); // must be 5 digits
         $rootScope.$apply();
         expect($state.current.name).toBe("about");
       }));
@@ -908,7 +1048,7 @@ describe('state', function () {
       $state.go('root.sub1', { param2: 2 });
       $q.flush();
       expect($state.current.name).toEqual('root.sub1');
-      expect($stateParams).toEqual({ param1: 1, param2: 2 });
+      expect($stateParams).toEqual({ param1: "1", param2: "2" });
     }));
 
     it('should not inherit siblings\' states', inject(function ($state, $stateParams, $q) {
@@ -921,7 +1061,7 @@ describe('state', function () {
       $q.flush();
       expect($state.current.name).toEqual('root.sub2');
 
-      expect($stateParams).toEqual({ param1: 1, param2: undefined });
+      expect($stateParams).toEqual({ param1: "1", param2: undefined });
     }));
   });
 
@@ -961,9 +1101,9 @@ describe('state', function () {
 
   describe('provider decorators', function () {
 
-    it('should return built-in decorators', function () {
+    it('should return built-in decorators', inject(function ($state) {
       expect(stateProvider.decorator('parent')({ parent: A }).self.name).toBe("A");
-    });
+    }));
 
     it('should allow built-in decorators to be overridden', inject(function ($state, $q) {
       stateProvider.decorator('data', function(state) {

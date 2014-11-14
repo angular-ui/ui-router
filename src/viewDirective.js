@@ -111,8 +111,8 @@
  * <ui-view autoscroll='scopeVariable'/>
  * </pre>
  */
-$ViewDirective.$inject = ['$state', '$injector', '$uiViewScroll'];
-function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
+$ViewDirective.$inject = ['$state', '$injector', '$uiViewScroll', '$interpolate'];
+function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate) {
 
   function getService() {
     return ($injector.has) ? function(service) {
@@ -142,8 +142,14 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
 
     if ($animate) {
       return {
-        enter: function(element, target, cb) { $animate.enter(element, null, target, cb); },
-        leave: function(element, cb) { $animate.leave(element, cb); }
+        enter: function(element, target, cb) {
+          var promise = $animate.enter(element, null, target, cb);
+          if (promise && promise.then) promise.then(cb);
+        },
+        leave: function(element, cb) {
+          var promise = $animate.leave(element, cb);
+          if (promise && promise.then) promise.then(cb);
+        }
       };
     }
 
@@ -203,7 +209,7 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
 
         function updateView(firstTime) {
           var newScope,
-              name            = getUiViewName(attrs, $element.inheritedData('$uiView')),
+              name            = getUiViewName(scope, attrs, $element, $interpolate),
               previousLocals  = name && $state.$current && $state.$current.locals[name];
 
           if (!firstTime && previousLocals === latestLocals) return; // nothing to do
@@ -245,8 +251,8 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll) {
   return directive;
 }
 
-$ViewDirectiveFill.$inject = ['$compile', '$controller', '$state'];
-function $ViewDirectiveFill ($compile, $controller, $state) {
+$ViewDirectiveFill.$inject = ['$compile', '$controller', '$state', '$interpolate'];
+function $ViewDirectiveFill (  $compile,   $controller,   $state,   $interpolate) {
   return {
     restrict: 'ECA',
     priority: -400,
@@ -254,7 +260,7 @@ function $ViewDirectiveFill ($compile, $controller, $state) {
       var initial = tElement.html();
       return function (scope, $element, attrs) {
         var current = $state.$current,
-            name = getUiViewName(attrs, $element.inheritedData('$uiView')),
+            name = getUiViewName(scope, attrs, $element, $interpolate),
             locals  = current && current.locals[name];
 
         if (! locals) {
@@ -284,10 +290,11 @@ function $ViewDirectiveFill ($compile, $controller, $state) {
 
 /**
  * Shared ui-view code for both directives:
- * Given attributes and inherited $uiView data, return the view's name
+ * Given scope, element, and its attributes, return the view's name
  */
-function getUiViewName(attrs, inherited) {
-  var name = attrs.uiView || attrs.name || '';
+function getUiViewName(scope, attrs, element, $interpolate) {
+  var name = $interpolate(attrs.uiView || attrs.name || '')(scope);
+  var inherited = element.inheritedData('$uiView');
   return name.indexOf('@') >= 0 ?  name :  (name + '@' + (inherited ? inherited.state.name : ''));
 }
 
