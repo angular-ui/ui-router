@@ -499,22 +499,37 @@ Type.prototype.$asArray = function(mode, isSearch) {
       };
     }
 
-    function arrayHandler(callback, reducefn) {
-      // Wraps type functions to operate on each value of an array
+    function toArray(val) { return isArray(val) ? val : [ val ] }
+    function fromArray(val) { return mode === "auto" && val && val.length === 1 ? val[0] : val; }
+    function falsey(val) { return !val; }
+
+    // Wraps type (.is/.encode/.decode) functions to operate on each value of an array
+    function arrayHandler(callback, alltrue) {
       return function handleArray(val) {
-        if (!isArray(val)) val = [ val ];
+        val = toArray(val);
         var result = map(val, callback);
-        if (reducefn)
-          return result.reduce(reducefn, true);
-        return (result && result.length == 1 && mode === "auto") ? result[0] : result;
+        if (alltrue === true)
+          return result.filter(falsey).length === 0;
+        return fromArray(result);
       };
     }
 
-    function alltruthy(val, memo) { return val && memo; }
+    // Wraps type (.equals) functions to operate on each value of an array
+    function arrayEqualsHandler(callback) {
+      return function handleArray(val1, val2) {
+        var left = toArray(val1), right = toArray(val2);
+        if (left.length !== right.length) return false;
+        for (var i = 0; i < left.length; i++) {
+          if (!callback(left[i], right[i])) return false;
+        }
+        return true;
+      };
+    }
+
     this.encode = arrayHandler(bindTo(this, type.encode));
     this.decode = arrayHandler(bindTo(this, type.decode));
-    this.equals = arrayHandler(bindTo(this, type.equals), alltruthy);
-    this.is     = arrayHandler(bindTo(this, type.is),     alltruthy);
+    this.is     = arrayHandler(bindTo(this, type.is), true);
+    this.equals = arrayEqualsHandler(bindTo(this, type.equals));
     this.pattern = type.pattern;
     this.$arrayMode = mode;
   }

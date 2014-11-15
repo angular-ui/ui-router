@@ -182,6 +182,26 @@ describe("UrlMatcher", function () {
 
 
   describe("multivalue-query-parameters", function() {
+    it("should handle .is() for an array of values", inject(function($location) {
+      var m = new UrlMatcher('/foo?{param1:int}');
+      expect(m.params.param1.type.is([1, 2, 3])).toBe(true);
+      expect(m.params.param1.type.is([1, "2", 3])).toBe(false);
+    }));
+
+    it("should handle .equals() for two arrays of values", inject(function($location) {
+      var m = new UrlMatcher('/foo?{param1:int}&{param2:date}');
+      expect(m.params.param1.type.equals([1, 2, 3], [1, 2, 3])).toBe(true);
+      expect(m.params.param1.type.equals([1, 2, 3], [1, 2 ])).toBe(false);
+      expect(m.params.param2.type.equals(
+        [new Date(2014, 11, 15), new Date(2014, 10, 15)],
+        [new Date(2014, 11, 15), new Date(2014, 10, 15)])
+      ).toBe(true);
+      expect(m.params.param2.type.equals(
+        [new Date(2014, 11, 15), new Date(2014, 9, 15)],
+        [new Date(2014, 11, 15), new Date(2014, 10, 15)])
+      ).toBe(false);
+    }));
+
     it("should conditionally be wrapped in an array by default", inject(function($location) {
       var m = new UrlMatcher('/foo?param1');
 
