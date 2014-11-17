@@ -61,6 +61,12 @@ describe("UrlMatcher", function () {
     expect(matcher.format(array)).toBe('/?foo=bar&foo=baz');
   });
 
+  it("should encode and decode slashes in parameter values", function () {
+    var matcher = new UrlMatcher('/:foo');
+    expect(matcher.format({ foo: "/" })).toBe('/%252F');
+    expect(matcher.format({ foo: "//" })).toBe('/%252F%252F');
+  });
+
   describe("snake-case parameters", function() {
     it("should match if properly formatted", function() {
       var matcher = new UrlMatcher('/users/?from&to&snake-case&snake-case-triple');

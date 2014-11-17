@@ -561,8 +561,8 @@ function $UrlMatcherFactory() {
 
   var isCaseInsensitive = false, isStrictMode = true, defaultSquashPolicy = false;
 
-  function valToString(val) { return val != null ? val.toString().replace("/", "%2F") : val; }
-  function valFromString(val) { return val != null ? val.toString().replace("%2F", "/") : val; }
+  function valToString(val) { return val != null ? val.toString().replace(/\//g, "%2F") : val; }
+  function valFromString(val) { return val != null ? val.toString().replace(/%2F/g, "/") : val; }
   function angularEquals(left, right) { return angular.equals(left, right); }
 //  TODO: in 1.0, make string .is() return false if value is undefined by default.
 //  function regexpMatches(val) { /*jshint validthis:true */ return isDefined(val) && this.pattern.test(val); }
