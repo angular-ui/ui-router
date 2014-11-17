@@ -204,6 +204,26 @@ function $StateRefDirective($state, $timeout) {
  *   </li>
  * </ul>
  * </pre>
+ * 
+ * @example
+ * Given the following template where `app.users` is an abstract state and `app.users.default` its default child state:
+ * <pre>
+ * <ul>
+ *   <li ui-sref-active="active" ui-sref-active-includes="app.users" class="item">
+ *     <a href ui-sref="app.users.default">Users</a>
+ *   </li>
+ * </ul>
+ * </pre>
+ * 
+ * When the app state is "app.users" (or any children states),
+ * the resulting HTML will appear as (note the 'active' class):
+ * <pre>
+ * <ul>
+ *   <li ui-sref-active="active" ui-sref-active-includes="app.users" class="item active">
+ *     <a ui-sref="app.users.default" href="/users/default">Users</a>
+ *   </li>
+ * </ul>
+ * </pre>
  */
 
 /**
@@ -254,6 +274,8 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
       function isMatch() {
         if (typeof $attrs.uiSrefActiveEq !== 'undefined') {
           return $state.$current.self === state && matchesParams();
+        } else if(typeof $attrs.uiSrefActiveIncludes !== 'undefined') {
+          return $state.includes($attrs.uiSrefActiveIncludes) && matchesParams();
         } else {
           return state && $state.includes(state.name) && matchesParams();
         }
