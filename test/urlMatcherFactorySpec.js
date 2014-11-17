@@ -236,7 +236,8 @@ describe("UrlMatcher", function () {
       $location.url("/foo?param1=bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: 'bar' } ); // auto unwrap
       $location.url("/foo?param1=bar&param1=baz");
-      expect(m.exec($location.path(), $location.search())).toEqual( { param1: ['bar', 'baz'] } );
+      if (angular.isArray($location.search())) // conditional for angular 1.0.8
+        expect(m.exec($location.path(), $location.search())).toEqual( { param1: ['bar', 'baz'] } );
 
       expect(m.format({ })).toBe("/foo");
       expect(m.format({ param1: undefined })).toBe("/foo");
@@ -269,7 +270,8 @@ describe("UrlMatcher", function () {
       $location.url("/foo?param1=bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: [ 'bar' ] } );
       $location.url("/foo?param1=bar&param1=baz");
-      expect(m.exec($location.path(), $location.search())).toEqual( { param1: ['bar', 'baz'] } );
+      if (angular.isArray($location.search())) // conditional for angular 1.0.8
+        expect(m.exec($location.path(), $location.search())).toEqual( { param1: ['bar', 'baz'] } );
 
       expect(m.format({ })).toBe("/foo");
       expect(m.format({ param1: undefined })).toBe("/foo");
@@ -290,7 +292,8 @@ describe("UrlMatcher", function () {
       expect(m.format({ "param1[]": [ 'bar' ] })).toBe("/foo?param1[]=bar");
 
       $location.url("/foo?param1[]=bar&param1[]=baz");
-      expect(m.exec($location.path(), $location.search())).toEqual( { "param1[]": ['bar', 'baz'] } );
+      if (angular.isArray($location.search())) // conditional for angular 1.0.8
+        expect(m.exec($location.path(), $location.search())).toEqual( { "param1[]": ['bar', 'baz'] } );
       expect(m.format({ "param1[]": ['bar', 'baz'] })).toBe("/foo?param1[]=bar&param1[]=baz");
     }));
 
@@ -305,7 +308,8 @@ describe("UrlMatcher", function () {
       expect(m.format({ param1: [ 'bar' ] })).toBe("/foo?param1=bar");
 
       $location.url("/foo?param1=bar&param1=baz");
-      expect(m.exec($location.path(), $location.search())).toEqual( { param1: 'bar,baz' } ); // coerced to string
+      if (angular.isArray($location.search())) // conditional for angular 1.0.8
+        expect(m.exec($location.path(), $location.search())).toEqual( { param1: 'bar,baz' } ); // coerced to string
       expect(m.format({ param1: ['bar', 'baz'] })).toBe("/foo?param1=bar%2Cbaz"); // coerced to string
     }));
   });
@@ -501,7 +505,8 @@ describe("urlMatcherFactory", function () {
       expect(m.format({ fooid: 5, bar: 1 })).toEqual("/foo/5?bar=1");
 
       $location.url("/foo/5?bar=1&bar=2&bar=3");
-      expect(m.exec($location.path(), $location.search())).toEqual( { fooid: 5, bar: [ 1, 2, 3 ] } );
+      if (angular.isArray($location.search())) // conditional for angular 1.0.8
+        expect(m.exec($location.path(), $location.search())).toEqual( { fooid: 5, bar: [ 1, 2, 3 ] } );
       expect(m.format({ fooid: 5, bar: [ 1, 2, 3 ] })).toEqual("/foo/5?bar=1&bar=2&bar=3");
 
       m.format()

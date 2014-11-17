@@ -518,7 +518,7 @@ describe('state', function () {
     }));
 
     it('should invoke the controller', inject(function ($state, $q, $timeout, $rootScope, $compile) {
-      $compile('<div ui-view/>')($rootScope);
+      $compile('<div> <div ui-view/> </div>')($rootScope);
       $state.transitionTo('resolveTimeout', { foo: "bar" });
       $timeout.flush();
       $q.flush();
