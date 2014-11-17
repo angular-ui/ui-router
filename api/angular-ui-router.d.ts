@@ -81,6 +81,7 @@ declare module ng.ui {
         inherit?: boolean;
         relative?: IState;
         notify?: boolean;
+        reload?: boolean;
     }
 
     interface IHrefOptions {
