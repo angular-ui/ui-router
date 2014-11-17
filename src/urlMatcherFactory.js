@@ -864,27 +864,23 @@ function $UrlMatcherFactory() {
 
   this.Param = function Param(id, type, config, location) {
     var self = this;
-    var defaultValueConfig = getDefaultValueConfig(config);
-    config = config || {};
+    config = unwrapShorthand(config);
     type = getType(config, type);
     var arrayMode = getArrayMode();
     type = arrayMode ? type.$asArray(arrayMode, location === "search") : type;
-    if (type.name === "string" && !arrayMode && location === "path" && defaultValueConfig.value === undefined)
-      defaultValueConfig.value = ""; // for 0.2.x; in 0.3.0+ do not automatically default to ""
-    var isOptional = defaultValueConfig.value !== undefined;
+    if (type.name === "string" && !arrayMode && location === "path" && config.value === undefined)
+      config.value = ""; // for 0.2.x; in 0.3.0+ do not automatically default to ""
+    var isOptional = config.value !== undefined;
     var squash = getSquashPolicy(config, isOptional);
     var replace = getReplace(config, arrayMode, isOptional, squash);
 
-    function getDefaultValueConfig(config) {
+    function unwrapShorthand(config) {
       var keys = isObject(config) ? objectKeys(config) : [];
       var isShorthand = indexOf(keys, "value") === -1 && indexOf(keys, "type") === -1 &&
                         indexOf(keys, "squash") === -1 && indexOf(keys, "array") === -1;
-      var configValue = isShorthand ? config : config.value;
-      var result = {
-        fn: isInjectable(configValue) ? configValue : function () { return result.value; },
-        value: configValue
-      };
-      return result;
+      if (isShorthand) config = { value: config };
+      config.$$fn = isInjectable(config.value) ? config.value : function () { return config.value; };
+      return config;
     }
 
     function getType(config, urlType) {
@@ -929,7 +925,7 @@ function $UrlMatcherFactory() {
      */
     function $$getDefaultValue() {
       if (!injector) throw new Error("Injectable functions cannot be called at configuration time");
-      return injector.invoke(defaultValueConfig.fn);
+      return injector.invoke(config.$$fn);
     }
 
     /**
