@@ -178,6 +178,12 @@ describe("UrlMatcher", function () {
       expect(m.exec("/foo")).toEqual({});
       expect(m.exec("/FOO")).toEqual({});
     });
+
+    it("should generate/match params in the proper order", function() {
+      var m = new UrlMatcher('/foo?queryparam');
+      m = m.concat("/bar/:pathparam");
+      expect(m.exec("/foo/bar/pathval", { queryparam: "queryval" })).toEqual({ pathparam: "pathval", queryparam: "queryval"});
+    });
   });
 
 

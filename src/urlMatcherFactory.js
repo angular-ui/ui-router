@@ -86,9 +86,11 @@ function UrlMatcher(pattern, config, parentMatcher) {
       compiled = '^', last = 0, m,
       segments = this.segments = [],
       parentParams = parentMatcher ? parentMatcher.params : {},
-      params = this.params = parentMatcher ? parentMatcher.params.$$new() : new $$UMFP.ParamSet();
+      params = this.params = parentMatcher ? parentMatcher.params.$$new() : new $$UMFP.ParamSet(),
+      paramNames = [];
 
   function addParameter(id, type, config, location) {
+    paramNames.push(id);
     if (parentParams[id]) return parentParams[id];
     if (!/^\w+(-+\w+)*(?:\[\])?$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
     if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
@@ -162,6 +164,7 @@ function UrlMatcher(pattern, config, parentMatcher) {
 
   this.regexp = new RegExp(compiled, config.caseInsensitive ? 'i' : undefined);
   this.prefix = segments[0];
+  this.$$paramNames = paramNames;
 }
 
 /**
@@ -277,7 +280,7 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
  *    pattern has no parameters, an empty array is returned.
  */
 UrlMatcher.prototype.parameters = function (param) {
-  if (!isDefined(param)) return this.params.$$keys();
+  if (!isDefined(param)) return this.$$paramNames;
   return this.params[param] || null;
 };
 
@@ -499,7 +502,7 @@ Type.prototype.$asArray = function(mode, isSearch) {
       };
     }
 
-    function toArray(val) { return isArray(val) ? val : [ val ] }
+    function toArray(val) { return isArray(val) ? val : [ val ]; }
     function fromArray(val) { return mode === "auto" && val && val.length === 1 ? val[0] : val; }
     function falsey(val) { return !val; }
 
