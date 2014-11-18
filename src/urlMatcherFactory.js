@@ -520,7 +520,7 @@ Type.prototype.$asArray = function(mode, isSearch) {
         val = arrayWrap(val);
         var result = map(val, callback);
         if (allTruthyMode === true)
-          return result.filter(falsey).length === 0;
+          return filter(result, falsey).length === 0;
         return arrayUnwrap(result);
       };
     }
