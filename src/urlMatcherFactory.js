@@ -496,9 +496,9 @@ Type.prototype.$asArray = function(mode, isSearch) {
   return new ArrayType(this, mode);
 
   function ArrayType(type, mode) {
-    function bindTo(thisObj, callback) {
+    function bindTo(type, callbackName) {
       return function() {
-        return callback.apply(thisObj, arguments);
+        return type[callbackName].apply(type, arguments);
       };
     }
 
@@ -537,10 +537,10 @@ Type.prototype.$asArray = function(mode, isSearch) {
       };
     }
 
-    this.encode = arrayHandler(bindTo(this, type.encode));
-    this.decode = arrayHandler(bindTo(this, type.decode));
-    this.is     = arrayHandler(bindTo(this, type.is), true);
-    this.equals = arrayEqualsHandler(bindTo(this, type.equals));
+    this.encode = arrayHandler(bindTo(type, 'encode'));
+    this.decode = arrayHandler(bindTo(type, 'decode'));
+    this.is     = arrayHandler(bindTo(type, 'is'), true);
+    this.equals = arrayEqualsHandler(bindTo(type, 'equals'));
     this.pattern = type.pattern;
     this.$arrayMode = mode;
   }
