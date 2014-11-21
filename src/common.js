@@ -189,10 +189,12 @@ function pluck(collection, key) {
 }
 
 function filter(collection, callback) {
-  var result = isArray(collection) ? [] : {};
+  var array = isArray(collection);
+  var result = array ? [] : {};
   forEach(collection, function(val, i) {
-    if (callback(val, i))
-      result[i] = val;
+    if (callback(val, i)) {
+      result[array ? result.length : i] = val;
+    }
   });
   return result;
 }
