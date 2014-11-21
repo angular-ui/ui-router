@@ -588,8 +588,9 @@ function $UrlMatcherFactory() {
     },
     date: {
       encode: function (val) {
-        return [
-          val.getFullYear(),
+        if (!this.is(val))
+          return undefined;
+        return [ val.getFullYear(),
           ('0' + (val.getMonth() + 1)).slice(-2),
           ('0' + val.getDate()).slice(-2)
         ].join("-");
@@ -600,7 +601,7 @@ function $UrlMatcherFactory() {
         return match ? new Date(match[1], match[2] - 1, match[3]) : undefined;
       },
       is: function(val) { return val instanceof Date && !isNaN(val.valueOf()); },
-      equals: function (a, b) { return a.toISOString() === b.toISOString(); },
+      equals: function (a, b) { return this.is(a) && this.is(b) && a.toISOString() === b.toISOString(); },
       pattern: /[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])/,
       capture: /([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/
     },
