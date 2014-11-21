@@ -481,10 +481,26 @@ describe("urlMatcherFactory", function () {
     it("should encode/decode dates", function () {
       var m = new UrlMatcher("/calendar/{date:date}"),
           result = m.exec("/calendar/2014-03-26");
+      var date = new Date(2014, 2, 26);
 
       expect(result.date instanceof Date).toBe(true);
-      expect(result.date.toUTCString()).toEqual('Wed, 26 Mar 2014 00:00:00 GMT');
-      expect(m.format({ date: new Date(2014, 2, 26) })).toBe("/calendar/2014-03-26");
+      expect(result.date.toUTCString()).toEqual(date.toUTCString());
+      expect(m.format({ date: date })).toBe("/calendar/2014-03-26");
+    });
+
+    it("should encode/decode arbitrary objects to json", function () {
+      var m = new UrlMatcher("/state/{param1:json}/{param2:json}");
+
+      var params = {
+        param1: { foo: 'huh', count: 3 },
+        param2: { foo: 'wha', count: 5 }
+      };
+
+      var json1 = '{"foo":"huh","count":3}';
+      var json2 = '{"foo":"wha","count":5}';
+
+      expect(m.format(params)).toBe("/state/" + encodeURIComponent(json1) + "/" + encodeURIComponent(json2));
+      expect(m.exec("/state/" + json1 + "/" + json2)).toEqual(params);
     });
 
     it("should not match invalid typed parameter values", function() {

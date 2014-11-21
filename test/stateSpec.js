@@ -105,6 +105,8 @@ describe('state', function () {
         url: "/bad2/{param:[0-9]{5}}"
       })
 
+      .state('json', { url: '/jsonstate/{param:json}' })
+
       .state('first', { url: '^/first/subpath' })
       .state('second', { url: '^/second' })
 
@@ -268,13 +270,13 @@ describe('state', function () {
     }));
 
     it('can lazy-define a state in $stateNotFound', inject(function ($state, $q, $rootScope) {
-      initStateTo(DD, { x: 1, y: 2, z: 3 });
+      initStateTo(DD, { x: "1", y: "2", z: "3" });
       var called;
       $rootScope.$on('$stateNotFound', function (ev, redirect) {
         stateProvider.state(redirect.to, { parent: DD, params: { x: {}, y: {}, z: {}, w: {} }});
         called = true;
       });
-      var promise = $state.go('DDD', { w: 4 });
+      var promise = $state.go('DDD', { w: "4" });
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('DDD');
@@ -289,7 +291,7 @@ describe('state', function () {
         ev.retry = deferred.promise;
         called = true;
       });
-      var promise = $state.go('AA', { a: 1 });
+      var promise = $state.go('AA', { a: "1" });
       stateProvider.state('AA', { parent: A, params: { a: {} }});
       deferred.resolve();
       $q.flush();
@@ -780,6 +782,7 @@ describe('state', function () {
         'home',
         'home.item',
         'home.redirect',
+        'json',
         'resolveFail',
         'resolveTimeout',
         'root',
@@ -817,6 +820,18 @@ describe('state', function () {
       expect($state.current.name).toBe("OPT");
       expect($state.params).toEqual({ param: "100" });
       expect(stateParams).toEqual({ param: "100" });
+    }));
+
+    it("should allow null default value for non-url params", inject(function($state, $q) {
+      $state.go("D"); $q.flush();
+      expect($state.current.name).toBe("D");
+      expect($state.params).toEqual({ x: null, y: null });
+    }));
+
+    it("should allow arbitrary objects to pass for non-url params", inject(function($state, $q) {
+      $state.go("D", { x: 100, y: { foo: 'bar' } }); $q.flush();
+      expect($state.current.name).toBe("D");
+      expect($state.params).toEqual({ x: 100, y: { foo: 'bar' } });
     }));
 
     it("should be populated during primary transition, if unspecified", inject(function($state, $q) {
@@ -911,6 +926,24 @@ describe('state', function () {
     }));
 
     describe("typed parameter handling", function() {
+      beforeEach(function () {
+        stateProvider.state({
+          name: "types",
+          url: "/types/{p1:string}/{p2:date}",
+          params: {
+            p1: { value: [ "defaultValue" ], array: true },
+            p2: new Date(2014, 10, 15),
+            nonurl: null
+          }
+        });
+        stateProvider.state({
+          name: "types.substate",
+          url: "/sub/{p3[]:int}/{p4:json}?{p5:bool}",
+          params: {
+            "p3[]": [ 10 ]
+          }
+        });
+      });
 
       it('should initialize parameters without a hacky empty test', inject(function ($urlMatcherFactory, $state) {
         new UrlMatcher("");
@@ -953,6 +986,45 @@ describe('state', function () {
         $state.go("badParam2", { param: '1234' }); // must be 5 digits
         $rootScope.$apply();
         expect($state.current.name).toBe("about");
+      }));
+
+      function expectStateUrlMappingFn($state, $rootScope, $q, $location) {
+        return function (state, url, params, defaults, nonurlparams) {
+          $state.go(state, extend({}, nonurlparams, params));
+          $q.flush();
+
+          expect($state.current.name).toBe(state.name || state); // allow object
+          expect($state.params).toEqual(extend({}, defaults, params, nonurlparams));
+          expect($location.url()).toBe(url);
+
+          initStateTo(A);
+
+          $location.url(url);
+          $rootScope.$broadcast("$locationChangeSuccess");
+          $q.flush();
+
+          expect($state.current.name).toBe(state.name || state); // allow object
+          expect($state.params).toEqual(extend({}, defaults, params));
+          expect($location.url()).toBe(url);
+        }
+      }
+
+      it('should map to/from the $location.url() and $stateParams', inject(function($state, $location, $q, $rootScope) {
+        var nov15 = new Date(2014,10,15);
+        var defaults = { p1: [ 'defaultValue' ], p2: nov15, nonurl: null };
+        var params = { p1: [ "foo" ], p2: nov15  };
+        var nonurl = { nonurl: { foo: 'bar' } };
+
+        var check = expectStateUrlMappingFn($state, $rootScope, $q, $location);
+        check('types', '/types/defaultValue/2014-11-15', { }, defaults);
+        check('types', "/types/foo/2014-11-15", params, defaults, nonurl);
+
+        extend(defaults, { "p3[]": [ 10 ] });
+        extend(params, { p4: { baz: "qux" }});
+        check('types.substate', "/types/foo/2014-11-15/sub/10/%7B%22baz%22:%22qux%22%7D", params, defaults, nonurl);
+
+        extend(params, { p5: true });
+        check('types.substate', "/types/foo/2014-11-15/sub/10/%7B%22baz%22:%22qux%22%7D?p5=1", params, defaults, nonurl);
       }));
     });
 
