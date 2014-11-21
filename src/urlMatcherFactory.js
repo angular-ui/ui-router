@@ -606,8 +606,7 @@ function $UrlMatcherFactory() {
     },
     json: {
       encode: angular.toJson,
-      decode: function(val) {
-        return angular.fromJson(val) },
+      decode: angular.fromJson,
       is: angular.isObject,
       equals: angular.equals,
       pattern: /[^/]*/
