@@ -645,6 +645,14 @@ describe("urlMatcherFactory", function () {
         expect(m.exec('/users/bar/2')).toBeNull();
       });
 
+      it("should populate even if the regexp requires 1 or more chars", function() {
+        var m = new UrlMatcher('/record/{appId}/{recordId:[0-9a-fA-F]{10,24}}', {
+          params: { appId: null, recordId: null }
+        });
+        expect(m.exec("/record/546a3e4dd273c60780e35df3/"))
+          .toEqual({ appId: "546a3e4dd273c60780e35df3", recordId: null });
+      });
+
       it("should allow shorthand definitions", function() {
         var m = new UrlMatcher('/foo/:foo', {
           params: { foo: "bar" }
