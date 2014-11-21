@@ -611,6 +611,13 @@ function $UrlMatcherFactory() {
       is: angular.isObject,
       equals: angular.equals,
       pattern: /[^/]*/
+    },
+    any: { // does not encode/decode
+      encode: angular.identity,
+      decode: angular.identity,
+      is: angular.identity,
+      equals: angular.equals,
+      pattern: /.*/
     }
   };
 
@@ -878,7 +885,7 @@ function $UrlMatcherFactory() {
   this.Param = function Param(id, type, config, location) {
     var self = this;
     config = unwrapShorthand(config);
-    type = getType(config, type);
+    type = getType(config, type, location);
     var arrayMode = getArrayMode();
     type = arrayMode ? type.$asArray(arrayMode, location === "search") : type;
     if (type.name === "string" && !arrayMode && location === "path" && config.value === undefined)
@@ -896,10 +903,10 @@ function $UrlMatcherFactory() {
       return config;
     }
 
-    function getType(config, urlType) {
+    function getType(config, urlType, location) {
       if (config.type && urlType) throw new Error("Param '"+id+"' has two type configurations.");
       if (urlType) return urlType;
-      if (!config.type) return $types.string;
+      if (!config.type) return (location === "config" ? $types.any : $types.string);
       return config.type instanceof Type ? config.type : new Type(config.type);
     }
 
@@ -960,13 +967,14 @@ function $UrlMatcherFactory() {
     extend(this, {
       id: id,
       type: type,
+      location: location,
       array: arrayMode,
-      config: config,
       squash: squash,
       replace: replace,
       isOptional: isOptional,
-      dynamic: undefined,
       value: $value,
+      dynamic: undefined,
+      config: config,
       toString: toString
     });
   };
@@ -1013,7 +1021,7 @@ function $UrlMatcherFactory() {
         param = self[key];
         val = paramValues[key];
         isOptional = !val && param.isOptional;
-        result = result && (isOptional || param.type.is(val));
+        result = result && (isOptional || !!param.type.is(val));
       });
       return result;
     },
