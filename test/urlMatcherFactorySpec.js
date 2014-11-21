@@ -402,6 +402,24 @@ describe("UrlMatcher", function () {
   });
 });
 
+describe("urlMatcherFactoryProvider", function () {
+  describe(".type()", function () {
+    var m;
+    beforeEach(module('ui.router.util', function($urlMatcherFactoryProvider) {
+      $urlMatcherFactoryProvider.type("myType", {}, function() {
+          return { decode: function() { return 'decoded'; }
+        };
+      });
+      m = new UrlMatcher("/test?{foo:myType}");
+    }));
+
+    it("should handle arrays properly with config-time custom type definitions", inject(function ($stateParams) {
+      expect(m.exec("/test", {foo: '1'})).toEqual({ foo: 'decoded' });
+      expect(m.exec("/test", {foo: ['1', '2']})).toEqual({ foo: ['decoded', 'decoded'] });
+    }));
+  });
+});
+
 describe("urlMatcherFactory", function () {
   
   var $umf;
