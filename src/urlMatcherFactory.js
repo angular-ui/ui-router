@@ -603,6 +603,14 @@ function $UrlMatcherFactory() {
       equals: function (a, b) { return a.toISOString() === b.toISOString(); },
       pattern: /[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])/,
       capture: /([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/
+    },
+    json: {
+      encode: angular.toJson,
+      decode: function(val) {
+        return angular.fromJson(val) },
+      is: angular.isObject,
+      equals: angular.equals,
+      pattern: /[^/]*/
     }
   };
 
