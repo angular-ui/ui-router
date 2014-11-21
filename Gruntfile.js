@@ -151,9 +151,7 @@ module.exports = function (grunt) {
         shjs.rm('-rf', 'build');
         return system('git checkout gh-pages');
       }).then(function () {
-        return system('git rebase master');
-      }).then(function () {
-        return system('git pull');
+        return system('git merge master');
       }).then(function () {
         return system('grunt dist-docs');
       }).then(function () {
