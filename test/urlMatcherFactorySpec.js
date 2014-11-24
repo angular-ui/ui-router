@@ -407,15 +407,17 @@ describe("urlMatcherFactoryProvider", function () {
     var m;
     beforeEach(module('ui.router.util', function($urlMatcherFactoryProvider) {
       $urlMatcherFactoryProvider.type("myType", {}, function() {
-          return { decode: function() { return 'decoded'; }
-        };
+          return {
+            decode: function() { return { status: 'decoded' }; },
+            is: angular.isObject
+          };
       });
       m = new UrlMatcher("/test?{foo:myType}");
     }));
 
     it("should handle arrays properly with config-time custom type definitions", inject(function ($stateParams) {
-      expect(m.exec("/test", {foo: '1'})).toEqual({ foo: 'decoded' });
-      expect(m.exec("/test", {foo: ['1', '2']})).toEqual({ foo: ['decoded', 'decoded'] });
+      expect(m.exec("/test", {foo: '1'})).toEqual({ foo: { status: 'decoded' } });
+      expect(m.exec("/test", {foo: ['1', '2']})).toEqual({ foo: [ { status: 'decoded' }, { status: 'decoded' }] });
     }));
   });
 });
@@ -662,7 +664,7 @@ describe("urlMatcherFactory", function () {
 
       it("should populate query params", function() {
         var defaults = { order: "name", limit: 25, page: 1 };
-        var m = new UrlMatcher('/foo?order&limit&page', {
+        var m = new UrlMatcher('/foo?order&{limit:int}&{page:int}', {
           params: defaults
         });
         expect(m.exec("/foo")).toEqual(defaults);
@@ -687,7 +689,7 @@ describe("urlMatcherFactory", function () {
       });
 
       it("should allow injectable functions", inject(function($stateParams) {
-        var m = new UrlMatcher('/users/:user', {
+        var m = new UrlMatcher('/users/{user:json}', {
           params: {
             user: function($stateParams) {
               return $stateParams.user;
