@@ -126,7 +126,7 @@ function $StateRefDirective($state, $timeout) {
 
       if (isForm) return;
 
-      element.bind("click", function(e) {
+      element.bind("click touchend", function(e) {
         var button = e.which || e.button;
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
