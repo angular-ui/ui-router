@@ -76,8 +76,8 @@ function stateContext(el) {
  * @param {string} ui-sref 'stateName' can be any valid absolute or relative state
  * @param {Object} ui-sref-opts options to pass to {@link ui.router.state.$state#go $state.go()}
  */
-$StateRefDirective.$inject = ['$state', '$timeout'];
-function $StateRefDirective($state, $timeout) {
+$StateRefDirective.$inject = ['$state', '$document', '$timeout'];
+function $StateRefDirective($state, $document, $timeout) {
   var allowedOptions = ['location', 'inherit', 'reload'];
 
   return {
