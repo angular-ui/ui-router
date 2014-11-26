@@ -55,6 +55,8 @@ describe("UrlRouter", function () {
           return path.replace('baz', 'b4z');
         }).when('/foo/:param', function($match) {
           match = ['/foo/:param', $match];
+        }).when('/foo/bar', function($match) {
+          match = ['/foo/bar', $match];
         }).when('/bar', function($match) {
           match = ['/bar', $match];
         });
@@ -69,6 +71,18 @@ describe("UrlRouter", function () {
         $s = $injector.get('$sniffer');
         $s.history = true;
       });
+    });
+
+    it("should handle more specified url first", function() {
+      location.path("/foo/bar");
+      scope.$emit("$locationChangeSuccess");
+      expect(match[0]).toBe("/foo/bar");
+      expect(match[1]).toEqual({});
+
+      location.path("/foo/baz");
+      scope.$emit("$locationChangeSuccess");
+      expect(match[0]).toBe("/foo/:param");
+      expect(match[1]).toEqual({param: 'baz'});
     });
 
     it("should execute rewrite rules", function () {
