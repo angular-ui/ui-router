@@ -140,7 +140,11 @@ module.exports = function (grunt) {
 
   grunt.registerTask('widedocs', 'Convert to bootstrap container-fluid', function () {
     promising(this,
-      system('sed -i.bak -e \'s/class="row"/class="row-fluid"/\' -e \'s/role="main" class="container"/role="main" class="container-fluid"/\' site/index.html')
+      system(
+      'sed -i.bak ' + 
+      '-e \'s/class="row"/class="row-fluid"/\' ' + 
+      '-e \'s/icon-cog"><\\/i>/icon-cog"><\\/i>Provider/\' ' + 
+      '-e \'s/role="main" class="container"/role="main" class="container-fluid"/\' site/index.html')
     );
   });
 
@@ -151,9 +155,7 @@ module.exports = function (grunt) {
         shjs.rm('-rf', 'build');
         return system('git checkout gh-pages');
       }).then(function () {
-        return system('git rebase master');
-      }).then(function () {
-        return system('git pull');
+        return system('git merge master');
       }).then(function () {
         return system('grunt dist-docs');
       }).then(function () {

@@ -174,7 +174,7 @@ function omit(obj) {
   var copy = {};
   var keys = Array.prototype.concat.apply(Array.prototype, Array.prototype.slice.call(arguments, 1));
   for (var key in obj) {
-    if (keys.indexOf(key) == -1) copy[key] = obj[key];
+    if (indexOf(keys, key) == -1) copy[key] = obj[key];
   }
   return copy;
 }
@@ -189,10 +189,12 @@ function pluck(collection, key) {
 }
 
 function filter(collection, callback) {
-  var result = isArray(collection) ? [] : {};
+  var array = isArray(collection);
+  var result = array ? [] : {};
   forEach(collection, function(val, i) {
-    if (callback(val, i))
-      result[i] = val;
+    if (callback(val, i)) {
+      result[array ? result.length : i] = val;
+    }
   });
   return result;
 }

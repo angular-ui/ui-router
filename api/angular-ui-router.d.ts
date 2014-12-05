@@ -15,29 +15,16 @@ declare module ng.ui {
         controllerProvider?: any;
         resolve?: {};
         url?: string;
-        params?: any[];
+        params?: any;
         views?: {};
         abstract?: boolean;
         onEnter?: (...args: any[]) => void;
         onExit?: (...args: any[]) => void;
         data?: any;
+        reloadOnSearch?: boolean;
     }
-    
-    interface ITypedState<T> {
-        name?: string;
-        template?: string;
-        templateUrl?: string;
-        templateProvider?: () => string;
-        controller?: any;
-        controllerAs?: string;    
-        controllerProvider?: any;
-        resolve?: {};
-        url?: string;
-        params?: any[];
-        views?: {};
-        abstract?: boolean;
-        onEnter?: (...args: any[]) => void;
-        onExit?: (...args: any[]) => void;
+
+    interface ITypedState<T> extends IState {
         data?: T;
     }
 
@@ -81,6 +68,7 @@ declare module ng.ui {
         inherit?: boolean;
         relative?: IState;
         notify?: boolean;
+        reload?: boolean;
     }
 
     interface IHrefOptions {
@@ -115,19 +103,19 @@ declare module ng.ui {
     }
 
     interface IUrlRouterService {
-    	/*
-    	 * Triggers an update; the same update that happens when the address bar
-    	 * url changes, aka $locationChangeSuccess.
-    	 *
-    	 * This method is useful when you need to use preventDefault() on the
-    	 * $locationChangeSuccess event, perform some custom logic (route protection,
-    	 * auth, config, redirection, etc) and then finally proceed with the transition
-    	 * by calling $urlRouter.sync().
-    	 *
-    	 */
+        /*
+         * Triggers an update; the same update that happens when the address bar
+         * url changes, aka $locationChangeSuccess.
+         *
+         * This method is useful when you need to use preventDefault() on the
+         * $locationChangeSuccess event, perform some custom logic (route protection,
+         * auth, config, redirection, etc) and then finally proceed with the transition
+         * by calling $urlRouter.sync().
+         *
+         */
         sync(): void;
     }
-    
+
     interface IUiViewScrollProvider {
         /*
          * Reverts back to using the core $anchorScroll service for scrolling 

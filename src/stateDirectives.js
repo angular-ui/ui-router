@@ -253,14 +253,10 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
 
       function isMatch() {
         if (typeof $attrs.uiSrefActiveEq !== 'undefined') {
-          return $state.$current.self === state && matchesParams();
+          return state && $state.is(state.name, params);
         } else {
-          return state && $state.includes(state.name) && matchesParams();
+          return state && $state.includes(state.name, params);
         }
-      }
-
-      function matchesParams() {
-        return !params || equalForKeys(params, $stateParams);
       }
     }]
   };
