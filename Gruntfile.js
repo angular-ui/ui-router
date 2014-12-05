@@ -140,7 +140,11 @@ module.exports = function (grunt) {
 
   grunt.registerTask('widedocs', 'Convert to bootstrap container-fluid', function () {
     promising(this,
-      system('sed -i.bak -e \'s/class="row"/class="row-fluid"/\' -e \'s/role="main" class="container"/role="main" class="container-fluid"/\' site/index.html')
+      system(
+      'sed -i.bak ' + 
+      '-e \'s/class="row"/class="row-fluid"/\' ' + 
+      '-e \'s/icon-cog"><\\/i>/icon-cog"><\\/i>Provider/\' ' + 
+      '-e \'s/role="main" class="container"/role="main" class="container-fluid"/\' site/index.html')
     );
   });
 
