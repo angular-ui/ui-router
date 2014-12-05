@@ -165,6 +165,10 @@ Provider function that returns HTML content string.
 <p>A controller alias name. If present the controller will be
   published to scope under the controllerAs name.
 <pre class="prettyprint linenums">controllerAs: "myCtrl"</pre>
+</div></td></tr><tr><td>parent <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='parent'></a>
+Optionally specifies the parent state of this state.</p>
+<pre class="prettyprint linenums">parent: 'parentState'</pre>
+<pre class="prettyprint linenums">parent: parentState // JS variable</pre>
 </div></td></tr><tr><td>resolve <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='resolve'></a></p>
 <p>An optional map&lt;string, function&gt; of dependencies which
   should be injected into the controller. If any of these dependencies are promises, 
@@ -189,6 +193,8 @@ resolved before its value is injected into controller.</li>
 <p>  A url fragment with optional parameters. When a state is navigated or
   transitioned to, the <code>$stateParams</code> service will be populated with any 
   parameters that were passed.</p>
+<p>  (See <a href="#/api/ui.router.util.type:UrlMatcher">UrlMatcher</a> <code>UrlMatcher</code>} for
+  more details on acceptable patterns )</p>
 <p>examples:
 <pre class="prettyprint linenums">url: "/home"
 url: "/users/:userid"
@@ -196,8 +202,9 @@ url: "/books/{bookid:[a-zA-Z_-]}"
 url: "/books/{categoryid:int}"
 url: "/books/{publishername:string}/{categoryid:int}"
 url: "/messages?before&after"
-url: "/messages?{before:date}&{after:date}"</pre>
-url: &quot;/messages/:mailboxid?{before:date}&amp;{after:date}&quot;</p>
+url: "/messages?{before:date}&{after:date}"
+url: "/messages/:mailboxid?{before:date}&{after:date}"
+</pre>
 </div></td></tr><tr><td>views <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='views'></a>
 an optional map&lt;string, object&gt; which defined multiple views, or targets views
 manually/explicitly.</p>

@@ -173,7 +173,7 @@
               <a class="guide">service</a>
             </li>
             <li ng-repeat="service in module.services track by service.instance.url" ng-class="navClass(service.instance, service.provider)" class="api-list-item expand">
-              <a ng-show="service.provider" class="pull-right" href="{{service.provider.url}}" tabindex="2"><i class="icon-cog"></i></a>
+              <a ng-show="service.provider" class="pull-right" href="{{service.provider.url}}" tabindex="2"><i class="icon-cog"></i>Provider</a>
               <a href="{{service.instance.url}}" tabindex="2">{{service.name}}</a>
             </li>
 
