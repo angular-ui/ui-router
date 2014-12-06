@@ -83,7 +83,7 @@ function $TemplateFactory(  $http,   $templateCache,   $injector) {
     if (isFunction(url)) url = url(params);
     if (url == null) return null;
     else return $http
-        .get(url, { cache: $templateCache, headers: { Accept: 'text/html' }})
+        .get(url, { cache: $templateCache, headers: { Accept: 'text/html; charset: utf-8' }})
         .then(function(response) { return response.data; });
   };
 
