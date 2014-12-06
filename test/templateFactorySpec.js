@@ -8,7 +8,7 @@ describe('templateFactory', function () {
 
   it('should request templates as text/html', inject(function($templateFactory, $httpBackend) {
     $httpBackend.expectGET('views/view.html', function(headers) {
-      return headers.Accept === 'text/html';
+      return headers.Accept === 'text/html; charset: utf-8';
     }).respond(200);
     $templateFactory.fromUrl('views/view.html');
     $httpBackend.flush();
