@@ -17,6 +17,10 @@ function inherit(parent, extra) {
   return extend(new (extend(function() {}, { prototype: parent }))(), extra);
 }
 
+function defaults(defs, opts) {
+  return extend(pick(opts, objectKeys(defs)), defs);
+}
+
 function merge(dst) {
   forEach(arguments, function(obj) {
     if (obj !== dst) {
@@ -220,12 +224,20 @@ function pluck(collection, key) {
 }
 
 function filter(collection, callback) {
-  var result = isArray(collection) ? [] : {};
+  var arr = isArray(collection), result = arr ? [] : {};
   forEach(collection, function(val, i) {
-    if (callback(val, i))
-      result[i] = val;
+    if (callback(val, i)) {
+      if (arr) result.push(val);
+      else result[i] = val;
+    }
   });
   return result;
+}
+
+function tpl(string, vals) {
+  return string.replace(/\{(\w+)\}/, function(_, key) {
+    return vals[key] || "";
+  });
 }
 
 function map(collection, callback) {
