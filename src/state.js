@@ -1,5 +1,5 @@
 function StateQueueManager(states, builder, $urlRouterProvider, $state) {
-  var queue = [], abstractKey = 'abstract';
+  var queue = [];
 
   extend(this, {
     register: function(config, pre) {
@@ -12,12 +12,10 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
       });
 
       if (!isString(state.name)) throw new Error("State must have a valid name");
-      if (states[state.name] || pluck(queue, 'name').indexOf(state.name) !== -1)
+      if (states.hasOwnProperty(state.name) || pluck(queue, 'name').indexOf(state.name) !== -1)
         throw new Error("State '" + state.name + "' is already defined");
-      if (pre)
-        queue.unshift(state);
-      else
-        queue.push(state);
+
+      queue[pre ? "unshift" : "push"](state);
       return state;
     },
 
@@ -67,7 +65,7 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
 // Builds state properties from definition passed to StateQueueManager.register()
 function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 
-  var self = this, delegates = {}, builders = {
+  var self = this, builders = {
 
     parent: function(state) {
       return matcher.find(self.parentName(state));
@@ -147,11 +145,32 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
       if (isString(name) && !isDefined(func)) return builders[name];
       if (!isFunction(func) || !isString(name)) return;
 
-      if (builders[name]) {
-        delegates[name] = delegates[name] || [];
-        delegates[name].push(builders[name]);
+      function remove(name, func) {
+        if (!builders[name].length) {
+          delete builders[name];
+          return;
+        }
+        builders[name].splice(builders[name].indexOf(func, 1));
+
+        if (builders[name].length === 1) {
+          builders[name] = builders[name][0];
+        }
       }
-      builders[name] = func;
+
+      function add(name, func) {
+        if (!builders[name]) {
+          builders[name] = func;
+          return function() { remove(name, func); };
+        }
+        
+        if (!builders[name].length) {
+          builders[name] = [builders[name]];
+        }
+        builders[name].push(func);
+        return function() { remove(name, func); };
+      }
+
+      return add(name, func);
     },
 
     build: function(state) {
@@ -159,12 +178,8 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
       if (parent && !matcher.find(parent)) return null;
 
       for (var key in builders) {
-        // @todo Implement currying for multiple delegates
-        if (delegates[key] && delegates[key].length) {
-          state[key] = delegates[key][0](state, builders[key]);
-        } else {
-          state[key] = builders[key](state);
-        }
+        var steps = builders[key].length ? builders[key].reverse() : [builders[key]];
+        state[key] = (new FunctionIterator(steps))(state);
       }
       return state;
     },
@@ -253,7 +268,7 @@ function StateMatcher(states) {
 $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
-  var root, states = {}, abstractKey = 'abstract';
+  var root, states = {};
 
   var matcher = new StateMatcher(states);
   var builder = new StateBuilder(function() { return root; }, matcher, $urlMatcherFactoryProvider);

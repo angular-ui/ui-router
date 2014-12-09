@@ -11,6 +11,8 @@ var isDefined = angular.isDefined,
     extend = angular.extend,
     copy = angular.copy;
 
+var abstractKey = 'abstract';
+
 function inherit(parent, extra) {
   return extend(new (extend(function() {}, { prototype: parent }))(), extra);
 }
@@ -25,6 +27,35 @@ function merge(dst) {
   });
   return dst;
 }
+
+/**
+ * Recursive function iterator
+ */
+function FunctionIterator(items) {
+
+  var it = function(initial) {
+    var noOp = function() {};
+    var get  = (function() { return this.next() || noOp; }).bind(this);
+    var next = function() { return get()(initial, next); };
+    return next();
+  };
+
+  extend(this, {
+    items: items,
+    _current: -1
+  });
+
+  return it.bind(this);
+}
+
+FunctionIterator.prototype.current = function() {
+  return this.items[this._current];
+};
+
+FunctionIterator.prototype.next = function() {
+  this._current++;
+  return this.current();
+};
 
 /**
  * Finds the common ancestor path between two states.
