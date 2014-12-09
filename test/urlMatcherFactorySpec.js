@@ -1,19 +1,20 @@
 describe("UrlMatcher", function () {
 
-  describe("provider", function () {
-    
-    var provider;
-    beforeEach(function() {
-      angular.module('ui.router.router.test', function() {}).config(function ($urlMatcherFactoryProvider) {
-        provider = $urlMatcherFactoryProvider;
-      });
-  
-      module('ui.router.router', 'ui.router.router.test');
-  
-      inject(function($injector) {
-        $injector.invoke(provider.$get);
-      });
+  var provider;
+
+  beforeEach(function() {
+    angular.module('ui.router.router.test', function() {}).config(function ($urlMatcherFactoryProvider) {
+      provider = $urlMatcherFactoryProvider;
     });
+
+    module('ui.router.router', 'ui.router.router.test');
+
+    inject(function($injector) {
+      $injector.invoke(provider.$get);
+    });
+  });
+
+  describe("provider", function () {
 
     it("should allow prefix URLs", function() {
       provider.prefix('/{lang:[a-z]{2}}', { params: { lang: "en" } });

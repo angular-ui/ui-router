@@ -267,6 +267,11 @@ function flatten (array) {
   return _flatten(array, []);
 }
 
+// Checks if a value is injectable
+function isInjectable(value) {
+  return (isFunction(value) || (isArray(value) && isFunction(value[value.length - 1])));
+}
+
 
 var GlobBuilder = (function() {
 
