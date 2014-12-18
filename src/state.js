@@ -115,7 +115,7 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
           ctrlKeys = ['controller', 'controllerProvider', 'controllerAs'];
       var allKeys = tplKeys.concat(ctrlKeys);
 
-      forEach(state.views || { "$default": filterByKeys(allKeys, state) }, function (config, name) {
+      forEach(state.views || { "$default": pick(state, allKeys) }, function (config, name) {
 
         // Allow controller settings to be defined at the state level for all views
         forEach(ctrlKeys, function(key) {
@@ -222,7 +222,7 @@ function StateMatcher(states) {
 
     resolvePath: function(name, base) {
       if (!base) throw new Error("No reference point given for path '"  + name + "'");
-      base = findState(base);
+      base = this.find(base);
       
       var rel = name.split("."), i = 0, pathLength = rel.length, current = base;
 
@@ -611,7 +611,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
     $state.reload = function reload() {
-      return $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: false });
+      return $state.transitionTo($state.current, $stateParams, {
+        reload: true,
+        inherit: false,
+        notify: false
+      });
     };
 
     /**
@@ -681,7 +685,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      */
     $state.go = function go(to, params, options) {
-      return $state.transitionTo(to, params, extend({ inherit: true, relative: $state.$current }, options));
+      return $state.transitionTo(to, params, defaults(options, {
+        inherit: true,
+        relative: $state.$current
+      }));
+    };
+
     };
 
     /**
@@ -1067,7 +1076,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (!nav || nav.url === undefined || nav.url === null) {
         return null;
       }
-      return $urlRouter.href(nav.url, filterByKeys(objectKeys(state.params), params || {}), {
+      return $urlRouter.href(nav.url, pick(params || {}, objectKeys(state.params)), {
         absolute: options.absolute
       });
     };
