@@ -579,7 +579,7 @@ function $UrlMatcherFactory() {
     string: {
       encode: valToString,
       decode: valFromString,
-      is: function(val) { return typeof val === "string"},
+      is: function(val) { return typeof val === "string"; },
       pattern: /[^/]*/
     },
     int: {
