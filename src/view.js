@@ -1,5 +1,111 @@
 /**
  * @ngdoc object
+ * @name ui.router.state.type:View
+ *
+ * @description
+ * Represents the union of a template and (optional) controller.
+ *
+ * @param {Object} config The view's configuration
+ *
+ * @returns {Object} New `Transition` object
+ */
+function ViewConfig(config) {
+  this.config = config;
+}
+
+ViewConfig.prototype.controller = function(locals) {
+  var cfg = this.config, provider = this.config.controllerProvider;
+  return isInjectable(provider) ? locals.invokeLater(provider) : cfg.controller;
+};
+
+/**
+ * Checks a view configuration to ensure that it specifies a template.
+ *
+ * @return {boolean} Returns `true` if the configuration contains a valid template, otherwise `false`.
+ */
+ViewConfig.prototype.hasTemplate = function() {
+  return (this.config.template || this.config.templateUrl || this.config.templateProvider);
+};
+
+ViewConfig.prototype.template = function($factory, params, locals) {
+  return $factory.fromConfig(this.config, params, locals);
+};
+
+/**
+ * Class responsible for queuing view configurations waiting to be populated into views.
+ */
+function ViewQueue() {
+  this.map = {};
+  this.waiting = [];
+}
+
+/**
+ * Pushes a view configuration to be assigned to a named `uiView` element that either already
+ * exists, or is waiting to be created. If the view identified by `name` exists, the
+ * configuration will be assigned immediately. If it does not, and `async` is `true`, the
+ * configuration will be queued for assignment until the view exists.
+ *
+ * @param {String} name The fully-qualified view name the configuration should be assigned to.
+ * @param {Boolean} async Determines whether the configuration can be queued if the view does
+ *                        not currently exist on the page. If the view does not exist and
+ *                        `async` is `false`, will return a rejected promise.
+ * @param {Object} config The view configuration to be assigned to the named `uiView`. Should
+ *                        include a `$template` key containing the HTML string to render, and
+ *                        can optionally include a `$controller`, `$locals`, and a `$context`
+ *                        object, which represents the object responsibile for the view (i.e.
+ *                        a UI state object), that can be used to look up the view later by a
+ *                        relative/non-fully-qualified name.
+ */
+ViewQueue.prototype.push = function(name, async, config) {
+  if (config && config.$context && this.waiting.length) {
+    this.digest(name, config.$context);
+  }
+  if (views[name]) {
+    views[name](config);
+    views[name].$config = config;
+    return config;
+  }
+  var err = "Attempted to synchronously load template into non-existent view " + name;
+  return (async) ? (this.map[name] = config) : new Error(err);
+};
+
+/**
+ * Pops a queued view configuration for a `uiView` that has come into existence.
+ *
+ * @param {String} name The fully-qualified dot-separated name of the view.
+ * @param {Function} callback The initialization function passed by `uiView` to
+ *                            `$view.register()`.
+ */
+ViewQueue.prototype.pop = function(name, callback) {
+  if (!queued[name]) return;
+  callback(queued[name]);
+  views[name].$config = queued[name];
+  delete queued[name];
+};
+
+/**
+ * Invoked when views have been queued for which fully-qualified names cannot be resolved
+ * (i.e. the parent view exists but has not been loaded/configured yet). Checks the list to
+ * see if the context of the most-recently-resolved view matches the parent context being
+ * waited for.
+ *
+ * @param {String} name The name of the loaded view.
+ * @param {Object} context The context object responsible for the view.
+ */
+ViewQueue.prototype.digest = function(name, context) {
+  for (var i = this.waiting.length - 1; i >= 0; i--) {
+    if (this.waiting[i].context !== context) continue;
+    this.waiting.splice(i, 1)[0].defer.resolve(name);
+  }
+};
+
+ViewQueue.prototype.waitFor = function(context, defer) {
+  this.waiting.push({ context: context, defer: defer });
+  return defer ? defer.promise : null;
+};
+
+/**
+ * @ngdoc object
  * @name ui.router.state.$view
  *
  * @requires ui.router.util.$templateFactory
@@ -8,102 +114,16 @@
  * @description
  *
  */
-$View.$inject = ['$rootScope', '$templateFactory', '$q', '$injector'];
-function $View(   $rootScope,   $templateFactory,   $q,   $injector) {
+$View.$inject = ['$rootScope', '$templateFactory', '$q'];
+function $View(   $rootScope,   $templateFactory,   $q) {
 
-  var views = {}, queued = {}, waiting = [];
-
-  /**
-   * Pushes a view configuration to be assigned to a named `uiView` element that either already
-   * exists, or is waiting to be created. If the view identified by `name` exists, the
-   * configuration will be assigned immediately. If it does not, and `async` is `true`, the
-   * configuration will be queued for assignment until the view exists.
-   *
-   * @param {String} name The fully-qualified view name the configuration should be assigned to.
-   * @param {Boolean} async Determines whether the configuration can be queued if the view does
-   *                        not currently exist on the page. If the view does not exist and
-   *                        `async` is `false`, will return a rejected promise.
-   * @param {Object} config The view configuration to be assigned to the named `uiView`. Should
-   *                        include a `$template` key containing the HTML string to render, and
-   *                        can optionally include a `$controller`, `$locals`, and a `$context`
-   *                        object, which represents the object responsibile for the view (i.e.
-   *                        a UI state object), that can be used to look up the view later by a
-   *                        relative/non-fully-qualified name.
-   */
-  function push(name, async, config) {
-    if (config && config.$context && waiting.length) {
-      tick(name, config.$context);
-    }
-    if (views[name]) {
-      views[name](config);
-      views[name].$config = config;
-      return config;
-    }
-    if (!async) {
-      return $q.reject(new Error("Attempted to synchronously load template into non-existent view " + name));
-    }
-    queued[name] = config;
-    return config;
-  }
-
+  var views = {}, viewQueue = new ViewQueue();
 
   /**
-   * Pops a queued view configuration for a `uiView` that has come into existence.
-   *
-   * @param {String} name The fully-qualified dot-separated name of the view.
-   * @param {Function} callback The initialization function passed by `uiView` to
-   *                            `$view.register()`.
+   * Maps a value to a promise resolution or rejection.
    */
-  function pop(name, callback) {
-    if (queued[name]) {
-      callback(queued[name]);
-      views[name].$config = queued[name];
-      delete queued[name];
-    }
-  }
-
-
-  /**
-   * Invoked when views have been queued for which fully-qualified names cannot be resolved
-   * (i.e. the parent view exists but has not been loaded/configured yet). Checks the list to
-   * see if the context of the most-recently-resolved view matches the parent context being
-   * waited for.
-   *
-   * @param {String} name The name of the loaded view.
-   * @param {Object} context The context object responsible for the view.
-   */
-  function tick(name, context) {
-    for (var i = waiting.length - 1; i >= 0; i--) {
-      if (waiting[i].context === context) {
-        waiting.splice(i, 1)[0].defer.resolve(name);
-      }
-    }
-  }
-
-  /**
-   * Returns a controller from a hash of options, either by executing an injectable
-   * `controllerProvider` function, or by returning the value of the `controller` key.
-   *
-   * @param {Object} options An object hash with either a `controllerProvider` key or a
-   *                         `controller` key.
-   * @return {*} Returns a controller.
-   */
-  function resolveController(options) {
-    if (isFunction(options.controllerProvider) || isArray(options.controllerProvider)) {
-      return $injector.invoke(options.controllerProvider, null, options.locals);
-    }
-    return options.controller;
-  }
-
-  /**
-   * Checks a view configuration to ensure that it specifies a template.
-   *
-   * @param {Object} options An object hash with either a `template` key, a `templateUrl` key or a
-   *                         `templateProvider` key.
-   * @return {boolean} Returns `true` if the configuration is valid, otherwise `false`.
-   */
-  function hasValidTemplate(options) {
-    return (options.template || options.templateUrl || options.templateProvider);
+  function qIfy(val) {
+    return $q[val instanceof Error ? "reject" : "when"](val);
   }
 
   /**
@@ -123,26 +143,28 @@ function $View(   $rootScope,   $templateFactory,   $q,   $injector) {
    * @return {Promise.<string>} Returns a promise that resolves to the value of the template loaded.
    */
   this.load = function load (name, options) {
-    var $template, $parent, defaults = {
+
+    var $template, $parent, viewConfig = new ViewConfig(defaults(options, {
       template:           undefined,
       templateUrl:        undefined,
       templateProvider:   undefined,
       controller:         null,
       controllerAs:       null,
-      controllerProvider: null,
+      controllerProvider: null
+    }));
+
+    var opts = defaults(options, {
       context:            null,
       parent:             null,
       locals:             null,
       notify:             true,
       async:              true,
       params:             {}
-    };
-    options = extend(defaults, options);
+    });
 
-    if (!hasValidTemplate(options)) return $q.reject(new Error('No template configuration specified for ' + name));
-    $template = $templateFactory.fromConfig(options, options.params, options.locals);
+    if (!viewConfig.hasTemplate()) return qIfy(new Error('No template configuration specified for ' + name));
 
-    if ($template && options.notify) {
+    if (opts.notify) {
       /**
        * @ngdoc event
        * @name ui.router.state.$state#$viewContentLoading
@@ -158,38 +180,29 @@ function $View(   $rootScope,   $templateFactory,   $q,   $injector) {
        * @example
        *
        * <pre>
-       * $scope.$on('$viewContentLoading',
-       * function(event, viewConfig){
-       *     // Access to all the view config properties.
-       *     // and one special property 'targetView'
-       *     // viewConfig.targetView
+       * $scope.$on('$viewContentLoading', function(event, viewConfig) {
+       *   // Access to all the view config properties.
+       *   // and one special property 'targetView'
+       *   // viewConfig.targetView
        * });
        * </pre>
        */
-      options.targetView = name;
-      $rootScope.$broadcast('$viewContentLoading', options);
+      $rootScope.$broadcast('$viewContentLoading', extend({ targetView: name }, opts));
     }
-    var promises = [$q.when($template)], fqn = (options.parent) ? this.find(name, options.parent) : name;
+    var fqn = (opts.parent) ? this.find(name, opts.parent) : name;
 
-    if (!fqn) {
-      var self = this;
-      $parent = $q.defer();
-
-      promises.push($parent.promise.then(function(parent) {
-        fqn = parent + "." + name;
+    return $q.all({
+      template: $q.when(viewConfig.template($templateFactory, opts.params, opts.locals)),
+      parent: fqn ? $q.when(fqn) : viewQueue.waitFor(opts.parent, $q.defer()).then(function(parent) {
+        return parent + "." + name;
+      })
+    }).then(function(results) {
+      return qIfy(viewQueue.push(results.parent, viewConfig, {
+        async:    opts.async,
+        template: results.template,
+        locals:   opts.locals,
+        context:  opts.context
       }));
-
-      waiting.push({ context: options.parent, defer: $parent });
-    }
-
-    return $q.all(promises).then(function(results) {
-      return push(fqn, options.async, {
-        template:     results[0],
-        controller:   resolveController(options),
-        controllerAs: options.controllerAs,
-        locals:       options.locals,
-        context:      options.context
-      });
     });
   };
 
@@ -200,10 +213,8 @@ function $View(   $rootScope,   $templateFactory,   $q,   $injector) {
    * @return {Boolean} Returns `true` if the view exists, otherwise `false`.
    */
   this.reset = function reset (name) {
-    if (!views[name]) {
-      return false;
-    }
-    return push(name, false, null) === null;
+    if (!views[name]) return false;
+    return viewQueue.push(name, false, null) === null;
   };
 
   /**
@@ -233,7 +244,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $injector) {
   this.register = function register (name, callback) {
     views[name] = callback;
     views[name].$config = null;
-    pop(name, callback);
+    viewQueue.pop(name, callback);
 
     return function() {
       delete views[name];
@@ -264,76 +275,8 @@ function $View(   $rootScope,   $templateFactory,   $q,   $injector) {
   this.find = function find (name, context) {
     var result;
 
-    if (angular.isArray(name)) {
-      result = [];
-
-      angular.forEach(name, function(name) {
-        result.push(this.find(name, context));
-      }, this);
-
-      return result;
-    }
-
-    angular.forEach(views, function(def, absName) {
-      if (!def || !def.$config || context !== def.$config.$context) {
-        return;
-      }
-      // @TODO
-    });
-    options = extend(defaults, options);
-  };
-
-  /**
-   * Allows a `ui-view` element to register its canonical name with a callback that allows it to
-   * be updated with a template, controller, and local variables.
-   *
-   * @param {String} name The fully-qualified name of the `ui-view` object being registered.
-   * @param {Function} callback A callback that receives updates to the content & configuration
-   *                   of the view.
-   * @return {Function} Returns a de-registration function used when the view is destroyed.
-   */
-  this.register = function register (name, callback) {
-    views[name] = callback;
-    views[name].$config = null;
-    pop(name, callback);
-
-    return function() {
-      delete views[name];
-    };
-  };
-
-  /**
-   * Determines whether a particular view exists on the page, by querying the fully-qualified name.
-   *
-   * @param {String} name The fully-qualified dot-separated name of the view, if `context` is not
-            specified. If `context` is specified, `name` should be relative to the parent `context`.
-   * @param {Object} context Optional parent context in which to look for the named view.
-   * @return {Boolean} Returns `true` if the view exists on the page, otherwise `false`.
-   */
-  this.exists = function exists (name, context) {
-    return isDefined(views[context ? this.find(name, context) : name]);
-  };
-
-  /**
-   * Resolves a view's relative name to a fully-qualified name by looking up the parent of the view,
-   * by the parent view's context object.
-   *
-   * @param {String} name A relative view name.
-   * @param {Object} context The context object of the parent view in which to look up the view to
-   *        return.
-   * @return {String} Returns the fully-qualified view name, or `null`, if `context` cannot be found.
-   */
-  this.find = function find (name, context) {
-    var result;
-
-    if (angular.isArray(name)) {
-      result = [];
-
-      angular.forEach(name, function(name) {
-        result.push(this.find(name, context));
-      }, this);
-
-      return result;
+    if (isArray(name)) {
+      return map(name, function(name) { return this.find(name, context); });
     }
 
     angular.forEach(views, function(def, absName) {
@@ -351,7 +294,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $injector) {
    * @return {Array} Returns an array of fully-qualified view names.
    */
   this.available = function available () {
-    return keys(views);
+    return objectKeys(views);
   };
 
   /**

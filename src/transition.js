@@ -7,7 +7,7 @@ var TransitionRejection;
 $TransitionProvider.$inject = [];
 function $TransitionProvider() {
 
-  var $transition = {}, stateMatcher = angular.noop, abstractKey = 'abstract';
+  var $transition = {};
   var transitionEvents = { on: [], entering: [], exiting: [], onSuccess: [], onError: [] };
 
   /**
@@ -181,15 +181,13 @@ function $TransitionProvider() {
      * to/from states and parameters, as well as the list of states being entered and exited as a
      * result of this transition.
      *
-     * @param {Object} fromState The origin {@link ui.router.state.$stateProvider#state state} from which the transition is leaving.
-     * @param {Object} fromParams An object hash of the current parameters of the `from` state.
-     * @param {Object} toState The target {@link ui.router.state.$stateProvider#state state} being transitioned to.
-     * @param {Object} toParams An object hash of the target parameters for the `to` state.
+     * @param {Object} from The origin {@link ui.router.state.$stateProvider#state state} from which the transition is leaving.
+     * @param {Object} to The target {@link ui.router.state.$stateProvider#state state} being transitioned to.
      * @param {Object} options An object hash of the options for this transition.
      *
      * @returns {Object} New `Transition` object
      */
-    function Transition(fromState, fromParams, toState, toParams, options) {
+    function Transition(from, to, options) {
       var transition = this; // Transition() object
       var deferred = $q.defer();
 
@@ -198,32 +196,7 @@ function $TransitionProvider() {
       var retained, entering, exiting; // Path() objects
       var keep = 0, state, hasRun = false, hasCalculated = false;
 
-      var states = {
-        to: stateMatcher(toState, options),
-        from: stateMatcher(fromState, options)
-      };
-      toState = states.to; fromState = states.from;
-
-      if (!toState || !fromState) {
-        throw new Error("To or from state not valid for transition: " + angular.toJson({
-          to: toState, from: fromState
-        }));
-      }
-
-      function isTargetStateValid() {
-        var state = states.to;
-
-        if (!isDefined(state)) {
-          if (!options || !options.relative) return "No such state " + angular.toJson(toState);
-          return "Could not resolve " + angular.toJson(toState) + " from state " + angular.toJson(options.relative);
-        }
-        if (state[abstractKey]) return "Cannot transition to abstract state " + angular.toJson(toState);
-        return null;
-      }
-
-      function hasBeenSuperseded() {
-        return !(fromState === from.state && fromParams === from.params);
-      }
+      toState = to.state(); fromState = from.state();
 
       function calculateTreeChanges() {
         if (hasCalculated) return;
@@ -254,7 +227,7 @@ function $TransitionProvider() {
          *
          * @returns {Object} The origin {@link ui.router.state.$stateProvider#state state} of the transition.
          */
-        from: extend(function() { return fromState; }, {
+        from: extend(function() { return from(); }, {
 
           /**
            * @ngdoc function
@@ -267,11 +240,11 @@ function $TransitionProvider() {
            * @returns {Object} The origin {@link ui.router.state.$stateProvider#state state} of the transition.
            */
           state: function() {
-            return states.from && states.from.self;
+            return from.state() && from.state().self;
           },
 
           $state: function() {
-            return states.from;
+            return from.state();
           }
         }),
 
@@ -285,7 +258,7 @@ function $TransitionProvider() {
          *
          * @returns {Object} The target {@link ui.router.state.$stateProvider#state state} of the transition.
          */
-        to: extend(function() { return toState; }, {
+        to: extend(function() { return to(); }, {
 
           /**
            * @ngdoc function
@@ -298,11 +271,11 @@ function $TransitionProvider() {
            * @returns {Object} The target {@link ui.router.state.$stateProvider#state state} of the transition.
            */
           state: function() {
-            return states.to && states.to.self;
+            return to.state() && to.state().self;
           },
 
           $state: function() {
-            return states.to;
+            return to.state();
           }
         }),
 
@@ -315,10 +288,6 @@ function $TransitionProvider() {
             (compare.to && !matchState(this.to.$state(), compare.to)) ||
             (compare.from && !matchState(this.from.$state(), compare.from))
           );
-        },
-
-        isValid: function() {
-          return isTargetStateValid() === null && !hasBeenSuperseded();
         },
 
         rejection: function() {
@@ -339,7 +308,11 @@ function $TransitionProvider() {
          */
         params: function() {
           // toParams = (options.inherit) ? inheritParams(fromParams, toParams, from, toState);
-          return { from: fromParams, to: toParams };
+          return { from: from.params(), to: to.params() };
+        },
+
+        previous: function() {
+          options.previous || null;
         },
 
         options: function() {
@@ -355,7 +328,7 @@ function $TransitionProvider() {
           calculateTreeChanges();
           var exitingStates = pluck(exiting.elements, 'state');
           exitingStates.reverse();
-          return  exitingStates;
+          return exitingStates;
         },
 
         retained: function() {
@@ -376,21 +349,6 @@ function $TransitionProvider() {
           return new Transition(fromState, fromParams, to, params, options || this.options());
         },
 
-        ensureValid: function(failHandler) {
-          if (this.isValid()) return $q.when(this);
-
-          return $q.when(failHandler(this));
-
-          // Chain off the failHandler promise to reject the overall transition promise
-//          var promise = $q.when(failHandler(this));
-//          return promise.then(function (retry) {
-//            if (!retry)
-//              deferred.reject(REJECT.invalid("No such state"));
-//            return retry;
-//          });
-
-        },
-
         /**
          * @ngdoc function
          * @name ui.router.state.type:Transition#ignored
@@ -409,21 +367,23 @@ function $TransitionProvider() {
         run: function() {
           calculateTreeChanges();
           $transition.transition = transition;
-//          console.log("running " + transition.from().name + "->" + transition.to().name);
 
-          function TransitionStep(pathElement, fn, locals, resolveContext, otherData) {
-//            var self = this;
-            this.state = pathElement.state;
-            this.otherData = otherData;
-            this.toString = function() {
-              var str = "." + otherData.eventType +
-                "({ from: " + otherData.from.name + ", to: " + otherData.to.name + " }) " +
-                "(state: " + otherData.pathElement.state.name + ")";
-              return "Step( " + str + " )";
-            };
+          function TransitionStep(pathElement, fn, locals, resolveContext, data) {
+            extend(this, {
+              state: pathElement.state,
+              data:  data,
+              toString: function() {
+                return tpl("Step( .{event}({ from: {from}, to: {to} }) (state: {state}) )", {
+                  event: data.eventType,
+                  from:  data.from.name,
+                  to:    data.to.name,
+                  state: data.pathElement.state.name
+                });
+              }
+            });
+
             this.invokeStep = function invokeStep() {
               if ($transition.transition !== transition) {
-//                console.log("Before invoking " + self + ", " + transition + " superseded by " + $transition.transition);
                 return REJECT.superseded($transition.transition);
               }
 
@@ -450,7 +410,6 @@ function $TransitionProvider() {
                */
               function handleHookResult(result) {
                 if ($transition.transition !== transition) {
-//                  console.log("After invoking " + self + ", " + transition + " superseded by " + $transition.transition);
                   return REJECT.superseded($transition.transition);
                 }
 
@@ -482,13 +441,14 @@ function $TransitionProvider() {
             var extraData = { eventType: eventType, to: to, from: from, pathElement: pathElement, locals: locals, resolveContext: resolveContext };
             var hooks = transitionEvents[eventType];
             var matchingHooks = filter(hooks, function(hook) { return hook.matches(to, from); });
+
             return map(matchingHooks, function(hook) {
               return new TransitionStep(pathElement, hook.callback, locals, resolveContext, extraData);
             });
           }
 
           var tLocals = { $transition$: transition };
-          var rootPE = new PathElement(stateMatcher("", {}));
+          var rootPE = new PathElement(toState.root());
           var rootPath = new Path([rootPE]);
           var exitingElements = exiting.slice(0).reverse().elements;
           var enteringElements = entering.elements;
@@ -611,14 +571,17 @@ function $TransitionProvider() {
       }
     };
 
-    $transition.init = function init(state, params, matcher) {
+    $transition.init = function init(state, params) {
       _fromPath = new Path(state.path);
       from = { state: state, params: params };
       to = { state: null, params: null };
-      stateMatcher = matcher;
     };
 
-    $transition.start = function start(state, params, options) {
+    $transition.create = function create(from, to, options) {
+      return new Transition(from, to, options || {});
+    };
+
+    $transition.start = function start(from, to, options) {
       to = { state: state, params: params || {} };
       return new Transition(from.state, from.params, state, params || {}, options || {});
     };

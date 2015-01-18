@@ -9,8 +9,8 @@
  * @description
  * Service. Manages loading of templates.
  */
-$TemplateFactory.$inject = ['$http', '$templateCache', '$injector'];
-function $TemplateFactory(  $http,   $templateCache,   $injector) {
+$TemplateFactory.$inject = ['$http', '$templateCache'];
+function $TemplateFactory(  $http,   $templateCache) {
 
   /**
    * @ngdoc function
@@ -95,7 +95,7 @@ function $TemplateFactory(  $http,   $templateCache,   $injector) {
    * @description
    * Creates a template by invoking an injectable provider function.
    *
-   * @param {Function} provider Function to invoke via `$injector.invoke`
+   * @param {Function} provider Function to invoke via `locals`
    * @param {Object} params Parameters for the template.
    * @param {Object} locals Locals to pass to `invoke`. Defaults to 
    * `{ params: params }`.
@@ -103,7 +103,7 @@ function $TemplateFactory(  $http,   $templateCache,   $injector) {
    * for that string.
    */
   this.fromProvider = function (provider, params, locals) {
-    return $injector.invoke(provider, null, locals || { params: params });
+    return locals.invokeLater(provider, null, { params: params });
   };
 }
 

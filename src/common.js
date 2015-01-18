@@ -119,32 +119,6 @@ function arraySearch(array, value) {
 }
 
 /**
- * Merges a set of parameters with all parameters inherited between the common parents of the
- * current state and a given destination state.
- *
- * @param {Object} currentParams The value of the current state parameters ($stateParams).
- * @param {Object} newParams The set of parameters which will be composited with inherited params.
- * @param {Object} $current Internal definition of object representing the current state.
- * @param {Object} $to Internal definition of object representing state to transition to.
- */
-function inheritParams(currentParams, newParams, $current, $to) {
-  var parents = ancestors($current, $to), parentParams, inherited = {}, inheritList = [];
-
-  for (var i in parents) {
-    if (!parents[i].params) continue;
-    parentParams = objectKeys(parents[i].params);
-    if (!parentParams.length) continue;
-
-    for (var j in parentParams) {
-      if (arraySearch(inheritList, parentParams[j]) >= 0) continue;
-      inheritList.push(parentParams[j]);
-      inherited[parentParams[j]] = currentParams[parentParams[j]];
-    }
-  }
-  return extend({}, inherited, newParams);
-}
-
-/**
  * Performs a non-strict comparison of the subset of two objects, defined by a list of keys.
  *
  * @param {Object} a The first object.

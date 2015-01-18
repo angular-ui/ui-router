@@ -4,12 +4,11 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
   extend(this, {
     register: function(config, pre) {
       // Wrap a new object around the state so we can store our private details easily.
-      var state = inherit(config, {
-//        name: builder.name(config),
+      var state = inherit(new State(), extend({}, config, {
         self: config,
         resolve: config.resolve || {},
         toString: function() { return this.name; }
-      });
+      }));
 
       if (!isString(state.name)) throw new Error("State must have a valid name");
       if (states.hasOwnProperty(state.name) || pluck(queue, 'name').indexOf(state.name) !== -1)
@@ -163,7 +162,7 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
           return function() { remove(name, func); };
         }
         
-        if (!builders[name].length) {
+        if (!isArray(builders[name])) {
           builders[name] = [builders[name]];
         }
         builders[name].push(func);
@@ -178,7 +177,7 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
       if (parent && !matcher.find(parent)) return null;
 
       for (var key in builders) {
-        var steps = builders[key].length ? builders[key].reverse() : [builders[key]];
+        var steps = isArray(builders[key]) ? builders[key].reverse() : [builders[key]];
         state[key] = (new FunctionIterator(steps))(state);
       }
       return state;
@@ -220,6 +219,10 @@ function StateMatcher(states) {
       return undefined;
     },
 
+    reference: function(identifier, base, params) {
+      return new StateReference(identifier, this.find(identifier, base), params, base);
+    },
+
     resolvePath: function(name, base) {
       if (!base) throw new Error("No reference point given for path '"  + name + "'");
       base = this.find(base);
@@ -243,6 +246,104 @@ function StateMatcher(states) {
     }
   });
 }
+
+/**
+ * @ngdoc object
+ * @name ui.router.state.type:State
+ *
+ * @description
+ * Definition object for states. Includes methods for manipulating the state heirarchy.
+ *
+ * @param {Object} config  A configuration object hash that includes the results of user-supplied
+ *        values, as well as values from `StateBuilder`.
+ *
+ * @returns {Object}  Returns a new `State` object.
+ */
+function State(config) {
+  extend(this, config);
+}
+
+/**
+ * Compares the identity of the state against the passed value, which is either an object
+ * reference to the actual `State` instance, the original definition object passed to
+ * `$stateProvider.state()`, or the fully-qualified name.
+ */
+State.prototype.is = function(ref) {
+  return this === ref || this.self === ref || this.fqn() === ref;
+};
+
+/**
+ * Returns the fully-qualified name of the state, based on its current position in the tree.
+ */
+State.prototype.fqn = function() {
+  if (!this.parent || !this.parent instanceof this.constructor) {
+    return this.name;
+  }
+  var name = this.parent.fqn();
+  return name ? name + "." + this.name : this.name;
+};
+
+/**
+ * Returns the root node of this state's tree.
+ */
+State.prototype.root = function() {
+  var result = this;
+
+  while (result.parent) {
+    result = result.parent;
+  }
+  return result;
+};
+
+
+
+/**
+ * @ngdoc object
+ * @name ui.router.state.type:StateReference
+ *
+ * @description
+ * Wraps a state and a set of parameters with the value used to identify the state. Allows states
+ * to be referenced in a consistent way in application code, separate from state definitions.
+ *
+ * @param {*} identifier  An identifier for a state. Either a fully-qualified path, or the object
+ *            used to define the state.
+ * @param {State} The `State` object definition.
+ * @param {Object} Parameters attached to the current state reference.
+ * @param {Object} Optional. Base state used during lookup of state definition by identifier.
+ *
+ * @returns {Function}
+ */
+function StateReference(identifier, definition, params, base) {
+
+  var ref = function() {
+    return identifier;
+  };
+
+  return extend(ref, {
+    state: function() {
+      return definition;
+    },
+    params: function() {
+      return params;
+    },
+    valid: function() {
+      return !!(definition && definition.self && !definition.self[abstractKey]);
+    },
+    error: function() {
+      switch (true) {
+        case (!definition && !!base):
+          return "Could not resolve '" + identifier + "' from state '" + base + "'";
+        case (!definition):
+          return "No such state '" + identifier + "'";
+        case !definition.self:
+          return "State '" + identifier + "' has an invalid definition";
+        case definition.self[abstractKey]:
+          return "Cannot transition to abstract state '" + identifier + "'";
+      }
+    }
+  });
+}
+
 
 /**
  * @ngdoc object
@@ -576,9 +677,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
     queue.flush($state);
 
-    $transition.init(root, $state.params, function(ref, options) {
-      return matcher.find(ref, options.relative);
-    });
+    $transition.init(root, $state.params);
 
     /**
      * @ngdoc function
@@ -691,7 +790,56 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       }));
     };
 
+    $state.redirect = function redirect(transition, state, params) {
     };
+
+    function retryIfNotFound(ref, options) {
+      /**
+       * @ngdoc event
+       * @name ui.router.state.$state#$stateNotFound
+       * @eventOf ui.router.state.$state
+       * @eventType broadcast on root scope
+       * @description
+       * Fired when a requested state **cannot be found** using the provided state name during transition.
+       * The event is broadcast allowing any handlers a single chance to deal with the error (usually by
+       * lazy-loading the unfound state). A `StateReference` object is passed to the listener handler,
+       * you can see its properties in the example. You can use `event.preventDefault()` to abort the
+       * transition and the promise returned from `transitionTo()` will be rejected with a
+       * `'transition aborted'` error.
+       *
+       * @param {Object} event Event object.
+       * @param {Object} toRef The `StateReference` object representing the target state.
+       * @param {Object} options The options passed to the transition, merged with defaults.
+       *
+       * @example
+       *
+       * <pre>
+       * // somewhere, assume lazy.state has not been defined
+       * $state.go("lazy.state", { a: 1, b: 2 }, { inherit: false });
+       *
+       * // somewhere else
+       * $scope.$on('$stateNotFound', function(event, ref, params, options) {
+       *   console.log(ref()); // "lazy.state"
+       *   console.log(ref.error()); // "No such state 'lazy.state'"
+       *   console.log(options); // { inherit: false } + default options
+       * });
+       * </pre>
+       */
+      var e = $rootScope.$broadcast('$stateNotFound', ref, options);
+      if (e.defaultPrevented || e.retry) $urlRouter.update();
+      if (e.defaultPrevented) return TransitionAborted;
+      if (!e.retry) return transition.rejection() || TransitionSuperseded;
+      return e.retry ? $q.when(e.retry) : TransitionAborted;
+    }
+
+    // @TODO: What should the structure of `retry` be? More than one option?
+    function ensureValid(ref, options) {
+      return ref.valid() ? $q.when(ref) : retryIfNotFound(ref, options).then(function(result) {
+        if (result === true) {
+          return ref;
+        }
+      });
+    }
 
     /**
      * @ngdoc function
@@ -732,57 +880,24 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
     $state.transitionTo = function transitionTo(to, toParams, options) {
-      options = options || {};
-      var transition = $transition.start(to, toParams || {}, extend({
-        location: true,
-        relative: null,
-        inherit:  false,
-        notify:   true,
-        reload:   false
-      }, options));
+
+      var fromRef = matcher.reference($state.current, null, extend({}, $stateParams)),
+          toRef   = matcher.reference(to, options && options.relative, toParams);
+
+      ensureValid(toRef).then(function(toRef) {
+        return $transition.create(fromRef, toRef, defaults(options || {}, {
+          location: true,
+          relative: null,
+          inherit:  false,
+          notify:   true,
+          reload:   false
+        }));
+      });
 
       // Rejected by $transitionProvider handler... TODO: add unit test
-      if (!transition) return REJECT.prevented;
+      // if (!transition) return REJECT.prevented;
 
       var stateHandler = {
-        retryIfNotFound: function retryIfNotFound(transition) {
-          /**
-           * @ngdoc event
-           * @name ui.router.state.$state#$stateNotFound
-           * @eventOf ui.router.state.$state
-           * @eventType broadcast on root scope
-           * @description
-           * Fired when a requested state **cannot be found** using the provided state name during transition.
-           * The event is broadcast allowing any handlers a single chance to deal with the error (usually by
-           * lazy-loading the unfound state). A `Transition` object is passed to the listener handler,
-           * you can see its three properties in the example. You can use `event.preventDefault()` to abort the
-           * transition and the promise returned from `transitionTo()` will be rejected with a
-           * `'transition aborted'` error.
-           *
-           * @param {Object} event Event object.
-           * @param {Object} transition The `Transition` object representing the current state transition.
-           *
-           * @example
-           *
-           * <pre>
-           * // somewhere, assume lazy.state has not been defined
-           * $state.go("lazy.state", { a: 1, b: 2 }, { inherit: false });
-           *
-           * // somewhere else
-           * $scope.$on('$stateNotFound', function(event, transition) {
-           *   console.log(transition.to()); // "lazy.state"
-           *   console.log(transition.params().to); // { a: 1, b: 2 }
-           *   console.log(transition.options()); // { inherit: false } + default options
-           * });
-           * </pre>
-           */
-          var e = $rootScope.$broadcast('$stateNotFound', transition);
-          if (e.defaultPrevented || e.retry) $urlRouter.update();
-          if (e.defaultPrevented) return TransitionAborted;
-          if (!e.retry) return transition.rejection() || TransitionSuperseded;
-          return e.retry;
-        },
-
         checkIgnoredOrPrevented: function checkIgnoredOrPrevented(transition) {
           var notify = transition.options().notify;
 
@@ -912,7 +1027,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           return $q.reject(error);
         },
         doTransition: function doTransition(transition) {
-          return transition.ensureValid(stateHandler.retryIfNotFound)
+          return transition
             .then(stateHandler.checkIgnoredOrPrevented, function(reason) { return REJECT.aborted; })
             .then(stateHandler.runTransition)
             .then(stateHandler.transitionSuccess, stateHandler.transitionFailure);
@@ -1015,7 +1130,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      * @returns {boolean} Returns true if it does include the state
      */
-    $state.includes = function includes(stateOrName, params) {
+    $state.includes = function includes(stateOrName, params, options) {
       options = extend({ relative: $state.$current }, options || {});
       var glob = isString(stateOrName) && GlobBuilder.fromString(stateOrName);
 
@@ -1059,17 +1174,17 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {string} compiled state url
      */
     $state.href = function href(stateOrName, params, options) {
-      options = extend({
+      options = defaults(options || {}, {
         lossy:    true,
         inherit:  true,
         absolute: false,
         relative: $state.$current
-      }, options || {});
+      });
 
       var state = matcher.find(stateOrName, options.relative);
 
       if (!isDefined(state)) return null;
-      if (options.inherit) params = inheritParams($stateParams, params || {}, $state.$current, state);
+      if (options.inherit) params = $stateParams.$inherit(params || {}, $state.$current, state);
 
       var nav = (state && options.lossy) ? state.navigable : state;
 
@@ -1134,6 +1249,31 @@ function $StateParamsProvider() {
         current[key] = val;
         observeChange(key, val);
       }, this);
+    };
+
+    /**
+     * Merges a set of parameters with all parameters inherited between the common parents of the
+     * current state and a given destination state.
+     *
+     * @param {Object} newParams The set of parameters which will be composited with inherited params.
+     * @param {Object} $current Internal definition of object representing the current state.
+     * @param {Object} $to Internal definition of object representing state to transition to.
+     */
+    StateParams.prototype.$inherit = function(newParams, $current, $to) {
+      var parents = ancestors($current, $to), parentParams, inherited = {}, inheritList = [];
+
+      for (var i in parents) {
+        if (!parents[i].params) continue;
+        parentParams = objectKeys(parents[i].params);
+        if (!parentParams.length) continue;
+
+        for (var j in parentParams) {
+          if (arraySearch(inheritList, parentParams[j]) >= 0) continue;
+          inheritList.push(parentParams[j]);
+          inherited[parentParams[j]] = this[parentParams[j]];
+        }
+      }
+      return extend({}, inherited, newParams);
     };
 
     StateParams.prototype.$set = function(params, url) {
