@@ -192,17 +192,18 @@ function $TransitionProvider() {
       var deferred = $q.defer();
 
       // grab $transition's current path
-      var toPath, fromPath = _fromPath; // Path() objects
-      var retained, entering, exiting; // Path() objects
+      var toPath, fromPath, retained, entering, exiting; // Path() objects
       var keep = 0, state, hasRun = false, hasCalculated = false;
 
-      toState = to.state(); fromState = from.state();
+      toState = to.state();
+      fromState = from.state();
+      fromPath = new Path(fromState.path);
 
       function calculateTreeChanges() {
         if (hasCalculated) return;
 
         state = toState.path[keep];
-        while (state && state === fromState.path[keep] && equalForKeys(toParams, fromParams, state.ownParams)) {
+        while (state && state === fromState.path[keep] && equalForKeys(to.params(), from.params(), state.ownParams)) {
           keep++;
           state = toState.path[keep];
         }
@@ -344,9 +345,11 @@ function $TransitionProvider() {
           });
         },
 
-        redirect: function(to, params, options) {
+        redirect: function(to, options) {
           if (to === toState && params === toParams) return false;
-          return new Transition(fromState, fromParams, to, params, options || this.options());
+          // The following line doesn't work because StateReference contructor returns inner 'var ref'
+//          if (!(to instanceof StateReference)) throw new Error("to must be a StateReference");
+          return new Transition(from, to, options || this.options());
         },
 
         /**
@@ -440,7 +443,9 @@ function $TransitionProvider() {
             // internal debugging stuff
             var extraData = { eventType: eventType, to: to, from: from, pathElement: pathElement, locals: locals, resolveContext: resolveContext };
             var hooks = transitionEvents[eventType];
-            var matchingHooks = filter(hooks, function(hook) { return hook.matches(to, from); });
+
+            function hookMatches(hook) { return hook.matches(to, from); }
+            var matchingHooks = filter(hooks, hookMatches);
 
             return map(matchingHooks, function(hook) {
               return new TransitionStep(pathElement, hook.callback, locals, resolveContext, extraData);
@@ -452,7 +457,7 @@ function $TransitionProvider() {
           var rootPath = new Path([rootPE]);
           var exitingElements = exiting.slice(0).reverse().elements;
           var enteringElements = entering.elements;
-          var to = transition.to(),  from = transition.from();
+          var to = transition.to.$state(),  from = transition.from.$state();
 
           // Build a bunch of arrays of promises for each step of the transition
           var transitionOnHooks = makeSteps("on", to, from, rootPE, tLocals, rootPath.resolveContext());
@@ -579,11 +584,6 @@ function $TransitionProvider() {
 
     $transition.create = function create(from, to, options) {
       return new Transition(from, to, options || {});
-    };
-
-    $transition.start = function start(from, to, options) {
-      to = { state: state, params: params || {} };
-      return new Transition(from.state, from.params, state, params || {}, options || {});
     };
 
     $transition.isActive = function isActive() {
