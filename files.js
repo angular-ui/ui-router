@@ -17,10 +17,11 @@ routerFiles = {
     'test/testUtils.js'
   ],
   test: [
-    // 'test/stateSpec.js',
-    // 'test/resolveSpec.js',
-    // 'test/urlMatcherFactorySpec.js',
-    // 'test/urlRouterSpec.js',
+    'test/commonSpec.js',
+    'test/stateSpec.js',
+    'test/resolveSpec.js',
+//    'test/urlMatcherFactorySpec.js',
+    'test/urlRouterSpec.js',
     'test/transitionSpec.js',
     'test/compat/matchers.js'
   ],

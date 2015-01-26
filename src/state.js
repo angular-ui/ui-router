@@ -1,7 +1,7 @@
 function StateQueueManager(states, builder, $urlRouterProvider, $state) {
   var queue = [];
 
-  extend(this, {
+  var queueManager = extend(this, {
     register: function(config, pre) {
       // Wrap a new object around the state so we can store our private details easily.
       var state = inherit(new State(), extend({}, config, {
@@ -15,6 +15,9 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
         throw new Error("State '" + state.name + "' is already defined");
 
       queue[pre ? "unshift" : "push"](state);
+      if (queueManager.autoFlush) {
+        queueManager.flush();
+      }
       return state;
     },
 
@@ -48,6 +51,8 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
       }
       return states;
     },
+
+    autoFlush: false,
 
     attachRoute: function($state, state) {
       if (state[abstractKey] || !state.url) return;
@@ -307,9 +312,9 @@ State.prototype.root = function() {
  *
  * @param {*} identifier  An identifier for a state. Either a fully-qualified path, or the object
  *            used to define the state.
- * @param {State} The `State` object definition.
- * @param {Object} Parameters attached to the current state reference.
- * @param {Object} Optional. Base state used during lookup of state definition by identifier.
+ * @param {State} definition The `State` object definition.
+ * @param {Object} params Parameters attached to the current state reference.
+ * @param {Object} base Optional. Base state used during lookup of state definition by identifier.
  *
  * @returns {Function}
  */
@@ -320,8 +325,11 @@ function StateReference(identifier, definition, params, base) {
   };
 
   return extend(ref, {
-    state: function() {
+    $state: function() {
       return definition;
+    },
+    state: function() {
+      return definition && definition.self;
     },
     params: function() {
       return params;
@@ -650,12 +658,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     var TransitionPrevented = $q.reject(new Error('transition prevented'));
     var TransitionAborted = $q.reject(new Error('transition aborted'));
     var TransitionFailed = $q.reject(new Error('transition failed'));
+    var TransitionIgnored = $q.reject(new Error('transition ignored'));
 
     var REJECT = {
       superseded: function() { return TransitionSuperseded; },
       prevented: function() { return TransitionPrevented; },
       aborted: function() { return TransitionAborted; },
-      failed: function() { return TransitionFailed; }
+      failed: function() { return TransitionFailed; },
+      ignored: function() { return TransitionIgnored; }
     };
 
     // Implicit root state that is always active
@@ -676,6 +686,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     });
 
     queue.flush($state);
+    queue.autoFlush = true; // Autoflush once we are in runtime
 
     $transition.init(root, $state.params);
 
@@ -793,7 +804,24 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     $state.redirect = function redirect(transition, state, params) {
     };
 
-    function retryIfNotFound(ref, options) {
+    /**
+     * @ngdoc function
+     * @name ui.router.state.$state#reference
+     * @methodOf ui.router.state.$state
+     *
+     * @description
+     * A factory function for creating StateReference objects.
+     *
+     * @param stateOrName {string|object} the state object or state name
+     * @param params {object} the state params
+     * @param base {object} The state to lookup the state name relative to
+     * @returns {object} A StateReference object for the given parameters.
+     */
+    $state.reference = function reference(stateOrName, params, base) {
+      return matcher.reference(stateOrName, base, params);
+    };
+
+    function retryIfNotFound(transition) {
       /**
        * @ngdoc event
        * @name ui.router.state.$state#$stateNotFound
@@ -808,7 +836,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
        * `'transition aborted'` error.
        *
        * @param {Object} event Event object.
-       * @param {Object} toRef The `StateReference` object representing the target state.
+       * @param {Object} transition The current `Transition` object, which has the "to" StateReference that was not found
        * @param {Object} options The options passed to the transition, merged with defaults.
        *
        * @example
@@ -818,27 +846,24 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
        * $state.go("lazy.state", { a: 1, b: 2 }, { inherit: false });
        *
        * // somewhere else
-       * $scope.$on('$stateNotFound', function(event, ref, params, options) {
-       *   console.log(ref()); // "lazy.state"
-       *   console.log(ref.error()); // "No such state 'lazy.state'"
-       *   console.log(options); // { inherit: false } + default options
+       * $scope.$on('$stateNotFound', function(event, transition) {
+       *   console.log(transition.to()); // "lazy.state"
+       *   console.log(transition.to.error()); // "No such state 'lazy.state'"
+       *   console.log(transition.options()); // { inherit: false } + default options
        * });
        * </pre>
        */
-      var e = $rootScope.$broadcast('$stateNotFound', ref, options);
+      var e = $rootScope.$broadcast('$stateNotFound', transition);
       if (e.defaultPrevented || e.retry) $urlRouter.update();
       if (e.defaultPrevented) return TransitionAborted;
-      if (!e.retry) return transition.rejection() || TransitionSuperseded;
-      return e.retry ? $q.when(e.retry) : TransitionAborted;
+      if (!e.retry) throw new Error(transition.to.error());
+      //if (!e.retry) return $q.reject(transition.to.error());
+      return e.retry ? $q.when(transition) : TransitionAborted;
     }
 
     // @TODO: What should the structure of `retry` be? More than one option?
-    function ensureValid(ref, options) {
-      return ref.valid() ? $q.when(ref) : retryIfNotFound(ref, options).then(function(result) {
-        if (result === true) {
-          return ref;
-        }
-      });
+    function ensureValid(transition) {
+      return transition.to.valid() ? $q.when(transition) : retryIfNotFound(transition);
     }
 
     /**
@@ -881,18 +906,18 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      */
     $state.transitionTo = function transitionTo(to, toParams, options) {
 
+      var defaultOptions = {
+        location: true,
+        relative: null,
+        inherit:  false,
+        notify:   true,
+        reload:   false
+      };
+      options = defaults(options, defaultOptions);
+
       var fromRef = matcher.reference($state.current, null, extend({}, $stateParams)),
           toRef   = matcher.reference(to, options && options.relative, toParams);
-
-      ensureValid(toRef).then(function(toRef) {
-        return $transition.create(fromRef, toRef, defaults(options || {}, {
-          location: true,
-          relative: null,
-          inherit:  false,
-          notify:   true,
-          reload:   false
-        }));
-      });
+      var transition = $transition.create(fromRef, toRef, options);
 
       // Rejected by $transitionProvider handler... TODO: add unit test
       // if (!transition) return REJECT.prevented;
@@ -909,11 +934,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
               $urlRouter.update(true);
             }
 
-            if (isDynamic || to.locals === from.locals) {
+            if (isDynamic || toRef.$state().locals === fromRef.$state().locals) {
               if (!isDynamic) $urlRouter.update();
               if (notify) $rootScope.$broadcast('$stateChangeIgnored', transition);
               $state.transition = null;
-              return $state.current;
+              //return $state.current;
+              return REJECT.ignored();
             }
           }
 
@@ -950,17 +976,22 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         },
 
         runTransition: function runTransition(transition) {
-          return transition.run().then(function() {
-            return transition;
-          });
+          return ensureValid(transition)
+            .then(returnTransition)
+            .then(stateHandler.checkIgnoredOrPrevented, REJECT.aborted)
+            .then(runTransition)
+            .then(returnTransition);
+
+          function runTransition(transition) { return transition.run(); }
+          function returnTransition() { return transition; }
         },
 
         transitionSuccess: function transitionSuccess(transition) {
           var to = transition.to(), options = transition.options();
 
           // Update globals in $state
-          $state.$current = to;
-          $state.current = to.self;
+          $state.$current = transition.to.$state();
+          $state.current = transition.to.state();
 
           $state.params = toParams;
           copy($state.params, $stateParams);
@@ -1027,9 +1058,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           return $q.reject(error);
         },
         doTransition: function doTransition(transition) {
-          return transition
-            .then(stateHandler.checkIgnoredOrPrevented, function(reason) { return REJECT.aborted; })
-            .then(stateHandler.runTransition)
+          return stateHandler.runTransition(transition)
             .then(stateHandler.transitionSuccess, stateHandler.transitionFailure);
         }
       };

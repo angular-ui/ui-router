@@ -17,8 +17,8 @@ function inherit(parent, extra) {
   return extend(new (extend(function() {}, { prototype: parent }))(), extra);
 }
 
-function defaults(defs, opts) {
-  return extend(pick(opts, objectKeys(defs)), defs);
+function defaults(opts, defs) {
+  return extend({}, defs, opts);
 }
 
 function merge(dst) {

@@ -178,7 +178,7 @@ UrlMatcher.prototype.exec = function (path, searchParams, options) {
  */
 UrlMatcher.prototype.parameters = function (paramOrIsolate) {
   if (paramOrIsolate === true) return objectKeys(this.params);
-  if (isString(paramOrIsolate)) return this.params[param] || null;
+  if (isString(paramOrIsolate)) return this.params[paramOrIsolate] || null;
   return objectKeys(this.params).concat(this.parent ? this.parent.parameters() : []);
 };
 

@@ -195,8 +195,8 @@ function $TransitionProvider() {
       var toPath, fromPath, retained, entering, exiting; // Path() objects
       var keep = 0, state, hasRun = false, hasCalculated = false;
 
-      toState = to.state();
-      fromState = from.state();
+      toState = to.$state();
+      fromState = from.$state();
       fromPath = new Path(fromState.path);
 
       function calculateTreeChanges() {
@@ -226,28 +226,9 @@ function $TransitionProvider() {
          * @description
          * Returns the origin state of the current transition, as passed to the `Transition` constructor.
          *
-         * @returns {Object} The origin {@link ui.router.state.$stateProvider#state state} of the transition.
+         * @returns {StateReference} The origin state reference of the transition ("from state").
          */
-        from: extend(function() { return from(); }, {
-
-          /**
-           * @ngdoc function
-           * @name ui.router.state.type:Transition.from#state
-           * @methodOf ui.router.state.type:Transition
-           *
-           * @description
-           * Returns the object definition of the origin state of the current transition.
-           *
-           * @returns {Object} The origin {@link ui.router.state.$stateProvider#state state} of the transition.
-           */
-          state: function() {
-            return from.state() && from.state().self;
-          },
-
-          $state: function() {
-            return from.state();
-          }
-        }),
+        from: from,
 
         /**
          * @ngdoc function
@@ -257,28 +238,9 @@ function $TransitionProvider() {
          * @description
          * Returns the target state of the current transition, as passed to the `Transition` constructor.
          *
-         * @returns {Object} The target {@link ui.router.state.$stateProvider#state state} of the transition.
+         * @returns {StateReference} The state reference the transition is targetting ("to state")
          */
-        to: extend(function() { return to(); }, {
-
-          /**
-           * @ngdoc function
-           * @name ui.router.state.type:Transition.to#state
-           * @methodOf ui.router.state.type:Transition
-           *
-           * @description
-           * Returns the object definition of the target state of the current transition.
-           *
-           * @returns {Object} The target {@link ui.router.state.$stateProvider#state state} of the transition.
-           */
-          state: function() {
-            return to.state() && to.state().self;
-          },
-
-          $state: function() {
-            return to.state();
-          }
-        }),
+        to: to,
 
         is: function(compare) {
           if (compare instanceof Transition) {
@@ -539,8 +501,8 @@ function $TransitionProvider() {
         promise: deferred.promise,
 
         toString: function() {
-          return "Transition( " + transition.to().name + angular.toJson(transition.params().to) + " -> " +
-            transition.from().name + angular.toJson(transition.params().from) + " )";
+          return "Transition( " + transition.from().name + angular.toJson(transition.params().from) + " -> " +
+            transition.to().name + angular.toJson(transition.params().to) + " )";
         }
       });
     }

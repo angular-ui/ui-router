@@ -419,13 +419,13 @@ describe('state', function () {
       initStateTo(E, { i: 'iii' });
       var called;
       $rootScope.$on('$stateNotFound', function (ev, transition) {
-        expect(from).toBe(E);
-        expect(fromParams).toEqual({ i: 'iii' });
-        expect(redirect.to).toEqual('never_defined');
-        expect(redirect.toParams).toEqual({ x: '1', y: '2' });
+        expect(transition.from.state()).toBe(E);
+        expect(transition.from.params()).toEqual({ i: 'iii' });
+        expect(transition.to()).toEqual('never_defined');
+        expect(transition.to.params()).toEqual({ x: '1', y: '2' });
 
-        expect($state.current).toBe(from); // $state not updated yet
-        expect($state.params).toEqual(fromParams);
+        expect($state.current).toBe(E); // $state not updated yet
+        expect($state.params).toEqual({ i: 'iii' });
         called = true;
       });
       var message;
@@ -1251,8 +1251,8 @@ describe('state', function () {
 
       stateProvider.state('viewTest', {
         views: {
-          viewA: {},
-          viewB: {}
+          "viewA@": {},
+          "viewB@": {}
         }
       });
 
