@@ -185,6 +185,13 @@ describe("UrlMatcher", function () {
       expect(m.exec("/FOO")).toEqual({});
     });
 
+    it("should respect $urlMatcherFactoryProvider.caseInsensitive when validating regex params", function() {
+      var m = new UrlMatcher('/');
+      provider.caseInsensitive(true);
+      m = m.concat("foo/{param:bar}");
+      expect(m.validates({param:'BAR'})).toEqual(true);
+    });
+
     it("should generate/match params in the proper order", function() {
       var m = new UrlMatcher('/foo?queryparam');
       m = m.concat("/bar/:pathparam");
@@ -423,7 +430,7 @@ describe("urlMatcherFactoryProvider", function () {
 });
 
 describe("urlMatcherFactory", function () {
-  
+
   var $umf;
 
   beforeEach(module('ui.router.util'));
@@ -626,7 +633,7 @@ describe("urlMatcherFactory", function () {
 
     it("should correctly format with an optional followed by a required parameter", function() {
       var m = new UrlMatcher('/home/:user/gallery/photos/:photo', {
-        params: { 
+        params: {
           user: {value: null, squash: true},
           photo: undefined
         }
