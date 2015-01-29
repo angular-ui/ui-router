@@ -390,14 +390,21 @@ describe("UrlMatcher", function () {
       expect(m.format({ "param1[]": [] })).toEqual("/foo/");
       expect(m.format({ "param1[]": [ 'bar-' ] })).toEqual("/foo/bar%5C%2D");
       expect(m.format({ "param1[]": [ 'bar-', '-baz' ] })).toEqual("/foo/bar%5C%2D-%5C%2Dbaz");
+      expect(m.format({ "param1[]": [ 'bar-bar-bar-', '-baz-baz-baz' ] }))
+        .toEqual("/foo/bar%5C%2Dbar%5C%2Dbar%5C%2D-%5C%2Dbaz%5C%2Dbaz%5C%2Dbaz");
 
       // check that we handle $location.url decodes correctly
       $location.url(m.format({ "param1[]": [ 'bar-', '-baz' ] }));
       expect(m.exec($location.path(), $location.search())).toEqual({ "param1[]": [ 'bar-', '-baz' ] });
 
+      // check that we handle $location.url decodes correctly for multiple hyphens
+      $location.url(m.format({ "param1[]": [ 'bar-bar-bar-', '-baz-baz-baz' ] }));
+      expect(m.exec($location.path(), $location.search())).toEqual({ "param1[]": [ 'bar-bar-bar-', '-baz-baz-baz' ] });
+
       // check that pre-encoded values are passed correctly
       $location.url(m.format({ "param1[]": [ '%2C%20%5C%2C', '-baz' ] }));
       expect(m.exec($location.path(), $location.search())).toEqual({ "param1[]": [ '%2C%20%5C%2C', '-baz' ] });
+
     }));
   });
 });

@@ -242,7 +242,7 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
 
   function decodePathArray(string) {
     function reverseString(str) { return str.split("").reverse().join(""); }
-    function unquoteDashes(str) { return str.replace(/\\-/, "-"); }
+    function unquoteDashes(str) { return str.replace(/\\-/g, "-"); }
 
     var split = reverseString(string).split(/-(?!\\)/);
     var allReversed = map(split, reverseString);
