@@ -26,6 +26,27 @@ function merge(dst) {
   return dst;
 }
 
+function copyParams(src, dest) {
+  var params = {};
+  forEach(src, function(param, key) {
+    var segments = key.split('.');
+    var tmp = params;
+    forEach(segments, function(segment, index) {
+      if (index < segments.length-1) {
+        if (!tmp[segment]) {
+          tmp[segment] = {};
+        }
+        if (!isObject(tmp[segment])) throw new Error("State parameter '" + key + "' is invalid: '" + segments.slice(0,index ).join('.') + "' is already defined.");
+        tmp = tmp[segment];
+      } else {
+        if (isObject(tmp[segment])) throw new Error("Unexpected parameter '" + key + "': it already has sub-parameters.");
+        tmp[segment] = param;
+      }
+    });
+  });
+  copy(params, dest);
+}
+
 /**
  * Finds the common ancestor path between two states.
  *

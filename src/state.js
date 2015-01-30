@@ -1081,7 +1081,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         $state.$current = to;
         $state.current = to.self;
         $state.params = toParams;
-        copy($state.params, $stateParams);
+        copyParams($state.params, $stateParams);
         $state.transition = null;
 
         if (options.location && to.navigable) {

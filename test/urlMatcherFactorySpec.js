@@ -88,6 +88,23 @@ describe("UrlMatcher", function () {
     });
   });
 
+  describe( "object notation query parameters", function () {
+
+    it( "should match if properly formatted", function () {
+      var matcher = new UrlMatcher('/?from&to&foo.bar&foo.baz&bar.baz.foo');
+      expect(matcher.parameters()).toEqual(['from','to','foo.bar','foo.baz','bar.baz.foo']);
+    });
+
+    it( "should not match if invalid", function () {
+      var err = "Invalid parameter name '.foo' in pattern '/users/?from&to&.foo'";
+      expect(function() { new UrlMatcher('/users/?from&to&.foo'); }).toThrow(err);
+
+      err = "Invalid parameter name 'foo.' in pattern '/users/?from&to&foo.'";
+      expect(function() { new UrlMatcher('/users/?from&to&foo.'); }).toThrow(err);
+    } );
+
+  } );
+
   describe(".exec()", function() {
     it("should capture parameter values", function () {
       var m = new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?from&to');
