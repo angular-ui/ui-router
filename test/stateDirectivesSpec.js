@@ -141,7 +141,7 @@ describe('uiStateRef', function() {
         ctrlKey:  undefined,
         shiftKey: undefined,
         altKey:   undefined,
-        button:   undefined 
+        button:   undefined
       });
       timeoutFlush();
       $q.flush();
@@ -156,7 +156,7 @@ describe('uiStateRef', function() {
 
       timeoutFlush();
       $q.flush();
-      
+
       expect($state.current.name).toEqual('top');
       expect($stateParams).toEqualData({ });
     }));
@@ -222,7 +222,7 @@ describe('uiStateRef', function() {
 
     it('should allow passing params to current state', inject(function($compile, $rootScope, $state) {
       $state.current.name = 'contacts.item.detail';
-      
+
       el = angular.element("<a ui-sref=\"{id: $index}\">Details</a>");
       $rootScope.$index = 3;
       $rootScope.$apply();
@@ -231,10 +231,10 @@ describe('uiStateRef', function() {
       $rootScope.$digest();
       expect(el.attr('href')).toBe('#/contacts/3');
     }));
-    
+
     it('should allow multi-line attribute values when passing params to current state', inject(function($compile, $rootScope, $state) {
       $state.current.name = 'contacts.item.detail';
-      
+
       el = angular.element("<a ui-sref=\"{\n\tid: $index\n}\">Details</a>");
       $rootScope.$index = 3;
       $rootScope.$apply();
@@ -447,6 +447,25 @@ describe('uiSrefActive', function() {
     $state.transitionTo('contacts.item.detail', { id: 5, foo: 'baz' });
     $q.flush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+  }));
+
+  it('should match state\'s parameters as objects', inject(function($rootScope, $q, $compile, $state) {
+    el = angular.element('<div><a ui-sref="contacts.item.detail({ foo: {bar: {quox:\'baz\'}} })" ui-sref-active="active">Contacts</a></div>');
+    template = $compile(el)($rootScope);
+    $rootScope.$digest();
+
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+    $state.transitionTo('contacts.item.detail', { id: 5, foo: 'bar' });
+    $q.flush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+
+    $state.transitionTo('contacts.item.detail', { id: 5, foo: 'baz' });
+    $q.flush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+
+    $state.transitionTo('contacts.item.detail', { id: 5, foo: {bar: {quox: 'baz'}} });
+    $q.flush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
   }));
 
   it('should match on child states', inject(function($rootScope, $q, $compile, $state) {
