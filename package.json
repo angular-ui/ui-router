@@ -47,7 +47,6 @@
     "grunt-contrib-connect": "~0.7.1",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-karma": "~0.6.2",
-    "jsdoc": "git://github.com/jsdoc3/jsdoc.git#v3.2.2",
     "shelljs": "~0.2.6",
     "faithful-exec": "~0.1.0",
     "karma-firefox-launcher": "~0.1.0",
