@@ -25,7 +25,8 @@ describe('includedByState filter', function() {
     $stateProvider
       .state('a', { url: '/' })
       .state('a.b', { url: '/b' })
-      .state('c', { url: '/c' });
+      .state('c', { url: '/c' })
+      .state('d', { url: '/d/:id' });
   }));
 
   it('should return true if the current state exactly matches the input state', inject(function($parse, $state, $q, $rootScope) {
@@ -44,5 +45,17 @@ describe('includedByState filter', function() {
     $state.go('c');
     $q.flush();
     expect($parse('"a" | includedByState')($rootScope)).toBe(false);
+  }));
+
+  it('should return true if the current state include input state and params', inject(function($parse, $state, $q, $rootScope) {
+    $state.go('d', { id: 123 });
+    $q.flush();
+    expect($parse('"d" | includedByState:{ id: 123 }')($rootScope)).toBe(true);
+  }));
+
+  it('should return false if the current state does not include input state and params', inject(function($parse, $state, $q, $rootScope) {
+    $state.go('d', { id: 2377 });
+    $q.flush();
+    expect($parse('"d" | includedByState:{ id: 123 }')($rootScope)).toBe(false);
   }));
 });
