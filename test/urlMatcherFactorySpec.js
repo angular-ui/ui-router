@@ -530,6 +530,17 @@ describe("urlMatcherFactory", function () {
       expect(m.exec("/state/" + json1 + "/" + json2)).toEqual(params);
     });
 
+    it("should encode/decode path parameters without encoding the slashes", function () {
+      var m = new UrlMatcher("/{path:path}");
+      expect(m.exec("/some/path")).toEqual({ path: 'some/path' });
+      expect(m.format({ path: 'some/path' })).toBe('/some/path');
+    });
+
+    it("should encode path parameters with encoding of the path parameter components", function () {
+      var m = new UrlMatcher("/{path:path}");
+      expect(m.format({ path: 'some /path' })).toBe('/some%20/path');
+    });
+
     it("should not match invalid typed parameter values", function() {
       var m = new UrlMatcher('/users/{id:int}');
 

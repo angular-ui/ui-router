@@ -342,7 +342,11 @@ UrlMatcher.prototype.format = function (values) {
       if (squash === false) {
         if (encoded != null) {
           if (isArray(encoded)) {
-            result += map(encoded, encodeDashes).join("-");
+            if (param.type.name == 'path') {
+              result += map(encoded, encodeURIComponent).join("/");
+            } else {
+              result += map(encoded, encodeDashes).join("-");
+            }
           } else {
             result += encodeURIComponent(encoded);
           }
@@ -619,6 +623,14 @@ function $UrlMatcherFactory() {
       is: angular.isObject,
       equals: angular.equals,
       pattern: /[^/]*/
+    },
+    path: {
+      encode: function(val) {
+        return val.split('/');
+      },
+      decode: angular.identity,
+      is: regexpMatches,
+      pattern: /.*/
     },
     any: { // does not encode/decode
       encode: angular.identity,
