@@ -158,6 +158,15 @@ myApp.config(function($stateProvider, $urlRouterProvider) {
 });
 ```
 
+In the event of getting `not using explicit annotation and cannot be invoked in strict mode` errors you need use the array sytax for your function:
+
+```javascript
+myApp.config(['$stateProvider', '$urlRouterProvider',
+function($stateProvider, $urlRouterProvider) {
+// etc (as above)
+}]);
+```
+
 **(6)** See this quick start example in action.
 >**[Go to Quick Start Plunker for Nested States & Views](http://plnkr.co/edit/u18KQc?p=preview)**
 
