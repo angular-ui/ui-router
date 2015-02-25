@@ -9,8 +9,8 @@
  * @description
  * Service. Manages loading of templates.
  */
-$TemplateFactory.$inject = ['$http', '$templateCache', '$injector'];
-function $TemplateFactory(  $http,   $templateCache,   $injector) {
+$TemplateFactory.$inject = ['$http', '$templateCache', '$templateRequest', '$injector'];
+function $TemplateFactory(  $http,   $templateCache, $templateRequest,  $injector) {
 
   /**
    * @ngdoc function
@@ -82,8 +82,7 @@ function $TemplateFactory(  $http,   $templateCache,   $injector) {
   this.fromUrl = function (url, params) {
     if (isFunction(url)) url = url(params);
     if (url == null) return null;
-    else return $http
-        .get(url, { cache: $templateCache, headers: { Accept: 'text/html' }})
+    else return $templateRequest(url)
         .then(function(response) { return response.data; });
   };
 
