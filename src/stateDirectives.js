@@ -84,7 +84,7 @@ function $StateRefDirective($state, $timeout) {
     restrict: 'A',
     require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
     link: function(scope, element, attrs, uiSrefActive) {
-      var ref = parseStateRef(attrs.uiSref, $state.current.name);
+      var ref = null;
       var params = null, url = null, base = stateContext(element) || $state.$current;
       // SVGAElement does not use the href attribute, but rather the 'xlinkHref' attribute.
       var hrefKind = toString.call(element.prop('href')) === '[object SVGAnimatedString]' ?
@@ -102,31 +102,38 @@ function $StateRefDirective($state, $timeout) {
         }
       });
 
-      var update = function(newVal) {
-        if (newVal) params = angular.copy(newVal);
-        if (!nav) return;
+      var updateSref = function() {
+        ref = parseStateRef(attrs.uiSref, $state.current.name);
 
-        newHref = $state.href(ref.state, params, options);
+        var update = function(newVal) {
+          if (newVal) params = angular.copy(newVal);
+          if (!nav) return;
 
-        var activeDirective = uiSrefActive[1] || uiSrefActive[0];
-        if (activeDirective) {
-          activeDirective.$$setStateInfo(ref.state, params);
+          newHref = $state.href(ref.state, params, options);
+
+          var activeDirective = uiSrefActive[1] || uiSrefActive[0];
+          if (activeDirective) {
+            activeDirective.$$setStateInfo(ref.state, params);
+          }
+          if (newHref === null) {
+            nav = false;
+            return false;
+          }
+          attrs.$set(attr, newHref);
+        };
+
+        if (ref.paramExpr) {
+          scope.$watch(ref.paramExpr, function(newVal, oldVal) {
+            if (newVal !== params) update(newVal);
+          }, true);
+          params = angular.copy(scope.$eval(ref.paramExpr));
         }
-        if (newHref === null) {
-          nav = false;
-          return false;
-        }
-        attrs.$set(attr, newHref);
+        update();
       };
+      updateSref();
 
-      if (ref.paramExpr) {
-        scope.$watch(ref.paramExpr, function(newVal, oldVal) {
-          if (newVal !== params) update(newVal);
-        }, true);
-        params = angular.copy(scope.$eval(ref.paramExpr));
-      }
-      update();
-
+      attrs.$observe('uiSref', updateSref);
+ 
       if (isForm) return;
 
       element.bind("click", function(e) {
