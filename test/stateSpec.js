@@ -558,25 +558,21 @@ describe('state', function () {
     it('should invoke the controllers by state', inject(function ($state, $q, $timeout, $rootScope, $compile) {
       $compile('<div> <div ui-view/></div>')($rootScope);
       $state.transitionTo('logA.logB.logC');
-      $timeout.flush();
       $q.flush();
       expect(log).toBe('logA;logB;logC;');
 
       log = '';
       $state.reload('logA');
-      $timeout.flush();
       $q.flush();
       expect(log).toBe('logA;logB;logC;');
 
       log = '';
       $state.reload('logA.logB');
-      $timeout.flush();
       $q.flush();
       expect(log).toBe('logB;logC;');
 
       log = '';
       $state.reload('logA.logB.logC');
-      $timeout.flush();
       $q.flush();
       expect(log).toBe('logC;');
 
@@ -585,7 +581,6 @@ describe('state', function () {
     it('should throw an exception for invalid reload state', inject(function ($state, $q, $timeout, $rootScope, $compile) {
       $compile('<div> <div ui-view/></div>')($rootScope);
       $state.transitionTo('logA.logB.logC');
-      $timeout.flush();
       $q.flush();
       expect(log).toBe('logA;logB;logC;');
 
