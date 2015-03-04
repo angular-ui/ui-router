@@ -823,8 +823,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
-    $state.reload = function reload() {
-      return $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: true });
+    $state.reload = function reload(state) {
+      return $state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: true, reloadState: state });
     };
 
     /**
@@ -938,7 +938,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     $state.transitionTo = function transitionTo(to, toParams, options) {
       toParams = toParams || {};
       options = extend({
-        location: true, inherit: false, relative: null, notify: true, reload: false, $retry: false
+        location: true, inherit: false, relative: null, notify: true, reload: false, $retry: false, reloadState : null
       }, options || {});
 
       var from = $state.$current, fromParams = $state.params, fromPath = from.path;
@@ -982,6 +982,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
           keep++;
           state = toPath[keep];
         }
+      } else if (options.reloadState) {
+        if (!isDefined(findState(options.reloadState))) {
+          throw new Error("No such state '" + options.reloadState + "'");
+        }
+
+        while (state && state === fromPath[keep] && state.toString().toLowerCase() !== options.reloadState.toLowerCase()) {
+          locals = toLocals[keep] = state.locals;
+          keep++;
+          state = toPath[keep];
+        }
       }
 
       // If we're going to the same state and all locals are kept, we've got nothing to do.
@@ -989,7 +999,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // TODO: We may not want to bump 'transition' if we're called from a location change
       // that we've initiated ourselves, because we might accidentally abort a legitimate
       // transition initiated from code?
-      if (shouldTriggerReload(to, from, locals, options)) {
+      if (!options.reloadState && shouldTriggerReload(to, from, locals, options)) {
         if (to.self.reloadOnSearch !== false) $urlRouter.update();
         $state.transition = null;
         return $q.when($state.current);
