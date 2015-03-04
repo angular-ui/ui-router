@@ -820,7 +820,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * });
      * </pre>
      *
-     * @param {string} depth A state name which is the root of the resolves to re-resolved.
+     * @param {string} state A state name which is the root of the resolves to re-resolved.
      * @example
      * <pre>
      * //assuming app application consists of 3 states: 'contacts', 'contacts.detail', 'contacts.detail.item' 
@@ -953,7 +953,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * - **`reload`** (v0.2.5) - {boolean=false}, If `true` will force transition even if the state or params 
      *    have not changed, aka a reload of the same state. It differs from reloadOnSearch because you'd
      *    use this when you want to force a reload when *everything* is the same, including search params.
-     * - **'reloadDepth'** - {string=null}, A state name which will be the root state to reload from.
+     * - **'reloadState'** - {string=null}, A state name which will be the root state to reload from.
      *    should be used with options.reload=true 
      *
      * @returns {promise} A promise representing the state of the new transition. See
