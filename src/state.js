@@ -829,7 +829,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      *
      * app.controller('ctrl', function ($scope, $state) {
      *   $scope.reload = function(){
-     *     //Will reload 'contact.detail' and 'contact.detail.item' states
+     *     //will reload 'contact.detail' and 'contact.detail.item' states
      *     $state.reload('contact.detail');
      *   }
      * });
