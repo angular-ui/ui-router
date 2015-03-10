@@ -1283,6 +1283,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      */
     $state.href = function href(stateOrName, params, options) {
       options = extend({
+        instance: false,
         lossy:    true,
         inherit:  true,
         absolute: false,
@@ -1300,6 +1301,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         return null;
       }
       return $urlRouter.href(nav.url, filterByKeys(state.params.$$keys(), params || {}), {
+        instance: options.instance,
         absolute: options.absolute
       });
     };

@@ -397,6 +397,15 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
         }
         url = appendBasePath(url, isHtml5, options.absolute);
 
+        if (options.instance) {
+          if (angular.isArray(options.instance) && options.instance.length) {
+            var instance = options.instance[0];
+            if (!instance.current_instance) {
+              return '//' + instance.domain_name + '/' + url;
+            }
+          }
+        }
+
         if (!options.absolute || !url) {
           return url;
         }
