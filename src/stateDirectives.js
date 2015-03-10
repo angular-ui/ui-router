@@ -133,12 +133,12 @@ function $StateRefDirective($state, $timeout) {
         var button = e.which || e.button;
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
 
-            if (angular.isArray(options.instance) && options.instance.length) {
-                var instance = options.instance[0];
-                if (!instance.current_instance) {
-                    return;
-                }
+          if (angular.isArray(options.instance) && options.instance.length) {
+            var instance = options.instance[0];
+            if (!instance.current_instance) {
+              return;
             }
+          }
 
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
           var transition = $timeout(function() {
