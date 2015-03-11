@@ -399,9 +399,12 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
 
         if (options.instance) {
           if (angular.isArray(options.instance) && options.instance.length) {
-            var instance = options.instance[0];
-            if (!instance.current_instance) {
-              return $location.protocol() + '://' + instance.domain_name + '/' + url;
+            var instance = _.find(options.instance, 'current_instance');
+            if (!instance) {
+              instance = options.instance[0];
+              if (instance) {
+                return $location.protocol() + '://' + options.instance[0].domain_name + '/' + url;
+              }
             }
           }
         }

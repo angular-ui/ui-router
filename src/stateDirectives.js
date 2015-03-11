@@ -134,71 +134,72 @@ function $StateRefDirective($state, $timeout, $modal) {
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
 
           if (angular.isArray(options.instance) && options.instance.length) {
-            if (options.instance.length === 1) {
-                var instance = options.instance[0];
-                if (!instance.current_instance) {
-                    return;
-                }
-            } else {
-                e.preventDefault();
 
-                // launch modal with instance choices
-                var modalInstance = $modal.open({
-                    template: '<div class="modal-header">' +
-                            '<h3>' + Translator.trans('state.href.instance.list.title') + '</h3>' +
-                        '</div>' +
-                        '<div class="modal-body">' +
-                            '<ul class="list-group">' +
-                                '<li ng-repeat="instance in instances" class="list-group-item">' +
-                                    '<div class="media">' +
-                                        '<div class="media-body">' +
-                                            '<h4 class="media-heading">' +
-                                                '<a ng-href="{{ instance.href }}">' +
-                                                    '<span ng-bind="instance.name"></span>' +
-                                                    ' <small>(<span ng-bind="instance.href"></span>)</small>' +
-                                                '</a>' +
-                                            '</h4>' +
-                                        '</div>' +
-                                    '</div>' +
-                                '</li>' +
-                            '</ul>' +
-                        '</div>',
-                    controller: function ($scope, instances, state, params, options) {
-                        instances = _.filter(instances, function (instance) {
-                            return instance.type !== 'group';
-                        });
+              var instance = _.find(options.instance, 'current_instance');
+              if (!instance) {
+                  e.preventDefault();
 
-                        angular.forEach(instances, function (instance) {
-                            var newOptions = _.clone(options, true);
-                            newOptions.instance = _.filter(newOptions.instance, function (i) {
-                                return i.eid === instance.eid;
-                            });
-                            console.log(newOptions)
-                            instance.href = $state.href(ref.state, params, newOptions);
-                        });
+                  if (options.instance.length > 1) {
+                      // launch modal with instance choices
+                      var modalInstance = $modal.open({
+                          template:   '<div class="modal-header">' +
+                                        '<h3>' + Translator.trans('state.href.instance.list.title') + '</h3>' +
+                                      '</div>' +
+                                      '<div class="modal-body">' +
+                                          '<ul class="list-group">' +
+                                              '<li ng-repeat="instance in instances" class="list-group-item">' +
+                                                  '<div class="media">' +
+                                                      '<div class="media-body">' +
+                                                          '<h4 class="media-heading">' +
+                                                              '<a ng-href="{{ instance.href }}">' +
+                                                                  '<span ng-bind="instance.name"></span>' +
+                                                                  ' <small>(<span ng-bind="instance.href"></span>)</small>' +
+                                                              '</a>' +
+                                                          '</h4>' +
+                                                      '</div>' +
+                                                  '</div>' +
+                                              '</li>' +
+                                          '</ul>' +
+                                      '</div>',
+                          controller: function ($scope, instances, state, params, options) {
+                              instances = _.filter(instances, function (instance) {
+                                  return instance.type !== 'group';
+                              });
 
-                        $scope.instances = instances;
+                              angular.forEach(instances, function (instance) {
+                                  var newOptions = _.clone(options, true);
+                                  newOptions.instance = _.filter(newOptions.instance, function (i) {
+                                      return i.eid === instance.eid;
+                                  });
+                                  instance.href = $state.href(ref.state, params, newOptions);
+                              });
 
-                    },
-                    resolve: {
-                        instances: function () {
-                            return options.instance;
-                        },
-                        state: function () {
-                            return ref.state;
-                        },
-                        params: function () {
-                            return params;
-                        },
-                        options: function () {
-                            return options;
-                        }
-                    }
+                              $scope.instances = instances;
 
-                });
+                          },
+                          resolve: {
+                              instances: function () {
+                                  return options.instance;
+                              },
+                              state: function () {
+                                  return ref.state;
+                              },
+                              params: function () {
+                                  return params;
+                              },
+                              options: function () {
+                                  return options;
+                              }
+                          }
 
-                return;
-            }
+                      });
+
+                  }
+
+                  return;
+
+              }
+
           }
 
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
