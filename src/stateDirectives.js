@@ -150,11 +150,11 @@ function $StateRefDirective($state, $timeout, $modal) {
                                     '<div class="media">' +
                                         '<div class="media-body">' +
                                             '<h4 class="media-heading">' +
-                                                '<a ng-href="{{ instance.href }}" ng-bind="instance.name"></a>' +
+                                                '<a ng-href="{{ instance.href }}">' +
+                                                    '<span ng-bind="instance.name"></span>' +
+                                                    ' <small>(<span ng-bind="instance.href"></span>)</small>' +
+                                                '</a>' +
                                             '</h4>' +
-                                            '<small>' +
-                                                '<a ng-href="{{ instance.href }}" ng-bind="instance.href"></a>' +
-                                            '</small>' +
                                         '</div>' +
                                     '</div>' +
                                 '</li>' +
