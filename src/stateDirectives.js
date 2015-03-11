@@ -136,10 +136,12 @@ function $StateRefDirective($state, $timeout, $modal) {
           if (angular.isArray(options.instance) && options.instance.length) {
 
               var instance = _.find(options.instance, 'current_instance');
-              if (!instance) {
-                  e.preventDefault();
 
+              if (!instance) {
                   if (options.instance.length > 1) {
+
+                      e.preventDefault();
+
                       // launch modal with instance choices
                       var modalInstance = $modal.open({
                           template:   '<div class="modal-header">' +
