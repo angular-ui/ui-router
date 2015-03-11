@@ -144,7 +144,10 @@ function $StateRefDirective($state, $timeout, $modal) {
 
                 // launch modal with instance choices
                 var modalInstance = $modal.open({
-                    template: '<div class="modal-body">' +
+                    template: '<div class="modal-header">' +
+                            '<h3>' + Translator.trans('state.href.instance.list.title') + '</h3>' +
+                        '</div>' +
+                        '<div class="modal-body">' +
                             '<ul class="list-group">' +
                                 '<li ng-repeat="instance in instances" class="list-group-item">' +
                                     '<div class="media">' +
