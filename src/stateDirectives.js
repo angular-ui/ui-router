@@ -149,7 +149,6 @@ function $StateRefDirective($state, $timeout, $modal) {
                                 '<li ng-repeat="instance in instances" class="list-group-item">' +
                                     '<div class="media">' +
                                         '<div class="media-body">' +
-                                            '<a ng-href="{{ instance.href }}" class="btn btn-default pull-right">Go</a>' +
                                             '<h4 class="media-heading">' +
                                                 '<a ng-href="{{ instance.href }}" ng-bind="instance.name"></a>' +
                                             '</h4>' +
