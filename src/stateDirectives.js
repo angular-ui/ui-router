@@ -76,8 +76,8 @@ function stateContext(el) {
  * @param {string} ui-sref 'stateName' can be any valid absolute or relative state
  * @param {Object} ui-sref-opts options to pass to {@link ui.router.state.$state#go $state.go()}
  */
-$StateRefDirective.$inject = ['$state', '$timeout'];
-function $StateRefDirective($state, $timeout) {
+$StateRefDirective.$inject = ['$state', '$timeout', '$modal'];
+function $StateRefDirective($state, $timeout, $modal) {
   var allowedOptions = ['instance', 'location', 'inherit', 'reload', 'absolute'];
 
   return {
@@ -134,9 +134,68 @@ function $StateRefDirective($state, $timeout) {
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
 
           if (angular.isArray(options.instance) && options.instance.length) {
-            var instance = options.instance[0];
-            if (!instance.current_instance) {
-              return;
+            if (options.instance.length === 1) {
+                var instance = options.instance[0];
+                if (!instance.current_instance) {
+                    return;
+                }
+            } else {
+                e.preventDefault();
+
+                // launch modal with instance choices
+                var modalInstance = $modal.open({
+                    template: '<div class="modal-body">' +
+                            '<ul class="list-group">' +
+                                '<li ng-repeat="instance in instances" class="list-group-item">' +
+                                    '<div class="media">' +
+                                        '<div class="media-body">' +
+                                            '<a ng-href="{{ instance.href }}" class="btn btn-default pull-right">Go</a>' +
+                                            '<h4 class="media-heading">' +
+                                                '<a ng-href="{{ instance.href }}" ng-bind="instance.name"></a>' +
+                                            '</h4>' +
+                                            '<small>' +
+                                                '<a ng-href="{{ instance.href }}" ng-bind="instance.href"></a>' +
+                                            '</small>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</li>' +
+                            '</ul>' +
+                        '</div>',
+                    controller: function ($scope, instances, state, params, options) {
+                        instances = _.filter(instances, function (instance) {
+                            return instance.type !== 'group';
+                        });
+
+                        angular.forEach(instances, function (instance) {
+                            var newOptions = _.clone(options, true);
+                            newOptions.instance = _.filter(newOptions.instance, function (i) {
+                                return i.eid === instance.eid;
+                            });
+                            console.log(newOptions)
+                            instance.href = $state.href(ref.state, params, newOptions);
+                        });
+
+                        $scope.instances = instances;
+
+                    },
+                    resolve: {
+                        instances: function () {
+                            return options.instance;
+                        },
+                        state: function () {
+                            return ref.state;
+                        },
+                        params: function () {
+                            return params;
+                        },
+                        options: function () {
+                            return options;
+                        }
+                    }
+
+                });
+
+                return;
             }
           }
 

@@ -401,7 +401,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
           if (angular.isArray(options.instance) && options.instance.length) {
             var instance = options.instance[0];
             if (!instance.current_instance) {
-              return '//' + instance.domain_name + '/' + url;
+              return $location.protocol() + '://' + instance.domain_name + '/' + url;
             }
           }
         }
