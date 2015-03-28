@@ -1049,154 +1049,233 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // Filter parameters before we pass them to event handlers etc.
       toParams = filterByKeys(to.params.$$keys(), toParams || {});
 
-      // Broadcast start event and cancel the transition if requested
+      // We're going to validate the state
+      var validators = [];
+
+      function cancelStateChange() {
+        $rootScope.$broadcast('$stateChangeCancel', to.self, toParams, from.self, fromParams);
+        $urlRouter.update();
+        return TransitionPrevented;
+      }
+
+      function registerValidator(value) {
+        validators.push($q.when(value));
+      }
+
+      function isTruthy(value) {
+        return Boolean(value);
+      }
+
+      function validateStateChange() {
+
+        if (!validators.length)
+          return proceedStateChange();
+
+        return $q.all(validators).then(function (validations) {
+            console.log( validations );
+          if (validations.every(isTruthy)) {
+            return proceedStateChange();
+          } else {
+            return cancelStateChange();
+          }
+        });
+
+      }
+
       if (options.notify) {
         /**
          * @ngdoc event
-         * @name ui.router.state.$state#$stateChangeStart
+         * @name ui.router.state.$state#$stateChangeValidation
          * @eventOf ui.router.state.$state
          * @eventType broadcast on root scope
          * @description
-         * Fired when the state transition **begins**. You can use `event.preventDefault()`
-         * to prevent the transition from happening and then the transition promise will be
-         * rejected with a `'transition prevented'` value.
+         * Fired **before** the state transition begins. You can use the `registerValidator`
+         * function to pause the transition execution and possibly cancel it.
+         *
+         * The `registerValidation` function takes a single parameter, which may be a promise
+         * (in which case it will be resolved, and its return value will be used as actual
+         * validator). If at least one falsy validator is registered, the state transition
+         * will be cancelled, and the transition promise will be rejected with a
+         * `'transition prevented'` value.
+         *
+         * You may ignore the validation (and thus force the state transition) by calling
+         * `event.preventDefault()` from one of the listeners.
          *
          * @param {Object} event Event object.
          * @param {State} toState The state being transitioned to.
          * @param {Object} toParams The params supplied to the `toState`.
          * @param {State} fromState The current state, pre-transition.
          * @param {Object} fromParams The params supplied to the `fromState`.
+         * @param {Function} registerValidator A function to register a new validator.
          *
          * @example
          *
          * <pre>
-         * $rootScope.$on('$stateChangeStart',
-         * function(event, toState, toParams, fromState, fromParams){
-         *     event.preventDefault();
-         *     // transitionTo() promise will be rejected with
-         *     // a 'transition prevented' error
+         * $rootScope.$on('$stateChangeValidation',
+         * function(event, toState, toParams, fromState, fromParams, registerValidator){
+         *   registerValidator(toState.enabled);
          * })
          * </pre>
          */
-        if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams, options).defaultPrevented) {
-          $rootScope.$broadcast('$stateChangeCancel', to.self, toParams, from.self, fromParams);
-          $urlRouter.update();
-          return TransitionPrevented;
+        if ($rootScope.$broadcast('$stateChangeValidation', to.self, toParams, from.self, fromParams, registerValidator).defaultPrevented) {
+          validators.length = 0;
         }
       }
 
-      // Resolve locals for the remaining states, but don't update any global state just
-      // yet -- if anything fails to resolve the current state needs to remain untouched.
-      // We also set up an inheritance chain for the locals here. This allows the view directive
-      // to quickly look up the correct definition for each view in the current state. Even
-      // though we create the locals object itself outside resolveState(), it is initially
-      // empty and gets filled asynchronously. We need to keep track of the promise for the
-      // (fully resolved) current locals, and pass this down the chain.
-      var resolved = $q.when(locals);
+      return validateStateChange();
 
-      for (var l = keep; l < toPath.length; l++, state = toPath[l]) {
-        locals = toLocals[l] = inherit(locals);
-        resolved = resolveState(state, toParams, state === to, resolved, locals, options);
-      }
+      function proceedStateChange() {
 
-      // Once everything is resolved, we are ready to perform the actual transition
-      // and return a promise for the new state. We also keep track of what the
-      // current promise is, so that we can detect overlapping transitions and
-      // keep only the outcome of the last transition.
-      var transition = $state.transition = resolved.then(function () {
-        var l, entering, exiting;
-
-        if ($state.transition !== transition) return TransitionSuperseded;
-
-        // Exit 'from' states not kept
-        for (l = fromPath.length - 1; l >= keep; l--) {
-          exiting = fromPath[l];
-          if (exiting.self.onExit) {
-            $injector.invoke(exiting.self.onExit, exiting.self, exiting.locals.globals);
-          }
-          exiting.locals = null;
-        }
-
-        // Enter 'to' states not kept
-        for (l = keep; l < toPath.length; l++) {
-          entering = toPath[l];
-          entering.locals = toLocals[l];
-          if (entering.self.onEnter) {
-            $injector.invoke(entering.self.onEnter, entering.self, entering.locals.globals);
-          }
-        }
-
-        // Re-add the saved hash before we start returning things
-        if (hash) toParams['#'] = hash;
-
-        // Run it again, to catch any transitions in callbacks
-        if ($state.transition !== transition) return TransitionSuperseded;
-
-        // Update globals in $state
-        $state.$current = to;
-        $state.current = to.self;
-        $state.params = toParams;
-        copy($state.params, $stateParams);
-        $state.transition = null;
-
-        if (options.location && to.navigable) {
-          $urlRouter.push(to.navigable.url, to.navigable.locals.globals.$stateParams, {
-            $$avoidResync: true, replace: options.location === 'replace'
-          });
-        }
-
+        // Broadcast start event and cancel the transition if requested
         if (options.notify) {
-        /**
-         * @ngdoc event
-         * @name ui.router.state.$state#$stateChangeSuccess
-         * @eventOf ui.router.state.$state
-         * @eventType broadcast on root scope
-         * @description
-         * Fired once the state transition is **complete**.
-         *
-         * @param {Object} event Event object.
-         * @param {State} toState The state being transitioned to.
-         * @param {Object} toParams The params supplied to the `toState`.
-         * @param {State} fromState The current state, pre-transition.
-         * @param {Object} fromParams The params supplied to the `fromState`.
-         */
-          $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
-        }
-        $urlRouter.update(true);
-
-        return $state.current;
-      }, function (error) {
-        if ($state.transition !== transition) return TransitionSuperseded;
-
-        $state.transition = null;
-        /**
-         * @ngdoc event
-         * @name ui.router.state.$state#$stateChangeError
-         * @eventOf ui.router.state.$state
-         * @eventType broadcast on root scope
-         * @description
-         * Fired when an **error occurs** during transition. It's important to note that if you
-         * have any errors in your resolve functions (javascript errors, non-existent services, etc)
-         * they will not throw traditionally. You must listen for this $stateChangeError event to
-         * catch **ALL** errors.
-         *
-         * @param {Object} event Event object.
-         * @param {State} toState The state being transitioned to.
-         * @param {Object} toParams The params supplied to the `toState`.
-         * @param {State} fromState The current state, pre-transition.
-         * @param {Object} fromParams The params supplied to the `fromState`.
-         * @param {Error} error The resolve error object.
-         */
-        evt = $rootScope.$broadcast('$stateChangeError', to.self, toParams, from.self, fromParams, error);
-
-        if (!evt.defaultPrevented) {
+          /**
+           * @ngdoc event
+           * @name ui.router.state.$state#$stateChangeStart
+           * @eventOf ui.router.state.$state
+           * @eventType broadcast on root scope
+           * @description
+           * Fired when the state transition **begins**. You can use `event.preventDefault()`
+           * to prevent the transition from happening and then the transition promise will be
+           * rejected with a `'transition prevented'` value.
+           *
+           * @param {Object} event Event object.
+           * @param {State} toState The state being transitioned to.
+           * @param {Object} toParams The params supplied to the `toState`.
+           * @param {State} fromState The current state, pre-transition.
+           * @param {Object} fromParams The params supplied to the `fromState`.
+           *
+           * @example
+           *
+           * <pre>
+           * $rootScope.$on('$stateChangeStart',
+           * function(event, toState, toParams, fromState, fromParams){
+           *     event.preventDefault();
+           *     // transitionTo() promise will be rejected with
+           *     // a 'transition prevented' error
+           * })
+           * </pre>
+           */
+          if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams).defaultPrevented) {
+            $rootScope.$broadcast('$stateChangeCancel', to.self, toParams, from.self, fromParams);
             $urlRouter.update();
+            return TransitionPrevented;
+          }
         }
 
-        return $q.reject(error);
-      });
+        // Resolve locals for the remaining states, but don't update any global state just
+        // yet -- if anything fails to resolve the current state needs to remain untouched.
+        // We also set up an inheritance chain for the locals here. This allows the view directive
+        // to quickly look up the correct definition for each view in the current state. Even
+        // though we create the locals object itself outside resolveState(), it is initially
+        // empty and gets filled asynchronously. We need to keep track of the promise for the
+        // (fully resolved) current locals, and pass this down the chain.
+        var resolved = $q.when(locals);
 
-      return transition;
+        for (var l = keep; l < toPath.length; l++, state = toPath[l]) {
+          locals = toLocals[l] = inherit(locals);
+          resolved = resolveState(state, toParams, state === to, resolved, locals, options);
+        }
+
+        // Once everything is resolved, we are ready to perform the actual transition
+        // and return a promise for the new state. We also keep track of what the
+        // current promise is, so that we can detect overlapping transitions and
+        // keep only the outcome of the last transition.
+        var transition = $state.transition = resolved.then(function () {
+          var l, entering, exiting;
+
+          if ($state.transition !== transition) return TransitionSuperseded;
+
+          // Exit 'from' states not kept
+          for (l = fromPath.length - 1; l >= keep; l--) {
+            exiting = fromPath[l];
+            if (exiting.self.onExit) {
+              $injector.invoke(exiting.self.onExit, exiting.self, exiting.locals.globals);
+            }
+            exiting.locals = null;
+          }
+
+          // Enter 'to' states not kept
+          for (l = keep; l < toPath.length; l++) {
+            entering = toPath[l];
+            entering.locals = toLocals[l];
+            if (entering.self.onEnter) {
+              $injector.invoke(entering.self.onEnter, entering.self, entering.locals.globals);
+            }
+          }
+
+          // Re-add the saved hash before we start returning things
+          if (hash) toParams['#'] = hash;
+
+          // Run it again, to catch any transitions in callbacks
+          if ($state.transition !== transition) return TransitionSuperseded;
+
+          // Update globals in $state
+          $state.$current = to;
+          $state.current = to.self;
+          $state.params = toParams;
+          copy($state.params, $stateParams);
+          $state.transition = null;
+
+          if (options.location && to.navigable) {
+            $urlRouter.push(to.navigable.url, to.navigable.locals.globals.$stateParams, {
+              $$avoidResync: true, replace: options.location === 'replace'
+            });
+          }
+
+          if (options.notify) {
+          /**
+           * @ngdoc event
+           * @name ui.router.state.$state#$stateChangeSuccess
+           * @eventOf ui.router.state.$state
+           * @eventType broadcast on root scope
+           * @description
+           * Fired once the state transition is **complete**.
+           *
+           * @param {Object} event Event object.
+           * @param {State} toState The state being transitioned to.
+           * @param {Object} toParams The params supplied to the `toState`.
+           * @param {State} fromState The current state, pre-transition.
+           * @param {Object} fromParams The params supplied to the `fromState`.
+           */
+            $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
+          }
+          $urlRouter.update(true);
+
+          return $state.current;
+        }, function (error) {
+          if ($state.transition !== transition) return TransitionSuperseded;
+
+          $state.transition = null;
+          /**
+           * @ngdoc event
+           * @name ui.router.state.$state#$stateChangeError
+           * @eventOf ui.router.state.$state
+           * @eventType broadcast on root scope
+           * @description
+           * Fired when an **error occurs** during transition. It's important to note that if you
+           * have any errors in your resolve functions (javascript errors, non-existent services, etc)
+           * they will not throw traditionally. You must listen for this $stateChangeError event to
+           * catch **ALL** errors.
+           *
+           * @param {Object} event Event object.
+           * @param {State} toState The state being transitioned to.
+           * @param {Object} toParams The params supplied to the `toState`.
+           * @param {State} fromState The current state, pre-transition.
+           * @param {Object} fromParams The params supplied to the `fromState`.
+           * @param {Error} error The resolve error object.
+           */
+          evt = $rootScope.$broadcast('$stateChangeError', to.self, toParams, from.self, fromParams, error);
+
+          if (!evt.defaultPrevented) {
+              $urlRouter.update();
+          }
+
+          return $q.reject(error);
+        });
+
+        return transition;
+      }
+
     };
 
     /**
