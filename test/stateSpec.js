@@ -123,6 +123,7 @@ describe('state', function () {
     log = '';
     logEvents = logEnterExit = false;
     $rootScope.$on('$stateChangeStart', eventLogger);
+    $rootScope.$on('$stateChangeCancel', eventLogger);
     $rootScope.$on('$stateChangeSuccess', eventLogger);
     $rootScope.$on('$stateChangeError', eventLogger);
     $rootScope.$on('$stateNotFound', eventLogger);
@@ -211,6 +212,25 @@ describe('state', function () {
       var promise = $state.transitionTo(B, {});
       $q.flush();
       expect(called).toBeTruthy();
+      expect($state.current).toBe(A);
+      expect(resolvedError(promise)).toBeTruthy();
+    }));
+
+    it('can be cancelled by preventDefault() in $stateChangeStart and broadcasts $stateChangeCancel', inject(function ($state, $q, $rootScope) {
+      initStateTo(A);
+      var called, cancelEventCalled;
+      $rootScope.$on('$stateChangeStart', function (ev) {
+        ev.preventDefault();
+        called = true;
+      });
+      $rootScope.$on('$stateChangeCancel', function (ev) {
+        ev.preventDefault();
+        cancelEventCalled = true;
+      });
+      var promise = $state.transitionTo(B, {});
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect(cancelEventCalled).toBeTruthy();
       expect($state.current).toBe(A);
       expect(resolvedError(promise)).toBeTruthy();
     }));
