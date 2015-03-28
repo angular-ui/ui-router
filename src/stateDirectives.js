@@ -134,7 +134,13 @@ function $StateRefDirective($state, $timeout) {
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
           var transition = $timeout(function() {
-            $state.go(ref.state, params, options);
+            if (e.metaKey) {
+              options.absolute = true;
+              var url = $state.href(ref.state, params, options);
+              window.open(url,'_blank');
+            } else {
+              $state.go(ref.state, params, options);
+            }
           });
           e.preventDefault();
 
