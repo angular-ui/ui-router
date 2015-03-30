@@ -113,7 +113,30 @@ describe('state', function () {
       // State param inheritance tests. param1 is inherited by sub1 & sub2;
       // param2 should not be transferred (unless explicitly set).
       .state('root', { url: '^/root?param1' })
-      .state('root.sub1', {url: '/1?param2' });
+      .state('root.sub1', {url: '/1?param2' })
+      .state('logA', {
+        url: "/logA",
+        template: "<div> <div ui-view/></div>",
+        controller: function() {log += "logA;"}
+      })
+      .state('logA.logB', {
+        url: "/logB",
+        views:{
+          '':{
+                template: "<div> <div ui-view/></div>",
+                controller: function() {log += "logB;"}
+          }
+        }
+      })
+      .state('logA.logB.logC', {
+        url: "/logC",
+        views:{
+          '':{
+                template: "<div> <div ui-view/></div>",
+                controller: function() {log += "logC;"}
+          }
+        }
+      })
     $stateProvider.state('root.sub2', {url: '/2?param2' });
 
     $provide.value('AppInjectable', AppInjectable);
@@ -551,6 +574,92 @@ describe('state', function () {
       $q.flush();
       expect(log).toBe('Success!controller;Success!controller;');
     }));
+
+    it('should invoke the controllers by state when given state name', inject(function ($state, $q, $timeout, $rootScope, $compile) {
+      $compile('<div> <div ui-view/></div>')($rootScope);
+      $state.transitionTo('logA.logB.logC');
+      $q.flush();
+      expect(log).toBe('logA;logB;logC;');
+
+      log = '';
+      $state.reload('logA');
+      $q.flush();
+      expect(log).toBe('logA;logB;logC;');
+
+      log = '';
+      $state.reload('logA.logB');
+      $q.flush();
+      expect(log).toBe('logB;logC;');
+
+      log = '';
+      $state.reload('logA.logB.logC');
+      $q.flush();
+      expect(log).toBe('logC;');
+    }));
+
+    it('should reload all states when passing false', inject(function ($state, $q, $timeout, $rootScope, $compile) {
+      $compile('<div> <div ui-view/></div>')($rootScope);
+      $state.transitionTo('logA.logB.logC');
+      $q.flush();
+      expect(log).toBe('logA;logB;logC;');
+
+      log = '';
+      $state.reload(false);
+      $q.flush();
+      expect(log).toBe('logA;logB;logC;');
+    }));
+
+    it('should reload all states when passing true', inject(function ($state, $q, $timeout, $rootScope, $compile) {
+      $compile('<div> <div ui-view/></div>')($rootScope);
+      $state.transitionTo('logA.logB.logC');
+      $q.flush();
+      expect(log).toBe('logA;logB;logC;');
+
+      log = '';
+      $state.reload(true);
+      $q.flush();
+      expect(log).toBe('logA;logB;logC;');
+    }));
+
+
+    it('should invoke the controllers by state when given stateObj', inject(function ($state, $q, $timeout, $rootScope, $compile) {
+      $compile('<div> <div ui-view/></div>')($rootScope);
+      $state.transitionTo('logA.logB.logC');
+
+      $q.flush();
+      expect(log).toBe('logA;logB;logC;');
+
+      log = '';
+      $state.reload($state.current);
+      $q.flush();
+      expect(log).toBe('logC;');
+    }));
+
+    it('should throw an exception for invalid reload state name', inject(function ($state, $q, $timeout, $rootScope, $compile) {
+      $compile('<div> <div ui-view/></div>')($rootScope);
+      $state.transitionTo('logA.logB.logC');
+      $q.flush();
+      expect(log).toBe('logA;logB;logC;');
+
+      expect(function(){
+          $state.reload('logInvalid')}
+        ).toThrow("No such reload state 'logInvalid'");
+    }));
+
+    it('should throw an exception for invalid reload state object', inject(function ($state, $q, $timeout, $rootScope, $compile) {
+      $compile('<div> <div ui-view/></div>')($rootScope);
+      $state.transitionTo('logA.logB.logC');
+      $q.flush();
+      expect(log).toBe('logA;logB;logC;');
+
+      expect(function(){
+          $state.reload({foo:'bar'})}
+        ).toThrow("Invalid reload state object");
+
+      expect(function(){
+          $state.reload({name:'invalidState'})}
+        ).toThrow("No such reload state 'invalidState'");
+    }));
   });
 
   describe('.is()', function () {
@@ -804,6 +913,9 @@ describe('state', function () {
         'home.item',
         'home.redirect',
         'json',
+        'logA',
+        'logA.logB',
+        'logA.logB.logC',
         'resolveFail',
         'resolveTimeout',
         'root',
