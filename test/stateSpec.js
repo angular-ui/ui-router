@@ -70,9 +70,12 @@ describe('state', function () {
       .state('dynamicController', {
         url: "/dynamic/:type",
         template: "test",
-        controllerProvider: function($stateParams) {
-          ctrlName = $stateParams.type + "Controller";
+        controllerProvider: function($stateParams, foo) {
+          ctrlName = $stateParams.type + foo + "Controller";
           return ctrlName;
+        },
+        resolve: {
+          foo: function() { return 'Foo'; }
         }
       })
       .state('home.redirect', {
@@ -484,7 +487,7 @@ describe('state', function () {
     it('uses the controllerProvider to get controller dynamically', inject(function ($state, $q) {
       $state.transitionTo('dynamicController', { type: "Acme" });
       $q.flush();
-      expect(ctrlName).toEqual("AcmeController");
+      expect(ctrlName).toEqual("AcmeFooController");
     }));
   });
 
