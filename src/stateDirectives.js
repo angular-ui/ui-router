@@ -229,12 +229,13 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
   return  {
     restrict: "A",
     controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
-      var state, params, activeClass;
+      var state, params, activeClass, activeEqClass;
 
       // There probably isn't much point in $observing this
       // uiSrefActive and uiSrefActiveEq share the same directive object with some
       // slight difference in logic routing
-      activeClass = $interpolate($attrs.uiSrefActiveEq || $attrs.uiSrefActive || '', false)($scope);
+      activeEqClass = $interpolate($attrs.uiSrefActiveEq || '', false)($scope);
+      activeClass = $interpolate($attrs.uiSrefActive || '', false)($scope);
 
       // Allow uiSref to communicate with uiSrefActive[Equals]
       this.$$setStateInfo = function (newState, newParams) {
@@ -247,19 +248,20 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
 
       // Update route state
       function update() {
-        if (isMatch()) {
+        if (isDirectMatch()) {
+          $element.addClass(activeEqClass);
+        } else if (isMatch()) {
           $element.addClass(activeClass);
         } else {
-          $element.removeClass(activeClass);
+          $element.removeClass(activeClass).removeClass(activeEqClass);
         }
       }
 
+      function isDirectMatch() {
+        return state && $state.is(state.name, params);
+      }
       function isMatch() {
-        if (typeof $attrs.uiSrefActiveEq !== 'undefined') {
-          return state && $state.is(state.name, params);
-        } else {
-          return state && $state.includes(state.name, params);
-        }
+        return state && $state.includes(state.name, params);
       }
     }]
   };
