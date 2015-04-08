@@ -24,17 +24,17 @@ function stateContext(el) {
  * @restrict A
  *
  * @description
- * A directive that binds a link (`<a>` tag) to a state. If the state has an associated 
- * URL, the directive will automatically generate & update the `href` attribute via 
- * the {@link ui.router.state.$state#methods_href $state.href()} method. Clicking 
- * the link will trigger a state transition with optional parameters. 
+ * A directive that binds a link (`<a>` tag) to a state. If the state has an associated
+ * URL, the directive will automatically generate & update the `href` attribute via
+ * the {@link ui.router.state.$state#methods_href $state.href()} method. Clicking
+ * the link will trigger a state transition with optional parameters.
  *
- * Also middle-clicking, right-clicking, and ctrl-clicking on the link will be 
+ * Also middle-clicking, right-clicking, and ctrl-clicking on the link will be
  * handled natively by the browser.
  *
- * You can also use relative state paths within ui-sref, just like the relative 
+ * You can also use relative state paths within ui-sref, just like the relative
  * paths passed to `$state.go()`. You just need to be aware that the path is relative
- * to the state that the link lives in, in other words the state that loaded the 
+ * to the state that the link lives in, in other words the state that loaded the
  * template containing the link.
  *
  * You can specify options to pass to {@link ui.router.state.$state#go $state.go()}
@@ -42,22 +42,22 @@ function stateContext(el) {
  * and `reload`.
  *
  * @example
- * Here's an example of how you'd use ui-sref and how it would compile. If you have the 
+ * Here's an example of how you'd use ui-sref and how it would compile. If you have the
  * following template:
  * <pre>
  * <a ui-sref="home">Home</a> | <a ui-sref="about">About</a> | <a ui-sref="{page: 2}">Next page</a>
- * 
+ *
  * <ul>
  *     <li ng-repeat="contact in contacts">
  *         <a ui-sref="contacts.detail({ id: contact.id })">{{ contact.name }}</a>
  *     </li>
  * </ul>
  * </pre>
- * 
+ *
  * Then the compiled html would be (assuming Html5Mode is off and current state is contacts):
  * <pre>
  * <a href="#/home" ui-sref="home">Home</a> | <a href="#/about" ui-sref="about">About</a> | <a href="#/contacts?page=2" ui-sref="{page: 2}">Next page</a>
- * 
+ *
  * <ul>
  *     <li ng-repeat="contact in contacts">
  *         <a href="#/contacts/1" ui-sref="contacts.detail({ id: contact.id })">Joe</a>
@@ -82,8 +82,8 @@ function $StateRefDirective($state, $timeout) {
 
   return {
     restrict: 'A',
-    require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
-    link: function(scope, element, attrs, uiSrefActive) {
+    require: ['?^uiSrefActive', '?^uiSrefActiveEq', '?^uiSrefResolve'],
+    link: function(scope, element, attrs, controllers) {
       var ref = parseStateRef(attrs.uiSref, $state.current.name);
       var params = null, url = null, base = stateContext(element) || $state.$current;
       // SVGAElement does not use the href attribute, but rather the 'xlinkHref' attribute.
@@ -95,6 +95,14 @@ function $StateRefDirective($state, $timeout) {
 
       var options = { relative: base, inherit: true };
       var optionsOverride = scope.$eval(attrs.uiSrefOpts) || {};
+
+      var resolver = controllers[2] || null;
+      var resolveStart = function() {}, resolveEnd = function() {};
+
+      if(resolver) {
+        resolveStart = resolver.$$resolveStart;
+        resolveEnd = resolver.$$resolveEnd;
+      }
 
       angular.forEach(allowedOptions, function(option) {
         if (option in optionsOverride) {
@@ -108,7 +116,7 @@ function $StateRefDirective($state, $timeout) {
 
         newHref = $state.href(ref.state, params, options);
 
-        var activeDirective = uiSrefActive[1] || uiSrefActive[0];
+        var activeDirective = controllers[1] || controllers[0];
         if (activeDirective) {
           activeDirective.$$addStateInfo(ref.state, params);
         }
@@ -134,7 +142,13 @@ function $StateRefDirective($state, $timeout) {
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
           var transition = $timeout(function() {
-            $state.go(ref.state, params, options);
+            resolveStart();
+            var goPromise = $state.go(ref.state, params, options)
+            if(goPromise) {
+              goPromise.then(resolveEnd, resolveEnd);
+            } else {
+              resolveEnd();
+            }
           });
           e.preventDefault();
 
@@ -279,7 +293,94 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
   };
 }
 
+/**
+ * @ngdoc directive
+ * @name ui.router.state.directive:ui-sref-resolve
+ *
+ * @requires ui.router.state.$state
+ * @requires ui.router.state.$stateParams
+ * @requires $interpolate
+ *
+ * @restrict A
+ *
+ * @description
+ * A directive working alongside ui-sref to add classes to an element when the
+ * related ui-sref directive starts to resolve the next state, and removing them when
+ * it is inactive.
+ * The primary use-case is to simplify the special appearance of navigation menus
+ * relying on `ui-sref`, by having a "loading" state's menu button appear different,
+ * distinguishing it from other menu items.
+ *
+ * ui-sref-resolve can live on the same element as ui-sref or on a parent element. The first
+ * ui-sref-resolve found at the same level or above the ui-sref will be used.
+ *
+ * @example
+ * Given the following template:
+ * <pre>
+ * <ul>
+ *   <li ui-sref-resolve="loading" class="item">
+ *     <a href ui-sref="app.user({user: 'bilbobaggins'})">@bilbobaggins</a>
+ *   </li>
+ * </ul>
+ * </pre>
+ *
+ *
+ * When the anchor is triggered the resulting HTML will appear as (note the 'loading' class):
+ * <pre>
+ * <ul>
+ *   <li ui-sref-active="active" class="item loading">
+ *     <a ui-sref="app.user({user: 'bilbobaggins'})" href="/users/bilbobaggins">@bilbobaggins</a>
+ *   </li>
+ * </ul>
+ * </pre>
+ *
+ * After the state is changed, or the state change is stopped because an error happend in the resolve
+ * phase the resulting HTML will appear as (note the 'loading' class is missing again)
+ * <pre>
+ * <ul>
+ *   <li ui-sref-active="active" class="item">
+ *     <a ui-sref="app.user({user: 'bilbobaggins'})" href="/users/bilbobaggins">@bilbobaggins</a>
+ *   </li>
+ * </ul>
+ * </pre>
+ *
+ * The class name is interpolated **once** during the directives link time (any further changes to the
+ * interpolated value are ignored).
+ *
+ * Multiple classes may be specified in a space-separated format:
+ * <pre>
+ * <ul>
+ *   <li ui-sref-resolve='class1 class2 class3'>
+ *     <a ui-sref="app.user">link</a>
+ *   </li>
+ * </ul>
+ * </pre>
+ */
+$StateRefResolveDirective.$inject = ['$state', '$stateParams', '$interpolate'];;
+function $StateRefResolveDirective($state, $stateParams, $interpolate) {
+  return {
+    restrict: "A",
+    controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+      var state, params, activeClass;
+
+      // There probably isn't much point in $observing this
+      // uiSrefActive and uiSrefActiveEq share the same directive object with some
+      // slight difference in logic routing
+      activeClass = $interpolate($attrs.uiSrefResolve || '', false)($scope);
+
+      this.$$resolveStart = function() {
+        $element.addClass(activeClass);
+      };
+
+      this.$$resolveEnd = function() {
+        $element.removeClass(activeClass);
+      };
+    }]
+  }
+}
+
 angular.module('ui.router.state')
   .directive('uiSref', $StateRefDirective)
+  .directive('uiSrefResolve', $StateRefResolveDirective)
   .directive('uiSrefActive', $StateRefActiveDirective)
   .directive('uiSrefActiveEq', $StateRefActiveDirective);
