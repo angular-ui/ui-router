@@ -495,6 +495,22 @@ describe('uiSrefActive', function() {
     $q.flush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('ng-scope');
   }));
+
+  it('should match on any child state refs', inject(function($rootScope, $q, $compile, $state) {
+    el = angular.element('<div ui-sref-active="active"><a ui-sref="contacts.item({ id: 1 })">Contacts</a><a ui-sref="contacts.item({ id: 2 })">Contacts</a></div>');
+    template = $compile(el)($rootScope);
+    $rootScope.$digest();
+
+    expect(angular.element(template[0]).attr('class')).toBe('ng-scope');
+
+    $state.transitionTo('contacts.item', { id: 1 });
+    $q.flush();
+    expect(angular.element(template[0]).attr('class')).toBe('ng-scope active');
+
+    $state.transitionTo('contacts.item', { id: 2 });
+    $q.flush();
+    expect(angular.element(template[0]).attr('class')).toBe('ng-scope active');
+  }));
 });
 
 describe('uiView controllers or onEnter handlers', function() {
