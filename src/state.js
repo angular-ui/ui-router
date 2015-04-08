@@ -968,6 +968,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       var from = $state.$current, fromParams = $state.params, fromPath = from.path;
       var evt, toState = findState(to, options.relative);
 
+      // Store the hash param for later (since it will be stripped out by various methods)
+      var hash = toParams['#'];
+
       if (!isDefined(toState)) {
         var redirect = { to: to, toParams: toParams, options: options };
         var redirectResult = handleRedirect(redirect, from.self, fromParams, options);
@@ -1116,6 +1119,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
             $injector.invoke(entering.self.onEnter, entering.self, entering.locals.globals);
           }
         }
+
+        // Re-add the saved hash before we start returning things
+        if (hash) toParams['#'] = hash;
 
         // Run it again, to catch any transitions in callbacks
         if ($state.transition !== transition) return TransitionSuperseded;
@@ -1342,7 +1348,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       if (!nav || nav.url === undefined || nav.url === null) {
         return null;
       }
-      return $urlRouter.href(nav.url, filterByKeys(state.params.$$keys(), params || {}), {
+      return $urlRouter.href(nav.url, filterByKeys(state.params.$$keys().concat('#'), params || {}), {
         absolute: options.absolute
       });
     };
