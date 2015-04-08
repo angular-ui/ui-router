@@ -173,6 +173,22 @@ describe("UrlRouter", function () {
         expect($location.url).toHaveBeenCalledWith("/hello/");
       }));
 
+      it('can push location changes that include a #fragment', inject(function($urlRouter, $location) {
+        // html5mode disabled
+        $lp.html5Mode(false);
+        expect($lp.html5Mode()).toBe(false);
+        $urlRouter.push(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'});
+        expect($location.url()).toBe('/hello/world#frag');
+        expect($location.hash()).toBe('frag');
+
+        // html5mode enabled
+        $lp.html5Mode(true);
+        expect($lp.html5Mode()).toBe(true);
+        $urlRouter.push(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'});
+        expect($location.url()).toBe('/hello/world#frag');
+        expect($location.hash()).toBe('frag');
+      }));
+
       it('can read and sync a copy of location URL', inject(function($urlRouter, $location) {
         $location.url('/old');
 
@@ -207,6 +223,18 @@ describe("UrlRouter", function () {
         });
 
         expect($urlRouter.href(new UrlMatcher('/hello'))).toBe('#/hello');
+      }));
+
+      it('should return URLs with #fragments', inject(function($urlRouter) {
+        // html5mode disabled
+        $lp.html5Mode(false);
+        expect($lp.html5Mode()).toBe(false);
+        expect($urlRouter.href(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('#/hello/world#frag');
+
+        // html5mode enabled
+        $lp.html5Mode(true);
+        expect($lp.html5Mode()).toBe(true);
+        expect($urlRouter.href(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('/hello/world#frag');
       }));
     });
   });
