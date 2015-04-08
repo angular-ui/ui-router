@@ -141,7 +141,7 @@ describe('uiStateRef', function() {
         ctrlKey:  undefined,
         shiftKey: undefined,
         altKey:   undefined,
-        button:   undefined 
+        button:   undefined
       });
       timeoutFlush();
       $q.flush();
@@ -156,7 +156,7 @@ describe('uiStateRef', function() {
 
       timeoutFlush();
       $q.flush();
-      
+
       expect($state.current.name).toEqual('top');
       expect($stateParams).toEqualData({ });
     }));
@@ -222,7 +222,7 @@ describe('uiStateRef', function() {
 
     it('should allow passing params to current state', inject(function($compile, $rootScope, $state) {
       $state.current.name = 'contacts.item.detail';
-      
+
       el = angular.element("<a ui-sref=\"{id: $index}\">Details</a>");
       $rootScope.$index = 3;
       $rootScope.$apply();
@@ -231,10 +231,10 @@ describe('uiStateRef', function() {
       $rootScope.$digest();
       expect(el.attr('href')).toBe('#/contacts/3');
     }));
-    
+
     it('should allow multi-line attribute values when passing params to current state', inject(function($compile, $rootScope, $state) {
       $state.current.name = 'contacts.item.detail';
-      
+
       el = angular.element("<a ui-sref=\"{\n\tid: $index\n}\">Details</a>");
       $rootScope.$index = 3;
       $rootScope.$apply();
@@ -392,7 +392,7 @@ describe('uiStateRef', function() {
 });
 
 describe('uiSrefActive', function() {
-    var el, template, scope, document;
+  var el, template, scope, document;
 
   beforeEach(module('ui.router'));
 
@@ -541,5 +541,113 @@ describe('uiView controllers or onEnter handlers', function() {
     expect(template[0].querySelector('.fwd')).not.toBeNull();
     expect(template[0].querySelector('.nest')).not.toBeNull();
     expect(count).toBe(1);
+  }));
+});
+
+describe('uiSrefResolve', function() {
+  var template = '<div><a ui-sref-resolve="btn-loading" ui-sref=".a" class="a">A</a> <a ui-sref-resolve="btn-loading" ui-sref=".b" class="b">B</a> <ui-view></ui-view></div>';
+
+  beforeEach(module('ui.router'));
+
+  var $timeout, resolveA, resolveB;
+
+  beforeEach(module(function($stateProvider) {
+    $stateProvider.state('top', {
+      url: ''
+    }).state('a', {
+      url: '/a',
+      template: 'Success',
+      controller: function(a) {}, // require a
+      resolve: {
+        a: function($q) {
+          resolveA = $q.defer();
+          return resolveA.promise;
+        }
+      }
+    }).state('b', {
+      url: '/b',
+      template: 'Failure',
+      controller: function(b) {}, // require b
+      resolve: {
+        b: function($q) {
+          resolveB = $q.defer();
+          return resolveB.promise;
+        }
+      }
+    });
+  }));
+
+  beforeEach(inject(function(_$timeout_) {
+    $timeout = _$timeout_;
+  }));
+
+  function triggerClick(el, options) {
+    options = angular.extend({
+      metaKey:  false,
+      ctrlKey:  false,
+      shiftKey: false,
+      altKey:   false,
+      button:   0
+    }, options || {});
+
+    var e = document.createEvent("MouseEvents");
+    e.initMouseEvent(
+      "click", // typeArg of type DOMString, Specifies the event type.
+      true, // canBubbleArg of type boolean, Specifies whether or not the event can bubble.
+      true, // cancelableArg of type boolean, Specifies whether or not the event's default action can be prevented.
+      undefined, // viewArg of type views::AbstractView, Specifies the Event's AbstractView.
+      0, // detailArg of type long, Specifies the Event's mouse click count.
+      0, // screenXArg of type long, Specifies the Event's screen x coordinate
+      0, // screenYArg of type long, Specifies the Event's screen y coordinate
+      0, // clientXArg of type long, Specifies the Event's client x coordinate
+      0, // clientYArg of type long, Specifies the Event's client y coordinate
+      options.ctrlKey, // ctrlKeyArg of type boolean, Specifies whether or not control key was depressed during the Event.
+      options.altKey, // altKeyArg of type boolean, Specifies whether or not alt key was depressed during the Event.
+      options.shiftKey, // shiftKeyArg of type boolean, Specifies whether or not shift key was depressed during the Event.
+      options.metaKey, // metaKeyArg of type boolean, Specifies whether or not meta key was depressed during the Event.
+      options.button, // buttonArg of type unsigned short, Specifies the Event's mouse button.
+      null // relatedTargetArg of type EventTarget
+    );
+    el[0].dispatchEvent(e);
+  }
+
+  it('should update class uiSrefResolve when promise resolves', inject(function($rootScope, $q, $compile, $state) {
+    el = angular.element(template);
+    template = $compile(el)($rootScope);
+    $rootScope.$digest();
+
+    var a = angular.element(template[0].querySelector('.a'));
+    var b = angular.element(template[0].querySelector('.b'));
+
+    expect(a.attr('class')).toBe('a');
+    expect(b.attr('class')).toBe('b');
+    triggerClick(a);
+    $timeout.flush();
+    expect(a.attr('class')).toBe('a btn-loading');
+    expect(b.attr('class')).toBe('b');
+    resolveA.resolve('A');
+    $timeout.flush();
+    expect(a.attr('class')).toBe('a');
+    expect(b.attr('class')).toBe('b');
+  }));
+
+  it('should update class uiSrefResolve when promise is rejected', inject(function($rootScope, $q, $compile, $state) {
+    el = angular.element(template);
+    template = $compile(el)($rootScope);
+    $rootScope.$digest();
+
+    var a = angular.element(template[0].querySelector('.a'));
+    var b = angular.element(template[0].querySelector('.b'));
+
+    expect(a.attr('class')).toBe('a');
+    expect(b.attr('class')).toBe('b');
+    triggerClick(b);
+    $timeout.flush();
+    expect(a.attr('class')).toBe('a');
+    expect(b.attr('class')).toBe('b btn-loading');
+    resolveB.reject('B');
+    $timeout.flush();
+    expect(a.attr('class')).toBe('a');
+    expect(b.attr('class')).toBe('b');
   }));
 });
