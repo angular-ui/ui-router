@@ -87,7 +87,7 @@ function $StateRefDirective($state, $timeout) {
       var ref = parseStateRef(attrs.uiSref, $state.current.name);
       var params = null, url = null, base = stateContext(element) || $state.$current;
       // SVGAElement does not use the href attribute, but rather the 'xlinkHref' attribute.
-      var hrefKind = toString.call(element.prop('href')) === '[object SVGAnimatedString]' ?
+      var hrefKind = Object.prototype.toString.call(element.prop('href')) === '[object SVGAnimatedString]' ?
                  'xlink:href' : 'href';
       var newHref = null, isAnchor = element.prop("tagName").toUpperCase() === "A";
       var isForm = element[0].nodeName === "FORM";
