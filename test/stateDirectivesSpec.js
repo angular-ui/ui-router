@@ -559,3 +559,96 @@ describe('uiView controllers or onEnter handlers', function() {
     expect(count).toBe(1);
   }));
 });
+
+
+ddescribe('uiSrefResolve', function() {
+  var template = '<div><a ui-sref=".a" ui-sref-on="check($transition)" class="a">A</a></div>';
+
+  beforeEach(module('ui.router'));
+
+  var $timeout, defer;
+
+  beforeEach(module(function($stateProvider) {
+    $stateProvider.state('top', {
+      url: ''
+    }).state('a', {
+      url: '/a',
+      template: 'Success',
+      controller: function(a) {}, // require a
+      resolve: {
+        a: function($q) {
+          defer = $q.defer();
+          return defer.promise;
+        }
+      }
+    });
+  }));
+
+  beforeEach(inject(function(_$timeout_) {
+    $timeout = _$timeout_;
+  }));
+
+  function triggerClick(el, options) {
+    options = angular.extend({
+      metaKey:  false,
+      ctrlKey:  false,
+      shiftKey: false,
+      altKey:   false,
+      button:   0
+    }, options || {});
+
+    var e = document.createEvent("MouseEvents");
+    e.initMouseEvent(
+      "click", // typeArg of type DOMString, Specifies the event type.
+      true, // canBubbleArg of type boolean, Specifies whether or not the event can bubble.
+      true, // cancelableArg of type boolean, Specifies whether or not the event's default action can be prevented.
+      undefined, // viewArg of type views::AbstractView, Specifies the Event's AbstractView.
+      0, // detailArg of type long, Specifies the Event's mouse click count.
+      0, // screenXArg of type long, Specifies the Event's screen x coordinate
+      0, // screenYArg of type long, Specifies the Event's screen y coordinate
+      0, // clientXArg of type long, Specifies the Event's client x coordinate
+      0, // clientYArg of type long, Specifies the Event's client y coordinate
+      options.ctrlKey, // ctrlKeyArg of type boolean, Specifies whether or not control key was depressed during the Event.
+      options.altKey, // altKeyArg of type boolean, Specifies whether or not alt key was depressed during the Event.
+      options.shiftKey, // shiftKeyArg of type boolean, Specifies whether or not shift key was depressed during the Event.
+      options.metaKey, // metaKeyArg of type boolean, Specifies whether or not meta key was depressed during the Event.
+      options.button, // buttonArg of type unsigned short, Specifies the Event's mouse button.
+      null // relatedTargetArg of type EventTarget
+    );
+    el[0].dispatchEvent(e);
+  }
+
+  it('should execute ui-sref-on code on click', inject(function($rootScope, $q, $compile, $state) {
+    el = angular.element(template);
+    template = $compile(el)($rootScope);
+    $rootScope.$digest();
+
+    var a = angular.element(template[0].querySelector('.a'));
+
+    var state = 'start', transition = null;
+    $rootScope.check = function(_transition) {
+      state = 'resolving';
+      transition = _transition;
+
+      transition.then(function() {
+        state = 'resolved';
+      });
+    };
+
+    expect(state).toBe('start');
+    expect(transition).toBeNull();
+    expect(a.attr('class')).toBe('a');
+
+    triggerClick(a);
+    $timeout.flush();
+
+    expect(state).toBe('resolving');
+    expect(transition).not.toBeNull();
+
+    defer.resolve('done');
+    $timeout.flush();
+
+    expect(state).toBe('resolved');
+  }));
+
+});
