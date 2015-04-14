@@ -96,6 +96,8 @@ function $StateRefDirective($state, $timeout, $modal) {
       var options = { relative: base, inherit: true };
       var optionsOverride = scope.$eval(attrs.uiSrefOpts) || {};
 
+      var currentInstance = true;
+
       angular.forEach(allowedOptions, function(option) {
         if (option in optionsOverride) {
           options[option] = optionsOverride[option];
@@ -117,6 +119,13 @@ function $StateRefDirective($state, $timeout, $modal) {
           return false;
         }
         attrs.$set(attr, newHref);
+
+        if (angular.isArray(options.instance) && options.instance.length) {
+            currentInstance = _.any(options.instance, 'current_instance');
+            if (!currentInstance && options.instance.length == 1) {
+                attrs.$set('target', '_self');
+            }
+        }
       };
 
       if (ref.paramExpr) {
@@ -133,74 +142,68 @@ function $StateRefDirective($state, $timeout, $modal) {
         var button = e.which || e.button;
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
 
-          if (angular.isArray(options.instance) && options.instance.length) {
+          if (!currentInstance) {
+              if (options.instance.length > 1) {
 
-              var instance = _.find(options.instance, 'current_instance');
+                  e.preventDefault();
 
-              if (!instance) {
-                  if (options.instance.length > 1) {
-
-                      e.preventDefault();
-
-                      // launch modal with instance choices
-                      var modalInstance = $modal.open({
-                          template:   '<div class="modal-header">' +
-                                        '<h3>' + Translator.trans('state.href.instance.list.title') + '</h3>' +
-                                      '</div>' +
-                                      '<div class="modal-body">' +
-                                          '<ul class="list-group">' +
-                                              '<li ng-repeat="instance in instances" class="list-group-item">' +
-                                                  '<div class="media">' +
-                                                      '<div class="media-body">' +
-                                                          '<h4 class="media-heading">' +
-                                                              '<a ng-href="{{ instance.href }}">' +
-                                                                  '<span ng-bind="instance.name"></span>' +
-                                                                  ' <small>(<span ng-bind="instance.href"></span>)</small>' +
-                                                              '</a>' +
-                                                          '</h4>' +
-                                                      '</div>' +
+                  // launch modal with instance choices
+                  var modalInstance = $modal.open({
+                      template:   '<div class="modal-header">' +
+                                    '<h3>' + Translator.trans('state.href.instance.list.title') + '</h3>' +
+                                  '</div>' +
+                                  '<div class="modal-body">' +
+                                      '<ul class="list-group">' +
+                                          '<li ng-repeat="instance in instances" class="list-group-item">' +
+                                              '<div class="media">' +
+                                                  '<div class="media-body">' +
+                                                      '<h4 class="media-heading">' +
+                                                          '<a ng-href="{{ instance.href }}">' +
+                                                              '<span ng-bind="instance.name"></span>' +
+                                                              ' <small>(<span ng-bind="instance.href"></span>)</small>' +
+                                                          '</a>' +
+                                                      '</h4>' +
                                                   '</div>' +
-                                              '</li>' +
-                                          '</ul>' +
-                                      '</div>',
-                          controller: function ($scope, instances, state, params, options) {
-                              instances = _.filter(instances, function (instance) {
-                                  return instance.type !== 'group';
+                                              '</div>' +
+                                          '</li>' +
+                                      '</ul>' +
+                                  '</div>',
+                      controller: function ($scope, instances, state, params, options) {
+                          instances = _.filter(instances, function (instance) {
+                              return instance.type !== 'group';
+                          });
+
+                          angular.forEach(instances, function (instance) {
+                              var newOptions = _.clone(options, true);
+                              newOptions.instance = _.filter(newOptions.instance, function (i) {
+                                  return i.eid === instance.eid;
                               });
+                              instance.href = $state.href(ref.state, params, newOptions);
+                          });
 
-                              angular.forEach(instances, function (instance) {
-                                  var newOptions = _.clone(options, true);
-                                  newOptions.instance = _.filter(newOptions.instance, function (i) {
-                                      return i.eid === instance.eid;
-                                  });
-                                  instance.href = $state.href(ref.state, params, newOptions);
-                              });
+                          $scope.instances = instances;
 
-                              $scope.instances = instances;
-
+                      },
+                      resolve: {
+                          instances: function () {
+                              return options.instance;
                           },
-                          resolve: {
-                              instances: function () {
-                                  return options.instance;
-                              },
-                              state: function () {
-                                  return ref.state;
-                              },
-                              params: function () {
-                                  return params;
-                              },
-                              options: function () {
-                                  return options;
-                              }
+                          state: function () {
+                              return ref.state;
+                          },
+                          params: function () {
+                              return params;
+                          },
+                          options: function () {
+                              return options;
                           }
+                      }
 
-                      });
-
-                  }
-
-                  return;
+                  });
 
               }
+
+              return;
 
           }
 
