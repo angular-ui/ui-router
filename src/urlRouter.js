@@ -403,7 +403,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
             if (!instance) {
               instance = options.instance[0];
               if (instance) {
-                return $location.protocol() + '://' + options.instance[0].domain_name + '/' + url;
+                return $location.protocol() + '://' + options.instance[0].domain_name + url;
               }
             }
           }
