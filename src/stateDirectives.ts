@@ -233,13 +233,13 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
       // Allow uiSref to communicate with uiSrefActive[Equals]
       this.$$addStateInfo = function (newState, newParams) {
         var state = $state.get(newState, stateContext($element));
-        if (state) {
-          states.push({
-            state: state,
-            params: newParams
-          });
-          update();
-        }
+
+        states.push({
+          state: state || { name: newState },
+          params: newParams
+        });
+
+        update();
       };
 
       $scope.$on('$stateChangeSuccess', update);
