@@ -62,5 +62,16 @@
     "grunt-conventional-changelog": "~1.1.0",
     "grunt-ngdocs": "~0.2.5"
   },
-  "main": "release/angular-ui-router.js"
+  "main": "release/angular-ui-router.js",
+  "spm": {
+    "main": "release/angular-ui-router.js",
+    "ignore": [
+      "api",
+      "lib",
+      "config",
+      "ngdoc_assets",
+      "sample",
+      "test"
+    ]
+  }
 }
