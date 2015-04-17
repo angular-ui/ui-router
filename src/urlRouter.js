@@ -277,7 +277,6 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
 
       if (isHtml5) return baseHref.slice(0, -1) + url;
       if (absolute) return baseHref.slice(1) + url;
-        console.log(url)
       return url;
     }
 
