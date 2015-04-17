@@ -267,10 +267,17 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
 
     var baseHref = $browser.baseHref(), location = $location.url(), lastPushedUrl;
 
-    function appendBasePath(url, isHtml5, absolute) {
-      if (baseHref === '/') return url;
+    function appendBasePath(url, isHtml5, absolute, instance) {
+
+      var currentInstance = true;
+      if (angular.isArray(instance) && instance.length) {
+        currentInstance = _.any(instance, 'current_instance');
+      }
+      if (currentInstance && baseHref === '/') return url;
+
       if (isHtml5) return baseHref.slice(0, -1) + url;
       if (absolute) return baseHref.slice(1) + url;
+        console.log(url)
       return url;
     }
 
@@ -408,7 +415,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
           url += '#' + params['#'];
         }
 
-        url = appendBasePath(url, isHtml5, options.absolute);
+        url = appendBasePath(url, isHtml5, options.absolute, options.instance);
 
         if (options.instance) {
           if (angular.isArray(options.instance) && options.instance.length) {
