@@ -114,10 +114,12 @@ describe('uiView', function () {
       .state('l', lState)
   }));
 
-  beforeEach(inject(function ($rootScope, _$compile_) {
+  beforeEach(inject(function ($rootScope, _$compile_, _$window_) {
     scope = $rootScope.$new();
     $compile = _$compile_;
     elem = angular.element('<div>');
+
+    spyOn(_$window_, 'scrollTo');
   }));
 
   describe('linking ui-directive', function () {
@@ -295,6 +297,42 @@ describe('uiView', function () {
       }
 
       expect($uiViewScroll).toHaveBeenCalledWith(target);
+    }));
+  });
+
+  describe('resetscroll attribute', function () {
+    it('should NOT resetscroll when unspecified', inject(function ($state, $q, $window, $animate) {
+      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+
+      $state.transitionTo(aState);
+      $q.flush();
+
+      expect($window.scrollTo).not.toHaveBeenCalled();
+    }));
+
+    it('should resetscroll when expression is missing', inject(function ($state, $q, $window, $animate) {
+      elem.append($compile('<div><ui-view resetscroll></ui-view></div>')(scope));
+      $state.transitionTo(aState);
+      $q.flush();
+
+      expect($window.scrollTo).toHaveBeenCalledWith(0, 0);
+    }));
+
+    it('should resetscroll based on expression', inject(function ($state, $q, $window, $animate) {
+      scope.doScroll = false;
+
+      elem.append($compile('<div><ui-view resetscroll="doScroll"></ui-view></div>')(scope));
+
+      $state.transitionTo(aState);
+      $q.flush();
+
+      expect($window.scrollTo).not.toHaveBeenCalled();
+
+      scope.doScroll = true;
+      $state.transitionTo(bState);
+      $q.flush();
+
+      expect($window.scrollTo).toHaveBeenCalledWith(0, 0);
     }));
   });
 

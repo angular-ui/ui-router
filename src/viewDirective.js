@@ -26,6 +26,9 @@
  * functionality, call `$uiViewScrollProvider.useAnchorScroll()`.*
  *
  * @param {string=} onload Expression to evaluate whenever the view updates.
+ *
+ * @param {string=} resetscroll It allows you to reset the window scroll to 
+ * the top before transitioning to a new state.
  * 
  * @example
  * A view can be unnamed or named. 
@@ -110,9 +113,24 @@
  * <ui-view autoscroll='false'/>
  * <ui-view autoscroll='scopeVariable'/>
  * </pre>
+ *
+ * Examples for `resetscroll`:
+ *
+ * <pre>
+ * <!-- If resetscroll present with no expression,
+ *      then reset window scroll to top before transition -->
+ * <ui-view resetscroll/>
+ *
+ * <!-- If resetscroll present with valid expression,
+ *      then reset window scroll to top before transition if expression 
+ *      evaluates to true -->
+ * <ui-view resetscroll='true'/>
+ * <ui-view resetscroll='false'/>
+ * <ui-view resetscroll='scopeVariable'/>
+ * </pre>
  */
-$ViewDirective.$inject = ['$state', '$injector', '$uiViewScroll', '$interpolate'];
-function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate) {
+$ViewDirective.$inject = ['$state', '$injector', '$uiViewScroll', '$interpolate', '$window'];
+function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate, $window) {
 
   function getService() {
     return ($injector.has) ? function(service) {
@@ -173,9 +191,10 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate)
     compile: function (tElement, tAttrs, $transclude) {
       return function (scope, $element, attrs) {
         var previousEl, currentEl, currentScope, latestLocals,
-            onloadExp     = attrs.onload || '',
-            autoScrollExp = attrs.autoscroll,
-            renderer      = getRenderer(attrs, scope);
+            onloadExp       = attrs.onload || '',
+            autoScrollExp   = attrs.autoscroll,
+            resetScrollExp  = attrs.resetscroll,
+            renderer        = getRenderer(attrs, scope);
 
         scope.$on('$stateChangeSuccess', function() {
           updateView(false);
@@ -204,6 +223,10 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate)
 
             previousEl = currentEl;
             currentEl = null;
+          }
+
+          if (angular.isDefined(resetScrollExp) && !resetScrollExp || scope.$eval(resetScrollExp)) {
+            $window.scrollTo(0, 0);
           }
         }
 
