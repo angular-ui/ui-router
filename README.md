@@ -34,8 +34,10 @@ Check out the sample app: http://angular-ui.github.io/ui-router/sample/
 **(1)** Get UI-Router in one of the following ways:
  - clone & [build](CONTRIBUTING.md#developing) this repository
  - [download the release](http://angular-ui.github.io/ui-router/release/angular-ui-router.js) (or [minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js))
- - via **[Bower](http://bower.io/)**: by running `$ bower install angular-ui-router` from your console
+ - [link to cdn](http://cdnjs.com/libraries/angular-ui-router)
+ - via **[jspm](jspm.io)**: by running `$ jspm install angular-ui-router` from your console
  - or via **[npm](https://www.npmjs.org/)**: by running `$ npm install angular-ui-router` from your console
+ - or via **[Bower](http://bower.io/)**: by running `$ bower install angular-ui-router` from your console
  - or via **[Component](https://github.com/component/component)**: by running `$ component install angular-ui/ui-router` from your console
 
 **(2)** Include `angular-ui-router.js` (or `angular-ui-router.min.js`) in your `index.html`, after including Angular itself (For Component users: ignore this step)
