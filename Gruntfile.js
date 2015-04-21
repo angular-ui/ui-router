@@ -129,7 +129,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('integrate', ['build', 'jshint', 'karma:unit', 'karma:past', 'karma:unstable']);
+  grunt.registerTask('integrate', ['build', 'jshint', 'karma:unit', 'karma:past', 'karma:unstable', 'karma:future']);
   grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
   grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
   grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
