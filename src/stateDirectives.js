@@ -143,7 +143,12 @@ function $StateRefDirective($state, $timeout, $modal) {
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
 
           if (!currentInstance) {
-              if (options.instance.length > 1) {
+
+              var instances = _.filter(options.instance, function (instance) {
+                  return instance.type !== 'group';
+              });
+
+              if (instances.length > 1) {
 
                   e.preventDefault();
 
@@ -169,10 +174,6 @@ function $StateRefDirective($state, $timeout, $modal) {
                                       '</ul>' +
                                   '</div>',
                       controller: function ($scope, instances, state, params, options) {
-                          instances = _.filter(instances, function (instance) {
-                              return instance.type !== 'group';
-                          });
-
                           angular.forEach(instances, function (instance) {
                               var newOptions = _.clone(options, true);
                               newOptions.instance = _.filter(newOptions.instance, function (i) {
@@ -186,7 +187,7 @@ function $StateRefDirective($state, $timeout, $modal) {
                       },
                       resolve: {
                           instances: function () {
-                              return options.instance;
+                              return instances;
                           },
                           state: function () {
                               return ref.state;
