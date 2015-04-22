@@ -35,7 +35,7 @@ Check out the sample app: http://angular-ui.github.io/ui-router/sample/
  - clone & [build](CONTRIBUTING.md#developing) this repository
  - [download the release](http://angular-ui.github.io/ui-router/release/angular-ui-router.js) (or [minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js))
  - [link to cdn](http://cdnjs.com/libraries/angular-ui-router)
- - via **[jspm](jspm.io)**: by running `$ jspm install angular-ui-router` from your console
+ - via **[jspm](http://jspm.io/)**: by running `$ jspm install angular-ui-router` from your console
  - or via **[npm](https://www.npmjs.org/)**: by running `$ npm install angular-ui-router` from your console
  - or via **[Bower](http://bower.io/)**: by running `$ bower install angular-ui-router` from your console
  - or via **[Component](https://github.com/component/component)**: by running `$ component install angular-ui/ui-router` from your console
