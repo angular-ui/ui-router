@@ -1,3 +1,34 @@
+<a name="0.2.14"></a>
+### 0.2.14 (2015-04-23)
+
+
+#### Bug Fixes
+
+* **$StateRefDirective:** resolve missing support for svg anchor elements #1667 ([0149a7bb](https://github.com/angular-ui/ui-router/commit/0149a7bb38b7af99388a1ad7cc9909a7b7c4439d))
+* **$urlMatcherFactory:**
+  * regex params should respect case-sensitivity ([1e10519f](https://github.com/angular-ui/ui-router/commit/1e10519f3be6bbf0cefdcce623cd2ade06e649e5), closes [#1671](https://github.com/angular-ui/ui-router/issues/1671))
+  * unquote all dashes from array params ([06664d33](https://github.com/angular-ui/ui-router/commit/06664d330f882390655dcfa83e10276110d0d0fa))
+  * add Type.$normalize function ([b0c6aa23](https://github.com/angular-ui/ui-router/commit/b0c6aa2350fdd3ce8483144774adc12f5a72b7e9))
+  * make optional params regex grouping optional ([06f73794](https://github.com/angular-ui/ui-router/commit/06f737945e83e668d09cfc3bcffd04a500ff1963), closes [#1576](https://github.com/angular-ui/ui-router/issues/1576))
+* **$state:** allow about.*.** glob patterns ([e39b27a2](https://github.com/angular-ui/ui-router/commit/e39b27a2cb7d88525c446a041f9fbf1553202010))
+* **uiSref:**
+  * use Object's toString instead of Window's toString ([2aa7f4d1](https://github.com/angular-ui/ui-router/commit/2aa7f4d139dbd5b9fcc4afdcf2ab6642c87f5671))
+  * add absolute to allowed transition options ([ae1b3c4e](https://github.com/angular-ui/ui-router/commit/ae1b3c4eedc37983400d830895afb50457c63af4))
+* **uiSrefActive:** Apply active classes on lazy loaded states ([f0ddbe7b](https://github.com/angular-ui/ui-router/commit/f0ddbe7b4a91daf279c3b7d0cee732bb1f3be5b4))
+* **uiView:** add `$element` to locals for view controller ([db68914c](https://github.com/angular-ui/ui-router/commit/db68914cd6c821e7dec8155bd33142a3a97f5453))
+
+
+#### Features
+
+* **$state:**
+  * support URLs with #fragments ([3da0a170](https://github.com/angular-ui/ui-router/commit/3da0a17069e27598c0f9d9164e104dd5ce05cdc6))
+  * inject resolve params into controllerProvider ([b380c223](https://github.com/angular-ui/ui-router/commit/b380c223fe12e2fde7582c0d6b1ed7b15a23579b), closes [#1131](https://github.com/angular-ui/ui-router/issues/1131))
+  * added 'state' to state reload method (feat no.1612)  - modiefied options.reload  ([b8f04575](https://github.com/angular-ui/ui-router/commit/b8f04575a8557035c1858c4d5c8dbde3e1855aaa))
+  * broadcast $stateChangeCancel event when event.preventDefault() is called in $sta ([ecefb758](https://github.com/angular-ui/ui-router/commit/ecefb758cb445e41620b62a272aafa3638613d7a))
+* **$uiViewScroll:** change function to return promise ([c2a9a311](https://github.com/angular-ui/ui-router/commit/c2a9a311388bb212e5a2e820536d1d739f829ccd), closes [#1702](https://github.com/angular-ui/ui-router/issues/1702))
+* **uiSrefActive:** Added support for multiple nested uiSref directives ([b1844948](https://github.com/angular-ui/ui-router/commit/b18449481d152b50705abfce2493a444eb059fa5))
+
+
 <a name="0.2.13"></a>
 ### 0.2.13 (2014-11-20)
 
