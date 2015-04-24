@@ -1,25 +1,49 @@
 <h1><code ng:non-bindable="">$urlRouter</code>
-<span class="hint">(service in module <code ng:non-bindable="">ui.router.router</code>
-)</span>
+<div><span class="hint">service in module <code ng:non-bindable="">ui.router.router</code>
+</span>
+</div>
 </h1>
-<div><h2 id="Description">Description</h2>
+<div><h2 id="description">Description</h2>
 <div class="description"></div>
-<h2 id="Dependencies">Dependencies</h2>
+<h2 id="dependencies">Dependencies</h2>
 <ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/ng.$location">$location</a></code>
 </li>
 <li><code ng:non-bindable=""><a href="#/api/ng.$rootScope">$rootScope</a></code>
 </li>
 <li><code ng:non-bindable=""><a href="#/api/ng.$injector">$injector</a></code>
 </li>
+<li><code ng:non-bindable=""><a href="#/api/ng.$browser">$browser</a></code>
+</li>
 </ul>
-<div class="member method"><h2 id="Methods">Methods</h2>
-<ul class="methods"><li><h3 id="sync">sync()</h3>
-<div class="sync"><p>Triggers an update; the same update that happens when the address bar url changes, aka <code>$locationChangeSuccess</code>.
-This method is useful when you need to use <code>preventDefault()</code> on the <code>$locationChangeSuccess</code> event, 
-perform some custom logic (route protection, auth, config, redirection, etc) and then finally proceed 
-with the transition by calling <code>$urlRouter.sync()</code>.</p><h4 id="Example">Example</h4>
-<div class="example"><pre class="prettyprint linenums">
-angular.module('app', ['ui.router']);
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_href">href(urlMatcher, params, options)</h3>
+<div class="href"><div class="ui-router-router-urlrouter-href-page"><p>A URL generation method that returns the compiled URL for a given
+<a href="#/api/ui.router.util.type:UrlMatcher"><code>UrlMatcher</code></a>, populated with the provided parameters.</p>
+</div><h5 id="methods_href_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>urlMatcher</td><td><a href="" class="label type-hint type-hint-urlmatcher">UrlMatcher</a></td><td><div class="ui-router-router-urlrouter-href-page"><p>The <code>UrlMatcher</code> object which is used as the template of the URL to generate.</p>
+</div></td></tr><tr><td>params <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-router-urlrouter-href-page"><p>An object of parameter values to fill the matcher&#39;s required parameters.</p>
+</div></td></tr><tr><td>options <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-router-urlrouter-href-page"><p>Options object. The options are:</p>
+<ul>
+<li><strong><code>absolute</code></strong> - {boolean=false},  If true will generate an absolute url, e.g. &quot;<a href="http://www.example.com/fullurl">http://www.example.com/fullurl</a>&quot;.</li>
+</ul>
+</div></td></tr></tbody></table><h5 id="methods_href_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-router-urlrouter-href-page"><p>Returns the fully compiled URL, or <code>null</code> if <code>params</code> fail validation against <code>urlMatcher</code></p>
+</div></td></tr></table><h4 id="methods_href_example">Example</h4>
+<div class="example"><div class="ui-router-router-urlrouter-href-page"><pre class="prettyprint linenums">
+$bob = $urlRouter.href(new UrlMatcher("/about/:person"), {
+  person: "bob"
+});
+// $bob == "/about/bob";
+</pre>
+</div></div>
+</div>
+</li>
+<li><h3 id="methods_sync">sync()</h3>
+<div class="sync"><div class="ui-router-router-urlrouter-sync-page"><p>Triggers an update; the same update that happens when the address bar url changes, aka <code>$locationChangeSuccess</code>.
+This method is useful when you need to use <code>preventDefault()</code> on the <code>$locationChangeSuccess</code> event,
+perform some custom logic (route protection, auth, config, redirection, etc) and then finally proceed
+with the transition by calling <code>$urlRouter.sync()</code>.</p>
+</div><h4 id="methods_sync_example">Example</h4>
+<div class="example"><div class="ui-router-router-urlrouter-sync-page"><pre class="prettyprint linenums">
+angular.module('app', ['ui.router'])
   .run(function($rootScope, $urlRouter) {
     $rootScope.$on('$locationChangeSuccess', function(evt) {
       // Halt state change from even starting
@@ -30,7 +54,8 @@ angular.module('app', ['ui.router']);
       if (meetsRequirement) $urlRouter.sync();
     });
 });
-</pre></div>
+</pre>
+</div></div>
 </div>
 </li>
 </ul>

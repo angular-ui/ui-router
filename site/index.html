@@ -29,6 +29,8 @@
       addTag('link', {rel: 'stylesheet', href: 'css/docs.css', type: 'text/css'});
       addTag('link', {rel: 'stylesheet', href: 'css/animations.css', type: 'text/css'});
       
+         addTag('link', {rel: 'stylesheet', href: 'css/uirouter-docs.css', type: 'text/css'}, sync);
+      
       
         addTag('script', {src: 'js/angular.min.js'}, sync);
       
@@ -89,10 +91,10 @@
     </div>
   </header>
 
-  <div role="main" class="container">
+  <div role="main" class="container-fluid">
     <div class="row clear-navbar"></div>
 
-    <div class="row">
+    <div class="row-fluid">
       <div class="span12">
         <!--[if lt IE 7]>
         <p class="alert alert-error">Your browser is <em>ancient!</em>
@@ -113,12 +115,12 @@
 
     </div>
 
-    <div class="row">
+    <div class="row-fluid">
       <div class="span3">
         <form class="form-search" ng-submit="submitForm()">
           
           <input type="text" ng-model="search" placeholder="search the docs"
-                 tabindex="1" accesskey="s" class="search-query" focused="focused">
+                 tabindex="1" accesskey="s" class="search-query">
           
           <div class="spacer"></div>
 
@@ -156,7 +158,7 @@
               <a class="guide">service</a>
             </li>
             <li ng-repeat="service in module.services track by service.instance.url" ng-animate="'expand'" ng-class="navClass(service.instance, service.provider)" class="api-list-item">
-              <a ng-show="service.provider" class="pull-right" href="{{service.provider.url}}" tabindex="2"><i class="icon-cog"></i></a>
+              <a ng-show="service.provider" class="pull-right" href="{{service.provider.url}}" tabindex="2"><i class="icon-cog"></i>Provider</a>
               <a href="{{service.instance.url}}" tabindex="2">{{service.name}}</a>
             </li>
 
