@@ -140,6 +140,46 @@ describe("resolve", function () {
       expect(b.mostRecentCall.args).toEqual([ 'aa' ]);
     });
     
+    it("allow access to ancestor resolves in descendent resolve blocks", inject(function ($q) {
+      var gPromise = $q.defer(),
+          gInjectable = jasmine.createSpy('gInjectable').andReturn(gPromise.promise),
+          pPromise = $q.defer(),
+          pInjectable = jasmine.createSpy('pInjectable').andReturn(pPromise.promise);
+
+      var g = $r.resolve({ gP: [ gInjectable ] }, g);
+      
+      gPromise.resolve('grandparent');
+      tick();
+
+      var s = jasmine.createSpy('s');
+      var p = $r.resolve({ p: [ pInjectable ] }, g);
+      var c = $r.resolve({ c: [ 'p', 'gP', s ] }, p);
+      
+      pPromise.resolve('parent');
+      tick();
+      
+      expect(s).toHaveBeenCalled();
+      expect(s.mostRecentCall.args).toEqual([ 'parent', 'grandparent' ]);
+    }));
+
+    // test for #1353
+    it("allow parent resolve to override grandparent resolve", inject(function ($q) {
+      var gPromise = $q.defer(),
+          gInjectable = jasmine.createSpy('gInjectable').andReturn(gPromise.promise);
+
+      var g = $r.resolve({ item: [ function() { return "grandparent"; } ] }, g);
+      gPromise.resolve('grandparent');
+      tick();
+
+      var p = $r.resolve({ item: [ function() { return "parent"; } ] }, {}, g);
+      var s = jasmine.createSpy('s');
+      var c = $r.resolve({ c: [ s ] }, {}, p);
+      tick();
+
+      expect(s).toHaveBeenCalled();
+      expect(c.$$values.item).toBe('parent');
+    }));
+
     it("allows a function to override a parent value of the same name", function () {
       var r = $r.resolve({ b: function() { return 'B' } });
       var s = $r.resolve({

@@ -17,6 +17,14 @@ describe('uiView', function () {
       $timeout.flush();
       expect(elem[0].scrollIntoView).toHaveBeenCalled();
     }));
+
+	  it('should return the promise from the timeout', inject(function ($uiViewScroll, $timeout) {
+		  var promise = $uiViewScroll(elem);
+
+		  $timeout.flush();
+		  expect(elem[0].scrollIntoView).toHaveBeenCalled();
+		  expect(promise).toBeDefined();
+	  }));
   });
 
   describe('useAnchorScroll', function () {

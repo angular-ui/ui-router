@@ -94,9 +94,18 @@ module.exports = function (grunt) {
       unstable: {
         configFile: 'config/karma-1.1.5.js'
       },
+      future: {
+        configFile: 'config/karma-1.3.0.js'
+      },
       background: {
           background: true,
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
+      },
+      watch: {
+        configFile: 'config/karma.js',
+        singleRun: false,
+        autoWatch: true,
+        autoWatchInterval: 1
       }
     },
     changelog: {
@@ -107,6 +116,7 @@ module.exports = function (grunt) {
     ngdocs: {
       options: {
         dest: 'site',
+        styles: [ 'ngdoc_assets/uirouter-docs.css' ],
         html5Mode: false,
         title: 'UI Router',
         startPage: '/api/ui.router',
@@ -123,10 +133,21 @@ module.exports = function (grunt) {
   grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
   grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
   grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
-  grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['dist', 'ngdocs']);
+  grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['dist', 'ngdocs', 'widedocs']);
   grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'dist', 'perform-release']);
   grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect:server', 'karma:background', 'watch']);
   grunt.registerTask('sample', 'Run connect server with keepalive:true for sample app development', ['connect:sample']);
+
+  grunt.registerTask('widedocs', 'Convert to bootstrap container-fluid', function () {
+    promising(this,
+      system(
+      'sed -i.bak ' + 
+      '-e \'s/class="row"/class="row-fluid"/\' ' + 
+      '-e \'s/icon-cog"><\\/i>/icon-cog"><\\/i>Provider/\' ' + 
+      '-e \'s/role="main" class="container"/role="main" class="container-fluid"/\' site/index.html')
+    );
+  });
+
 
   grunt.registerTask('publish-pages', 'Publish a clean build, docs, and sample to github.io', function () {
     promising(this,
@@ -134,9 +155,7 @@ module.exports = function (grunt) {
         shjs.rm('-rf', 'build');
         return system('git checkout gh-pages');
       }).then(function () {
-        return system('git rebase master');
-      }).then(function () {
-        return system('git pull');
+        return system('git merge master');
       }).then(function () {
         return system('grunt dist-docs');
       }).then(function () {

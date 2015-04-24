@@ -420,6 +420,36 @@ describe('uiView', function () {
         expect(uiViews.eq(1).text()).toBe(lState.views.view2.template);
         expect(uiViews.eq(2).text()).toBe(lState.views.view3.template);
       }));
+
+      it ('should interpolate ui-view names', inject(function($state, $q, $compile) {
+        elem.append($compile('<div ng-repeat="view in views">' +
+          '<ui-view name="view{{$index + 1}}">hallo</ui-view>' +
+          '</div>')(scope));
+
+        $state.transitionTo(lState);
+        $q.flush();
+
+        expect(elem.find('ui-view').length).toBe(0);
+
+        scope.views = ['view1', 'view2'];
+
+        scope.$digest();
+
+        var uiViews = elem.find('ui-view');
+
+        expect(uiViews.eq(0).text()).toBe(lState.views.view1.template);
+        expect(uiViews.eq(1).text()).toBe(lState.views.view2.template);
+        expect(uiViews.eq(2).length).toBe(0);
+
+        scope.views.push('view3');
+        scope.$digest();
+
+        uiViews = elem.find('ui-view');
+
+        expect(uiViews.eq(0).text()).toBe(lState.views.view1.template);
+        expect(uiViews.eq(1).text()).toBe(lState.views.view2.template);
+        expect(uiViews.eq(2).text()).toBe(lState.views.view3.template);
+      }));
     });
   });
 

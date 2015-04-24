@@ -10,8 +10,7 @@ routerFiles = {
     'src/viewScroll.js',
     'src/viewDirective.js',
     'src/stateDirectives.js',
-    'src/stateFilters.js',
-    'src/compat.js',
+    'src/stateFilters.js'
   ],
   testUtils: [
     'test/testUtils.js'
@@ -19,13 +18,12 @@ routerFiles = {
   test: [
     'test/*Spec.js',
     'test/compat/matchers.js'
-    // 'test/compat/*Spec.js',
   ],
   angular: function(version) {
     return [
       'lib/angular-' + version + '/angular.js',
       'lib/angular-' + version + '/angular-mocks.js'
-    ].concat(version === '1.2.14' ? ['lib/angular-' + version + '/angular-animate.js'] : []);
+    ].concat(['1.2.14', '1.3.0'].indexOf(version) !== -1 ? ['lib/angular-' + version + '/angular-animate.js'] : []);
   }
 };
 

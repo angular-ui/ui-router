@@ -1,0 +1,15 @@
+# Any hidden files
+**/.*
+
+# Build related stuff
+/config
+/lib
+/ngdoc_assets
+/sample
+/test
+Gruntfile.js
+files.js
+
+# Package managers
+bower.json
+component.json

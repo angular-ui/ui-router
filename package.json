@@ -1,7 +1,7 @@
 {
   "name": "angular-ui-router",
   "description": "State-based routing for AngularJS",
-  "version": "0.2.10",
+  "version": "0.2.14",
   "homepage": "http://angular-ui.github.com/",
   "contributors": [
     {
@@ -47,7 +47,6 @@
     "grunt-contrib-connect": "~0.7.1",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-karma": "~0.6.2",
-    "jsdoc": "git://github.com/jsdoc3/jsdoc.git#v3.2.2",
     "shelljs": "~0.2.6",
     "faithful-exec": "~0.1.0",
     "karma-firefox-launcher": "~0.1.0",
@@ -61,7 +60,7 @@
     "karma-phantomjs-launcher": "~0.1.0",
     "load-grunt-tasks": "~0.4.0",
     "grunt-conventional-changelog": "~1.1.0",
-    "grunt-ngdocs": "~0.1.7"
+    "grunt-ngdocs": "~0.2.5"
   },
-  "main": "release/angular-ui-router"
+  "main": "release/angular-ui-router.js"
 }
