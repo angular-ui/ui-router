@@ -1,7 +1,7 @@
 // package metadata file for Meteor.js
 var packageName = 'angularui:angular-ui-router'; // https://atmospherejs.com/angularui/angular-ui-router
 var where = 'client'; // where to install: 'client' or 'server'. For both, pass nothing.
-var version = '0.2.13_3';
+var version = '0.2.14';
 
 Package.describe({
   name: packageName,
