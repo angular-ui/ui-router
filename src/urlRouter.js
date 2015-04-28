@@ -414,8 +414,6 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
           url += '#' + params['#'];
         }
 
-        url = appendBasePath(url, isHtml5, options.absolute, options.instance);
-
         if (options.instance) {
           if (angular.isArray(options.instance) && options.instance.length) {
             var instance = _.find(options.instance, 'current_instance');
@@ -427,6 +425,8 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
             }
           }
         }
+
+        url = appendBasePath(url, isHtml5, options.absolute, options.instance);
 
         if (!options.absolute || !url) {
           return url;
