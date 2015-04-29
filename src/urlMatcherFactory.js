@@ -590,8 +590,8 @@ function $UrlMatcherFactory() {
     },
     optionalint: {
       encode: valToString,
-      decode: function(val) { return (val === '' || !isDefined(val)) ? '' : parseInt(val, 10); },
-      is: function(val) { return val === '' || !isDefined(val) || this.decode(val.toString()) === val; },
+      decode: function(val) { return (val === '' || val === null || !isDefined(val)) ? '' : parseInt(val, 10); },
+      is: function(val) { return val === '' || val === null || !isDefined(val) || this.decode(val.toString()) === val; },
       pattern: /\d*/
     },
     bool: {
