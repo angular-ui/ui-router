@@ -1,6 +1,6 @@
 /**
  * State-based routing for AngularJS
- * @version v0.2.14
+ * @version v0.2.14-dev-2015-04-29
  * @link http://angular-ui.github.com/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -1257,6 +1257,12 @@ function $UrlMatcherFactory() {
       decode: function(val) { return parseInt(val, 10); },
       is: function(val) { return isDefined(val) && this.decode(val.toString()) === val; },
       pattern: /\d+/
+    },
+    optionalint: {
+      encode: valToString,
+      decode: function(val) { return (val === '' || val === null || !isDefined(val)) ? '' : parseInt(val, 10); },
+      is: function(val) { return val === '' || val === null || !isDefined(val) || this.decode(val.toString()) === val; },
+      pattern: /\d*/
     },
     bool: {
       encode: function(val) { return val ? 1 : 0; },
