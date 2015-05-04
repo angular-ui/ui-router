@@ -143,69 +143,7 @@ function $StateRefDirective($state, $timeout, $modal) {
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
 
           if (!currentInstance) {
-
-              var instances = _.filter(options.instance, function (instance) {
-                  return instance.type !== 'group';
-              });
-
-              if (instances.length > 1) {
-
-                  e.preventDefault();
-
-                  // launch modal with instance choices
-                  var modalInstance = $modal.open({
-                      template:   '<div class="modal-header">' +
-                                    '<h3>' + Translator.trans('state.href.instance.list.title') + '</h3>' +
-                                  '</div>' +
-                                  '<div class="modal-body">' +
-                                      '<ul class="list-group">' +
-                                          '<li ng-repeat="instance in instances" class="list-group-item">' +
-                                              '<div class="media">' +
-                                                  '<div class="media-body">' +
-                                                      '<h4 class="media-heading">' +
-                                                          '<a ng-href="{{ instance.href }}">' +
-                                                              '<span ng-bind="instance.name"></span>' +
-                                                              ' <small>(<span ng-bind="instance.href"></span>)</small>' +
-                                                          '</a>' +
-                                                      '</h4>' +
-                                                  '</div>' +
-                                              '</div>' +
-                                          '</li>' +
-                                      '</ul>' +
-                                  '</div>',
-                      controller: function ($scope, instances, state, params, options) {
-                          angular.forEach(instances, function (instance) {
-                              var newOptions = _.clone(options, true);
-                              newOptions.instance = _.filter(newOptions.instance, function (i) {
-                                  return i.eid === instance.eid;
-                              });
-                              instance.href = $state.href(ref.state, params, newOptions);
-                          });
-
-                          $scope.instances = instances;
-
-                      },
-                      resolve: {
-                          instances: function () {
-                              return instances;
-                          },
-                          state: function () {
-                              return ref.state;
-                          },
-                          params: function () {
-                              return params;
-                          },
-                          options: function () {
-                              return options;
-                          }
-                      }
-
-                  });
-
-              }
-
               return;
-
           }
 
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
