@@ -1,6 +1,6 @@
 describe('state', function () {
 
-  var stateProvider, locationProvider, templateParams, ctrlName;
+  var stateProvider, locationProvider, templateParams, ctrlName, template;
 
   beforeEach(module('ui.router', function($locationProvider) {
     locationProvider = $locationProvider;
@@ -73,6 +73,16 @@ describe('state', function () {
         controllerProvider: function($stateParams, foo) {
           ctrlName = $stateParams.type + foo + "Controller";
           return ctrlName;
+        },
+        resolve: {
+          foo: function() { return 'Foo'; }
+        }
+      })
+      .state('dynamicTemplate', {
+        url: "/dynamicTemplate/:type",
+        templateProvider: function($stateParams, foo) {
+          template = $stateParams.type + foo + "Template";
+          return template;
         },
         resolve: {
           foo: function() { return 'Foo'; }
@@ -489,6 +499,12 @@ describe('state', function () {
       $q.flush();
       expect(ctrlName).toEqual("AcmeFooController");
     }));+
+
+    it('uses the templateProvider to get template dynamically', inject(function ($state, $q) {
+      $state.transitionTo('dynamicTemplate', { type: "Acme" });
+      $q.flush();
+      expect(template).toEqual("AcmeFooTemplate");
+    }));
 
     it('updates the location #fragment, if specified', inject(function ($state, $q, $location) {
       // html5mode disabled
@@ -929,6 +945,7 @@ describe('state', function () {
         'badParam',
         'badParam2',
         'dynamicController',
+        'dynamicTemplate',
         'first',
         'home',
         'home.item',
