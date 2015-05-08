@@ -416,10 +416,26 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
 
         if (options.instance) {
           if (angular.isArray(options.instance) && options.instance.length) {
-            var instance = _.find(options.instance, 'current_instance');
-            if (!instance) {
-              return $location.protocol() + '://' + options.instance[0].domain_name + url;
-            }
+              var instance;
+              if (options.instance.length === 1 && !options.instance[0].current_instance) {
+                  // has only one instance which is not current instance
+                  // post from a group inside a network
+                  // user on group where he is not a member, but he is part of only one instance
+                  instance = options.instance[0];
+              } else {
+                  // has multiple instances
+                  options.instance = _.filter(options.instance, function (instance) {
+                      return instance.type !== 'group';
+                  });
+                  if (window.instance.type === 'group') {
+                      instance = _.find(options.instance, function (instance) {
+                         return instance.domain_name === window.instance.parent.domain_name
+                      });
+                  }
+              }
+              if (instance) {
+                  return $location.protocol() + '://' + instance.domain_name + url;
+              }
           }
         }
 
