@@ -195,15 +195,18 @@ function $TransitionProvider() {
       var toPath, fromPath, retained, entering, exiting; // Path() objects
       var keep = 0, state, hasRun = false, hasCalculated = false;
 
-      toState = to.$state();
-      fromState = from.$state();
+      var fromState = from.$state();
+      var fromParams = extend(new StateParams(), from.params());
+      var toState = to.$state();
+      var toParams = !options.inherit ? to.params() : fromParams.$inherit(to.params(), fromState, toState);
+
       fromPath = new Path(fromState.path);
 
       function calculateTreeChanges() {
         if (hasCalculated) return;
 
         state = toState.path[keep];
-        while (state && state === fromState.path[keep] && equalForKeys(to.params(), from.params(), state.ownParams)) {
+        while (state && state === fromState.path[keep] && equalForKeys(toParams, fromParams, state.ownParams)) {
           keep++;
           state = toState.path[keep];
         }
@@ -271,7 +274,7 @@ function $TransitionProvider() {
          */
         params: function() {
           // toParams = (options.inherit) ? inheritParams(fromParams, toParams, from, toState);
-          return { from: from.params(), to: to.params() };
+          return { from: fromParams, to: toParams };
         },
 
         previous: function() {
@@ -326,7 +329,7 @@ function $TransitionProvider() {
          * @returns {boolean} Whether the transition should be ignored.
          */
         ignored: function() {
-          return (toState === fromState && !options.reload);
+          return (!options.reload && toState === fromState && equalForKeys(toParams, fromParams, objectKeys(toState.params || {})));
         },
 
         run: function() {
@@ -425,13 +428,13 @@ function $TransitionProvider() {
           var transitionOnHooks = makeSteps("on", to, from, rootPE, tLocals, rootPath.resolveContext());
 
           var exitingStateHooks = map(exitingElements, function(elem) {
-            var stepLocals = { $state$: elem.state,  $stateParams: $stateParams.$localize(elem.state, $stateParams) };
+            var stepLocals = { $state$: elem.state,  $stateParams: fromParams.$localize(elem.state) };
             var locals = extend({},  tLocals, stepLocals);
             return makeSteps("exiting", to, elem.state, elem, locals, fromPath.resolveContext(elem));
           });
 
           var enteringStateHooks = map(enteringElements, function(elem) {
-            var stepLocals = { $state$: elem.state,  $stateParams: $stateParams.$localize(elem.state, $stateParams) };
+            var stepLocals = { $state$: elem.state,  $stateParams: fromParams.$localize(elem.state) };
             var locals = extend({}, tLocals, stepLocals);
             return makeSteps("entering", elem.state, from, elem, locals, toPath.resolveContext(elem));
           });

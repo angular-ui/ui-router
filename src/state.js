@@ -927,7 +927,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           var notify = transition.options().notify;
 
           if (transition.ignored()) {
-            var isDynamic = $stateParams.$set(toParams, toState.url);
+            var isDynamic = $stateParams.$set(transition.params().to, transition.to.$state().url);
 
             if (isDynamic && toState.url) {
               $urlRouter.push(toState.url, $stateParams, { replace: true });
@@ -993,7 +993,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           $state.$current = transition.to.$state();
           $state.current = transition.to.state();
 
-          $state.params = toParams;
+          $state.params = transition.params().to;
           copy($state.params, $stateParams);
           $state.transition = null;
           $stateParams.$sync().$off();
@@ -1247,6 +1247,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
   }
 }
 
+function StateParams() { }
+
 $StateParamsProvider.$inject = [];
 function $StateParamsProvider() {
 
@@ -1269,8 +1271,6 @@ function $StateParamsProvider() {
       });
     }
 
-    function StateParams() {
-    }
 
     StateParams.prototype.$digest = function() {
       forEach(this, function(val, key) {
@@ -1373,4 +1373,5 @@ function $StateParamsProvider() {
 
 angular.module('ui.router.state')
   .provider('$stateParams', $StateParamsProvider)
-  .provider('$state', $StateProvider);
+  .provider('$state', $StateProvider)
+  .run(['$state', function($state) { /* This effectively calls $get() to init when we enter runtime */ }]);

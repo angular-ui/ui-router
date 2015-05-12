@@ -1212,7 +1212,7 @@ describe('state', function () {
   describe('provider decorators', function () {
 
     it('should return built-in decorators', function () {
-      expect(stateProvider.decorator('parent')({ parent: A }).self.name).toBe("A");
+      expect(stateProvider.decorator('parent')({ parent: A, name: 'child' }).self.name).toBe("A");
     });
 
     it('should allow built-in decorators to be overridden', inject(function ($state, $q) {
