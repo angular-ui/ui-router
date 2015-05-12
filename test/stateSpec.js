@@ -1251,8 +1251,8 @@ describe('state', function () {
 
       stateProvider.state('viewTest', {
         views: {
-          "viewA@": {},
-          "viewB@": {}
+          "viewA@": { template: '<div/>' },
+          "viewB@": { template: '<div/>' }
         }
       });
 
