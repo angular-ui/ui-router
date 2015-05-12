@@ -425,7 +425,7 @@ describe('state', function () {
         expect(transition.to.params()).toEqual({ x: '1', y: '2' });
 
         expect($state.current).toBe(E); // $state not updated yet
-        expect($state.params).toEqual({ i: 'iii' });
+        expect(extend({},$state.params)).toEqual({ i: 'iii' });
         called = true;
       });
       var message;
@@ -466,7 +466,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(D);
-      expect($state.params).toEqual({ x: '1', y: '2' });
+      expect(extend({},$state.params)).toEqual({ x: '1', y: '2' });
     }));
 
     it('can lazy-define a state in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -480,7 +480,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('DDD');
-      expect($state.params).toEqual({ x: 1, y: 2, z: 3, w: 4 });
+      expect(extend({},$state.params)).toEqual({ x: 1, y: 2, z: 3, w: 4 });
     }));
 
     it('can defer a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -497,7 +497,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('AA');
-      expect($state.params).toEqual({ a: 1 });
+      expect(extend({},$state.params)).toEqual({ a: 1 });
     }));
 
     it('can defer and supersede a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -515,7 +515,7 @@ describe('state', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toEqual(B);
-      expect($state.params).toEqual({});
+      expect(extend({},$state.params)).toEqual({});
     }));
 
     it('triggers $stateChangeSuccess', inject(function ($state, $q, $rootScope) {
@@ -528,7 +528,7 @@ describe('state', function () {
         expect(toParams).toEqual({ x: '1', y: '2' });
 
         expect($state.current).toBe(to); // $state has been updated
-        expect($state.params).toEqual(toParams);
+        expect(extend({},$state.params)).toEqual(toParams);
         called = true;
       });
       $state.transitionTo(D, { x: '1', y: '2' });
@@ -854,7 +854,7 @@ describe('state', function () {
 
     it('contains the parameter values for the current state', inject(function ($state, $q) {
       initStateTo(D, { x: 'x value', z: 'invalid value' });
-      expect($state.params).toEqual({ x: 'x value', y: undefined });
+      expect(extend({},$state.params)).toEqual({ x: 'x value', y: undefined });
     }));
   });
 
@@ -1003,13 +1003,13 @@ describe('state', function () {
       $location.path("/about/bob");
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
-      expect($state.params).toEqual({ person: "bob" });
+      expect(extend({}, $state.params)).toEqual({ person: "bob" });
       expect($state.current.name).toBe('about.person');
 
       $location.path("/about/larry");
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
-      expect($state.params).toEqual({ person: "larry" });
+      expect(extend({}, $state.params)).toEqual({ person: "larry" });
       expect($state.current.name).toBe('about.person');
     }));
 
@@ -1018,7 +1018,7 @@ describe('state', function () {
       $location.hash("frag");
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
-      expect($state.params).toEqual({ person: "bob" });
+      expect(extend({},$state.params)).toEqual({ person: "bob" });
       expect($state.current.name).toBe('about.person');
       expect($location.path()).toBe('/about/bob');
       expect($location.hash()).toBe('frag');

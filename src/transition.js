@@ -198,7 +198,9 @@ function $TransitionProvider() {
       var fromState = from.$state();
       var fromParams = extend(new StateParams(), from.params());
       var toState = to.$state();
-      var toParams = !options.inherit ? to.params() : fromParams.$inherit(to.params(), fromState, toState);
+      var toParams = options.inherit && to.valid() ?
+        fromParams.$inherit(to.params(), fromState, toState) :
+        extend(new StateParams(), to.params());
 
       fromPath = new Path(fromState.path);
 
@@ -504,8 +506,8 @@ function $TransitionProvider() {
         promise: deferred.promise,
 
         toString: function() {
-          return "Transition( " + transition.from().name + angular.toJson(transition.params().from) + " -> " +
-            transition.to().name + angular.toJson(transition.params().to) + " )";
+          return "Transition( " + transition.from.state().name + angular.toJson(transition.params().from) + " -> " +
+            transition.to.state().name + angular.toJson(transition.params().to) + " )";
         }
       });
     }
