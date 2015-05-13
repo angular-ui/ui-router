@@ -24,6 +24,7 @@ describe('state', function () {
       DD = { parent: D, params: { x: null, y: null, z: null } },
       DDDD = { parent: D, controller: function() {}, template: "hey"},
       E = { params: { i: {} } },
+      F = { params: { a: '', b: false, c: 0, d: undefined, e: -1 }},
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
       HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
@@ -47,6 +48,7 @@ describe('state', function () {
       .state('DD', DD)
       .state('DDDD', DDDD)
       .state('E', E)
+      .state('F', F)
       .state('H', H)
       .state('HH', HH)
       .state('HHH', HHH)
@@ -915,6 +917,7 @@ describe('state', function () {
         'DD',
         'DDDD',
         'E',
+        'F',
         'H',
         'HH',
         'HHH',
@@ -980,6 +983,12 @@ describe('state', function () {
       $state.go("D"); $q.flush();
       expect($state.current.name).toBe("D");
       expect($state.params).toEqual({ x: null, y: null });
+    }));
+
+    it("should allow falsy default values for non-url params", inject(function($state, $q) {
+      $state.go("F"); $q.flush();
+      expect($state.current.name).toBe("F");
+      expect($state.params).toEqual({ a: '', b: false, c: 0, d: undefined, e: -1 });
     }));
 
     it("should allow arbitrary objects to pass for non-url params", inject(function($state, $q) {
