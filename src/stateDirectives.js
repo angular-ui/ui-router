@@ -121,12 +121,12 @@ function $StateRefDirective($state, $timeout, $modal) {
         attrs.$set(attr, newHref);
 
         if (angular.isArray(options.instance) && options.instance.length) {
-            currentInstance = _.find(options.instance, function (instance) {
-                return instance.type !== 'group' && instance.current_instance;
-            });
-            if (!currentInstance && options.instance.length == 1) {
-                attrs.$set('target', '_self');
-            }
+          currentInstance = _.find(options.instance, function (instance) {
+            return instance.type !== 'group' && instance.current_instance;
+          });
+          if (!currentInstance && options.instance.length == 1) {
+            attrs.$set('target', '_self');
+          }
         }
       };
 
@@ -143,11 +143,8 @@ function $StateRefDirective($state, $timeout, $modal) {
       element.bind("click", function(e) {
         var button = e.which || e.button;
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
-
-            console.log(currentInstance)
-
           if (!currentInstance) {
-              return;
+            return;
           }
 
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
