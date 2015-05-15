@@ -114,6 +114,19 @@ describe('transition', function () {
         expect(t).toBe(tsecond);
       }));
 
+      describe('.onInvalid()', function() {
+        it('should fire matching handlers when the to-state reference is invalid', inject(function($state, $transition, $q) {
+          var t = null;
+          transitionProvider.onInvalid({}, function($transition$) {
+            t = $transition$;
+            return $transition$.redirect($state.reference("second"))
+          });
+
+          makeTransition("first", "invalid").run(); $q.flush();
+          expect(t).not.toBeNull();
+        }));
+      });
+
       describe('.on()', function() {
         it('should fire matching events when transition starts', inject(function($transition, $q) {
           var t = null;
@@ -235,7 +248,7 @@ describe('transition', function () {
           expect(pluck(states, 'name')).toEqual([ 'C' ]);
         }));
 
-        it('should only be called even if other .onSuccess() callbacks fail (throw errors, etc)', inject(function($transition, $q) {
+        it('should be called even if other .onSuccess() callbacks fail (throw errors, etc)', inject(function($transition, $q) {
           transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { throw new Error("oops!"); });
           transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to.state()); });
 
