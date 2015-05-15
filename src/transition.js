@@ -40,8 +40,12 @@ function $TransitionProvider() {
 
   // Return a registration function of the requested type.
   function registerEventHook(eventType) {
-    return function(matchObject, callback) {
-      transitionEvents[eventType].push(new EventHook(matchObject, callback));
+    return function(matchObject, callback, options) {
+      options = options || {};
+      transitionEvents[eventType].push(new EventHook(matchObject, callback, options));
+      transitionEvents[eventType].sort(function(a,b) {
+        return a.priority - b.priority;
+      })
     };
   }
 
@@ -177,9 +181,10 @@ function $TransitionProvider() {
   this.onError = registerEventHook("onError");
 
   function trueFn() { return true; }
-  function EventHook(matchCriteria, callback) {
+  function EventHook(matchCriteria, callback, options) {
     matchCriteria = extend({to: trueFn, from: trueFn}, matchCriteria);
     this.callback = callback;
+    this.priority = options.priority || 0;
     this.matches = function matches(to, from) {
       return matchState(to, matchCriteria.to) && matchState(from, matchCriteria.from);
     };
