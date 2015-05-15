@@ -821,51 +821,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       return matcher.reference(stateOrName, base, params);
     };
 
-    function retryIfNotFound(transition) {
-      /**
-       * @ngdoc event
-       * @name ui.router.state.$state#$stateNotFound
-       * @eventOf ui.router.state.$state
-       * @eventType broadcast on root scope
-       * @description
-       * Fired when a requested state **cannot be found** using the provided state name during transition.
-       * The event is broadcast allowing any handlers a single chance to deal with the error (usually by
-       * lazy-loading the unfound state). A `StateReference` object is passed to the listener handler,
-       * you can see its properties in the example. You can use `event.preventDefault()` to abort the
-       * transition and the promise returned from `transitionTo()` will be rejected with a
-       * `'transition aborted'` error.
-       *
-       * @param {Object} event Event object.
-       * @param {Object} transition The current `Transition` object, which has the "to" StateReference that was not found
-       * @param {Object} options The options passed to the transition, merged with defaults.
-       *
-       * @example
-       *
-       * <pre>
-       * // somewhere, assume lazy.state has not been defined
-       * $state.go("lazy.state", { a: 1, b: 2 }, { inherit: false });
-       *
-       * // somewhere else
-       * $scope.$on('$stateNotFound', function(event, transition) {
-       *   console.log(transition.to()); // "lazy.state"
-       *   console.log(transition.to.error()); // "No such state 'lazy.state'"
-       *   console.log(transition.options()); // { inherit: false } + default options
-       * });
-       * </pre>
-       */
-      var e = $rootScope.$broadcast('$stateNotFound', transition);
-      if (e.defaultPrevented || e.retry) $urlRouter.update();
-      if (e.defaultPrevented) return TransitionAborted;
-      if (!e.retry) throw new Error(transition.to.error());
-      //if (!e.retry) return $q.reject(transition.to.error());
-      return e.retry ? $q.when(transition) : TransitionAborted;
-    }
-
-    // @TODO: What should the structure of `retry` be? More than one option?
-    function ensureValid(transition) {
-      return transition.to.valid() ? $q.when(transition) : retryIfNotFound(transition);
-    }
-
     /**
      * @ngdoc function
      * @name ui.router.state.$state#transitionTo
@@ -972,18 +927,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
             return TransitionPrevented;
           }
 
-          return transition;
+          return $q.when(transition);
         },
 
         runTransition: function runTransition(transition) {
-          return ensureValid(transition)
-            .then(returnTransition)
-            .then(stateHandler.checkIgnoredOrPrevented, REJECT.aborted)
-            .then(runTransition)
-            .then(returnTransition);
-
-          function runTransition(transition) { return transition.run(); }
-          function returnTransition() { return transition; }
+          return stateHandler.checkIgnoredOrPrevented(transition)
+            .then(function (transition) { return transition.run(); })
+            .then(function returnTransition() { return transition; })
+            .then(stateHandler.transitionSuccess, stateHandler.transitionFailure);
         },
 
         transitionSuccess: function transitionSuccess(transition) {
@@ -1026,8 +977,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           if (error instanceof TransitionRejection) {
             if (error.type === transition.ABORTED) return REJECT.aborted();
             if (error.type === transition.SUPERSEDED) {
-              if (error.redirected && error.detail instanceof Transition) {
-                stateHandler.doTransition(error.detail);
+              if (error.redirected && error.detail && angular.isFunction(error.detail.entering)) { // TODO: expose Transition class for instanceof
+              //if (error.redirected && error.detail instanceof Transition) {
+                return stateHandler.runTransition(error.detail);
               }
               // Return $q.reject(error)?  i.e., the original rejection? It has more information.
               return REJECT.superseded();
@@ -1057,13 +1009,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           }
           return $q.reject(error);
         },
-        doTransition: function doTransition(transition) {
-          return stateHandler.runTransition(transition)
-            .then(stateHandler.transitionSuccess, stateHandler.transitionFailure);
-        }
       };
 
-      return stateHandler.doTransition(transition);
+      return stateHandler.runTransition(transition);
     };
 
     /**
@@ -1371,7 +1319,61 @@ function $StateParamsProvider() {
   }
 }
 
+
+stateEventsConfigBlock.$inject = ['$transitionProvider'];
+function stateEventsConfigBlock($transitionProvider) {
+
+  $transitionProvider.onInvalid({}, stateNotFoundHandler);
+
+  stateNotFoundHandler.$inject = ['$transition$', '$state', '$rootScope', '$urlRouter'];
+  function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
+    /**
+     * @ngdoc event
+     * @name ui.router.state.$state#$stateNotFound
+     * @eventOf ui.router.state.$state
+     * @eventType broadcast on root scope
+     * @description
+     * Fired when a requested state **cannot be found** using the provided state name during transition.
+     * The event is broadcast allowing any handlers a single chance to deal with the error (usually by
+     * lazy-loading the unfound state). A `StateReference` object is passed to the listener handler,
+     * you can see its properties in the example. You can use `event.preventDefault()` to abort the
+     * transition and the promise returned from `transitionTo()` will be rejected with a
+     * `'transition aborted'` error.
+     *
+     * @param {Object} event Event object.
+     * @param {Object} unfoundState Unfound State information. Contains: `to, toParams, options` properties.
+     * @param {State} fromState Current state object.
+     * @param {Object} fromParams Current state params.
+     * @param {Transition} transition Current transition object
+     * @example
+     *
+     * <pre>
+     * // somewhere, assume lazy.state has not been defined
+     * $state.go("lazy.state", { a: 1, b: 2 }, { inherit: false });
+     *
+     * // somewhere else
+     * $scope.$on('$stateNotFound', function(event, transition) {
+     * function(event, unfoundState, fromState, fromParams){
+     *     console.log(unfoundState.to); // "lazy.state"
+     *     console.log(unfoundState.toParams); // {a:1, b:2}
+     *     console.log(unfoundState.options); // {inherit:false} + default options
+     * });
+     * </pre>
+     */
+    var redirect = { to: $transition$.to(), toParams: $transition$.to.params(), options: $transition$.options() };
+    var e = $rootScope.$broadcast('$stateNotFound', redirect, $transition$.from.state(), $transition$.from.params(), $transition$);
+
+    if (e.defaultPrevented || e.retry) $urlRouter.update();
+    if (e.defaultPrevented) return TransitionAborted;
+    if (!e.retry) throw new Error($transition$.to.error());
+    return $transition$.redirect($state.reference(redirect.to, redirect.toParams), redirect.options);
+  }
+}
+
+
+
 angular.module('ui.router.state')
   .provider('$stateParams', $StateParamsProvider)
   .provider('$state', $StateProvider)
+  .config(stateEventsConfigBlock) // TODO: Refactor state events to a separate file
   .run(['$state', function($state) { /* This effectively calls $get() to init when we enter runtime */ }]);

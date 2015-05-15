@@ -474,7 +474,7 @@ describe('state', function () {
       var called;
       $rootScope.$on('$stateNotFound', function (ev, redirect) {
         stateProvider.state(redirect.to, { parent: DD, params: { x: {}, y: {}, z: {}, w: {} }});
-        called = true;
+        ev.retry = called = true;
       });
       var promise = $state.go('DDD', { w: 4 });
       $q.flush();
