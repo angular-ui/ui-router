@@ -441,21 +441,18 @@ function $TransitionProvider() {
           }
 
           function runSynchronousHooks(hooks, swallowExceptions) {
-            var result = undefined;
-            forEach(hooks, function (hook) {
+            for (var i = 0; i < hooks.length; i++) {
               try {
-                // Last one in wins, if multiple callbacks are registered
-                // TODO: Determine if this is a good idea (last-in-wins)
-                result = hook.invokeStep();
-                // TODO: I think first-in should win instead? how to be consistent?
-                //if (result !== undefined)
-                //  return result;
+                var result = hooks[i].invokeStep();
+                // The first rejection is returned. No additional synchronous hooks are run.
+                // TODO: Add resolves returned from the first phase sync hooks (onStart primarily)
+                if (result === false || angular.isFunction(result.then))
+                  return result;
               } catch (ex) {
                 if (!swallowExceptions) throw ex;
                 console.log("Swallowed exception during synchronous hook handler: " + ex); // TODO: What to do here?
               }
-            });
-            return result;
+            }
           }
 
 
@@ -569,8 +566,8 @@ function $TransitionProvider() {
         promise: deferred.promise,
 
         toString: function() {
-          return "Transition( " + transition.from.state().name + angular.toJson(transition.params().from) + " -> " +
-            transition.to.state().name + angular.toJson(transition.params().to) + " )";
+          return "Transition( " + transition.from() + angular.toJson(transition.params().from) + " -> "
+            + (transition.to.valid() ? "" : "(X) ")+ transition.to() + angular.toJson(transition.params().to) + " )";
         }
       });
     }

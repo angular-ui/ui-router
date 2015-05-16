@@ -1323,7 +1323,7 @@ function $StateParamsProvider() {
 stateEventsConfigBlock.$inject = ['$transitionProvider'];
 function stateEventsConfigBlock($transitionProvider) {
 
-  $transitionProvider.onInvalid({}, stateNotFoundHandler);
+  $transitionProvider.onInvalid({}, stateNotFoundHandler, { priority: 1000 });
 
   stateNotFoundHandler.$inject = ['$transition$', '$state', '$rootScope', '$urlRouter'];
   function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {

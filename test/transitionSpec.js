@@ -119,11 +119,26 @@ describe('transition', function () {
           var t = null;
           transitionProvider.onInvalid({}, function($transition$) {
             t = $transition$;
-            return $transition$.redirect($state.reference("second"))
+            return false;
           });
 
           makeTransition("first", "invalid").run(); $q.flush();
           expect(t).not.toBeNull();
+        }));
+
+
+        it('should handle redirection by rejecting the transition and providing the new Transition in err.detail', inject(function($state, $transition, $q) {
+          var redirect, t = makeTransition("first", "invalid");
+          transitionProvider.onInvalid({}, function($transition$) {
+            return $transition$.redirect($state.reference("second"))
+          });
+
+          t.promise.catch(function(err) {
+            redirect = err.detail;
+          });
+
+          t.run(); $q.flush();
+          expect(angular.isFunction(redirect.run)).toBe(true);
         }));
       });
 
