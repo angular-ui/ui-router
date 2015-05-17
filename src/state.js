@@ -874,9 +874,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           toRef   = matcher.reference(to, options && options.relative, toParams);
       var transition = $transition.create(fromRef, toRef, options);
 
-      // Rejected by $transitionProvider handler... TODO: add unit test
-      // if (!transition) return REJECT.prevented;
-
       var stateHandler = {
         checkIgnoredOrPrevented: function checkIgnoredOrPrevented(transition) {
           var notify = transition.options().notify;
@@ -893,7 +890,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
               if (!isDynamic) $urlRouter.update();
               if (notify) $rootScope.$broadcast('$stateChangeIgnored', transition);
               $state.transition = null;
-              //return $state.current;
               return REJECT.ignored();
             }
           }
@@ -926,13 +922,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
             $urlRouter.update();
             return TransitionPrevented;
           }
-
-          return $q.when(transition);
         },
 
         runTransition: function runTransition(transition) {
-          return stateHandler.checkIgnoredOrPrevented(transition)
-            .then(function (transition) { return transition.run(); })
+          var aborted = stateHandler.checkIgnoredOrPrevented(transition);
+          if (aborted)
+            $transition.abort();
+
+          return aborted ? aborted : transition.run()
             .then(function returnTransition() { return transition; })
             .then(stateHandler.transitionSuccess, stateHandler.transitionFailure);
         },

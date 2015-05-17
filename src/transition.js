@@ -493,13 +493,15 @@ function $TransitionProvider() {
           var exitingStateHooks = map(exitingElements, function(elem) {
             var stepLocals = { $state$: elem.state,  $stateParams: fromParams.$localize(elem.state) };
             var locals = extend({},  tLocals, stepLocals);
-            return makeSteps("exiting", to, elem.state, elem, locals, fromPath.resolveContext(elem));
+            var steps = makeSteps("exiting", to, elem.state, elem, locals, fromPath.resolveContext(elem));
+            return !elem.state.onExit ? steps : steps.concat([ new TransitionStep(elem, elem.state.onExit, locals, fromPath.resolveContext(elem), {}) ]);
           });
 
           var enteringStateHooks = map(enteringElements, function(elem) {
             var stepLocals = { $state$: elem.state,  $stateParams: fromParams.$localize(elem.state) };
             var locals = extend({}, tLocals, stepLocals);
-            return makeSteps("entering", elem.state, from, elem, locals, toPath.resolveContext(elem));
+            var steps = makeSteps("entering", elem.state, from, elem, locals, toPath.resolveContext(elem));
+            return !elem.state.onEnter ? steps : steps.concat([ new TransitionStep(elem, elem.state.onEnter, locals, toPath.resolveContext(elem), {}) ]);
           });
 
           function successHooks() {
@@ -550,12 +552,19 @@ function $TransitionProvider() {
           // Also, invoke the registered success or error hooks when the transition is completed.
           // Finally, when the transition is done and the hooks invoked, clear the current $transition.transition
           // pointer (but only if this is still the current transition)
-          chain.then(successHooks).catch(errorHooks).finally(function() {
-            if ($transition.transition === transition)
-              $transition.transition = null;
-          });
+          chain.then(successHooks).catch(errorHooks).finally(transition.stop);
 
           return transition.promise;
+        },
+
+        isActive: function() {
+          return $transition.transition === transition;
+        },
+
+        abort: function() {
+          if (transition.isActive()) {
+            $transition.transition = null;
+          }
         },
 
         begin: function(compare, exec) {
@@ -632,7 +641,11 @@ function $TransitionProvider() {
     };
 
     $transition.isActive = function isActive() {
-      return !!to.state && !!from.state;
+      return !!$transition.transition;
+    };
+
+    $transition.abort = function abort() {
+      $transition.transition = null;
     };
 
     $transition.isTransition = function isTransition(transition) {
