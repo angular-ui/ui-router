@@ -1008,7 +1008,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
             $urlRouter.update();
           }
           return $q.reject(error);
-        },
+        }
       };
 
       return stateHandler.runTransition(transition);

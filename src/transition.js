@@ -422,7 +422,8 @@ function $TransitionProvider() {
 
               /**
                * Handles transition abort and transition redirect. Also adds any returned resolvables
-               * to the resolveContext for the current state.
+               * to the resolveContext for the current state.  If the transition is rejected, then a rejected
+               * promise is returned here, otherwise undefined is returned.
                */
               function handleHookResult(result) {
                 if ($transition.transition !== transition) {
@@ -435,7 +436,6 @@ function $TransitionProvider() {
                 if (result instanceof Transition) return REJECT.redirected(result);
                 // If the hook returns any new resolves, add them to the ResolveContext
                 registerNewResolves(result, resolveContext.$$resolvablesByState[pathElement.state.name]);
-                return result;
               }
             };
           }
@@ -443,11 +443,10 @@ function $TransitionProvider() {
           function runSynchronousHooks(hooks, swallowExceptions) {
             for (var i = 0; i < hooks.length; i++) {
               try {
-                var result = hooks[i].invokeStep();
-                // The first rejection is returned. No additional synchronous hooks are run.
-                // TODO: Add resolves returned from the first phase sync hooks (onStart primarily)
-                if (result === false || angular.isFunction(result.then))
-                  return result;
+                var hookResult = hooks[i].invokeStep();
+                // If a hook returns a rejected promise, that rejection is returned and no additional synchronous hooks are run.
+                if (hookResult && angular.isFunction(hookResult.then))
+                  return hookResult;
               } catch (ex) {
                 if (!swallowExceptions) throw ex;
                 console.log("Swallowed exception during synchronous hook handler: " + ex); // TODO: What to do here?
@@ -522,25 +521,35 @@ function $TransitionProvider() {
           var asyncSteps = flatten([transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]);
 
           // -----------------------------------------------------------------------
+          // Transition Steps
+          // -----------------------------------------------------------------------
 
-          // Run the steps.
-          // First, run the synchronous onInvalid and onStart steps.
-          var result = !transition.to.valid() ? runSynchronousHooks(onInvalidHooks) : $q.when(true);
-          // TODO: change behavior based on synchronous hook result(s)
-          // TODO: Decide what to do with multiple sync hooks.
-          result = result && angular.isFunction(result.then) ? result :  runSynchronousHooks(onStartHooks);
+          // ---- Synchronous section ----
 
-          var chain = result && angular.isFunction(result.then) ? result : $q.when(true);
+          var hookResult = null;
+          // First, run the synchronous onInvalid steps (only when the "to state" is invalid).
+          if (!transition.to.valid()) hookResult = runSynchronousHooks(onInvalidHooks);
 
-          // Then, run the async steps
+          // Second, run the synchronous onStart hooks (but not if the onInvalid hooks already rejected the transition)
+          if (hookResult == null) hookResult = runSynchronousHooks(onStartHooks);
+
+          // ---- Asynchronous section ----
+
+          // Third, prep for the async section by either using the hookResult's rejection, or a pre-resolved promise to start the chain.
+          var chain = hookResult || $q.when(true);
+
+          // Now, build the chain out of all the asynchronous steps
           forEach(asyncSteps, function (step) {
             chain = chain.then(step.invokeStep);
           });
 
-          // When the transition is done, resolve the transition deferred
+          // When the last step of the chain has resolved or any step has rejected (i.e., the transition is completed),
+          // then resolve or reject the overall transition's deferred.
           chain.then(deferred.resolve).catch(deferred.reject);
-          // Finally, when the transition is done, update the current transition object (if this is still the current transition)
-          // When the transition is done, run the success or error hooks
+
+          // Also, invoke the registered success or error hooks when the transition is completed.
+          // Finally, when the transition is done and the hooks invoked, clear the current $transition.transition
+          // pointer (but only if this is still the current transition)
           chain.then(successHooks).catch(errorHooks).finally(function() {
             if ($transition.transition === transition)
               $transition.transition = null;
@@ -566,8 +575,17 @@ function $TransitionProvider() {
         promise: deferred.promise,
 
         toString: function() {
-          return "Transition( " + transition.from() + angular.toJson(transition.params().from) + " -> "
-            + (transition.to.valid() ? "" : "(X) ")+ transition.to() + angular.toJson(transition.params().to) + " )";
+          var fromStateOrName = transition.from();
+          var toStateOrName = transition.to();
+          // Transition( fromstate{fromparams} -> (X) tostate{toparams} )
+          // (X) means the to state is invalid.
+          return "Transition( " +
+            (angular.isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName) +
+            angular.toJson(transition.params().from) +
+            " -> "
+            + (transition.to.valid() ? "" : "(X) ") +
+            (angular.isObject(toStateOrName) ? toStateOrName.name : toStateOrName) +
+            angular.toJson(transition.params().to) + " )";
         }
       });
     }

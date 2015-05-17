@@ -79,7 +79,7 @@ function resolvedValue(promise) {
 
 function resolvedError(promise) {
   var result = resolvedPromise(promise);
-  if (result.success) throw new Error('Promise was expected to fail but returned ' + jasmine.pp(res.value) + '.');
+  if (result.success) throw new Error('Promise was expected to fail but returned ' + jasmine.pp(result.value) + '.');
   return result.error;
 }
 
