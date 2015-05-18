@@ -62,5 +62,5 @@
     "grunt-conventional-changelog": "~1.1.0",
     "grunt-ngdocs": "~0.2.5"
   },
-  "main": "release/angular-ui-router.js"
+  "main": "index.js"
 }
