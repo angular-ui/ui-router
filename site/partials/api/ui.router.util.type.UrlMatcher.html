@@ -1,5 +1,5 @@
-<h1><code ng:non-bindable="">UrlMatcher</code>
-<div><span class="hint">type in module <code ng:non-bindable="">ui.router.util</code>
+<a href="https://github.com/angular-ui/ui-router.git/edit/master/src/urlMatcherFactory.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/urlMatcherFactory.js#L68" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">UrlMatcher</code>
+<div><span class="hint">object in module <code ng:non-bindable="">ui.router.util</code>
 </span>
 </div>
 </h1>
@@ -53,7 +53,7 @@ an existing UrlMatcher</p>
 </div></td></tr></tbody></table><h4 id="usage_returns">Returns</h4><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-page"><p>New <code>UrlMatcher</code> object</p>
 </div></td></tr></table></div>
 <div class="member method"><h2 id="methods">Methods</h2>
-<ul class="methods"><li><h3 id="methods_concat">concat(pattern, config)</h3>
+<ul class="methods"><li><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/urlMatcherFactory.js#L192" class="view-source icon-eye-open"> </a><h3 id="methods_concat">concat(pattern, config)</h3>
 <div class="concat"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-concat-page"><p>Returns a new matcher for a pattern constructed by appending the path part and adding the
 search parameters of the specified pattern to this pattern. The current pattern is not
 modified. This can be understood as creating a pattern for URLs that are relative to (or
@@ -70,7 +70,7 @@ new UrlMatcher('/user/{id}/details?q&date');
 </div></div>
 </div>
 </li>
-<li><h3 id="methods_exec">exec(path, searchParams)</h3>
+<li><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/urlMatcherFactory.js#L232" class="view-source icon-eye-open"> </a><h3 id="methods_exec">exec(path, searchParams)</h3>
 <div class="exec"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-exec-page"><p>Tests the specified path against this matcher, and returns an object containing the captured
 parameter values, or null if the path does not match. The returned object contains the values
 of any search parameters that are mentioned in the pattern, but their value may be null if
@@ -89,7 +89,7 @@ new UrlMatcher('/user/{id}?q&r').exec('/user/bob', {
 </div></div>
 </div>
 </li>
-<li><h3 id="methods_format">format(values)</h3>
+<li><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/urlMatcherFactory.js#L322" class="view-source icon-eye-open"> </a><h3 id="methods_format">format(values)</h3>
 <div class="format"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-format-page"><p>Creates a URL that matches this pattern by substituting the specified values
 for the path and search parameters. Null values for path parameters are
 treated as empty strings.</p>
@@ -103,13 +103,13 @@ new UrlMatcher('/user/{id}?q').format({ id:'bob', q:'yes' });
 </div></div>
 </div>
 </li>
-<li><h3 id="methods_parameters">parameters()</h3>
+<li><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/urlMatcherFactory.js#L282" class="view-source icon-eye-open"> </a><h3 id="methods_parameters">parameters()</h3>
 <div class="parameters"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-parameters-page"><p>Returns the names of all path and search parameters of this pattern in an unspecified order.</p>
 </div><h5 id="methods_parameters_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-array">Array.&lt;string&gt;</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-parameters-page"><p>An array of parameter names. Must be treated as read-only. If the
 pattern has no parameters, an empty array is returned.</p>
 </div></td></tr></table></div>
 </li>
-<li><h3 id="methods_validate">validate(params)</h3>
+<li><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/urlMatcherFactory.js#L299" class="view-source icon-eye-open"> </a><h3 id="methods_validate">validate(params)</h3>
 <div class="validate"><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-validate-page"><p>Checks an object hash of parameters to validate their correctness according to the parameter
 types of this <code>UrlMatcher</code>.</p>
 </div><h5 id="methods_validate_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>params</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-type-page ui-router-util-type-urlmatcher-validate-page"><p>The object hash of parameters to validate.</p>

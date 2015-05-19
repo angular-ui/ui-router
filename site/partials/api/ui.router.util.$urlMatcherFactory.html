@@ -1,4 +1,4 @@
-<h1><code ng:non-bindable="">$urlMatcherFactory</code>
+<a href="https://github.com/angular-ui/ui-router.git/edit/master/src/urlMatcherFactory.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/urlMatcherFactory.js#L567" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">$urlMatcherFactory</code>
 <div><span class="hint">service in module <code ng:non-bindable="">ui.router.util</code>
 </span>
 </div>
@@ -8,20 +8,20 @@
 is also available to providers under the name <code>$urlMatcherFactoryProvider</code>.</p>
 </div></div>
 <div class="member method"><h2 id="methods">Methods</h2>
-<ul class="methods"><li><h3 id="methods_caseinsensitive">caseInsensitive(value)</h3>
+<ul class="methods"><li><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/urlMatcherFactory.js#L661" class="view-source icon-eye-open"> </a><h3 id="methods_caseinsensitive">caseInsensitive(value)</h3>
 <div class="caseinsensitive"><div class="ui-router-util-urlmatcherfactory-caseinsensitive-page"><p>Defines whether URL matching should be case sensitive (the default behavior), or not.</p>
 </div><h5 id="methods_caseinsensitive_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-util-urlmatcherfactory-caseinsensitive-page"><p><code>false</code> to match URL in a case sensitive manner; otherwise <code>true</code>;</p>
 </div></td></tr></tbody></table><h5 id="methods_caseinsensitive_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-util-urlmatcherfactory-caseinsensitive-page"><p>the current value of caseInsensitive</p>
 </div></td></tr></table></div>
 </li>
-<li><h3 id="methods_compile">compile(pattern, config)</h3>
+<li><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/urlMatcherFactory.js#L719" class="view-source icon-eye-open"> </a><h3 id="methods_compile">compile(pattern, config)</h3>
 <div class="compile"><div class="ui-router-util-urlmatcherfactory-compile-page"><p>Creates a <a href="#/api/ui.router.util.type:UrlMatcher"><code>UrlMatcher</code></a> for the specified pattern.</p>
 </div><h5 id="methods_compile_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>pattern</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-util-urlmatcherfactory-compile-page"><p>The URL pattern.</p>
 </div></td></tr><tr><td>config</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-urlmatcherfactory-compile-page"><p>The config object hash.</p>
 </div></td></tr></tbody></table><h5 id="methods_compile_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-urlmatcher">UrlMatcher</a></td><td><div class="ui-router-util-urlmatcherfactory-compile-page"><p>The UrlMatcher.</p>
 </div></td></tr></table></div>
 </li>
-<li><h3 id="methods_defaultsquashpolicy">defaultSquashPolicy(value)</h3>
+<li><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/urlMatcherFactory.js#L699" class="view-source icon-eye-open"> </a><h3 id="methods_defaultsquashpolicy">defaultSquashPolicy(value)</h3>
 <div class="defaultsquashpolicy"><div class="ui-router-util-urlmatcherfactory-defaultsquashpolicy-page"><p>Sets the default behavior when generating or matching URLs with default parameter values.</p>
 </div><h5 id="methods_defaultsquashpolicy_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-util-urlmatcherfactory-defaultsquashpolicy-page"><p>A string that defines the default parameter URL squashing behavior.
 <code>nosquash</code>: When generating an href with a default parameter value, do not squash the parameter value from the URL
@@ -31,20 +31,20 @@ any other string, e.g. &quot;~&quot;: When generating an href with a default par
          the parameter value from the URL and replace it with this string.</p>
 </div></td></tr></tbody></table></div>
 </li>
-<li><h3 id="methods_ismatcher">isMatcher(object)</h3>
+<li><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/urlMatcherFactory.js#L735" class="view-source icon-eye-open"> </a><h3 id="methods_ismatcher">isMatcher(object)</h3>
 <div class="ismatcher"><div class="ui-router-util-urlmatcherfactory-ismatcher-page"><p>Returns true if the specified object is a <code>UrlMatcher</code>, or false otherwise.</p>
 </div><h5 id="methods_ismatcher_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>object</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-util-urlmatcherfactory-ismatcher-page"><p>The object to perform the type check against.</p>
 </div></td></tr></tbody></table><h5 id="methods_ismatcher_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-boolean">Boolean</a></td><td><div class="ui-router-util-urlmatcherfactory-ismatcher-page"><p>Returns <code>true</code> if the object matches the <code>UrlMatcher</code> interface, by
 implementing all the same methods.</p>
 </div></td></tr></table></div>
 </li>
-<li><h3 id="methods_strictmode">strictMode(value)</h3>
+<li><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/urlMatcherFactory.js#L678" class="view-source icon-eye-open"> </a><h3 id="methods_strictmode">strictMode(value)</h3>
 <div class="strictmode"><div class="ui-router-util-urlmatcherfactory-strictmode-page"><p>Defines whether URLs should match trailing slashes, or not (the default behavior).</p>
 </div><h5 id="methods_strictmode_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>value <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-util-urlmatcherfactory-strictmode-page"><p><code>false</code> to match trailing slashes in URLs, otherwise <code>true</code>.</p>
 </div></td></tr></tbody></table><h5 id="methods_strictmode_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-util-urlmatcherfactory-strictmode-page"><p>the current value of strictMode</p>
 </div></td></tr></table></div>
 </li>
-<li><h3 id="methods_type">type(name, definition, definitionFn)</h3>
+<li><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/urlMatcherFactory.js#L854" class="view-source icon-eye-open"> </a><h3 id="methods_type">type(name, definition, definitionFn)</h3>
 <div class="type"><div class="ui-router-util-urlmatcherfactory-type-page"><p>Registers a custom <a href="#/api/ui.router.util.type:Type"><code>Type</code></a> object that can be used to
 generate URLs with typed parameters.</p>
 </div><h5 id="methods_type_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-util-urlmatcherfactory-type-page"><p>The type name.</p>

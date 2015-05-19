@@ -15,12 +15,12 @@ img.AngularJS-small {
   line-height: 18px
 }
 
-.header img {
+.navbar img {
   max-height: 40px;
   padding-right: 20px;
 }
 
-.header img+.brand {
+.navbar img+.brand {
   padding: 10px 20px 10px 10px;
 }
 
@@ -64,6 +64,8 @@ img.AngularJS-small {
   font-weight: bold;
   font-size: 13px;
   color: black;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .form-search > ul.nav > li > a {
@@ -138,8 +140,27 @@ img.AngularJS-small {
 /*            Content              */
 /* =============================== */
 
-.improve-docs {
+.edit-example {
+  margin-top: 9px;
+}
+
+.improve-docs, .view-source, .edit-example {
   float: right;
+  margin-left: 35px;
+  position: relative;
+}
+
+.improve-docs i, .view-source i, .edit-example i {
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  margin-top: -.5em;
+  text-decoration: none !important;
+}
+
+.methods .view-source {
+  margin: -0.5em 0 0 0;
+  text-decoration: none !important;
 }
 
 .hint {
@@ -216,7 +237,7 @@ ul.methods > li > h3,
 ul.properties > li > h3,
 ul.events > li > h3 {
   margin: -19px -19px 1em -19px;
-  padding: .25em 19px;
+  padding: .25em 39px .25em 19px;
   background-color: #d3d3d3;
   font-family: monospace;
 }

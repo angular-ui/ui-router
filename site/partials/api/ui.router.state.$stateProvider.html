@@ -1,4 +1,4 @@
-<h1><code ng:non-bindable="">$stateProvider</code>
+<a href="https://github.com/angular-ui/ui-router.git/edit/master/src/state.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/state.js#L22" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">$stateProvider</code>
 <div><span class="hint">service in module <code ng:non-bindable="">ui.router.state</code>
 </span>
 </div>
@@ -21,7 +21,7 @@ nested states.</p>
 </li>
 </ul>
 <div class="member method"><h2 id="methods">Methods</h2>
-<ul class="methods"><li><h3 id="methods_decorator">decorator(name, func)</h3>
+<ul class="methods"><li><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/state.js#L345" class="view-source icon-eye-open"> </a><h3 id="methods_decorator">decorator(name, func)</h3>
 <div class="decorator"><div class="ui-router-state-stateprovider-decorator-page"><p>Allows you to extend (carefully) or override (at your own peril) the 
 <code>stateBuilder</code> object used internally by <code>$stateProvider</code>. This can be used 
 to add custom functionality to ui-router, for example inferring templateUrl 
@@ -102,13 +102,13 @@ $state.go('home');
 </div></div>
 </div>
 </li>
-<li><h3 id="methods_state">state(name, stateConfig)</h3>
+<li><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/state.js#L680" class="view-source icon-eye-open"> </a><h3 id="methods_state">state(name, stateConfig)</h3>
 <div class="state"><div class="ui-router-state-stateprovider-state-page"><p>Registers a state configuration under a given state name. The stateConfig object
 has the following acceptable properties.</p>
 </div><h5 id="methods_state_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-stateprovider-state-page"><p>A unique state name, e.g. &quot;home&quot;, &quot;about&quot;, &quot;contacts&quot;.
 To create a parent/child state use a dot, e.g. &quot;about.sales&quot;, &quot;home.newest&quot;.</p>
 </div></td></tr><tr><td>stateConfig</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p>State configuration object.</p>
-</div></td></tr><tr><td>stateConfig.template <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='template'></a>
+</div><table><thead><tr><th>Property</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>template <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='template'></a>
 html template as a string or a function that returns
 an html template as a string which should be used by the uiView directives. This property 
 takes precedence over templateUrl.</p>
@@ -123,7 +123,7 @@ applying the current state</li>
 <pre class="prettyprint linenums">template: function(params) {
     return "&lt;h1&gt;generated template&lt;/h1&gt;"; }</pre>
 </div></p>
-</div></td></tr><tr><td>stateConfig.templateUrl <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='templateUrl'></a></p>
+</div></td></tr><tr><td>templateUrl <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='templateUrl'></a></p>
 <p>  path or function that returns a path to an html
   template that should be used by uiView.</p>
 <p>  If <code>templateUrl</code> is a function, it will be called with the following parameters:</p>
@@ -134,13 +134,13 @@ applying the current state</li>
 <pre class="prettyprint linenums">templateUrl: "home.html"</pre>
 <pre class="prettyprint linenums">templateUrl: function(params) {
     return myTemplates[params.pageId]; }</pre>
-</div></td></tr><tr><td>stateConfig.templateProvider <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='templateProvider'></a>
+</div></td></tr><tr><td>templateProvider <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='templateProvider'></a>
 Provider function that returns HTML content string.
 <pre class="prettyprint linenums"> templateProvider:
    function(MyTemplateService, params) {
      return MyTemplateService.getTemplate(params.pageId);
    }</pre>
-</div></td></tr><tr><td>stateConfig.controller <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='controller'></a></p>
+</div></td></tr><tr><td>controller <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='controller'></a></p>
 <p> Controller fn that should be associated with newly
   related scope or the name of a registered controller if passed as a string.
   Optionally, the ControllerAs may be declared here.
@@ -149,7 +149,7 @@ Provider function that returns HTML content string.
     "MyRegisteredController as fooCtrl"}</pre>
 <pre class="prettyprint linenums">controller: function($scope, MyService) {
     $scope.data = MyService.getData(); }</pre>
-</div></td></tr><tr><td>stateConfig.controllerProvider <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='controllerProvider'></a></p>
+</div></td></tr><tr><td>controllerProvider <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='controllerProvider'></a></p>
 <p>Injectable provider function that returns the actual controller or string.
 <pre class="prettyprint linenums">controllerProvider:
   function(MyResolveData) {
@@ -161,15 +161,15 @@ Provider function that returns HTML content string.
       $scope.baz = "Qux";
     }
   }</pre>
-</div></td></tr><tr><td>stateConfig.controllerAs <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='controllerAs'></a></p>
+</div></td></tr><tr><td>controllerAs <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='controllerAs'></a></p>
 <p>A controller alias name. If present the controller will be
   published to scope under the controllerAs name.
 <pre class="prettyprint linenums">controllerAs: "myCtrl"</pre>
-</div></td></tr><tr><td>stateConfig.parent <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='parent'></a>
+</div></td></tr><tr><td>parent <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='parent'></a>
 Optionally specifies the parent state of this state.</p>
 <pre class="prettyprint linenums">parent: 'parentState'</pre>
 <pre class="prettyprint linenums">parent: parentState // JS variable</pre>
-</div></td></tr><tr><td>stateConfig.resolve <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='resolve'></a></p>
+</div></td></tr><tr><td>resolve <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='resolve'></a></p>
 <p>An optional map&lt;string, function&gt; of dependencies which
   should be injected into the controller. If any of these dependencies are promises, 
   the router will wait for them all to be resolved before the controller is instantiated.
@@ -189,7 +189,7 @@ resolved before its value is injected into controller.</li>
         return $http.get("/api/foos/"+stateParams.fooID);
       }
     }</pre>
-</div></td></tr><tr><td>stateConfig.url <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='url'></a></p>
+</div></td></tr><tr><td>url <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='url'></a></p>
 <p>  A url fragment with optional parameters. When a state is navigated or
   transitioned to, the <code>$stateParams</code> service will be populated with any 
   parameters that were passed.</p>
@@ -205,7 +205,7 @@ url: "/messages?before&after"
 url: "/messages?{before:date}&{after:date}"
 url: "/messages/:mailboxid?{before:date}&{after:date}"
 </pre>
-</div></td></tr><tr><td>stateConfig.views <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='views'></a>
+</div></td></tr><tr><td>views <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='views'></a>
 an optional map&lt;string, object&gt; which defined multiple views, or targets views
 manually/explicitly.</p>
 <p>Examples:</p>
@@ -232,11 +232,11 @@ manually/explicitly.</p>
       templateUrl: "messages.html"
     }
   }</pre>
-</div></td></tr><tr><td>stateConfig.abstract <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='abstract'></a>
+</div></td></tr><tr><td>abstract <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='abstract'></a>
 An abstract state will never be directly activated,
   but can provide inherited properties to its common children states.
 <pre class="prettyprint linenums">abstract: true</pre>
-</div> <p><em>(default: false)</em></p></td></tr><tr><td>stateConfig.onEnter <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='onEnter'></a></p>
+</div> <p><em>(default: false)</em></p></td></tr><tr><td>onEnter <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='onEnter'></a></p>
 <p>Callback function for when a state is entered. Good way
   to trigger an action or dispatch an event, such as opening a dialog.
 If minifying your scripts, make sure to explictly annotate this function,
@@ -244,7 +244,7 @@ because it won&#39;t be automatically annotated by your build tools.</p>
 <pre class="prettyprint linenums">onEnter: function(MyService, $stateParams) {
     MyService.foo($stateParams.myParam);
 }</pre>
-</div></td></tr><tr><td>stateConfig.onExit <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='onExit'></a></p>
+</div></td></tr><tr><td>onExit <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='onExit'></a></p>
 <p>Callback function for when a state is exited. Good way to
   trigger an action or dispatch an event, such as opening a dialog.
 If minifying your scripts, make sure to explictly annotate this function,
@@ -252,19 +252,19 @@ because it won&#39;t be automatically annotated by your build tools.</p>
 <pre class="prettyprint linenums">onExit: function(MyService, $stateParams) {
     MyService.cleanup($stateParams.myParam);
 }</pre>
-</div></td></tr><tr><td>stateConfig.reloadOnSearch <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='reloadOnSearch'></a></p>
+</div></td></tr><tr><td>reloadOnSearch <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='reloadOnSearch'></a></p>
 <p>If <code>false</code>, will not retrigger the same state
   just because a search/query parameter has changed (via $location.search() or $location.hash()). 
   Useful for when you&#39;d like to modify $location.search() without triggering a reload.
 <pre class="prettyprint linenums">reloadOnSearch: false</pre>
-</div> <p><em>(default: true)</em></p></td></tr><tr><td>stateConfig.data <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='data'></a></p>
+</div> <p><em>(default: true)</em></p></td></tr><tr><td>data <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='data'></a></p>
 <p>Arbitrary data object, useful for custom configuration.  The parent state&#39;s <code>data</code> is
   prototypally inherited.  In other words, adding a data property to a state adds it to
   the entire subtree via prototypal inheritance.</p>
 <pre class="prettyprint linenums">data: {
     requiredRole: 'foo'
 } </pre>
-</div></td></tr><tr><td>stateConfig.params <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='params'></a></p>
+</div></td></tr><tr><td>params <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-stateprovider-state-page"><p><a id='params'></a></p>
 <p>A map which optionally configures parameters declared in the <code>url</code>, or
   defines additional non-url parameters.  For each parameter being
   configured, add a configuration object keyed to the name of the parameter.</p>
@@ -335,7 +335,7 @@ params: {
       squash: "~"
 } }
 </pre>
-</div></td></tr></tbody></table><h4 id="methods_state_example">Example</h4>
+</div></td></tr></tbody></table></td></tr></tbody></table><h4 id="methods_state_example">Example</h4>
 <div class="example"><div class="ui-router-state-stateprovider-state-page"><pre class="prettyprint linenums">
 // Some state name examples
 
