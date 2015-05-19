@@ -1,6 +1,6 @@
 describe('state', function () {
 
-  var stateProvider, locationProvider, templateParams, ctrlName;
+  var stateProvider, locationProvider, templateParams, ctrlName, template;
 
   beforeEach(module('ui.router', function($locationProvider) {
     locationProvider = $locationProvider;
@@ -24,10 +24,12 @@ describe('state', function () {
       DD = { parent: D, params: { x: null, y: null, z: null } },
       DDDD = { parent: D, controller: function() {}, template: "hey"},
       E = { params: { i: {} } },
+      F = { params: { a: '', b: false, c: 0, d: undefined, e: -1 }},
       H = { data: {propA: 'propA', propB: 'propB'} },
       HH = { parent: H },
       HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
       RS = { url: '^/search?term', reloadOnSearch: false },
+      RSP = { url: '^/:doReload/search?term', reloadOnSearch: false },
       OPT = { url: '/opt/:param', params: { param: "100" } },
       OPT2 = { url: '/opt2/:param2/:param3', params: { param3: "300", param4: "400" } },
       AppInjectable = {};
@@ -47,12 +49,14 @@ describe('state', function () {
       .state('DD', DD)
       .state('DDDD', DDDD)
       .state('E', E)
+      .state('F', F)
       .state('H', H)
       .state('HH', HH)
       .state('HHH', HHH)
       .state('OPT', OPT)
       .state('OPT.OPT2', OPT2)
       .state('RS', RS)
+      .state('RSP', RSP)
 
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
@@ -73,6 +77,16 @@ describe('state', function () {
         controllerProvider: function($stateParams, foo) {
           ctrlName = $stateParams.type + foo + "Controller";
           return ctrlName;
+        },
+        resolve: {
+          foo: function() { return 'Foo'; }
+        }
+      })
+      .state('dynamicTemplate', {
+        url: "/dynamicTemplate/:type",
+        templateProvider: function($stateParams, foo) {
+          template = $stateParams.type + foo + "Template";
+          return template;
         },
         resolve: {
           foo: function() { return 'Foo'; }
@@ -200,7 +214,45 @@ describe('state', function () {
       });
       $q.flush();
       expect($location.search()).toEqual({term: 'hello'});
-      expect(called).toBeFalsy();        
+      expect(called).toBeFalsy();
+    }));
+
+    it('updates $stateParams when state.reloadOnSearch=false, and only query params changed', inject(function ($state, $stateParams, $q, $location, $rootScope){
+      initStateTo(RS);
+      $location.search({term: 'hello'});
+      var called;
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+        called = true
+      });
+      $q.flush();
+      expect($stateParams).toEqual({term: 'hello'});
+      expect(called).toBeFalsy();
+    }));
+
+    it('updates URL when changing only query params via $state.go() when reloadOnSearch=false', inject(function ($state, $stateParams, $q, $location, $rootScope){
+      initStateTo(RS);
+      var called;
+      $state.go(".", { term: 'goodbye' });
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+        called = true
+      });
+      $q.flush();
+      expect($stateParams).toEqual({term: 'goodbye'});
+      expect($location.url()).toEqual("/search?term=goodbye");
+      expect(called).toBeFalsy();
+    }));
+
+    it('does trigger state change for path params even if reloadOnSearch is false', inject(function ($state, $q, $location, $rootScope){
+      initStateTo(RSP, { doReload: 'foo' });
+      expect($state.params.doReload).toEqual('foo');
+      var called;
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+        called = true
+      });
+      $state.transitionTo(RSP, { doReload: 'bar' });
+      $q.flush();
+      expect($state.params.doReload).toEqual('bar');
+      expect(called).toBeTruthy();
     }));
 
     it('ignores non-applicable state parameters', inject(function ($state, $q) {
@@ -489,6 +541,12 @@ describe('state', function () {
       $q.flush();
       expect(ctrlName).toEqual("AcmeFooController");
     }));+
+
+    it('uses the templateProvider to get template dynamically', inject(function ($state, $q) {
+      $state.transitionTo('dynamicTemplate', { type: "Acme" });
+      $q.flush();
+      expect(template).toEqual("AcmeFooTemplate");
+    }));
 
     it('updates the location #fragment, if specified', inject(function ($state, $q, $location) {
       // html5mode disabled
@@ -915,12 +973,14 @@ describe('state', function () {
         'DD',
         'DDDD',
         'E',
+        'F',
         'H',
         'HH',
         'HHH',
         'OPT',
         'OPT.OPT2',
         'RS',
+        'RSP',
         'about',
         'about.person',
         'about.person.item',
@@ -929,6 +989,7 @@ describe('state', function () {
         'badParam',
         'badParam2',
         'dynamicController',
+        'dynamicTemplate',
         'first',
         'home',
         'home.item',
@@ -980,6 +1041,12 @@ describe('state', function () {
       $state.go("D"); $q.flush();
       expect($state.current.name).toBe("D");
       expect($state.params).toEqual({ x: null, y: null });
+    }));
+
+    it("should allow falsy default values for non-url params", inject(function($state, $q) {
+      $state.go("F"); $q.flush();
+      expect($state.current.name).toBe("F");
+      expect($state.params).toEqual({ a: '', b: false, c: 0, d: undefined, e: -1 });
     }));
 
     it("should allow arbitrary objects to pass for non-url params", inject(function($state, $q) {
