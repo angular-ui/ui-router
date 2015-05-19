@@ -29,6 +29,7 @@ describe('state', function () {
       HH = { parent: H },
       HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
       RS = { url: '^/search?term', reloadOnSearch: false },
+      RSP = { url: '^/:doReload/search?term', reloadOnSearch: false },
       OPT = { url: '/opt/:param', params: { param: "100" } },
       OPT2 = { url: '/opt2/:param2/:param3', params: { param3: "300", param4: "400" } },
       AppInjectable = {};
@@ -55,6 +56,7 @@ describe('state', function () {
       .state('OPT', OPT)
       .state('OPT.OPT2', OPT2)
       .state('RS', RS)
+      .state('RSP', RSP)
 
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
@@ -212,7 +214,32 @@ describe('state', function () {
       });
       $q.flush();
       expect($location.search()).toEqual({term: 'hello'});
-      expect(called).toBeFalsy();        
+      expect(called).toBeFalsy();
+    }));
+
+    it('updates $stateParams when state.reloadOnSearch=false, and only query params changed', inject(function ($state, $stateParams, $q, $location, $rootScope){
+      initStateTo(RS);
+      $location.search({term: 'hello'});
+      var called;
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+        called = true
+      });
+      $q.flush();
+      expect($stateParams).toEqual({term: 'hello'});
+      expect(called).toBeFalsy();
+    }));
+
+    it('does trigger state change for path params even if reloadOnSearch is false', inject(function ($state, $q, $location, $rootScope){
+      initStateTo(RSP, { doReload: 'foo' });
+      expect($state.params.doReload).toEqual('foo');
+      var called;
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+        called = true
+      });
+      $state.transitionTo(RSP, { doReload: 'bar' });
+      $q.flush();
+      expect($state.params.doReload).toEqual('bar');
+      expect(called).toBeTruthy();
     }));
 
     it('ignores non-applicable state parameters', inject(function ($state, $q) {
@@ -940,6 +967,7 @@ describe('state', function () {
         'OPT',
         'OPT.OPT2',
         'RS',
+        'RSP',
         'about',
         'about.person',
         'about.person.item',
