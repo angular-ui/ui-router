@@ -1032,9 +1032,15 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       // that we've initiated ourselves, because we might accidentally abort a legitimate
       // transition initiated from code?
       if (shouldSkipReload(to, toParams, from, fromParams, locals, options)) {
-        if (to.self.reloadOnSearch !== false) $urlRouter.update();
+        if (hash) toParams['#'] = hash;
         $state.params = toParams;
         copy($state.params, $stateParams);
+        if (options.location && to.navigable && to.navigable.url) {
+          $urlRouter.push(to.navigable.url, toParams, {
+            $$avoidResync: true, replace: options.location === 'replace'
+          });
+          $urlRouter.update(true);
+        }
         $state.transition = null;
         return $q.when($state.current);
       }

@@ -229,6 +229,19 @@ describe('state', function () {
       expect(called).toBeFalsy();
     }));
 
+    it('updates URL when changing only query params via $state.go() when reloadOnSearch=false', inject(function ($state, $stateParams, $q, $location, $rootScope){
+      initStateTo(RS);
+      var called;
+      $state.go(".", { term: 'goodbye' });
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+        called = true
+      });
+      $q.flush();
+      expect($stateParams).toEqual({term: 'goodbye'});
+      expect($location.url()).toEqual("/search?term=goodbye");
+      expect(called).toBeFalsy();
+    }));
+
     it('does trigger state change for path params even if reloadOnSearch is false', inject(function ($state, $q, $location, $rootScope){
       initStateTo(RSP, { doReload: 'foo' });
       expect($state.params.doReload).toEqual('foo');
