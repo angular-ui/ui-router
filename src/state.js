@@ -1436,9 +1436,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         return fromAndToState.params[key].location != "search";
       }
       var nonQueryParamKeys = fromAndToState.params.$$keys().filter(notSearchParam);
-      var nonQueryParams = pick.apply(this, [fromAndToState.params].concat(nonQueryParamKeys));
+      var nonQueryParams = pick.apply({}, [fromAndToState.params].concat(nonQueryParamKeys));
       var nonQueryParamSet = new $$UMFP.ParamSet(nonQueryParams);
-      return nonQueryParamSet.$$equals(fromParams, toParams)
+      return nonQueryParamSet.$$equals(fromParams, toParams);
     }
 
     // If reload was not explicitly requested
