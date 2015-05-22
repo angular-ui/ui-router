@@ -78,7 +78,7 @@ function stateContext(el) {
  */
 $StateRefDirective.$inject = ['$state', '$timeout'];
 function $StateRefDirective($state, $timeout) {
-  var allowedOptions = ['location', 'inherit', 'reload', 'absolute'];
+  var allowedOptions = ['location', 'inherit', 'reload', 'absolute', 'notify'];
 
   return {
     restrict: 'A',
