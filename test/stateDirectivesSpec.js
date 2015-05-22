@@ -386,7 +386,7 @@ describe('uiStateRef', function() {
 
       expect(transitionOptions.reload).toEqual(true);
       expect(transitionOptions.absolute).toEqual(true);
-      expect(transitionOptions.notify).toBeUndefined();
+      expect(transitionOptions.notify).toEqual(true);
     }));
   });
 });
