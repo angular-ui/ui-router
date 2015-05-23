@@ -272,6 +272,10 @@ function $TransitionProvider() {
     var from = { state: null, params: null },
         to   = { state: null, params: null };
     var _fromPath = null; // contains resolved data
+    $TransitionProvider.instance.on({}, function($transition$) {
+      if (!$transition$.to.valid())
+        throw new Error($transition$.to.error());
+    });
 
     /**
      * @ngdoc object

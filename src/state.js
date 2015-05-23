@@ -97,7 +97,7 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 
     // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
     navigable: function(state) {
-      return state.url ? state : (state.parent ? state.parent.navigable : null);
+      return !state.abstract && state.url ? state : (state.parent ? state.parent.navigable : null);
     },
 
     // Derive parameters for this state and ensure they're a super-set of parent's parameters
@@ -914,8 +914,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           copy($state.params, $stateParams);
           $stateParams.$sync().$off();
 
-          if (options.location && to.navigable) {
-            $urlRouter.push(to.navigable.url, $stateParams, { replace: options.location === 'replace' });
+          if (options.location && $state.$current.navigable) {
+            $urlRouter.push($state.$current.navigable.url, $stateParams, { replace: options.location === 'replace' });
           }
 
           $urlRouter.update(true);
@@ -1102,7 +1102,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (!nav || nav.url === undefined || nav.url === null) {
         return null;
       }
-      return $urlRouter.href(nav.url, pick(params || {}, objectKeys(state.params)), {
+      return $urlRouter.href(nav.url, state.params.$$values(params), {
         absolute: options.absolute
       });
     };

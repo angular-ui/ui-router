@@ -267,9 +267,10 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
   $get.$inject = ['$location', '$rootScope', '$injector', '$browser'];
   function $get(   $location,   $rootScope,   $injector,   $browser) {
 
-    var baseHref = $browser.baseHref(), location = $location.url();
+    var location = $location.url();
 
     function appendBasePath(url, isHtml5, absolute) {
+      var baseHref = $browser.baseHref();
       if (baseHref === '/') return url;
       if (isHtml5) return baseHref.slice(0, -1) + url;
       if (absolute) return baseHref.slice(1) + url;

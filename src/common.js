@@ -90,7 +90,7 @@ function objectKeys(object) {
   }
   var result = [];
 
-  angular.forEach(object, function(val, key) {
+  forEach(object, function(val, key) {
     result.push(key);
   });
   return result;
@@ -103,7 +103,8 @@ function objectKeys(object) {
  * @param {*} value A value to search the array for.
  * @return {Number} Returns the array index value of `value`, or `-1` if not present.
  */
-function arraySearch(array, value) {
+var arraySearch = indexOf;
+function indexOf(array, value) {
   if (Array.prototype.indexOf) {
     return array.indexOf(value, Number(arguments[2]) || 0);
   }
@@ -116,6 +117,32 @@ function arraySearch(array, value) {
     if (from in array && array[from] === value) return from;
   }
   return -1;
+}
+
+/**
+ * Merges a set of parameters with all parameters inherited between the common parents of the
+ * current state and a given destination state.
+ *
+ * @param {Object} currentParams The value of the current state parameters ($stateParams).
+ * @param {Object} newParams The set of parameters which will be composited with inherited params.
+ * @param {Object} $current Internal definition of object representing the current state.
+ * @param {Object} $to Internal definition of object representing state to transition to.
+ */
+function inheritParams(currentParams, newParams, $current, $to) {
+  var parents = ancestors($current, $to), parentParams, inherited = {}, inheritList = [];
+
+  for (var i in parents) {
+    if (!parents[i].params) continue;
+    parentParams = objectKeys(parents[i].params);
+    if (!parentParams.length) continue;
+
+    for (var j in parentParams) {
+      if (indexOf(inheritList, parentParams[j]) >= 0) continue;
+      inheritList.push(parentParams[j]);
+      inherited[parentParams[j]] = currentParams[parentParams[j]];
+    }
+  }
+  return extend({}, inherited, newParams);
 }
 
 /**

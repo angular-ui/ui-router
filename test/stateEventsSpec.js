@@ -130,6 +130,15 @@ describe('UI-Router v0.2.x $state events', function () {
       expect($state.current).toBe(E);
     }));
 
+    it('throws Error on failed relative state resolution', inject(function ($state, $q) {
+      $state.transitionTo(DD);
+      $q.flush();
+
+      var err = "Could not resolve '^.Z' from state 'DD'";
+      expect(function() { $state.transitionTo("^.Z", null, { relative: $state.$current }); }).toThrow(err);
+    }));
+
+
     it('can be cancelled by preventDefault() in $stateNotFound', inject(function ($state, $q, $rootScope) {
       initStateTo(A);
       var called;

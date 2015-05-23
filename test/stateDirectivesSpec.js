@@ -130,7 +130,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect($stateParams).toEqualData({ id: 5 });
+      expect($stateParams).toEqual({ id: "5" });
     }));
 
     it('should transition when given a click that contains no data (fake-click)', inject(function($state, $stateParams, $q) {
@@ -147,7 +147,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect($stateParams).toEqualData({ id: 5 });
+      expect($stateParams).toEqual({ id: "5" });
     }));
 
     it('should not transition states when ctrl-clicked', inject(function($state, $stateParams, $q) {
@@ -155,6 +155,7 @@ describe('uiStateRef', function() {
       expect($stateParams).toEqualData({});
 
       triggerClick(el, { ctrlKey: true });
+
       timeoutFlush();
       $q.flush();
       
@@ -334,7 +335,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.$current.name).toBe("contacts.item.detail");
-      expect(extend({},$state.params)).toEqual({ id: 5 });
+      expect($state.params).toEqual({ id: "5" });
     }));
 
     it('should resolve states from parent uiView', inject(function ($state, $stateParams, $q, $timeout) {
@@ -372,7 +373,7 @@ describe('uiStateRef', function() {
   describe('transition options', function() {
 
     beforeEach(inject(function($rootScope, $compile, $state) {
-      el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })" ui-sref-opts="{ reload: true, notify: true }">Details</a>');
+      el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })" ui-sref-opts="{ reload: true, absolute: true, notify: true }">Details</a>');
       scope = $rootScope;
       scope.contact = { id: 5 };
 
@@ -391,17 +392,19 @@ describe('uiStateRef', function() {
       $timeout.flush();
 
       expect(transitionOptions.reload).toEqual(true);
+      expect(transitionOptions.absolute).toEqual(true);
       expect(transitionOptions.notify).toBeUndefined();
     }));
   });
 });
 
 describe('uiSrefActive', function() {
-    var el, template, scope, document;
+  var el, template, scope, document, _stateProvider;
 
   beforeEach(module('ui.router'));
 
   beforeEach(module(function($stateProvider) {
+    _stateProvider = $stateProvider;
     $stateProvider.state('top', {
       url: ''
     }).state('contacts', {
@@ -499,6 +502,58 @@ describe('uiSrefActive', function() {
     $state.transitionTo('contacts.item', { id: 5 });
     $q.flush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('ng-scope');
+  }));
+
+  it('should match on any child state refs', inject(function($rootScope, $q, $compile, $state) {
+    el = angular.element('<div ui-sref-active="active"><a ui-sref="contacts.item({ id: 1 })">Contacts</a><a ui-sref="contacts.item({ id: 2 })">Contacts</a></div>');
+    template = $compile(el)($rootScope);
+    $rootScope.$digest();
+
+    expect(angular.element(template[0]).attr('class')).toBe('ng-scope');
+
+    $state.transitionTo('contacts.item', { id: 1 });
+    $q.flush();
+    expect(angular.element(template[0]).attr('class')).toBe('ng-scope active');
+
+    $state.transitionTo('contacts.item', { id: 2 });
+    $q.flush();
+    expect(angular.element(template[0]).attr('class')).toBe('ng-scope active');
+  }));
+
+  it('should match fuzzy on lazy loaded states', inject(function($rootScope, $q, $compile, $state) {
+    el = angular.element('<div><a ui-sref="contacts.lazy" ui-sref-active="active">Lazy Contact</a></div>');
+    template = $compile(el)($rootScope);
+    $rootScope.$digest();
+
+    $rootScope.$on('$stateNotFound', function () {
+      _stateProvider.state('contacts.lazy', {});
+    });
+
+    $state.transitionTo('contacts.item', { id: 1 });
+    $q.flush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+
+    $state.transitionTo('contacts.lazy');
+    $q.flush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
+  }));
+
+  it('should match exactly on lazy loaded states', inject(function($rootScope, $q, $compile, $state) {
+    el = angular.element('<div><a ui-sref="contacts.lazy" ui-sref-active-eq="active">Lazy Contact</a></div>');
+    template = $compile(el)($rootScope);
+    $rootScope.$digest();
+
+    $rootScope.$on('$stateNotFound', function () {
+      _stateProvider.state('contacts.lazy', {});
+    });
+
+    $state.transitionTo('contacts.item', { id: 1 });
+    $q.flush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+
+    $state.transitionTo('contacts.lazy');
+    $q.flush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
   }));
 });
 
