@@ -11,7 +11,8 @@ routerFiles = {
     'src/viewScroll.js',
     'src/viewDirective.js',
     'src/stateDirectives.js',
-    'src/stateFilters.js'
+    'src/stateFilters.js',
+    'src/stateEvents.js'
   ],
   testUtils: [
     'test/testUtils.js'
@@ -20,9 +21,10 @@ routerFiles = {
     'test/commonSpec.js',
     'test/stateSpec.js',
     'test/resolveSpec.js',
-//    'test/urlMatcherFactorySpec.js',
+    'test/urlMatcherFactorySpec.js',
     'test/urlRouterSpec.js',
     'test/transitionSpec.js',
+    'test/stateEventsSpec.js',
     'test/compat/matchers.js'
   ],
   angular: function(version) {

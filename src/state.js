@@ -660,7 +660,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     var TransitionFailed = $q.reject(new Error('transition failed'));
     var TransitionIgnored = $q.reject(new Error('transition ignored'));
 
-    var REJECT = {
+    var REJECT = $state.REJECT = {
       superseded: function() { return TransitionSuperseded; },
       prevented: function() { return TransitionPrevented; },
       aborted: function() { return TransitionAborted; },
@@ -875,63 +875,32 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       var transition = $transition.create(fromRef, toRef, options);
 
       var stateHandler = {
-        checkIgnoredOrPrevented: function checkIgnoredOrPrevented(transition) {
-          var notify = transition.options().notify;
-
-          if (transition.ignored()) {
-            var isDynamic = $stateParams.$set(transition.params().to, transition.to.$state().url);
-
-            if (isDynamic && toState.url) {
-              $urlRouter.push(toState.url, $stateParams, { replace: true });
-              $urlRouter.update(true);
-            }
-
-            if (isDynamic || toRef.$state().locals === fromRef.$state().locals) {
-              if (!isDynamic) $urlRouter.update();
-              if (notify) $rootScope.$broadcast('$stateChangeIgnored', transition);
-              $state.transition = null;
-              return REJECT.ignored();
-            }
-          }
-
-          /**
-           * @ngdoc event
-           * @name ui.router.state.$state#$stateChangeStart
-           * @eventOf ui.router.state.$state
-           * @eventType broadcast on root scope
-           * @description
-           * Fired when the state transition **begins**. You can use `event.preventDefault()`
-           * to prevent the transition from happening and then the transition promise will be
-           * rejected with a `'transition prevented'` value.
-           *
-           * @param {Object} event Event object.
-           * @param {Transition} Transition An object containing all contextual information about
-           * the current transition, including to and from states and parameters.
-           *
-           * @example
-           *
-           * <pre>
-           * $rootScope.$on('$stateChangeStart', function(event, transition) {
-           *   event.preventDefault();
-           *   // transitionTo() promise will be rejected with
-           *   // a 'transition prevented' error
-           * })
-           * </pre>
-           */
-          if (notify && $rootScope.$broadcast('$stateChangeStart', transition).defaultPrevented) {
-            $urlRouter.update();
-            return TransitionPrevented;
-          }
-        },
+        //checkIgnoredOrPrevented: function checkIgnoredOrPrevented(transition) {
+        //  if (transition.ignored()) {
+        //    var isDynamic = $stateParams.$set(transition.params().to, transition.to.$state().url);
+        //
+        //    if (isDynamic && toState.url) {
+        //      $urlRouter.push(toState.url, $stateParams, { replace: true });
+        //      $urlRouter.update(true);
+        //    }
+        //
+        //    if (isDynamic || toRef.$state().locals === fromRef.$state().locals) {
+        //      if (!isDynamic) $urlRouter.update();
+        //      return $q.when(transition.to.state());
+        //    }
+        //  }
+        //},
 
         runTransition: function runTransition(transition) {
-          var aborted = stateHandler.checkIgnoredOrPrevented(transition);
-          if (aborted)
-            $transition.abort();
+          //var skip = stateHandler.checkIgnoredOrPrevented(transition);
+          //if (skip)
+          //  $transition.abort();
 
-          return aborted ? aborted : transition.run()
-            .then(function returnTransition() { return transition; })
-            .then(stateHandler.transitionSuccess, stateHandler.transitionFailure);
+          // When the transition promise (prepromise; before callbacks) is resolved/rejected, update the $state service
+          function handleSuccess() { return stateHandler.transitionSuccess(transition); }
+          function handleFailure(error) { return stateHandler.transitionFailure(error); }
+          transition.run();
+          return transition.prepromise.then(handleSuccess, handleFailure);
         },
 
         transitionSuccess: function transitionSuccess(transition) {
@@ -943,27 +912,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
           $state.params = transition.params().to;
           copy($state.params, $stateParams);
-          $state.transition = null;
           $stateParams.$sync().$off();
 
           if (options.location && to.navigable) {
             $urlRouter.push(to.navigable.url, $stateParams, { replace: options.location === 'replace' });
           }
 
-          if (options.notify) {
-            /**
-             * @ngdoc event
-             * @name ui.router.state.$state#$stateChangeSuccess
-             * @eventOf ui.router.state.$state
-             * @eventType broadcast on root scope
-             * @description
-             * Fired once the state transition is **complete**.
-             *
-             * @param {Object} event Event object.
-             * @param {Transition} transition The object encapsulating the transition info.
-             */
-            $rootScope.$broadcast('$stateChangeSuccess', transition);
-          }
           $urlRouter.update(true);
 
           return transition;
@@ -972,10 +926,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         transitionFailure: function transitionFailure(error) {
           // Handle redirect and abort
           if (error instanceof TransitionRejection) {
+            if (error.type === transition.IGNORED) return $state.current;
             if (error.type === transition.ABORTED) return REJECT.aborted();
             if (error.type === transition.SUPERSEDED) {
-              if (error.redirected && error.detail && angular.isFunction(error.detail.entering)) { // TODO: expose Transition class for instanceof
-              //if (error.redirected && error.detail instanceof Transition) {
+              //if (error.redirected && error.detail instanceof Transition) { // TODO: expose Transition class for instanceof
+              if (error.redirected && error.detail && angular.isFunction(error.detail.run)) {
                 return stateHandler.runTransition(error.detail);
               }
               // Return $q.reject(error)?  i.e., the original rejection? It has more information.
@@ -983,32 +938,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
             }
           }
 
-          // TODO: Tracking of current transition in $state should no longer be necessary?
-          if ($state.transition !== transition) return TransitionSuperseded;
-
-          /**
-           * @ngdoc event
-           * @name ui.router.state.$state#$stateChangeError
-           * @eventOf ui.router.state.$state
-           * @eventType broadcast on root scope
-           * @description
-           * Fired when an **error occurs** during transition. It's important to note that if you
-           * have any errors in your resolve functions (javascript errors, non-existent services, etc)
-           * they will not throw traditionally. You must listen for this $stateChangeError event to
-           * catch **ALL** errors.
-           *
-           * @param {Object}     event      Event object.
-           * @param {Transition} transition The `Transition` object.
-           * @param {Error}      error      The resolve error object.
-           */
-          if (!$rootScope.$broadcast('$stateChangeError', transition, error).defaultPrevented) {
-            $urlRouter.update();
-          }
           return $q.reject(error);
         }
       };
 
-      return stateHandler.runTransition(transition);
+      // Return a promise for the transition, which also has the transition object on it.
+      // Allows, for instance:
+      // $state.go("foo").transition.redirects.then(function() { alert("Ive been redirected to state " + $state.current.name); }
+      return extend(stateHandler.runTransition(transition).then(angular.identity), { transition: transition });
     };
 
     /**
@@ -1282,6 +1219,15 @@ function $StateParamsProvider() {
       return this;
     };
 
+    StateParams.prototype.$raw = function() {
+      var raw = {};
+      for(key in this) {
+        if (!StateParams.prototype.hasOwnProperty(key))
+          raw[key] = this[key];
+      }
+      return raw;
+    };
+
     StateParams.prototype.$localize = function(state, params) {
       var localized = new StateParams();
       params = params || this;
@@ -1316,61 +1262,7 @@ function $StateParamsProvider() {
   }
 }
 
-
-stateEventsConfigBlock.$inject = ['$transitionProvider'];
-function stateEventsConfigBlock($transitionProvider) {
-
-  $transitionProvider.onInvalid({}, stateNotFoundHandler, { priority: 1000 });
-
-  stateNotFoundHandler.$inject = ['$transition$', '$state', '$rootScope', '$urlRouter'];
-  function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
-    /**
-     * @ngdoc event
-     * @name ui.router.state.$state#$stateNotFound
-     * @eventOf ui.router.state.$state
-     * @eventType broadcast on root scope
-     * @description
-     * Fired when a requested state **cannot be found** using the provided state name during transition.
-     * The event is broadcast allowing any handlers a single chance to deal with the error (usually by
-     * lazy-loading the unfound state). A `StateReference` object is passed to the listener handler,
-     * you can see its properties in the example. You can use `event.preventDefault()` to abort the
-     * transition and the promise returned from `transitionTo()` will be rejected with a
-     * `'transition aborted'` error.
-     *
-     * @param {Object} event Event object.
-     * @param {Object} unfoundState Unfound State information. Contains: `to, toParams, options` properties.
-     * @param {State} fromState Current state object.
-     * @param {Object} fromParams Current state params.
-     * @param {Transition} transition Current transition object
-     * @example
-     *
-     * <pre>
-     * // somewhere, assume lazy.state has not been defined
-     * $state.go("lazy.state", { a: 1, b: 2 }, { inherit: false });
-     *
-     * // somewhere else
-     * $scope.$on('$stateNotFound', function(event, transition) {
-     * function(event, unfoundState, fromState, fromParams){
-     *     console.log(unfoundState.to); // "lazy.state"
-     *     console.log(unfoundState.toParams); // {a:1, b:2}
-     *     console.log(unfoundState.options); // {inherit:false} + default options
-     * });
-     * </pre>
-     */
-    var redirect = { to: $transition$.to(), toParams: $transition$.to.params(), options: $transition$.options() };
-    var e = $rootScope.$broadcast('$stateNotFound', redirect, $transition$.from.state(), $transition$.from.params(), $transition$);
-
-    if (e.defaultPrevented || e.retry) $urlRouter.update();
-    if (e.defaultPrevented) return TransitionAborted;
-    if (!e.retry) throw new Error($transition$.to.error());
-    return $transition$.redirect($state.reference(redirect.to, redirect.toParams), redirect.options);
-  }
-}
-
-
-
 angular.module('ui.router.state')
   .provider('$stateParams', $StateParamsProvider)
   .provider('$state', $StateProvider)
-  .config(stateEventsConfigBlock) // TODO: Refactor state events to a separate file
   .run(['$state', function($state) { /* This effectively calls $get() to init when we enter runtime */ }]);
