@@ -41,6 +41,11 @@ function stateContext(el) {
  * using the `ui-sref-opts` attribute. Options are restricted to `location`, `inherit`,
  * and `reload`.
  *
+ * You can invoke an expression when this state transition is initiated using
+ * the `ui-sref-on` attribute. The promise returned by {@link
+ * ui.router.state.$state#methods_go $state.go()} is injected into the expression as
+ * `$template`.
+ *
  * @example
  * Here's an example of how you'd use ui-sref and how it would compile. If you have the 
  * following template:
@@ -75,6 +80,7 @@ function stateContext(el) {
  *
  * @param {string} ui-sref 'stateName' can be any valid absolute or relative state
  * @param {Object} ui-sref-opts options to pass to {@link ui.router.state.$state#go $state.go()}
+ * @param {expression} ui-sref-on expression to evaluate when transition starts. Result of {@link ui.router.state.$state#methods_go $state.go()} is injected as '$transition'
  */
 $StateRefDirective.$inject = ['$state', '$timeout'];
 function $StateRefDirective($state, $timeout) {
@@ -134,7 +140,13 @@ function $StateRefDirective($state, $timeout) {
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
           var transition = $timeout(function() {
-            $state.go(ref.state, params, options);
+            var $transition = $state.go(ref.state, params, options);
+            if ($transition && attrs.uiSrefOn) {
+              if (angular.version.minor < 2) throw new Error("uiSrefOn not supported by angular < 1.2.0");
+              scope.$eval(attrs.uiSrefOn, {
+                $transition: $transition
+              });
+            }
           });
           e.preventDefault();
 

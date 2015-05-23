@@ -389,6 +389,42 @@ describe('uiStateRef', function() {
       expect(transitionOptions.notify).toBeUndefined();
     }));
   });
+
+  describe('transition expression', function() {
+    beforeEach(inject(function($rootScope, $compile) {
+      el = angular.element('<a ui-sref="contacts.item.detail({id: 5})" ui-sref-on="loading = $transition">Details</a>');
+      scope = $rootScope;
+      scope.loading = null;
+
+      $compile(el)(scope);
+      scope.$digest();
+    }));
+
+    it('applies an expression when a transition begins', inject(function($rootScope, $timeout, $state) {
+      if (angular.version.minor < 2) return;
+
+      var newState;
+
+      expect(scope.loading).toBe(null);
+      triggerClick(el);
+      $timeout.flush();
+
+      expect(scope.loading.then).toEqual(jasmine.any(Function));
+
+      scope.loading.then(function(_newState) {
+        newState = _newState;
+      });
+
+      $rootScope.$digest();
+      expect(newState).toEqual($state.get('contacts.item.detail'));
+    }));
+
+    it('throws on < 1.2.0 due to $parse promise mangling', inject(function($timeout) {
+      if (angular.version.minor >= 2) return;
+      triggerClick(el);
+      expect($timeout.flush).toThrow("uiSrefOn not supported by angular < 1.2.0");
+    }));
+  });
 });
 
 describe('uiSrefActive', function() {
