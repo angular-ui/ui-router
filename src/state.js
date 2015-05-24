@@ -100,12 +100,18 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
       return !state.abstract && state.url ? state : (state.parent ? state.parent.navigable : null);
     },
 
+    // Own parameters for this state. state.url.params is already built at this point. Create and add non-url params
+    ownParams: function(state) {
+      var params = state.url && state.url.params || new $$UMFP.ParamSet();
+      forEach(state.params || {}, function(config, id) {
+        if (!params[id]) params[id] = new $$UMFP.Param(id, null, config, "config");
+      });
+      return params;
+    },
+
     // Derive parameters for this state and ensure they're a super-set of parent's parameters
     params: function(state) {
-      if (state.params) return state.params;
-      if (state.url) return state.url.params;
-      if (state.parent) return state.parent.params;
-      return null;
+      return state.parent && state.parent.params ? extend(state.parent.params.$$new(), state.ownParams) : new $$UMFP.ParamSet();
     },
 
     // If there is no explicit multi-view configuration, make one up so we don't have
@@ -335,7 +341,7 @@ function StateReference(identifier, definition, params, base) {
       return params;
     },
     valid: function() {
-      return !!(definition && definition.self && !definition.self[abstractKey]);
+      return !!(definition && definition.self && !definition.self[abstractKey] && definition.params.$$validates(params));
     },
     error: function() {
       switch (true) {
@@ -679,7 +685,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     root.navigable = null;
 
     extend($state, {
-      params: {},
+      params: new StateParams(),
       current: root.self,
       $current: root,
       transition: null
@@ -910,7 +916,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           $state.$current = transition.to.$state();
           $state.current = transition.to.state();
 
-          $state.params = transition.params().to;
+          $state.params = transition.params();
           copy($state.params, $stateParams);
           $stateParams.$sync().$off();
 
@@ -987,7 +993,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       var state = matcher.find(stateOrName, options.relative);
       if (!isDefined(state)) return undefined;
       if ($state.$current !== state) return false;
-      return isDefined(params) && params !== null ? angular.equals($stateParams, params) : true;
+      return isDefined(params) && params !== null ? state.params.$$equals($stateParams, params) : true;
     };
 
     /**
@@ -1053,7 +1059,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
       if (!isDefined(state)) return undefined;
       if (!isDefined(include[state.name])) return false;
-      return equalForKeys(params, $stateParams);
+      return state.params.$$equals($stateParams, params);
     };
 
 
@@ -1221,7 +1227,7 @@ function $StateParamsProvider() {
 
     StateParams.prototype.$raw = function() {
       var raw = {};
-      for(key in this) {
+      for(var key in this) {
         if (!StateParams.prototype.hasOwnProperty(key))
           raw[key] = this[key];
       }

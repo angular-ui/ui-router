@@ -1183,7 +1183,7 @@ describe('state', function () {
         $state.go("badParam", { param: 5 });
         $rootScope.$apply();
         expect($state.current.name).toBe("badParam");
-        expect($stateParams).toEqual({param: 5});
+        expect(obj($stateParams)).toEqual({param: 5});
 
         $state.go("badParam2", { param: '12345' }); // must be 5 digits
         $rootScope.$apply();

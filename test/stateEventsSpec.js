@@ -73,16 +73,16 @@ describe('UI-Router v0.2.x $state events', function () {
         expect(transition.from.state()).toBe(E);
 
         expect(obj(fromParams)).toEqual({i: 'iii'});
-        expect(obj(transition.params().from)).toEqual({i: 'iii'});
+        expect(obj(transition.from.params())).toEqual({i: 'iii'});
 
         expect(to).toBe(D);
         expect(transition.to.state()).toBe(D);
 
         expect(toParams).toEqual({x: '1', y: '2'});
-        expect(obj(transition.params().to)).toEqual({x: '1', y: '2'});
+        expect(obj(transition.params())).toEqual({x: '1', y: '2'});
 
         expect($state.current).toBe(transition.from.state()); // $state not updated yet
-        expect($state.params).toEqual(obj(transition.params().from));
+        expect(obj($state.params)).toEqual(obj(transition.from.params()));
         called = true;
       });
       $state.transitionTo(D, {x: '1', y: '2'});
@@ -115,7 +115,7 @@ describe('UI-Router v0.2.x $state events', function () {
         expect(transition.to.params()).toEqual({x: '1', y: '2'});
 
         expect($state.current).toBe(E); // $state not updated yet
-        expect(extend({}, $state.params)).toEqual({i: 'iii'});
+        expect(obj($state.params)).toEqual({i: 'iii'});
         called = true;
       });
       var message;

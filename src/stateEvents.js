@@ -55,8 +55,8 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
        * @param fromParams
        */
       $rootScope.$broadcast('$stateChangeSuccess',
-        $transition$.to.state(), extend(new StateParams(), $transition$.params().to).$raw(),
-        $transition$.from.state(), extend(new StateParams(), $transition$.params().from).$raw());
+        $transition$.to.state(), extend(new StateParams(), $transition$.params()).$raw(),
+        $transition$.from.state(), extend(new StateParams(), $transition$.from.params()).$raw());
     });
   }
 
@@ -84,8 +84,8 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
        * @param {Error} error The resolve error object.
        */
       var evt = $rootScope.$broadcast('$stateChangeError',
-        $transition$.to.state(), extend(new StateParams(), $transition$.params().to).$raw(),
-        $transition$.from.state(), extend(new StateParams(), $transition$.params().from).$raw(), error);
+        $transition$.to.state(), extend(new StateParams(), $transition$.params()).$raw(),
+        $transition$.from.state(), extend(new StateParams(), $transition$.from.params()).$raw(), error);
 
       if (!evt.defaultPrevented) {
         $urlRouter.update();

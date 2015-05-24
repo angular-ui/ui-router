@@ -271,7 +271,6 @@ function $TransitionProvider() {
   function $get(   $q,   $injector,   $resolve,   $stateParams,   $timeout) {
     var from = { state: null, params: null },
         to   = { state: null, params: null };
-    var _fromPath = null; // contains resolved data
     $TransitionProvider.instance.on({}, function($transition$) {
       if (!$transition$.to.valid())
         throw new Error($transition$.to.error());
@@ -303,7 +302,7 @@ function $TransitionProvider() {
 
       // grab $transition's current path
       var toPath, fromPath, retained, entering, exiting; // Path() objects
-      var keep = 0, state, hasRun = false, hasCalculated = false;
+      var keep = 0, state, hasCalculated = false;
 
       var fromState = from.$state();
       var fromParams = extend(new StateParams(), from.params());
@@ -319,7 +318,7 @@ function $TransitionProvider() {
 
         if (to.valid()) {
           state = toState.path[keep];
-          while (state && state === fromState.path[keep] && equalForKeys(toParams, fromParams, state.ownParams)) {
+          while (state && state === fromState.path[keep] && state.params.$$equals(toParams, fromParams)) {
             keep++;
             state = toState.path[keep];
           }
@@ -381,14 +380,12 @@ function $TransitionProvider() {
          * @methodOf ui.router.state.type:Transition
          *
          * @description
-         * Gets the origin and target parameters for the transition.
+         * Gets the calculated StateParams object for the transition target.
          *
-         * @returns {Object} An object with `to` and `from` keys, each of which contains an object hash of
-         * state parameters.
+         * @returns {StateParams} the StateParams object for the transition.
          */
         params: function() {
-          // toParams = (options.inherit) ? inheritParams(fromParams, toParams, from, toState);
-          return { from: fromParams, to: toParams };
+          return toParams;
         },
 
         previous: function() {
@@ -425,9 +422,6 @@ function $TransitionProvider() {
         },
 
         redirect: function(to, options) {
-          if (to === toState && params === toParams) return false;
-          // The following line doesn't work because StateReference contructor returns inner 'var ref'
-//          if (!(to instanceof StateReference)) throw new Error("to must be a StateReference");
           return new Transition(from, to, options || this.options());
         },
 
@@ -443,7 +437,7 @@ function $TransitionProvider() {
          * @returns {boolean} Whether the transition should be ignored.
          */
         ignored: function() {
-          return (!options.reload && toState === fromState && equalForKeys(toParams, fromParams, objectKeys(toState.params || {})));
+          return !options.reload && toState === fromState && toState.params.$$equals(toParams, fromParams);
         },
 
         run: function() {
@@ -586,14 +580,14 @@ function $TransitionProvider() {
           var transitionOnHooks = makeSteps("on", to, from, rootPE, tLocals, rootPath.resolveContext());
 
           var exitingStateHooks = map(exitingElements, function(elem) {
-            var stepLocals = { $state$: elem.state,  $stateParams: fromParams.$localize(elem.state) };
+            var stepLocals = { $state$: elem.state,  $stateParams: elem.state.params.$$values(fromParams) };
             var locals = extend({},  tLocals, stepLocals);
             var steps = makeSteps("exiting", to, elem.state, elem, locals, fromPath.resolveContext(elem));
             return !elem.state.onExit ? steps : steps.concat([ new TransitionStep(elem, elem.state.onExit, locals, fromPath.resolveContext(elem), {}) ]);
           });
 
           var enteringStateHooks = map(enteringElements, function(elem) {
-            var stepLocals = { $state$: elem.state,  $stateParams: fromParams.$localize(elem.state) };
+            var stepLocals = { $state$: elem.state,  $stateParams: elem.state.params.$$values(fromParams) };
             var locals = extend({}, tLocals, stepLocals);
             var steps = makeSteps("entering", elem.state, from, elem, locals, toPath.resolveContext(elem));
             return !elem.state.onEnter ? steps : steps.concat([ new TransitionStep(elem, elem.state.onEnter, locals, toPath.resolveContext(elem), {}) ]);
@@ -663,20 +657,6 @@ function $TransitionProvider() {
           }
         },
 
-        begin: function(compare, exec) {
-          if (!compare()) return this.SUPERSEDED;
-          if (!exec()) return this.ABORTED;
-          if (!compare()) return this.SUPERSEDED;
-          return true;
-        },
-
-        end: function() {
-          from = { state: toState, params: toParams };
-          to   = { state: null, params: null };
-          // Save the Path which contains the Resolvables data
-          _fromPath = toPath;
-        },
-
         // Expose three promises to users of Transition
         promise: deferreds.posthooks.promise,
         prepromise: deferreds.prehooks.promise,
@@ -689,11 +669,11 @@ function $TransitionProvider() {
           // (X) means the to state is invalid.
           return "Transition( " +
             (angular.isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName) +
-            angular.toJson(transition.params().from) +
+            angular.toJson(transition.from.params()) +
             " -> "
             + (transition.to.valid() ? "" : "(X) ") +
             (angular.isObject(toStateOrName) ? toStateOrName.name : toStateOrName) +
-            angular.toJson(transition.params().to) + " )";
+            angular.toJson(transition.params()) + " )";
         }
       });
     }
@@ -735,8 +715,8 @@ function $TransitionProvider() {
       }
     };
 
+    // TODO: Hide this from public API
     $transition.init = function init(state, params) {
-      _fromPath = new Path(state.path);
       from = { state: state, params: params };
       to = { state: null, params: null };
     };
@@ -747,10 +727,6 @@ function $TransitionProvider() {
 
     $transition.isActive = function isActive() {
       return !!$transition.transition;
-    };
-
-    $transition.abort = function abort() {
-      $transition.transition = null;
     };
 
     $transition.isTransition = function isTransition(transition) {

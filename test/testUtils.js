@@ -103,7 +103,12 @@ function caught(fn) {
 
 // Usage of this helper should be replaced with a custom matcher in jasmine 2.0+
 function obj(object) {
-  return angular.extend({}, object);
+  var o = {};
+  forEach(object, function (val, key) {
+    if (!/^\$/.test(key))
+      o[key] = val;
+  });
+  return o;
 }
 
 // Utils for test from core angular
