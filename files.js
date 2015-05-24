@@ -19,12 +19,16 @@ routerFiles = {
   ],
   test: [
     'test/commonSpec.js',
-    'test/stateSpec.js',
     'test/resolveSpec.js',
+    //'test/stateDirectivesSpec.js',
+    'test/stateEventsSpec.js',
+    'test/stateSpec.js',
+    //'test/templateFactorySpec.js',
+    'test/transitionSpec.js',
     'test/urlMatcherFactorySpec.js',
     'test/urlRouterSpec.js',
-    'test/transitionSpec.js',
-    'test/stateEventsSpec.js',
+    //'test/viewDirectiveSpec.js',
+    //'test/viewScrollSpec.js',
     'test/compat/matchers.js'
   ],
   angular: function(version) {
