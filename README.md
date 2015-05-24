@@ -39,6 +39,7 @@ Check out the sample app: http://angular-ui.github.io/ui-router/sample/
  - or via **[npm](https://www.npmjs.org/)**: by running `$ npm install angular-ui-router` from your console
  - or via **[Bower](http://bower.io/)**: by running `$ bower install angular-ui-router` from your console
  - or via **[Component](https://github.com/component/component)**: by running `$ component install angular-ui/ui-router` from your console
+ - or via **[Meteor](https://www.meteor.com/): by running `meteor add angularui:angular-ui-router`.
 
 **(2)** Include `angular-ui-router.js` (or `angular-ui-router.min.js`) in your `index.html`, after including Angular itself (For Component users: ignore this step)
 

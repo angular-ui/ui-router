@@ -17,7 +17,10 @@ module.exports = function (grunt) {
         ' * @license MIT License, http://www.opensource.org/licenses/MIT\n' +
         ' */'
     },
-    clean: [ '<%= builddir %>' ],
+    clean: {
+      build: [ '<%= builddir %>' ],
+      meteor: [ '.build.*', 'versions.json', 'package.js' ]
+    },
     concat: {
       options: {
         banner: '<%= meta.banner %>\n\n'+
@@ -125,6 +128,24 @@ module.exports = function (grunt) {
       api: {
         src: ['src/**/*.js'],
         title: 'API Reference'
+      },
+      exec: {
+        'meteor-init': {
+          command: [
+            // Make sure Meteor is installed, per https://meteor.com/install.
+            // The curl'ed script is safe; takes 2 minutes to read source & check.
+            'type meteor >/dev/null 2>&1 || { curl https://install.meteor.com/ | sh; }',
+            // Meteor expects package.js to be in the root directory of
+            // the checkout, so copy it there temporarily
+            'cp meteor/package.js .'
+          ].join(';')
+        },
+        'meteor-test': {
+          command: 'node_modules/.bin/spacejam --mongo-url mongodb:// test-packages ./'
+        },
+        'meteor-publish': {
+          command: 'meteor publish'
+        }
       }
     }
   });
@@ -132,7 +153,7 @@ module.exports = function (grunt) {
   grunt.registerTask('integrate', ['build', 'jshint', 'karma:unit', 'karma:past', 'karma:unstable']);
   grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
   grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
-  grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
+  grunt.registerTask('dist', 'Perform a clean build', ['clean:build', 'build']);
   grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['dist', 'ngdocs', 'widedocs']);
   grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'dist', 'perform-release']);
   grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect:server', 'karma:background', 'watch']);
@@ -141,9 +162,9 @@ module.exports = function (grunt) {
   grunt.registerTask('widedocs', 'Convert to bootstrap container-fluid', function () {
     promising(this,
       system(
-      'sed -i.bak ' + 
-      '-e \'s/class="row"/class="row-fluid"/\' ' + 
-      '-e \'s/icon-cog"><\\/i>/icon-cog"><\\/i>Provider/\' ' + 
+      'sed -i.bak ' +
+      '-e \'s/class="row"/class="row-fluid"/\' ' +
+      '-e \'s/icon-cog"><\\/i>/icon-cog"><\\/i>Provider/\' ' +
       '-e \'s/role="main" class="container"/role="main" class="container-fluid"/\' site/index.html')
     );
   });
@@ -209,6 +230,11 @@ module.exports = function (grunt) {
       })
     );
   });
+
+  // Meteor tasks
+  grunt.registerTask('meteor-test', ['exec:meteor-init', 'exec:meteor-test', 'clean:meteor']);
+  grunt.registerTask('meteor-publish', ['exec:meteor-init', 'exec:meteor-publish', 'clean:meteor']);
+  grunt.registerTask('meteor', ['exec:meteor-init', 'exec:meteor-test', 'exec:meteor-publish', 'clean:meteor']);
 
 
   // Helpers for custom tasks, mainly around promises / exec
