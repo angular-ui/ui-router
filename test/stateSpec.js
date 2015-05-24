@@ -1334,7 +1334,7 @@ describe('state', function () {
       $state.go('root.sub1', { param2: 2 });
       $q.flush();
       expect($state.current.name).toEqual('root.sub1');
-      expect($stateParams).toEqual({ param1: "1", param2: "2" });
+      expect(obj($stateParams)).toEqual({ param1: "1", param2: "2" });
     }));
 
     it('should not inherit siblings\' states', inject(function ($state, $stateParams, $q) {

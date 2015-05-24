@@ -101,6 +101,11 @@ function caught(fn) {
   }
 }
 
+// Usage of this helper should be replaced with a custom matcher in jasmine 2.0+
+function obj(object) {
+  return angular.extend({}, object);
+}
+
 // Utils for test from core angular
 var noop = angular.noop,
     toJson = angular.toJson;
