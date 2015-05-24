@@ -1,8 +1,8 @@
 describe('transition', function () {
 
-  var transitionProvider, matcher, statesMap = {};
+  var transitionProvider, matcher, statesMap;
 
-  beforeEach(module('ui.router', function ($transitionProvider) {
+  beforeEach(module('ui.router', function ($transitionProvider, $urlMatcherFactoryProvider) {
     transitionProvider = $transitionProvider;
     var stateTree = {
       first: {},
@@ -28,27 +28,27 @@ describe('transition', function () {
       }
     };
 
-    var stateProps = ["resolve", "resolvePolicy", "data", "template", "templateUrl", "url", "name"];
-    var root = loadStates(undefined, stateTree, '');
+    var matcher = new StateMatcher(statesMap = {});
+    var builder = new StateBuilder(function() { return root; }, matcher, $urlMatcherFactoryProvider);
+    var queue   = new StateQueueManager(statesMap, builder, { when: function() {} });
+    var root = queue.register({ name: '', url: '^', views: null, 'abstract': true});
+    root.navigable = null;
 
-    function loadStates(parent, state, name) {
+    forEach(stateTree, function(topLevelState, key) {
+      registerStates(root, topLevelState, key);
+    });
+    queue.flush();
+
+    var stateProps = ["resolve", "resolvePolicy", "data", "template", "templateUrl", "url", "name", "params"];
+    function registerStates(parent, state, name) {
       var substates = omit.apply(null, [state].concat(stateProps));
       var thisState = pick.apply(null, [state].concat(stateProps));
-      extend(thisState, { name: name, parent: parent, data: { children: [] }});
-      thisState.self = thisState;
-      thisState.path = [];
-      var p = thisState;
-      while (p !== undefined && p.name !== "") {
-        thisState.path.push(p);
-        p = p.parent;
-      }
-      thisState.path.reverse();
-      angular.forEach(substates, function (value, key) {
-        thisState.data.children.push(loadStates(thisState, value, key));
+      thisState = extend(thisState, { name: name, parent: parent });
+
+      queue.register(thisState);
+      forEach(substates, function (value, key) {
+        registerStates(thisState, value, key);
       });
-      statesMap[name] = thisState;
-      thisState.root = function() { return root; };
-      return thisState;
     }
   }));
 
