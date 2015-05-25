@@ -1,6 +1,6 @@
 describe('transition', function () {
 
-  var transitionProvider, matcher, statesMap;
+  var transitionProvider, matcher, statesMap, queue;
 
   beforeEach(module('ui.router', function ($transitionProvider, $urlMatcherFactoryProvider) {
     transitionProvider = $transitionProvider;
@@ -28,16 +28,15 @@ describe('transition', function () {
       }
     };
 
-    var matcher = new StateMatcher(statesMap = {});
+    matcher = new StateMatcher(statesMap = {});
     var builder = new StateBuilder(function() { return root; }, matcher, $urlMatcherFactoryProvider);
-    var queue   = new StateQueueManager(statesMap, builder, { when: function() {} });
+    queue   = new StateQueueManager(statesMap, builder, { when: function() {} });
     var root = queue.register({ name: '', url: '^', views: null, 'abstract': true});
     root.navigable = null;
 
     forEach(stateTree, function(topLevelState, key) {
       registerStates(root, topLevelState, key);
     });
-    queue.flush();
 
     var stateProps = ["resolve", "resolvePolicy", "data", "template", "templateUrl", "url", "name", "params"];
     function registerStates(parent, state, name) {
@@ -53,8 +52,9 @@ describe('transition', function () {
   }));
 
   var makeTransition;
-  beforeEach(inject(function ($transition) {
+  beforeEach(inject(function ($transition, $state) {
     matcher = new StateMatcher(statesMap);
+    queue.flush($state);
     makeTransition = function makeTransition(from, to) {
       return $transition.create(matcher.reference(from), matcher.reference(to));
     };

@@ -307,9 +307,8 @@ function $TransitionProvider() {
       var fromState = from.$state();
       var fromParams = extend(new StateParams(), from.params());
       var toState = to.$state();
-      var toParams = options.inherit && to.valid() ?
-        fromParams.$inherit(to.params(), fromState, toState) :
-        extend(new StateParams(), to.params());
+      var toParams = (options.inherit && to.valid()) ? fromParams.$inherit(to.params(), fromState, toState) : to.params();
+      toParams = toState ? extend(new StateParams(), toState.params.$$values(toParams)) : toParams;
 
       fromPath = new Path(fromState.path);
 
@@ -583,14 +582,14 @@ function $TransitionProvider() {
             var stepLocals = { $state$: elem.state,  $stateParams: elem.state.params.$$values(fromParams) };
             var locals = extend({},  tLocals, stepLocals);
             var steps = makeSteps("exiting", to, elem.state, elem, locals, fromPath.resolveContext(elem));
-            return !elem.state.onExit ? steps : steps.concat([ new TransitionStep(elem, elem.state.onExit, locals, fromPath.resolveContext(elem), {}) ]);
+            return !elem.state.self.onExit ? steps : steps.concat([ new TransitionStep(elem, elem.state.self.onExit, locals, fromPath.resolveContext(elem), {}) ]);
           });
 
           var enteringStateHooks = map(enteringElements, function(elem) {
             var stepLocals = { $state$: elem.state,  $stateParams: elem.state.params.$$values(fromParams) };
             var locals = extend({}, tLocals, stepLocals);
             var steps = makeSteps("entering", elem.state, from, elem, locals, toPath.resolveContext(elem));
-            return !elem.state.onEnter ? steps : steps.concat([ new TransitionStep(elem, elem.state.onEnter, locals, toPath.resolveContext(elem), {}) ]);
+            return !elem.state.self.onEnter ? steps : steps.concat([ new TransitionStep(elem, elem.state.self.onEnter, locals, toPath.resolveContext(elem), {}) ]);
           });
 
           function successHooks(outcome) {

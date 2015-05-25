@@ -16,7 +16,7 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
 
       queue[pre ? "unshift" : "push"](state);
       if (queueManager.autoFlush) {
-        queueManager.flush();
+        queueManager.flush($state);
       }
       return state;
     },
@@ -59,7 +59,7 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
 
       $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
         if ($state.$current.navigable != state || !equalForKeys($match, $stateParams)) {
-          $state.transitionTo(state, $match, { location: false });
+          $state.transitionTo(state, $match, { inherit: true, location: false });
         }
       }]);
     }
@@ -195,7 +195,7 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
     },
 
     parentName: function(state) {
-      var name = state.name;
+      var name = state.name || "";
       if (name.indexOf('.') !== -1) return name.substring(0, name.lastIndexOf('.'));
       if (!state.parent) return "";
       return isString(state.parent) ? state.parent : state.parent.name;
@@ -214,6 +214,7 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 function StateMatcher(states) {
   extend(this, {
     isRelative: function(stateName) {
+      stateName = stateName || "";
       return stateName.indexOf(".") === 0 || stateName.indexOf("^") === 0;
     },
 
@@ -1059,7 +1060,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
       if (!isDefined(state)) return undefined;
       if (!isDefined(include[state.name])) return false;
-      return state.params.$$equals($stateParams, params);
+      return params ? equalForKeys(state.params.$$values(params), $stateParams, objectKeys(params)) : true;
     };
 
 

@@ -249,8 +249,9 @@ describe('state', function () {
       .state('H', H)
       .state('HH', HH)
       .state('HHH', HHH)
-      .state('RS', RS)
-
+      .state('RSP', RSP)
+      .state('OPT', OPT)
+      .state('OPT.OPT2', OPT2)
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
       .state('about', { url: "/about" })
@@ -880,13 +881,13 @@ describe('state', function () {
 
   describe('.params', function () {
     it('is always defined', inject(function ($state) {
-      expect($state.params).toBeDefined();
+      expect(obj($state.params)).toBeDefined();
       expect(angular.isObject($state.params)).toBe(true);
     }));
 
     it('contains the parameter values for the current state', inject(function ($state, $q) {
       initStateTo(D, { x: 'x value', z: 'invalid value' });
-      expect($state.params).toEqual({ x: 'x value', y: null });
+      expect(obj($state.params)).toEqual({ x: 'x value', y: null });
     }));
   });
 
@@ -1026,26 +1027,26 @@ describe('state', function () {
       $state.get("OPT").onEnter = function($stateParams) { stateParams = $stateParams; };
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
-      expect($state.params).toEqual({ param: "100" });
+      expect(obj($state.params)).toEqual({ param: "100" });
       expect(stateParams).toEqual({ param: "100" });
     }));
 
     it("should allow null default value for non-url params", inject(function($state, $q) {
       $state.go("D"); $q.flush();
       expect($state.current.name).toBe("D");
-      expect($state.params).toEqual({ x: null, y: null });
+      expect(obj($state.params)).toEqual({ x: null, y: null });
     }));
 
     it("should allow falsy default values for non-url params", inject(function($state, $q) {
       $state.go("F"); $q.flush();
       expect($state.current.name).toBe("F");
-      expect($state.params).toEqual({ a: '', b: false, c: 0, d: undefined, e: -1 });
+      expect(obj($state.params)).toEqual({ a: '', b: false, c: 0, d: undefined, e: -1 });
     }));
 
     it("should allow arbitrary objects to pass for non-url params", inject(function($state, $q) {
       $state.go("D", { x: 100, y: { foo: 'bar' } }); $q.flush();
       expect($state.current.name).toBe("D");
-      expect($state.params).toEqual({ x: 100, y: { foo: 'bar' } });
+      expect(obj($state.params)).toEqual({ x: 100, y: { foo: 'bar' } });
     }));
 
     it("should be populated during primary transition, if unspecified", inject(function($state, $q) {
@@ -1053,7 +1054,7 @@ describe('state', function () {
       $state.get("OPT").onEnter = function($stateParams) { count++; };
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
-      expect($state.params).toEqual({ param: "100" });
+      expect(obj($state.params)).toEqual({ param: "100" });
       expect(count).toEqual(1);
     }));
 
@@ -1063,12 +1064,12 @@ describe('state', function () {
       $state.get("OPT.OPT2").onEnter = function($stateParams) { count++; };
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
-      expect($state.params).toEqual({ param: "100" });
+      expect(obj($state.params)).toEqual({ param: "100" });
       expect(count).toEqual(1);
 
       $state.go("OPT.OPT2", { param2: 200 }); $q.flush();
       expect($state.current.name).toBe("OPT.OPT2");
-      expect($state.params).toEqual({ param: "100", param2: "200", param3: "300", param4: "400" });
+      expect(obj($state.params)).toEqual({ param: "100", param2: "200", param3: "300", param4: "400" });
       expect(count).toEqual(2);
     }));
   });
@@ -1081,15 +1082,14 @@ describe('state', function () {
       $state.get("OPT.OPT2").onEnter = function() { count++; };
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
-      expect($state.params).toEqual({ param: "100" });
+      expect(obj($state.params)).toEqual({ param: "100" });
       expect(count).toEqual(1);
 
-      var result;
-      $state.go("OPT.OPT2").then(function(data) { result = data; });
+
+      $state.go("OPT.OPT2"); // no, because missing non-optional param2
       $q.flush();
       expect($state.current.name).toBe("OPT");
-      expect($state.params).toEqual({ param: "100" });
-      expect(result).toEqual("asdfasdf");
+      expect(obj($state.params)).toEqual({ param: "100" });
       expect(count).toEqual(1);
     }));
   });
@@ -1208,7 +1208,7 @@ describe('state', function () {
           $q.flush();
 
           expect($state.current.name).toBe(state.name || state); // allow object
-          expect($state.params).toEqual(extend({}, defaults, params, nonurlparams));
+          expect(obj($state.params)).toEqual(extend({}, defaults, params, nonurlparams));
           expect($location.url()).toBe(url);
 
           initStateTo(A);
@@ -1218,7 +1218,7 @@ describe('state', function () {
           $q.flush();
 
           expect($state.current.name).toBe(state.name || state); // allow object
-          expect($state.params).toEqual(extend({}, defaults, params));
+          expect(obj($state.params)).toEqual(extend({}, defaults, params));
           expect($location.url()).toBe(url);
         }
       }

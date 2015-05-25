@@ -296,6 +296,11 @@ var GlobBuilder = (function() {
     this.matches = function(name) {
       var segments = name.split('.');
 
+      // match single stars
+      for (var i = 0, l = glob.length; i < l; i++) {
+        if (glob[i] === '*') segments[i] = '*';
+      }
+
       // match greedy starts
       if (glob[0] === '**') {
          segments = segments.slice(segments.indexOf(glob[1]));
@@ -307,11 +312,6 @@ var GlobBuilder = (function() {
          segments.push('**');
       }
       if (glob.length != segments.length) return false;
-
-      // match single stars
-      for (var i = 0, l = glob.length; i < l; i++) {
-        if (glob[i] === '*') segments[i] = '*';
-      }
 
       return segments.join('') === glob.join('');
     };

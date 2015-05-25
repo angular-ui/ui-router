@@ -576,9 +576,7 @@ function $UrlMatcherFactory() {
     string: {
       encode: valToString,
       decode: valFromString,
-      // TODO: in 1.0, make string .is() return false if value is undefined/null by default.
-      // In 0.2.x, string params are optional by default for backwards compat
-      is: function(val) { return val == null || !isDefined(val) || typeof val === "string"; },
+      is: function(val) { return typeof val === "string"; },
       pattern: /[^/]*/
     },
     int: {
@@ -894,8 +892,6 @@ function $UrlMatcherFactory() {
     type = getType(config, type, location);
     var arrayMode = getArrayMode();
     type = arrayMode ? type.$asArray(arrayMode, location === "search") : type;
-    if (type.name === "string" && !arrayMode && location === "path" && config.value === undefined)
-      config.value = ""; // for 0.2.x; in 0.3.0+ do not automatically default to ""
     var isOptional = config.value !== undefined;
     var squash = getSquashPolicy(config, isOptional);
     var replace = getReplace(config, arrayMode, isOptional, squash);
@@ -1025,11 +1021,12 @@ function $UrlMatcherFactory() {
     },
     $$validates: function $$validate(paramValues) {
       var keys = this.$$keys(), i, param, rawVal, normalized, encoded;
+      paramValues = paramValues || {};
       for (i = 0; i < keys.length; i++) {
         param = this[keys[i]];
         rawVal = paramValues[keys[i]];
         if ((rawVal === undefined || rawVal === null) && param.isOptional)
-          break; // There was no parameter value, but the param is optional
+          continue; // There was no parameter value, but the param is optional
         normalized = param.type.$normalize(rawVal);
         if (!param.type.is(normalized))
           return false; // The value was not of the correct Type, and could not be decoded to the correct Type
