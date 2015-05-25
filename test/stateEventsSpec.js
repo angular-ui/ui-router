@@ -78,7 +78,7 @@ describe('UI-Router v0.2.x $state events', function () {
         expect(to).toBe(D);
         expect(transition.to.state()).toBe(D);
 
-        expect(toParams).toEqual({x: '1', y: '2'});
+        expect(obj(toParams)).toEqual({x: '1', y: '2'});
         expect(obj(transition.params())).toEqual({x: '1', y: '2'});
 
         expect($state.current).toBe(transition.from.state()); // $state not updated yet

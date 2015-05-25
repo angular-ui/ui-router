@@ -332,6 +332,9 @@ function StateReference(identifier, definition, params, base) {
   };
 
   return extend(ref, {
+    identifier: function() {
+      return identifier;
+    },
     $state: function() {
       return definition;
     },
@@ -340,6 +343,9 @@ function StateReference(identifier, definition, params, base) {
     },
     params: function() {
       return params;
+    },
+    base: function() {
+      return base;
     },
     valid: function() {
       return !!(definition && definition.self && !definition.self[abstractKey] && definition.params.$$validates(params));

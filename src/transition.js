@@ -301,16 +301,17 @@ function $TransitionProvider() {
       };
 
       // grab $transition's current path
-      var toPath, fromPath, retained, entering, exiting; // Path() objects
+      var toPath, retained, entering, exiting; // Path() objects
       var keep = 0, state, hasCalculated = false;
 
       var fromState = from.$state();
       var fromParams = extend(new StateParams(), from.params());
-      var toState = to.$state();
-      var toParams = (options.inherit && to.valid()) ? fromParams.$inherit(to.params(), fromState, toState) : to.params();
-      toParams = toState ? extend(new StateParams(), toState.params.$$values(toParams)) : toParams;
+      var fromPath = new Path(fromState.path);
 
-      fromPath = new Path(fromState.path);
+      var toState = to.$state();
+      var toParams = (options.inherit && toState) ? fromParams.$inherit(to.params(), fromState, toState) : to.params();
+      toParams = toState ? extend(new StateParams(), toState.params.$$values(toParams)) : toParams;
+      to = new StateReference(to(), to.$state(), toParams, to.base());
 
       function calculateTreeChanges() {
         if (hasCalculated) return;

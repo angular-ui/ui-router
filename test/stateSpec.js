@@ -246,6 +246,7 @@ describe('state', function () {
       .state('D', D)
       .state('DD', DD)
       .state('E', E)
+      .state('F', F)
       .state('H', H)
       .state('HH', HH)
       .state('HHH', HHH)
@@ -417,7 +418,7 @@ describe('state', function () {
         called = true
       });
       $q.flush();
-      expect($stateParams).toEqual({term: 'hello'});
+      expect(obj($stateParams)).toEqual({term: 'hello'});
       expect(called).toBeFalsy();
     }));
 
@@ -429,7 +430,7 @@ describe('state', function () {
         called = true
       });
       $q.flush();
-      expect($stateParams).toEqual({term: 'goodbye'});
+      expect(obj($stateParams)).toEqual({term: 'goodbye'});
       expect($location.url()).toEqual("/search?term=goodbye");
       expect(called).toBeFalsy();
     }));
@@ -623,7 +624,7 @@ describe('state', function () {
       $q.flush();
 
       expect($state.$current.name).toBe('about.person.item');
-      expect($stateParams).toEqual({ person: 'bob', id: "5" });
+      expect(obj($stateParams)).toEqual({ person: 'bob', id: "5" });
 
       $state.go('^.^.sidebar');
       $q.flush();
@@ -633,11 +634,12 @@ describe('state', function () {
 
   describe('.reload()', function () {
     it('returns a promise for the state transition', inject(function ($state, $q) {
-      var promise = $state.transitionTo(A, {});
+      var promise = $state.transitionTo(A, {}); $q.flush();
+      expect($state.current.name).toBe('A');
       expect(angular.isFunction(promise.then)).toBeTruthy();
       expect(promise.transition.to.state()).toBe(A);
 
-      promise = $state.reload();
+      promise = $state.reload(); $q.flush();
       expect(angular.isFunction(promise.then)).toBeTruthy();
       expect(promise.transition.to.state()).toBe(A);
     }));
@@ -780,7 +782,7 @@ describe('state', function () {
     it('should work for relative states', inject(function ($state, $q) {
       var options = { relative: $state.get('about') };
       
-      $state.transitionTo('about.person'); $q.flush();
+      $state.transitionTo('about.person', { person: 'jane' }); $q.flush();
       expect($state.is('.person', undefined, options)).toBe(true);
 
       $state.transitionTo('about.person', { person: 'bob' }); $q.flush();
@@ -801,7 +803,7 @@ describe('state', function () {
     }));
 
     it('should return true when the current state\'s parent is passed', inject(function ($state, $q) {
-      $state.transitionTo('about.person.item'); $q.flush();
+      $state.transitionTo('about.person.item', { person: "bob", id: 5 }); $q.flush();
       expect($state.includes('about')).toBe(true);
       expect($state.includes('about.person')).toBe(true);
       expect($state.includes('about.sidebar')).toBe(false);
@@ -963,42 +965,12 @@ describe('state', function () {
 
     it("should return all of the state's config", inject(function ($state) {
       var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
-      var names = [
-        '', // implicit root state
-        'A',
-        'B',
-        'C',
-        'D',
-        'DD',
-        'E',
-        'H',
-        'HH',
-        'HHH',
-        'RS',
-        'about',
-        'about.person',
-        'about.person.item',
-        'about.sidebar',
-        'about.sidebar.item',
-        'badParam',
-        'badParam2',
-        'dynamicController',
-        'dynamicTemplate',
-        'first',
-        'home',
-        'home.item',
-        'home.redirect',
-        'json',
-        'logA',
-        'logA.logB',
-        'logA.logB.logC',
-        'resolveFail',
-        'resolveTimeout',
-        'root',
-        'root.sub1',
-        'root.sub2',
-        'second'
-      ];
+      var names = ['', 'A', 'B', 'C', 'D', 'DD', 'E', 'F', 'H', 'HH', 'HHH', 'OPT', 'OPT.OPT2', 'RSP',
+        'about', 'about.person', 'about.person.item', 'about.sidebar', 'about.sidebar.item',
+        'badParam', 'badParam2', 'dynamicController', 'dynamicTemplate', 'first', 'home', 'home.item', 'home.redirect',
+        'json', 'logA', 'logA.logB', 'logA.logB.logC', 'resolveFail', 'resolveTimeout',
+        'root', 'root.sub1', 'root.sub2', 'second'];
+
       expect(list.map(function(state) { return state.name; })).toEqual(names);
     }));
 
@@ -1347,7 +1319,7 @@ describe('state', function () {
       $q.flush();
       expect($state.current.name).toEqual('root.sub2');
 
-      expect($stateParams).toEqual({ param1: "1", param2: undefined });
+      expect(obj($stateParams)).toEqual({ param1: "1", param2: undefined });
     }));
   });
 
