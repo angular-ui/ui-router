@@ -1000,7 +1000,7 @@ describe('state', function () {
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
       expect(obj($state.params)).toEqual({ param: "100" });
-      expect(stateParams).toEqual({ param: "100" });
+      expect(obj(stateParams)).toEqual({ param: "100" });
     }));
 
     it("should allow null default value for non-url params", inject(function($state, $q) {
@@ -1071,13 +1071,13 @@ describe('state', function () {
       $location.path("/about/bob");
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
-      expect(extend({}, $state.params)).toEqual({ person: "bob" });
+      expect(obj($state.params)).toEqual({ person: "bob" });
       expect($state.current.name).toBe('about.person');
 
       $location.path("/about/larry");
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
-      expect(extend({}, $state.params)).toEqual({ person: "larry" });
+      expect(obj($state.params)).toEqual({ person: "larry" });
       expect($state.current.name).toBe('about.person');
     }));
 
@@ -1086,7 +1086,7 @@ describe('state', function () {
       $location.hash("frag");
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
-      expect(extend({},$state.params)).toEqual({ person: "bob" });
+      expect(extend({},$state.params)).toEqual({ "#": 'frag', person: "bob" });
       expect($state.current.name).toBe('about.person');
       expect($location.path()).toBe('/about/bob');
       expect($location.hash()).toBe('frag');

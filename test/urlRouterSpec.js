@@ -168,7 +168,7 @@ describe("UrlRouter", function () {
 
       it('can push location changes with no parameters', inject(function($urlRouter, $location) {
         spyOn($location, "url");
-        $urlRouter.push(new UrlMatcher("/hello/:name"));
+        $urlRouter.push(new UrlMatcher("/hello/:name", {params:{name: ""}}));
 
         expect($location.url).toHaveBeenCalledWith("/hello/");
       }));

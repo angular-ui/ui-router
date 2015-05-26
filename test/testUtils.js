@@ -105,7 +105,7 @@ function caught(fn) {
 function obj(object) {
   var o = {};
   forEach(object, function (val, key) {
-    if (!/^\$/.test(key))
+    if (!/^\$/.test(key) && key != "#")
       o[key] = val;
   });
   return o;

@@ -165,7 +165,7 @@ describe('UI-Router v0.2.x $state events', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(D);
-      expect(extend({}, $state.params)).toEqual({x: '1', y: '2'});
+      expect(obj($state.params)).toEqual({x: '1', y: '2'});
     }));
 
     it('can lazy-define a state in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -179,7 +179,7 @@ describe('UI-Router v0.2.x $state events', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('DDD');
-      expect(extend({}, $state.params)).toEqual({x: 1, y: 2, z: 3, w: 4});
+      expect(obj($state.params)).toEqual({x: 1, y: 2, z: 3, w: 4});
     }));
 
     it('can defer a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -196,7 +196,7 @@ describe('UI-Router v0.2.x $state events', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('AA');
-      expect(extend({}, $state.params)).toEqual({a: 1});
+      expect(obj($state.params)).toEqual({a: 1});
     }));
 
     it('can defer and supersede a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
@@ -214,7 +214,7 @@ describe('UI-Router v0.2.x $state events', function () {
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toEqual(B);
-      expect(extend({}, $state.params)).toEqual({});
+      expect(obj($state.params)).toEqual({});
     }));
 
     it('triggers $stateChangeSuccess', inject(function ($state, $q, $rootScope) {
@@ -222,12 +222,12 @@ describe('UI-Router v0.2.x $state events', function () {
       var called;
       $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {
         expect(from).toBe(E);
-        expect(fromParams).toEqual({i: 'iii'});
+        expect(obj(fromParams)).toEqual({i: 'iii'});
         expect(to).toBe(D);
-        expect(toParams).toEqual({x: '1', y: '2'});
+        expect(obj(toParams)).toEqual({x: '1', y: '2'});
 
         expect($state.current).toBe(to); // $state has been updated
-        expect(extend({}, $state.params)).toEqual(toParams);
+        expect(obj($state.params)).toEqual(obj(toParams));
         called = true;
       });
       $state.transitionTo(D, {x: '1', y: '2'});

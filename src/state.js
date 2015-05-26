@@ -111,7 +111,8 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 
     // Derive parameters for this state and ensure they're a super-set of parent's parameters
     params: function(state) {
-      return state.parent && state.parent.params ? extend(state.parent.params.$$new(), state.ownParams) : new $$UMFP.ParamSet();
+      var base = state.parent && state.parent.params ? state.parent.params.$$new() : new $$UMFP.ParamSet();
+      return extend(base, state.ownParams);
     },
 
     // If there is no explicit multi-view configuration, make one up so we don't have
@@ -686,6 +687,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       name: '',
       url: '^',
       views: null,
+      params: {
+        '#': { value: null, type: 'hash'} // Param to hold the "hash" at the end of the URL
+      },
       'abstract': true
     }, true);
 

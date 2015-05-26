@@ -229,7 +229,7 @@ UrlMatcher.prototype.toString = function () {
  * @param {Object} searchParams  URL search parameters, e.g. `$location.search()`.
  * @returns {Object}  The captured parameter values.
  */
-UrlMatcher.prototype.exec = function (path, searchParams) {
+UrlMatcher.prototype.exec = function (path, searchParams, hash) {
   var m = this.regexp.exec(path);
   if (!m) return null;
   searchParams = searchParams || {};
@@ -264,6 +264,8 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
     paramName = paramNames[i];
     values[paramName] = this.params[paramName].value(searchParams[paramName]);
   }
+
+  if (hash) values["#"] = hash;
 
   return values;
 };
@@ -362,6 +364,8 @@ UrlMatcher.prototype.format = function (values) {
       search = true;
     }
   }
+
+  if (values["#"]) result += "#" + values["#"];
 
   return result;
 };
@@ -573,6 +577,13 @@ function $UrlMatcherFactory() {
   function valFromString(val) { return val != null ? val.toString().replace(/%2F/g, "/") : val; }
 
   var $types = {}, enqueue = true, typeQueue = [], injector, defaultTypes = {
+    hash: {
+      encode: valToString,
+      decode: valFromString,
+      is: function(val) { return typeof val === "string"; },
+      pattern: /.*/,
+      equals: function() { return true; }
+    },
     string: {
       encode: valToString,
       decode: valFromString,

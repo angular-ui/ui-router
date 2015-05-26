@@ -169,7 +169,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
           handler = ['$match', function ($match) { return redirect.format($match); }];
         }
         return extend(function ($injector, $location) {
-          return handleIfMatch($injector, handler, what.exec($location.path(), $location.search()));
+          return handleIfMatch($injector, handler, what.exec($location.path(), $location.search(), $location.hash()));
         }, {
           prefix: isString(what.prefix) ? what.prefix : ''
         });
