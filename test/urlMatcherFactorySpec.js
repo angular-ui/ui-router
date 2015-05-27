@@ -834,6 +834,84 @@ describe("urlMatcherFactory", function () {
     });
   });
 
+  describe("ParamSet", function() {
+
+    var params = {};
+    beforeEach(function() {
+      var types = { int: $umf.type("int"), string: $umf.type("string"), any: $umf.type("any") }
+      params.grandparent  = new $umf.Param("grandparent", types.int, {}, "path");
+      params.parent       = new $umf.Param("parent", types.string, {}, "path");
+      params.child        = new $umf.Param("child", types.string, {}, "path");
+      params.param4       = new $umf.Param("param4", types.any, {}, "path");
+    });
+
+    describe(".$$new", function() {
+      it("should return a new ParamSet, which has the previous paramset as prototype", function() {
+        var parent = new $umf.ParamSet();
+        var child = parent.$$new();
+        expect(child.__proto__).toBe(parent);
+      });
+
+      it("should return a new ParamSet, which exposes parent params", function() {
+        var parent = new $umf.ParamSet({ parent: params.parent });
+        var child = parent.$$new();
+        expect(child.parent).toBe(params.parent);
+      });
+
+      it("should return a new ParamSet, which exposes ancestor params", function() {
+        var grandparent = new $umf.ParamSet({ grandparent: params.grandparent });
+        var parent = grandparent.$$new({ parent: params.parent });
+        var child = parent.$$new({ child: params.child });
+
+        expect(child.grandparent).toBe(params.grandparent);
+        expect(child.parent).toBe(params.parent);
+        expect(child.child).toBe(params.child);
+      });
+    });
+
+    describe(".$$keys", function() {
+      it("should return keys for current param set", function() {
+        var ps = new $umf.ParamSet();
+        expect(ps.$$keys()).toEqual([]);
+
+        ps = new $umf.ParamSet({ foo: {}, bar: {}});
+        expect(ps.$$keys()).toEqual(['foo', 'bar']);
+      });
+
+      it("should return keys for current and ancestor paramset(s)", function () {
+        var gpa = new $umf.ParamSet({grandparent: params.grandparent});
+        expect(gpa.$$keys()).toEqual(['grandparent']);
+
+        var pa = gpa.$$new({ parent: params.parent });
+        expect(pa.$$keys()).toEqual(['grandparent', 'parent']);
+
+        var child = pa.$$new({ child: params.child });
+        expect(child.$$keys()).toEqual(['grandparent', 'parent', 'child']);
+      });
+    });
+
+    describe(".$$values", function() {
+      it("should return typed param values for current param set, from a set of input values", function() {
+        var gpa = new $umf.ParamSet({grandparent: params.grandparent});
+        var pa = gpa.$$new({ parent: params.parent });
+        var child = pa.$$new({ child: params.child });
+        var values = { grandparent: "1", parent: 2, child: "3" };
+        expect(child.$$values(values)).toEqual({ grandparent: 1, parent: "2", child: "3" });
+      });
+    });
+
+    describe(".$$filter", function() {
+      it("should return a new ParamSet which is a subset of the current param set", function() {
+        var gpa = new $umf.ParamSet({grandparent: params.grandparent});
+        var pa = gpa.$$new({ parent: params.parent });
+        var child = pa.$$new({ child: params.child });
+
+        var subset = child.$$filter(function(param) { return ['parent', 'grandparent'].indexOf(param.id) !== -1; });
+        expect(subset.$$keys()).toEqual(['grandparent', 'parent'])
+      });
+    });
+  });
+
   xdescribe("parameter isolation", function() {
     it("should allow parameters of the same name in different segments", function() {
       var m = new UrlMatcher('/users/:id').concat('/photos/:id');

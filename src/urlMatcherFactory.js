@@ -1000,8 +1000,8 @@ function $UrlMatcherFactory() {
   }
 
   ParamSet.prototype = {
-    $$new: function() {
-      return inherit(this, extend(new ParamSet(), { $$parent: this}));
+    $$new: function(params) {
+      return inherit(this, extend(new ParamSet(), { $$parent: this}, params || {}));
     },
     $$keys: function () {
       var keys = [], chain = [], parent = this,
@@ -1046,6 +1046,14 @@ function $UrlMatcherFactory() {
           return false; // The value was of the correct type, but when encoded, did not match the Type's regexp
       }
       return true;
+    },
+    $$filter: function $$filter(filterFn) {
+      var self = this, subset = new ParamSet();
+      forEach(this.$$keys(), function(key) {
+        if (filterFn(self[key]))
+          subset[key] = self[key];
+      });
+      return subset;
     },
     $$parent: undefined
   };
