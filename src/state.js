@@ -1405,7 +1405,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
             return $view.load(name, { view: view, locals: dst.globals, params: $stateParams, notify: options.notify }) || '';
           }];
 
-          viewsPromises.push($resolve.resolve(injectables, dst.globals, dst.resolve, state).then(function (result) {
+          viewsPromises.push($resolve.resolve(injectables, locals, dst.resolve, state).then(function (result) {
             // References to the controller (only instantiated at link time)
             if (isFunction(view.controllerProvider) || isArray(view.controllerProvider)) {
               var injectLocals = angular.extend({}, injectables, dst.globals);
