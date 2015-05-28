@@ -228,7 +228,7 @@ $StateRefActiveDirective.$inject = ['$state', '$stateParams', '$interpolate'];
 function $StateRefActiveDirective($state, $stateParams, $interpolate) {
   return  {
     restrict: "A",
-    controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
+    controller: ['$scope', '$element', '$attrs', '$timeout', function ($scope, $element, $attrs, $timeout) {
       var states = [], activeClass, activeEqClass;
 
       // There probably isn't much point in $observing this
@@ -253,22 +253,24 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
 
       // Update route state
       function update() {
-        if (states.length) {
-          for (var i = 0; i < states.length; i++) {
-            if (anyMatch(states[i].state, states[i].params)) {
-              $element.addClass(activeClass);
-            } else {
-              $element.removeClass(activeClass);
-            }
+        for (var i = 0; i < states.length; i++) {
+          if (anyMatch(states[i].state, states[i].params)) {
+            addClass($element, activeClass);
+          } else {
+            removeClass($element, activeClass);
+          }
 
-            if (exactMatch(states[i].state, states[i].params)) {
-              $element.addClass(activeEqClass);
-            } else {
-              $element.removeClass(activeEqClass);
-            }
-          }          
+          if (exactMatch(states[i].state, states[i].params)) {
+            addClass($element, activeEqClass);
+          } else {
+            removeClass($element, activeEqClass);
+          }
         }
       }
+
+      function addClass(el, className) { $timeout(function() { el.addClass(className); }); }
+
+      function removeClass(el, className) { el.removeClass(className); }
 
       function anyMatch(state, params) { return $state.includes(state.name, params); }
 
