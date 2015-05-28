@@ -229,12 +229,13 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
   return  {
     restrict: "A",
     controller: ['$scope', '$element', '$attrs', function ($scope, $element, $attrs) {
-      var states = [], activeClass;
+      var states = [], activeClass, activeEqClass;
 
       // There probably isn't much point in $observing this
       // uiSrefActive and uiSrefActiveEq share the same directive object with some
       // slight difference in logic routing
-      activeClass = $interpolate($attrs.uiSrefActiveEq || $attrs.uiSrefActive || '', false)($scope);
+      activeClass = $interpolate($attrs.uiSrefActive || '', false)($scope);
+      activeEqClass = $interpolate($attrs.uiSrefActiveEq || '', false)($scope);
 
       // Allow uiSref to communicate with uiSrefActive[Equals]
       this.$$addStateInfo = function (newState, newParams) {
@@ -252,29 +253,27 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
 
       // Update route state
       function update() {
-        if (anyMatch()) {
-          $element.addClass(activeClass);
-        } else {
-          $element.removeClass(activeClass);
+        if (states.length) {
+          for (var i = 0; i < states.length; i++) {
+            if (anyMatch(states[i].state, states[i].params)) {
+              $element.addClass(activeClass);
+            } else {
+              $element.removeClass(activeClass);
+            }
+
+            if (exactMatch(states[i].state, states[i].params)) {
+              $element.addClass(activeEqClass);
+            } else {
+              $element.removeClass(activeEqClass);
+            }
+          }          
         }
       }
 
-      function anyMatch() {
-        for (var i = 0; i < states.length; i++) {
-          if (isMatch(states[i].state, states[i].params)) {
-            return true;
-          }
-        }
-        return false;
-      }
+      function anyMatch(state, params) { return $state.includes(state.name, params); }
 
-      function isMatch(state, params) {
-        if (typeof $attrs.uiSrefActiveEq !== 'undefined') {
-          return $state.is(state.name, params);
-        } else {
-          return $state.includes(state.name, params);
-        }
-      }
+      function exactMatch(state, params) { return $state.is(state.name, params); }
+
     }]
   };
 }

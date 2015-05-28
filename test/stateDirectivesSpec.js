@@ -479,6 +479,22 @@ describe('uiSrefActive', function() {
     expect(a.attr('class')).not.toMatch(/active/);
   }));
 
+  it('should match on child states when active-equals and active-equals-eq is used', inject(function($rootScope, $q, $compile, $state) {
+    template = $compile('<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active="active" ui-sref-active-eq="active-eq">Contacts</a></div>')($rootScope);
+    $rootScope.$digest();
+    var a = angular.element(template[0].getElementsByTagName('a')[0]);
+
+    $state.transitionTo('contacts.item', { id: 1 });
+    $q.flush();
+    expect(a.attr('class')).toMatch(/active/);
+    expect(a.attr('class')).toMatch(/active-eq/);
+
+    $state.transitionTo('contacts.item.edit', { id: 1 });
+    $q.flush();
+    expect(a.attr('class')).toMatch(/active/);
+    expect(a.attr('class')).not.toMatch(/active-eq/);
+  }));
+
   it('should resolve relative state refs', inject(function($rootScope, $q, $compile, $state) {
     el = angular.element('<section><div ui-view></div></section>');
     template = $compile(el)($rootScope);
