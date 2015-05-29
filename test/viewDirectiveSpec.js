@@ -96,6 +96,10 @@ describe('uiView', function () {
         template: 'view3'
       }
     }
+  },
+  mState =  {
+    url: '/:slug?limit',
+    template: 'mState'
   };
 
   beforeEach(module(function ($stateProvider) {
@@ -112,6 +116,7 @@ describe('uiView', function () {
       .state('j', jState)
       .state('k', kState)
       .state('l', lState)
+      .state('m', mState)
   }));
 
   beforeEach(inject(function ($rootScope, _$compile_) {
@@ -295,6 +300,55 @@ describe('uiView', function () {
       }
 
       expect($uiViewScroll).toHaveBeenCalledWith(target);
+    }));
+  });
+
+  describe('ui-required attribute', function () {
+    it('should inject only required template', inject(function ($state, $q) {
+        var content = 'inner content';
+        scope.list = [
+          {slug: 1},
+          {slug: 2},
+          {slug: 3}
+        ];
+        elem.append($compile('<div ng-repeat="o in list"><ui-view ui-required="{slug: o.slug}"></ui-view></div>')(scope));
+
+        $state.transitionTo(mState, scope.list[0]);
+        $q.flush();
+        expect(angular.element(elem.find('ui-view')[0]).text()).toBe(mState.template);
+        expect(angular.element(elem.find('ui-view')[1]).text()).toBe('');
+        expect(angular.element(elem.find('ui-view')[2]).text()).toBe('');
+
+        $state.transitionTo(mState, scope.list[1]);
+        $q.flush();
+        expect(angular.element(elem.find('ui-view')[0]).text()).toBe('');
+        expect(angular.element(elem.find('ui-view')[1]).text()).toBe(mState.template);
+        expect(angular.element(elem.find('ui-view')[2]).text()).toBe('');
+
+        $state.transitionTo(mState, scope.list[2]);
+        $q.flush();
+        expect(angular.element(elem.find('ui-view')[0]).text()).toBe('');
+        expect(angular.element(elem.find('ui-view')[1]).text()).toBe('');
+        expect(angular.element(elem.find('ui-view')[2]).text()).toBe(mState.template);
+    }));
+
+    it('should match all parameters', inject(function ($state, $q) {
+        var content = 'inner content';
+        scope.list = [
+          {slug: 1},
+          {slug: 2, limit:1}
+        ];
+        elem.append($compile('<div ng-repeat="o in list"><ui-view ui-required="{slug: o.slug, limit:1}"></ui-view></div>')(scope));
+
+        $state.transitionTo(mState, scope.list[0]);
+        $q.flush();
+        expect(angular.element(elem.find('ui-view')[0]).text()).toBe('');
+        expect(angular.element(elem.find('ui-view')[1]).text()).toBe('');
+
+        $state.transitionTo(mState, scope.list[1]);
+        $q.flush();
+        expect(angular.element(elem.find('ui-view')[0]).text()).toBe('');
+        expect(angular.element(elem.find('ui-view')[1]).text()).toBe(mState.template);
     }));
   });
 
