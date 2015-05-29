@@ -209,7 +209,7 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate)
 
         function updateView(firstTime) {
           var newScope,
-              name            = getUiViewName(scope, attrs, $element, $interpolate),
+              name            = getUiViewName($state, scope, attrs, $element, $interpolate),
               previousLocals  = name && $state.$current && $state.$current.locals[name];
 
           if (!firstTime && previousLocals === latestLocals) return; // nothing to do
@@ -260,7 +260,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $state,   $interpolate
       var initial = tElement.html();
       return function (scope, $element, attrs) {
         var current = $state.$current,
-            name = getUiViewName(scope, attrs, $element, $interpolate),
+            name = getUiViewName($state, scope, attrs, $element, $interpolate),
             locals  = current && current.locals[name];
 
         if (! locals) {
@@ -293,10 +293,25 @@ function $ViewDirectiveFill (  $compile,   $controller,   $state,   $interpolate
  * Shared ui-view code for both directives:
  * Given scope, element, and its attributes, return the view's name
  */
-function getUiViewName(scope, attrs, element, $interpolate) {
+function getUiViewName($state, scope, attrs, element, $interpolate) {
   var name = $interpolate(attrs.uiView || attrs.name || '')(scope);
   var inherited = element.inheritedData('$uiView');
-  return name.indexOf('@') >= 0 ?  name :  (name + '@' + (inherited ? inherited.state.name : ''));
+  var required = attrs.uiRequired;
+  var stateParams;
+  var key;
+
+  if(required) {
+    required = scope.$eval(required);
+    stateParams = $state.params;
+
+    for(key in required) {
+      if(required.hasOwnProperty(key) && required[key] != stateParams[key]) {
+        return;
+      }
+    }
+  }
+
+  return name.indexOf('@') >= 0 ?  name : (name + '@' + (inherited ? inherited.state.name : ''));
 }
 
 angular.module('ui.router.state').directive('uiView', $ViewDirective);
