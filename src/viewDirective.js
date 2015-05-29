@@ -26,6 +26,11 @@
  * functionality, call `$uiViewScrollProvider.useAnchorScroll()`.*
  *
  * @param {string=} onload Expression to evaluate whenever the view updates.
+ *
+ * @param {object=} ui-require Expression to evaluate against your current $scope. Each key/value
+ * will be compared with current $stateParams to examine if this ui-view is allowed to show it's
+ * associated template.
+ * *Note: This enables having multiple ui-view directives with the same name in ngRepeat or similiar
  * 
  * @example
  * A view can be unnamed or named. 
@@ -110,6 +115,28 @@
  * <ui-view autoscroll='false'/>
  * <ui-view autoscroll='scopeVariable'/>
  * </pre>
+ *
+ * Examples for `ui-required`:
+ * list.html
+ * <pre>
+ *   <div ng-repeat="item in list">
+ *     <div ui-view="repeatMe" ui-required="{slug:item.id}"></div>
+ *   </div>
+ * </pre>
+ *
+ * $stateProvider
+ *    .state("list", {
+ *      url: '/list',
+ *      templateUrl: 'list.html'
+ *    })
+ *    .state("list.item", {
+ *      url: '/:slug',
+ *      views: {
+ *        'repeatMe@list': {
+ *          templateUrl: 'item.html'
+ *        }
+ *      }
+ *    })
  */
 $ViewDirective.$inject = ['$state', '$injector', '$uiViewScroll', '$interpolate'];
 function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate) {
