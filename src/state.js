@@ -106,6 +106,9 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
       forEach(state.params || {}, function(config, id) {
         if (!params[id]) params[id] = new $$UMFP.Param(id, null, config, "config");
       });
+      if (state.reloadOnSearch === false) {
+        forEach(params, function(param) { if (param.location === 'search') param.dynamic = true; });
+      }
       return params;
     },
 
@@ -927,24 +930,23 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           $state.$current = transition.to.$state();
           $state.current = transition.to.state();
 
-          $state.params = transition.params();
-          copy($state.params, $stateParams);
-          $stateParams.$sync().$off();
-
-          if (options.location && $state.$current.navigable) {
-            $urlRouter.push($state.$current.navigable.url, $stateParams, { replace: options.location === 'replace' });
-          }
-
-          $urlRouter.update(true);
-
+          stateHandler.updateStateParams(transition);
           return transition;
         },
 
         transitionFailure: function transitionFailure(error) {
           // Handle redirect and abort
           if (error instanceof TransitionRejection) {
-            if (error.type === transition.IGNORED) return $state.current;
-            if (error.type === transition.ABORTED) return REJECT.aborted();
+            if (error.type === transition.IGNORED) {
+              // Update $stateParmas/$state.params/$location.url if transition ignored, but dynamic params have changed.
+              function dynamic(param) { return !!param.dynamic; }
+              if (!$state.$current.params.$$filter(dynamic).$$equals($stateParams, transition.params())) {
+                stateHandler.updateStateParams(transition);
+              }
+              return $state.current;
+            }
+            if (error.type === transition.ABORTED)
+              return REJECT.aborted();
             if (error.type === transition.SUPERSEDED) {
               //if (error.redirected && error.detail instanceof Transition) { // TODO: expose Transition class for instanceof
               if (error.redirected && error.detail && angular.isFunction(error.detail.run)) {
@@ -956,6 +958,19 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           }
 
           return $q.reject(error);
+        },
+
+        updateStateParams: function updateStateParams(transition) {
+          var options = transition.options();
+          $state.params = transition.params();
+          copy($state.params, $stateParams);
+          $stateParams.$sync().$off();
+
+          if (options.location && $state.$current.navigable) {
+            $urlRouter.push($state.$current.navigable.url, $stateParams, { replace: options.location === 'replace' });
+          }
+
+          $urlRouter.update(true);
         }
       };
 

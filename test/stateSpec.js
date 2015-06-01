@@ -227,7 +227,12 @@ describe('state', function () {
     HH = { parent: H },
     HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
     RS = { url: '^/search?term', reloadOnSearch: false },
-    RSP = { url: '^/:doReload/search?term', reloadOnSearch: false },
+    dynamicstate = {
+      url: '^/dynstate/:path/:pathDyn?search&searchDyn', params: {
+        pathDyn: { dynamic: true },
+        searchDyn: { dynamic: true }
+      }
+    },
     OPT = { url: '/opt/:param', params: { param: "100" } },
     OPT2 = { url: '/opt2/:param2/:param3', params: { param3: "300", param4: "400" } },
     AppInjectable = {};
@@ -250,7 +255,8 @@ describe('state', function () {
       .state('H', H)
       .state('HH', HH)
       .state('HHH', HHH)
-      .state('RSP', RSP)
+      .state('RS', RS)
+      .state('dynamicstate', dynamicstate)
       .state('OPT', OPT)
       .state('OPT.OPT2', OPT2)
       .state('home', { url: "/" })
@@ -383,6 +389,18 @@ describe('state', function () {
   });
 
   describe('.transitionTo()', function () {
+
+    var $rootScope, $state, $stateParams, $transition, $q, $location;
+
+    beforeEach(inject(function (_$rootScope_, _$state_, _$stateParams_, _$transition_, _$q_, _$location_) {
+      $rootScope = _$rootScope_;
+      $state = _$state_;
+      $stateParams = _$stateParams_;
+      $transition = _$transition_;
+      $q = _$q_;
+      $location = _$location_;
+    }));
+
     it('returns a promise for the target state', inject(function ($state, $q) {
       var promise = $state.transitionTo(A, {});
       expect(angular.isFunction(promise.then)).toBeTruthy();
@@ -398,79 +416,187 @@ describe('state', function () {
       expect($state.current).toBe(A);
     }));
 
-    it('doesn\'t trigger state change if reloadOnSearch is false', inject(function ($state, $q, $location, $rootScope){
-      initStateTo(RS);
-      $location.search({term: 'hello'});
-      var called;
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
-        called = true
-      });
-      $q.flush();
-      expect($location.search()).toEqual({term: 'hello'});
-      expect(called).toBeFalsy();
-    }));
+    describe("(dynamic params)", function () {
+      var stateChanged;
 
-    it('updates $stateParams when state.reloadOnSearch=false, and only query params changed', inject(function ($state, $stateParams, $q, $location, $rootScope){
-      initStateTo(RS);
-      $location.search({term: 'hello'});
-      var called;
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
-        called = true
-      });
-      $q.flush();
-      expect(obj($stateParams)).toEqual({term: 'hello'});
-      expect(called).toBeFalsy();
-    }));
+      beforeEach(inject(function (_$rootScope_, _$state_, _$stateParams_, _$transition_, _$q_, _$location_) {
+        $transition.provider.on({}, function () {
+          stateChanged = true;
+        });
 
-    it('updates URL when changing only query params via $state.go() when reloadOnSearch=false', inject(function ($state, $stateParams, $q, $location, $rootScope){
-      initStateTo(RS);
-      var called;
-      $state.go(".", { term: 'goodbye' });
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
-        called = true
-      });
-      $q.flush();
-      expect(obj($stateParams)).toEqual({term: 'goodbye'});
-      expect($location.url()).toEqual("/search?term=goodbye");
-      expect(called).toBeFalsy();
-    }));
+        $q.flush();
+      }));
 
-    it('does trigger state change for path params even if reloadOnSearch is false', inject(function ($state, $q, $location, $rootScope){
-      initStateTo(RSP, { doReload: 'foo' });
-      expect($state.params.doReload).toEqual('foo');
-      var called;
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
-        called = true
-      });
-      $state.transitionTo(RSP, { doReload: 'bar' });
-      $q.flush();
-      expect($state.params.doReload).toEqual('bar');
-      expect(called).toBeTruthy();
-    }));
 
-    it('does not trigger state change if params are dynamic', inject(function ($state, $q, $location, $rootScope, $stateParams) {
-      var called = { change: false, observe: false };
-      initStateTo(RS, { term: 'goodbye' });
-
-      $location.search({ term: 'hello' });
-      expect($stateParams.term).toBe("goodbye");
-
-      //$rootScope.$on('$stateChangeStart', function (ev, transition) {
-      //  called.change = true;
-      //});
-
-      $stateParams.$observe('term', function(val) {
-        called.observe = true;
+      it('resolves a fully dynamic $state.go() with the current state', function () {
+        initStateTo(RS);
+        var destState, promise = $state.go(".", {term: "hello"});
+        promise.then(function(result) { destState = result; });
+        $q.flush();
+        expect($state.current).toBe(RS);
+        expect(destState).toBe(RS);
       });
 
-      $q.flush();
-      expect($location.search()).toEqual({ term: 'hello' });
-      expect($stateParams.term).toBe('hello');
+      it('rejects a fully dynamic transition.run() with transition.IGNORED', function () {
+        initStateTo(RS);
+        var promise = $state.go(".", {term: "hello"});
+        var caught, transition = promise.transition;
+        transition.promise.catch(function (error) {
+          caught = error;
+        });
+        $q.flush();
+        expect($state.current).toBe(RS);
+        expect(caught.type).toBe(transition.IGNORED);
+        expect($location.search()).toEqual({term: 'hello'});
+      });
 
-      expect(called.change).toBe(false);
-      expect(called.observe).toBe(true);
-    }));
+      describe("", function() {
+        beforeEach(function () {
+          initStateTo(dynamicstate, { path: 'pathfoo', pathDyn: 'pathbar', search: 'searchfoo', searchDyn: 'searchbar' });
+          expect(stateChanged).toBeTruthy();
+          expect(obj($stateParams)).toEqual({ path: 'pathfoo', pathDyn: 'pathbar', search: 'searchfoo', searchDyn: 'searchbar' });
+          expect($location.url()).toEqual("/dynstate/pathfoo/pathbar?search=searchfoo&searchDyn=searchbar");
+          stateChanged = false;
+        });
 
+        it('triggers state change for non-dynamic search params', function () {
+          $state.go(dynamicstate, {search: 'somethingelse'});
+          $q.flush();
+          expect(stateChanged).toBeTruthy();
+          expect(obj($stateParams)).toEqual({ path: 'pathfoo', pathDyn: 'pathbar', search: 'somethingelse', searchDyn: 'searchbar' });
+        });
+
+        it('does not trigger state change for dynamic search params', function () {
+          $state.go(dynamicstate, {searchDyn: 'somethingelse'});
+          $q.flush();
+          expect(stateChanged).toBeFalsy();
+          expect(obj($stateParams)).toEqual({ path: 'pathfoo', pathDyn: 'pathbar', search: 'searchfoo', searchDyn: 'somethingelse' });
+        });
+
+        it('triggers state change for non-dynamic path params', function () {
+          $state.go(dynamicstate, {path: 'somethingelse'});
+          $q.flush();
+          expect(stateChanged).toBeTruthy();
+          expect(obj($stateParams)).toEqual({ path: 'somethingelse', pathDyn: 'pathbar', search: 'searchfoo', searchDyn: 'searchbar' });
+        });
+
+        it('does not trigger state change for dynamic path params', function () {
+          $state.go(dynamicstate, {pathDyn: 'somethingelse'});
+          $q.flush();
+          expect(stateChanged).toBeFalsy();
+          expect(obj($stateParams)).toEqual({ path: 'pathfoo', pathDyn: 'somethingelse', search: 'searchfoo', searchDyn: 'searchbar' });
+        });
+
+        it('does not cause state reload when only dynamic params change (triggered via url)', inject(function () {
+          $location.search({search: 'searchfoo', searchDyn: 'somethingelse'});
+          $rootScope.$broadcast("$locationChangeSuccess");
+          $q.flush();
+
+          expect(stateChanged).toBe(false);
+        }));
+
+        it('does not cause state reload when only dynamic params change (triggered via $state transition)', function () {
+          $state.go('.', {searchDyn: 'somethingelse'});
+          $q.flush();
+          expect(stateChanged).toBe(false);
+        });
+
+        it('updates $stateParams and $location.search when only dynamic params change (triggered via url)', inject(function () {
+          $location.search({search: 'searchfoo', searchDyn: 'somethingelse'});
+          $rootScope.$broadcast("$locationChangeSuccess");
+          $q.flush();
+          expect($stateParams.search).toBe('searchfoo');
+          expect($stateParams.searchDyn).toBe('somethingelse');
+          expect($location.search()).toEqual({search: 'searchfoo', searchDyn: 'somethingelse'});
+        }));
+
+        it('updates $stateParams and $location.search when only dynamic params change (triggered via $state transition)', inject(function () {
+          $state.go('.', {searchDyn: 'somethingelse'});
+          $q.flush();
+          expect($stateParams.search).toBe('searchfoo');
+          expect($stateParams.searchDyn).toBe('somethingelse');
+          expect($location.search()).toEqual({search: 'searchfoo', searchDyn: 'somethingelse'});
+        }));
+
+        it('dynamic param changes can be observed by watching $stateParams', inject(function () {
+          var observedParamValue;
+          function stateParamsTerm() { return $stateParams.searchDyn; }
+          $rootScope.$watch(stateParamsTerm, function (newval, oldval) {
+            if (newval === oldval) return;
+            observedParamValue = newval;
+          });
+          $q.flush();
+
+          $location.search({search: 'searchfoo', searchDyn: 'somethingelse'});
+          $rootScope.$broadcast("$locationChangeSuccess");
+          $q.flush();
+          expect(stateChanged).toBe(false);
+          expect(observedParamValue).toBe("somethingelse");
+        }));
+
+      });
+    });
+
+    describe("(with dynamic params because reloadOnSearch=false)", function () {
+      describe("and only query params changed", function () {
+
+        var called;
+        beforeEach(function() {
+          initStateTo(RS);
+          $transition.provider.entering({to: 'RS'}, function () {
+            called = true
+          });
+        });
+
+        it('doesn\'t re-enter state (triggered by url change)', function () {
+          $location.search({term: 'hello'});
+          $rootScope.$broadcast("$locationChangeSuccess");
+          $q.flush();
+          expect($location.search()).toEqual({term: 'hello'});
+          expect(called).toBeFalsy();
+        });
+
+        it('doesn\'t re-enter state (triggered by $state transition)', function () {
+          initStateTo(RS);
+          var promise = $state.go(".", {term: "hello"});
+          var caught, transition = promise.transition;
+          transition.promise.catch(function (error) {
+            caught = error;
+          });
+          $q.flush();
+          expect($state.current).toBe(RS);
+          expect(caught.type).toBe(transition.IGNORED);
+          expect($location.search()).toEqual({term: 'hello'});
+        });
+
+        it('updates $stateParams', function () {
+          initStateTo(RS);
+          $location.search({term: 'hello'});
+          var called;
+          $transition.provider.entering({to: 'RS'}, function () {
+            called = true
+          });
+          $rootScope.$broadcast("$locationChangeSuccess");
+          $q.flush();
+          expect(obj($stateParams)).toEqual({term: 'hello'});
+          expect(called).toBeFalsy();
+        });
+
+        it('updates URL when (triggered by $state transition)', function () {
+          initStateTo(RS);
+          $state.go(".", {term: 'goodbye'});
+          var called;
+          $transition.provider.entering({to: 'RS'}, function () {
+            called = true
+          });
+          $q.flush();
+          expect(obj($stateParams)).toEqual({term: 'goodbye'});
+          expect($location.url()).toEqual("/search?term=goodbye");
+          expect(called).toBeFalsy();
+        });
+      });
+
+    });
 
     it('ignores non-applicable state parameters', inject(function ($state, $q) {
       $state.transitionTo('A', { w00t: 'hi mom!' });
@@ -965,9 +1091,9 @@ describe('state', function () {
 
     it("should return all of the state's config", inject(function ($state) {
       var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
-      var names = ['', 'A', 'B', 'C', 'D', 'DD', 'E', 'F', 'H', 'HH', 'HHH', 'OPT', 'OPT.OPT2', 'RSP',
+      var names = ['', 'A', 'B', 'C', 'D', 'DD', 'E', 'F', 'H', 'HH', 'HHH', 'OPT', 'OPT.OPT2', 'RS',
         'about', 'about.person', 'about.person.item', 'about.sidebar', 'about.sidebar.item',
-        'badParam', 'badParam2', 'dynamicController', 'dynamicTemplate', 'first', 'home', 'home.item', 'home.redirect',
+        'badParam', 'badParam2', 'dynamicController', 'dynamicTemplate', 'dynamicstate', 'first', 'home', 'home.item', 'home.redirect',
         'json', 'logA', 'logA.logB', 'logA.logB.logC', 'resolveFail', 'resolveTimeout',
         'root', 'root.sub1', 'root.sub2', 'second'];
 
@@ -1299,6 +1425,7 @@ describe('state', function () {
       expect($state.current.data.propC).toEqual(HHH.data.propC);
     }));
   });
+
 
   describe('substate and stateParams inheritance', function() {
     it('should inherit the parent param', inject(function ($state, $stateParams, $q) {

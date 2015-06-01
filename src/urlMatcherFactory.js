@@ -904,13 +904,13 @@ function $UrlMatcherFactory() {
     var arrayMode = getArrayMode();
     type = arrayMode ? type.$asArray(arrayMode, location === "search") : type;
     var isOptional = config.value !== undefined;
+    var dynamic = config.dynamic === true;
     var squash = getSquashPolicy(config, isOptional);
     var replace = getReplace(config, arrayMode, isOptional, squash);
 
     function unwrapShorthand(config) {
-      var keys = isObject(config) ? objectKeys(config) : [];
-      var isShorthand = indexOf(keys, "value") === -1 && indexOf(keys, "type") === -1 &&
-        indexOf(keys, "squash") === -1 && indexOf(keys, "array") === -1;
+      var configKeys = ["value", "type", "squash", "array", "dynamic"].filter(function(key) { return (config || {}).hasOwnProperty(key); });
+      var isShorthand = configKeys.length === 0;
       if (isShorthand) config = { value: config };
       config.$$fn = isInjectable(config.value) ? config.value : function () { return config.value; };
       return config;
@@ -989,7 +989,7 @@ function $UrlMatcherFactory() {
       replace: replace,
       isOptional: isOptional,
       value: $value,
-      dynamic: undefined,
+      dynamic: dynamic,
       config: config,
       toString: toString
     });

@@ -315,10 +315,13 @@ function $TransitionProvider() {
 
       function calculateTreeChanges() {
         if (hasCalculated) return;
+        function nonDynamicParams(state) {
+          return state.params.$$filter(function(param) { return !param.dynamic; });
+        }
 
         if (to.valid()) {
           state = toState.path[keep];
-          while (state && state === fromState.path[keep] && state.params.$$equals(toParams, fromParams)) {
+          while (state && state === fromState.path[keep] && nonDynamicParams(state).$$equals(toParams, fromParams)) {
             keep++;
             state = toState.path[keep];
           }
@@ -437,7 +440,8 @@ function $TransitionProvider() {
          * @returns {boolean} Whether the transition should be ignored.
          */
         ignored: function() {
-          return !options.reload && toState === fromState && toState.params.$$equals(toParams, fromParams);
+          function nonDynamic(param) { return !param.dynamic; }
+          return !options.reload && toState === fromState && toState.params.$$filter(nonDynamic).$$equals(toParams, fromParams);
         },
 
         run: function() {
