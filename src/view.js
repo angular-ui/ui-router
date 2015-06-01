@@ -1,18 +1,21 @@
 /**
- * @ngdoc object
- * @name ui.router.state.type:View
- *
- * @description
  * Represents the union of a template and (optional) controller.
  *
  * @param {Object} config The view's configuration
  *
- * @returns {Object} New `Transition` object
+ * @returns {Object} New `ViewConfig` object
  */
 function ViewConfig(config) {
   this.config = config;
 }
 
+/**
+ * Gets the controller for a view configuration.
+ *
+ * @param {Object} locals The view's locals, used when the view has a controller provider.
+ *
+ * @returns {Function|Promise.<Function>} Returns a controller, or a promise that resolves to a controller.
+ */
 ViewConfig.prototype.controller = function(locals) {
   var cfg = this.config, provider = this.config.controllerProvider;
   return isInjectable(provider) ? locals.invokeLater(provider) : cfg.controller;

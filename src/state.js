@@ -280,16 +280,32 @@ function State(config) {
 }
 
 /**
+ * @ngdoc function
+ * @name ui.router.state.type:State#is
+ * @methodOf ui.router.state.type:State
+ *
+ * @description
  * Compares the identity of the state against the passed value, which is either an object
  * reference to the actual `State` instance, the original definition object passed to
  * `$stateProvider.state()`, or the fully-qualified name.
+ *
+ * @param {Object} ref Can be one of (a) a `State` instance, (b) an object that was passed
+ *        into `$stateProvider.state()`, (c) the fully-qualified name of a state as a string.
+ * @returns {boolean} Returns `true` if `ref` matches the current `State` instance.
  */
 State.prototype.is = function(ref) {
   return this === ref || this.self === ref || this.fqn() === ref;
 };
 
 /**
+ * @ngdoc function
+ * @name ui.router.state.type:State#fqn
+ * @methodOf ui.router.state.type:State
+ *
+ * @description
  * Returns the fully-qualified name of the state, based on its current position in the tree.
+ *
+ * @returns {string} Returns a dot-separated name of the state.
  */
 State.prototype.fqn = function() {
   if (!this.parent || !this.parent instanceof this.constructor) {
@@ -300,7 +316,14 @@ State.prototype.fqn = function() {
 };
 
 /**
+ * @ngdoc function
+ * @name ui.router.state.type:State#root
+ * @methodOf ui.router.state.type:State
+ *
+ * @description
  * Returns the root node of this state's tree.
+ *
+ * @returns {State} The root of this state's tree.
  */
 State.prototype.root = function() {
   var result = this;
@@ -324,6 +347,7 @@ State.prototype.root = function() {
  * @param {*} identifier  An identifier for a state. Either a fully-qualified path, or the object
  *            used to define the state.
  * @param {State} definition The `State` object definition.
+ * @param {Object} params Parameters attached to the current state reference.
  * @param {Object} params Parameters attached to the current state reference.
  * @param {Object} base Optional. Base state used during lookup of state definition by identifier.
  *

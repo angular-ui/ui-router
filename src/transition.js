@@ -391,19 +391,57 @@ function $TransitionProvider() {
           return toParams;
         },
 
+        /**
+         * @ngdoc function
+         * @name ui.router.state.type:Transition#previous
+         * @methodOf ui.router.state.type:Transition
+         *
+         * @description
+         * Gets the previous transition from which this transition was redirected.
+         *
+         * @returns {Object} A `Transition` instance, or `null`.
+         */
         previous: function() {
           options.previous || null;
         },
 
+        /**
+         * @ngdoc function
+         * @name ui.router.state.type:Transition#options
+         * @methodOf ui.router.state.type:Transition
+         *
+         * @description
+         * Returns all options passed to the constructor of this `Transition`.
+         */
         options: function() {
           return options;
         },
 
+        /**
+         * @ngdoc function
+         * @name ui.router.state.type:Transition#entering
+         * @methodOf ui.router.state.type:Transition
+         *
+         * @description
+         * Gets the states being entered.
+         *
+         * @returns {Array} Returns an array of states that will be entered in this transition.
+         */
         entering: function() {
           calculateTreeChanges();
           return pluck(entering.elements, 'state');
         },
 
+        /**
+         * @ngdoc function
+         * @name ui.router.state.type:Transition#exiting
+         * @methodOf ui.router.state.type:Transition
+         *
+         * @description
+         * Gets the states being exited.
+         *
+         * @returns {Array} Returns an array of states that will be exited in this transition.
+         */
         exiting: function() {
           calculateTreeChanges();
           var exitingStates = pluck(exiting.elements, 'state');
@@ -411,6 +449,17 @@ function $TransitionProvider() {
           return exitingStates;
         },
 
+        /**
+         * @ngdoc function
+         * @name ui.router.state.type:Transition#retained
+         * @methodOf ui.router.state.type:Transition
+         *
+         * @description
+         * Gets the states being retained.
+         *
+         * @returns {Array} Returns an array of states that were entered in a previous transition that
+         *           will not be exited.
+         */
         retained: function() {
           calculateTreeChanges();
           return pluck(retained.elements, 'state');
