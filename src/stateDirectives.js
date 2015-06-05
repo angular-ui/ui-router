@@ -96,8 +96,6 @@ function $StateRefDirective($state, $timeout, $modal) {
       var options = { relative: base, inherit: true };
       var optionsOverride = scope.$eval(attrs.uiSrefOpts) || {};
 
-      var currentInstance = true;
-
       angular.forEach(allowedOptions, function(option) {
         if (option in optionsOverride) {
           options[option] = optionsOverride[option];
@@ -120,13 +118,8 @@ function $StateRefDirective($state, $timeout, $modal) {
         }
         attrs.$set(attr, newHref);
 
-        if (angular.isArray(options.instance) && options.instance.length) {
-          currentInstance = _.find(options.instance, function (instance) {
-            return instance.type !== 'group' && instance.current_instance;
-          });
-          if (!currentInstance && options.instance.length == 1) {
+        if (options.instance && !options.instance.current_instance) {
             attrs.$set('target', '_self');
-          }
         }
       };
 
@@ -143,7 +136,7 @@ function $StateRefDirective($state, $timeout, $modal) {
       element.bind("click", function(e) {
         var button = e.which || e.button;
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
-          if (!currentInstance) {
+          if (options.instance && !options.instance.current_instance) {
             return;
           }
 

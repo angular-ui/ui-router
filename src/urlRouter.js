@@ -268,13 +268,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
     var baseHref = $browser.baseHref(), location = $location.url(), lastPushedUrl;
 
     function appendBasePath(url, isHtml5, absolute, instance) {
-
-      var currentInstance = true;
-      if (angular.isArray(instance) && instance.length) {
-        currentInstance = _.any(instance, 'current_instance');
-      }
-      if (currentInstance && baseHref === '/') return url;
-
+      if (instance.current_instance && baseHref === '/') return url;
       if (isHtml5) return baseHref.slice(0, -1) + url;
       if (absolute) return baseHref.slice(1) + url;
       return url;
@@ -415,29 +409,8 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
           url += '#' + params['#'];
         }
 
-        if (options.instance) {
-          if (angular.isArray(options.instance) && options.instance.length) {
-              var instance;
-              if (options.instance.length === 1 && !options.instance[0].current_instance) {
-                  // has only one instance which is not current instance
-                  // post from a group inside a network
-                  // user on group where he is not a member, but he is part of only one instance
-                  instance = options.instance[0];
-              } else {
-                  // has multiple instances
-                  options.instance = _.filter(options.instance, function (instance) {
-                      return instance.type !== 'group';
-                  });
-                  if (window.instance.type === 'group') {
-                      instance = _.find(options.instance, function (instance) {
-                         return instance.domain_name === window.instance.parent.domain_name
-                      });
-                  }
-              }
-              if (instance) {
-                  return $location.protocol() + '://' + instance.domain_name + url;
-              }
-          }
+        if (options.instance && !options.instance.current_instance) {
+            return $location.protocol() + '://' + options.instance.domain_name + url;
         }
 
         url = appendBasePath(url, isHtml5, options.absolute, options.instance);
