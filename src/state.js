@@ -30,7 +30,7 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
         orphanIdx = orphans.indexOf(state);
 
         if (result) {
-          if (states[state.name] !== undefined)
+          if (states.hasOwnProperty(state.name))
             throw new Error("State '" + name + "' is already defined");
           states[state.name] = state;
           this.attachRoute($state, state);
