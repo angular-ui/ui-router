@@ -1,6 +1,6 @@
 stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$urlRouter'];
 function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRouter) {
-  if (!$transition$.to.valid() || !$transition$.options().notify)
+  if (!$transition$.$to().valid() || !$transition$.options().notify)
     return;
 
   var enabledEvents = $stateEvents.provider.enabledEvents();
@@ -30,9 +30,9 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
    * </pre>
    */
 
-  if (enabledEvents['$stateChangeStart'] && $rootScope.$broadcast('$stateChangeStart', $transition$.to.state(), $transition$.to.params(), $transition$.from.state(), $transition$.from.params(), $transition$).defaultPrevented) {
+  if (enabledEvents['$stateChangeStart'] && $rootScope.$broadcast('$stateChangeStart', $transition$.to(), $transition$.params(), $transition$.from(), $transition$.$from().params(), $transition$).defaultPrevented) {
     if (enabledEvents['$stateChangeCancel']) {
-      $rootScope.$broadcast('$stateChangeCancel', $transition$.to.state(), $transition$.to.params(), $transition$.from.state(), $transition$.from.params(), $transition$);
+      $rootScope.$broadcast('$stateChangeCancel', $transition$.to(), $transition$.params(), $transition$.from(), $transition$.$from().params(), $transition$);
     }
     $urlRouter.update();
     return false;
@@ -55,8 +55,8 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
        * @param fromParams
        */
       $rootScope.$broadcast('$stateChangeSuccess',
-        $transition$.to.state(), extend(new StateParams(), $transition$.params()).$raw(),
-        $transition$.from.state(), extend(new StateParams(), $transition$.from.params()).$raw());
+        $transition$.to(), extend(new StateParams(), $transition$.params()).$raw(),
+        $transition$.from(), extend(new StateParams(), $transition$.$from().params()).$raw());
     });
   }
 
@@ -84,8 +84,8 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
        * @param {Error} error The resolve error object.
        */
       var evt = $rootScope.$broadcast('$stateChangeError',
-        $transition$.to.state(), extend(new StateParams(), $transition$.params()).$raw(),
-        $transition$.from.state(), extend(new StateParams(), $transition$.from.params()).$raw(), error);
+        $transition$.to(), extend(new StateParams(), $transition$.params()).$raw(),
+        $transition$.from(), extend(new StateParams(), $transition$.$from().params()).$raw(), error);
 
       if (!evt.defaultPrevented) {
         $urlRouter.update();
@@ -96,7 +96,7 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
 
 stateNotFoundHandler.$inject = ['$transition$', '$state', '$rootScope', '$urlRouter'];
 function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
-  if ($transition$.to.valid())
+  if ($transition$.$to().valid())
     return;
 
   /**
@@ -133,8 +133,8 @@ function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
    * </pre>
    */
   var options = $transition$.options();
-  var redirect = {to: $transition$.to(), toParams: $transition$.to.params(), options: options};
-  var e = $rootScope.$broadcast('$stateNotFound', redirect, $transition$.from.state(), $transition$.from.params(), $transition$);
+  var redirect = { to: $transition$.to(), toParams: $transition$.params(), options: options };
+  var e = $rootScope.$broadcast('$stateNotFound', redirect, $transition$.from(), $transition$.$from().params(), $transition$);
 
   if (e.defaultPrevented || e.retry)
     $urlRouter.update();
@@ -143,13 +143,13 @@ function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
     return false;
   } else if (e.retry || $state.get(redirect.to)) {
     function redirectFn() {
-      return $transition$.redirect($state.reference(redirect.to, redirect.toParams), extend({$isRetrying: true}, options));
+      return $state.redirect($transition$).to(redirect.to, redirect.toParams, extend({ $isRetrying: true }, options));
     }
 
     return e.retry && angular.isFunction(e.retry.then) ? e.retry.then(redirectFn) : redirectFn();
   }
 
-  throw new Error($transition$.to.error());
+  throw new Error($transition$.$to().error());
 }
 
 

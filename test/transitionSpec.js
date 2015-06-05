@@ -11,18 +11,15 @@ describe('transition', function () {
       A: {
         B: {
           C: {
-            D: {
-            }
+            D: {}
           },
           E: {
-            F: {
-            }
+            F: {}
           }
         },
         G: {
           H: {
-            I: {
-            }
+            I: {}
           }
         }
       }
@@ -52,6 +49,7 @@ describe('transition', function () {
   }));
 
   var makeTransition;
+
   beforeEach(inject(function ($transition, $state) {
     matcher = new StateMatcher(statesMap);
     queue.flush($state);
@@ -92,6 +90,7 @@ describe('transition', function () {
 
       it('$transition$.promise should reject on error', inject(function($transition, $q) {
         var result = new PromiseResult();
+
         transitionProvider.on({ from: "*", to: "third" }, function($transition$) {
           result.setPromise($transition$.promise);
           throw new Error("transition failed");
@@ -129,8 +128,8 @@ describe('transition', function () {
 
         it('should handle redirection by rejecting the transition and providing the new Transition in err.detail', inject(function($state, $transition, $q) {
           var redirect, t = makeTransition("first", "invalid");
-          transitionProvider.onInvalid({}, function($transition$) {
-            return $transition$.redirect($state.reference("second"))
+          transitionProvider.onInvalid({}, function($state, $transition$) {
+            return $state.redirect($transition$).to("second");
           });
 
           t.promise.catch(function(err) {
@@ -178,8 +177,7 @@ describe('transition', function () {
           });
 
           makeTransition("", "D").run(); $q.flush();
-
-          expect(pluck(states, 'name')).toEqual([ 'A', 'B', 'C', 'D' ]);
+          expect(pluck(states, 'name')).toEqual(['A', 'B', 'C', 'D']);
         }));
 
         it('should be called on only states being entered', inject(function($transition, $q) {
@@ -251,45 +249,45 @@ describe('transition', function () {
       describe('.onSuccess()', function() {
         it('should only be called if the transition succeeds', inject(function($transition, $q) {
           transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) {
-            states.push($transition$.to.state()); });
+            states.push($transition$.to()); });
           transitionProvider.entering({ from: "A", to: "C" }, function() { return false; });
 
           var states = [];
           makeTransition("A", "C").run(); $q.flush();
-          expect(pluck(states, 'name')).toEqual([ ]);
+          expect(states).toEqual([ ]);
 
           states = [];
           makeTransition("B", "C").run(); $q.flush();
-          expect(pluck(states, 'name')).toEqual([ 'C' ]);
+          expect(states).toEqual([ 'C' ]);
         }));
 
         it('should be called even if other .onSuccess() callbacks fail (throw errors, etc)', inject(function($transition, $q) {
           transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { throw new Error("oops!"); });
-          transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to.state()); });
+          transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to()); });
 
           var states = [];
           makeTransition("B", "C").run(); $q.flush();
-          expect(pluck(states, 'name')).toEqual([ 'C' ]);
+          expect(states).toEqual([ 'C' ]);
         }));
       });
 
       describe('.onError()', function() {
         it('should be called if the transition aborts.', inject(function($transition, $q) {
           transitionProvider.entering({ from: "A", to: "C" }, function($transition$) { return false;  });
-          transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to.state()); });
+          transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to()); });
 
           var states = [];
           makeTransition("A", "D").run(); $q.flush();
-          expect(pluck(states, 'name')).toEqual([ 'D' ]);
+          expect(states).toEqual([ 'D' ]);
         }));
 
         it('should be called if any part of the transition fails.', inject(function($transition, $q) {
           transitionProvider.entering({ from: "A", to: "C" }, function($transition$) { throw new Erorr("oops!");  });
-          transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to.state()); });
+          transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to()); });
 
           var states = [];
           makeTransition("A", "D").run(); $q.flush();
-          expect(pluck(states, 'name')).toEqual([ 'D' ]);
+          expect(states).toEqual([ 'D' ]);
         }));
 
         it('should be called for only handlers matching the transition.', inject(function($transition, $q) {

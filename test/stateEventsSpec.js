@@ -70,19 +70,19 @@ describe('UI-Router v0.2.x $state events', function () {
       var called;
       $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, transition) {
         expect(from).toBe(E);
-        expect(transition.from.state()).toBe(E);
+        expect(transition.from()).toBe(E);
 
         expect(obj(fromParams)).toEqual({i: 'iii'});
-        expect(obj(transition.from.params())).toEqual({i: 'iii'});
+        expect(obj(transition.$from().params())).toEqual({i: 'iii'});
 
         expect(to).toBe(D);
-        expect(transition.to.state()).toBe(D);
+        expect(transition.to()).toBe(D);
 
         expect(obj(toParams)).toEqual({x: '1', y: '2'});
         expect(obj(transition.params())).toEqual({x: '1', y: '2'});
 
-        expect($state.current).toBe(transition.from.state()); // $state not updated yet
-        expect(obj($state.params)).toEqual(obj(transition.from.params()));
+        expect($state.current).toBe(transition.from()); // $state not updated yet
+        expect(obj($state.params)).toEqual(obj(transition.$from().params()));
         called = true;
       });
       $state.transitionTo(D, {x: '1', y: '2'});
@@ -109,10 +109,10 @@ describe('UI-Router v0.2.x $state events', function () {
       initStateTo(E, {i: 'iii'});
       var called;
       $rootScope.$on('$stateNotFound', function (ev, unfoundState, fromState, fromParams, transition) {
-        expect(transition.from.state()).toBe(E);
-        expect(obj(transition.from.params())).toEqual({i: 'iii'});
+        expect(transition.from()).toBe(E);
+        expect(obj(transition.$from().params())).toEqual({i: 'iii'});
         expect(transition.to()).toEqual('never_defined');
-        expect(transition.to.params()).toEqual({x: '1', y: '2'});
+        expect(transition.params()).toEqual({x: '1', y: '2'});
 
         expect($state.current).toBe(E); // $state not updated yet
         expect(obj($state.params)).toEqual({i: 'iii'});

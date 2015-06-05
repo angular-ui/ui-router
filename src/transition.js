@@ -272,8 +272,8 @@ function $TransitionProvider() {
     var from = { state: null, params: null },
         to   = { state: null, params: null };
     $TransitionProvider.instance.on({}, function($transition$) {
-      if (!$transition$.to.valid())
-        throw new Error($transition$.to.error());
+      if (!$transition$.$to().valid())
+        throw new Error($transition$.$to().error());
     });
 
     /**
@@ -311,7 +311,7 @@ function $TransitionProvider() {
       var toState = to.$state();
       var toParams = (options.inherit && toState) ? fromParams.$inherit(to.params(), fromState, toState) : to.params();
       toParams = toState ? extend(new StateParams(), toState.params.$$values(toParams)) : toParams;
-      to = new StateReference(to(), to.$state(), toParams, to.base());
+      to = (toParams && to.params(toParams)) || to;
 
       function calculateTreeChanges() {
         if (hasCalculated) return;
@@ -339,7 +339,7 @@ function $TransitionProvider() {
       extend(this, {
         /**
          * @ngdoc function
-         * @name ui.router.state.type:Transition#from
+         * @name ui.router.state.type:Transition#$from
          * @methodOf ui.router.state.type:Transition
          *
          * @description
@@ -347,11 +347,11 @@ function $TransitionProvider() {
          *
          * @returns {StateReference} The origin state reference of the transition ("from state").
          */
-        from: from,
+        $from: function() { return from; },
 
         /**
          * @ngdoc function
-         * @name ui.router.state.type:Transition#to
+         * @name ui.router.state.type:Transition#$to
          * @methodOf ui.router.state.type:Transition
          *
          * @description
@@ -359,22 +359,28 @@ function $TransitionProvider() {
          *
          * @returns {StateReference} The state reference the transition is targetting ("to state")
          */
-        to: to,
+        $to: function() { return to; },
 
+        from: function() { return from.identifier(); },
+        to: function() { return to.identifier(); },
+
+        /**
+         * @ngdoc function
+         * @name ui.router.state.type:Transition#is
+         * @methodOf ui.router.state.type:Transition
+         *
+         * @description
+         * Determines whether two transitions are equivalent.
+         */
         is: function(compare) {
           if (compare instanceof Transition) {
             // TODO: Also compare parameters
-            return this.is({ to: compare.to.$state().name, from: compare.from.$state().name });
+            return this.is({ to: compare.$to().$state().name, from: compare.$from.$state().name });
           }
           return !(
-            (compare.to && !matchState(this.to.$state(), compare.to)) ||
-            (compare.from && !matchState(this.from.$state(), compare.from))
+            (compare.to && !matchState(this.$to().$state(), compare.to)) ||
+            (compare.from && !matchState(this.$from().$state(), compare.from))
           );
-        },
-
-        rejection: function() {
-          var reason = isTargetStateValid();
-          return reason ? $q.reject(new Error(reason)) : null;
         },
 
         /**
@@ -473,8 +479,24 @@ function $TransitionProvider() {
           });
         },
 
-        redirect: function(to, options) {
-          return new Transition(from, to, options || this.options());
+        /**
+         * @ngdoc function
+         * @name ui.router.state.type:Transition#redirect
+         * @methodOf ui.router.state.type:Transition
+         *
+         * @description
+         * Creates a new transition that is a redirection of the current one. This transition can
+         * be returned from a `$transitionProvider` hook, `$state` event, or other method, to
+         * redirect a transition to a new state and/or set of parameters.
+         *
+         * @returns {Transition} Returns a new `Transition` instance.
+         */
+        redirect: function(newTo, newOptions) {
+          if (newTo.state() === to && newTo.params() === params) return this;
+
+          return new Transition(from, newTo, extend(newOptions || this.options(), {
+            previous: this
+          }));
         },
 
         /**
@@ -620,7 +642,7 @@ function $TransitionProvider() {
           var rootPath = new Path([rootPE]);
           var exitingElements = exiting.slice(0).reverse().elements;
           var enteringElements = entering.elements;
-          var to = transition.to.$state(),  from = transition.from.$state();
+          var to = transition.$to().$state(), from = transition.$from().$state();
 
           // Build a bunch of arrays of promises for each step of the transition
           // TODO: Provide makeSteps with the StateReference, not the $state().
@@ -647,7 +669,7 @@ function $TransitionProvider() {
           });
 
           function successHooks(outcome) {
-            var result = transition.to.state();
+            var result = transition.$to().state();
             deferreds.prehooks.resolve(result);
             var onSuccessHooks = makeSteps("onSuccess", to, from, rootPE, tLocals, rootPath.resolveContext(), { async: false, rejectIfSuperseded: false });
             runSynchronousHooks(onSuccessHooks, true);
@@ -669,7 +691,7 @@ function $TransitionProvider() {
           };
 
           // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
-          var invalidOrStartHooks = transition.to.valid() ? onStartHooks : onInvalidHooks;
+          var invalidOrStartHooks = transition.$to().valid() ? onStartHooks : onInvalidHooks;
           var asyncSteps = flatten([invalidOrStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]);
 
           // -----------------------------------------------------------------------
@@ -718,15 +740,15 @@ function $TransitionProvider() {
         toString: function() {
           var fromStateOrName = transition.from();
           var toStateOrName = transition.to();
-          // Transition( fromstate{fromparams} -> (X) tostate{toparams} )
+
           // (X) means the to state is invalid.
-          return "Transition( " +
-            (angular.isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName) +
-            angular.toJson(transition.from.params()) +
-            " -> "
-            + (transition.to.valid() ? "" : "(X) ") +
-            (angular.isObject(toStateOrName) ? toStateOrName.name : toStateOrName) +
-            angular.toJson(transition.params()) + " )";
+          return tpl("Transition( {from}{fromParams} -> {toValid}{to}{toParams} )", {
+            from:       angular.isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
+            fromParams: angular.toJson(transition.$from().params()),
+            toValid:    transition.$to().valid() ? "" : "(X) ",
+            to:         angular.isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
+            toParams:   angular.toJson(transition.params())
+          });
         }
       });
     }
@@ -766,12 +788,6 @@ function $TransitionProvider() {
         var reason = new TransitionRejection(Transition.prototype.ABORTED, message, detail);
         return extend($q.reject(reason), { reason: reason });
       }
-    };
-
-    // TODO: Hide this from public API
-    $transition.init = function init(state, params) {
-      from = { state: state, params: params };
-      to = { state: null, params: null };
     };
 
     $transition.create = function create(from, to, options) {

@@ -172,7 +172,7 @@ describe('state helpers', function() {
   describe('StateReference', function () {
     it('should be callable and return the correct values', function() {
       var state = { name: "foo.bar" }, ref = new StateReference(state.name, state, {});
-      expect(ref()).toBe("foo.bar");
+      expect(ref.identifier()).toBe("foo.bar");
       expect(ref.$state()).toBe(state);
       expect(ref.params()).toEqual({});
     });
@@ -201,7 +201,7 @@ describe('state helpers', function() {
 
 describe('state', function () {
 
-  var stateProvider, locationProvider, templateParams, ctrlName;
+  var stateProvider, locationProvider, templateParams, template, ctrlName;
 
   beforeEach(module('ui.router', function($locationProvider) {
     locationProvider = $locationProvider;
@@ -404,7 +404,7 @@ describe('state', function () {
     it('returns a promise for the target state', inject(function ($state, $q) {
       var promise = $state.transitionTo(A, {});
       expect(angular.isFunction(promise.then)).toBeTruthy();
-      expect(promise.transition.to.state()).toBe(A);
+      expect(promise.transition.to()).toBe(A);
     }));
 
     // @todo this should fail:
@@ -763,11 +763,11 @@ describe('state', function () {
       var promise = $state.transitionTo(A, {}); $q.flush();
       expect($state.current.name).toBe('A');
       expect(angular.isFunction(promise.then)).toBeTruthy();
-      expect(promise.transition.to.state()).toBe(A);
+      expect(promise.transition.to()).toBe(A);
 
       promise = $state.reload(); $q.flush();
       expect(angular.isFunction(promise.then)).toBeTruthy();
-      expect(promise.transition.to.state()).toBe(A);
+      expect(promise.transition.to()).toBe(A);
     }));
 
     it('should reload the current state with the current parameters', inject(function ($state, $q, $timeout) {

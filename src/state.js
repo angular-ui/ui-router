@@ -355,11 +355,7 @@ State.prototype.root = function() {
  */
 function StateReference(identifier, definition, params, base) {
 
-  var ref = function() {
-    return identifier;
-  };
-
-  return extend(ref, {
+  return extend(this, {
     identifier: function() {
       return identifier;
     },
@@ -369,7 +365,8 @@ function StateReference(identifier, definition, params, base) {
     state: function() {
       return definition && definition.self;
     },
-    params: function() {
+    params: function(newParams) {
+      if (newParams) return new StateReference(identifier, definition, newParams, base);
       return params;
     },
     base: function() {
@@ -732,8 +729,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     queue.flush($state);
     queue.autoFlush = true; // Autoflush once we are in runtime
 
-    $transition.init(root, $state.params);
-
     /**
      * @ngdoc function
      * @name ui.router.state.$state#reload
@@ -845,24 +840,32 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       }));
     };
 
-    $state.redirect = function redirect(transition, state, params) {
-    };
-
     /**
      * @ngdoc function
-     * @name ui.router.state.$state#reference
+     * @name ui.router.state.$state#redirect
      * @methodOf ui.router.state.$state
      *
      * @description
-     * A factory function for creating StateReference objects.
+     * Creates a redirect transition from an existing transition. Used in the context of a callback function
+     * which can receive a `$transition$` injectable. The result is then returned from the callback.
      *
-     * @param stateOrName {string|object} the state object or state name
-     * @param params {object} the state params
-     * @param base {object} The state to lookup the state name relative to
-     * @returns {object} A StateReference object for the given parameters.
+     * @example
+     * <pre>
+     * $transitionProvider.on({ from: "first", to: "second" }, function($state, $transition$) {
+     *   var params = { foo: 'bar' };
+     *   return $state.redirect($transition$).to("third", params);
+     * });
+     * </pre>
+     *
+     * @returns {Transition} A new {@link ui.router.state.type:Transition `Transition`} that
+     * targets a new state or set of parameters.
      */
-    $state.reference = function reference(stateOrName, params, base) {
-      return matcher.reference(stateOrName, base, params);
+    $state.redirect = function redirect(transition) {
+      return {
+        to: function(state, params, options) {
+          return transition.redirect(matcher.reference(state, null, params), options);
+        }
+      };
     };
 
     /**
@@ -951,8 +954,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           var to = transition.to(), options = transition.options();
 
           // Update globals in $state
-          $state.$current = transition.to.$state();
-          $state.current = transition.to.state();
+          $state.$current = transition.$to().$state();
+          $state.current = transition.$to().state();
 
           stateHandler.updateStateParams(transition);
           return transition;
