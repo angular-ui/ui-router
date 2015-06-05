@@ -101,4 +101,30 @@ describe('common', function() {
       expect(filtered).toEqual({ baz: 3, qux: 4 });
     });
   });
+
+  describe('defaults', function() {
+    it('should do left-associative object merge', function() {
+      var options = { param1: "new val" };
+      var result = defaults(options, {
+        param1: "default val",
+        param2: "default val 2"
+      });
+      expect(result).toEqual({ param1: "new val", param2: "default val 2" });
+    });
+
+    it('should whitelist keys present in default values', function() {
+      var options = { param1: 1, param2: 2, param3: 3 };
+      var result = defaults(options, {
+        param1: 0,
+        param2: 0
+      });
+      expect(result).toEqual({ param1: 1, param2: 2 });
+    });
+
+    it('should return an object when passed an empty value', function() {
+      var vals = { param1: 0, param2: 0 }
+      expect(defaults(null, vals)).toEqual(vals);
+      expect(defaults(undefined, vals)).toEqual(vals);
+    });
+  });
 });

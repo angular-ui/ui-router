@@ -18,7 +18,7 @@ function inherit(parent, extra) {
 }
 
 function defaults(opts, defs) {
-  return extend({}, defs, pick(opts, objectKeys(defs)));
+  return extend({}, defs, pick(opts || {}, objectKeys(defs)));
 }
 
 function merge(dst) {
