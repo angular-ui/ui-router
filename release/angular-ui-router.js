@@ -1,6 +1,6 @@
 /**
  * State-based routing for AngularJS
- * @version v0.2.15
+ * @version v0.2.15-dev-2015-06-05
  * @link http://angular-ui.github.com/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -1988,8 +1988,8 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
 
     var baseHref = $browser.baseHref(), location = $location.url(), lastPushedUrl;
 
-    function appendBasePath(url, isHtml5, absolute) {
-      if (baseHref === '/') return url;
+    function appendBasePath(url, isHtml5, absolute, instance) {
+      if (instance.current_instance && baseHref === '/') return url;
       if (isHtml5) return baseHref.slice(0, -1) + url;
       if (absolute) return baseHref.slice(1) + url;
       return url;
@@ -2130,19 +2130,11 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
           url += '#' + params['#'];
         }
 
-        if (options.instance) {
-          if (angular.isArray(options.instance) && options.instance.length) {
-            var instance = _.find(options.instance, 'current_instance');
-            if (!instance) {
-              instance = options.instance[0];
-              if (instance) {
-                return $location.protocol() + '://' + options.instance[0].domain_name + '/' + url;
-              }
-            }
-          }
+        if (options.instance && !options.instance.current_instance) {
+            return $location.protocol() + '://' + options.instance.domain_name + url;
         }
 
-        url = appendBasePath(url, isHtml5, options.absolute);
+        url = appendBasePath(url, isHtml5, options.absolute, options.instance);
 
         if (!options.absolute || !url) {
           return url;
@@ -4175,6 +4167,10 @@ function $StateRefDirective($state, $timeout, $modal) {
           return false;
         }
         attrs.$set(attr, newHref);
+
+        if (options.instance && !options.instance.current_instance) {
+            attrs.$set('target', '_self');
+        }
       };
 
       if (ref.paramExpr) {
@@ -4190,76 +4186,8 @@ function $StateRefDirective($state, $timeout, $modal) {
       element.bind("click", function(e) {
         var button = e.which || e.button;
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
-
-          if (angular.isArray(options.instance) && options.instance.length) {
-
-              var instance = _.find(options.instance, 'current_instance');
-
-              if (!instance) {
-                  if (options.instance.length > 1) {
-
-                      e.preventDefault();
-
-                      // launch modal with instance choices
-                      var modalInstance = $modal.open({
-                          template:   '<div class="modal-header">' +
-                                        '<h3>' + Translator.trans('state.href.instance.list.title') + '</h3>' +
-                                      '</div>' +
-                                      '<div class="modal-body">' +
-                                          '<ul class="list-group">' +
-                                              '<li ng-repeat="instance in instances" class="list-group-item">' +
-                                                  '<div class="media">' +
-                                                      '<div class="media-body">' +
-                                                          '<h4 class="media-heading">' +
-                                                              '<a ng-href="{{ instance.href }}">' +
-                                                                  '<span ng-bind="instance.name"></span>' +
-                                                                  ' <small>(<span ng-bind="instance.href"></span>)</small>' +
-                                                              '</a>' +
-                                                          '</h4>' +
-                                                      '</div>' +
-                                                  '</div>' +
-                                              '</li>' +
-                                          '</ul>' +
-                                      '</div>',
-                          controller: function ($scope, instances, state, params, options) {
-                              instances = _.filter(instances, function (instance) {
-                                  return instance.type !== 'group';
-                              });
-
-                              angular.forEach(instances, function (instance) {
-                                  var newOptions = _.clone(options, true);
-                                  newOptions.instance = _.filter(newOptions.instance, function (i) {
-                                      return i.eid === instance.eid;
-                                  });
-                                  instance.href = $state.href(ref.state, params, newOptions);
-                              });
-
-                              $scope.instances = instances;
-
-                          },
-                          resolve: {
-                              instances: function () {
-                                  return options.instance;
-                              },
-                              state: function () {
-                                  return ref.state;
-                              },
-                              params: function () {
-                                  return params;
-                              },
-                              options: function () {
-                                  return options;
-                              }
-                          }
-
-                      });
-
-                  }
-
-                  return;
-
-              }
-
+          if (options.instance && !options.instance.current_instance) {
+            return;
           }
 
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
