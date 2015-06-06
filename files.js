@@ -23,7 +23,7 @@ routerFiles = {
     //'test/stateDirectivesSpec.js',
     'test/stateEventsSpec.js',
     'test/stateSpec.js',
-    //'test/templateFactorySpec.js',
+    'test/templateFactorySpec.js',
     'test/transitionSpec.js',
     'test/urlMatcherFactorySpec.js',
     'test/urlRouterSpec.js',

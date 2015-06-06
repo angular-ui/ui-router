@@ -1,4 +1,40 @@
-var TransitionRejection;
+var Transition, REJECT;
+
+function TransitionRejection(type, message, detail) {
+  angular.extend(this, {
+    type: type,
+    message: message,
+    detail: detail
+  });
+}
+
+function RejectFactory($q) {
+  return {
+    superseded: function (detail, options) {
+      var message = "The transition has been superseded by a different transition (see detail).";
+      var reason = new TransitionRejection(Transition.prototype.SUPERSEDED, message, detail);
+      if (options && options.redirected) { reason.redirected = true; }
+      return extend($q.reject(reason), { reason: reason });
+    },
+    redirected: function (detail) {
+      return REJECT.superseded(detail, { redirected: true } );
+    },
+    invalid: function(detail) {
+      var reason = new TransitionRejection(Transition.prototype.INVALID, message, detail);
+      return extend($q.reject(reason), { reason: reason });
+    },
+    ignored: function(detail) {
+      var reason = new TransitionRejection(Transition.prototype.IGNORED, "The transition was ignored.", detail);
+      return extend($q.reject(reason), { reason: reason });
+    },
+    aborted: function (detail) {
+      // TODO think about how to encapsulate an Error() object
+      var message = "The transition has been aborted.";
+      var reason = new TransitionRejection(Transition.prototype.ABORTED, message, detail);
+      return extend($q.reject(reason), { reason: reason });
+    }
+  };
+}
 
 /**
  * @ngdoc object
@@ -9,7 +45,9 @@ function $TransitionProvider() {
   $TransitionProvider.instance = this;
 
   var $transition = {};
-  var transitionEvents = { onBefore: [], onInvalid: [], onStart: [], on: [], entering: [], exiting: [], onSuccess: [], onError: [] };
+  var transitionEvents = {
+    onBefore: [], onInvalid: [], onStart: [], on: [], entering: [], exiting: [], onSuccess: [], onError: []
+  };
 
   /**
    * Determines if the given state matches the matchCriteria
@@ -22,8 +60,7 @@ function $TransitionProvider() {
    * @returns {boolean}
    */
   function matchState(state, matchCriteria) {
-    var toMatch = angular.isString(matchCriteria) ? [matchCriteria] : matchCriteria;
-    var matchFn = angular.isFunction(toMatch) ? toMatch : matchGlobs;
+    var toMatch = isString(matchCriteria) ? [matchCriteria] : matchCriteria;
 
     function matchGlobs(state) {
       for (var i = 0; i < toMatch.length; i++) {
@@ -36,7 +73,7 @@ function $TransitionProvider() {
       return false;
     }
 
-    return matchFn(state) ? true : false;
+    return !!(isFunction(toMatch) ? toMatch : matchGlobs)(state);
   }
 
   // Return a registration function of the requested type.
@@ -44,7 +81,7 @@ function $TransitionProvider() {
     return function(matchObject, callback, options) {
       options = options || {};
       transitionEvents[eventType].push(new EventHook(matchObject, callback, options));
-      transitionEvents[eventType].sort(function(a,b) {
+      transitionEvents[eventType].sort(function(a, b) {
         return a.priority - b.priority;
       })
     };
@@ -269,12 +306,13 @@ function $TransitionProvider() {
   this.$get = $get;
   $get.$inject = ['$q', '$injector', '$resolve', '$stateParams', '$timeout'];
   function $get(   $q,   $injector,   $resolve,   $stateParams,   $timeout) {
-    var from = { state: null, params: null },
-        to   = { state: null, params: null };
+
     $TransitionProvider.instance.on({}, function($transition$) {
       if (!$transition$.$to().valid())
         throw new Error($transition$.$to().error());
     });
+
+    REJECT = RejectFactory($q);
 
     /**
      * @ngdoc object
@@ -291,7 +329,7 @@ function $TransitionProvider() {
      *
      * @returns {Object} New `Transition` object
      */
-    function Transition(from, to, options) {
+    Transition = function Transition(from, to, options) {
       var transition = this; // Transition() object
 
       var deferreds = {
@@ -315,8 +353,9 @@ function $TransitionProvider() {
 
       function calculateTreeChanges() {
         if (hasCalculated) return;
+
         function nonDynamicParams(state) {
-          return state.params.$$filter(function(param) { return !param.dynamic; });
+          return state.params.$$filter(not(prop('dynamic')));
         }
 
         if (to.valid()) {
@@ -511,12 +550,12 @@ function $TransitionProvider() {
          * @returns {boolean} Whether the transition should be ignored.
          */
         ignored: function() {
-          function nonDynamic(param) { return !param.dynamic; }
-          return !options.reload && toState === fromState && toState.params.$$filter(nonDynamic).$$equals(toParams, fromParams);
+          return !options.reload && toState === fromState && toState.params.$$filter(not(prop('dynamic'))).$$equals(toParams, fromParams);
         },
 
         run: function() {
           calculateTreeChanges();
+
           if (transition.ignored()) {
             $transition.transition = null;
             var ignored = REJECT.ignored();
@@ -527,7 +566,12 @@ function $TransitionProvider() {
           $transition.transition = transition;
 
           function TransitionStep(pathElement, fn, locals, resolveContext, options) {
-            options = defaults(options, { async: true, rejectIfSuperseded: true, data: {} });
+            options = defaults(options, {
+              async: true,
+              rejectIfSuperseded: true,
+              data: {}
+            });
+
             extend(this, {
               async: options.async,
               rejectIfSuperseded: options.rejectIfSuperseded,
@@ -757,38 +801,6 @@ function $TransitionProvider() {
     Transition.prototype.ABORTED    = 3;
     Transition.prototype.INVALID    = 4;
     Transition.prototype.IGNORED    = 5;
-
-    TransitionRejection = function TransitionRejection(type, message, detail) {
-      this.type = type;
-      this.message = message;
-      this.detail = detail;
-    };
-
-    var REJECT = {
-      superseded: function (detail, options) {
-        var message = "The transition has been superseded by a different transition (see detail).";
-        var reason = new TransitionRejection(Transition.prototype.SUPERSEDED, message, detail);
-        if (options && options.redirected) { reason.redirected = true; }
-        return extend($q.reject(reason), { reason: reason });
-      },
-      redirected: function (detail) {
-        return REJECT.superseded(detail, { redirected: true } );
-      },
-      invalid: function(detail) {
-        var reason = new TransitionRejection(Transition.prototype.INVALID, message, detail);
-        return extend($q.reject(reason), { reason: reason });
-      },
-      ignored: function(detail) {
-        var reason = new TransitionRejection(Transition.prototype.IGNORED, "The transition was ignored.", detail);
-        return extend($q.reject(reason), { reason: reason });
-      },
-      aborted: function (detail) {
-        // TODO think about how to encapsulate an Error() object
-        var message = "The transition has been aborted.";
-        var reason = new TransitionRejection(Transition.prototype.ABORTED, message, detail);
-        return extend($q.reject(reason), { reason: reason });
-      }
-    };
 
     $transition.create = function create(from, to, options) {
       return new Transition(from, to, options || {});

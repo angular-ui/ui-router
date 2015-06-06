@@ -127,4 +127,16 @@ describe('common', function() {
       expect(defaults(undefined, vals)).toEqual(vals);
     });
   });
+
+  describe('not', function() {
+    it('should allow double-negatives', function() {
+      function T() { return true; }
+      function F() { return false; }
+      function empty() { return ""; }
+
+      expect(not(not(T))()).toBe(true);
+      expect(not(not(F))()).toBe(false);
+      expect(not(not(empty))()).toBe(false);
+    });
+  });
 });

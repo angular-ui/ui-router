@@ -216,12 +216,7 @@ function omit(obj) {
 }
 
 function pluck(collection, key) {
-  var result = isArray(collection) ? [] : {};
-
-  forEach(collection, function(val, i) {
-    result[i] = isFunction(key) ? key(val) : val[key];
-  });
-  return result;
+  return map(collection, prop(key));
 }
 
 function filter(collection, callback) {
@@ -285,6 +280,22 @@ function isInjectable(value) {
   return (isFunction(value) || (isArray(value) && isFunction(value[value.length - 1])));
 }
 
+
+function prop(name) {
+  return function(obj) { return obj[name]; };
+}
+
+function not(fn) {
+  return function() { return !fn.apply(null, [].slice.call(arguments)); };
+}
+
+function prop(name) {
+  return function(obj) { return obj[name]; };
+}
+
+function not(fn) {
+  return function() { return !fn.apply(null, [].slice.call(arguments)); };
+}
 
 var GlobBuilder = (function() {
 

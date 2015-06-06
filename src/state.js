@@ -966,8 +966,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           if (error instanceof TransitionRejection) {
             if (error.type === transition.IGNORED) {
               // Update $stateParmas/$state.params/$location.url if transition ignored, but dynamic params have changed.
-              function dynamic(param) { return !!param.dynamic; }
-              if (!$state.$current.params.$$filter(dynamic).$$equals($stateParams, transition.params())) {
+              if (!$state.$current.params.$$filter(not(not(prop('dynamic')))).$$equals($stateParams, transition.params())) {
                 stateHandler.updateStateParams(transition);
               }
               return $state.current;
