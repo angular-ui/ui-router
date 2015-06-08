@@ -2,12 +2,12 @@
  * @ngdoc directive
  * @name ui.router.state.directive:ui-view
  *
- * @requires ui.router.state.$state
+ * @requires ui.router.state.$view
  * @requires $compile
+ * @requires $interpolate
  * @requires $controller
- * @requires $injector
+ * @requires $animate
  * @requires ui.router.state.$uiViewScroll
- * @requires $document
  *
  * @restrict ECA
  *
@@ -111,60 +111,22 @@
  * <ui-view autoscroll='scopeVariable'/>
  * </pre>
  */
-$ViewDirective.$inject = ['$state', '$view', '$injector', '$uiViewScroll', '$interpolate'];
-function $ViewDirective(   $state,   $view,   $injector,   $uiViewScroll,   $interpolate) {
+$ViewDirective.$inject = ['$view', '$animate', '$uiViewScroll', '$interpolate'];
+function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
 
   var views = {};
 
-  function getService() {
-    return ($injector.has) ? function(service) {
-      return $injector.has(service) ? $injector.get(service) : null;
-    } : function(service) {
-      try {
-        return $injector.get(service);
-      } catch (e) {
-        return null;
+  function getRenderer(attrs, scope) {
+    return {
+      enter: function(element, target, cb) {
+        var promise = $animate.enter(element, null, target, cb);
+        if (promise && promise.then) promise.then(cb);
+      },
+      leave: function(element, cb) {
+        var promise = $animate.leave(element, cb);
+        if (promise && promise.then) promise.then(cb);
       }
     };
-  }
-
-  var service = getService(),
-      $animator = service('$animator'),
-      $animate = service('$animate');
-
-  // Returns a set of DOM manipulation functions based on which Angular version
-  // it should use
-  function getRenderer(attrs, scope) {
-    var statics = function() {
-      return {
-        enter: function (element, target, cb) { target.after(element); cb(); },
-        leave: function (element, cb) { element.remove(); cb(); }
-      };
-    };
-
-    if ($animate) {
-      return {
-        enter: function(element, target, cb) {
-          var promise = $animate.enter(element, null, target, cb);
-          if (promise && promise.then) promise.then(cb);
-        },
-        leave: function(element, cb) {
-          var promise = $animate.leave(element, cb);
-          if (promise && promise.then) promise.then(cb);
-        }
-      };
-    }
-
-    if ($animator) {
-      var animate = $animator && $animator(scope, attrs);
-
-      return {
-        enter: function(element, target, cb) {animate.enter(element, null, target); cb(); },
-        leave: function(element, cb) { animate.leave(element); cb(); }
-      };
-    }
-
-    return statics();
   }
 
   var directive = {
@@ -179,14 +141,15 @@ function $ViewDirective(   $state,   $view,   $injector,   $uiViewScroll,   $int
             autoScrollExp = attrs.autoscroll,
             renderer      = getRenderer(attrs, scope),
             viewConfig    = {},
-            inherited     = $element.inheritedData('$uiView');
+            inherited     = $element.inheritedData('$uiView'),
+            name          = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default';
+
+        var viewData = {
+          name: (inherited && inherited.name) ? inherited.name + "." + name : name
+        };
+        $element.data('$uiView', viewData);
 
         updateView(true);
-
-
-
-        var viewData = { name: inherited ? inherited.name + "." + name : name };
-        $element.data('$uiView', viewData);
 
         unregister = $view.register(viewData.name, function(config) {
           var nothingToDo = (config === viewConfig) || (config && viewConfig && (
@@ -233,15 +196,15 @@ function $ViewDirective(   $state,   $view,   $injector,   $uiViewScroll,   $int
 
         function updateView(firstTime, config) {
           var newScope,
-              name            = getUiViewName(scope, attrs, $element, $interpolate),
+              name            = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default',
               previousLocals  = viewConfig && viewConfig.locals;
 
           if (!firstTime && previousLocals === latestLocals) return; // nothing to do
           newScope = scope.$new();
-          latestLocals = $state.$current.locals[name];
+          latestLocals = config && config.locals;
 
           var clone = $transclude(newScope, function(clone) {
-            renderer.enter(clone, $element, function onUiViewEnter() {
+            renderer.enter(clone.data('$uiView', viewData), $element, function onUiViewEnter() {
               if(currentScope) {
                 currentScope.$emit('$viewContentAnimationEnded');
               }
@@ -252,8 +215,6 @@ function $ViewDirective(   $state,   $view,   $injector,   $uiViewScroll,   $int
             });
             cleanupLastView();
           });
-
-          latestLocals = viewConfig.locals;
 
           currentEl = clone;
           currentScope = newScope;
@@ -267,7 +228,7 @@ function $ViewDirective(   $state,   $view,   $injector,   $uiViewScroll,   $int
            *
            * @param {Object} event Event object.
            */
-          currentScope.$emit('$viewContentLoaded', viewConfig);
+          currentScope.$emit('$viewContentLoaded', config || viewConfig);
           currentScope.$eval(onloadExp);
         }
       };
@@ -277,8 +238,8 @@ function $ViewDirective(   $state,   $view,   $injector,   $uiViewScroll,   $int
   return directive;
 }
 
-$ViewDirectiveFill.$inject = ['$compile', '$controller', '$state', '$interpolate'];
-function $ViewDirectiveFill (  $compile,   $controller,   $state,   $interpolate) {
+$ViewDirectiveFill.$inject = ['$compile', '$controller', '$interpolate'];
+function $ViewDirectiveFill (  $compile,   $controller,   $interpolate) {
   return {
     restrict: 'ECA',
     priority: -400,
@@ -286,7 +247,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $state,   $interpolate
       var initial = tElement.html();
 
       return function (scope, $element) {
-        var locals = $element.data('$uiView').locals;
+        var data = $element.data('$uiView'), locals = data && data.locals;
 
         if (!locals) return;
 
@@ -306,16 +267,6 @@ function $ViewDirectiveFill (  $compile,   $controller,   $state,   $interpolate
       };
     }
   };
-}
-
-/**
- * Shared ui-view code for both directives:
- * Given scope, element, and its attributes, return the view's name
- */
-function getUiViewName(scope, attrs, element, $interpolate) {
-  var name = $interpolate(attrs.uiView || attrs.name || '')(scope);
-  var inherited = element.inheritedData('$uiView');
-  return name.indexOf('@') >= 0 ?  name :  (name + '@' + (inherited ? inherited.state.name : ''));
 }
 
 angular.module('ui.router.state').directive('uiView', $ViewDirective);

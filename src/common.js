@@ -230,6 +230,17 @@ function filter(collection, callback) {
   return result;
 }
 
+function find(collection, callback) {
+  var result;
+
+  forEach(collection, function(val, i) {
+    if (result) return;
+    if (callback(val, i)) result = val;
+  });
+
+  return result;
+}
+
 function tpl(string, vals) {
   return string.replace(/\{(\w+)\}/, function(_, key) {
     return vals[key] || "";
@@ -243,6 +254,30 @@ function map(collection, callback) {
     result[i] = callback(val, i);
   });
   return result;
+}
+
+function _map(callback) {
+  return function mapper(collection) { return map(collection, callback); }
+}
+
+function unnest(list) {
+  var result = [];
+  forEach(list, function(val) { result = result.concat(val); });
+  return result;
+}
+
+function unroll(callback) {
+  callback = callback || angular.identity;
+
+  return function(object) {
+    var result = [];
+    forEach(object, function(val, key) {
+      var tmp = {};
+      tmp[key] = val;
+      result.push(callback(tmp));
+    });
+    return result;
+  };
 }
 
 function flattenPrototypeChain(obj) {
@@ -280,6 +315,20 @@ function isInjectable(value) {
   return (isFunction(value) || (isArray(value) && isFunction(value[value.length - 1])));
 }
 
+function compose() {
+  var args = arguments;
+  var start = args.length - 1;
+  return function() {
+    var i = start;
+    var result = args[start].apply(this, arguments);
+    while (i--) result = args[i].call(this, result);
+    return result;
+  };
+}
+
+function pipe() {
+  return compose.apply(null, [].slice.call(arguments).reverse());
+}
 
 function prop(name) {
   return function(obj) { return obj[name]; };
@@ -289,13 +338,52 @@ function not(fn) {
   return function() { return !fn.apply(null, [].slice.call(arguments)); };
 }
 
-function prop(name) {
-  return function(obj) { return obj[name]; };
+function and(fn1, fn2) {
+  return function() {
+    return fn1.apply(null, [].slice.call(arguments)) && fn2.apply(null, [].slice.call(arguments));
+  };
 }
 
-function not(fn) {
-  return function() { return !fn.apply(null, [].slice.call(arguments)); };
+function or(fn1, fn2) {
+  return function() {
+    return fn1.apply(null, [].slice.call(arguments)) || fn2.apply(null, [].slice.call(arguments));
+  };
 }
+
+function is(ctor) {
+  return function(val) { return val != null && val.constructor === ctor || val instanceof ctor; };
+}
+
+function eq(comp) {
+  return function(val) { return val === comp; };
+}
+
+function isEq(fn1, fn2) {
+  return function() {
+    var args = [].slice.call(arguments);
+    return fn1.apply(null, args) === fn2.apply(null, args);
+  };
+}
+
+function val(v) {
+  return function() { return v; };
+}
+
+function invoke(method, args) {
+  return function(obj) {
+    return obj[method].apply(obj, args);
+  }
+}
+
+function pattern(struct) {
+  return function(val) {
+    for (var i = 0; i < struct.length; i++) {
+      if (struct[i][0](val)) return struct[i][1](val);
+    }
+  }
+}
+
+var isPromise = and(isObject, pipe(prop('then'), isFunction));
 
 var GlobBuilder = (function() {
 

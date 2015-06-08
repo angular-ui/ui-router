@@ -390,6 +390,32 @@ function StateReference(identifier, definition, params, base) {
   });
 }
 
+function TransitionQueue() {
+  this._items = [];
+}
+
+TransitionQueue.prototype.push = function(transition) {
+  this._items.push(transition);
+  return transition;
+};
+
+TransitionQueue.prototype.clear = function() {
+  var current = this._items;
+  this._items = [];
+  return current;
+};
+
+TransitionQueue.prototype.size = function() {
+  return this._items.length;
+};
+
+TransitionQueue.prototype.pop = function(transition) {
+  this._items.indexOf(transition) > -1 && this._items.splice(this._items.indexOf(transition), 1);
+};
+
+TransitionQueue.prototype.last = function() {
+  return this._items[this._items.length - 1];
+};
 
 /**
  * @ngdoc object
@@ -417,9 +443,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
   var root, states = {};
 
-  var matcher = new StateMatcher(states);
-  var builder = new StateBuilder(function() { return root; }, matcher, $urlMatcherFactoryProvider);
-  var queue   = new StateQueueManager(states, builder, $urlRouterProvider, $state);
+  var matcher    = new StateMatcher(states);
+  var builder    = new StateBuilder(function() { return root; }, matcher, $urlMatcherFactoryProvider);
+  var stateQueue = new StateQueueManager(states, builder, $urlRouterProvider, $state);
+  var transQueue = new TransitionQueue();
 
   function $state() {}
 
@@ -659,7 +686,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     /*jshint validthis: true */
     if (isObject(name)) definition = name;
     else definition.name = name;
-    queue.register(definition);
+    stateQueue.register(definition);
     return this;
   }
 
@@ -707,7 +734,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     };
 
     // Implicit root state that is always active
-    root = queue.register({
+    root = stateQueue.register({
       name: '',
       url: '^',
       views: null,
@@ -726,8 +753,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       transition: null
     });
 
-    queue.flush($state);
-    queue.autoFlush = true; // Autoflush once we are in runtime
+    stateQueue.flush($state);
+    stateQueue.autoFlush = true; // Autoflush once we are in runtime
 
     /**
      * @ngdoc function
@@ -907,42 +934,25 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
     $state.transitionTo = function transitionTo(to, toParams, options) {
-
-      var defaultOptions = {
+      options = defaults(options, {
         location: true,
         relative: null,
         inherit:  false,
         notify:   true,
         reload:   false
-      };
-      options = defaults(options, defaultOptions);
+      });
 
-      var fromRef = matcher.reference($state.current, null, extend({}, $stateParams)),
-          toRef   = matcher.reference(to, options && options.relative, toParams);
-      var transition = $transition.create(fromRef, toRef, options);
+      var transition = transQueue.push($transition.create(
+        matcher.reference($state.current, null, extend({}, $stateParams)),
+        matcher.reference(to, options && options.relative, toParams),
+        extend(options, {
+          current: transQueue.last.bind(transQueue)
+        })
+      ));
 
       var stateHandler = {
-        //checkIgnoredOrPrevented: function checkIgnoredOrPrevented(transition) {
-        //  if (transition.ignored()) {
-        //    var isDynamic = $stateParams.$set(transition.params().to, transition.to.$state().url);
-        //
-        //    if (isDynamic && toState.url) {
-        //      $urlRouter.push(toState.url, $stateParams, { replace: true });
-        //      $urlRouter.update(true);
-        //    }
-        //
-        //    if (isDynamic || toRef.$state().locals === fromRef.$state().locals) {
-        //      if (!isDynamic) $urlRouter.update();
-        //      return $q.when(transition.to.state());
-        //    }
-        //  }
-        //},
 
         runTransition: function runTransition(transition) {
-          //var skip = stateHandler.checkIgnoredOrPrevented(transition);
-          //if (skip)
-          //  $transition.abort();
-
           // When the transition promise (prepromise; before callbacks) is resolved/rejected, update the $state service
           function handleSuccess() { return stateHandler.transitionSuccess(transition); }
           function handleFailure(error) { return stateHandler.transitionFailure(error); }
@@ -951,13 +961,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         },
 
         transitionSuccess: function transitionSuccess(transition) {
-          var to = transition.to(), options = transition.options();
+          $view.sync(transition.views());
 
           // Update globals in $state
           $state.$current = transition.$to().$state();
           $state.current = transition.$to().state();
 
           stateHandler.updateStateParams(transition);
+          transQueue.clear();
           return transition;
         },
 
@@ -1000,10 +1011,15 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         }
       };
 
+      var result = stateHandler.runTransition(transition);
+
+      // Pop the transition off the queue
+      result.finally(pipe(val(transition), transQueue.pop.bind(transQueue)));
+
       // Return a promise for the transition, which also has the transition object on it.
       // Allows, for instance:
       // $state.go("foo").transition.redirects.then(function() { alert("Ive been redirected to state " + $state.current.name); }
-      return extend(stateHandler.runTransition(transition).then(angular.identity), { transition: transition });
+      return extend(result.then(angular.identity), { transition: transition });
     };
 
     /**

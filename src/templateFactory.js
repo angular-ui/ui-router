@@ -31,7 +31,7 @@ function $TemplateFactory(  $http,   $templateCache) {
    * @param {Function} config.templateProvider function to invoke via 
    * {@link ui.router.util.$templateFactory#fromProvider fromProvider}.
    * @param {object} params  Parameters to pass to the template function.
-   * @param {object} locals Locals to pass to `invoke` if the template is loaded 
+   * @param {Function} locals Function to which an injectable function may be passed.
    * via a `templateProvider`. Defaults to `{ params: params }`.
    *
    * @return {string|object}  The template html as a string, or a promise for 
@@ -103,7 +103,7 @@ function $TemplateFactory(  $http,   $templateCache) {
    * for that string.
    */
   this.fromProvider = function (provider, params, locals) {
-    return locals.invokeLater(provider, null, { params: params });
+    return locals(provider, { params: params });
   };
 }
 

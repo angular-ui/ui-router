@@ -36,6 +36,76 @@ function RejectFactory($q) {
   };
 }
 
+function TransitionStep(pathElement, fn, locals, resolveContext, options) {
+  options = defaults(options, {
+    async: true,
+    rejectIfSuperseded: true,
+    current: angular.noop,
+    transition: null,
+    data: {}
+  });
+
+  extend(this, {
+    async: options.async,
+    rejectIfSuperseded: options.rejectIfSuperseded,
+    state: pathElement.state,
+    data:  options.data,
+    toString: function() {
+      return tpl("Step( .{event}({ from: {from}, to: {to} }) (state: {state}) )", {
+        event: options.data.eventType,
+        from:  options.data.from.name,
+        to:    options.data.to.name,
+        state: options.data.pathElement.state.name
+      });
+    }
+  });
+
+  /**
+   * Validates the result map as a "resolve:" style object.
+   * Creates Resolvable objects from the result object and adds them to the target object
+   */
+  function mapNewResolves(resolves) {
+    var invalid = filter(result, not(isFunction)), keys = Object.keys(invalid);
+    if (invalid.length) throw new Error("Invalid resolve key/value: " + keys[0] + "/", invalid[keys[0]]);
+
+    // If result is an object, it should be a map of strings to functions.
+    return map(resolves, function(val, key) {
+      return new Resolvable(key, val, pathElement.state);
+    });
+  }
+
+  /**
+   * Handles transition abort and transition redirect. Also adds any returned resolvables
+   * to the resolveContext for the current state.  If the transition is rejected, then a rejected
+   * promise is returned here, otherwise undefined is returned.
+   */
+  var handleHookResult = pattern([
+    // Transition is no longer current
+    [not(isEq(options.current, val(options.transition))), pipe(options.current, REJECT.superseded.bind(REJECT))],
+    // If the hook returns false, abort the current Transition
+    [eq(false), val(REJECT.aborted("Hook aborted transition"))],
+    // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
+    [is(Transition), REJECT.redirected.bind(REJECT)],
+    [isPromise, function(result) { return result.then(handleHookResult); }],
+    // If the hook returns any new resolves, add them to the ResolveContext
+    [isObject, function(result) {
+       return extend(resolveContext.$$resolvablesByState[pathElement.state.name], mapNewResolves(result));
+    }]
+  ]);
+
+  this.invokeStep = function invokeStep() {
+    if (options.rejectIfSuperseded && /* !this.isActive() */ options.transition !== options.current()) {
+      return REJECT.superseded(options.current());
+    }
+
+    // TODO: Need better integration of returned promises in synchronous code.
+    if (options.async)
+      return pathElement.invokeLater(fn, locals, resolveContext).then(handleHookResult);
+    else
+      return handleHookResult(pathElement.invokeNow(fn, locals, resolveContext));
+  };
+}
+
 /**
  * @ngdoc object
  * @name ui.router.state.$transitionProvider
@@ -282,9 +352,8 @@ function $TransitionProvider() {
    */
   this.onError = registerEventHook("onError");
 
-  function trueFn() { return true; }
   function EventHook(matchCriteria, callback, options) {
-    matchCriteria = extend({to: trueFn, from: trueFn}, matchCriteria);
+    matchCriteria = extend({ to: val(true), from: val(true) }, matchCriteria);
     this.callback = callback;
     this.priority = options.priority || 0;
     this.matches = function matches(to, from) {
@@ -314,6 +383,25 @@ function $TransitionProvider() {
 
     REJECT = RejectFactory($q);
 
+    function runSynchronousHooks(hooks, swallowExceptions) {
+      var promises = [];
+      for (var i = 0; i < hooks.length; i++) {
+        try {
+          var hookResult = hooks[i].invokeStep();
+          // If a hook returns a promise, that promise is added to an array to be resolved asynchronously.
+          if (hookResult && isFunction(hookResult.then))
+            promises.push(hookResult);
+        } catch (ex) {
+          if (!swallowExceptions) throw ex;
+          console.log("Swallowed exception during synchronous hook handler: " + ex); // TODO: What to do here?
+        }
+      }
+
+      return promises.reduce(function(memo, val) {
+        return memo.then(function() { return val; })
+      }, $q.when(true));
+    }
+
     /**
      * @ngdoc object
      * @name ui.router.state.type:Transition
@@ -330,6 +418,7 @@ function $TransitionProvider() {
      * @returns {Object} New `Transition` object
      */
     Transition = function Transition(from, to, options) {
+      options = extend(options, { current: val(this) });
       var transition = this; // Transition() object
 
       var deferreds = {
@@ -513,9 +602,22 @@ function $TransitionProvider() {
         // Should this return views for `retained.concat(entering).states()` ?
         // As it stands, it will only return views for the entering states
         views: function() {
-          return map(entering.states(), function(state) {
-            return [state.self, state.views];
-          });
+          calculateTreeChanges();
+          var paths = toPath.concat(fromPath);
+
+          return unnest(map(entering.states(), function(state) {
+            var elem = paths.from(state),
+                ctx = paths.resolveContext(elem);
+
+            var toList = unroll(function(view) {
+              return [state, view, toParams, function invokeWithContext(fn, locals) {
+                // @TODO: I suppose this is where we'd check for a view-level resovle & override as necessary
+                return elem.invokeLater(fn, locals, ctx);
+              }];
+            });
+
+            return toList(state.views);
+          }));
         },
 
         /**
@@ -554,6 +656,35 @@ function $TransitionProvider() {
         },
 
         run: function() {
+          /**
+           * returns an array of transition steps (promises) that matched
+           * 1) the eventType
+           * 2) the to state
+           * 3) the from state
+           */
+          function makeSteps(eventType, to, from, pathElement, locals, resolveContext, options) {
+            // internal debugging stuff
+            options = extend(options || {}, {
+              data: {
+                eventType: eventType,
+                to: to,
+                from: from,
+                pathElement: pathElement,
+                locals: locals,
+                resolveContext: resolveContext
+              },
+              transition: transition,
+              current: function() { return $transition.transition; }
+            });
+
+            var hooks = transitionEvents[eventType];
+
+            return map(filter(hooks, invoke('matches', [to, from])), function(hook) {
+              return new TransitionStep(pathElement, hook.callback, locals, resolveContext, options);
+            });
+          }
+
+          var current = options.current;
           calculateTreeChanges();
 
           if (transition.ignored()) {
@@ -564,122 +695,6 @@ function $TransitionProvider() {
           }
 
           $transition.transition = transition;
-
-          function TransitionStep(pathElement, fn, locals, resolveContext, options) {
-            options = defaults(options, {
-              async: true,
-              rejectIfSuperseded: true,
-              data: {}
-            });
-
-            extend(this, {
-              async: options.async,
-              rejectIfSuperseded: options.rejectIfSuperseded,
-              state: pathElement.state,
-              data:  options.data,
-              toString: function() {
-                return tpl("Step( .{event}({ from: {from}, to: {to} }) (state: {state}) )", {
-                  event: options.data.eventType,
-                  from:  options.data.from.name,
-                  to:    options.data.to.name,
-                  state: options.data.pathElement.state.name
-                });
-              }
-            });
-
-            this.invokeStep = function invokeStep() {
-              if (options.rejectIfSuperseded && $transition.transition !== transition) {
-                return REJECT.superseded($transition.transition);
-              }
-
-              // TODO: Need better integration of returned promises in synchronous code.
-              if (options.async)
-                return pathElement.invokeLater(fn, locals, resolveContext).then(handleHookResult);
-              else
-                return handleHookResult(pathElement.invokeNow(fn, locals, resolveContext));
-
-              /**
-               * Validates the result map as a "resolve:" style object.
-               * Creates Resolvable objects from the result object and adds them to the target object
-               */
-              function registerNewResolves(result, target) {
-                if (angular.isObject(result)) {
-                  // If result is an object, it should be a map of strings to functions.
-                  angular.forEach(result, function(value, key) {
-                    if (!angular.isString(key) || !angular.isFunction(value)) {
-                      throw new Error("Invalid resolve key/value: " + key + "/", value);
-                    }
-                    // Add a new Resolvable to the target map
-                    target[key] = new Resolvable(key, value, pathElement.state);
-                  });
-                }
-              }
-
-              /**
-               * Handles transition abort and transition redirect. Also adds any returned resolvables
-               * to the resolveContext for the current state.  If the transition is rejected, then a rejected
-               * promise is returned here, otherwise undefined is returned.
-               */
-              function handleHookResult(result) {
-                if ($transition.transition !== transition) {
-                  return REJECT.superseded($transition.transition);
-                }
-
-                // If the hook returns false, abort the current Transition
-                if (result === false)
-                  return REJECT.aborted("Hook aborted transition");
-                // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
-                if (result instanceof Transition)
-                  return REJECT.redirected(result);
-                if (result && angular.isFunction(result.then))
-                  return result.then(handleHookResult);
-
-                // If the hook returns any new resolves, add them to the ResolveContext
-                registerNewResolves(result, resolveContext.$$resolvablesByState[pathElement.state.name]);
-              }
-            };
-          }
-
-          function runSynchronousHooks(hooks, swallowExceptions) {
-            var promises = [];
-            for (var i = 0; i < hooks.length; i++) {
-              try {
-                var hookResult = hooks[i].invokeStep();
-                // If a hook returns a promise, that promise is added to an array to be resolved asynchronously.
-                if (hookResult && angular.isFunction(hookResult.then))
-                  promises.push(hookResult);
-              } catch (ex) {
-                if (!swallowExceptions) throw ex;
-                console.log("Swallowed exception during synchronous hook handler: " + ex); // TODO: What to do here?
-              }
-            }
-
-            return promises.reduce(function(memo, val) {
-              return memo.then(function() { return val; })
-            }, $q.when(true));
-          }
-
-
-          /**
-           * returns an array of transition steps (promises) that matched
-           * 1) the eventType
-           * 2) the to state
-           * 3) the from state
-           */
-          function makeSteps(eventType, to, from, pathElement, locals, resolveContext, options) {
-            // internal debugging stuff
-            options = options || {};
-            options.data = { eventType: eventType, to: to, from: from, pathElement: pathElement, locals: locals, resolveContext: resolveContext };;
-
-            var hooks = transitionEvents[eventType];
-
-            function hookMatches(hook) { return hook.matches(to, from); }
-            var matchingHooks = filter(hooks, hookMatches);
-
-            return map(matchingHooks, function(hook) {
-              return new TransitionStep(pathElement, hook.callback, locals, resolveContext, options);
-            });
-          }
 
           var tLocals = { $transition$: transition };
           var rootPE = new PathElement(fromState.root());
@@ -700,22 +715,37 @@ function $TransitionProvider() {
 
           var exitingStateHooks = map(exitingElements, function(elem) {
             var stepLocals = { $state$: elem.state,  $stateParams: elem.state.params.$$values(fromParams) };
-            var locals = extend({},  tLocals, stepLocals);
+            var locals = extend({}, tLocals, stepLocals);
             var steps = makeSteps("exiting", to, elem.state, elem, locals, fromPath.resolveContext(elem));
-            return !elem.state.self.onExit ? steps : steps.concat([ new TransitionStep(elem, elem.state.self.onExit, locals, fromPath.resolveContext(elem), {}) ]);
+
+            return !elem.state.self.onExit ? steps : steps.concat([
+              new TransitionStep(elem, elem.state.self.onExit, locals, fromPath.resolveContext(elem), {
+                transition: transition,
+                current: function() { return $transition.transition; },
+              })
+            ]);
           });
 
           var enteringStateHooks = map(enteringElements, function(elem) {
             var stepLocals = { $state$: elem.state,  $stateParams: elem.state.params.$$values(fromParams) };
             var locals = extend({}, tLocals, stepLocals);
             var steps = makeSteps("entering", elem.state, from, elem, locals, toPath.resolveContext(elem));
-            return !elem.state.self.onEnter ? steps : steps.concat([ new TransitionStep(elem, elem.state.self.onEnter, locals, toPath.resolveContext(elem), {}) ]);
+
+            return !elem.state.self.onEnter ? steps : steps.concat([
+              new TransitionStep(elem, elem.state.self.onEnter, locals, toPath.resolveContext(elem), {
+                transition: transition,
+                current: function() { return $transition.transition; },
+              })
+            ]);
           });
 
           function successHooks(outcome) {
             var result = transition.$to().state();
             deferreds.prehooks.resolve(result);
-            var onSuccessHooks = makeSteps("onSuccess", to, from, rootPE, tLocals, rootPath.resolveContext(), { async: false, rejectIfSuperseded: false });
+            var onSuccessHooks = makeSteps("onSuccess", to, from, rootPE, tLocals, rootPath.resolveContext(), {
+              async: false,
+              rejectIfSuperseded: false
+            });
             runSynchronousHooks(onSuccessHooks, true);
             deferreds.posthooks.resolve(result);
           }
@@ -723,14 +753,19 @@ function $TransitionProvider() {
           function errorHooks(error) {
             deferreds.prehooks.reject(error);
             var onErrorLocals = extend({}, tLocals, { $error$: error });
-            var onErrorHooks = makeSteps("onError", to, from, rootPE, onErrorLocals, rootPath.resolveContext(), { async: false, rejectIfSuperseded: false });
+            var onErrorHooks = makeSteps("onError", to, from, rootPE, onErrorLocals, rootPath.resolveContext(), {
+              async: false,
+              rejectIfSuperseded: false
+            });
             runSynchronousHooks(onErrorHooks, true);
             deferreds.posthooks.reject(error);
           }
 
           var eagerResolves = {
             invokeStep: function () {
-              return toPath.elements.length == 0 ? $q.when({}) : toPath.resolve(toPath.resolveContext(), { policy: "eager" });
+              return toPath.elements.length == 0 ? $q.when({}) : toPath.resolve(toPath.resolveContext(), {
+                policy: "eager"
+              });
             }
           };
 
@@ -758,17 +793,11 @@ function $TransitionProvider() {
           // invoke the registered success or error hooks when the transition is completed.
           chain = chain.then(successHooks).catch(errorHooks);
 
-          // Finally, when the transition is done and the hooks invoked, clear the current $transition.transition
-          // pointer (but only if this is still the current transition)
-          chain.finally(transition.stop);
-
           // Return the overall transition promise, which is resolved/rejected in successHooks/errorHooks
           return transition.promise;
         },
 
-        isActive: function() {
-          return $transition.transition === transition;
-        },
+        isActive: isEq(options.current, val(this)),
 
         abort: function() {
           if (transition.isActive()) {
@@ -787,10 +816,10 @@ function $TransitionProvider() {
 
           // (X) means the to state is invalid.
           return tpl("Transition( {from}{fromParams} -> {toValid}{to}{toParams} )", {
-            from:       angular.isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
+            from:       isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
             fromParams: angular.toJson(transition.$from().params()),
             toValid:    transition.$to().valid() ? "" : "(X) ",
-            to:         angular.isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
+            to:         isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
             toParams:   angular.toJson(transition.params())
           });
         }
@@ -806,13 +835,7 @@ function $TransitionProvider() {
       return new Transition(from, to, options || {});
     };
 
-    $transition.isActive = function isActive() {
-      return !!$transition.transition;
-    };
-
-    $transition.isTransition = function isTransition(transition) {
-      return transition instanceof Transition;
-    };
+    $transition.isTransition = is(Transition);
 
     $transition.provider = $TransitionProvider.instance;
 

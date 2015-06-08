@@ -643,10 +643,6 @@ function $UrlMatcherFactory() {
     };
   }
 
-  function isInjectable(value) {
-    return (isFunction(value) || (isArray(value) && isFunction(value[value.length - 1])));
-  }
-
   /**
    * [Internal] Get the default value of a parameter, which may be an injectable function.
    */

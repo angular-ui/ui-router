@@ -226,6 +226,9 @@ function $Resolve(  $q,    $injector) {
       },
       states: function() {
         return pluck(elements, "state");
+      },
+      from: function(state) {
+        return find(self.elements, pipe(prop('state'), eq(state)))
       }
     });
   };

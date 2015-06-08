@@ -139,4 +139,43 @@ describe('common', function() {
       expect(not(not(empty))()).toBe(false);
     });
   });
+
+  describe('val', function() {
+    it('should return identity', function() {
+      var f = function() {}, foo = {};
+      expect(val(f)()).toBe(f);
+      expect(val(foo)()).toBe(foo);
+      expect(val(true)()).toBe(true);
+      expect(val(false)()).toBe(false);
+      expect(val(null)()).toBe(null);
+    });
+  });
+
+  describe('isEq', function() {
+    it('should compare function results', function() {
+      expect(isEq(val(true), val(true))()).toBe(true);
+      expect(isEq(val(false), val(false))()).toBe(true);
+
+      var foo = {};
+      expect(isEq(val(foo), function() { return foo; })()).toBe(true);
+    });
+  });
+
+  describe('pattern', function() {
+    it('should return the result of a paired function when a condition function returns true', function() {
+      var typeChecker = pattern([
+        [is(Number), val("number!")],
+        [is(String), val("string!")],
+        [is(Boolean), val("boolean!")],
+        [eq(null), val("null!")]
+      ]);
+
+      expect(typeChecker(1)).toBe("number!");
+      expect(typeChecker("foo!")).toBe("string!");
+      expect(typeChecker(true)).toBe("boolean!");
+      expect(typeChecker(false)).toBe("boolean!");
+      expect(typeChecker(null)).toBe("null!");
+      expect(typeChecker(undefined)).toBe(undefined);
+    });
+  });
 });

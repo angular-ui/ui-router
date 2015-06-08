@@ -27,7 +27,7 @@ ViewConfig.prototype.controller = function(locals) {
  * @return {boolean} Returns `true` if the configuration contains a valid template, otherwise `false`.
  */
 ViewConfig.prototype.hasTemplate = function() {
-  return (this.config.template || this.config.templateUrl || this.config.templateProvider);
+  return !!(this.config.template || this.config.templateUrl || this.config.templateProvider);
 };
 
 ViewConfig.prototype.template = function($factory, params, locals) {
@@ -37,9 +37,11 @@ ViewConfig.prototype.template = function($factory, params, locals) {
 /**
  * Class responsible for queuing view configurations waiting to be populated into views.
  */
-function ViewQueue() {
+function ViewQueue(views) {
   this.map = {};
+  this.queued = {};
   this.waiting = [];
+  this.views = views;
 }
 
 /**
@@ -63,9 +65,9 @@ ViewQueue.prototype.push = function(name, async, config) {
   if (config && config.$context && this.waiting.length) {
     this.digest(name, config.$context);
   }
-  if (views[name]) {
-    views[name](config);
-    views[name].$config = config;
+  if (this.views[name]) {
+    this.views[name](config);
+    this.views[name].$config = config;
     return config;
   }
   var err = "Attempted to synchronously load template into non-existent view " + name;
@@ -80,10 +82,10 @@ ViewQueue.prototype.push = function(name, async, config) {
  *                            `$view.register()`.
  */
 ViewQueue.prototype.pop = function(name, callback) {
-  if (!queued[name]) return;
-  callback(queued[name]);
-  views[name].$config = queued[name];
-  delete queued[name];
+  if (!this.queued[name]) return;
+  callback(this.queued[name]);
+  this.views[name].$config = this.queued[name];
+  delete this.queued[name];
 };
 
 /**
@@ -120,7 +122,7 @@ ViewQueue.prototype.waitFor = function(context, defer) {
 $View.$inject = ['$rootScope', '$templateFactory', '$q'];
 function $View(   $rootScope,   $templateFactory,   $q) {
 
-  var views = {}, viewQueue = new ViewQueue();
+  var viewDefs = {}, viewQueue = new ViewQueue(viewDefs);
 
   /**
    * Maps a value to a promise resolution or rejection.
@@ -216,22 +218,26 @@ function $View(   $rootScope,   $templateFactory,   $q) {
    * @return {Boolean} Returns `true` if the view exists, otherwise `false`.
    */
   this.reset = function reset (name) {
-    if (!views[name]) return false;
+    if (!viewDefs[name]) return false;
     return viewQueue.push(name, false, null) === null;
   };
 
   /**
    * Syncs a set of view configurations 
-   *
-   * @param {String} name The fully-qualified name of the view to reset.
-   * @return {Boolean} Returns `true` if the view exists, otherwise `false`.
    */
-  this.sync = function sync (views, options) {
-    forEach(views, function(view) {
-      // (1) Determine locals for template (should be packed in the view config)
-      // (2) Determine locals for controller
-      // (3) Maybe move the above logic to load()
-      this.load(view[0], extend(copy(options), view[1], { locals: $q.all() }));
+  this.sync = function sync (configs) {
+    forEach(configs, function(cfg) {
+      var state = cfg[0], views = cfg[1], params = cfg[2], locals = cfg[3];
+
+      forEach(views, function(view, name) {
+        if (view.controllerProvider) debugger;
+        this.load(name, extend(view, {
+          params: params,
+          locals: locals,
+          context: state,
+          parent: state.parent
+        }));
+      }, this);
     }, this);
   };
 
@@ -245,12 +251,12 @@ function $View(   $rootScope,   $templateFactory,   $q) {
    * @return {Function} Returns a de-registration function used when the view is destroyed.
    */
   this.register = function register (name, callback) {
-    views[name] = callback;
-    views[name].$config = null;
+    viewDefs[name] = callback;
+    viewDefs[name].$config = null;
     viewQueue.pop(name, callback);
 
     return function() {
-      delete views[name];
+      delete viewDefs[name];
     };
   };
 
@@ -263,7 +269,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
    * @return {Boolean} Returns `true` if the view exists on the page, otherwise `false`.
    */
   this.exists = function exists (name, context) {
-    return isDefined(views[context ? this.find(name, context) : name]);
+    return isDefined(viewDefs[context ? this.find(name, context) : name]);
   };
 
   /**
@@ -282,7 +288,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
       return map(name, function(name) { return this.find(name, context); });
     }
 
-    angular.forEach(views, function(def, absName) {
+    angular.forEach(viewDefs, function(def, absName) {
       if (!def || !def.$config || context !== def.$config.$context) {
         return;
       }
@@ -297,7 +303,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
    * @return {Array} Returns an array of fully-qualified view names.
    */
   this.available = function available () {
-    return objectKeys(views);
+    return objectKeys(viewDefs);
   };
 
   /**
@@ -308,7 +314,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
   this.active = function active () {
     var result = [];
 
-    angular.forEach(views, function(config, key) {
+    angular.forEach(viewDefs, function(config, key) {
       if (config && config.$config) {
         result.push(key);
       }

@@ -272,17 +272,6 @@ describe('state', function () {
           return "/templates/" + params.item + ".html";
         }
       })
-      .state('dynamicController', {
-        url: "/dynamic/:type",
-        template: "test",
-        controllerProvider: function($stateParams, foo) {
-          ctrlName = $stateParams.type + foo + "Controller";
-          return ctrlName;
-        },
-        resolve: {
-          foo: function() { return 'Foo'; }
-        }
-      })
       .state('dynamicTemplate', {
         url: "/dynamicTemplate/:type",
         templateProvider: function($stateParams, foo) {
@@ -314,6 +303,7 @@ describe('state', function () {
             return $timeout(function() { log += "Success!"; }, 1);
           }
         },
+        template: "-",
         controller: function() { log += "controller;"}
       })
       .state('badParam', {
@@ -677,12 +667,6 @@ describe('state', function () {
       $q.flush();
       expect(actual.message).toEqual(err)
     }));
-
-    it('uses the controllerProvider to get controller dynamically', inject(function ($state, $q) {
-      $state.transitionTo('dynamicController', { type: "Acme" });
-      $q.flush();
-      expect(ctrlName).toEqual("AcmeFooController");
-    }));+
 
     it('uses the templateProvider to get template dynamically', inject(function ($state, $q) {
       $state.transitionTo('dynamicTemplate', { type: "Acme" });
@@ -1093,7 +1077,7 @@ describe('state', function () {
       var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
       var names = ['', 'A', 'B', 'C', 'D', 'DD', 'E', 'F', 'H', 'HH', 'HHH', 'OPT', 'OPT.OPT2', 'RS',
         'about', 'about.person', 'about.person.item', 'about.sidebar', 'about.sidebar.item',
-        'badParam', 'badParam2', 'dynamicController', 'dynamicTemplate', 'dynamicstate', 'first', 'home', 'home.item', 'home.redirect',
+        'badParam', 'badParam2', 'dynamicTemplate', 'dynamicstate', 'first', 'home', 'home.item', 'home.redirect',
         'json', 'logA', 'logA.logB', 'logA.logB.logC', 'resolveFail', 'resolveTimeout',
         'root', 'root.sub1', 'root.sub2', 'second'];
 
@@ -1480,7 +1464,7 @@ describe('state', function () {
     it('should inject $stateParams into templateUrl function', inject(function ($state, $q, $httpBackend) {
       $httpBackend.expectGET("/templates/foo.html").respond("200");
       $state.transitionTo('about.sidebar.item', { item: "foo" }); $q.flush();
-      expect(templateParams).toEqual({ item: "foo" });
+      expect(templateParams).toEqualData({ '#': null, item: "foo" });
     }));
   });
 
