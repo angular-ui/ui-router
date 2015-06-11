@@ -588,8 +588,14 @@ function $UrlMatcherFactory() {
       pattern: /\d+/
     },
     bool: {
-      encode: function(val) { return val ? 1 : 0; },
-      decode: function(val) { return parseInt(val, 10) !== 0; },
+      encode: function(val) {
+        if (!this.is(val)) return undefined;
+        return val ? 1 : 0;
+      },
+      decode: function(val) {
+        if (this.is(val)) return val;
+        return parseInt(val, 10) !== 0;
+      },
       is: function(val) { return val === true || val === false; },
       pattern: /0|1/
     },
