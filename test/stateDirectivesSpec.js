@@ -416,8 +416,16 @@ describe('uiSrefActive', function() {
     });
   }));
 
-  beforeEach(inject(function($document) {
+  beforeEach(inject(function($document, $timeout) {
     document = $document[0];
+    timeoutFlush = function () {
+      try {
+        $timeout.flush();
+      } catch (e) {
+        // Angular 1.0.8 throws 'No deferred tasks to be flushed' if there is nothing in queue.
+        // Behave as Angular >=1.1.5 and do nothing in such case.
+      }
+    }
   }));
 
   it('should update class for sibling uiSref', inject(function($rootScope, $q, $compile, $state) {
@@ -428,11 +436,12 @@ describe('uiSrefActive', function() {
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
     $state.transitionTo('contacts.item', { id: 1 });
     $q.flush();
-
+    timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
 
     $state.transitionTo('contacts.item', { id: 2 });
     $q.flush();
+    timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
   }));
 
@@ -444,10 +453,12 @@ describe('uiSrefActive', function() {
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
     $state.transitionTo('contacts.item.detail', { id: 5, foo: 'bar' });
     $q.flush();
+    timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
 
     $state.transitionTo('contacts.item.detail', { id: 5, foo: 'baz' });
     $q.flush();
+    timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
   }));
 
@@ -458,10 +469,12 @@ describe('uiSrefActive', function() {
 
     $state.transitionTo('contacts.item.edit', { id: 1 });
     $q.flush();
+    timeoutFlush();
     expect(a.attr('class')).toMatch(/active/);
 
     $state.transitionTo('contacts.item.edit', { id: 4 });
     $q.flush();
+    timeoutFlush();
     expect(a.attr('class')).not.toMatch(/active/);
   }));
 
@@ -472,11 +485,31 @@ describe('uiSrefActive', function() {
 
     $state.transitionTo('contacts.item', { id: 1 });
     $q.flush();
+    timeoutFlush();
     expect(a.attr('class')).toMatch(/active/);
 
     $state.transitionTo('contacts.item.edit', { id: 1 });
     $q.flush();
+    timeoutFlush();
     expect(a.attr('class')).not.toMatch(/active/);
+  }));
+
+  it('should match on child states when active-equals and active-equals-eq is used', inject(function($rootScope, $q, $compile, $state, $timeout) {
+    template = $compile('<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active="active" ui-sref-active-eq="active-eq">Contacts</a></div>')($rootScope);
+    $rootScope.$digest();
+    var a = angular.element(template[0].getElementsByTagName('a')[0]);
+
+    $state.transitionTo('contacts.item', { id: 1 });
+    $q.flush();
+    timeoutFlush();
+    expect(a.attr('class')).toMatch(/active/);
+    expect(a.attr('class')).toMatch(/active-eq/);
+
+    $state.transitionTo('contacts.item.edit', { id: 1 });
+    $q.flush();
+    timeoutFlush();
+    expect(a.attr('class')).toMatch(/active/);
+    expect(a.attr('class')).not.toMatch(/active-eq/);
   }));
 
   it('should resolve relative state refs', inject(function($rootScope, $q, $compile, $state) {
@@ -486,14 +519,17 @@ describe('uiSrefActive', function() {
 
     $state.transitionTo('contacts');
     $q.flush();
+    timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('ng-scope');
 
     $state.transitionTo('contacts.item', { id: 6 });
     $q.flush();
+    timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('ng-scope active');
 
     $state.transitionTo('contacts.item', { id: 5 });
     $q.flush();
+    timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('ng-scope');
   }));
 
@@ -506,10 +542,12 @@ describe('uiSrefActive', function() {
 
     $state.transitionTo('contacts.item', { id: 1 });
     $q.flush();
+    timeoutFlush();
     expect(angular.element(template[0]).attr('class')).toBe('ng-scope active');
 
     $state.transitionTo('contacts.item', { id: 2 });
     $q.flush();
+    timeoutFlush();
     expect(angular.element(template[0]).attr('class')).toBe('ng-scope active');
   }));
 
@@ -524,10 +562,12 @@ describe('uiSrefActive', function() {
 
     $state.transitionTo('contacts.item', { id: 1 });
     $q.flush();
+    timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
 
     $state.transitionTo('contacts.lazy');
     $q.flush();
+    timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
   }));
 
@@ -542,10 +582,12 @@ describe('uiSrefActive', function() {
 
     $state.transitionTo('contacts.item', { id: 1 });
     $q.flush();
+    timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
 
     $state.transitionTo('contacts.lazy');
     $q.flush();
+    timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
   }));
 });
