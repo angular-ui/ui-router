@@ -257,7 +257,7 @@ function map(collection, callback) {
 }
 
 function _map(callback) {
-  return function mapper(collection) { return map(collection, callback); }
+  return function mapper(collection) { return map(collection, callback); };
 }
 
 function unnest(list) {
@@ -372,7 +372,7 @@ function val(v) {
 function invoke(method, args) {
   return function(obj) {
     return obj[method].apply(obj, args);
-  }
+  };
 }
 
 function pattern(struct) {
@@ -380,7 +380,7 @@ function pattern(struct) {
     for (var i = 0; i < struct.length; i++) {
       if (struct[i][0](val)) return struct[i][1](val);
     }
-  }
+  };
 }
 
 var isPromise = and(isObject, pipe(prop('then'), isFunction));

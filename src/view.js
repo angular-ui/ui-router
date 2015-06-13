@@ -230,7 +230,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
       var state = cfg[0], views = cfg[1], params = cfg[2], locals = cfg[3];
 
       forEach(views, function(view, name) {
-        if (view.controllerProvider) debugger;
+        //if (view.controllerProvider) debugger;
         this.load(name, extend(view, {
           params: params,
           locals: locals,

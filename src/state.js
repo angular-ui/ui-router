@@ -410,7 +410,8 @@ TransitionQueue.prototype.size = function() {
 };
 
 TransitionQueue.prototype.pop = function(transition) {
-  this._items.indexOf(transition) > -1 && this._items.splice(this._items.indexOf(transition), 1);
+  var idx = this._items.indexOf(transition);
+  return idx > -1 && this._items.splice(idx, 1)[0];
 };
 
 TransitionQueue.prototype.last = function() {

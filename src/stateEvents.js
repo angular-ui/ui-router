@@ -30,15 +30,15 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
    * </pre>
    */
 
-  if (enabledEvents['$stateChangeStart'] && $rootScope.$broadcast('$stateChangeStart', $transition$.to(), $transition$.params(), $transition$.from(), $transition$.$from().params(), $transition$).defaultPrevented) {
-    if (enabledEvents['$stateChangeCancel']) {
+  if (enabledEvents.$stateChangeStart && $rootScope.$broadcast('$stateChangeStart', $transition$.to(), $transition$.params(), $transition$.from(), $transition$.$from().params(), $transition$).defaultPrevented) {
+    if (enabledEvents.$stateChangeCancel) {
       $rootScope.$broadcast('$stateChangeCancel', $transition$.to(), $transition$.params(), $transition$.from(), $transition$.$from().params(), $transition$);
     }
     $urlRouter.update();
     return false;
   }
 
-  if (enabledEvents['$stateChangeSuccess']) {
+  if (enabledEvents.$stateChangeSuccess) {
     $transition$.promise.then(function () {
       /**
        * @ngdoc event
@@ -60,7 +60,7 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
     });
   }
 
-  if (enabledEvents['$stateChangeError']) {
+  if (enabledEvents.$stateChangeError) {
     $transition$.promise["catch"](function (error) {
       if (error && (error.type == $transition$.SUPERSEDED || error.type == $transition$.ABORTED))
         return;
@@ -139,13 +139,14 @@ function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
   if (e.defaultPrevented || e.retry)
     $urlRouter.update();
 
+  function redirectFn() {
+    return $state.redirect($transition$)
+      .to(redirect.to, redirect.toParams, extend({ $isRetrying: true }, options));
+  }
+
   if (e.defaultPrevented) {
     return false;
   } else if (e.retry || $state.get(redirect.to)) {
-    function redirectFn() {
-      return $state.redirect($transition$).to(redirect.to, redirect.toParams, extend({ $isRetrying: true }, options));
-    }
-
     return e.retry && angular.isFunction(e.retry.then) ? e.retry.then(redirectFn) : redirectFn();
   }
 
@@ -183,9 +184,9 @@ function $StateEventsProvider() {
   this.$get = [ '$transition', function($transition) {
     runtime = true;
 
-    if (enabledStateEvents["$stateNotFound"])
+    if (enabledStateEvents.$stateNotFound)
       $transition.provider.onBefore({}, stateNotFoundHandler, { priority: 1000 });
-    if (enabledStateEvents["$stateChangeStart"])
+    if (enabledStateEvents. $stateChangeStart)
       $transition.provider.onBefore({}, stateChangeStartHandler, { priority: 1000 });
 
     return {

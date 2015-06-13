@@ -228,7 +228,7 @@ function $Resolve(  $q,    $injector) {
         return pluck(elements, "state");
       },
       from: function(state) {
-        return find(self.elements, pipe(prop('state'), eq(state)))
+        return find(self.elements, pipe(prop('state'), eq(state)));
       }
     });
   };
@@ -321,7 +321,7 @@ function $Resolve(  $q,    $injector) {
       NO_DEPENDENCIES = [],
       NO_LOCALS = NOTHING,
       NO_PARENT = extend($q.when(NOTHING), { $$promises: NOTHING, $$values: NOTHING });
-  
+
 
   /**
    * @ngdoc function
@@ -346,7 +346,7 @@ function $Resolve(  $q,    $injector) {
   this.study = function (invocables) {
     if (!isObject(invocables)) throw new Error("'invocables' must be an object");
     var invocableKeys = Object.keys(invocables || {});
-    
+
     // Perform a topological sort of invocables to build an ordered plan
     var plan = [], cycle = [], visited = {};
 
@@ -417,7 +417,7 @@ function $Resolve(  $q,    $injector) {
         result.$$failure = reason;
         resolution.reject(reason);
       }
-      
+
       // Short-circuit if parent has already failed
       if (isDefined(parent.$$failure)) {
         fail(parent.$$failure);
@@ -438,17 +438,17 @@ function $Resolve(  $q,    $injector) {
       } else {
         if (parent.$$inheritedValues) {
           result.$$inheritedValues = omit(parent.$$inheritedValues, invocableKeys);
-        }        
+        }
         parent.then(done, fail);
       }
 
       // Process each invocable in the plan, but ignore any where a local of the same name exists.
       for (var i = 0, ii = plan.length; i < ii; i += 3) {
         if (locals.hasOwnProperty(plan[i])) done();
-        else invoke(plan[i], plan[i + 1], plan[i + 2]);
+        else __invoke(plan[i], plan[i + 1], plan[i + 2]);
       }
 
-      function invoke(key, invocable, params) {
+      function __invoke(key, invocable, params) {
         // Create a deferred for this invocation. Failures will propagate to the resolution as well.
         var invocation = $q.defer(), waitParams = 0;
         function onfailure(reason) {

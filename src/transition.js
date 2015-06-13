@@ -153,7 +153,7 @@ function $TransitionProvider() {
       transitionEvents[eventType].push(new EventHook(matchObject, callback, options));
       transitionEvents[eventType].sort(function(a, b) {
         return a.priority - b.priority;
-      })
+      });
     };
   }
 
@@ -381,7 +381,7 @@ function $TransitionProvider() {
         throw new Error($transition$.$to().error());
     });
 
-    REJECT = RejectFactory($q);
+    REJECT = new RejectFactory($q);
 
     function runSynchronousHooks(hooks, swallowExceptions) {
       var promises = [];
@@ -398,7 +398,7 @@ function $TransitionProvider() {
       }
 
       return promises.reduce(function(memo, val) {
-        return memo.then(function() { return val; })
+        return memo.then(function() { return val; });
       }, $q.when(true));
     }
 
@@ -536,7 +536,7 @@ function $TransitionProvider() {
          * @returns {Object} A `Transition` instance, or `null`.
          */
         previous: function() {
-          options.previous || null;
+          return options.previous || null;
         },
 
         /**
@@ -707,9 +707,9 @@ function $TransitionProvider() {
           // TODO: Provide makeSteps with the StateReference, not the $state().
           var onBeforeHooks = makeSteps("onBefore", to, from, rootPE, tLocals, rootPath.resolveContext(), { async: false });
 
-          var onInvalidHooks = makeSteps("onInvalid", to, from, rootPE, tLocals, rootPath.resolveContext(), { async: true });
+          var onInvalidHooks = makeSteps("onInvalid", to, from, rootPE, tLocals, rootPath.resolveContext());
 
-          var onStartHooks = makeSteps("onStart", to, from, rootPE, tLocals, rootPath.resolveContext(), { async: true });
+          var onStartHooks = makeSteps("onStart", to, from, rootPE, tLocals, rootPath.resolveContext());
 
           var transitionOnHooks = makeSteps("on", to, from, rootPE, tLocals, rootPath.resolveContext());
 
@@ -721,7 +721,7 @@ function $TransitionProvider() {
             return !elem.state.self.onExit ? steps : steps.concat([
               new TransitionStep(elem, elem.state.self.onExit, locals, fromPath.resolveContext(elem), {
                 transition: transition,
-                current: function() { return $transition.transition; },
+                current: function() { return $transition.transition; }
               })
             ]);
           });
@@ -734,7 +734,7 @@ function $TransitionProvider() {
             return !elem.state.self.onEnter ? steps : steps.concat([
               new TransitionStep(elem, elem.state.self.onEnter, locals, toPath.resolveContext(elem), {
                 transition: transition,
-                current: function() { return $transition.transition; },
+                current: function() { return $transition.transition; }
               })
             ]);
           });
@@ -763,7 +763,7 @@ function $TransitionProvider() {
 
           var eagerResolves = {
             invokeStep: function () {
-              return toPath.elements.length == 0 ? $q.when({}) : toPath.resolve(toPath.resolveContext(), {
+              return toPath.elements.length === 0 ? $q.when({}) : toPath.resolve(toPath.resolveContext(), {
                 policy: "eager"
               });
             }
@@ -824,7 +824,7 @@ function $TransitionProvider() {
           });
         }
       });
-    }
+    };
 
     Transition.prototype.SUPERSEDED = 2;
     Transition.prototype.ABORTED    = 3;
