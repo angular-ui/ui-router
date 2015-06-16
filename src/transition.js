@@ -449,7 +449,7 @@ function $TransitionProvider() {
 
         if (to.valid()) {
           state = toState.path[keep];
-          while (state && state === fromState.path[keep] && nonDynamicParams(state).$$equals(toParams, fromParams)) {
+          while (state && state === fromState.path[keep] && state !== options.reloadState && nonDynamicParams(state).$$equals(toParams, fromParams)) {
             keep++;
             state = toState.path[keep];
           }

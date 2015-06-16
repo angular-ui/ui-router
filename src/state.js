@@ -763,8 +763,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @methodOf ui.router.state.$state
      *
      * @description
-     * A method that force reloads the current state. All resolves are re-resolved, events are not re-fired,
-     * and controllers reinstantiated (bug with controllers reinstantiating right now, fixing soon).
+     * A method that force reloads the current state, or a partial state hierarchy. All resolves are re-resolved,
+     * controllers reinstantiated, and events re-fired.
      *
      * @example
      * <pre>
@@ -780,16 +780,31 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * `reload()` is just an alias for:
      * <pre>
      * $state.transitionTo($state.current, $stateParams, {
-     *   reload: true, inherit: false, notify: false
+     *   reload: true, inherit: false, notify: true
+     * });
+     * </pre>
+     *
+     * @param {string=|object=} state - A state name or a state object, which is the root of the resolves to be re-resolved.
+     * @example
+     * <pre>
+     * //assuming app application consists of 3 states: 'contacts', 'contacts.detail', 'contacts.detail.item'
+     * //and current state is 'contacts.detail.item'
+     * var app angular.module('app', ['ui.router']);
+     *
+     * app.controller('ctrl', function ($scope, $state) {
+     *   $scope.reload = function(){
+     *     //will reload 'contact.detail' and nested 'contact.detail.item' states
+     *     $state.reload('contact.detail');
+     *   }
      * });
      * </pre>
      *
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
-    $state.reload = function reload() {
+    $state.reload = function reload(reloadState) {
       return $state.transitionTo($state.current, $stateParams, {
-        reload: true,
+        reload: angular.isDefined(reloadState) ? reloadState : true,
         inherit: false,
         notify: false
       });
@@ -942,6 +957,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         notify:   true,
         reload:   false
       });
+
+      // If we're reloading, find the state object to reload from
+      options.reloadState = options.reload === true ? $state.$current.path[0] : matcher.find(options.reload, options.relative);
+      if (options.reload && !options.reloadState) {
+        throw new Error("No such reload state '" + (isString(options.reload) ? options.reload : options.reload.name) + "'");
+      }
 
       var transition = transQueue.push($transition.create(
         matcher.reference($state.current, null, extend({}, $stateParams)),
