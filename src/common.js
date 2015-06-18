@@ -319,6 +319,8 @@ function isInjectable(value) {
   return (isFunction(value) || (isArray(value) && isFunction(value[value.length - 1])));
 }
 
+function isNull(o) { return o === null; }
+
 function compose() {
   var args = arguments;
   var start = args.length - 1;

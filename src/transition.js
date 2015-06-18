@@ -8,6 +8,14 @@ function TransitionRejection(type, message, detail) {
   });
 }
 
+TransitionRejection.prototype.toString = function() {
+  function detailString(d) { return d && d.toString !== Object.prototype.toString ? d.toString() : JSON.stringify(d); }
+  var types = {};
+  angular.forEach(filter(Transition.prototype, angular.isNumber), function(val, key) { types[val] = key; });
+  var tplData = {type: types[this.type] || this.type, message: this.message, detail: detailString(this.detail)};
+  return tpl("TransitionRejection(type: {type}, message: {message}, detail: {detail})", tplData);
+};
+
 function RejectFactory($q) {
   return {
     superseded: function (detail, options) {
@@ -37,11 +45,13 @@ function RejectFactory($q) {
 }
 
 function TransitionStep(pathElement, fn, locals, resolveContext, options) {
+  var self = this;
   options = defaults(options, {
     async: true,
     rejectIfSuperseded: true,
     current: angular.noop,
     transition: null,
+    trace: false,
     data: {}
   });
 
@@ -103,6 +113,7 @@ function TransitionStep(pathElement, fn, locals, resolveContext, options) {
   ]);
 
   this.invokeStep = function invokeStep() {
+    if (options.trace) trace.traceHookInvocation(self, options);
     if (options.rejectIfSuperseded && /* !this.isActive() */ options.transition !== options.current()) {
       return REJECT.superseded(options.current());
     }
@@ -385,12 +396,13 @@ function $TransitionProvider() {
   $get.$inject = ['$q', '$injector', '$resolve', '$stateParams', '$timeout'];
   function $get(   $q,   $injector,   $resolve,   $stateParams,   $timeout) {
 
-    $TransitionProvider.instance.on({}, function($transition$) {
+    $TransitionProvider.instance.on({}, function $rejectInvalidTransition($transition$) {
       if (!$transition$.$to().valid())
         throw new Error($transition$.$to().error());
     });
 
     REJECT = new RejectFactory($q);
+    var transitionCount = 0;
 
     function runSynchronousHooks(hooks, swallowExceptions) {
       var promises = [];
@@ -474,6 +486,7 @@ function $TransitionProvider() {
       }
 
       extend(this, {
+        $id: ++transitionCount,
         /**
          * @ngdoc function
          * @name ui.router.state.type:Transition#$from
@@ -665,8 +678,9 @@ function $TransitionProvider() {
         },
 
         run: function() {
-
+          if (options.trace) trace.traceTransitionStart(this);
           var baseHookOptions = {
+            trace: options.trace,
             transition: transition,
             current: function() { return $transition.transition; }
           };
@@ -709,6 +723,7 @@ function $TransitionProvider() {
           function makeLazyResolvePathElementStep(path, pathElement, locals) {
             var options = extend({ resolvePolicy: 'lazy' }, baseHookOptions);
             var context = path.resolveContext(pathElement);
+            var options = extend({ resolvePolicy: 'lazy' }, baseHookOptions);
             function $resolvePathElement() { return pathElement.resolvePathElement(context, options); }
             return new TransitionStep(pathElement, $resolvePathElement, locals, context, options);
           }
@@ -767,6 +782,7 @@ function $TransitionProvider() {
 
           function successHooks(outcome) {
             var result = transition.$to().state();
+            if (options.trace) trace.traceSuccess(result, transition);
             deferreds.prehooks.resolve(result);
             var onSuccessHooks = makeSteps("onSuccess", to, from, rootPE, tLocals, rootPath.resolveContext(), successErrorOptions);
             runSynchronousHooks(onSuccessHooks, true);
@@ -774,6 +790,7 @@ function $TransitionProvider() {
           }
 
           function errorHooks(error) {
+            if (options.trace) trace.traceError(error, transition);
             deferreds.prehooks.reject(error);
             var onErrorLocals = extend({}, tLocals, { $error$: error });
             var onErrorHooks = makeSteps("onError", to, from, rootPE, onErrorLocals, rootPath.resolveContext(), successErrorOptions);
@@ -829,7 +846,8 @@ function $TransitionProvider() {
           var toStateOrName = transition.to();
 
           // (X) means the to state is invalid.
-          return tpl("Transition( {from}{fromParams} -> {toValid}{to}{toParams} )", {
+          return tpl("Transition#{id}( '{from}'{fromParams} -> {toValid}'{to}'{toParams} )", {
+            id:         transition.$id,
             from:       isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
             fromParams: angular.toJson(transition.$from().params()),
             toValid:    transition.$to().valid() ? "" : "(X) ",

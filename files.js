@@ -12,7 +12,8 @@ routerFiles = {
     'src/viewDirective.js',
     'src/stateDirectives.js',
     'src/stateFilters.js',
-    'src/stateEvents.js'
+    'src/stateEvents.js',
+    'src/trace.js'
   ],
   testUtils: [
     'test/testUtils.js'
