@@ -230,6 +230,10 @@ function filter(collection, callback) {
   return result;
 }
 
+function _filter(callback) {
+  return function (collection) { return filter(collection, callback); };
+}
+
 function find(collection, callback) {
   var result;
 
@@ -242,7 +246,7 @@ function find(collection, callback) {
 }
 
 function tpl(string, vals) {
-  return string.replace(/\{(\w+)\}/, function(_, key) {
+  return string.replace(/\{(\w+)\}/g, function(_, key) {
     return vals[key] || "";
   });
 }
@@ -331,7 +335,11 @@ function pipe() {
 }
 
 function prop(name) {
-  return function(obj) { return obj[name]; };
+  return function(obj) { return obj && obj[name]; };
+}
+
+function parse(name) {
+  return pipe.apply(null, name.split("\.").map(prop));
 }
 
 function not(fn) {

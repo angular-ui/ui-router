@@ -784,7 +784,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * });
      * </pre>
      *
-     * @param {string=|object=} state - A state name or a state object, which is the root of the resolves to be re-resolved.
+     * @param {string=|object=} reloadState - A state name or a state object, which is the root of the resolves to be re-resolved.
      * @example
      * <pre>
      * //assuming app application consists of 3 states: 'contacts', 'contacts.detail', 'contacts.detail.item'

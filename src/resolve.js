@@ -89,6 +89,7 @@ function $Resolve(  $q,    $injector) {
       state: state,
       deps: $injector.annotate(resolveFn),
       resolve: resolveResolvable, // aliased function name for stacktraces
+      resolveResolvable: resolveResolvable, // aliased function name for stacktraces
       promise: undefined,
       data: undefined,
       get: function(resolveContext) {
@@ -130,8 +131,10 @@ function $Resolve(  $q,    $injector) {
         policyConf[resolvable.name] = resolvePolicies[policyString];
       });
 
-      var resolvablesForPolicy = filter(resolvables, function(resolvable) { return policyConf[resolvable.name] >= policyOrdinal; });
-      return $q.all(map(resolvablesForPolicy, function(resolvable) { return resolvable.get(resolveContext); }));
+      function matchesPolicy(resolvable) { return policyConf[resolvable.name] >= policyOrdinal; }
+      function resolvePromise(resolvable) { return resolvable.get(resolveContext); }
+      var resolvablePromises = map(filter(resolvables, matchesPolicy), resolvePromise);
+      return $q.all(resolvablePromises).then(angular.noop);
     }
 
     // Injects a function at this PathElement level with available Resolvables
@@ -171,6 +174,7 @@ function $Resolve(  $q,    $injector) {
       state: state,
       resolvables: resolvables,
       resolve: resolvePathElement, // aliased function for stacktraces
+      resolvePathElement: resolvePathElement,
       invokeNow: invokeNow, // this might be private later
       invokeLater: invokeLater
     });
@@ -196,8 +200,10 @@ function $Resolve(  $q,    $injector) {
     }
 
     // resolveContext holds stateful Resolvables (containing possibly resolved data), mapped per state-name.
+    // Returns a promise for an array of resolved Path Element promises
     function resolvePath(resolveContext, options) {
-      return $q.all(map(elements, function(element) { return element.resolve(resolveContext, options); }));
+      function elementPromises(element) { return element.resolvePathElement(resolveContext, options); }
+      return $q.all(map(elements, elementPromises)).then(angular.noop);
     }
 
     // returns a ResolveContext for a subpath of this path.
@@ -212,6 +218,7 @@ function $Resolve(  $q,    $injector) {
     // Public API
     extend(this, {
       resolve: resolvePath,
+      resolvePath: resolvePath,
       resolveContext: resolveContext,
       elements: elements,
       concat: function(path) {
@@ -221,7 +228,7 @@ function $Resolve(  $q,    $injector) {
         return new Path(elements.slice(start, end));
       },
       reverse: function() {
-        elements.reverse();
+        elements.reverse(); // TODO: return new Path()
         return self;
       },
       states: function() {
