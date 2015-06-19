@@ -165,6 +165,7 @@ describe('state', function () {
     $rootScope.$on('$stateChangeStart', eventLogger);
     $rootScope.$on('$stateChangeCancel', eventLogger);
     $rootScope.$on('$stateChangeSuccess', eventLogger);
+    $rootScope.$on('$stateChangeSkipped', eventLogger);
     $rootScope.$on('$stateChangeError', eventLogger);
     $rootScope.$on('$stateNotFound', eventLogger);
   }));
@@ -227,6 +228,18 @@ describe('state', function () {
       $q.flush();
       expect($stateParams).toEqual({term: 'hello'});
       expect(called).toBeFalsy();
+    }));
+
+    it('trigger state change skipped when state.reloadOnSearch=false, and only query params changed', inject(function ($state, $stateParams, $q, $location, $rootScope){
+      initStateTo(RS);
+      $location.search({term: 'hello'});
+      var called;
+      $rootScope.$on('$stateChangeSkipped', function (ev, to, toParams, from, fromParams) {
+        called = true
+      });
+      $q.flush();
+      expect($stateParams).toEqual({term: 'hello'});
+      expect(called).toBeTruthy();
     }));
 
     it('updates URL when changing only query params via $state.go() when reloadOnSearch=false', inject(function ($state, $stateParams, $q, $location, $rootScope){
@@ -495,7 +508,7 @@ describe('state', function () {
       $q.flush();
       expect($state.current).toBe(A);
       expect(resolvedError(superseded)).toBeTruthy();
-      expect(log).toBe('$stateChangeStart(B,A);');
+      expect(log).toBe('$stateChangeStart(B,A);$stateChangeSkipped(A,A);');
     }));
 
     it('aborts pending transitions when aborted from callbacks', inject(function ($state, $q) {
@@ -764,7 +777,7 @@ describe('state', function () {
 
     it('should work for relative states', inject(function ($state, $q) {
       var options = { relative: $state.get('about') };
-      
+
       $state.transitionTo('about.person'); $q.flush();
       expect($state.is('.person', undefined, options)).toBe(true);
 
@@ -919,7 +932,7 @@ describe('state', function () {
       expect($state.href("root", {}, {inherit:false})).toEqual("#/root");
       expect($state.href("root", {}, {inherit:true})).toEqual("#/root?param1=1");
     }));
-    
+
     it('generates absolute url when absolute is true', inject(function ($state) {
       expect($state.href("about.sidebar", null, { absolute: true })).toEqual("http://server/#/about");
       locationProvider.html5Mode(true);
