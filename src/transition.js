@@ -55,24 +55,6 @@ function TransitionStep(pathElement, fn, locals, resolveContext, options) {
     data: {}
   });
 
-  extend(this, {
-    async: options.async,
-    rejectIfSuperseded: options.rejectIfSuperseded,
-    state: pathElement.state,
-    data:  options.data,
-    toString: transitionStepToString
-  });
-
-  function transitionStepToString() {
-    return tpl("Step(hook: '{event}', name: '{name}', from: '{from}', to: '{to}', ResolveContext: '{state}')", {
-      event:  parse("data.eventType")(options),
-      name:   fn.name || "?",
-      from:   parse("data.from.name")(options),
-      to:     parse("data.to.name")(options),
-      state:  parse("data.pathElement.state.name")(options)
-    });
-  }
-
   /**
    * Validates the result map as a "resolve:" style object.
    * Creates Resolvable objects from the result object and adds them to the target object
@@ -112,7 +94,7 @@ function TransitionStep(pathElement, fn, locals, resolveContext, options) {
     }]
   ]);
 
-  this.invokeStep = function invokeStep() {
+  function invokeStep() {
     if (options.trace) trace.traceHookInvocation(self, options);
     if (options.rejectIfSuperseded && /* !this.isActive() */ options.transition !== options.current()) {
       return REJECT.superseded(options.current());
@@ -122,8 +104,28 @@ function TransitionStep(pathElement, fn, locals, resolveContext, options) {
     if (!options.async) {
       return handleHookResult(pathElement.invokeNow(fn, locals, resolveContext));
     }
-    return pathElement.invokeLater(fn, locals, resolveContext).then(handleHookResult);
-  };
+    return pathElement.invokeLater(fn, locals, resolveContext, options).then(handleHookResult);
+  }
+
+  function transitionStepToString() {
+    return tpl("Step {event} (fn: '{name}', match:{from: '{from}', to: '{to}'}, {resolveContext})", {
+      event:  parse("data.eventType")(options) || "internal",
+      name:   fn.name || "(anonymous)",
+      from:   parse("data.from.name")(options),
+      to:     parse("data.to.name")(options),
+      state:  parse("data.pathElement.state.name")(options),
+      resolveContext: resolveContext.toString()
+    });
+  }
+
+  extend(this, {
+    async: options.async,
+    rejectIfSuperseded: options.rejectIfSuperseded,
+    state: pathElement.state,
+    data:  options.data,
+    invokeStep: invokeStep,
+    toString: transitionStepToString
+  });
 }
 
 /**
@@ -396,7 +398,7 @@ function $TransitionProvider() {
   $get.$inject = ['$q', '$injector', '$resolve', '$stateParams', '$timeout'];
   function $get(   $q,   $injector,   $resolve,   $stateParams,   $timeout) {
 
-    $TransitionProvider.instance.on({}, function $rejectInvalidTransition($transition$) {
+    $TransitionProvider.instance.on({}, function $rejectIfInvalid($transition$) {
       if (!$transition$.$to().valid())
         throw new Error($transition$.$to().error());
     });
@@ -439,7 +441,7 @@ function $TransitionProvider() {
      * @returns {Object} New `Transition` object
      */
     Transition = function Transition(from, to, options) {
-      options = extend(options, { current: val(this) });
+      options = extend(options, { current: val(this) }, { trace: true});
       var transition = this; // Transition() object
 
       var deferreds = {
@@ -634,7 +636,7 @@ function $TransitionProvider() {
             var toList = unroll(function(view) {
               return [state, view, toParams, function invokeWithContext(fn, locals) {
                 // @TODO: I suppose this is where we'd check for a view-level resovle & override as necessary
-                return elem.invokeLater(fn, locals, ctx);
+                return elem.invokeLater(fn, locals, ctx, options);
               }];
             });
 
@@ -732,6 +734,7 @@ function $TransitionProvider() {
           calculateTreeChanges();
 
           if (transition.ignored()) {
+            if (options.trace) trace.traceTransitionIgnored(transition);
             $transition.transition = null;
             var ignored = REJECT.ignored();
             forEach(deferreds, function(def) { def.reject(ignored.reason); });

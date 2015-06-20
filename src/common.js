@@ -246,8 +246,8 @@ function find(collection, callback) {
 }
 
 function tpl(string, vals) {
-  return string.replace(/\{(\w+)\}/g, function(_, key) {
-    return vals[key] || "";
+  return string.replace(/\{([\w.]+)\}/g, function(_, key) {
+    return parse(key)(vals) || "";
   });
 }
 
