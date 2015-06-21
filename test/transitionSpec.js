@@ -353,6 +353,68 @@ describe('transition', function () {
 
         expect(transition2success).toBe(true);
       }));
+
+      it("hooks which return a promise should resolve the promise before continuing", inject(function($transition, $q, $timeout) {
+        var log = [], transition = makeTransition("A", "D");
+        transitionProvider.entering({ from: "*", to: "*" }, function($state$) {
+          log.push("#"+$state$.name);
+          return $timeout(function() {
+            log.push("^"+$state$.name);
+          });
+        });
+        transition.run();
+        $timeout.flush();
+
+        expect(log.join('')).toBe("#B^B#C^C#D^D");
+      }));
+
+      it("hooks which return a promise should resolve the promise before continuing", inject(function($transition, $q, $timeout) {
+        var log = [], transition = makeTransition("A", "D");
+        var defers = { B: $q.defer(), C: $q.defer(), D: $q.defer() };
+        function resolveDeferredFor(name) {
+          log.push("^" + name);
+          defers[name].resolve("ok, go ahead!");
+          $timeout.flush();
+        }
+
+        transitionProvider.entering({}, function waitWhileEnteringState($state$) {
+          log.push("#"+$state$.name);
+          return defers[$state$.name].promise;
+        });
+
+        transition.promise.then(function() { log.push("DONE"); });
+        transition.run();
+        $timeout.flush();
+
+        expect(log.join(';')).toBe("#B");
+        resolveDeferredFor("B"); expect(log.join(';')).toBe("#B;^B;#C");
+        resolveDeferredFor("C"); expect(log.join(';')).toBe("#B;^B;#C;^C;#D");
+        resolveDeferredFor("D"); expect(log.join(';')).toBe("#B;^B;#C;^C;#D;^D;DONE");
+      }));
+
+      it("resolve-like objects returned from hooks should be added to the transition as Resolvables", inject(function($transition, $q, $timeout) {
+        var log = [], transition = makeTransition("A", "D");
+        var defer = $q.defer();
+
+        transitionProvider.entering({}, function logEnter($state$) { log.push("#"+$state$.name); }, {priority: -1});
+        transitionProvider.entering({ to: "B" }, function addResolves() {
+          return {
+            newResolve: function() { log.push("adding resolve"); return defer.promise; }
+          }
+        });
+        transitionProvider.entering({ to: "C" }, function useResolve(newResolve) {
+          log.push(newResolve);
+        }, {priority: +1});
+
+        transition.promise.then(function() { log.push("DONE!"); });
+        transition.run();
+        $timeout.flush();
+
+        expect(log.join(';')).toBe("#B;adding resolve");
+        defer.resolve("resolvedval");
+        $timeout.flush();
+        expect(log.join(';')).toBe("#B;adding;#C;resolvedval;#D;DONE!");
+      }));
     });
   });
 
@@ -381,8 +443,6 @@ describe('transition', function () {
         expect(pluck(t.exiting(), 'name')).toEqual([ "D", "C", "B" ]);
       }));
     });
-
-    // TODO: .exiting
 
     describe('.is', function() {
       it('should match globs', inject(function($transition) {
