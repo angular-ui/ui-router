@@ -284,20 +284,6 @@ function unroll(callback) {
   };
 }
 
-function flattenPrototypeChain(obj) {
-  var objs = [];
-  do {
-    objs.push(obj);
-  } while ((obj = Object.getPrototypeOf(obj)));
-  objs.reverse();
-
-  var result = {};
-  forEach(objs, function(obj) {
-    extend(result, obj);
-  });
-  return result;
-}
-
 // Return a completely flattened version of an array.
 function flatten (array) {
   function _flatten(input, output) {
