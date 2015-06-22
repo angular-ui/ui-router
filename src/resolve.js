@@ -1,4 +1,4 @@
-var Resolvable, Path, PathElement, ResolveContext;
+var Resolvable, Path, PathElement;
 
 /**
  * @ngdoc object
@@ -14,7 +14,7 @@ $Resolve.$inject = ['$q', '$injector'];
 function $Resolve(  $q,    $injector) {
 
   /*
-   ------- Resolvable, PathElement, Path, ResolveContext ------------------
+   ------- Resolvable, PathElement, Path ------------------
    I think these should be private API for now because we may need to iterate it for a while.
    /*
 
@@ -27,7 +27,7 @@ function $Resolve(  $q,    $injector) {
    Resolvable.get() either retrieves the Resolvable's existing promise, or else invokes resolve() (which invokes the
    resolveFn) and returns the resulting promise.
 
-   Resolvable.get() and Resolvable.resolve() both execute within a ResolveContext, which is passed as the first
+   Resolvable.get() and Resolvable.resolve() both execute within a context Path, which is passed as the first
    parameter to those fns.
    */
 
@@ -35,7 +35,7 @@ function $Resolve(  $q,    $injector) {
   Resolvable = function Resolvable(name, resolveFn, state) {
     var self = this;
 
-    // Resolvable: resolveResolvable() This function is aliased to Resolvable.resolve()
+    // Resolvable: resolveResolvable()
 
     // synchronous part:
     // - sets up the Resolvable's promise
@@ -48,24 +48,23 @@ function $Resolve(  $q,    $injector) {
     // - wait for resolveFn promise to resolve
     // - store unwrapped data
     // - resolve the Resolvable's promise
-    function resolveResolvable(resolveContext, options) {
+    function resolveResolvable(pathContext, options) {
       options = options || {};
-      if (options.trace) trace.traceResolveResolvable(self, resolveContext, options);
+      if (options.trace) trace.traceResolveResolvable(self, options);
       // First, set up an overall deferred/promise for this Resolvable
       var deferred = $q.defer();
       self.promise = deferred.promise;
 
-      // Load an assoc-array of all resolvables for this state from the resolveContext
-      // omit the current Resolvable from the PathElement in the ResolveContext so we don't try to inject self into self
-      var opts = {  omitPropsFromPrototype: [ self.name ], flatten: true };
-      var ancestorsByName = resolveContext.getResolvableLocals(self.state.name, opts);
+      // Load a map of all resolvables for this state from the context path
+      // Omit the current Resolvable from the result, so we don't try to inject self into self
+      var ancestorsByName = pathContext.getResolvables({  omitOwnLocals: [ self.name ] });
 
       // Limit the ancestors Resolvables map to only those that the current Resolvable fn's annotations depends on
       var depResolvables = pick(ancestorsByName, self.deps);
 
       // Get promises (or synchronously invoke resolveFn) for deps
       var depPromises = map(depResolvables, function(resolvable) {
-        return resolvable.get(resolveContext);
+        return resolvable.get(pathContext);
       });
 
       // Return a promise chain that waits for all the deps to resolve, then invokes the resolveFn passing in the
@@ -98,8 +97,8 @@ function $Resolve(  $q,    $injector) {
       resolveResolvable: resolveResolvable, // aliased function name for stacktraces
       promise: undefined,
       data: undefined,
-      get: function(resolveContext, options) {
-        return self.promise || resolveResolvable(resolveContext, options);
+      get: function(pathContext, options) {
+        return self.promise || resolveResolvable(pathContext, options);
       },
       toString: resolvableToString
     });
@@ -123,9 +122,17 @@ function $Resolve(  $q,    $injector) {
       return new Resolvable(resolveName, resolveFn, state);
     });
 
+    function getResolvables() {
+      return resolvables;
+    }
+
+    function addResolvables(resolvablesByName) {
+      return extend(resolvables, resolvablesByName);
+    }
+
     // returns a promise for all resolvables on this PathElement
     // options.policy: only return promises for those Resolvables which are at the specified policy strictness, or above.
-    function resolvePathElement(resolveContext, options) {
+    function resolvePathElement(pathContext, options) {
       options = options || {};
       var policyOrdinal = resolvePolicies[options && options.policy || defaultResolvePolicy];
 
@@ -134,15 +141,17 @@ function $Resolve(  $q,    $injector) {
         $$resolves: angular.isObject(self.state.resolvePolicy) ? self.state.resolvePolicy : defaultResolvePolicy
       };
 
-      forEach(self.resolvables, function(resolvable) {
+      // Isolate only this element's resolvables
+      var resolvables = new Path([self]).getResolvables();
+      forEach(resolvables, function(resolvable) {
         var policyString = policyConf.$$resolves[resolvable.name] || policyConf.$$state;
         policyConf[resolvable.name] = resolvePolicies[policyString];
       });
 
-      if (options.trace) trace.traceResolvePathElement(self, resolveContext, filter(resolvables, matchesPolicy), options);
+      if (options.trace) trace.traceResolvePathElement(self, filter(resolvables, matchesPolicy), options);
 
       function matchesPolicy(resolvable) { return policyConf[resolvable.name] >= policyOrdinal; }
-      function getResolvePromise(resolvable) { return resolvable.get(resolveContext, options); }
+      function getResolvePromise(resolvable) { return resolvable.get(pathContext, options); }
       var resolvablePromises = map(filter(resolvables, matchesPolicy), getResolvePromise);
       return $q.all(resolvablePromises).then(angular.noop);
     }
@@ -153,16 +162,17 @@ function $Resolve(  $q,    $injector) {
     // public function
     // fn is the function to inject (onEnter, onExit, controller)
     // locals are the regular-style locals to inject
-    // resolveContext is a ResolveContext which is for injecting state Resolvable(s)
-    function invokeLater(fn, locals, resolveContext, options) {
+    // pathContext is a Path which is used to retrieve dependent Resolvables for injecting
+    function invokeLater(fn, locals, pathContext, options) {
       options = options || {};
       var deps = $injector.annotate(fn);
-      var resolvables = pick(resolveContext.getResolvableLocals(self.state.name), deps);
-      if (options.trace) trace.tracePathElementInvoke(self, fn, deps, resolveContext, extend({ when: "Later"}, options));
-      var promises = map(resolvables, function(resolvable) { return resolvable.get(resolveContext); });
+      var resolvables = pick(pathContext.pathFromRoot(self).getResolvables(), deps);
+      if (options.trace) trace.tracePathElementInvoke(self, fn, deps, extend({ when: "Later"}, options));
+
+      var promises = map(resolvables, function(resolvable) { return resolvable.get(pathContext); });
       return $q.all(promises).then(function() {
         try {
-          return self.invokeNow(fn, locals, resolveContext, options);
+          return self.invokeNow(fn, locals, pathContext, options);
         } catch (error) {
           return $q.reject(error);
         }
@@ -174,10 +184,12 @@ function $Resolve(  $q,    $injector) {
 
     // Injects a function at this PathElement level with available Resolvables
     // Does not wait until all Resolvables have been resolved; you must call PathElement.resolve() (or manually resolve each dep) first
-    function invokeNow(fn, locals, resolveContext, options) {
+    function invokeNow(fn, locals, pathContext, options) {
       options = options || {};
-      var resolvables = resolveContext.getResolvableLocals(self.state.name);
-      if (options.trace) trace.tracePathElementInvoke(self, fn, $injector.annotate(fn), resolveContext, extend({ when: "Now  "}, options));
+      var deps = $injector.annotate(fn);
+      var resolvables = pick(pathContext.pathFromRoot(self).getResolvables(), deps);
+      if (options.trace) trace.tracePathElementInvoke(self, fn, $injector.annotate(fn), extend({ when: "Now  "}, options));
+
       var moreLocals = map(resolvables, function(resolvable) { return resolvable.data; });
       var combinedLocals = extend({}, locals, moreLocals);
       return $injector.invoke(fn, self.state, combinedLocals);
@@ -191,8 +203,8 @@ function $Resolve(  $q,    $injector) {
     // public API so far
     extend(this, {
       state: state,
-      resolvables: resolvables,
-      resolve: resolvePathElement, // aliased function for stacktraces
+      getResolvables: getResolvables,
+      addResolvables: addResolvables,
       resolvePathElement: resolvePathElement,
       invokeNow: invokeNow, // this might be private later
       invokeLater: invokeLater,
@@ -200,15 +212,20 @@ function $Resolve(  $q,    $injector) {
     });
   };
 
-  // A Path Object holds an ordered list of PathElements.
-  // This object is used by ResolveContext to store resolve status for an entire path of states.
-  // It has concat and slice helper methods to return new Paths, based on the current Path.
-
-  // statesOrPathElements must be an array of either state(s) or PathElement(s)
-  // states could be "public" state objects for this?
-  /*
-   Path becomes the replacement data structure for $state.$current.locals. This is now stored on the $transition closure in _fromPath.
+  /**
+   *  A Path Object holds an ordered list of PathElements.
+   *
+   *  This object is used to store resolve status for an entire path of states. It has concat and slice
+   *  helper methods to return new Paths, based on the current Path.
+   *
+   *
+   *  Path becomes the replacement data structure for $state.$current.locals.
+   *  The Path is used in the three resolve() functions (Path.resolvePath, PathElement.resolvePathElement,
+   *  and Resolvable.resolveResolvable) and provides context for injectable dependencies (Resolvables)
+   *
+   *  @param statesOrPathElements [array]: an array of either state(s) or PathElement(s)
    */
+
   Path = function Path(statesOrPathElements) {
     var self = this;
     if (!isArray(statesOrPathElements)) throw new Error("states must be an array of state(s) or PathElement(s)", statesOrPathElements);
@@ -219,100 +236,27 @@ function $Resolve(  $q,    $injector) {
       elements = map(elements, function (state) { return new PathElement(state); });
     }
 
-    // resolveContext holds stateful Resolvables (containing possibly resolved data), mapped per state-name.
     // Returns a promise for an array of resolved Path Element promises
-    function resolvePath(resolveContext, options) {
+    function resolvePath(options) {
       options = options || {};
-      if (options.trace) trace.traceResolvePath(self, resolveContext, options);
-      function elementPromises(element) { return element.resolvePathElement(resolveContext, options); }
+      if (options.trace) trace.traceResolvePath(self, options);
+      function elementPromises(element) { return element.resolvePathElement(self, options); }
       return $q.all(map(elements, elementPromises)).then(angular.noop);
     }
 
-    // returns a ResolveContext for a subpath of this path.
-    // The subpath is from the root path element up to and including the toPathElement parameter
-    function resolveContext(toPathElement) {
-      toPathElement = toPathElement || elements[elements.length - 1];
-      var elementIdx = elements.indexOf(toPathElement);
-      if (elementIdx == -1) throw new Error("this Path does not contain the toPathElement");
-      return new ResolveContext(self.slice(0, elementIdx + 1));
-    }
-
-    function pathToString() {
-      tplData = { elements: self.elements.map(function(e) { return e.state.name }).join(", ")  };
-      return tpl("Path([{elements}])", tplData)
-    }
-
-    // Public API
-    extend(this, {
-      resolve: resolvePath,
-      resolvePath: resolvePath,
-      resolveContext: resolveContext,
-      elements: elements,
-      concat: function(path) {
-        return new Path(elements.concat(path.elements));
-      },
-      slice: function(start, end) {
-        return new Path(elements.slice(start, end));
-      },
-      reverse: function() {
-        elements.reverse(); // TODO: return new Path()
-        return self;
-      },
-      states: function() {
-        return pluck(elements, "state");
-      },
-      from: function(state) {
-        return find(self.elements, pipe(prop('state'), eq(state)));
-      },
-      toString: pathToString
-    });
-  };
-
-  /**
-   *  ResolveContext provides injectable dependencies (Resolvables) to the three resolve() functions (Path.resolve,
-   *  PathElement.resolve, and Resolvable.resolve).
-   *
-   *  The ResolveContext constructor takes a Path(), from which the ResolvableContext is built.  The Path contains
-   *  PathElements, which each in turn contain a Resolvables map.  Each Resolvable may or may not be pre-resolved.
-   *
-   *  For each PathElement in the Path, ResolveContext maps the available Resolvables.  Each PathElement is provided with
-   *  the Resolvables at its own level, as well as the aggregated Resolvables of its parent PathElement(s).  Aggregation is
-   *  done using prototypal inheritance from the parent's Resolvable(s) map.
-   */
-  ResolveContext = function ResolveContext(path) {
-    var self = this;
-    if (path === undefined) path = new Path([]);
-    var resolvablesByState = {}, previousIteration = {};
-
-    forEach(path.elements, function (pathElem) {
-      var resolvablesForPE = pathElem.resolvables;
-      var resolvesByName = indexBy(resolvablesForPE, 'name');
-      var resolvables = inherit(previousIteration, resolvesByName); // note prototypal inheritance
-      previousIteration = resolvablesByState[pathElem.state.name] = resolvables;
-    });
-
-
-
     /**
-     *  Gets the available Resolvables for a particular PathElement (mapped by the PathElement's state name).
+     *  Gets the available Resolvables for the last element of this path.
      *
-     * @param stateName
+     * @param arg
      * @param options
      *
-     * options.flatten
-     *   Return the Resolvables as a standard object map, not a prototypally inherited object map.
+     * options.omitOwnLocals: array of property names
+     *   Omits those Resolvables which are found on the last element of the path.
      *
-     *   $$resolvablesByState has resolvables organized in a prototypal inheritance chain.  options.flatten will
-     *   flatten the object from prototypal inheritance to a simple object with all its prototype chain properties
-     *   exposed, where child properties take precedence over parent properties.
+     *   This will hide a deepest-level resolvable (by name), potentially exposing a parent resolvable of
+     *   the same name further up the state tree.
      *
-     * options.omitPropsFromPrototype
-     *   Remove the props specified in options.omitPropsFromPrototype from the prototype of the object.
-     *
-     *   This will hide a top-level resolvable (by name), potentially exposing a parent resolvable of the same name
-     *   further down the prototype chain.
-     *
-     *   This is used by Resolvable.resolve(resolveContext) in order to provide the Resolvable access to all the other
+     *   This is used by Resolvable.resolve() in order to provide the Resolvable access to all the other
      *   Resolvables at its own PathElement level, yet disallow that Resolvable access to its own injectable Resolvable.
      *
      *   This is also used to allow a state to override a parent state's resolve while also injecting
@@ -322,47 +266,72 @@ function $Resolve(  $q,    $injector) {
      *   state({ name: 'G.G2', resolve: { _G: function(_G) { return _G + "G2"; } } });
      *   where injecting _G into a controller will yield "GG2"
      */
-    function getResolvableLocals(stateName, options) {
-      var resolvables = (resolvablesByState[stateName] || {});
-      options = extend({ flatten: true, omitPropsFromPrototype: [] }, options);
-
-      // Create a shallow clone referencing the original prototype chain.  This is so we can alter the clone's
-      // prototype without affecting the actual object (for options.omitPropsFromPrototype)
-      var shallowClone = Object.create(Object.getPrototypeOf(resolvables));
-      for (var property in resolvables) {
-        if (resolvables.hasOwnProperty(property)) { shallowClone[property] = resolvables[property]; }
-      }
-
-      // Omit any specified top-level prototype properties
-      forEach(options.omitPropsFromPrototype, function(prop) {
-        delete(shallowClone[prop]); // possibly exposes the same prop from prototype chain
-      });
-
-      if (options.flatten) // Flatten from prototypal chain to simple object
-        shallowClone = flattenPrototypeChain(shallowClone);
-
-      return shallowClone;
+    function getResolvables(options) {
+      options = defaults(options, { omitOwnLocals: [] });
+      var last = self.last();
+      return self.elements.reduce(function(memo, elem) {
+        var omitProps = (elem === last) ? options.omitOwnLocals : [];
+        var elemResolvables = omit.apply(null, [elem.getResolvables()].concat(omitProps));
+        return extend(memo, elemResolvables);
+      }, {});
     }
 
-    function resolveContextToString() {
-      var lastPathElement = path.elements.length ? path.elements[path.elements.length - 1] : null;
-      var state = parse("state.name")(lastPathElement);
-      if (state === "") state = "(root)";
-      var context = [];
-      forEach(resolvablesByState, function(val) {
-        for (key in val) context.push(key);
-      });
-
-      return tpl("ResolveContext({state}: [{resolvables}])", {
-        state: state,
-        resolvables: context.join(", ")
-      });
+    function clone() {
+      throw new Error("Clone not yet implemented")
     }
 
+    // returns a subpath of this path from the root path element up to and including the toPathElement parameter
+    function pathFromRoot(toPathElement) {
+      var elementIdx = elements.indexOf(toPathElement);
+      if (elementIdx == -1) throw new Error("This Path does not contain the toPathElement");
+      return self.slice(0, elementIdx + 1);
+    }
+
+    function concat(path) {
+      return new Path(elements.concat(path.elements));
+    }
+
+    function slice(start, end) {
+      return new Path(elements.slice(start, end));
+    }
+
+    function reverse() {
+      elements.reverse(); // TODO: return new Path()
+      return self;
+    }
+
+    function states() {
+      return pluck(elements, "state");
+    }
+
+    function elementForState(state) {
+      return find(self.elements, pipe(prop('state'), eq(state)));
+    }
+
+    function last() {
+      return self.elements.length ? self.elements[self.elements.length - 1] : null;
+    }
+
+    function pathToString() {
+      tplData = { elements: self.elements.map(function(e) { return e.state.name }).join(", ")  };
+      return tpl("Path([{elements}])", tplData)
+    }
+
+    // Public API
     extend(this, {
-      getResolvableLocals: getResolvableLocals,
-      $$resolvablesByState: resolvablesByState,
-      toString: resolveContextToString
+      elements: elements,
+      getResolvables: getResolvables,
+      resolve: resolvePath,
+      resolvePath: resolvePath,
+      clone: clone,
+      pathFromRoot: pathFromRoot,
+      concat: concat,
+      slice: slice,
+      reverse: reverse,
+      states: states,
+      elementForState: elementForState,
+      last: last,
+      toString: pathToString
     });
   };
 

@@ -65,14 +65,16 @@ describe('Resolvables system:', function () {
     return new Path(map(names, function(name) { return statesMap[name]; }));
   }
 
-  describe('PathElement.resolve()', function () {
+  function getResolvedData(pathContext) {
+    return map(pathContext.getResolvables(), function(r) { return r.data; });
+  }
+
+  describe('PathElement.resolvePathElement()', function () {
     it('should resolve all resolves in a PathElement', inject(function ($q) {
       var path = makePath([ "A" ]);
-      var promise = path.elements[0].resolve(new ResolveContext(path)); // A
+      var promise = path.elements[0].resolvePathElement(path); // A
       promise.then(function () {
-        expect(path.elements[0].resolvables['_A']).toBeDefined();
-        expect(path.elements[0].resolvables['_A'].data).toBe("A");
-        expect(path.elements[0].resolvables['_A2'].data).toBe("A2");
+        expect(getResolvedData(path)).toEqualData({ _A: "A", _A2: "A2" });
         asyncCount++;
       });
 
@@ -82,13 +84,10 @@ describe('Resolvables system:', function () {
 
     it('should not resolve non-dep parent PathElements', inject(function ($q) {
       var path = makePath([ "A", "B" ]);
-      var promise = path.elements[1].resolve(new ResolveContext(path)); // B
+      var promise = path.elements[1].resolvePathElement(path); // B
       promise.then(function () {
-        expect(path.elements[0].resolvables['_A']).toBeDefined();
-        expect(path.elements[0].resolvables['_A'].data).toBeUndefined();
-        expect(path.elements[0].resolvables['_A2'].data).toBeUndefined();
-        expect(path.elements[1].resolvables['_B'].data).toBe("B");
-        expect(path.elements[1].resolvables['_B2'].data).toBe("B2");
+        expect(getResolvedData(path)).toEqualData({_B: "B", _B2: "B2" });
+        expect(path.getResolvables()._A).toBeDefined();
         asyncCount++;
       });
 
@@ -98,13 +97,10 @@ describe('Resolvables system:', function () {
 
     it('should resolve only eager resolves when run with "eager" policy', inject(function ($q) {
       var path = makePath([ "J", "N" ]);
-      var promise = path.elements[1].resolve(new ResolveContext(path), { policy: "eager" });
+      var promise = path.elements[1].resolvePathElement(path, { policy: "eager" });
       promise.then(function () {
-        expect(path.elements[0].resolvables['_J'].data).toBe("J");
-        expect(path.elements[0].resolvables['_J2'].data).toBeUndefined();
-        expect(path.elements[1].resolvables['_N'].data).toBe("JN");
-        expect(path.elements[1].resolvables['_N2'].data).toBeUndefined();
-        expect(path.elements[1].resolvables['_N3'].data).toBeUndefined();
+        var results = map(path.getResolvables(), function(r) { return r.data; });
+        expect(results).toEqualData({_J: "J", _N: "JN" });
         asyncCount++;
       });
 
@@ -114,13 +110,9 @@ describe('Resolvables system:', function () {
 
     it('should resolve only eager and lazy resolves in PathElement when run with "lazy" policy', inject(function ($q) {
       var path = makePath([ "J", "N" ]);
-      var promise = path.elements[1].resolve(new ResolveContext(path), { policy: "lazy" });
+      var promise = path.elements[1].resolvePathElement(path, { policy: "lazy" });
       promise.then(function () {
-        expect(path.elements[0].resolvables['_J'].data).toBe("J");
-        expect(path.elements[0].resolvables['_J2'].data).toBeUndefined();
-        expect(path.elements[1].resolvables['_N'].data).toBe("JN");
-        expect(path.elements[1].resolvables['_N2'].data).toBe("JN2");
-        expect(path.elements[1].resolvables['_N3'].data).toBeUndefined();
+        expect(getResolvedData(path)).toEqualData({ _J: "J", _N: "JN", _N2: "JN2" });
         asyncCount++;
       });
 
@@ -129,25 +121,21 @@ describe('Resolvables system:', function () {
     }));
   });
 
-  describe('ResolveContext.getResolvableLocals', function () {
-    it('should return Resolvables from itself and all parents', inject(function ($q) {
+  describe('Path.getResolvables', function () {
+    it('should return Resolvables from the deepest element and all ancestors', inject(function ($q) {
       var path = makePath([ "A", "B", "C" ]);
-      var resolveContext = new ResolveContext(path);
-      var resolvableLocals = resolveContext.getResolvableLocals("C", { flatten: true } );
+      var resolvableLocals = path.getResolvables("C");
       var keys = Object.keys(resolvableLocals).sort();
       expect(keys).toEqual( ["_A", "_A2", "_B", "_B2", "_C", "_C2" ] );
     }));
   });
 
-  describe('Path.resolve()', function () {
+  describe('Path.resolvePath()', function () {
     it('should resolve all resolves in a Path', inject(function ($q) {
       var path = makePath([ "A", "B" ]);
-      var promise = path.resolve(new ResolveContext(path));
+      var promise = path.resolvePath();
       promise.then(function () {
-        expect(path.elements[0].resolvables['_A'].data).toBe("A");
-        expect(path.elements[0].resolvables['_A2'].data).toBe("A2");
-        expect(path.elements[1].resolvables['_B'].data).toBe("B");
-        expect(path.elements[1].resolvables['_B2'].data).toBe("B2");
+        expect(getResolvedData(path)).toEqualData({ _A: "A", _A2: "A2", _B: "B", _B2: "B2" });
         asyncCount++;
       });
 
@@ -157,13 +145,9 @@ describe('Resolvables system:', function () {
 
     it('should resolve only eager resolves when run with "eager" policy', inject(function ($q) {
       var path = makePath([ "J", "N" ]);
-      var promise = path.resolve(new ResolveContext(path), { policy: "eager" });
+      var promise = path.resolvePath({ policy: "eager" });
       promise.then(function () {
-        expect(path.elements[0].resolvables['_J'].data).toBe("J");
-        expect(path.elements[0].resolvables['_J2'].data).toBe("JJ2");
-        expect(path.elements[1].resolvables['_N'].data).toBe("JN");
-        expect(path.elements[1].resolvables['_N2'].data).toBeUndefined();
-        expect(path.elements[1].resolvables['_N3'].data).toBeUndefined();
+        expect(getResolvedData(path)).toEqualData({ _J: "J", _N: "JN" });
         asyncCount++;
       });
 
@@ -173,13 +157,9 @@ describe('Resolvables system:', function () {
 
     it('should resolve only lazy and eager resolves when run with "lazy" policy', inject(function ($q) {
       var path = makePath([ "J", "N" ]);
-      var promise = path.resolve(new ResolveContext(path), { policy: "lazy" });
+      var promise = path.resolvePath({ policy: "lazy" });
       promise.then(function () {
-        expect(path.elements[0].resolvables['_J'].data).toBe("J");
-        expect(path.elements[0].resolvables['_J2'].data).toBe("JJ2");
-        expect(path.elements[1].resolvables['_N'].data).toBe("JN");
-        expect(path.elements[1].resolvables['_N2'].data).toBe("JN2");
-        expect(path.elements[1].resolvables['_N3'].data).toBeUndefined();
+        expect(getResolvedData(path)).toEqualData({ _J: "J", _N: "JN", _N2: "JN2"});
         asyncCount++;
       });
 
@@ -188,22 +168,17 @@ describe('Resolvables system:', function () {
     }));
   });
 
-  describe('Resolvable.resolve()', function () {
+  describe('Resolvable.resolveResolvable()', function () {
     it('should resolve one Resolvable, and its deps', inject(function ($q) {
       var path = makePath([ "A", "B", "C" ]);
-      var promise = path.elements[2].resolvables['_C'].resolve(new ResolveContext(path));
+      var promise = path.getResolvables()._C.resolveResolvable(path);
       promise.then(function () {
-        expect(path.elements[0].resolvables['_A'].data).toBe("A");
-        expect(path.elements[0].resolvables['_A2'].data).toBeUndefined();
-        expect(path.elements[1].resolvables['_B'].data).toBe("B");
-        expect(path.elements[1].resolvables['_B2'].data).toBeUndefined();
-        expect(path.elements[2].resolvables['_C'].data).toBe("ABC");
+        expect(getResolvedData(path)).toEqualData({ _A: "A", _B: "B",_C: "ABC" });
         asyncCount++;
       });
 
       $q.flush();
       expect(asyncCount).toBe(1);
-
     }));
   });
 
@@ -211,19 +186,14 @@ describe('Resolvables system:', function () {
     it('should resolve only the required deps, then inject the fn', inject(function ($q) {
       var path = makePath([ "A", "B", "C", "D" ]);
       var cPathElement = path.elements[2];
-      var context = new ResolveContext(path);
 
       var result;
 
       var onEnter1 = function (_C2) { result = _C2; };
-      var promise = cPathElement.invokeLater(onEnter1, {}, context);
+      var promise = cPathElement.invokeLater(onEnter1, {}, path);
       promise.then(function (data) {
         expect(result).toBe("C2");
-        expect(path.elements[0].resolvables['_A'].data).toBeUndefined();
-        expect(path.elements[1].resolvables['_B'].data).toBeUndefined();
-        expect(path.elements[2].resolvables['_C'].data).toBeUndefined();
-        expect(path.elements[2].resolvables['_C2'].data).toBe("C2");
-        expect(path.elements[3].resolvables['_D'].data).toBeUndefined();
+        expect(getResolvedData(path)).toEqualData({_C2: "C2"});
         asyncCount++;
       });
       $q.flush();
@@ -235,33 +205,24 @@ describe('Resolvables system:', function () {
     it('should resolve the required deps on demand', inject(function ($q) {
       var path = makePath([ "A", "B", "C", "D" ]);
       var cPathElement = path.elements[2];
-      var context = new ResolveContext(path);
 
       var result;
 
       var cOnEnter1 = function (_C2) { result = _C2; };
-      var promise = cPathElement.invokeLater(cOnEnter1, {}, context);
+      var promise = cPathElement.invokeLater(cOnEnter1, {}, path);
       promise.then(function (data) {
         expect(result).toBe("C2");
-        expect(path.elements[0].resolvables['_A'].data).toBeUndefined();
-        expect(path.elements[1].resolvables['_B'].data).toBeUndefined();
-        expect(path.elements[2].resolvables['_C'].data).toBeUndefined();
-        expect(path.elements[2].resolvables['_C2'].data).toBe("C2");
-        expect(path.elements[3].resolvables['_D'].data).toBeUndefined();
+        expect(getResolvedData(path)).toEqualData({_C2: "C2"})
         asyncCount++;
       });
       $q.flush();
       expect(asyncCount).toBe(1);
 
       var cOnEnter2 = function (_C) { result = _C; };
-      promise = cPathElement.invokeLater(cOnEnter2, {}, context);
+      promise = cPathElement.invokeLater(cOnEnter2, {}, path);
       promise.then(function (data) {
         expect(result).toBe("ABC");
-        expect(path.elements[0].resolvables['_A'].data).toBe("A");
-        expect(path.elements[1].resolvables['_B'].data).toBe("B");
-        expect(path.elements[2].resolvables['_C'].data).toBe("ABC");
-        expect(path.elements[2].resolvables['_C2'].data).toBe("C2");
-        expect(path.elements[3].resolvables['_D'].data).toBeUndefined();
+        expect(getResolvedData(path)).toEqualData({_A: "A", _B: "B", _C: "ABC", _C2: "C2"})
         asyncCount++;
       });
       $q.flush();
@@ -273,11 +234,10 @@ describe('Resolvables system:', function () {
     it('should Error if the onEnter dependency cannot be injected', inject(function ($q) {
       var path = makePath([ "A", "B", "C", "D" ]);
       var cPathElement = path.elements[2];
-      var context = new ResolveContext(path);
 
       var cOnEnter = function (_D) {  };
       var caught;
-      var promise = cPathElement.invokeLater(cOnEnter, {}, context);
+      var promise = cPathElement.invokeLater(cOnEnter, {}, path);
       promise.catch(function (err) {
         caught = err;
         asyncCount++;
@@ -291,22 +251,19 @@ describe('Resolvables system:', function () {
 
 
   describe('Resolvables', function () {
-    it('should inject deps from the same PathElement', inject(function ($q) {
+    it('should be able to inject deps from the same PathElement', inject(function ($q) {
       var path = makePath([ "A", "B", "C", "D" ]);
       var dPathElement = path.elements[3];
-      var context = new ResolveContext(path);
 
       var result;
       var dOnEnter = function (_D) {
         result = _D;
       };
 
-      var promise = dPathElement.invokeLater(dOnEnter, {}, context);
+      var promise = dPathElement.invokeLater(dOnEnter, {}, path);
       promise.then(function () {
         expect(result).toBe("D1D2");
-        expect(path.elements[0].resolvables['_A'].data).toBeUndefined();
-        expect(path.elements[3].resolvables['_D'].data).toBe("D1D2");
-        expect(path.elements[3].resolvables['_D2'].data).toBe("D2");
+        expect(getResolvedData(path)).toEqualData({_D: "D1D2", _D2: "D2"})
         asyncCount++;
       });
 
@@ -319,14 +276,13 @@ describe('Resolvables system:', function () {
     it('should allow PathElement to override parent deps Resolvables of the same name', inject(function ($q) {
       var path = makePath([ "A", "E", "F" ]);
       var fPathElement = path.elements[2];
-      var context = new ResolveContext(path);
 
       var result;
       var fOnEnter = function (_F) {
         result = _F;
       };
 
-      var promise = fPathElement.invokeLater(fOnEnter, {}, context);
+      var promise = fPathElement.invokeLater(fOnEnter, {}, path);
       promise.then(function () {
         expect(result).toBe("_EF");
         asyncCount++;
@@ -342,10 +298,9 @@ describe('Resolvables system:', function () {
   describe('Resolvables', function () {
     it('of a particular name should be injected from the parent PathElements for their own name', inject(function ($q) {
       var path = makePath([ "A", "G", "H" ]);
-      var context = new ResolveContext(path);
 
-      var resolvable_G = path.elements[2].resolvables._G;
-      var promise = resolvable_G.get(context);
+      var resolvable_G = path.getResolvables()._G;
+      var promise = resolvable_G.get(path);
       promise.then(function (data) {
         expect(data).toBe("G_G");
         asyncCount++;
@@ -359,7 +314,7 @@ describe('Resolvables system:', function () {
       };
 
       var hPathElement = path.elements[2];
-      promise = hPathElement.invokeLater(hOnEnter, {}, context);
+      promise = hPathElement.invokeLater(hOnEnter, {}, path);
       promise.then(function (data) {
         expect(result).toBe("G_GH");
         asyncCount++;
@@ -373,12 +328,11 @@ describe('Resolvables system:', function () {
   describe('Resolvables', function () {
     it('should fail to inject same-name deps to self if no parent PathElement contains the name.', inject(function ($q) {
       var path = makePath([ "A", "I" ]);
-      var context = new ResolveContext(path);
 
       var iPathElement = path.elements[1];
       var iOnEnter = function (_I) {  };
       var caught;
-      var promise = iPathElement.invokeLater(iOnEnter, {}, context);
+      var promise = iPathElement.invokeLater(iOnEnter, {}, path);
       promise.catch(function (err) {
         caught = err;
         asyncCount++;
@@ -393,12 +347,11 @@ describe('Resolvables system:', function () {
   xdescribe('Resolvables', function () {
     it('should fail to inject circular dependency', inject(function ($q) {
       var path = makePath([ "O" ]);
-      var context = new ResolveContext(path);
 
       var iPathElement = path.elements[0];
       var iOnEnter = function (_O) {  };
       var caught;
-      var promise = iPathElement.invokeLater(iOnEnter, {}, context);
+      var promise = iPathElement.invokeLater(iOnEnter, {}, path);
       promise.catch(function (err) {
         caught = err;
       });
@@ -412,7 +365,6 @@ describe('Resolvables system:', function () {
   describe('Resolvables', function () {
     it('should not re-resolve', inject(function ($q) {
       var path = makePath([ "J", "K" ]);
-      var context = new ResolveContext(path);
 
       var kPathElement = path.elements[1];
       var result;
@@ -428,13 +380,13 @@ describe('Resolvables system:', function () {
         result = _K;
         onEnterCount++;
       };
-      var promise = kPathElement.invokeLater(kOnEnter, {}, context);
+      var promise = kPathElement.invokeLater(kOnEnter, {}, path);
       promise.then(checkCounts);
       $q.flush();
       expect(onEnterCount).toBe(1);
 
       // invoke again
-      promise = kPathElement.invokeLater(kOnEnter, {}, context);
+      promise = kPathElement.invokeLater(kOnEnter, {}, path);
       promise.then(checkCounts);
       $q.flush();
       expect(onEnterCount).toBe(2);
@@ -442,13 +394,14 @@ describe('Resolvables system:', function () {
   });
 
   describe('Pre-Resolved Path', function () {
-    it('from previous resolve operation should be re-useable when passed to a new ResolveContext', inject(function ($q) {
+    it('from previous resolve operation should be re-useable when used in another resolve operation', inject(function ($q) {
       var path = makePath([ "J", "K" ]);
       var async = 0;
 
       expect(counts["_J"]).toBe(0);
       expect(counts["_J2"]).toBe(0);
-      path.resolve(new ResolveContext(path)).then(function () {
+
+      path.resolvePath().then(function () {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);
         expect(counts["_K"]).toBe(1);
@@ -458,7 +411,7 @@ describe('Resolvables system:', function () {
       expect(asyncCount).toBe(1);
 
       var path2 = path.concat(makePath([ "L", "M" ]));
-      path2.resolve(new ResolveContext(path2)).then(function () {
+      path2.resolvePath().then(function () {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);
         expect(counts["_K"]).toBe(1);
@@ -474,7 +427,7 @@ describe('Resolvables system:', function () {
   describe('Path.slice()', function () {
     it('should create a partial path from an original path', inject(function ($q) {
       var path = makePath([ "J", "K", "L" ]);
-      path.resolve(new ResolveContext(path)).then(function () {
+      path.resolvePath().then(function () {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);
         expect(counts["_K"]).toBe(1);
@@ -488,7 +441,7 @@ describe('Resolvables system:', function () {
       expect(slicedPath.elements.length).toBe(2);
       expect(slicedPath.elements[1]).toBe(path.elements[1]);
       var path2 = path.concat(makePath([ "L", "M" ]));
-      path2.resolve(new ResolveContext(path2)).then(function () {
+      path2.resolvePath().then(function () {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);
         expect(counts["_K"]).toBe(1);

@@ -61,7 +61,7 @@ function Trace() {
   };
 
 
-  this.traceResolvePath = function traceResolvePath(path, resolveContext, options) {
+  this.traceResolvePath = function traceResolvePath(path, options) {
     var tplData = {
       tid: parse("transition.$id")(options),
       digest: Trace.prototype.approximateDigests,
@@ -72,7 +72,7 @@ function Trace() {
   };
 
 
-  this.traceResolvePathElement = function traceResolvePathElement(pathElement, resolveContext, resolvablePromises, options) {
+  this.traceResolvePathElement = function traceResolvePathElement(pathElement, resolvablePromises, options) {
     var tplData = {
       tid: parse("transition.$id")(options),
       digest: Trace.prototype.approximateDigests,
@@ -84,7 +84,7 @@ function Trace() {
   };
 
 
-  this.traceResolveResolvable = function traceResolveResolvable(resolvable, resolveContext, options) {
+  this.traceResolveResolvable = function traceResolveResolvable(resolvable, options) {
     var tplData = {
       tid: parse("transition.$id")(options),
       digest: Trace.prototype.approximateDigests,
@@ -95,7 +95,7 @@ function Trace() {
   };
 
 
-  this.tracePathElementInvoke = function tracePathElementInvoke(pathElement, fn, deps, resolveContext, options) {
+  this.tracePathElementInvoke = function tracePathElementInvoke(pathElement, fn, deps, options) {
     var title = "Invoke " + options.when;
     var tplData = {
       tid: parse("transition.$id")(options),

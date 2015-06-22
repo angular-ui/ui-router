@@ -396,15 +396,15 @@ describe('transition', function () {
         var log = [], transition = makeTransition("A", "D");
         var defer = $q.defer();
 
-        transitionProvider.entering({}, function logEnter($state$) { log.push("#"+$state$.name); }, {priority: -1});
+        transitionProvider.entering({}, function logEnter($state$) { log.push("#"+$state$.name); }, {priority: 1});
         transitionProvider.entering({ to: "B" }, function addResolves() {
           return {
             newResolve: function() { log.push("adding resolve"); return defer.promise; }
           }
         });
-        transitionProvider.entering({ to: "C" }, function useResolve(newResolve) {
+        transitionProvider.entering({ to: "C" }, function useTheNewResolve(newResolve) {
           log.push(newResolve);
-        }, {priority: +1});
+        }, {priority: -1});
 
         transition.promise.then(function() { log.push("DONE!"); });
         transition.run();
@@ -413,7 +413,7 @@ describe('transition', function () {
         expect(log.join(';')).toBe("#B;adding resolve");
         defer.resolve("resolvedval");
         $timeout.flush();
-        expect(log.join(';')).toBe("#B;adding;#C;resolvedval;#D;DONE!");
+        expect(log.join(';')).toBe("#B;adding resolve;resolvedval;#C;#D;DONE!");
       }));
     });
   });
