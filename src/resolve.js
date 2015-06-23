@@ -109,7 +109,7 @@ function $Resolve(  $q,    $injector) {
   // Lazy resolves are resolved before their state is entered.
   // JIT resolves are resolved just-in-time, right before an injected function that depends on them is invoked.
   var resolvePolicies = { eager: 3, lazy: 2, jit: 1 };
-  var defaultResolvePolicy = "eager"; // TODO: make this configurable
+  var defaultResolvePolicy = "jit"; // TODO: make this configurable
 
   // An element in the path which represents a state and that state's Resolvables and their resolve statuses.
   // When the resolved data is ready, it is stored in each Resolvable object within the PathElement
