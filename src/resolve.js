@@ -84,7 +84,7 @@ function $Resolve(  $q,    $injector) {
     }
 
     function resolvableToString() {
-      return tpl("Resolvable(name: {name}, state: {state.name}, requires: [{deps}])", this);
+      return tpl("Resolvable(name: {name}, state: {state.name}, requires: [{deps}])", self);
     }
 
     // Public API
@@ -197,7 +197,7 @@ function $Resolve(  $q,    $injector) {
 
     function pathElementToString() {
       tplData = { state: parse("state.name")(self) || "(root)" };
-      return tpl("PathElement({state})", tplData)
+      return tpl("PathElement({state})", tplData);
     }
 
     // public API so far
@@ -247,7 +247,6 @@ function $Resolve(  $q,    $injector) {
     /**
      *  Gets the available Resolvables for the last element of this path.
      *
-     * @param arg
      * @param options
      *
      * options.omitOwnLocals: array of property names
@@ -277,7 +276,7 @@ function $Resolve(  $q,    $injector) {
     }
 
     function clone() {
-      throw new Error("Clone not yet implemented")
+      throw new Error("Clone not yet implemented");
     }
 
     // returns a subpath of this path from the root path element up to and including the toPathElement parameter
@@ -313,8 +312,8 @@ function $Resolve(  $q,    $injector) {
     }
 
     function pathToString() {
-      tplData = { elements: self.elements.map(function(e) { return e.state.name }).join(", ")  };
-      return tpl("Path([{elements}])", tplData)
+      tplData = { elements: self.elements.map(function(e) { return e.state.name; }).join(", ") };
+      return tpl("Path([{elements}])", tplData);
     }
 
     // Public API

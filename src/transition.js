@@ -72,7 +72,7 @@ function TransitionStep(pathElement, fn, locals, pathContext, options) {
   function handleHookResult(hookResult) {
     var transitionResult = mapHookResult(hookResult);
     if (options.trace) trace.traceHookResult(hookResult, transitionResult, options);
-    return transitionResult
+    return transitionResult;
   }
 
   /**

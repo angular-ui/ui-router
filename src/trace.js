@@ -29,7 +29,7 @@ function Trace() {
       function replacer(key, val) {
         return format(val);
       }
-      return JSON.stringify(o, replacer)
+      return JSON.stringify(o, replacer);
     }
 
     return toJson(o);
@@ -119,7 +119,7 @@ function Trace() {
   this.traceSuccess = function traceSuccess(finalState, transition) {
     var tplData = {tid: transition.$id, digest: Trace.prototype.approximateDigests, state: finalState.name};
     trace(tpl('Transition #{tid} Digest #{digest}: Transition Success, state: {state}', tplData));
-  }
+  };
 }
 
 Trace.prototype.approximateDigests = 0;

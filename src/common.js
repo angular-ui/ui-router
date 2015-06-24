@@ -327,7 +327,7 @@ function prop(name) {
 }
 
 function parse(name) {
-  return pipe.apply(null, name.split("\.").map(prop));
+  return pipe.apply(null, name.split(".").map(prop));
 }
 
 function not(fn) {
