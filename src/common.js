@@ -300,6 +300,11 @@ function flatten (array) {
   return _flatten(array, []);
 }
 
+function pairs(array1, array2) {
+  if (array1.length !== array2.length) throw new Error("pairs(): Unequal length arrays not allowed");
+  return array1.reduce(function (memo, key, i) { memo[key] = array2[i]; return memo; }, {});
+}
+
 // Checks if a value is injectable
 function isInjectable(value) {
   return (isFunction(value) || (isArray(value) && isFunction(value[value.length - 1])));
