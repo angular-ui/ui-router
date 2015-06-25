@@ -879,8 +879,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      */
     $state.go = function go(to, params, options) {
       return $state.transitionTo(to, params, defaults(options, {
-        inherit: true,
-        relative: $state.$current
+        location: true,
+        relative: $state.$current,
+        inherit:  true,
+        notify:   true,
+        reload:   false,
+        trace:    false
       }));
     };
 
@@ -956,7 +960,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         relative: null,
         inherit:  false,
         notify:   true,
-        reload:   false
+        reload:   false,
+        trace:    false
       });
 
       // If we're reloading, find the state object to reload from

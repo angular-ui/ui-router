@@ -196,7 +196,7 @@ function $Resolve(  $q,    $injector) {
     }
 
     function pathElementToString() {
-      tplData = { state: parse("state.name")(self) || "(root)" };
+      var tplData = { state: parse("state.name")(self) || "(root)" };
       return tpl("PathElement({state})", tplData);
     }
 
@@ -312,7 +312,7 @@ function $Resolve(  $q,    $injector) {
     }
 
     function pathToString() {
-      tplData = { elements: self.elements.map(function(e) { return e.state.name; }).join(", ") };
+      var tplData = { elements: self.elements.map(function(e) { return e.state.name; }).join(", ") };
       return tpl("Path([{elements}])", tplData);
     }
 
