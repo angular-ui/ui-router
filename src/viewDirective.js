@@ -129,12 +129,21 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
     };
   }
 
+  function areViewConfigsIdentical(config1, config2) {
+    return (config1 === config2) || (config1 && config2 && (
+      config1.controller === config2.controller &&
+      config1.template   === config2.template &&
+      config1.locals     === config2.locals
+      ));
+  }
+
   var directive = {
     restrict: 'ECA',
     terminal: true,
     priority: 400,
     transclude: 'element',
     compile: function (tElement, tAttrs, $transclude) {
+
       return function (scope, $element, attrs) {
         var previousEl, currentEl, currentScope, latestLocals, unregister,
             onloadExp     = attrs.onload || '',
@@ -152,13 +161,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
         updateView(true);
 
         unregister = $view.register(viewData.name, function(config) {
-          var nothingToDo = (config === viewConfig) || (config && viewConfig && (
-            config.controller === viewConfig.controller &&
-            config.template   === viewConfig.template &&
-            config.locals     === viewConfig.locals
-          ));
-          if (nothingToDo) return;
-
+          if (areViewConfigsIdentical(viewConfig, config)) return;
           updateView(false, config);
         });
 
