@@ -133,7 +133,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
     return (config1 === config2) || (config1 && config2 && (
       config1.controller === config2.controller &&
       config1.template   === config2.template &&
-      config1.invokeWithContext === config2.invokeWithContext
+      parse("context.state")(config1) === parse("context.state")(config2)
       ));
   }
 
@@ -200,7 +200,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
             $template: config.template,
             $$controller: config.controller,
             $$controllerAs: config.config && config.config.controllerAs,
-            invokeWithContext: config.invokeWithContext
+            $context: config.$context
           });
 
           var clone = $transclude(newScope, function(clone) {
@@ -238,8 +238,8 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
   return directive;
 }
 
-$ViewDirectiveFill.$inject = ['$compile', '$controller', '$interpolate'];
-function $ViewDirectiveFill (  $compile,   $controller,   $interpolate) {
+$ViewDirectiveFill.$inject = ['$compile', '$controller', '$interpolate', '$injector', '$q'];
+function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injector,   $q) {
   return {
     restrict: 'ECA',
     priority: -400,
@@ -247,9 +247,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate) {
       var initial = tElement.html();
 
       return function (scope, $element) {
-        var data = $element.data('$uiView'),
-          locals = { /* TODO: locals broken; integrate $controller and invokeWithContext? */ };
-
+        var data = $element.data('$uiView');
         if (!data) return;
 
         $element.html(data.$template || initial);
@@ -257,11 +255,15 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate) {
         var link = $compile($element.contents());
 
         if (data.$$controller) {
-          var controller = $controller(data.$$controller, extend(locals, { $scope: scope }));
-          if (data.$$controllerAs) scope[data.$$controllerAs] = controller;
+          var context = data.$context;
 
-          $element.data('$ngControllerController', controller);
-          $element.children().data('$ngControllerController', controller);
+          context.getLocalsFor(data.$$controller).then(function(locals) {
+            var controller = $controller(data.$$controller, extend(locals, { $scope: scope })); // $stateParams?
+            if (data.$$controllerAs) scope[data.$$controllerAs] = controller;
+
+            $element.data('$ngControllerController', controller);
+            $element.children().data('$ngControllerController', controller);
+          });
         }
 
         link(scope);

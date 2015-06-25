@@ -771,13 +771,13 @@ describe('state', function () {
     it('should invoke the controller', inject(function ($state, $q, $timeout, $rootScope, $compile) {
       $compile('<div> <div ui-view/> </div>')($rootScope);
       $state.transitionTo('resolveTimeout', { foo: "bar" });
+      $q.flush();
       $timeout.flush();
-      $timeout.flush(); // why is this necessary?
       expect(log).toBe('Success!controller;');
 
       $state.reload();
+      $q.flush();
       $timeout.flush();
-      $timeout.flush(); // why is this necessary?
       expect(log).toBe('Success!controller;Success!controller;');
     }));
 

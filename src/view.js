@@ -12,13 +12,13 @@ function ViewConfig(config) {
 /**
  * Gets the controller for a view configuration.
  *
- * @param {Function} invokeWithContext Invokes a function in the correct injector context
+ * @param {Object} context A context object from transition.context() to invoke a function in the correct context
  *
  * @returns {Function|Promise.<Function>} Returns a controller, or a promise that resolves to a controller.
  */
-ViewConfig.prototype.controller = function controller(invokeWithContext) {
+ViewConfig.prototype.controller = function controller(context) {
   var cfg = this.config, provider = this.config.controllerProvider;
-  return isInjectable(provider) ? invokeWithContext(provider) : cfg.controller;
+  return isInjectable(provider) ? context.invoke(provider) : cfg.controller;
 };
 
 /**
@@ -30,8 +30,8 @@ ViewConfig.prototype.hasTemplate = function() {
   return !!(this.config.template || this.config.templateUrl || this.config.templateProvider);
 };
 
-ViewConfig.prototype.template = function($factory, params, invokeWithContext) {
-  return $factory.fromConfig(this.config, params, invokeWithContext);
+ViewConfig.prototype.template = function($factory, params, context) {
+  return $factory.fromConfig(this.config, params, context.invoke);
 };
 
 /**
@@ -63,7 +63,7 @@ function ViewQueue(views) {
  */
 ViewQueue.prototype.push = function(name, async, config) {
   if (config && config.$context && this.waiting.length) {
-    this.digest(name, config.$context);
+    this.digest(name, config.$context.state);
   }
   if (this.views[name]) {
     this.views[name](config);
@@ -95,17 +95,17 @@ ViewQueue.prototype.pop = function(name, callback) {
  * waited for.
  *
  * @param {String} name The name of the loaded view.
- * @param {Object} context The context object responsible for the view.
+ * @param {Object} stateContext The context object responsible for the view.
  */
-ViewQueue.prototype.digest = function(name, context) {
+ViewQueue.prototype.digest = function(name, stateContext) {
   for (var i = this.waiting.length - 1; i >= 0; i--) {
-    if (this.waiting[i].context !== context) continue;
+    if (this.waiting[i].stateContext !== stateContext) continue;
     this.waiting.splice(i, 1)[0].defer.resolve(name);
   }
 };
 
-ViewQueue.prototype.waitFor = function(context, defer) {
-  this.waiting.push({ context: context, defer: defer });
+ViewQueue.prototype.waitFor = function(stateContext, defer) {
+  this.waiting.push({ stateContext: stateContext, defer: defer });
   return defer ? defer.promise : null;
 };
 
@@ -161,7 +161,6 @@ function $View(   $rootScope,   $templateFactory,   $q) {
     var opts = defaults(options, {
       context:            null,
       parent:             null,
-      invokeWithContext:  null,
       notify:             true,
       async:              true,
       params:             {}
@@ -197,7 +196,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
     var fqn = (opts.parent) ? this.find(name, opts.parent) : name;
 
     var promises = {
-      template: $q.when(viewConfig.template($templateFactory, opts.params, opts.invokeWithContext)),
+      template: $q.when(viewConfig.template($templateFactory, opts.params, opts.context)),
       controller: viewConfig.controller(),
       viewName: fqn ? $q.when(fqn) : viewQueue.waitFor(opts.parent, $q.defer()).then(function (parent) {
         return parent + "." + name;
@@ -209,7 +208,6 @@ function $View(   $rootScope,   $templateFactory,   $q) {
         async: opts.async,
         template: results.template,
         controller: results.controller,
-        invokeWithContext: opts.invokeWithContext,
         $context: opts.context
       };
 
@@ -234,15 +232,14 @@ function $View(   $rootScope,   $templateFactory,   $q) {
    */
   this.sync = function sync (configs) {
     forEach(configs, function(cfg) {
-      var state = cfg[0], views = cfg[1], params = cfg[2], invokeWithContext = cfg[3];
+      var context = cfg[0], views = cfg[1], params = cfg[2];
 
       forEach(views, function(view, name) {
         //if (view.controllerProvider) debugger;
         this.load(name, extend(view, {
           params: params,
-          invokeWithContext: invokeWithContext,
-          context: state,
-          parent: state.parent.name ? state.parent : null
+          context: context,
+          parent: context.state.parent.name ? context.state.parent : null
         }));
       }, this);
     }, this);
@@ -272,11 +269,11 @@ function $View(   $rootScope,   $templateFactory,   $q) {
    *
    * @param {String} name The fully-qualified dot-separated name of the view, if `context` is not
             specified. If `context` is specified, `name` should be relative to the parent `context`.
-   * @param {Object} context Optional parent context in which to look for the named view.
+   * @param {Object} contextState Optional parent state context in which to look for the named view.
    * @return {Boolean} Returns `true` if the view exists on the page, otherwise `false`.
    */
-  this.exists = function exists (name, context) {
-    return isDefined(viewDefs[context ? this.find(name, context) : name]);
+  this.exists = function exists (name, contextState) {
+    return isDefined(viewDefs[context ? this.find(name, contextState) : name]);
   };
 
   /**
@@ -284,19 +281,19 @@ function $View(   $rootScope,   $templateFactory,   $q) {
    * by the parent view's context object.
    *
    * @param {String} name A relative view name.
-   * @param {Object} context The context object of the parent view in which to look up the view to
+   * @param {Object} contextState The context state object of the parent view in which to look up the view to
    *        return.
    * @return {String} Returns the fully-qualified view name, or `null`, if `context` cannot be found.
    */
-  this.find = function find (name, context) {
+  this.find = function find (name, contextState) {
     var result;
 
     if (isArray(name)) {
-      return map(name, function(name) { return this.find(name, context); });
+      return map(name, function(name) { return this.find(name, contextState); });
     }
 
     angular.forEach(viewDefs, function(def, absName) {
-      if (!def || !def.$config || context !== def.$config.$context) {
+      if (parse("$config.$context.state")(def) !== contextState) {
         return;
       }
       result = absName + "." + name;

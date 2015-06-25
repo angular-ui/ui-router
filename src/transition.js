@@ -623,23 +623,36 @@ function $TransitionProvider() {
           return pluck(retained.elements, 'state');
         },
 
-        // Should this return views for `retained.concat(entering).states()` ?
-        // As it stands, it will only return views for the entering states
-        views: function() {
-          calculateTreeChanges();
+        context: function context(pathElement) {
+          return {
+            state: pathElement.state,
 
-          return unnest(map(entering.states(), function(state) {
-            var elem = toPath.elementForState(state);
+            /** Invokes an annotated function in the context of the toPath */
+            invoke: function invokeInContext(injectedFn, locals) {
+              return pathElement.invokeLater(injectedFn, locals, toPath, options);
+            },
 
-            function invokeWithContext(fn, locals) {
-              // @TODO: I suppose this is where we'd check for a view-level resovle & override as necessary
-              return elem.invokeLater(fn, locals, toPath, options);
+            /**
+             * For the fn passed in, resolves any Resolvable dependencies within the transition toPath context
+             * @returns a $q promise for the resolved data by name
+             */
+            getLocalsFor: function makeLocalsForContext(fn) {
+              var injectMe = function injectMe() { return pairs(injectMe.$inject, arguments); };
+              injectMe.$inject = objectKeys(pick(pathElement.getResolvables(), $injector.annotate(fn)));
+              return pathElement.invokeLater(injectMe, {}, toPath, options);
             }
+          }
+        },
 
+        views: function(states) {
+          calculateTreeChanges();
+          if (!states) states = entering.states();
+
+          return unnest(map(states, function(state) {
+            var elem = toPath.elementForState(state);
             var toList = unroll(function(view) {
-              return [state, view, toParams, invokeWithContext];
+              return [transition.context(elem), view, toParams];
             });
-
             return toList(state.views);
           }));
         },
