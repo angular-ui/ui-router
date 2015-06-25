@@ -160,12 +160,12 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
 
         updateView(true);
 
-        unregister = $view.register(viewData.name, function(config) {
+        function configChangedCallback(config) {
           if (areViewConfigsIdentical(viewConfig, config)) return;
           updateView(false, config);
-        });
+        }
 
-
+        unregister = $view.register(viewData.name, configChangedCallback);
         scope.$on("$destroy", function() {
           unregister();
         });
