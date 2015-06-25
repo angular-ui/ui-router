@@ -198,15 +198,15 @@ function $View(   $rootScope,   $templateFactory,   $q) {
 
     return $q.all({
       template: $q.when(viewConfig.template($templateFactory, opts.params, opts.locals)),
-      parent: fqn ? $q.when(fqn) : viewQueue.waitFor(opts.parent, $q.defer()).then(function(parent) {
+      viewName: fqn ? $q.when(fqn) : viewQueue.waitFor(opts.parent, $q.defer()).then(function(parent) {
         return parent + "." + name;
       })
     }).then(function(results) {
-      return qIfy(viewQueue.push(results.parent, viewConfig, {
-        async:    opts.async,
+      return qIfy(viewQueue.push(results.viewName, viewConfig, {
+        async: opts.async,
         template: results.template,
-        locals:   opts.locals,
-        context:  opts.context
+        locals: opts.locals,
+        context: opts.context
       }));
     });
   };

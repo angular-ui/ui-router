@@ -170,7 +170,8 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
           unregister();
         });
 
-        if (!viewConfig) updateView(false);
+        // Can't happen. commented out. What was the point?
+        // if (!viewConfig) updateView(false);
 
 
 
