@@ -330,7 +330,7 @@ describe('state', function () {
       .state('logA.logB', {
         url: "/logB",
         views:{
-          '':{
+          '$default':{
                 template: "<div> <div ui-view/></div>",
                 controller: function() {log += "logB;"}
           }
@@ -339,7 +339,7 @@ describe('state', function () {
       .state('logA.logB.logC', {
         url: "/logC",
         views:{
-          '':{
+          '$default':{
                 template: "<div> <div ui-view/></div>",
                 controller: function() {log += "logC;"}
           }
@@ -772,12 +772,12 @@ describe('state', function () {
       $compile('<div> <div ui-view/> </div>')($rootScope);
       $state.transitionTo('resolveTimeout', { foo: "bar" });
       $timeout.flush();
-      $q.flush();
+      $timeout.flush(); // why is this necessary?
       expect(log).toBe('Success!controller;');
 
       $state.reload();
       $timeout.flush();
-      $q.flush();
+      $timeout.flush(); // why is this necessary?
       expect(log).toBe('Success!controller;Success!controller;');
     }));
 
@@ -803,7 +803,7 @@ describe('state', function () {
       expect(log).toBe('logC;');
     }));
 
-    it('should reload all states when passing false', inject(function ($state, $q, $timeout, $rootScope, $compile) {
+    it('should not reload states when passing false', inject(function ($state, $q, $timeout, $rootScope, $compile) {
       $compile('<div> <div ui-view/></div>')($rootScope);
       $state.transitionTo('logA.logB.logC');
       $q.flush();
@@ -812,7 +812,7 @@ describe('state', function () {
       log = '';
       $state.reload(false);
       $q.flush();
-      expect(log).toBe('logA;logB;logC;');
+      expect(log).toBe('');
     }));
 
     it('should reload all states when passing true', inject(function ($state, $q, $timeout, $rootScope, $compile) {

@@ -803,8 +803,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
     $state.reload = function reload(reloadState) {
+      var reloadOpt = angular.isDefined(reloadState) ? reloadState : true;
       return $state.transitionTo($state.current, $stateParams, {
-        reload: angular.isDefined(reloadState) ? reloadState : true,
+        reload: reloadOpt,
         inherit: false,
         notify: false
       });
@@ -959,6 +960,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       });
 
       // If we're reloading, find the state object to reload from
+      if (isObject(options.reload) && !options.reload.name) { throw new Error('Invalid reload state object', options.reload); }
       options.reloadState = options.reload === true ? $state.$current.path[0] : matcher.find(options.reload, options.relative);
       if (options.reload && !options.reloadState) {
         throw new Error("No such reload state '" + (isString(options.reload) ? options.reload : options.reload.name) + "'");
@@ -985,7 +987,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         transitionSuccess: function transitionSuccess(transition) {
           // TODO: sync on entering state, not transition success?
           $view.sync(transition.views());
-          // TODO: Refactor this stuff. Maybe a Path can return views() for its elements
+          // TODO: Refactor this stuff. Maybe a Path can return views() for elements
           transition.exiting().forEach(function(state) {
             forEach(state.views, function (view, key) {
               var found = $view.find(key, state.parent);
