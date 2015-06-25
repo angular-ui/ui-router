@@ -627,17 +627,16 @@ function $TransitionProvider() {
         // As it stands, it will only return views for the entering states
         views: function() {
           calculateTreeChanges();
-          var paths = toPath.concat(fromPath);
 
           return unnest(map(entering.states(), function(state) {
-            var elem = paths.elementForState(state);
+            var elem = toPath.elementForState(state);
+
+            function invokeWithContext(fn, locals) {
+              // @TODO: I suppose this is where we'd check for a view-level resovle & override as necessary
+              return elem.invokeLater(fn, locals, toPath, options);
+            }
 
             var toList = unroll(function(view) {
-              function invokeWithContext(fn, locals) {
-                // @TODO: I suppose this is where we'd check for a view-level resovle & override as necessary
-                return elem.invokeLater(fn, locals, paths, options);
-              }
-
               return [state, view, toParams, invokeWithContext];
             });
 

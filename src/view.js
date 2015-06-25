@@ -210,7 +210,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
         template: results.template,
         controller: results.controller,
         invokeWithContext: opts.invokeWithContext,
-        context: opts.context
+        $context: opts.context
       };
 
       var queuedConfig = viewQueue.push(results.viewName, opts.async, extend(viewConfig, pushOpts));
