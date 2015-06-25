@@ -235,7 +235,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
           params: params,
           locals: locals,
           context: state,
-          parent: state.parent
+          parent: state.parent.name ? state.parent : null
         }));
       }, this);
     }, this);
