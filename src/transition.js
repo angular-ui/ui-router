@@ -633,10 +633,12 @@ function $TransitionProvider() {
             var elem = paths.elementForState(state);
 
             var toList = unroll(function(view) {
-              return [state, view, toParams, function invokeWithContext(fn, locals) {
+              function invokeWithContext(fn, locals) {
                 // @TODO: I suppose this is where we'd check for a view-level resovle & override as necessary
                 return elem.invokeLater(fn, locals, paths, options);
-              }];
+              }
+
+              return [state, view, toParams, invokeWithContext];
             });
 
             return toList(state.views);

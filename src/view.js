@@ -12,13 +12,13 @@ function ViewConfig(config) {
 /**
  * Gets the controller for a view configuration.
  *
- * @param {Object} locals The view's locals, used when the view has a controller provider.
+ * @param {Function} invokeWithContext Invokes a function in the correct injector context
  *
  * @returns {Function|Promise.<Function>} Returns a controller, or a promise that resolves to a controller.
  */
-ViewConfig.prototype.controller = function(locals) {
+ViewConfig.prototype.controller = function controller(invokeWithContext) {
   var cfg = this.config, provider = this.config.controllerProvider;
-  return isInjectable(provider) ? locals.invokeLater(provider) : cfg.controller;
+  return isInjectable(provider) ? invokeWithContext(provider) : cfg.controller;
 };
 
 /**
@@ -30,8 +30,8 @@ ViewConfig.prototype.hasTemplate = function() {
   return !!(this.config.template || this.config.templateUrl || this.config.templateProvider);
 };
 
-ViewConfig.prototype.template = function($factory, params, locals) {
-  return $factory.fromConfig(this.config, params, locals);
+ViewConfig.prototype.template = function($factory, params, invokeWithContext) {
+  return $factory.fromConfig(this.config, params, invokeWithContext);
 };
 
 /**
@@ -41,7 +41,7 @@ function ViewQueue(views) {
   this.map = {};
   this.queued = {};
   this.waiting = [];
-  this.views = views;
+  this.views = views; // function $View() { var viewDefs = {} }
 }
 
 /**
@@ -161,7 +161,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
     var opts = defaults(options, {
       context:            null,
       parent:             null,
-      locals:             null,
+      invokeWithContext:  null,
       notify:             true,
       async:              true,
       params:             {}
@@ -196,18 +196,25 @@ function $View(   $rootScope,   $templateFactory,   $q) {
     }
     var fqn = (opts.parent) ? this.find(name, opts.parent) : name;
 
-    return $q.all({
-      template: $q.when(viewConfig.template($templateFactory, opts.params, opts.locals)),
-      viewName: fqn ? $q.when(fqn) : viewQueue.waitFor(opts.parent, $q.defer()).then(function(parent) {
+    var promises = {
+      template: $q.when(viewConfig.template($templateFactory, opts.params, opts.invokeWithContext)),
+      controller: viewConfig.controller(),
+      viewName: fqn ? $q.when(fqn) : viewQueue.waitFor(opts.parent, $q.defer()).then(function (parent) {
         return parent + "." + name;
       })
-    }).then(function(results) {
-      return qIfy(viewQueue.push(results.viewName, viewConfig, {
+    };
+
+    return $q.all(promises).then(function addViewToQueue(results) {
+      var pushOpts = {
         async: opts.async,
         template: results.template,
-        locals: opts.locals,
+        controller: results.controller,
+        invokeWithContext: opts.invokeWithContext,
         context: opts.context
-      }));
+      };
+
+      var queuedConfig = viewQueue.push(results.viewName, opts.async, extend(viewConfig, pushOpts));
+      return qIfy(queuedConfig);
     });
   };
 
@@ -227,13 +234,13 @@ function $View(   $rootScope,   $templateFactory,   $q) {
    */
   this.sync = function sync (configs) {
     forEach(configs, function(cfg) {
-      var state = cfg[0], views = cfg[1], params = cfg[2], locals = cfg[3];
+      var state = cfg[0], views = cfg[1], params = cfg[2], invokeWithContext = cfg[3];
 
       forEach(views, function(view, name) {
         //if (view.controllerProvider) debugger;
         this.load(name, extend(view, {
           params: params,
-          locals: locals,
+          invokeWithContext: invokeWithContext,
           context: state,
           parent: state.parent.name ? state.parent : null
         }));
@@ -246,14 +253,14 @@ function $View(   $rootScope,   $templateFactory,   $q) {
    * be updated with a template, controller, and local variables.
    *
    * @param {String} name The fully-qualified name of the `ui-view` object being registered.
-   * @param {Function} callback A callback that receives updates to the content & configuration
+   * @param {Function} configUpdatedCallback A callback that receives updates to the content & configuration
    *                   of the view.
    * @return {Function} Returns a de-registration function used when the view is destroyed.
    */
-  this.register = function register (name, callback) {
-    viewDefs[name] = callback;
+  this.register = function register (name, configUpdatedCallback) {
+    viewDefs[name] = configUpdatedCallback;
     viewDefs[name].$config = null;
-    viewQueue.pop(name, callback);
+    viewQueue.pop(name, configUpdatedCallback);
 
     return function() {
       delete viewDefs[name];

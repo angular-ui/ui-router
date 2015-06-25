@@ -129,11 +129,11 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
     };
   }
 
-  function areViewConfigsIdentical(config1, config2) {
+  function configsEqual(config1, config2) {
     return (config1 === config2) || (config1 && config2 && (
       config1.controller === config2.controller &&
       config1.template   === config2.template &&
-      config1.locals     === config2.locals
+      config1.invokeWithContext === config2.invokeWithContext
       ));
   }
 
@@ -145,7 +145,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
     compile: function (tElement, tAttrs, $transclude) {
 
       return function (scope, $element, attrs) {
-        var previousEl, currentEl, currentScope, latestLocals, unregister,
+        var previousEl, currentEl, currentScope, unregister,
             onloadExp     = attrs.onload || '',
             autoScrollExp = attrs.autoscroll,
             renderer      = getRenderer(attrs, scope),
@@ -158,23 +158,17 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
         };
         $element.data('$uiView', viewData);
 
-        updateView(true);
+        updateView();
 
-        function configChangedCallback(config) {
-          if (areViewConfigsIdentical(viewConfig, config)) return;
-          updateView(false, config);
+        function configUpdatedCallback(config) {
+          if (configsEqual(viewConfig, config)) return;
+          updateView(config);
         }
 
-        unregister = $view.register(viewData.name, configChangedCallback);
+        unregister = $view.register(viewData.name, configUpdatedCallback);
         scope.$on("$destroy", function() {
           unregister();
         });
-
-        // Can't happen. commented out. What was the point?
-        // if (!viewConfig) updateView(false);
-
-
-
 
 
         function cleanupLastView() {
@@ -198,14 +192,16 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
           }
         }
 
-        function updateView(firstTime, config) {
-          var newScope,
-              name            = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default',
-              previousLocals  = viewConfig && viewConfig.locals;
+        function updateView(config) {
+          config = config || {};
+          var newScope = scope.$new();
 
-          if (!firstTime && previousLocals === latestLocals) return; // nothing to do
-          newScope = scope.$new();
-          latestLocals = config && config.locals;
+          extend(viewData, {
+            $template: config.template,
+            $$controller: config.controller,
+            $$controllerAs: config.config && config.config.controllerAs,
+            invokeWithContext: config.invokeWithContext
+          });
 
           var clone = $transclude(newScope, function(clone) {
             renderer.enter(clone.data('$uiView', viewData), $element, function onUiViewEnter() {
@@ -251,17 +247,18 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate) {
       var initial = tElement.html();
 
       return function (scope, $element) {
-        var data = $element.data('$uiView'), locals = data && data.locals;
+        var data = $element.data('$uiView'),
+          locals = { /* TODO: locals broken; integrate $controller and invokeWithContext? */ };
 
-        if (!locals) return;
+        if (!data) return;
 
-        $element.html(locals.$template || initial);
+        $element.html(data.$template || initial);
 
         var link = $compile($element.contents());
 
-        if (locals.$$controller) {
-          var controller = $controller(locals.$$controller, extend(locals, { $scope: scope }));
-          if (locals.$$controllerAs) scope[locals.$$controllerAs] = controller;
+        if (data.$$controller) {
+          var controller = $controller(data.$$controller, extend(locals, { $scope: scope }));
+          if (data.$$controllerAs) scope[data.$$controllerAs] = controller;
 
           $element.data('$ngControllerController', controller);
           $element.children().data('$ngControllerController', controller);
