@@ -1,3 +1,96 @@
+# feature-1.0 branch
+## Note: this is a pre-alpha preview of UI-Router 1.0
+
+We've totally redesigned UI-Router under the covers (rewrote about 60% of the codebase!), separating concerns and detangling the spaghetti.  We have taken some new approaches which we hope will provide unprecedented flexibility and control to your UI-Router app.
+
+#### What's changed?
+
+##### Resolves
+The Resolve API has been rewritten from scratch.  We've introduced the concept of a resolve policy, which can be one of:
+
+* eager: All eager resolves for a transition are resolved at the beginning, before any states are entered (this is way UI-Router 0.2.x handles resolves)
+* lazy: Lazy resolves are resolved when the state they are declared on is entered.
+* jit: Just-In-Time resolves do not resolve until just before they are injected into some other function. (extremely lazy)
+
+In 1.0, by default, resolves on your states are "jit"
+
+##### Transition
+
+We've created a Transition Service to manage transitioning from one state to another.  The transition service provides hooks, which you can register a callback on.  The transition hooks allow you to run code at various stages of a transition, altering it as your app requires.
+
+The transition lifecycle hooks are currently:
+
+* onBefore
+* onStart/onInvalid
+* onEnter (for individual states)
+* onSuccess
+* onError
+
+When registering a hook, you can provide criteria (a state name, a glob, or a function), and you can modify the transition by returning something from the hook (an abort, a redirect, a promise, or some new resolves to add to the transition).
+
+This enables lots of fun stuff!  Here are a couple of possibilities to get your imagination started:
+```
+$transitionProvider.onBefore({ to: 'my.state', from: '*' }, function(AsyncService) {
+  return AsyncService.doSomeAsyncThing();
+});
+
+$transitionProvider.onBefore({ to: 'other.state', from: '*' }, function(AsyncService) {
+  // someAsyncResult added as resolve to transition. It is injectable into other resolves or controllers.
+  return { someAsyncResult: AsyncService.doSomeAsyncThing }; 
+});
+
+$transitionProvider.onStart({ to: function(state) { return state.requiresAuth; } }, function($transition$, $state, AuthService) {
+  return AuthService.ensureAuthenticated().catch(function() { return $state.redirect("login"); });
+});
+
+$transitionProvider.onStart({ to: function(state) { return state.requiresAuth; } }, function($transition$, $state, AuthService) {
+  return AuthService.ensureAuthenticated().catch(function() { return $state.redirect("login"); });
+});
+
+$transitionProvider.onStart({ to: function(state) { return state.redirectTo; } }, function($transition$, $state) {
+  return $state.redirect($transition$.to.redirectTo); });
+});
+```
+
+##### State
+
+The $state service has been heavily refactored, and is now the primary client of the $transition service.  This doesn't offer the end user much *now*, but this separation should eventually enable us to provide things like multiple simultanesouly active states and parallel transitions (think UI-Router Extras "Sticky States").
+
+State events will soon be deprecated, but can be easily re-enabled by including the stateEvents.js file.  The state events have all been refactored as callbacks to the transition hooks.
+
+##### Views
+
+The way UI-Router manages views has been heavily refactored into a view service.  This should allow us to plug in alternate rendering schemes (react?), and should help ease the transition to angular 2.
+
+##### Parameters
+
+This one has been a long time coming.  Finally, UI-Router supports dynamic parameters in both the URL path and query string.  We've included a decorator which enables reloadOnSearch behavior using dynamic params automatically.
+
+### What's next?
+
+We're not done making sure every use case that you've been using in UI-Router 0.2.x works just as well in 1.0.  In fact, we just got the new code routing again on June 25 and have no idea what gaps are out there.  We'd like to get some other eyes on this new codebase.  We've moved in most of the unit tests from 0.2.x, but there are certain to be some things missing.  
+
+Build it.  Try it.  Let us know what's horribly broken.
+
+#### ES6/TypeScript
+
+We have plans to migrate these new classes to ES6 (for sure), and possibly Typescript.
+
+#### Angular 2
+
+We'd like to support Angular 2
+
+#### Lazy Loading
+
+We'd like to have out-of-the-box support for lazy loading states (like UI-Router Extras "Future States")
+
+---------------------------------------------
+
+
+The rest of this README is from an old release.
+
+
+
 # AngularUI Router &nbsp;[![Build Status](https://travis-ci.org/angular-ui/ui-router.svg?branch=master)](https://travis-ci.org/angular-ui/ui-router)
 
 #### The de-facto solution to flexible routing with nested views
