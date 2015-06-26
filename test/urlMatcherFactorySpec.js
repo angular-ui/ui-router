@@ -665,6 +665,7 @@ describe("urlMatcherFactory", function () {
         params: { id: { value: null, squash: true } }
       });
       expect(m.exec('/users/1138')).toEqual({ id: 1138 });
+      expect(m.exec('/users1138')).toBeNull();
       expect(m.exec('/users/').id).toBeNull();
       expect(m.exec('/users').id).toBeNull();
     });

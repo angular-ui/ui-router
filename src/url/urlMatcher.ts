@@ -16,9 +16,14 @@ function quoteRegExp(string: any, param?: any) {
   if (!param) return result;
 
   switch (param.squash) {
-    case false: surroundPattern = ['(', ')' + (param.isOptional ? '?' : '')]; break;
-    case true:  surroundPattern = ['?(', ')?']; break;
-    default:    surroundPattern = [`(${param.squash}|`, ')?']; break;
+    case false:
+      surroundPattern = ['(', ')' + (param.isOptional ? '?' : '')]; break;
+    case true:
+      result = result.replace(/\/$/, '');
+      surroundPattern = ['(?:\/(', ')|\/)?'];
+      break;
+    default:
+      surroundPattern = [`(${param.squash}|`, ')?']; break;
   }
   return result + surroundPattern[0] + param.type.pattern.source + surroundPattern[1];
 }
