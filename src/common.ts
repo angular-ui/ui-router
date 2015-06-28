@@ -1,33 +1,23 @@
-/*jshint globalstrict:true*/
-/*global angular:false*/
-'use strict';
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+import { isDefined, isFunction, isString, isObject, isArray, forEach, extend, copy } from "angular";
 
-var isDefined = angular.isDefined,
-    isFunction = angular.isFunction,
-    isString = angular.isString,
-    isObject = angular.isObject,
-    isArray = angular.isArray,
-    forEach = angular.forEach,
-    extend = angular.extend,
-    copy = angular.copy;
+"use strict";
 
 var abstractKey = 'abstract';
 
-function inherit(parent, extra) {
+export function inherit(parent, extra) {
   return extend(new (extend(function() {}, { prototype: parent }))(), extra);
 }
 
-function defaults(opts, defs) {
+export function defaults(opts, defs) {
   return extend({}, defs, pick(opts || {}, objectKeys(defs)));
 }
 
-function merge(dst) {
-  forEach(arguments, function(obj) {
-    if (obj !== dst) {
-      forEach(obj, function(value, key) {
-        if (!dst.hasOwnProperty(key)) dst[key] = value;
-      });
-    }
+export function merge(dst, ...objs: Object[]) {
+  forEach(objs, function(obj) {
+    forEach(obj, function(value, key) {
+      if (!dst.hasOwnProperty(key)) dst[key] = value;
+    });
   });
   return dst;
 }
@@ -35,7 +25,7 @@ function merge(dst) {
 /**
  * Recursive function iterator
  */
-function FunctionIterator(items) {
+export function FunctionIterator(items) {
 
   var it = function(initial) {
     var noOp = function() {};
@@ -68,7 +58,7 @@ FunctionIterator.prototype.next = function() {
  * @param {Object} second The second state.
  * @return {Array} Returns an array of state names in descending order, not including the root.
  */
-function ancestors(first, second) {
+export function ancestors(first, second) {
   var path = [];
 
   for (var n in first.path) {
@@ -84,7 +74,7 @@ function ancestors(first, second) {
  * @param {Object} object A JavaScript object.
  * @return {Array} Returns the keys of the object as an array.
  */
-function objectKeys(object) {
+export function objectKeys(object): string[] {
   if (Object.keys) {
     return Object.keys(object);
   }
@@ -104,7 +94,7 @@ function objectKeys(object) {
  * @return {Number} Returns the array index value of `value`, or `-1` if not present.
  */
 var arraySearch = indexOf;
-function indexOf(array, value) {
+export function indexOf(array, value) {
   if (Array.prototype.indexOf) {
     return array.indexOf(value, Number(arguments[2]) || 0);
   }
@@ -128,7 +118,7 @@ function indexOf(array, value) {
  * @param {Object} $current Internal definition of object representing the current state.
  * @param {Object} $to Internal definition of object representing state to transition to.
  */
-function inheritParams(currentParams, newParams, $current, $to) {
+export function inheritParams(currentParams, newParams, $current, $to) {
   var parents = ancestors($current, $to), parentParams, inherited = {}, inheritList = [];
 
   for (var i in parents) {
@@ -154,7 +144,7 @@ function inheritParams(currentParams, newParams, $current, $to) {
  *                     it defaults to the list of keys in `a`.
  * @return {Boolean} Returns `true` if the keys match, otherwise `false`.
  */
-function equalForKeys(a, b, keys) {
+export function equalForKeys(a, b, keys) {
   if (!keys) {
     keys = [];
     for (var n in a) keys.push(n); // Used instead of Object.keys() for IE8 compatibility
@@ -174,7 +164,7 @@ function equalForKeys(a, b, keys) {
  * @param {Object} values
  * @return {Boolean} Returns a subset of `values`.
  */
-function filterByKeys(keys, values) {
+export function filterByKeys(keys, values) {
   var filtered = {};
 
   forEach(keys, function (name) {
@@ -185,7 +175,7 @@ function filterByKeys(keys, values) {
 
 // like _.indexBy
 // when you know that your index values will be unique, or you want last-one-in to win
-function indexBy(array, propName) {
+export function indexBy(array, propName) {
   var result = {};
   forEach(array, function(item) {
     result[item[propName]] = item;
@@ -195,7 +185,9 @@ function indexBy(array, propName) {
 
 // extracted from underscore.js
 // Return a copy of the object only containing the whitelisted properties.
-function pick(obj) {
+export function pick(obj, propNames: string[]): Object;
+export function pick(obj, ...propName: string[]): Object;
+export function pick(obj): Object {
   var copy = {};
   var keys = Array.prototype.concat.apply(Array.prototype, Array.prototype.slice.call(arguments, 1));
   for (var key in obj) {
@@ -206,7 +198,9 @@ function pick(obj) {
 
 // extracted from underscore.js
 // Return a copy of the object omitting the blacklisted properties.
-function omit(obj) {
+export function omit(obj, propNames: string[]): Object;
+export function omit(obj, ...propName: string[]): Object;
+export function omit(obj) {
   var copy = {};
   var keys = Array.prototype.concat.apply(Array.prototype, Array.prototype.slice.call(arguments, 1));
   for (var key in obj) {
@@ -215,26 +209,29 @@ function omit(obj) {
   return copy;
 }
 
-function pluck(collection, key) {
+export function pluck(collection, key) {
   return map(collection, prop(key));
 }
 
-function filter(collection, callback) {
-  var arr = isArray(collection), result = arr ? [] : {};
+// Given an array or object, return a new array or object with:
+// - array: only the elements which passed the callback predicate
+// - object: only the properties that passed the callback predicate
+export function filter<T>(collection: T, callback: Function): T {
+  var arr = isArray(collection), resultarray = [], resultobj = {};
   forEach(collection, function(val, i) {
     if (callback(val, i)) {
-      if (arr) result.push(val);
-      else result[i] = val;
+      if (arr) resultarray.push(val);
+      else resultobj[i] = val;
     }
   });
-  return result;
+  return <T>(arr ? resultarray : resultobj);
 }
 
-function _filter(callback) {
+export function _filter(callback) {
   return function (collection) { return filter(collection, callback); };
 }
 
-function find(collection, callback) {
+export function find(collection, callback) {
   var result;
 
   forEach(collection, function(val, i) {
@@ -245,13 +242,13 @@ function find(collection, callback) {
   return result;
 }
 
-function tpl(string, vals) {
+export function tpl(string, vals) {
   return string.replace(/\{([\w.]+)\}/g, function(_, key) {
     return parse(key)(vals) || "";
   });
 }
 
-function map(collection, callback) {
+export function map<T> (collection: T, callback): T {
   var result = isArray(collection) ? [] : {};
 
   forEach(collection, function(val, i) {
@@ -260,17 +257,17 @@ function map(collection, callback) {
   return result;
 }
 
-function _map(callback) {
+export function _map(callback) {
   return function mapper(collection) { return map(collection, callback); };
 }
 
-function unnest(list) {
+export function unnest(list) {
   var result = [];
   forEach(list, function(val) { result = result.concat(val); });
   return result;
 }
 
-function unroll(callback) {
+export function unroll(callback) {
   callback = callback || angular.identity;
 
   return function(object) {
@@ -285,7 +282,7 @@ function unroll(callback) {
 }
 
 // Return a completely flattened version of an array.
-function flatten (array) {
+export function flatten (array) {
   function _flatten(input, output) {
     forEach(input, function(value) {
       if (angular.isArray(value)) {
@@ -300,19 +297,19 @@ function flatten (array) {
   return _flatten(array, []);
 }
 
-function pairs(array1, array2) {
+export function pairs(array1, array2) {
   if (array1.length !== array2.length) throw new Error("pairs(): Unequal length arrays not allowed");
   return array1.reduce(function (memo, key, i) { memo[key] = array2[i]; return memo; }, {});
 }
 
 // Checks if a value is injectable
-function isInjectable(value) {
+export function isInjectable(value) {
   return (isFunction(value) || (isArray(value) && isFunction(value[value.length - 1])));
 }
 
-function isNull(o) { return o === null; }
+export function isNull(o) { return o === null; }
 
-function compose() {
+export function compose() {
   var args = arguments;
   var start = args.length - 1;
   return function() {
@@ -323,60 +320,62 @@ function compose() {
   };
 }
 
-function pipe() {
+export function pipe(...funcs: Function[]) {
   return compose.apply(null, [].slice.call(arguments).reverse());
 }
 
-function prop(name) {
+export function prop(name): Function {
   return function(obj) { return obj && obj[name]; };
 }
 
-function parse(name) {
+export function parse(name) {
   return pipe.apply(null, name.split(".").map(prop));
 }
 
-function not(fn) {
+export function not(fn): Function {
   return function() { return !fn.apply(null, [].slice.call(arguments)); };
 }
 
-function and(fn1, fn2) {
+export function and(fn1, fn2): Function {
   return function() {
     return fn1.apply(null, [].slice.call(arguments)) && fn2.apply(null, [].slice.call(arguments));
   };
 }
 
-function or(fn1, fn2) {
+export function or(fn1, fn2): Function {
   return function() {
     return fn1.apply(null, [].slice.call(arguments)) || fn2.apply(null, [].slice.call(arguments));
   };
 }
 
-function is(ctor) {
+export function is(ctor): Function {
   return function(val) { return val != null && val.constructor === ctor || val instanceof ctor; };
 }
 
-function eq(comp) {
+export function eq(comp): Function {
   return function(val) { return val === comp; };
 }
 
-function isEq(fn1, fn2) {
+export function isEq(fn1, fn2): Function {
   return function() {
     var args = [].slice.call(arguments);
     return fn1.apply(null, args) === fn2.apply(null, args);
   };
 }
 
-function val(v) {
+export function val(v): Function {
   return function() { return v; };
 }
 
-function invoke(method, args) {
+export function invoke(fnName: string): Function;
+export function invoke(fnName: string, args: any[]): Function;
+export function invoke(fnName: string, args?: any[]): Function {
   return function(obj) {
-    return obj[method].apply(obj, args);
+    return obj[fnName].apply(obj, args);
   };
 }
 
-function pattern(struct) {
+export function pattern(struct: Function[][]): Function {
   return function(val) {
     for (var i = 0; i < struct.length; i++) {
       if (struct[i][0](val)) return struct[i][1](val);
@@ -384,9 +383,9 @@ function pattern(struct) {
   };
 }
 
-var isPromise = and(isObject, pipe(prop('then'), isFunction));
+export var isPromise = and(isObject, pipe(prop('then'), isFunction));
 
-var GlobBuilder = (function() {
+export var GlobBuilder = (function() {
 
   function Glob(text) {
 

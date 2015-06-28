@@ -1,3 +1,9 @@
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+import {isDefined, isObject, isString, extend, forEach, isArray} from "angular";
+import {defaults, pick, map, merge, tpl, filter, omit, parse, pluck, find, pipe, prop, eq}  from "./common";
+import {trace}  from "./trace";
+import {State}  from "./state";
+
 var Resolvable, Path, PathElement;
 
 /**
@@ -32,7 +38,7 @@ function $Resolve(  $q,    $injector) {
    */
 
 
-  Resolvable = function Resolvable(name, resolveFn, state) {
+  Resolvable = function Resolvable(name: string, resolveFn: Function, state: State) {
     var self = this;
 
     // Resolvable: resolveResolvable()
@@ -228,7 +234,7 @@ function $Resolve(  $q,    $injector) {
 
   Path = function Path(statesOrPathElements) {
     var self = this;
-    if (!isArray(statesOrPathElements)) throw new Error("states must be an array of state(s) or PathElement(s)", statesOrPathElements);
+    if (!isArray(statesOrPathElements)) throw new Error("states must be an array of state(s) or PathElement(s): ${statesOrPathElements}");
     var isPathElementArray = (statesOrPathElements.length && (statesOrPathElements[0] instanceof PathElement));
 
     var elements = statesOrPathElements;
@@ -575,3 +581,4 @@ function $Resolve(  $q,    $injector) {
 
 angular.module('ui.router.util').service('$resolve', $Resolve);
 
+export {Resolvable, Path, PathElement};

@@ -1,3 +1,12 @@
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+
+import {extend, forEach, isFunction, isObject, isString, IServiceProviderFactory} from "angular";
+import {trace} from "./trace";
+import {Resolvable, Path, PathElement} from "./resolve";
+import {StateParams} from "./state";
+import {objectKeys, filter, tpl, defaults, map, val, not, is, eq, isEq, parse, invoke,
+    flatten, prop, pluck, pairs, pick, pipe, pattern, unnest, unroll, isPromise, GlobBuilder} from "./common";
+
 var Transition, REJECT;
 
 function TransitionRejection(type, message, detail) {
@@ -17,7 +26,7 @@ TransitionRejection.prototype.toString = function() {
 };
 
 function RejectFactory($q) {
-  return {
+  extend(this, {
     superseded: function (detail, options) {
       var message = "The transition has been superseded by a different transition (see detail).";
       var reason = new TransitionRejection(Transition.prototype.SUPERSEDED, message, detail);
@@ -28,11 +37,13 @@ function RejectFactory($q) {
       return REJECT.superseded(detail, { redirected: true } );
     },
     invalid: function(detail) {
+      var message = "This transition is invalid (see detail)";
       var reason = new TransitionRejection(Transition.prototype.INVALID, message, detail);
       return extend($q.reject(reason), { reason: reason });
     },
     ignored: function(detail) {
-      var reason = new TransitionRejection(Transition.prototype.IGNORED, "The transition was ignored.", detail);
+      var message = "The transition was ignored.";
+      var reason = new TransitionRejection(Transition.prototype.IGNORED, message, detail);
       return extend($q.reject(reason), { reason: reason });
     },
     aborted: function (detail) {
@@ -41,10 +52,10 @@ function RejectFactory($q) {
       var reason = new TransitionRejection(Transition.prototype.ABORTED, message, detail);
       return extend($q.reject(reason), { reason: reason });
     }
-  };
+  });
 }
 
-function TransitionStep(pathElement, fn, locals, pathContext, options) {
+export function TransitionStep(pathElement, fn, locals, pathContext, options) {
   var self = this;
   options = defaults(options, {
     async: true,
@@ -59,9 +70,10 @@ function TransitionStep(pathElement, fn, locals, pathContext, options) {
    * Validates the result map as a "resolve:" style object.
    * Creates Resolvable objects from the result object and adds them to the target object
    */
-  function mapNewResolves(resolves) {
-    var invalid = filter(resolves, not(isFunction)), keys = Object.keys(invalid);
-    if (invalid.length) throw new Error("Invalid resolve key/value: " + keys[0] + "/", invalid[keys[0]]);
+  function mapNewResolves(resolves: Object) {
+    var invalid = filter(resolves, not(isFunction)), keys = objectKeys(invalid);
+    if (keys.length)
+      throw new Error("Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}");
 
     // If result is an object, it should be a map of strings to functions.
     return map(resolves, function(val, key) {
@@ -134,9 +146,9 @@ function TransitionStep(pathElement, fn, locals, pathContext, options) {
  */
 $TransitionProvider.$inject = [];
 function $TransitionProvider() {
-  $TransitionProvider.instance = this;
+  $TransitionProvider.prototype.instance = this;
 
-  var $transition = {};
+  var $transition: TransitionService = {};
   var transitionEvents = {
     onBefore: [], onInvalid: [], onStart: [], on: [], entering: [], exiting: [], onSuccess: [], onError: []
   };
@@ -398,7 +410,7 @@ function $TransitionProvider() {
   $get.$inject = ['$q', '$injector', '$resolve', '$stateParams', '$timeout'];
   function $get(   $q,   $injector,   $resolve,   $stateParams,   $timeout) {
 
-    $TransitionProvider.instance.on({}, function $rejectIfInvalid($transition$) {
+    $TransitionProvider.prototype.instance.on({}, function $rejectIfInvalid($transition$) {
       if (!$transition$.$to().valid())
         throw new Error($transition$.$to().error());
     });
@@ -406,7 +418,7 @@ function $TransitionProvider() {
     REJECT = new RejectFactory($q);
     var transitionCount = 0;
 
-    function runSynchronousHooks(hooks, swallowExceptions) {
+    function runSynchronousHooks(hooks, swallowExceptions: boolean = false) {
       var promises = [];
       for (var i = 0; i < hooks.length; i++) {
         try {
@@ -602,7 +614,7 @@ function $TransitionProvider() {
          */
         exiting: function() {
           calculateTreeChanges();
-          var exitingStates = pluck(exiting.elements, 'state');
+          var exitingStates = <any[]> pluck(exiting.elements, 'state');
           exitingStates.reverse();
           return exitingStates;
         },
@@ -670,7 +682,8 @@ function $TransitionProvider() {
          * @returns {Transition} Returns a new `Transition` instance.
          */
         redirect: function(newTo, newOptions) {
-          if (newTo.state() === to && newTo.params() === params) return this;
+          // This code wasn't working because 'params' isn't a thing
+          //if (newTo.state() === to && newTo.params() === params) return this;
 
           return new Transition(from, newTo, extend(newOptions || this.options(), {
             previous: this
@@ -706,7 +719,7 @@ function $TransitionProvider() {
            * 2) the to state
            * 3) the from state
            */
-          function makeSteps(eventType, to, from, pathElement, locals, pathContext, options) {
+          function makeSteps(eventType, to, from, pathElement, locals, pathContext, options ?: Object): any[] {
             // trace stuff
             var stepData = {
               eventType: eventType,
@@ -718,9 +731,9 @@ function $TransitionProvider() {
             };
             options = extend(options || {}, baseHookOptions, { data: stepData });
 
-            var hooks = transitionEvents[eventType];
+            var hooks = <any[]> transitionEvents[eventType];
 
-            return map(filter(hooks, invoke('matches', [to, from])), function(hook) {
+            return map(filter(hooks, invoke('matches', [to, from])), function (hook) {
               return new TransitionStep(pathElement, hook.callback, locals, pathContext, options);
             });
           }
@@ -882,11 +895,18 @@ function $TransitionProvider() {
 
     $transition.isTransition = is(Transition);
 
-    $transition.provider = $TransitionProvider.instance;
+    $transition.provider = $TransitionProvider.prototype.instance;
 
     return $transition;
   }
 }
 
+interface TransitionService {
+  transition?: Object,
+  create?: Function,
+  isTransition?: Function,
+  provider?: Object,
+}
+
 angular.module('ui.router.state')
-  .provider('$transition', $TransitionProvider);
+  .provider('$transition', <IServiceProviderFactory> $TransitionProvider);

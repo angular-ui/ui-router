@@ -1,4 +1,9 @@
-var trace = new Trace();
+import {isDefined, isObject, isString, isFunction, extend, forEach, isArray} from "angular";
+import {isNull, isPromise, is, invoke, not, val, pattern, tpl, parse, objectKeys}  from "./common";
+import {Resolvable}  from "./resolve";
+import {Transition, TransitionRejection}  from "./transition";
+
+export var trace = new Trace();
 
 function Trace() {
   function trace(string) {

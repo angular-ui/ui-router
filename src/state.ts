@@ -1,3 +1,5 @@
+
+
 function StateQueueManager(states, builder, $urlRouterProvider, $state) {
   var queue = [];
 
@@ -1240,7 +1242,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
   }
 }
 
-function StateParams() { }
+export function StateParams() { }
 
 $StateParamsProvider.$inject = [];
 function $StateParamsProvider() {
