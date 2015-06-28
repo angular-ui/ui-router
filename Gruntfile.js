@@ -18,6 +18,19 @@ module.exports = function (grunt) {
         ' */'
     },
     clean: [ '<%= builddir %>' ],
+    typescript: {
+      base: {
+        src: files.src,
+        dest: '<%= builddir %>/ts2es5',
+        options: {
+          //module: 'amd', //or commonjs
+          module: 'commonjs',
+          target: 'es5',
+          sourceMap: true,
+          declaration: true
+        }
+      }
+    },
     concat: {
       options: {
         banner: '<%= meta.banner %>\n\n'+
@@ -39,7 +52,7 @@ module.exports = function (grunt) {
       },
       build: {
         files: {
-          '<%= builddir %>/<%= pkg.name %>.min.js': ['<banner:meta.banner>', '<%= concat.build.dest %>']
+          '<%= builddir %>/<%= pkg.name %>.min.js': ['<banner:meta.banner>', '<%= typescript.base.dest %>']
         }
       }
     },
@@ -55,7 +68,7 @@ module.exports = function (grunt) {
       }
     },
     watch: {
-      files: ['src/*.js', 'test/**/*.js'],
+      files: ['src/*.ts', 'src/*.js', 'test/**/*.js'],
       tasks: ['build', 'karma:background:run']
     },
     connect: {
@@ -130,7 +143,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('integrate', ['build', 'jshint', 'karma:unit', 'karma:past', 'karma:unstable']);
   grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
-  grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
+  grunt.registerTask('build', 'Perform a normal build', ['typescript', 'uglify']);
   grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
   grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['dist', 'ngdocs']);
   grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'dist', 'perform-release']);

@@ -1,6 +1,6 @@
 routerFiles = {
   src: [
-    'src/common.js',
+    'src/ui-router.ts',
     'src/resolve.js',
     'src/templateFactory.js',
     'src/urlMatcherFactory.js',
