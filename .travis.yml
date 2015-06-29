@@ -7,6 +7,8 @@ before_script:
   - sh -e /etc/init.d/xvfb start
   - npm install -g karma
   - npm install -g grunt-cli
+  - npm install -g bower
+  - bower install
   - ./nodeserver.sh > /dev/null &
 
 script:
