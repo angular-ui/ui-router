@@ -1,3 +1,6 @@
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+import {equalForKeys} from "./common";
+
 function parseStateRef(ref, current) {
   var preparsed = ref.match(/^\s*({[^}]*})\s*$/), parsed;
   if (preparsed) ref = current + '(' + preparsed[1] + ')';
@@ -99,7 +102,7 @@ function $StateRefDirective($state, $timeout) {
         }
       });
 
-      var update = function(newVal) {
+      var update = function(newVal?: any) {
         if (newVal) params = angular.copy(newVal);
         if (!nav) return;
 

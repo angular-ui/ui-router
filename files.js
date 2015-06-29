@@ -1,19 +1,19 @@
 routerFiles = {
   src: [
     'src/ui-router.ts',
-    'src/resolve.js',
-    'src/templateFactory.js',
-    'src/urlMatcherFactory.js',
-    'src/transition.js',
-    'src/urlRouter.js',
-    'src/state.js',
-    'src/view.js',
-    'src/viewScroll.js',
-    'src/viewDirective.js',
-    'src/stateDirectives.js',
-    'src/stateFilters.js',
-    'src/stateEvents.js',
-    'src/trace.js'
+    'src/resolve.ts',
+    'src/templateFactory.ts',
+    'src/urlMatcherFactory.ts',
+    'src/transition.ts',
+    'src/urlRouter.ts',
+    'src/state.ts',
+    'src/view.ts',
+    'src/viewScroll.ts',
+    'src/viewDirective.ts',
+    'src/stateDirectives.ts',
+    'src/stateFilters.ts',
+    'src/stateEvents.ts',
+    'src/trace.ts'
   ],
   testUtils: [
     'test/testUtils.js'

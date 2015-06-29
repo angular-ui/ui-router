@@ -7,9 +7,9 @@ import {StateParams} from "./state";
 import {objectKeys, filter, tpl, defaults, map, val, not, is, eq, isEq, parse, invoke,
     flatten, prop, pluck, pairs, pick, pipe, pattern, unnest, unroll, isPromise, GlobBuilder} from "./common";
 
-var Transition, REJECT;
+export var Transition, REJECT;
 
-function TransitionRejection(type, message, detail) {
+export function TransitionRejection(type, message, detail) {
   angular.extend(this, {
     type: type,
     message: message,

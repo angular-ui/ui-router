@@ -1,3 +1,5 @@
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+
 /**
  * @ngdoc filter
  * @name ui.router.state.filter:isState

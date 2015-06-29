@@ -1,3 +1,7 @@
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+
+import {parse, extend} from "./common";
+
 /**
  * @ngdoc directive
  * @name ui.router.state.directive:ui-view
@@ -192,7 +196,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
           }
         }
 
-        function updateView(config) {
+        function updateView(config?: any) {
           config = config || {};
           var newScope = scope.$new();
 

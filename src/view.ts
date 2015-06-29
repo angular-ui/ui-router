@@ -1,3 +1,5 @@
+import {isInjectable, isDefined, isArray, defaults, extend, forEach, map, parse, objectKeys} from "./common";
+
 /**
  * Represents the union of a template and (optional) controller.
  *
@@ -273,7 +275,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
    * @return {Boolean} Returns `true` if the view exists on the page, otherwise `false`.
    */
   this.exists = function exists (name, contextState) {
-    return isDefined(viewDefs[context ? this.find(name, contextState) : name]);
+    return isDefined(viewDefs[contextState ? this.find(name, contextState) : name]);
   };
 
   /**

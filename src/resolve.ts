@@ -1,8 +1,6 @@
-/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
-import {isDefined, isObject, isString, extend, forEach, isArray} from "angular";
+import {isDefined, isObject, isString, extend, forEach, isArray, noop} from "./common";
 import {defaults, pick, map, merge, tpl, filter, omit, parse, pluck, find, pipe, prop, eq}  from "./common";
 import {trace}  from "./trace";
-import {State}  from "./state";
 
 var Resolvable, Path, PathElement;
 
@@ -38,7 +36,7 @@ function $Resolve(  $q,    $injector) {
    */
 
 
-  Resolvable = function Resolvable(name: string, resolveFn: Function, state: State) {
+  Resolvable = function Resolvable(name: string, resolveFn: Function, state: Object) {
     var self = this;
 
     // Resolvable: resolveResolvable()
@@ -143,8 +141,8 @@ function $Resolve(  $q,    $injector) {
       var policyOrdinal = resolvePolicies[options && options.policy || defaultResolvePolicy];
 
       var policyConf = {
-        $$state: angular.isString(self.state.resolvePolicy) ? self.state.resolvePolicy : defaultResolvePolicy,
-        $$resolves: angular.isObject(self.state.resolvePolicy) ? self.state.resolvePolicy : defaultResolvePolicy
+        $$state: isString(self.state.resolvePolicy) ? self.state.resolvePolicy : defaultResolvePolicy,
+        $$resolves: isObject(self.state.resolvePolicy) ? self.state.resolvePolicy : defaultResolvePolicy
       };
 
       // Isolate only this element's resolvables
@@ -159,7 +157,7 @@ function $Resolve(  $q,    $injector) {
       function matchesPolicy(resolvable) { return policyConf[resolvable.name] >= policyOrdinal; }
       function getResolvePromise(resolvable) { return resolvable.get(pathContext, options); }
       var resolvablePromises = map(filter(resolvables, matchesPolicy), getResolvePromise);
-      return $q.all(resolvablePromises).then(angular.noop);
+      return $q.all(resolvablePromises).then(noop);
     }
 
     // Injects a function at this PathElement level with available Resolvables
@@ -247,7 +245,7 @@ function $Resolve(  $q,    $injector) {
       options = options || {};
       if (options.trace) trace.traceResolvePath(self, options);
       function elementPromises(element) { return element.resolvePathElement(self, options); }
-      return $q.all(map(elements, elementPromises)).then(angular.noop);
+      return $q.all(map(elements, elementPromises)).then(noop);
     }
 
     /**

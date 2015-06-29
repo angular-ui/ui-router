@@ -1,10 +1,9 @@
 /// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
-import { isDefined, isFunction, isString, isObject, isArray, forEach, extend, copy } from "angular";
-
+import { isDefined, isFunction, isString, isObject, isArray, forEach, extend, copy, noop } from "angular";
+export { isDefined, isFunction, isString, isObject, isArray, forEach, extend, copy, noop };
 "use strict";
 
-var abstractKey = 'abstract';
-
+export var abstractKey = 'abstract';
 export function inherit(parent, extra) {
   return extend(new (extend(function() {}, { prototype: parent }))(), extra);
 }
@@ -93,7 +92,7 @@ export function objectKeys(object): string[] {
  * @param {*} value A value to search the array for.
  * @return {Number} Returns the array index value of `value`, or `-1` if not present.
  */
-var arraySearch = indexOf;
+export var arraySearch = indexOf;
 export function indexOf(array, value) {
   if (Array.prototype.indexOf) {
     return array.indexOf(value, Number(arguments[2]) || 0);
@@ -144,7 +143,7 @@ export function inheritParams(currentParams, newParams, $current, $to) {
  *                     it defaults to the list of keys in `a`.
  * @return {Boolean} Returns `true` if the keys match, otherwise `false`.
  */
-export function equalForKeys(a, b, keys) {
+export function equalForKeys(a, b, keys?: string[]) {
   if (!keys) {
     keys = [];
     for (var n in a) keys.push(n); // Used instead of Object.keys() for IE8 compatibility
@@ -254,7 +253,7 @@ export function map<T> (collection: T, callback): T {
   forEach(collection, function(val, i) {
     result[i] = callback(val, i);
   });
-  return result;
+  return <T> result;
 }
 
 export function _map(callback) {

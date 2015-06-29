@@ -1,3 +1,6 @@
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+import {IServiceProviderFactory} from "angular";
+
 /**
  * @ngdoc object
  * @name ui.router.state.$uiViewScrollProvider
@@ -49,4 +52,4 @@ function $ViewScrollProvider() {
   }];
 }
 
-angular.module('ui.router.state').provider('$uiViewScroll', $ViewScrollProvider);
+angular.module('ui.router.state').provider('$uiViewScroll', <IServiceProviderFactory> $ViewScrollProvider);

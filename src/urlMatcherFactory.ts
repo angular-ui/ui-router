@@ -1,4 +1,9 @@
-var $$UMFP; // reference to $UrlMatcherFactoryProvider
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+import {IServiceProviderFactory} from "angular";
+import {forEach, extend, inherit, map, filter, indexOf, objectKeys, isObject, isDefined, isArray, isString, isInjectable, isFunction} from "./common";
+
+
+export var $$UMFP; // reference to $UrlMatcherFactoryProvider
 
 /**
  * @ngdoc object
@@ -65,7 +70,7 @@ var $$UMFP; // reference to $UrlMatcherFactoryProvider
  *
  * @returns {Object}  New `UrlMatcher` object
  */
-function UrlMatcher(pattern, config, parentMatcher) {
+function UrlMatcher(pattern, config, parentMatcher?: any) {
   config = extend({ params: {} }, isObject(config) ? config : {});
 
   // Find all placeholders and create a compiled pattern, using either classic or curly syntax:
@@ -98,7 +103,7 @@ function UrlMatcher(pattern, config, parentMatcher) {
     return params[id];
   }
 
-  function quoteRegExp(string, pattern, squash, optional) {
+  function quoteRegExp(string, pattern?: any, squash?: any, optional?: any) {
     var surroundPattern = ['',''], result = string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
     if (!pattern) return result;
     switch(squash) {
@@ -523,7 +528,7 @@ Type.prototype.$asArray = function(mode, isSearch) {
     function falsey(val) { return !val; }
 
     // Wraps type (.is/.encode/.decode) functions to operate on each value of an array
-    function arrayHandler(callback, allTruthyMode) {
+    function arrayHandler(callback, allTruthyMode?: boolean) {
       return function handleArray(val) {
         val = arrayWrap(val);
         var result = map(val, callback);
@@ -576,7 +581,7 @@ function $UrlMatcherFactory() {
   function valToString(val) { return val != null ? val.toString().replace(/\//g, "%2F") : val; }
   function valFromString(val) { return val != null ? val.toString().replace(/%2F/g, "/") : val; }
 
-  var $types = {}, enqueue = true, typeQueue = [], injector, defaultTypes = {
+  var $types: any = {}, enqueue = true, typeQueue = [], injector, defaultTypes = {
     hash: {
       encode: valToString,
       decode: valFromString,
@@ -646,7 +651,7 @@ function $UrlMatcherFactory() {
   /**
    * [Internal] Get the default value of a parameter, which may be an injectable function.
    */
-  $UrlMatcherFactory.$$getDefaultValue = function(config) {
+  $UrlMatcherFactory.prototype.$$getDefaultValue = function(config) {
     if (!isInjectable(config.value)) return config.value;
     if (!injector) throw new Error("Injectable functions cannot be called at configuration time");
     return injector.invoke(config.value);
@@ -991,7 +996,7 @@ function $UrlMatcherFactory() {
     });
   };
 
-  function ParamSet(params) {
+  function ParamSet(params?: any) {
     extend(this, params || {});
   }
 
@@ -1058,5 +1063,5 @@ function $UrlMatcherFactory() {
 }
 
 // Register as a provider so it's available to other providers
-angular.module('ui.router.util').provider('$urlMatcherFactory', $UrlMatcherFactory);
+angular.module('ui.router.util').provider('$urlMatcherFactory', <IServiceProviderFactory> $UrlMatcherFactory);
 angular.module('ui.router.util').run(['$urlMatcherFactory', function($urlMatcherFactory) { }]);
