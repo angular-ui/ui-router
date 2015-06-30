@@ -1,9 +1,10 @@
-import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEach, pick, objectKeys, ancestors, arraySearch, FunctionIterator, GlobBuilder} from "./common";
+import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEach, pick, objectKeys, ancestors, arraySearch, FunctionIterator} from "./common";
 import {not, prop, pipe, val} from "./common";
 import {isDefined, isFunction, isArray, isObject, isString} from "./common";
+import {Glob} from "./glob";
 import {TransitionRejection} from "./transition";
-import {$$UMFP} from "./urlMatcherFactory"
-import {IServiceProviderFactory} from "angular"
+import {$$UMFP} from "./urlMatcherFactory";
+import {IServiceProviderFactory} from "angular";
 
 
 function StateQueueManager(states, builder, $urlRouterProvider, $state) {
@@ -1161,7 +1162,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      */
     $state.prototype.includes = function includes(stateOrName, params, options) {
       options = extend({ relative: $state.$current }, options || {});
-      var glob = isString(stateOrName) && GlobBuilder.fromString(stateOrName);
+      var glob = isString(stateOrName) && Glob.fromString(stateOrName);
 
       if (glob) {
         if (!glob.matches($state.$current.name)) return false;

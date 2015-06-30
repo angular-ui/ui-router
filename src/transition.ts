@@ -1,16 +1,17 @@
 /// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
-import {extend, forEach, isFunction, isObject, isString, IServiceProviderFactory} from "angular";
+import {extend, forEach, isFunction, isNumber, isObject, isString, IServiceProviderFactory} from "angular";
 import {trace} from "./trace";
 import {Resolvable, Path, PathElement} from "./resolve";
 import {StateParams} from "./state";
 import {objectKeys, filter, tpl, defaults, map, val, not, is, eq, isEq, parse, invoke,
-    flatten, prop, pluck, pairs, pick, pipe, pattern, unnest, unroll, isPromise, GlobBuilder} from "./common";
+    flatten, prop, pluck, pairs, pick, pipe, pattern, unnest, unroll, isPromise} from "./common";
+import {Glob} from "./glob";
 
 export var Transition, REJECT;
 
 export function TransitionRejection(type, message, detail) {
-  angular.extend(this, {
+  extend(this, {
     type: type,
     message: message,
     detail: detail
@@ -20,7 +21,7 @@ export function TransitionRejection(type, message, detail) {
 TransitionRejection.prototype.toString = function() {
   function detailString(d) { return d && d.toString !== Object.prototype.toString ? d.toString() : JSON.stringify(d); }
   var types = {};
-  angular.forEach(filter(Transition.prototype, angular.isNumber), function(val, key) { types[val] = key; });
+  forEach(filter(Transition.prototype, isNumber), function(val, key) { types[val] = key; });
   var tplData = {type: types[this.type] || this.type, message: this.message, detail: detailString(this.detail)};
   return tpl("TransitionRejection(type: {type}, message: {message}, detail: {detail})", tplData);
 };
@@ -168,7 +169,7 @@ function $TransitionProvider() {
 
     function matchGlobs(state) {
       for (var i = 0; i < toMatch.length; i++) {
-        var glob = GlobBuilder.fromString(toMatch[i]);
+        var glob = Glob.fromString(toMatch[i]);
 
         if ((glob && glob.matches(state.name)) || (!glob && toMatch[i] === state.name)) {
           return true;
