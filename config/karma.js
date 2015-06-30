@@ -8,12 +8,20 @@ module.exports = function (karma) {
     basePath: '..',
 
     // list of files / patterns to load in the browser
-    files: [].concat(files.angular('1.2.14'), files.testUtils, files.src, files.test),
+    files: [].concat(files.angular('1.2.14'), files.testUtils, files.buildDest, files.test),
+    preprocessors: {
+      'lib/angular*.js': ['webpack']
+    },
 
     // level of logging
     // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
     logLevel: karma.LOG_DEBUG,
     frameworks: ['jasmine'],
+    plugins: [
+      require('karma-webpack'),
+      'karma-jasmine',
+      'karma-phantomjs-launcher'
+    ],
 
     // Start these browsers, currently available:
     // - Chrome
