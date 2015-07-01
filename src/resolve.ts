@@ -573,4 +573,4 @@ function $Resolve(  $q,    $injector) {
   };
 }
 
-angular.module('ui.router.util').service('$resolve', $Resolve);
+angular.module('ui.router.util').service('$resolve', $Resolve).run(run);
