@@ -168,15 +168,14 @@ export class PathElement {
   // pathContext is a Path which is used to retrieve dependent Resolvables for injecting
   invokeLater(fn, locals, pathContext, options): IPromise<any> {
     options = options || {};
-    var self = this;
     var deps = $injector.annotate(fn);
     var resolvables = pick(pathContext.pathFromRoot(this).getResolvables(), deps);
     if (options.trace) trace.tracePathElementInvoke(this, fn, deps, extend({ when: "Later"}, options));
 
     var promises: any = map(resolvables, function(resolvable) { return resolvable.get(pathContext); });
-    return $q.all(promises).then(function() {
+    return $q.all(promises).then(() => {
       try {
-        return self.invokeNow(fn, locals, pathContext, options);
+        return this.invokeNow(fn, locals, pathContext, options);
       } catch (error) {
         return $q.reject(error);
       }
