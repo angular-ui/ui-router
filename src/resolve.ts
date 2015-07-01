@@ -1,8 +1,325 @@
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+
 import {isDefined, isObject, isString, extend, forEach, isArray, noop} from "./common";
 import {defaults, pick, map, merge, tpl, filter, omit, parse, pluck, find, pipe, prop, eq}  from "./common";
 import {trace}  from "./trace";
+import {IPromise, IQService, identity} from "angular";
+import {IPublicState} from "./state";
 
-var Resolvable, Path, PathElement;
+var $injector: ng.auto.IInjectorService, $q: IQService;
+
+/**
+ * The basic building block for the resolve system.
+ *
+ * Resolvables encapsulate a state's resolve's resolveFn, the resolveFn's declared dependencies, the wrapped (.promise),
+ * and the unwrapped-when-complete (.data) result of the resolveFn.
+ *
+ * Resolvable.get() either retrieves the Resolvable's existing promise, or else invokes resolve() (which invokes the
+ * resolveFn) and returns the resulting promise.
+ *
+ * Resolvable.get() and Resolvable.resolve() both execute within a context Path, which is passed as the first
+ * parameter to those fns.
+ */
+export class Resolvable {
+  constructor(name: string, resolveFn: Function, state: IPublicState) {
+    this.name = name;
+    this.resolveFn = resolveFn;
+    this.state = state;
+    this.deps = $injector.annotate(resolveFn);
+  }
+
+  name: String;
+  resolveFn: Function;
+  state: IPublicState;
+  deps: string[];
+
+  promise: IPromise<any> = undefined;
+  data: any;
+
+  //var self = this;
+
+  // Resolvable: resolveResolvable()
+
+  // synchronous part:
+  // - sets up the Resolvable's promise
+  // - retrieves dependencies' promises
+  // - returns promise for async part
+
+  // asynchronous part:
+  // - wait for dependencies promises to resolve
+  // - invoke the resolveFn
+  // - wait for resolveFn promise to resolve
+  // - store unwrapped data
+  // - resolve the Resolvable's promise
+  resolveResolvable(pathContext, options) {
+    options = options || {};
+    if (options.trace) trace.traceResolveResolvable(this, options);
+    // First, set up an overall deferred/promise for this Resolvable
+    var deferred = $q.defer();
+    this.promise = deferred.promise;
+
+    // Load a map of all resolvables for this state from the context path
+    // Omit the current Resolvable from the result, so we don't try to inject this into this
+    var ancestorsByName = pathContext.getResolvables({  omitOwnLocals: [ this.name ] });
+
+    // Limit the ancestors Resolvables map to only those that the current Resolvable fn's annotations depends on
+    var depResolvables = pick(ancestorsByName, this.deps);
+
+    // Get promises (or synchronously invoke resolveFn) for deps
+    var depPromises: any = map(depResolvables, function(resolvable) {
+      return resolvable.get(pathContext);
+    });
+
+    // Return a promise chain that waits for all the deps to resolve, then invokes the resolveFn passing in the
+    // dependencies as locals, then unwraps the resulting promise's data.
+    return $q.all(depPromises).then(function invokeResolve(locals) {
+      try {
+        var result = $injector.invoke(this.resolveFn, this.state, locals);
+        deferred.resolve(result);
+      } catch (error) {
+        deferred.reject(error);
+      }
+      return this.promise;
+    }).then(function(data) {
+      this.data = data;
+      return this.promise;
+    });
+  }
+
+  get(pathContext, options): IPromise<any> {
+    return this.promise || this.resolveResolvable(pathContext, options);
+  }
+
+  // TODO: nuke this in favor of resolveResolvable
+  resolve(pathContext, options) { return this.resolveResolvable(pathContext, options); }
+
+  toString() {
+    return tpl("Resolvable(name: {name}, state: {state.name}, requires: [{deps}])", this);
+  }
+}
+
+
+// Eager resolves are resolved before the transition starts.
+// Lazy resolves are resolved before their state is entered.
+// JIT resolves are resolved just-in-time, right before an injected function that depends on them is invoked.
+var resolvePolicies = { eager: 3, lazy: 2, jit: 1 };
+var defaultResolvePolicy = "jit"; // TODO: make this configurable
+
+/**
+ * An element in the path which represents a state and that state's Resolvables and their resolve statuses.
+ * When the resolved data is ready, it is stored in each Resolvable object within the PathElement
+ *
+ * Should be passed a state object.  I think maybe state could even be the public state, so users can add resolves
+ * on the fly.
+ */
+export class PathElement {
+  constructor(state: IPublicState) {
+    this.state = state;
+    // Convert state's resolvable assoc-array into an assoc-array of empty Resolvable(s)
+    this._resolvables = map(state.resolve || {}, function(resolveFn, resolveName) {
+      return new Resolvable(resolveName, resolveFn, state);
+    });
+  }
+
+  state: IPublicState;
+  private _resolvables: Object;
+
+  getResolvables(): Object {
+    return this._resolvables;
+  }
+
+  addResolvables(resolvablesByName): Object {
+    return extend(this._resolvables, resolvablesByName);
+  }
+
+  // returns a promise for all resolvables on this PathElement
+  // options.policy: only return promises for those Resolvables which are at the specified policy strictness, or above.
+  resolvePathElement(pathContext, options): IPromise<any> {
+    options = options || {};
+    var policyOrdinal = resolvePolicies[options && options.policy || defaultResolvePolicy];
+
+    var policyConf = {
+      $$state: isString(this.state.resolvePolicy) ? this.state.resolvePolicy : defaultResolvePolicy,
+      $$resolves: isObject(this.state.resolvePolicy) ? this.state.resolvePolicy : defaultResolvePolicy
+    };
+
+    // Isolate only this element's resolvables
+    var elements: PathElement[] = [this];
+    var resolvables = <any> (new Path(elements).getResolvables());
+    forEach(resolvables, function(resolvable) {
+      var policyString = policyConf.$$resolves[resolvable.name] || policyConf.$$state;
+      policyConf[resolvable.name] = resolvePolicies[policyString];
+    });
+
+    if (options.trace) trace.traceResolvePathElement(this, filter(resolvables, matchesPolicy), options);
+
+    function matchesPolicy(resolvable) { return policyConf[resolvable.name] >= policyOrdinal; }
+    function getResolvePromise(resolvable) { return resolvable.get(pathContext, options); }
+    var resolvablePromises = map(filter(resolvables, matchesPolicy), getResolvePromise);
+    return $q.all(resolvablePromises).then(noop);
+  }
+
+  // Injects a function at this PathElement level with available Resolvables
+  // First it resolves all resolvables.  When they are done resolving, invokes the function.
+  // Returns a promise for the return value of the function.
+  // public function
+  // fn is the function to inject (onEnter, onExit, controller)
+  // locals are the regular-style locals to inject
+  // pathContext is a Path which is used to retrieve dependent Resolvables for injecting
+  invokeLater(fn, locals, pathContext, options): IPromise<any> {
+    options = options || {};
+    var deps = $injector.annotate(fn);
+    var resolvables = pick(pathContext.pathFromRoot(this).getResolvables(), deps);
+    if (options.trace) trace.tracePathElementInvoke(this, fn, deps, extend({ when: "Later"}, options));
+
+    var promises: any = map(resolvables, function(resolvable) { return resolvable.get(pathContext); });
+    return $q.all(promises).then(function() {
+      try {
+        return this.invokeNow(fn, locals, pathContext, options);
+      } catch (error) {
+        return $q.reject(error);
+      }
+    });
+  }
+
+  // private function? Maybe needs to be public-to-$transition to allow onEnter/onExit to be invoked synchronously
+  // and in the correct order, but only after we've manually ensured all the deps are resolved.
+
+  // Injects a function at this PathElement level with available Resolvables
+  // Does not wait until all Resolvables have been resolved; you must call PathElement.resolve() (or manually resolve each dep) first
+  invokeNow(fn, locals, pathContext, options) {
+    options = options || {};
+    var deps = $injector.annotate(fn);
+    var resolvables = pick(pathContext.pathFromRoot(this).getResolvables(), deps);
+    if (options.trace) trace.tracePathElementInvoke(this, fn, $injector.annotate(fn), extend({ when: "Now  "}, options));
+
+    var moreLocals = map(resolvables, function(resolvable) { return resolvable.data; });
+    var combinedLocals = extend({}, locals, moreLocals);
+    return $injector.invoke(fn, this.state, combinedLocals);
+  }
+
+  toString(): string {
+    var tplData = { state: parse("state.name")(this) || "(root)" };
+    return tpl("PathElement({state})", tplData);
+  }
+}
+
+
+/**
+ *  A Path Object holds an ordered list of PathElements.
+ *
+ *  This object is used to store resolve status for an entire path of states. It has concat and slice
+ *  helper methods to return new Paths, based on the current Path.
+ *
+ *
+ *  Path becomes the replacement data structure for $state.$current.locals.
+ *  The Path is used in the three resolve() functions (Path.resolvePath, PathElement.resolvePathElement,
+ *  and Resolvable.resolveResolvable) and provides context for injectable dependencies (Resolvables)
+ *
+ *  @param statesOrPathElements [array]: an array of either state(s) or PathElement(s)
+ */
+
+export class Path {
+  constructor(statesOrPathElements: (IPublicState[] | PathElement[])) {
+    if (!isArray(statesOrPathElements))
+      throw new Error("states must be an array of state(s) or PathElement(s): ${statesOrPathElements}");
+
+    var isPathElementArray = (statesOrPathElements.length && (statesOrPathElements[0] instanceof PathElement));
+    var toPathElement = isPathElementArray ? identity : function (state) { return new PathElement(state); };
+    this.elements = <PathElement[]> map(statesOrPathElements, toPathElement);
+  }
+
+  elements: PathElement[];
+
+  // Returns a promise for an array of resolved Path Element promises
+  resolvePath(options: any): IPromise<any> {
+    options = options || {};
+    if (options.trace) trace.traceResolvePath(this, options);
+    function elementPromises(element) { return element.resolvePathElement(this, options); }
+    return $q.all(<any> map(this.elements, elementPromises)).then(noop);
+  }
+  // TODO nuke this in favor of resolvePath()
+  resolve(options: any) { return this.resolvePath(options); }
+
+  /**
+   *  Gets the available Resolvables for the last element of this path.
+   *
+   * @param options
+   *
+   * options.omitOwnLocals: array of property names
+   *   Omits those Resolvables which are found on the last element of the path.
+   *
+   *   This will hide a deepest-level resolvable (by name), potentially exposing a parent resolvable of
+   *   the same name further up the state tree.
+   *
+   *   This is used by Resolvable.resolve() in order to provide the Resolvable access to all the other
+   *   Resolvables at its own PathElement level, yet disallow that Resolvable access to its own injectable Resolvable.
+   *
+   *   This is also used to allow a state to override a parent state's resolve while also injecting
+   *   that parent state's resolve:
+   *
+   *   state({ name: 'G', resolve: { _G: function() { return "G"; } } });
+   *   state({ name: 'G.G2', resolve: { _G: function(_G) { return _G + "G2"; } } });
+   *   where injecting _G into a controller will yield "GG2"
+   */
+  getResolvables(options?: any): { [key:string]:Resolvable; } {
+    options = defaults(options, { omitOwnLocals: [] });
+    var last = this.last();
+    return this.elements.reduce(function(memo, elem) {
+      var omitProps = (elem === last) ? options.omitOwnLocals : [];
+      var elemResolvables = omit.apply(null, [elem.getResolvables()].concat(omitProps));
+      return extend(memo, elemResolvables);
+    }, {});
+  }
+
+  clone(): Path {
+    throw new Error("Clone not yet implemented");
+  }
+
+  // returns a subpath of this path from the root path element up to and including the toPathElement parameter
+  pathFromRoot(toPathElement): Path {
+    var elementIdx = this.elements.indexOf(toPathElement);
+    if (elementIdx == -1) throw new Error("This Path does not contain the toPathElement");
+    return this.slice(0, elementIdx + 1);
+  }
+
+  concat(path): Path {
+    return new Path(this.elements.concat(path.elements));
+  }
+
+  slice(start: number, end?: number): Path {
+    return new Path(this.elements.slice(start, end));
+  }
+
+  reverse(): Path {
+    this.elements.reverse(); // TODO: return new Path()
+    return this;
+  }
+
+  states(): IPublicState[] {
+    return pluck(this.elements, "state");
+  }
+
+  elementForState(state: IPublicState) {
+    return find(this.elements, pipe(prop('state'), eq(state)));
+  }
+
+  last(): PathElement {
+    return this.elements.length ? this.elements[this.elements.length - 1] : null;
+  }
+
+  toString() {
+    var tplData = { elements: this.elements.map(function(e) { return e.state.name; }).join(", ") };
+    return tpl("Path([{elements}])", tplData);
+  }
+}
+
+run.$inject = ['$q',    '$injector'];
+function run(  _$q_,    _$injector_) {
+  $q = _$q_;
+  $injector = _$injector_;
+}
+
 
 /**
  * @ngdoc object
@@ -16,327 +333,6 @@ var Resolvable, Path, PathElement;
  */
 $Resolve.$inject = ['$q', '$injector'];
 function $Resolve(  $q,    $injector) {
-
-  /*
-   ------- Resolvable, PathElement, Path ------------------
-   I think these should be private API for now because we may need to iterate it for a while.
-   /*
-
-   /*  Resolvable
-
-   The basic building block for the new resolve system.
-   Resolvables encapsulate a state's resolve's resolveFn, the resolveFn's declared dependencies, and the wrapped (.promise)
-   and unwrapped-when-complete (.data) result of the resolveFn.
-
-   Resolvable.get() either retrieves the Resolvable's existing promise, or else invokes resolve() (which invokes the
-   resolveFn) and returns the resulting promise.
-
-   Resolvable.get() and Resolvable.resolve() both execute within a context Path, which is passed as the first
-   parameter to those fns.
-   */
-
-
-  Resolvable = function Resolvable(name: string, resolveFn: Function, state: Object) {
-    var self = this;
-
-    // Resolvable: resolveResolvable()
-
-    // synchronous part:
-    // - sets up the Resolvable's promise
-    // - retrieves dependencies' promises
-    // - returns promise for async part
-
-    // asynchronous part:
-    // - wait for dependencies promises to resolve
-    // - invoke the resolveFn
-    // - wait for resolveFn promise to resolve
-    // - store unwrapped data
-    // - resolve the Resolvable's promise
-    function resolveResolvable(pathContext, options) {
-      options = options || {};
-      if (options.trace) trace.traceResolveResolvable(self, options);
-      // First, set up an overall deferred/promise for this Resolvable
-      var deferred = $q.defer();
-      self.promise = deferred.promise;
-
-      // Load a map of all resolvables for this state from the context path
-      // Omit the current Resolvable from the result, so we don't try to inject self into self
-      var ancestorsByName = pathContext.getResolvables({  omitOwnLocals: [ self.name ] });
-
-      // Limit the ancestors Resolvables map to only those that the current Resolvable fn's annotations depends on
-      var depResolvables = pick(ancestorsByName, self.deps);
-
-      // Get promises (or synchronously invoke resolveFn) for deps
-      var depPromises = map(depResolvables, function(resolvable) {
-        return resolvable.get(pathContext);
-      });
-
-      // Return a promise chain that waits for all the deps to resolve, then invokes the resolveFn passing in the
-      // dependencies as locals, then unwraps the resulting promise's data.
-      return $q.all(depPromises).then(function invokeResolve(locals) {
-        try {
-          var result = $injector.invoke(self.resolveFn, state, locals);
-          deferred.resolve(result);
-        } catch (error) {
-          deferred.reject(error);
-        }
-        return self.promise;
-      }).then(function(data) {
-        self.data = data;
-        return self.promise;
-      });
-    }
-
-    function resolvableToString() {
-      return tpl("Resolvable(name: {name}, state: {state.name}, requires: [{deps}])", self);
-    }
-
-    // Public API
-    extend(this, {
-      name: name,
-      resolveFn: resolveFn,
-      state: state,
-      deps: $injector.annotate(resolveFn),
-      resolve: resolveResolvable, // aliased function name for stacktraces
-      resolveResolvable: resolveResolvable, // aliased function name for stacktraces
-      promise: undefined,
-      data: undefined,
-      get: function(pathContext, options) {
-        return self.promise || resolveResolvable(pathContext, options);
-      },
-      toString: resolvableToString
-    });
-  };
-
-  // Eager resolves are resolved before the transition starts.
-  // Lazy resolves are resolved before their state is entered.
-  // JIT resolves are resolved just-in-time, right before an injected function that depends on them is invoked.
-  var resolvePolicies = { eager: 3, lazy: 2, jit: 1 };
-  var defaultResolvePolicy = "jit"; // TODO: make this configurable
-
-  // An element in the path which represents a state and that state's Resolvables and their resolve statuses.
-  // When the resolved data is ready, it is stored in each Resolvable object within the PathElement
-
-  // Should be passed a state object.  I think maybe state could even be the public state, so users can add resolves
-  // on the fly.
-  PathElement = function PathElement(state) {
-    var self = this;
-    // Convert state's resolvable assoc-array into an assoc-array of empty Resolvable(s)
-    var resolvables = map(state.resolve || {}, function(resolveFn, resolveName) {
-      return new Resolvable(resolveName, resolveFn, state);
-    });
-
-    function getResolvables() {
-      return resolvables;
-    }
-
-    function addResolvables(resolvablesByName) {
-      return extend(resolvables, resolvablesByName);
-    }
-
-    // returns a promise for all resolvables on this PathElement
-    // options.policy: only return promises for those Resolvables which are at the specified policy strictness, or above.
-    function resolvePathElement(pathContext, options) {
-      options = options || {};
-      var policyOrdinal = resolvePolicies[options && options.policy || defaultResolvePolicy];
-
-      var policyConf = {
-        $$state: isString(self.state.resolvePolicy) ? self.state.resolvePolicy : defaultResolvePolicy,
-        $$resolves: isObject(self.state.resolvePolicy) ? self.state.resolvePolicy : defaultResolvePolicy
-      };
-
-      // Isolate only this element's resolvables
-      var resolvables = new Path([self]).getResolvables();
-      forEach(resolvables, function(resolvable) {
-        var policyString = policyConf.$$resolves[resolvable.name] || policyConf.$$state;
-        policyConf[resolvable.name] = resolvePolicies[policyString];
-      });
-
-      if (options.trace) trace.traceResolvePathElement(self, filter(resolvables, matchesPolicy), options);
-
-      function matchesPolicy(resolvable) { return policyConf[resolvable.name] >= policyOrdinal; }
-      function getResolvePromise(resolvable) { return resolvable.get(pathContext, options); }
-      var resolvablePromises = map(filter(resolvables, matchesPolicy), getResolvePromise);
-      return $q.all(resolvablePromises).then(noop);
-    }
-
-    // Injects a function at this PathElement level with available Resolvables
-    // First it resolves all resolvables.  When they are done resolving, invokes the function.
-    // Returns a promise for the return value of the function.
-    // public function
-    // fn is the function to inject (onEnter, onExit, controller)
-    // locals are the regular-style locals to inject
-    // pathContext is a Path which is used to retrieve dependent Resolvables for injecting
-    function invokeLater(fn, locals, pathContext, options) {
-      options = options || {};
-      var deps = $injector.annotate(fn);
-      var resolvables = pick(pathContext.pathFromRoot(self).getResolvables(), deps);
-      if (options.trace) trace.tracePathElementInvoke(self, fn, deps, extend({ when: "Later"}, options));
-
-      var promises = map(resolvables, function(resolvable) { return resolvable.get(pathContext); });
-      return $q.all(promises).then(function() {
-        try {
-          return self.invokeNow(fn, locals, pathContext, options);
-        } catch (error) {
-          return $q.reject(error);
-        }
-      });
-    }
-
-    // private function? Maybe needs to be public-to-$transition to allow onEnter/onExit to be invoked synchronously
-    // and in the correct order, but only after we've manually ensured all the deps are resolved.
-
-    // Injects a function at this PathElement level with available Resolvables
-    // Does not wait until all Resolvables have been resolved; you must call PathElement.resolve() (or manually resolve each dep) first
-    function invokeNow(fn, locals, pathContext, options) {
-      options = options || {};
-      var deps = $injector.annotate(fn);
-      var resolvables = pick(pathContext.pathFromRoot(self).getResolvables(), deps);
-      if (options.trace) trace.tracePathElementInvoke(self, fn, $injector.annotate(fn), extend({ when: "Now  "}, options));
-
-      var moreLocals = map(resolvables, function(resolvable) { return resolvable.data; });
-      var combinedLocals = extend({}, locals, moreLocals);
-      return $injector.invoke(fn, self.state, combinedLocals);
-    }
-
-    function pathElementToString() {
-      var tplData = { state: parse("state.name")(self) || "(root)" };
-      return tpl("PathElement({state})", tplData);
-    }
-
-    // public API so far
-    extend(this, {
-      state: state,
-      getResolvables: getResolvables,
-      addResolvables: addResolvables,
-      resolvePathElement: resolvePathElement,
-      invokeNow: invokeNow, // this might be private later
-      invokeLater: invokeLater,
-      toString: pathElementToString
-    });
-  };
-
-  /**
-   *  A Path Object holds an ordered list of PathElements.
-   *
-   *  This object is used to store resolve status for an entire path of states. It has concat and slice
-   *  helper methods to return new Paths, based on the current Path.
-   *
-   *
-   *  Path becomes the replacement data structure for $state.$current.locals.
-   *  The Path is used in the three resolve() functions (Path.resolvePath, PathElement.resolvePathElement,
-   *  and Resolvable.resolveResolvable) and provides context for injectable dependencies (Resolvables)
-   *
-   *  @param statesOrPathElements [array]: an array of either state(s) or PathElement(s)
-   */
-
-  Path = function Path(statesOrPathElements) {
-    var self = this;
-    if (!isArray(statesOrPathElements)) throw new Error("states must be an array of state(s) or PathElement(s): ${statesOrPathElements}");
-    var isPathElementArray = (statesOrPathElements.length && (statesOrPathElements[0] instanceof PathElement));
-
-    var elements = statesOrPathElements;
-    if (!isPathElementArray) { // they passed in states; convert them to PathElements
-      elements = map(elements, function (state) { return new PathElement(state); });
-    }
-
-    // Returns a promise for an array of resolved Path Element promises
-    function resolvePath(options) {
-      options = options || {};
-      if (options.trace) trace.traceResolvePath(self, options);
-      function elementPromises(element) { return element.resolvePathElement(self, options); }
-      return $q.all(map(elements, elementPromises)).then(noop);
-    }
-
-    /**
-     *  Gets the available Resolvables for the last element of this path.
-     *
-     * @param options
-     *
-     * options.omitOwnLocals: array of property names
-     *   Omits those Resolvables which are found on the last element of the path.
-     *
-     *   This will hide a deepest-level resolvable (by name), potentially exposing a parent resolvable of
-     *   the same name further up the state tree.
-     *
-     *   This is used by Resolvable.resolve() in order to provide the Resolvable access to all the other
-     *   Resolvables at its own PathElement level, yet disallow that Resolvable access to its own injectable Resolvable.
-     *
-     *   This is also used to allow a state to override a parent state's resolve while also injecting
-     *   that parent state's resolve:
-     *
-     *   state({ name: 'G', resolve: { _G: function() { return "G"; } } });
-     *   state({ name: 'G.G2', resolve: { _G: function(_G) { return _G + "G2"; } } });
-     *   where injecting _G into a controller will yield "GG2"
-     */
-    function getResolvables(options) {
-      options = defaults(options, { omitOwnLocals: [] });
-      var last = self.last();
-      return self.elements.reduce(function(memo, elem) {
-        var omitProps = (elem === last) ? options.omitOwnLocals : [];
-        var elemResolvables = omit.apply(null, [elem.getResolvables()].concat(omitProps));
-        return extend(memo, elemResolvables);
-      }, {});
-    }
-
-    function clone() {
-      throw new Error("Clone not yet implemented");
-    }
-
-    // returns a subpath of this path from the root path element up to and including the toPathElement parameter
-    function pathFromRoot(toPathElement) {
-      var elementIdx = elements.indexOf(toPathElement);
-      if (elementIdx == -1) throw new Error("This Path does not contain the toPathElement");
-      return self.slice(0, elementIdx + 1);
-    }
-
-    function concat(path) {
-      return new Path(elements.concat(path.elements));
-    }
-
-    function slice(start, end) {
-      return new Path(elements.slice(start, end));
-    }
-
-    function reverse() {
-      elements.reverse(); // TODO: return new Path()
-      return self;
-    }
-
-    function states() {
-      return pluck(elements, "state");
-    }
-
-    function elementForState(state) {
-      return find(self.elements, pipe(prop('state'), eq(state)));
-    }
-
-    function last() {
-      return self.elements.length ? self.elements[self.elements.length - 1] : null;
-    }
-
-    function pathToString() {
-      var tplData = { elements: self.elements.map(function(e) { return e.state.name; }).join(", ") };
-      return tpl("Path([{elements}])", tplData);
-    }
-
-    // Public API
-    extend(this, {
-      elements: elements,
-      getResolvables: getResolvables,
-      resolve: resolvePath,
-      resolvePath: resolvePath,
-      clone: clone,
-      pathFromRoot: pathFromRoot,
-      concat: concat,
-      slice: slice,
-      reverse: reverse,
-      states: states,
-      elementForState: elementForState,
-      last: last,
-      toString: pathToString
-    });
-  };
 
   // ----------------- 0.2.xx Legacy API here ------------------------
   var VISIT_IN_PROGRESS = 1,
@@ -578,5 +574,3 @@ function $Resolve(  $q,    $injector) {
 }
 
 angular.module('ui.router.util').service('$resolve', $Resolve);
-
-export {Resolvable, Path, PathElement};

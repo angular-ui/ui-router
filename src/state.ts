@@ -6,6 +6,14 @@ import {TransitionRejection} from "./transition";
 import {$$UMFP} from "./urlMatcherFactory";
 import {IServiceProviderFactory} from "angular";
 
+export interface IPublicState {
+  name: string;
+  resolve: any; // key->Function
+  url: string;
+  resolvePolicy: (string|Object);
+  // TODO: finish defining state API.  Maybe start with what's on Definitely Typed.
+}
+
 
 function StateQueueManager(states, builder, $urlRouterProvider, $state) {
   var queue = [];

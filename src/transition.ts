@@ -464,7 +464,7 @@ function $TransitionProvider() {
       };
 
       // grab $transition's current path
-      var toPath, retained, entering, exiting; // Path() objects
+      var toPath: Path, retained: Path, entering: Path, exiting: Path; // Path() objects
       var keep = 0, state, hasCalculated = false;
 
       var fromState = from.$state();
