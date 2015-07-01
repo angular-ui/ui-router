@@ -21,34 +21,34 @@ export function merge(dst, ...objs: Object[]) {
   return dst;
 }
 
-/**
- * Recursive function iterator
- */
-export function FunctionIterator(items) {
-  var self = this;
-
-  var it = function(initial) {
-    var get  = function() { return this.next() || noop; }.bind(self);
-    var next = function() { return get()(initial, next); };
-    return next();
-  };
-
-  extend(this, {
-    items: items,
-    _current: -1
-  });
-
-  return it.bind(this);
-}
-
-FunctionIterator.prototype.current = function() {
-  return this.items[this._current];
-};
-
-FunctionIterator.prototype.next = function() {
-  this._current++;
-  return this.current();
-};
+///**
+// * Recursive function iterator
+// */
+//export function FunctionIterator(items) {
+//  var self = this;
+//
+//  var it = function(initial) {
+//    var get  = function() { return this.next() || noop; }.bind(self);
+//    var next = function() { return get()(initial, next); };
+//    return next();
+//  };
+//
+//  extend(this, {
+//    items: items,
+//    _current: -1
+//  });
+//
+//  return it.bind(this);
+//}
+//
+//FunctionIterator.prototype.current = function() {
+//  return this.items[this._current];
+//};
+//
+//FunctionIterator.prototype.next = function() {
+//  this._current++;
+//  return this.current();
+//};
 
 /**
  * Finds the common ancestor path between two states.

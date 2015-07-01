@@ -1,4 +1,4 @@
-import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEach, pick, objectKeys, ancestors, arraySearch, FunctionIterator} from "./common";
+import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEach, pick, objectKeys, ancestors, arraySearch, noop} from "./common";
 import {not, prop, pipe, val} from "./common";
 import {isDefined, isFunction, isArray, isObject, isString} from "./common";
 import {Glob} from "./glob";
@@ -202,7 +202,8 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 
       for (var key in builders) {
         var steps = isArray(builders[key]) ? builders[key].reverse() : [builders[key]];
-        state[key] = (FunctionIterator(steps))(state);
+        var chainFns = (memo, step) => { return step(state, memo); };
+        state[key] = steps.reduce(chainFns, noop);
       }
       return state;
     },
@@ -734,7 +735,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     var TransitionFailed = $q.reject(new Error('transition failed'));
     var TransitionIgnored = $q.reject(new Error('transition ignored'));
 
-    var REJECT = $state.prototype.REJECT = {
+    var REJECT = $state.REJECT = {
       superseded: function() { return TransitionSuperseded; },
       prevented: function() { return TransitionPrevented; },
       aborted: function() { return TransitionAborted; },
@@ -810,7 +811,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
-    $state.prototype.reload = function reload(reloadState) {
+    $state.reload = function reload(reloadState) {
       var reloadOpt = angular.isDefined(reloadState) ? reloadState : true;
       return $state.transitionTo($state.current, $stateParams, {
         reload: reloadOpt,
@@ -885,7 +886,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * - *resolve error* - when an error has occurred with a `resolve`
      *
      */
-    $state.prototype.go = function go(to, params, options) {
+    $state.go = function go(to, params, options) {
       return $state.transitionTo(to, params, defaults(options, {
         location: true,
         relative: $state.$current,
@@ -916,7 +917,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {Transition} A new {@link ui.router.state.type:Transition `Transition`} that
      * targets a new state or set of parameters.
      */
-    $state.prototype.redirect = function redirect(transition) {
+    $state.redirect = function redirect(transition) {
       return {
         to: function(state, params, options) {
           return transition.redirect(matcher.reference(state, null, params), options);
@@ -962,7 +963,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
-    $state.prototype.transitionTo = function transitionTo(to, toParams, options) {
+    $state.transitionTo = function transitionTo(to, toParams, options) {
       options = defaults(options, {
         location: true,
         relative: null,
@@ -1101,7 +1102,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      * @returns {boolean} Returns true if it is the state.
      */
-    $state.prototype.is = function is(stateOrName, params, options) {
+    $state.is = function is(stateOrName, params, options) {
       options = extend({ relative: $state.$current }, options || {});
       var state = matcher.find(stateOrName, options.relative);
       if (!isDefined(state)) return undefined;
@@ -1160,7 +1161,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      * @returns {boolean} Returns true if it does include the state
      */
-    $state.prototype.includes = function includes(stateOrName, params, options) {
+    $state.includes = function includes(stateOrName, params, options) {
       options = extend({ relative: $state.$current }, options || {});
       var glob = isString(stateOrName) && Glob.fromString(stateOrName);
 
@@ -1203,7 +1204,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      * @returns {string} compiled state url
      */
-    $state.prototype.href = function href(stateOrName, params, options) {
+    $state.href = function href(stateOrName, params, options) {
       options = defaults(options || {}, {
         lossy:    true,
         inherit:  true,

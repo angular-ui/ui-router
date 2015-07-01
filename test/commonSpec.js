@@ -57,30 +57,30 @@ describe('common', function() {
     });
   });
 
-  describe('FunctionIterator', function() {
-    it('should allow recursive function calling', function() {
-
-      var it = new FunctionIterator([
-        function wrap(initial, next)    { return "[" + next() + "]"; },
-        function exclaim(initial, next) { return next() + "!"; },
-        function greet(initial, next)   { return "Hello " + next(); },
-        function name(initial)          { return initial.name; }
-      ]);
-
-      expect(it({ name: "Foo" })).toBe('[Hello Foo!]');
-    });
-
-    it('should allow short-circuiting the chain', function() {
-
-      var it = new FunctionIterator([
-        function top(initial, next) { return next().concat(["Baz"]); },
-        function mid(initial, next) { return initial.concat(["Bar"]); },
-        function bottom(initial) { throw new Error("This shouldn't happen"); }
-      ]);
-
-      expect(it(["Foo"])).toEqual(["Foo", "Bar", "Baz"]);
-    });
-  });
+  //describe('FunctionIterator', function() {
+  //  it('should allow recursive function calling', function() {
+  //
+  //    var it = new FunctionIterator([
+  //      function wrap(initial, next)    { return "[" + next() + "]"; },
+  //      function exclaim(initial, next) { return next() + "!"; },
+  //      function greet(initial, next)   { return "Hello " + next(); },
+  //      function name(initial)          { return initial.name; }
+  //    ]);
+  //
+  //    expect(it({ name: "Foo" })).toBe('[Hello Foo!]');
+  //  });
+  //
+  //  it('should allow short-circuiting the chain', function() {
+  //
+  //    var it = new FunctionIterator([
+  //      function top(initial, next) { return next().concat(["Baz"]); },
+  //      function mid(initial, next) { return initial.concat(["Bar"]); },
+  //      function bottom(initial) { throw new Error("This shouldn't happen"); }
+  //    ]);
+  //
+  //    expect(it(["Foo"])).toEqual(["Foo", "Bar", "Baz"]);
+  //  });
+  //});
 
   describe('filter', function() {
     it("should filter arrays", function() {
