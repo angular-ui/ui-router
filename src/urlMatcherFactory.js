@@ -568,8 +568,9 @@ function $UrlMatcherFactory() {
   $$UMFP = this;
 
   var isCaseInsensitive = false, isStrictMode = true, defaultSquashPolicy = false;
+  var slashReplacement = "%2F";
 
-  function valToString(val) { return val != null ? val.toString().replace(/\//g, "%2F") : val; }
+  function valToString(val) { return val != null ? val.toString().replace(/\//g, slashReplacement) : val; }
   function valFromString(val) { return val != null ? val.toString().replace(/%2F/g, "/") : val; }
 
   var $types = {}, enqueue = true, typeQueue = [], injector, defaultTypes = {
@@ -578,7 +579,7 @@ function $UrlMatcherFactory() {
       decode: valFromString,
       // TODO: in 1.0, make string .is() return false if value is undefined/null by default.
       // In 0.2.x, string params are optional by default for backwards compat
-      is: function(val) { return val == null || !isDefined(val) || typeof val === "string"; },
+      is: function(val) { return (val == null || !isDefined(val) || typeof val === "string") && (val.toString().indexOf(slashReplacement) === -1); },
       pattern: /[^/]*/
     },
     int: {

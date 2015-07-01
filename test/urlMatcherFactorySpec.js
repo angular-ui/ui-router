@@ -65,6 +65,7 @@ describe("UrlMatcher", function () {
     var matcher = new UrlMatcher('/:foo');
     expect(matcher.format({ foo: "/" })).toBe('/%252F');
     expect(matcher.format({ foo: "//" })).toBe('/%252F%252F');
+    expect(matcher.exec('/hello%2Fworld')).toEqual({ foo: 'hello/world' });
   });
 
   describe("snake-case parameters", function() {
