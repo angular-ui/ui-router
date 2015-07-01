@@ -84,9 +84,9 @@ function resolvedError(promise) {
 }
 
 beforeEach(function () {
-  this.addMatchers({
-    toBeResolved: function() {
-      return !!testablePromise(this.actual).$$resolved;
+  jasmine.addMatchers({
+    toBeResolved: function(actual) {
+      return !!testablePromise(actual).$$resolved;
     }
   });
 });

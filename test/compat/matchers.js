@@ -1,8 +1,8 @@
 beforeEach(function() {
 
   function cssMatcher(presentClasses, absentClasses) {
-    return function() {
-      var element = angular.element(this.actual);
+    return function(actual) {
+      var element = angular.element(actual);
       var present = true;
       var absent = false;
 
@@ -30,7 +30,7 @@ beforeEach(function() {
     return -1;
   }
 
-  this.addMatchers({
+  jasmine.addMatchers({
     toBeInvalid: cssMatcher('ng-invalid', 'ng-valid'),
     toBeValid: cssMatcher('ng-valid', 'ng-invalid'),
     toBeDirty: cssMatcher('ng-dirty', 'ng-pristine'),

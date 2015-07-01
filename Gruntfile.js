@@ -18,16 +18,13 @@ module.exports = function (grunt) {
         ' */'
     },
     clean: [ '<%= builddir %>' ],
-    typescript: {
+    ts: {
       base: {
         src: files.src,
-        dest: '<%= builddir %>/ts2es5',
+        outDir: '<%= builddir %>/ts2es5',
         options: {
           //module: 'amd', //or commonjs
-          module: 'commonjs',
-          target: 'es5',
-          sourceMap: true,
-          declaration: true
+          module: 'commonjs'
         }
       }
     },
@@ -52,20 +49,37 @@ module.exports = function (grunt) {
       },
       build: {
         files: {
-          '<%= builddir %>/<%= pkg.name %>.min.js': ['<banner:meta.banner>', '<%= typescript.base.dest %>/*.js']
+          '<%= builddir %>/<%= pkg.name %>.min.js': ['<banner:meta.banner>', '<%= builddir %>/<%= pkg.name %>.js']
         }
+      }
+    },
+    webpack: {
+      build: {
+        entry: files.buildSrc,
+        output: {
+          path: '<%= builddir %>',
+          filename: '<%= pkg.name %>.js',
+          library: 'ui.router',
+          libraryTarget: 'umd'
+        },
+        module: {
+          loaders: []
+        },
+        externals: [
+          {
+            angular: {
+              root: 'angular',
+              commonjs2: 'angular',
+              commonjs: 'angular'
+            }
+          }
+        ]
       }
     },
     release: {
       files: ['<%= pkg.name %>.js', '<%= pkg.name %>.min.js'],
       src: '<%= builddir %>',
       dest: 'release'
-    },
-    jshint: {
-      all: ['Gruntfile.js', 'src/*.js', '<%= builddir %>/<%= pkg.name %>.js'],
-      options: {
-        eqnull: true
-      }
     },
     watch: {
       files: ['src/*.ts', 'src/*.js', 'test/**/*.js'],
@@ -141,9 +155,9 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('integrate', ['build', 'jshint', 'karma:unit', 'karma:past', 'karma:unstable']);
-  grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
-  grunt.registerTask('build', 'Perform a normal build', ['typescript', 'uglify']);
+  grunt.registerTask('integrate', ['build', 'karma:unit', 'karma:past', 'karma:unstable']);
+  grunt.registerTask('default', ['build', 'karma:unit']);
+  grunt.registerTask('build', 'Perform a normal build', ['ts', 'webpack', 'uglify']);
   grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
   grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['dist', 'ngdocs']);
   grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'dist', 'perform-release']);
