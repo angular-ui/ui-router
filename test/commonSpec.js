@@ -27,33 +27,33 @@ if (!Function.prototype.bind) {
 }
 
 describe('common', function() {
-  describe('GlobBuilder', function() {
+  describe('Glob', function() {
     it('should match glob strings', function() {
-      expect(GlobBuilder.is('*')).toBe(true);
-      expect(GlobBuilder.is('**')).toBe(true);
-      expect(GlobBuilder.is('*.*')).toBe(true);
+      expect(Glob.is('*')).toBe(true);
+      expect(Glob.is('**')).toBe(true);
+      expect(Glob.is('*.*')).toBe(true);
 
-      expect(GlobBuilder.is('')).toBe(false);
-      expect(GlobBuilder.is('.')).toBe(false);
+      expect(Glob.is('')).toBe(false);
+      expect(Glob.is('.')).toBe(false);
     });
 
     it('should construct glob matchers', function() {
-      expect(GlobBuilder.fromString('')).toBeNull();
+      expect(Glob.fromString('')).toBeNull();
 
       var state = 'about.person.item';
 
-      expect(GlobBuilder.fromString('*.person.*').matches(state)).toBe(true);
-      expect(GlobBuilder.fromString('*.person.**').matches(state)).toBe(true);
+      expect(Glob.fromString('*.person.*').matches(state)).toBe(true);
+      expect(Glob.fromString('*.person.**').matches(state)).toBe(true);
 
-      expect(GlobBuilder.fromString('**.item.*').matches(state)).toBe(false);
-      expect(GlobBuilder.fromString('**.item').matches(state)).toBe(true);
-      expect(GlobBuilder.fromString('**.stuff.*').matches(state)).toBe(false);
-      expect(GlobBuilder.fromString('*.*.*').matches(state)).toBe(true);
+      expect(Glob.fromString('**.item.*').matches(state)).toBe(false);
+      expect(Glob.fromString('**.item').matches(state)).toBe(true);
+      expect(Glob.fromString('**.stuff.*').matches(state)).toBe(false);
+      expect(Glob.fromString('*.*.*').matches(state)).toBe(true);
 
-      expect(GlobBuilder.fromString('about.*.*').matches(state)).toBe(true);
-      expect(GlobBuilder.fromString('about.**').matches(state)).toBe(true);
-      expect(GlobBuilder.fromString('*.about.*').matches(state)).toBe(false);
-      expect(GlobBuilder.fromString('about.*.*').matches(state)).toBe(true);
+      expect(Glob.fromString('about.*.*').matches(state)).toBe(true);
+      expect(Glob.fromString('about.**').matches(state)).toBe(true);
+      expect(Glob.fromString('*.about.*').matches(state)).toBe(false);
+      expect(Glob.fromString('about.*.*').matches(state)).toBe(true);
     });
   });
 
