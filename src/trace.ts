@@ -3,15 +3,38 @@ import {isNull, isPromise, is, invoke, not, val, pattern, tpl, parse, objectKeys
 import {Resolvable}  from "./resolve";
 import {Transition, TransitionRejection}  from "./transition";
 
-export var trace = new Trace();
+function promiseToString(p) {
+  if (is(TransitionRejection)(p.reason)) return p.reason.toString();
+  return "Promise(" + JSON.stringify(p) + ")";
+}
 
-function Trace() {
-  function trace(string) {
+function fnToString(fn) {
+  var name = fn.name ? fn.name : "(anonymous)";
+  return tpl("function {name}(...)", { name: name });
+}
+
+class Trace {
+  approximateDigests: number;
+  format: Function;
+
+  constructor() {
+    this.approximateDigests = 0;
+  }
+
+  _trace(string) {
     console.log(string);
   }
 
-  function stringify(o) {
-    var format = pattern([
+  _replacer(key, val) {
+    return this.format(val);
+  }
+
+  _toJson(o) {
+    return JSON.stringify(o, (key, val) => this._replacer(key, val));
+  }
+
+  _stringify(o) {
+    this.format = pattern([
       [not(isDefined),            val("undefined")],
       [isNull,                    val("null")],
       [isPromise,                 promiseToString],
@@ -21,114 +44,88 @@ function Trace() {
       [val(true),                 angular.identity]
     ]);
 
-    function promiseToString(p) {
-      if (is(TransitionRejection)(p.reason)) return p.reason.toString();
-      return "Promise(" + JSON.stringify(p) + ")";
-    }
-    function fnToString(fn) {
-      var name = fn.name ? fn.name : "(anonymous)";
-      return tpl("function {name}(...)", { name: name });
-    }
-
-    function toJson(o) {
-      function replacer(key, val) {
-        return format(val);
-      }
-      return JSON.stringify(o, replacer);
-    }
-
-    return toJson(o);
+    return this._toJson(o);
   }
 
+  traceTransitionStart(transition) {
+    var tplData = {tid: transition.$id, digest: this.approximateDigests, transition: this._stringify(transition)};
+    this._trace(tpl('Transition #{tid} Digest #{digest}: Started {transition}', tplData));
+  }
 
-  this.traceTransitionStart = function traceTransitionStart(transition) {
-    var tplData = {tid: transition.$id, digest: Trace.prototype.approximateDigests, transition: stringify(transition)};
-    trace(tpl('Transition #{tid} Digest #{digest}: Started {transition}', tplData));
-  };
+  traceTransitionIgnored(transition) {
+    var tplData = {tid: transition.$id, digest: this.approximateDigests, transition: this._stringify(transition)};
+    this._trace(tpl('Transition #{tid} Digest #{digest}: Ignored {transition}', tplData));
+  }
 
+  traceHookInvocation(step, options) {
+    var tplData = {tid: parse("transition.$id")(options), digest: this.approximateDigests, step: step.toString()};
+    this._trace(tpl('Transition #{tid} Digest #{digest}:   Hook: {step}', tplData));
+  }
 
-  this.traceTransitionIgnored = function traceTransitionIgnored(transition) {
-    var tplData = {tid: transition.$id, digest: Trace.prototype.approximateDigests, transition: stringify(transition)};
-    trace(tpl('Transition #{tid} Digest #{digest}: Ignored {transition}', tplData));
-  };
-
-
-  this.traceHookInvocation = function traceHookInvocation(step, options) {
-    var tplData = {tid: parse("transition.$id")(options), digest: Trace.prototype.approximateDigests, step: step.toString()};
-    trace(tpl('Transition #{tid} Digest #{digest}:   Hook: {step}', tplData));
-  };
-
-
-  this.traceHookResult = function traceHookResult(hookResult, transitionResult, transitionOptions) {
+  traceHookResult(hookResult, transitionResult, transitionOptions) {
     if (!isDefined(hookResult)) return;
-    var tplData = {tid: parse("transition.$id")(transitionOptions), digest: Trace.prototype.approximateDigests, hookResult: stringify(hookResult), transitionResult: stringify(transitionResult)};
-    trace(tpl('Transition #{tid} Digest #{digest}:   Hook returned: {hookResult} -> {transitionResult}', tplData));
-  };
+    var tplData = {tid: parse("transition.$id")(transitionOptions), digest: this.approximateDigests, hookResult: this._stringify(hookResult), transitionResult: this._stringify(transitionResult)};
+    this._trace(tpl('Transition #{tid} Digest #{digest}:   Hook returned: {hookResult} -> {transitionResult}', tplData));
+  }
 
-
-  this.traceResolvePath = function traceResolvePath(path, options) {
+  traceResolvePath(path, options) {
     var tplData = {
       tid: parse("transition.$id")(options),
-      digest: Trace.prototype.approximateDigests,
+      digest: this.approximateDigests,
       path: path && path.toString(),
       policy: options && options.resolvePolicy
     };
-    trace(tpl('Transition #{tid} Digest #{digest}:         Resolving {path} ({policy})', tplData));
-  };
+    this._trace(tpl('Transition #{tid} Digest #{digest}:         Resolving {path} ({policy})', tplData));
+  }
 
-
-  this.traceResolvePathElement = function traceResolvePathElement(pathElement, resolvablePromises, options) {
+  traceResolvePathElement(pathElement, resolvablePromises, options) {
     var tplData = {
       tid: parse("transition.$id")(options),
-      digest: Trace.prototype.approximateDigests,
+      digest: this.approximateDigests,
       resolvablePromises: objectKeys(resolvablePromises).join(", "),
       pathElement: pathElement && pathElement.toString(),
       policy: options && options.resolvePolicy
     };
-    trace(tpl('Transition #{tid} Digest #{digest}:         Resolve {pathElement} resolvables: [{resolvablePromises}] ({policy})', tplData));
-  };
+    this._trace(tpl('Transition #{tid} Digest #{digest}:         Resolve {pathElement} resolvables: [{resolvablePromises}] ({policy})', tplData));
+  }
 
-
-  this.traceResolveResolvable = function traceResolveResolvable(resolvable, options) {
+  traceResolveResolvable(resolvable, options) {
     var tplData = {
       tid: parse("transition.$id")(options),
-      digest: Trace.prototype.approximateDigests,
+      digest: this.approximateDigests,
       resolvable: resolvable && resolvable.toString(),
       policy: options && options.resolvePolicy
     };
-    trace(tpl('Transition #{tid} Digest #{digest}:               Resolving {resolvable} ({policy})', tplData));
-  };
+    this._trace(tpl('Transition #{tid} Digest #{digest}:               Resolving {resolvable} ({policy})', tplData));
+  }
 
-
-  this.tracePathElementInvoke = function tracePathElementInvoke(pathElement, fn, deps, options) {
+  tracePathElementInvoke(pathElement, fn, deps, options) {
     var title = "Invoke " + options.when;
     var tplData = {
       tid: parse("transition.$id")(options),
-      digest: Trace.prototype.approximateDigests,
+      digest: this.approximateDigests,
       pathElement: pathElement && pathElement.toString(),
       fn: fn.name || "(anonymous)",
       title: title,
       deps: deps,
       policy: options && options.resolvePolicy
     };
-    trace(tpl('Transition #{tid} Digest #{digest}:         {title}: {fn} {pathElement} requires: [{deps}]', tplData));
-  };
+    this._trace(tpl('Transition #{tid} Digest #{digest}:         {title}: {fn} {pathElement} requires: [{deps}]', tplData));
+  }
 
+  traceError(error, transition) {
+    var tplData = {tid: transition.$id, digest: this.approximateDigests, error: error};
+    this._trace(tpl('Transition #{tid} Digest #{digest}: Transition Rejected, reason: {error}', tplData));
+  }
 
-  this.traceError = function traceError(error, transition) {
-    var tplData = {tid: transition.$id, digest: Trace.prototype.approximateDigests, error: error};
-    trace(tpl('Transition #{tid} Digest #{digest}: Transition Rejected, reason: {error}', tplData));
-  };
-
-
-  this.traceSuccess = function traceSuccess(finalState, transition) {
-    var tplData = {tid: transition.$id, digest: Trace.prototype.approximateDigests, state: finalState.name};
-    trace(tpl('Transition #{tid} Digest #{digest}: Transition Success, state: {state}', tplData));
-  };
+  traceSuccess(finalState, transition) {
+    var tplData = {tid: transition.$id, digest: this.approximateDigests, state: finalState.name};
+    this._trace(tpl('Transition #{tid} Digest #{digest}: Transition Success, state: {state}', tplData));
+  }
 }
 
-Trace.prototype.approximateDigests = 0;
+export var trace = new Trace();
 
 angular.module("ui.router").run(function($rootScope) {
-  $rootScope.$watch(function() { Trace.prototype.approximateDigests++; });
+  $rootScope.$watch(function() { trace.approximateDigests++; });
 });
