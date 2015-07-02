@@ -5,6 +5,10 @@ import {forEach, extend, inherit, map, filter, indexOf, objectKeys, isObject, is
 
 export var $$UMFP; // reference to $UrlMatcherFactoryProvider
 
+interface params {
+  $$validates: (params: string) => Array<string>;
+}
+
 /**
  * @ngdoc object
  * @name ui.router.util.type:UrlMatcher
@@ -70,107 +74,117 @@ export var $$UMFP; // reference to $UrlMatcherFactoryProvider
  *
  * @returns {Object}  New `UrlMatcher` object
  */
-function UrlMatcher(pattern, config, parentMatcher?: any) {
-  config = extend({ params: {} }, isObject(config) ? config : {});
+class UrlMatcher {
+  params: params;
+  prefix: string;
+  regexp: RegExp;
+  segments: Array<string>;
+  source: string;
+  sourceSearch: string;
+  sourcePath: string;
+  $$paramNames: Array<string>;
 
-  // Find all placeholders and create a compiled pattern, using either classic or curly syntax:
-  //   '*' name
-  //   ':' name
-  //   '{' name '}'
-  //   '{' name ':' regexp '}'
-  // The regular expression is somewhat complicated due to the need to allow curly braces
-  // inside the regular expression. The placeholder regexp breaks down as follows:
-  //    ([:*])([\w\[\]]+)              - classic placeholder ($1 / $2) (search version has - for snake-case)
-  //    \{([\w\[\]]+)(?:\:( ... ))?\}  - curly brace placeholder ($3) with optional regexp/type ... ($4) (search version has - for snake-case
-  //    (?: ... | ... | ... )+         - the regexp consists of any number of atoms, an atom being either
-  //    [^{}\\]+                       - anything other than curly braces or backslash
-  //    \\.                            - a backslash escape
-  //    \{(?:[^{}\\]+|\\.)*\}          - a matched set of curly braces containing other atoms
-  var placeholder       = /([:*])([\w\[\]]+)|\{([\w\[\]]+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
-    searchPlaceholder = /([:]?)([\w\[\]-]+)|\{([\w\[\]-]+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
-    compiled = '^', last = 0, m,
-    segments = this.segments = [],
-    parentParams = parentMatcher ? parentMatcher.params : {},
-    params = this.params = parentMatcher ? parentMatcher.params.$$new() : new $$UMFP.ParamSet(),
-    paramNames = [];
+  constructor(pattern, config, parentMatcher?: any) {
+    config = extend({ params: {} }, isObject(config) ? config : {});
 
-  function addParameter(id, type, config, location) {
-    paramNames.push(id);
-    if (parentParams[id]) return parentParams[id];
-    if (!/^\w+(-+\w+)*(?:\[\])?$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
-    if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
-    params[id] = new $$UMFP.Param(id, type, config, location);
-    return params[id];
-  }
+    // Find all placeholders and create a compiled pattern, using either classic or curly syntax:
+    //   '*' name
+    //   ':' name
+    //   '{' name '}'
+    //   '{' name ':' regexp '}'
+    // The regular expression is somewhat complicated due to the need to allow curly braces
+    // inside the regular expression. The placeholder regexp breaks down as follows:
+    //    ([:*])([\w\[\]]+)              - classic placeholder ($1 / $2) (search version has - for snake-case)
+    //    \{([\w\[\]]+)(?:\:( ... ))?\}  - curly brace placeholder ($3) with optional regexp/type ... ($4) (search version has - for snake-case
+    //    (?: ... | ... | ... )+         - the regexp consists of any number of atoms, an atom being either
+    //    [^{}\\]+                       - anything other than curly braces or backslash
+    //    \\.                            - a backslash escape
+    //    \{(?:[^{}\\]+|\\.)*\}          - a matched set of curly braces containing other atoms
+    var placeholder       = /([:*])([\w\[\]]+)|\{([\w\[\]]+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
+      searchPlaceholder = /([:]?)([\w\[\]-]+)|\{([\w\[\]-]+)(?:\:((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
+      compiled = '^', last = 0, m,
+      segments = this.segments = [],
+      parentParams = parentMatcher ? parentMatcher.params : {},
+      params = this.params = parentMatcher ? parentMatcher.params.$$new() : new $$UMFP.ParamSet(),
+      paramNames = [];
 
-  function quoteRegExp(string, pattern?: any, squash?: any, optional?: any) {
-    var surroundPattern = ['',''], result = string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
-    if (!pattern) return result;
-    switch(squash) {
-      case false: surroundPattern = ['(', ')' + (optional ? "?" : "")]; break;
-      case true:  surroundPattern = ['?(', ')?']; break;
-      default:    surroundPattern = ['(' + squash + "|", ')?']; break;
+    function addParameter(id, type, config, location) {
+      paramNames.push(id);
+      if (parentParams[id]) return parentParams[id];
+      if (!/^\w+(-+\w+)*(?:\[\])?$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
+      if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
+      params[id] = new $$UMFP.Param(id, type, config, location);
+      return params[id];
     }
-    return result + surroundPattern[0] + pattern + surroundPattern[1];
-  }
 
-  this.source = pattern;
-
-  // Split into static segments separated by path parameter placeholders.
-  // The number of segments is always 1 more than the number of parameters.
-  function matchDetails(m, isSearch) {
-    var id, regexp, segment, type, cfg, arrayMode;
-    id          = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
-    cfg         = config.params[id];
-    segment     = pattern.substring(last, m.index);
-    regexp      = isSearch ? m[4] : m[4] || (m[1] == '*' ? '.*' : null);
-    type        = $$UMFP.type(regexp || "string") || inherit($$UMFP.type("string"), { pattern: new RegExp(regexp, config.caseInsensitive ? 'i' : undefined) });
-    return {
-      id: id, regexp: regexp, segment: segment, type: type, cfg: cfg
-    };
-  }
-
-  var p, param, segment;
-  while ((m = placeholder.exec(pattern))) {
-    p = matchDetails(m, false);
-    if (p.segment.indexOf('?') >= 0) break; // we're into the search part
-
-    param = addParameter(p.id, p.type, p.cfg, "path");
-    compiled += quoteRegExp(p.segment, param.type.pattern.source, param.squash, param.isOptional);
-    segments.push(p.segment);
-    last = placeholder.lastIndex;
-  }
-  segment = pattern.substring(last);
-
-  // Find any search parameter names and remove them from the last segment
-  var i = segment.indexOf('?');
-
-  if (i >= 0) {
-    var search = this.sourceSearch = segment.substring(i);
-    segment = segment.substring(0, i);
-    this.sourcePath = pattern.substring(0, last + i);
-
-    if (search.length > 0) {
-      last = 0;
-      while ((m = searchPlaceholder.exec(search))) {
-        p = matchDetails(m, true);
-        param = addParameter(p.id, p.type, p.cfg, "search");
-        last = placeholder.lastIndex;
-        // check if ?&
+    function quoteRegExp(string, pattern?: any, squash?: any, optional?: any) {
+      var surroundPattern = ['',''], result = string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
+      if (!pattern) return result;
+      switch(squash) {
+        case false: surroundPattern = ['(', ')' + (optional ? "?" : "")]; break;
+        case true:  surroundPattern = ['?(', ')?']; break;
+        default:    surroundPattern = ['(' + squash + "|", ')?']; break;
       }
+      return result + surroundPattern[0] + pattern + surroundPattern[1];
     }
-  } else {
-    this.sourcePath = pattern;
-    this.sourceSearch = '';
+
+    this.source = pattern;
+
+    // Split into static segments separated by path parameter placeholders.
+    // The number of segments is always 1 more than the number of parameters.
+    function matchDetails(m, isSearch) {
+      var id, regexp, segment, type, cfg, arrayMode;
+      id          = m[2] || m[3]; // IE[78] returns '' for unmatched groups instead of null
+      cfg         = config.params[id];
+      segment     = pattern.substring(last, m.index);
+      regexp      = isSearch ? m[4] : m[4] || (m[1] == '*' ? '.*' : null);
+      type        = $$UMFP.type(regexp || "string") || inherit($$UMFP.type("string"), { pattern: new RegExp(regexp, config.caseInsensitive ? 'i' : undefined) });
+      return {
+        id: id, regexp: regexp, segment: segment, type: type, cfg: cfg
+      };
+    }
+
+    var p, param, segment;
+    while ((m = placeholder.exec(pattern))) {
+      p = matchDetails(m, false);
+      if (p.segment.indexOf('?') >= 0) break; // we're into the search part
+
+      param = addParameter(p.id, p.type, p.cfg, "path");
+      compiled += quoteRegExp(p.segment, param.type.pattern.source, param.squash, param.isOptional);
+      segments.push(p.segment);
+      last = placeholder.lastIndex;
+    }
+    segment = pattern.substring(last);
+
+    // Find any search parameter names and remove them from the last segment
+    var i = segment.indexOf('?');
+
+    if (i >= 0) {
+      var search = this.sourceSearch = segment.substring(i);
+      segment = segment.substring(0, i);
+      this.sourcePath = pattern.substring(0, last + i);
+
+      if (search.length > 0) {
+        last = 0;
+        while ((m = searchPlaceholder.exec(search))) {
+          p = matchDetails(m, true);
+          param = addParameter(p.id, p.type, p.cfg, "search");
+          last = placeholder.lastIndex;
+          // check if ?&
+        }
+      }
+    } else {
+      this.sourcePath = pattern;
+      this.sourceSearch = '';
+    }
+
+    compiled += quoteRegExp(segment) + (config.strict === false ? '\/?' : '') + '$';
+    segments.push(segment);
+
+    this.regexp = new RegExp(compiled, config.caseInsensitive ? 'i' : undefined);
+    this.prefix = segments[0];
+    this.$$paramNames = paramNames;
   }
-
-  compiled += quoteRegExp(segment) + (config.strict === false ? '\/?' : '') + '$';
-  segments.push(segment);
-
-  this.regexp = new RegExp(compiled, config.caseInsensitive ? 'i' : undefined);
-  this.prefix = segments[0];
-  this.$$paramNames = paramNames;
-}
 
 /**
  * @ngdoc function
@@ -194,21 +208,21 @@ function UrlMatcher(pattern, config, parentMatcher?: any) {
  * @param {Object} config  An object hash of the configuration for the matcher.
  * @returns {UrlMatcher}  A matcher for the concatenated pattern.
  */
-UrlMatcher.prototype.concat = function (pattern, config) {
-  // Because order of search parameters is irrelevant, we can add our own search
-  // parameters to the end of the new pattern. Parse the new pattern by itself
-  // and then join the bits together, but it's much easier to do this on a string level.
-  var defaultConfig = {
-    caseInsensitive: $$UMFP.caseInsensitive(),
-    strict: $$UMFP.strictMode(),
-    squash: $$UMFP.defaultSquashPolicy()
-  };
-  return new UrlMatcher(this.sourcePath + pattern + this.sourceSearch, extend(defaultConfig, config), this);
-};
+  concat(pattern, config) {
+    // Because order of search parameters is irrelevant, we can add our own search
+    // parameters to the end of the new pattern. Parse the new pattern by itself
+    // and then join the bits together, but it's much easier to do this on a string level.
+    var defaultConfig = {
+      caseInsensitive: $$UMFP.caseInsensitive(),
+      strict: $$UMFP.strictMode(),
+      squash: $$UMFP.defaultSquashPolicy()
+    };
+    return new UrlMatcher(this.sourcePath + pattern + this.sourceSearch, extend(defaultConfig, config), this);
+  }
 
-UrlMatcher.prototype.toString = function () {
-  return this.source;
-};
+  toString() {
+    return this.source;
+  }
 
 /**
  * @ngdoc function
@@ -234,46 +248,46 @@ UrlMatcher.prototype.toString = function () {
  * @param {Object} searchParams  URL search parameters, e.g. `$location.search()`.
  * @returns {Object}  The captured parameter values.
  */
-UrlMatcher.prototype.exec = function (path, searchParams, hash) {
-  var m = this.regexp.exec(path);
-  if (!m) return null;
-  searchParams = searchParams || {};
+  exec(path, searchParams, hash) {
+    var m = this.regexp.exec(path);
+    if (!m) return null;
+    searchParams = searchParams || {};
 
-  var paramNames = this.parameters(), nTotal = paramNames.length,
-    nPath = this.segments.length - 1,
-    values = {}, i, j, cfg, paramName;
+    var paramNames = this.parameters(), nTotal = paramNames.length,
+      nPath = this.segments.length - 1,
+      values = {}, i, j, cfg, paramName;
 
-  if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
+    if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
 
-  function decodePathArray(string) {
-    function reverseString(str) { return str.split("").reverse().join(""); }
-    function unquoteDashes(str) { return str.replace(/\\-/g, "-"); }
+    function decodePathArray(string) {
+      function reverseString(str) { return str.split("").reverse().join(""); }
+      function unquoteDashes(str) { return str.replace(/\\-/g, "-"); }
 
-    var split = reverseString(string).split(/-(?!\\)/);
-    var allReversed = map(split, reverseString);
-    return map(allReversed, unquoteDashes).reverse();
-  }
-
-  for (i = 0; i < nPath; i++) {
-    paramName = paramNames[i];
-    var param = this.params[paramName];
-    var paramVal = m[i+1];
-    // if the param value matches a pre-replace pair, replace the value before decoding.
-    for (j = 0; j < param.replace; j++) {
-      if (param.replace[j].from === paramVal) paramVal = param.replace[j].to;
+      var split = reverseString(string).split(/-(?!\\)/);
+      var allReversed = map(split, reverseString);
+      return map(allReversed, unquoteDashes).reverse();
     }
-    if (paramVal && param.array === true) paramVal = decodePathArray(paramVal);
-    values[paramName] = param.value(paramVal);
-  }
-  for (/**/; i < nTotal; i++) {
-    paramName = paramNames[i];
-    values[paramName] = this.params[paramName].value(searchParams[paramName]);
-  }
 
-  if (hash) values["#"] = hash;
+    for (i = 0; i < nPath; i++) {
+      paramName = paramNames[i];
+      var param = this.params[paramName];
+      var paramVal = m[i+1];
+      // if the param value matches a pre-replace pair, replace the value before decoding.
+      for (j = 0; j < param.replace; j++) {
+        if (param.replace[j].from === paramVal) paramVal = param.replace[j].to;
+      }
+      if (paramVal && param.array === true) paramVal = decodePathArray(paramVal);
+      values[paramName] = param.value(paramVal);
+    }
+    for (/**/; i < nTotal; i++) {
+      paramName = paramNames[i];
+      values[paramName] = this.params[paramName].value(searchParams[paramName]);
+    }
 
-  return values;
-};
+    if (hash) values["#"] = hash;
+
+    return values;
+  }
 
 /**
  * @ngdoc function
@@ -286,10 +300,10 @@ UrlMatcher.prototype.exec = function (path, searchParams, hash) {
  * @returns {Array.<string>}  An array of parameter names. Must be treated as read-only. If the
  *    pattern has no parameters, an empty array is returned.
  */
-UrlMatcher.prototype.parameters = function (param) {
-  if (!isDefined(param)) return this.$$paramNames;
-  return this.params[param] || null;
-};
+  parameters(param?: string) {
+    if (!isDefined(param)) return this.$$paramNames;
+    return this.params[param] || null;
+  }
 
 /**
  * @ngdoc function
@@ -303,9 +317,9 @@ UrlMatcher.prototype.parameters = function (param) {
  * @param {Object} params The object hash of parameters to validate.
  * @returns {boolean} Returns `true` if `params` validates, otherwise `false`.
  */
-UrlMatcher.prototype.validates = function (params) {
-  return this.params.$$validates(params);
-};
+  validates(params) {
+    return this.params.$$validates(params);
+  }
 
 /**
  * @ngdoc function
@@ -326,54 +340,55 @@ UrlMatcher.prototype.validates = function (params) {
  * @param {Object} values  the values to substitute for the parameters in this pattern.
  * @returns {string}  the formatted URL (path and optionally search part).
  */
-UrlMatcher.prototype.format = function (values) {
-  values = values || {};
-  var segments = this.segments, params = this.parameters(), paramset = this.params;
-  if (!this.validates(values)) return null;
+  format(values) {
+    values = values || {};
+    var segments = this.segments, params = this.parameters(), paramset = this.params;
+    if (!this.validates(values)) return null;
 
-  var i, search = false, nPath = segments.length - 1, nTotal = params.length, result = segments[0];
+    var i, search = false, nPath = segments.length - 1, nTotal = params.length, result = segments[0];
 
-  function encodeDashes(str) { // Replace dashes with encoded "\-"
-    return encodeURIComponent(str).replace(/-/g, function(c) { return '%5C%' + c.charCodeAt(0).toString(16).toUpperCase(); });
-  }
-
-  for (i = 0; i < nTotal; i++) {
-    var isPathParam = i < nPath;
-    var name = params[i], param = paramset[name], value = param.value(values[name]);
-    var isDefaultValue = param.isOptional && param.type.equals(param.value(), value);
-    var squash = isDefaultValue ? param.squash : false;
-    var encoded = param.type.encode(value);
-
-    if (isPathParam) {
-      var nextSegment = segments[i + 1];
-      if (squash === false) {
-        if (encoded != null) {
-          if (isArray(encoded)) {
-            result += map(encoded, encodeDashes).join("-");
-          } else {
-            result += encodeURIComponent(encoded);
-          }
-        }
-        result += nextSegment;
-      } else if (squash === true) {
-        var capture = result.match(/\/$/) ? /\/?(.*)/ : /(.*)/;
-        result += nextSegment.match(capture)[1];
-      } else if (isString(squash)) {
-        result += squash + nextSegment;
-      }
-    } else {
-      if (encoded == null || (isDefaultValue && squash !== false)) continue;
-      if (!isArray(encoded)) encoded = [ encoded ];
-      encoded = map(encoded, encodeURIComponent).join('&' + name + '=');
-      result += (search ? '&' : '?') + (name + '=' + encoded);
-      search = true;
+    function encodeDashes(str) { // Replace dashes with encoded "\-"
+      return encodeURIComponent(str).replace(/-/g, function(c) { return '%5C%' + c.charCodeAt(0).toString(16).toUpperCase(); });
     }
+
+    for (i = 0; i < nTotal; i++) {
+      var isPathParam = i < nPath;
+      var name = params[i], param = paramset[name], value = param.value(values[name]);
+      var isDefaultValue = param.isOptional && param.type.equals(param.value(), value);
+      var squash = isDefaultValue ? param.squash : false;
+      var encoded = param.type.encode(value);
+
+      if (isPathParam) {
+        var nextSegment = segments[i + 1];
+        if (squash === false) {
+          if (encoded != null) {
+            if (isArray(encoded)) {
+              result += map(encoded, encodeDashes).join("-");
+            } else {
+              result += encodeURIComponent(encoded);
+            }
+          }
+          result += nextSegment;
+        } else if (squash === true) {
+          var capture = result.match(/\/$/) ? /\/?(.*)/ : /(.*)/;
+          result += nextSegment.match(capture)[1];
+        } else if (isString(squash)) {
+          result += squash + nextSegment;
+        }
+      } else {
+        if (encoded == null || (isDefaultValue && squash !== false)) continue;
+        if (!isArray(encoded)) encoded = [ encoded ];
+        encoded = map(encoded, encodeURIComponent).join('&' + name + '=');
+        result += (search ? '&' : '?') + (name + '=' + encoded);
+        search = true;
+      }
+    }
+
+    if (values["#"]) result += "#" + values["#"];
+
+    return result;
   }
-
-  if (values["#"]) result += "#" + values["#"];
-
-  return result;
-};
+}
 
 /**
  * @ngdoc object
@@ -405,9 +420,13 @@ UrlMatcher.prototype.format = function (values) {
  *
  * @returns {Object}  Returns a new `Type` object.
  */
-function Type(config) {
-  extend(this, config);
-}
+class Type {
+  pattern: RegExp;
+  name: string;
+
+  constructor(config) {
+    extend(this, config);
+  }
 
 /**
  * @ngdoc function
@@ -424,9 +443,9 @@ function Type(config) {
  *        parameter in which `val` is stored. Can be used for meta-programming of `Type` objects.
  * @returns {Boolean}  Returns `true` if the value matches the type, otherwise `false`.
  */
-Type.prototype.is = function(val, key) {
-  return true;
-};
+  is(val, key?) {
+    return true;
+  }
 
 /**
  * @ngdoc function
@@ -443,9 +462,9 @@ Type.prototype.is = function(val, key) {
  *        meta-programming of `Type` objects.
  * @returns {string}  Returns a string representation of `val` that can be encoded in a URL.
  */
-Type.prototype.encode = function(val, key) {
-  return val;
-};
+  encode(val, key) {
+    return val;
+  }
 
 /**
  * @ngdoc function
@@ -460,9 +479,9 @@ Type.prototype.encode = function(val, key) {
  *        meta-programming of `Type` objects.
  * @returns {*}  Returns a custom representation of the URL parameter value.
  */
-Type.prototype.decode = function(val, key) {
-  return val;
-};
+  decode(val, key?) {
+    return val;
+  }
 
 /**
  * @ngdoc function
@@ -476,23 +495,23 @@ Type.prototype.decode = function(val, key) {
  * @param {*} b  A value to compare against.
  * @returns {Boolean}  Returns `true` if the values are equivalent/equal, otherwise `false`.
  */
-Type.prototype.equals = function(a, b) {
-  return a == b;
-};
+  equals(a, b) {
+    return a == b;
+  }
 
-Type.prototype.$subPattern = function() {
-  var sub = this.pattern.toString();
-  return sub.substr(1, sub.length - 2);
-};
+  $subPattern() {
+    var sub = this.pattern.toString();
+    return sub.substr(1, sub.length - 2);
+  }
 
-Type.prototype.pattern = /.*/;
-
-Type.prototype.toString = function() { return "{Type:" + this.name + "}"; };
+  toString() {
+    return "{Type:" + this.name + "}";
+  }
 
 /** Given an encoded string, or a decoded object, returns a decoded object */
-Type.prototype.$normalize = function(val) {
-  return this.is(val) ? val : this.decode(val);
-};
+  $normalize(val) {
+    return this.is(val) ? val : this.decode(val);
+  }
 
 /*
  * Wraps an existing custom Type as an array of Type, depending on 'mode'.
@@ -504,64 +523,67 @@ Type.prototype.$normalize = function(val) {
  * - url: "/path?queryParam=1 will create $stateParams.queryParam: 1
  * - url: "/path?queryParam=1&queryParam=2 will create $stateParams.queryParam: [1, 2]
  */
-Type.prototype.$asArray = function(mode, isSearch) {
-  if (!mode) return this;
-  if (mode === "auto" && !isSearch) throw new Error("'auto' array mode is for query parameters only");
+  $asArray(mode, isSearch) {
+    if (!mode) return this;
+    if (mode === "auto" && !isSearch) throw new Error("'auto' array mode is for query parameters only");
 
-  function ArrayType(type, mode) {
-    function bindTo(type, callbackName) {
-      return function() {
-        return type[callbackName].apply(type, arguments);
-      };
-    }
-
-    // Wrap non-array value as array
-    function arrayWrap(val) { return isArray(val) ? val : (isDefined(val) ? [ val ] : []); }
-    // Unwrap array value for "auto" mode. Return undefined for empty array.
-    function arrayUnwrap(val) {
-      switch(val.length) {
-        case 0: return undefined;
-        case 1: return mode === "auto" ? val[0] : val;
-        default: return val;
+    function ArrayType(type, mode) {
+      function bindTo(type, callbackName) {
+        return function() {
+          return type[callbackName].apply(type, arguments);
+        };
       }
-    }
-    function falsey(val) { return !val; }
 
-    // Wraps type (.is/.encode/.decode) functions to operate on each value of an array
-    function arrayHandler(callback, allTruthyMode?: boolean) {
-      return function handleArray(val) {
-        val = arrayWrap(val);
-        var result = map(val, callback);
-        if (allTruthyMode === true)
-          return filter(result, falsey).length === 0;
-        return arrayUnwrap(result);
-      };
-    }
-
-    // Wraps type (.equals) functions to operate on each value of an array
-    function arrayEqualsHandler(callback) {
-      return function handleArray(val1, val2) {
-        var left = arrayWrap(val1), right = arrayWrap(val2);
-        if (left.length !== right.length) return false;
-        for (var i = 0; i < left.length; i++) {
-          if (!callback(left[i], right[i])) return false;
+      // Wrap non-array value as array
+      function arrayWrap(val) { return isArray(val) ? val : (isDefined(val) ? [ val ] : []); }
+      // Unwrap array value for "auto" mode. Return undefined for empty array.
+      function arrayUnwrap(val) {
+        switch(val.length) {
+          case 0: return undefined;
+          case 1: return mode === "auto" ? val[0] : val;
+          default: return val;
         }
-        return true;
-      };
+      }
+      function falsey(val) { return !val; }
+
+      // Wraps type (.is/.encode/.decode) functions to operate on each value of an array
+      function arrayHandler(callback, allTruthyMode?: boolean) {
+        return function handleArray(val) {
+          val = arrayWrap(val);
+          var result = map(val, callback);
+          if (allTruthyMode === true)
+            return filter(result, falsey).length === 0;
+          return arrayUnwrap(result);
+        };
+      }
+
+      // Wraps type (.equals) functions to operate on each value of an array
+      function arrayEqualsHandler(callback) {
+        return function handleArray(val1, val2) {
+          var left = arrayWrap(val1), right = arrayWrap(val2);
+          if (left.length !== right.length) return false;
+          for (var i = 0; i < left.length; i++) {
+            if (!callback(left[i], right[i])) return false;
+          }
+          return true;
+        };
+      }
+
+      this.encode = arrayHandler(bindTo(type, 'encode'));
+      this.decode = arrayHandler(bindTo(type, 'decode'));
+      this.is     = arrayHandler(bindTo(type, 'is'), true);
+      this.equals = arrayEqualsHandler(bindTo(type, 'equals'));
+      this.pattern = type.pattern;
+      this.$normalize = arrayHandler(bindTo(type, '$normalize'));
+      this.name = type.name;
+      this.$arrayMode = mode;
     }
 
-    this.encode = arrayHandler(bindTo(type, 'encode'));
-    this.decode = arrayHandler(bindTo(type, 'decode'));
-    this.is     = arrayHandler(bindTo(type, 'is'), true);
-    this.equals = arrayEqualsHandler(bindTo(type, 'equals'));
-    this.pattern = type.pattern;
-    this.$normalize = arrayHandler(bindTo(type, '$normalize'));
-    this.name = type.name;
-    this.$arrayMode = mode;
+    return new ArrayType(this, mode);
   }
+}
 
-  return new ArrayType(this, mode);
-};
+Type.prototype.pattern = /.*/;
 
 
 
