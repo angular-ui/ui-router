@@ -72,7 +72,7 @@ export class Resolvable {
 
     // Return a promise chain that waits for all the deps to resolve, then invokes the resolveFn passing in the
     // dependencies as locals, then unwraps the resulting promise's data.
-    return $q.all(depPromises).then(function invokeResolve(locals) {
+    return $q.all(depPromises).then(locals => {
       try {
         var result = $injector.invoke(this.resolveFn, this.state, locals);
         deferred.resolve(result);
