@@ -36,10 +36,6 @@ export class Resolvable {
   promise: IPromise<any> = undefined;
   data: any;
 
-  //var self = this;
-
-  // Resolvable: resolveResolvable()
-
   // synchronous part:
   // - sets up the Resolvable's promise
   // - retrieves dependencies' promises
@@ -151,10 +147,10 @@ export class PathElement {
       policyConf[resolvable.name] = resolvePolicies[policyString];
     });
 
-    if (options.trace) trace.traceResolvePathElement(this, filter(resolvables, matchesPolicy), options);
+    const matchesPolicy = (resolvable) => policyConf[resolvable.name] >= policyOrdinal;
+    const getResolvePromise = (resolvable) => resolvable.get(pathContext, options);
 
-    function matchesPolicy(resolvable) { return policyConf[resolvable.name] >= policyOrdinal; }
-    function getResolvePromise(resolvable) { return resolvable.get(pathContext, options); }
+    if (options.trace) trace.traceResolvePathElement(this, filter(resolvables, matchesPolicy), options);
     var resolvablePromises = map(filter(resolvables, matchesPolicy), getResolvePromise);
     return $q.all(resolvablePromises).then(noop);
   }
@@ -235,7 +231,7 @@ export class Path {
   resolvePath(options: any): IPromise<any> {
     options = options || {};
     if (options.trace) trace.traceResolvePath(this, options);
-    function elementPromises(element) { return element.resolvePathElement(this, options); }
+    const elementPromises = (element => element.resolvePathElement(this, options));
     return $q.all(<any> map(this.elements, elementPromises)).then(noop);
   }
   // TODO nuke this in favor of resolvePath()
