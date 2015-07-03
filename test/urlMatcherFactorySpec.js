@@ -463,7 +463,7 @@ describe("urlMatcherFactoryProvider", function () {
   });
 });
 
-fdescribe("urlMatcherFactory", function () {
+describe("urlMatcherFactory", function () {
 
   var $umf;
 
