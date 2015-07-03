@@ -321,7 +321,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
       return map(name, function(name) { return this.find(name, contextState); });
     }
 
-    angular.forEach(viewDefs, function(def, absName) {
+    forEach(viewDefs, function(def, absName) {
       if (parse("$config.$context.state")(def) !== contextState) {
         return;
       }
@@ -347,7 +347,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
   this.active = function active () {
     var result = [];
 
-    angular.forEach(viewDefs, function(config, key) {
+    forEach(viewDefs, function(config, key) {
       if (config && config.$config) {
         result.push(key);
       }
