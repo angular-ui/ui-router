@@ -1,3 +1,6 @@
+var module = angular.mock.module;
+var uiRouter = require("ui-router");
+
 describe('state helpers', function() {
 
   var states;
@@ -120,7 +123,7 @@ describe('state helpers', function() {
 
       it('should compile a UrlMatcher for ^ URLs', function() {
         var url = {};
-        spyOn(urlMatcherFactoryProvider, 'compile').andReturn(url);
+        spyOn(urlMatcherFactoryProvider, 'compile').and.returnValue(url);
 
         expect(builder.builder('url')({ url: "^/foo" })).toBe(url);
         expect(urlMatcherFactoryProvider.compile).toHaveBeenCalledWith("/foo", { params: {} });
@@ -128,7 +131,7 @@ describe('state helpers', function() {
 
       it('should concatenate URLs from root', function() {
         root = { url: { concat: function() {} } }, url = {};
-        spyOn(root.url, 'concat').andReturn(url);
+        spyOn(root.url, 'concat').and.returnValue(url);
 
         expect(builder.builder('url')({ url: "/foo" })).toBe(url);
         expect(root.url.concat).toHaveBeenCalledWith("/foo", { params: {} });
@@ -140,13 +143,13 @@ describe('state helpers', function() {
 
       it('should pass through custom UrlMatchers', function() {
         var url = ["!"];
-        spyOn(urlMatcherFactoryProvider, 'isMatcher').andReturn(true);
+        spyOn(urlMatcherFactoryProvider, 'isMatcher').and.returnValue(true);
         expect(builder.builder('url')({ url: url })).toBe(url);
         expect(urlMatcherFactoryProvider.isMatcher).toHaveBeenCalledWith(url);
       });
 
       it('should throw on invalid UrlMatchers', function() {
-        spyOn(urlMatcherFactoryProvider, 'isMatcher').andReturn(false);
+        spyOn(urlMatcherFactoryProvider, 'isMatcher').and.returnValue(false);
 
         expect(function() {
           builder.builder('url')({ toString: function() { return "foo"; }, url: { foo: "bar" } });
@@ -1044,7 +1047,7 @@ describe('state', function () {
 
     describe('when $browser.baseHref() exists', function() {
       beforeEach(inject(function($browser) {
-        spyOn($browser, 'baseHref').andCallFake(function() {
+        spyOn($browser, 'baseHref').and.callFake(function() {
           return '/base/';
         });
       }));

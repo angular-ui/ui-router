@@ -1,3 +1,6 @@
+var module = angular.mock.module;
+var uiRouter = require("ui-router");
+
 describe('UI-Router v0.2.x $state events', function () {
   var stateProvider;
 

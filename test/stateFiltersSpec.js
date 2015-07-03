@@ -1,3 +1,6 @@
+var module = angular.mock.module;
+var uiRouter = require("ui-router");
+
 describe('isState filter', function() {
   beforeEach(module('ui.router'));
   beforeEach(module(function($stateProvider) {

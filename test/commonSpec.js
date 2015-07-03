@@ -1,3 +1,17 @@
+var module = angular.mock.module;
+var uiRouter = require("ui-router");
+
+var Glob = uiRouter.glob.Glob;
+var common = uiRouter.common,
+  defaults = common.defaults,
+  filter = common.filter,
+  is = common.is,
+  eq = common.eq,
+  isEq = common.isEq,
+  not = common.not,
+  pattern = common.pattern,
+  val = common.val;
+
 /**
  * Because PhantomJS sucks...
  */
@@ -25,6 +39,7 @@ if (!Function.prototype.bind) {
     return fBound;
   };
 }
+
 
 describe('common', function() {
 

@@ -1,3 +1,7 @@
+var module = angular.mock.module;
+var uiRouter = require("ui-router");
+var UrlMatcher = uiRouter.urlMatcherFactory.UrlMatcher;
+
 describe("UrlMatcher", function () {
 
   var provider;
@@ -459,7 +463,7 @@ describe("urlMatcherFactoryProvider", function () {
   });
 });
 
-describe("urlMatcherFactory", function () {
+fdescribe("urlMatcherFactory", function () {
 
   var $umf;
 

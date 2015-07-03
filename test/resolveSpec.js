@@ -1,3 +1,16 @@
+var module = angular.mock.module;
+var uiRouter = require("ui-router");
+
+var common = uiRouter.common,
+  omit = common.omit,
+  map = common.map,
+  pick = common.pick;
+
+var resolve = uiRouter.resolve,
+  Resolvable = resolve.Resolvable,
+  Path = resolve.Path,
+  PathElement = resolve.PathElement;
+
 describe('Resolvables system:', function () {
   var statesTree, statesMap = {};
   var emptyPath;
@@ -479,7 +492,7 @@ describe("legacy resolve", function () {
 
   describe(".resolve()", function () {
     it("calls injectable functions and returns a promise", function () {
-      var fun = jasmine.createSpy('fun').andReturn(42);
+      var fun = jasmine.createSpy('fun').and.returnValue(42);
       var r = $r.resolve({ fun: [ '$resolve', fun ] });
       expect(r).not.toBeResolved();
       tick();
@@ -492,7 +505,7 @@ describe("legacy resolve", function () {
 
     it("resolves promises returned from the functions", inject(function ($q) {
       var d = $q.defer();
-      var fun = jasmine.createSpy('fun').andReturn(d.promise);
+      var fun = jasmine.createSpy('fun').and.returnValue(d.promise);
       var r = $r.resolve({ fun: [ '$resolve', fun ] });
       tick();
       expect(r).not.toBeResolved();
@@ -503,7 +516,7 @@ describe("legacy resolve", function () {
 
     it("resolves dependencies between functions", function () {
       var a = jasmine.createSpy('a');
-      var b = jasmine.createSpy('b').andReturn('bb');
+      var b = jasmine.createSpy('b').and.returnValue('bb');
       var r = $r.resolve({ a: [ 'b', a ], b: [ b ] });
       tick();
       expect(a).toHaveBeenCalled();
@@ -512,9 +525,9 @@ describe("legacy resolve", function () {
     });
 
     it("resolves dependencies between functions that return promises", inject(function ($q) {
-      var ad = $q.defer(), a = jasmine.createSpy('a').andReturn(ad.promise);
-      var bd = $q.defer(), b = jasmine.createSpy('b').andReturn(bd.promise);
-      var cd = $q.defer(), c = jasmine.createSpy('c').andReturn(cd.promise);
+      var ad = $q.defer(), a = jasmine.createSpy('a').and.returnValue(ad.promise);
+      var bd = $q.defer(), b = jasmine.createSpy('b').and.returnValue(bd.promise);
+      var cd = $q.defer(), c = jasmine.createSpy('c').and.returnValue(cd.promise);
 
       var r = $r.resolve({ a: [ 'b', 'c', a ], b: [ 'c', b ], c: [ c ] });
       tick();
@@ -566,7 +579,7 @@ describe("legacy resolve", function () {
     });
 
     it("does not call injectables overridden by a local", function () {
-      var fun = jasmine.createSpy('fun').andReturn("function");
+      var fun = jasmine.createSpy('fun').and.returnValue("function");
       var r = $r.resolve({ fun: [ fun ] }, { fun: "local" });
       tick();
       expect(fun).not.toHaveBeenCalled();
@@ -605,9 +618,9 @@ describe("legacy resolve", function () {
 
     it("allow access to ancestor resolves in descendent resolve blocks", inject(function ($q) {
       var gPromise = $q.defer(),
-          gInjectable = jasmine.createSpy('gInjectable').andReturn(gPromise.promise),
+          gInjectable = jasmine.createSpy('gInjectable').and.returnValue(gPromise.promise),
           pPromise = $q.defer(),
-          pInjectable = jasmine.createSpy('pInjectable').andReturn(pPromise.promise);
+          pInjectable = jasmine.createSpy('pInjectable').and.returnValue(pPromise.promise);
 
       var g = $r.resolve({ gP: [ gInjectable ] }, g);
       
@@ -628,7 +641,7 @@ describe("legacy resolve", function () {
     // test for #1353
     it("allow parent resolve to override grandparent resolve", inject(function ($q) {
       var gPromise = $q.defer(),
-          gInjectable = jasmine.createSpy('gInjectable').andReturn(gPromise.promise);
+          gInjectable = jasmine.createSpy('gInjectable').and.returnValue(gPromise.promise);
 
       var g = $r.resolve({ item: [ function() { return "grandparent"; } ] }, g);
       gPromise.resolve('grandparent');
@@ -669,8 +682,8 @@ describe("legacy resolve", function () {
     }));
 
     it("it only resolves after the parent resolves", inject(function ($q) {
-      var bd = $q.defer(), b = jasmine.createSpy('b').andReturn(bd.promise);
-      var cd = $q.defer(), c = jasmine.createSpy('c').andReturn(cd.promise);
+      var bd = $q.defer(), b = jasmine.createSpy('b').and.returnValue(bd.promise);
+      var cd = $q.defer(), c = jasmine.createSpy('c').and.returnValue(cd.promise);
       var r = $r.resolve({ c: [ c ] });
       var s = $r.resolve({ b: [ b ] }, r);
       bd.resolve('bbb');
@@ -684,9 +697,9 @@ describe("legacy resolve", function () {
     }));
 
     it("invokes functions as soon as possible", inject(function ($q) {
-      var ad = $q.defer(), a = jasmine.createSpy('a').andReturn(ad.promise);
-      var bd = $q.defer(), b = jasmine.createSpy('b').andReturn(bd.promise);
-      var cd = $q.defer(), c = jasmine.createSpy('c').andReturn(cd.promise);
+      var ad = $q.defer(), a = jasmine.createSpy('a').and.returnValue(ad.promise);
+      var bd = $q.defer(), b = jasmine.createSpy('b').and.returnValue(bd.promise);
+      var cd = $q.defer(), c = jasmine.createSpy('c').and.returnValue(cd.promise);
 
       var r = $r.resolve({ c: [ c ] });
       var s = $r.resolve({ a: [ a ], b: [ 'c', b ] }, r);
@@ -742,9 +755,9 @@ describe("legacy resolve", function () {
     });
 
     it("does not invoke any more functions after a failure", inject(function ($q) {
-      var ad = $q.defer(), a = jasmine.createSpy('a').andReturn(ad.promise);
-      var cd = $q.defer(), c = jasmine.createSpy('c').andReturn(cd.promise);
-      var dd = $q.defer(), d = jasmine.createSpy('d').andReturn(dd.promise);
+      var ad = $q.defer(), a = jasmine.createSpy('a').and.returnValue(ad.promise);
+      var cd = $q.defer(), c = jasmine.createSpy('c').and.returnValue(cd.promise);
+      var dd = $q.defer(), d = jasmine.createSpy('d').and.returnValue(dd.promise);
       var r = $r.resolve({ a: [ 'c', a ], c: [ c ], d: [ d ] });
       dd.reject('dontlikeit');
       tick();
@@ -755,9 +768,9 @@ describe("legacy resolve", function () {
     }));
 
     it("does not invoke any more functions after a parent failure", inject(function ($q) {
-      var ad = $q.defer(), a = jasmine.createSpy('a').andReturn(ad.promise);
-      var cd = $q.defer(), c = jasmine.createSpy('c').andReturn(cd.promise);
-      var dd = $q.defer(), d = jasmine.createSpy('d').andReturn(dd.promise);
+      var ad = $q.defer(), a = jasmine.createSpy('a').and.returnValue(ad.promise);
+      var cd = $q.defer(), c = jasmine.createSpy('c').and.returnValue(cd.promise);
+      var dd = $q.defer(), d = jasmine.createSpy('d').and.returnValue(dd.promise);
       var r = $r.resolve({ c: [ c ], d: [ d ] });
       var s = $r.resolve({ a: [ 'c', a ] }, r);
       dd.reject('dontlikeit');

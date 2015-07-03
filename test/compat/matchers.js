@@ -42,7 +42,7 @@ beforeEach(function() {
             ? this.actual.toString()
             : this.actual.toArray();
       }
-      return jasmine.Matchers.prototype.toEqual.call(this, expected);
+      return jasmine.matchers.toEqual.call(this, expected);
     },
 
     toEqualData: function(expected) {
