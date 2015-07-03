@@ -1,4 +1,4 @@
-import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEach, pick, objectKeys, ancestors, arraySearch, noop} from "./common";
+import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEach, pick, objectKeys, ancestors, arraySearch, noop, identity} from "./common";
 import {not, prop, pipe, val} from "./common";
 import {isDefined, isFunction, isArray, isObject, isString} from "./common";
 import {Glob} from "./glob";
@@ -820,7 +820,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
     $state.reload = function reload(reloadState) {
-      var reloadOpt = angular.isDefined(reloadState) ? reloadState : true;
+      var reloadOpt = isDefined(reloadState) ? reloadState : true;
       return $state.transitionTo($state.current, $stateParams, {
         reload: reloadOpt,
         inherit: false,
@@ -1040,7 +1040,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
               return REJECT.aborted();
             if (error.type === transition.SUPERSEDED) {
               //if (error.redirected && error.detail instanceof Transition) { // TODO: expose Transition class for instanceof
-              if (error.redirected && error.detail && angular.isFunction(error.detail.run)) {
+              if (error.redirected && error.detail && isFunction(error.detail.run)) {
                 return stateHandler.runTransition(error.detail);
               }
               // Return $q.reject(error)?  i.e., the original rejection? It has more information.
@@ -1073,7 +1073,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       // Return a promise for the transition, which also has the transition object on it.
       // Allows, for instance:
       // $state.go("foo").transition.redirects.then(function() { alert("Ive been redirected to state " + $state.current.name); }
-      return extend(result.then(angular.identity), { transition: transition });
+      return extend(result.then(identity), { transition: transition });
     };
 
     /**

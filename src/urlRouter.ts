@@ -1,6 +1,6 @@
 /// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
-import {isFunction, isString, isDefined, isArray, extend} from "./common";
+import {isFunction, isString, isDefined, isArray, isObject, extend} from "./common";
 import {IServiceProviderFactory} from "angular";
 
 /**
@@ -389,7 +389,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
         if (!urlMatcher.validates(params)) return null;
 
         var isHtml5 = $locationProvider.html5Mode();
-        if (angular.isObject(isHtml5)) {
+        if (isObject(isHtml5)) {
           isHtml5 = isHtml5.enabled;
         }
         

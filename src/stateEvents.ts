@@ -1,6 +1,6 @@
 /// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
-import {extend, forEach} from "./common";
+import {extend, forEach, isFunction} from "./common";
 import {StateParams} from "./state";
 import {IServiceProviderFactory} from "angular";
 
@@ -154,7 +154,7 @@ function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
   if (e.defaultPrevented) {
     return false;
   } else if (e.retry || $state.get(redirect.to)) {
-    return e.retry && angular.isFunction(e.retry.then) ? e.retry.then(redirectFn) : redirectFn();
+    return e.retry && isFunction(e.retry.then) ? e.retry.then(redirectFn) : redirectFn();
   }
 
   throw new Error($transition$.$to().error());

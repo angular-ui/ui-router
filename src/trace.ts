@@ -1,5 +1,5 @@
 import {isNull, isPromise, is, invoke, not, val, pattern, tpl, parse, objectKeys}  from "./common";
-import {isDefined, isObject, isString, isFunction, extend, forEach, isArray} from "./common";
+import {isDefined, isObject, isString, isFunction, extend, forEach, isArray, identity} from "./common";
 import {Resolvable}  from "./resolve";
 import {Transition, TransitionRejection}  from "./transition";
 
@@ -41,7 +41,7 @@ class Trace {
       [is(Transition),            invoke("toString")],
       [is(Resolvable),            invoke("toString")],
       [isFunction,                fnToString],
-      [val(true),                 angular.identity]
+      [val(true),                 identity]
     ]);
 
     return this._toJson(o);

@@ -5,7 +5,8 @@ import {trace} from "./trace";
 import {Resolvable, Path, PathElement} from "./resolve";
 import {StateParams} from "./state";
 import {objectKeys, filter, tpl, defaults, map, val, not, is, eq, isEq, parse, invoke,
-    flatten, prop, pluck, pairs, pick, pipe, pattern, unnest, unroll, isPromise} from "./common";
+    flatten, prop, pluck, pairs, pick, pipe, pattern, unnest, unroll, isPromise, noop,
+    identity, toJson} from "./common";
 import {Glob} from "./glob";
 
 export var Transition, REJECT;
@@ -61,7 +62,7 @@ export function TransitionStep(pathElement, fn, locals, pathContext, options) {
   options = defaults(options, {
     async: true,
     rejectIfSuperseded: true,
-    current: angular.noop,
+    current: noop,
     transition: null,
     trace: false,
     data: {}
@@ -829,7 +830,7 @@ function $TransitionProvider() {
 
           // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
           var invalidOrStartHooks = transition.$to().valid() ? onStartHooks : onInvalidHooks;
-          var asyncSteps = filter(flatten([invalidOrStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]), angular.identity);
+          var asyncSteps = filter(flatten([invalidOrStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]), identity);
 
           // -----------------------------------------------------------------------
           // Transition Steps
@@ -876,10 +877,10 @@ function $TransitionProvider() {
           return tpl("Transition#{id}( '{from}'{fromParams} -> {toValid}'{to}'{toParams} )", {
             id:         transition.$id,
             from:       isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
-            fromParams: angular.toJson(transition.$from().params()),
+            fromParams: toJson(transition.$from().params()),
             toValid:    transition.$to().valid() ? "" : "(X) ",
             to:         isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
-            toParams:   angular.toJson(transition.params())
+            toParams:   toJson(transition.params())
           });
         }
       });

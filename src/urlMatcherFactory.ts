@@ -1,6 +1,6 @@
 /// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 import {IServiceProviderFactory} from "angular";
-import {forEach, extend, inherit, map, filter, indexOf, objectKeys, isObject, isDefined, isArray, isString, isInjectable, isFunction} from "./common";
+import {forEach, extend, inherit, map, filter, indexOf, objectKeys, isObject, isDefined, isArray, isString, isInjectable, isFunction, toJson, fromJson, identity, equals} from "./common";
 
 
 export var $$UMFP; // reference to $UrlMatcherFactoryProvider
@@ -649,16 +649,16 @@ function $UrlMatcherFactory() {
       capture: /([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/
     },
     json: {
-      encode: angular.toJson,
-      decode: angular.fromJson,
-      is: angular.isObject,
-      equals: angular.equals,
+      encode: toJson,
+      decode: fromJson,
+      is: isObject,
+      equals: equals,
       pattern: /[^/]*/
     },
     any: { // does not encode/decode
-      encode: angular.identity,
-      decode: angular.identity,
-      equals: angular.equals,
+      encode: identity,
+      decode: identity,
+      equals: equals,
       pattern: /.*/
     }
   };
@@ -900,7 +900,7 @@ function $UrlMatcherFactory() {
     while(typeQueue.length) {
       var type = typeQueue.shift();
       if (type.pattern) throw new Error("You cannot override a type's .pattern at runtime.");
-      angular.extend($types[type.name], injector.invoke(type.def));
+      extend($types[type.name], injector.invoke(type.def));
     }
   }
 
@@ -1065,7 +1065,7 @@ function $UrlMatcherFactory() {
         if (!param.type.is(normalized))
           return false; // The value was not of the correct Type, and could not be decoded to the correct Type
         encoded = param.type.encode(normalized);
-        if (angular.isString(encoded) && !param.type.pattern.exec(encoded))
+        if (isString(encoded) && !param.type.pattern.exec(encoded))
           return false; // The value was of the correct type, but when encoded, did not match the Type's regexp
       }
       return true;

@@ -1,6 +1,6 @@
 /// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
-import { isDefined, isFunction, isString, isObject, isArray, forEach, extend, copy, noop } from "angular";
-export { isDefined, isFunction, isString, isObject, isArray, forEach, extend, copy, noop };
+import { isDefined, isFunction, isString, isObject, isArray, forEach, extend, copy, noop, toJson, fromJson, equals, identity } from "angular";
+export { isDefined, isFunction, isString, isObject, isArray, forEach, extend, copy, noop, toJson, fromJson, equals, identity };
 "use strict";
 
 export var abstractKey = 'abstract';

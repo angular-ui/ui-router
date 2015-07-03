@@ -1,6 +1,6 @@
 /// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
-import {parse, extend} from "./common";
+import {parse, extend, isDefined} from "./common";
 
 /**
  * @ngdoc directive
@@ -213,7 +213,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
                 currentScope.$emit('$viewContentAnimationEnded');
               }
 
-              if (angular.isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
+              if (isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
                 $uiViewScroll(clone);
               }
             });
