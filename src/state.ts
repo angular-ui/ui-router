@@ -16,7 +16,7 @@ export interface IPublicState {
 }
 
 
-function StateQueueManager(states, builder, $urlRouterProvider, $state) {
+export function StateQueueManager(states, builder, $urlRouterProvider, $state) {
   var queue = [];
 
   var queueManager = extend(this, {
@@ -85,7 +85,7 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
 }
 
 // Builds state properties from definition passed to StateQueueManager.register()
-function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
+export function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 
   var self = this, builders = {
 
@@ -234,7 +234,7 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
   });
 }
 
-function StateMatcher(states) {
+export function StateMatcher(states) {
   extend(this, {
     isRelative: function(stateName) {
       stateName = stateName || "";

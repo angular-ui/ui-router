@@ -1,5 +1,12 @@
 var module = angular.mock.module;
 var uiRouter = require("ui-router");
+var forEach = uiRouter.common.forEach;
+var omit = uiRouter.common.omit;
+var pick = uiRouter.common.pick;
+var extend = uiRouter.common.extend;
+var StateMatcher = uiRouter.state.StateMatcher;
+var StateBuilder = uiRouter.state.StateBuilder;
+var StateQueueManager = uiRouter.state.StateQueueManager;
 
 describe('transition', function () {
 

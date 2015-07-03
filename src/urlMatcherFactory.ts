@@ -74,7 +74,7 @@ interface params {
  *
  * @returns {Object}  New `UrlMatcher` object
  */
-class UrlMatcher {
+export class UrlMatcher {
   params: params;
   prefix: string;
   regexp: RegExp;
@@ -420,7 +420,7 @@ class UrlMatcher {
  *
  * @returns {Object}  Returns a new `Type` object.
  */
-class Type {
+export class Type {
   pattern: RegExp;
   name: string;
 
