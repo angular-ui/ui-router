@@ -1,9 +1,9 @@
 /// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
-import {isDefined, isObject, isString, extend, forEach, isArray, noop} from "./common";
+import {isDefined, isObject, isString, extend, forEach, isArray, identity, noop} from "./common";
 import {defaults, pick, map, merge, tpl, filter, omit, parse, pluck, find, pipe, prop, eq}  from "./common";
 import {trace}  from "./trace";
-import {IPromise, IQService, identity} from "angular";
+import {IPromise, IQService} from "angular";
 import {IPublicState} from "./state";
 
 var $injector: ng.auto.IInjectorService, $q: IQService;

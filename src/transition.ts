@@ -1,12 +1,12 @@
 /// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
-import {extend, forEach, isFunction, isNumber, isObject, isString, IServiceProviderFactory} from "angular";
+import {IServiceProviderFactory} from "angular";
 import {trace} from "./trace";
 import {Resolvable, Path, PathElement} from "./resolve";
 import {StateParams} from "./state";
 import {objectKeys, filter, tpl, defaults, map, val, not, is, eq, isEq, parse, invoke,
-    flatten, prop, pluck, pairs, pick, pipe, pattern, unnest, unroll, isPromise, noop,
-    identity, toJson} from "./common";
+    extend, forEach, flatten, prop, pluck, pairs, pick, pipe, pattern, unnest, unroll,
+    isFunction, isNumber, isObject, isPromise, isString, noop, identity, toJson} from "./common";
 import {Glob} from "./glob";
 
 export var Transition, REJECT;
