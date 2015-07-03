@@ -2,7 +2,7 @@ var module = angular.mock.module;
 var uiRouter = require("ui-router");
 
 describe('UI-Router v0.2.x $state events', function () {
-  var stateProvider;
+  var $injector, stateProvider;
 
   beforeEach(module('ui.router.state.events', function($stateEventsProvider) {
     $stateEventsProvider.enabledEvents("*");
@@ -21,6 +21,21 @@ describe('UI-Router v0.2.x $state events', function () {
     return function () {
       if (logEnterExit) log += this.name + '.' + what + ';';
     };
+  }
+
+  function resolvedError(promise) {
+    return !promise.$$resolved.success;
+  }
+
+  function obj(instance) {
+    var instanceObj = {};
+    for (var i in instance) {
+      if (instance.hasOwnProperty(i) && !/^\$/.test(i)) {
+        instanceObj[i] = instance[i];
+      }
+    }
+
+    return instanceObj;
   }
 
   var A = { data: {} },
@@ -46,7 +61,8 @@ describe('UI-Router v0.2.x $state events', function () {
       .state('E', E);
   }));
 
-  beforeEach(inject(function ($rootScope) {
+  beforeEach(inject(function ($rootScope, _$injector_) {
+    $injector = _$injector_;
     log = '';
     logEvents = logEnterExit = false;
     $rootScope.$on('$stateChangeStart', eventLogger);
@@ -57,7 +73,7 @@ describe('UI-Router v0.2.x $state events', function () {
 
 
   function $get(what) {
-    return jasmine.getEnv().currentSpec.$injector.get(what);
+    return $injector.get(what);
   }
 
   function initStateTo(state, params) {
@@ -138,7 +154,7 @@ describe('UI-Router v0.2.x $state events', function () {
       $q.flush();
 
       var err = "Could not resolve '^.Z' from state 'DD'";
-      expect(function() { $state.transitionTo("^.Z", null, { relative: $state.$current }); }).toThrow(err);
+      expect(function() { $state.transitionTo("^.Z", null, { relative: $state.$current }); }).toThrowError(Error, err);
     }));
 
 
