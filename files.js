@@ -43,6 +43,7 @@ routerFiles = {
     'test/resolveSpec.js',
     //'test/stateDirectivesSpec.js',
     'test/stateEventsSpec.js',
+    'test/stateFiltersSpec.js',
     'test/stateSpec.js',
     'test/templateFactorySpec.js',
     'test/transitionSpec.js',

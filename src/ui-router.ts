@@ -4,6 +4,7 @@ import * as resolve from "./resolve"
 import * as state from "./state"
 import * as stateDirectives from "./stateDirectives"
 import * as stateEvents from "./stateEvents"
+import * as stateFilters from "./stateFilters"
 //import * as stateFilters from "./stateFilters"
 import * as templateFactory from "./templateFactory"
 import * as trace from "./trace"
@@ -14,5 +15,5 @@ import * as view from "./view"
 import * as viewDirective from "./viewDirective"
 import * as viewScroll from "./viewScroll"
 
-export { common, glob, resolve, state, stateDirectives, stateEvents, templateFactory,
+export { common, glob, resolve, state, stateDirectives, stateEvents, stateFilters, templateFactory,
     trace, transition, urlMatcherFactory, urlRouter, view, viewDirective, viewScroll };

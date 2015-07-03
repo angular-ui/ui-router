@@ -10,7 +10,7 @@
  * Translates to {@link ui.router.state.$state#methods_is $state.is("stateName")}.
  */
 $IsStateFilter.$inject = ['$state'];
-function $IsStateFilter($state) {
+export function $IsStateFilter($state) {
   return function(state) {
     return $state.is(state);
   };
@@ -26,7 +26,7 @@ function $IsStateFilter($state) {
  * Translates to {@link ui.router.state.$state#methods_includes $state.includes('fullOrPartialStateName')}.
  */
 $IncludedByStateFilter.$inject = ['$state'];
-function $IncludedByStateFilter($state) {
+export function $IncludedByStateFilter($state) {
   return function(state) {
     return $state.includes(state);
   };
