@@ -4,6 +4,7 @@ import {isDefined, isFunction, isArray, isObject, isString} from "./common";
 import {Glob} from "./glob";
 import {TransitionRejection} from "./transition";
 import {$$UMFP} from "./urlMatcherFactory";
+import {ParamSet} from "./urlMatcherFactory";
 import {IServiceProviderFactory} from "angular";
 
 export interface IPublicState {
@@ -119,7 +120,7 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 
     // Own parameters for this state. state.url.params is already built at this point. Create and add non-url params
     ownParams: function(state) {
-      var params = state.url && state.url.params || new $$UMFP.ParamSet();
+      var params = state.url && state.url.params || new ParamSet();
       forEach(state.params || {}, function(config, id) {
         if (!params[id]) params[id] = new $$UMFP.Param(id, null, config, "config");
       });
@@ -131,7 +132,7 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 
     // Derive parameters for this state and ensure they're a super-set of parent's parameters
     params: function(state) {
-      var base = state.parent && state.parent.params ? state.parent.params.$$new() : new $$UMFP.ParamSet();
+      var base = state.parent && state.parent.params ? state.parent.params.$$new() : new ParamSet();
       return extend(base, state.ownParams);
     },
 
