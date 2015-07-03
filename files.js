@@ -39,6 +39,7 @@ routerFiles = {
   ],
   test: [
     'test/commonSpec.js',
+    'test/globSpec.js',
     'test/resolveSpec.js',
     //'test/stateDirectivesSpec.js',
     'test/stateEventsSpec.js',

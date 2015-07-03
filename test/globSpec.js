@@ -1,3 +1,6 @@
+var uiRouter = require('ui-router');
+var Glob = uiRouter.glob.Glob;
+
 describe('Glob', function() {
   it('should match glob strings', function() {
     expect(Glob.is('*')).toBe(true);
