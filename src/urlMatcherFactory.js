@@ -579,7 +579,7 @@ function $UrlMatcherFactory() {
       decode: valFromString,
       // TODO: in 1.0, make string .is() return false if value is undefined/null by default.
       // In 0.2.x, string params are optional by default for backwards compat
-      is: function(val) { return (val == null || !isDefined(val) || typeof val === "string") && (val.toString().indexOf(slashReplacement) === -1); },
+      is: function(val) { return val == null || !isDefined(val) || (isString(val) && val.indexOf(slashReplacement) === -1); },
       pattern: /[^/]*/
     },
     int: {
