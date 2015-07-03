@@ -1,5 +1,9 @@
 var module = angular.mock.module;
 var uiRouter = require("ui-router");
+var forEach = uiRouter.common.forEach;
+var StateMatcher = uiRouter.state.StateMatcher;
+var StateBuilder = uiRouter.state.StateBuilder;
+var StateReference = uiRouter.state.StateReference;
 
 describe('state helpers', function() {
 
@@ -66,7 +70,7 @@ describe('state helpers', function() {
       expect(matcher.find('^.^.company', states['home.about.people.person'])).toBe(states['home.about.company']);
       expect(matcher.find('^.foo', states.home)).toBeUndefined();
       expect(matcher.find('^.other.foo', states.home)).toBe(states['other.foo']);
-      expect(function() { matcher.find('^.^', states.home); }).toThrow("Path '^.^' not valid for state 'home'");
+      expect(function() { matcher.find('^.^', states.home); }).toThrowError(Error, "Path '^.^' not valid for state 'home'");
     });
   });
 
@@ -153,7 +157,7 @@ describe('state helpers', function() {
 
         expect(function() {
           builder.builder('url')({ toString: function() { return "foo"; }, url: { foo: "bar" } });
-        }).toThrow("Invalid url '[object Object]' in state 'foo'");
+        }).toThrowError(Error, "Invalid url '[object Object]' in state 'foo'");
 
         expect(urlMatcherFactoryProvider.isMatcher).toHaveBeenCalledWith({ foo: "bar" });
       });

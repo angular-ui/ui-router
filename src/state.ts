@@ -372,7 +372,7 @@ State.prototype.root = function() {
  *
  * @returns {Function}
  */
-function StateReference(identifier, definition, params, base) {
+export function StateReference(identifier, definition, params, base) {
   extend(this, {
     identifier: function() {
       return identifier;
