@@ -416,8 +416,8 @@ function $TransitionProvider() {
    * The `$transition` service manages changes in states and parameters.
    */
   this.$get = $get;
-  $get.$inject = ['$q', '$injector', '$resolve', '$stateParams', '$timeout'];
-  function $get(   $q,   $injector,   $resolve,   $stateParams,   $timeout) {
+  $get.$inject = ['$q', '$injector'];
+  function $get(   $q,   $injector ) {
 
     $TransitionProvider.prototype.instance.on({}, function $rejectIfInvalid($transition$) {
       if (!$transition$.$to().valid())
