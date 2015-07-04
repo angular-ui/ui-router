@@ -241,12 +241,6 @@ export function find(collection, callback) {
   return result;
 }
 
-export function tpl(string, vals) {
-  return string.replace(/\{([\w.]+)\}/g, function(_, key) {
-    return parse(key)(vals) || "";
-  });
-}
-
 export function map<T> (collection: T, callback): T {
   var result = isArray(collection) ? [] : {};
 
