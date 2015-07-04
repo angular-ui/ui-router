@@ -38,7 +38,7 @@ export class Param {
     }
 
     function getType(config, urlType, location) {
-      if (config.type && urlType) throw new Error("Param '" + id + "' has two type configurations.");
+      if (config.type && urlType) throw new Error(`Param '${id}' has two type configurations.`);
       if (urlType) return urlType;
       if (!config.type) return (location === "config" ? paramTypes.type("any") : paramTypes.type("string"));
       return config.type instanceof Type ? config.type : new Type(config.type);
@@ -103,7 +103,7 @@ export class Param {
       if (!runtime.$injector) throw new Error("Injectable functions cannot be called at configuration time");
       var defaultValue = runtime.$injector.invoke(this.config.$$fn);
       if (defaultValue !== null && defaultValue !== undefined && !this.type.is(defaultValue))
-        throw new Error("Default value (" + defaultValue + ") for parameter '" + this.id + "' is not an instance of Type (" + this.type.name + ")");
+        throw new Error(`Default value (${defaultValue}) for parameter '${this.id}' is not an instance of Type (${this.type.name})`);
       return defaultValue;
     };
 
@@ -116,6 +116,6 @@ export class Param {
     return !isDefined(value) ? $$getDefaultValue() : this.type.$normalize(value);
   }
 
-  toString() { return "{Param:" + this.id + " " + this.type + " squash: '" + this.squash + "' optional: " + this.isOptional + "}"; }
+  toString() { return `{Param:${this.id} ${this.type} squash: '${this.squash}' optional: ${this.isOptional}}`; }
 
 }
