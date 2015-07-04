@@ -208,7 +208,7 @@ describe('state helpers', function() {
 
 describe('state', function () {
 
-  var stateProvider, locationProvider, templateParams, template, ctrlName;
+  var $injector, stateProvider, locationProvider, templateParams, template, ctrlName;
 
   beforeEach(module('ui.router', function($locationProvider) {
     locationProvider = $locationProvider;
@@ -357,14 +357,15 @@ describe('state', function () {
     $provide.value('AppInjectable', AppInjectable);
   }));
 
-  beforeEach(inject(function ($rootScope) {
+  beforeEach(inject(function (_$injector_) {
+    $injector = _$injector_;
     log = '';
     logEvents = logEnterExit = false;
   }));
 
 
   function $get(what) {
-    return jasmine.getEnv().currentSpec.$injector.get(what);
+    return $injector.get(what);
   }
 
   function initStateTo(state, params) {
