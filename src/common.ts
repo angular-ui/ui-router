@@ -296,9 +296,37 @@ export function flatten (array) {
   return _flatten(array, []);
 }
 
-export function pairs(array1, array2) {
-  if (array1.length !== array2.length) throw new Error("pairs(): Unequal length arrays not allowed");
-  return array1.reduce(function (memo, key, i) { memo[key] = array2[i]; return memo; }, {});
+/**
+ * Like _.zipObject or _.object: Given two parallel arrays, makes an object with key/value pairs, where
+ * the key comes from array1 and the value comes from array2. Alternatively, the key/value pairs may be provided
+ * in array1 only, where each element of the array is a nested array where the key is in nested[0] and val in nested[1]
+ */
+export function zipObject(array1: any[], array2?: any[]) {
+  function ensureArray(array) { if (!isArray(array)) throw new Error("Not an array: " + array); }
+
+  if (!isDefined(array2)) {
+    return array1.reduce((memo, item) => {
+      ensureArray(item);
+      memo[item[0]] = item[1];
+      return memo;
+    }, {});
+  }
+
+  if (array1.length !== array2.length) {
+    throw new Error("pairs(): Unequal length arrays not allowed");
+  }
+
+  return array1.reduce((memo, key, i) => {
+    memo[key] = array2[i];
+    return memo;
+  }, {});
+}
+
+/** Like _.pairs: Given an object, returns key/value pairs in an array */
+export function pairs(object) {
+  var result = [];
+  forEach(object, (val, key) => result.push([key, val]));
+  return result;
 }
 
 // Checks if a value is injectable

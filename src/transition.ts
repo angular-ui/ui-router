@@ -5,7 +5,7 @@ import {trace} from "./trace";
 import {Resolvable, Path, PathElement} from "./resolve";
 import {StateParams} from "./state";
 import {objectKeys, filter, tpl, defaults, map, val, not, is, eq, isEq, parse, invoke,
-    extend, forEach, flatten, prop, pluck, pairs, pick, pipe, pattern, unnest, unroll,
+    extend, forEach, flatten, prop, pluck, zipObject, pick, pipe, pattern, unnest, unroll,
     isFunction, isNumber, isObject, isPromise, isString, noop, identity, toJson} from "./common";
 import {Glob} from "./glob";
 
@@ -658,7 +658,7 @@ function $TransitionProvider() {
              * @returns a $q promise for the resolved data by name
              */
             getLocalsFor: function makeLocalsForContext(fn) {
-              var injectMe = function injectMe() { return pairs(injectMe.$inject, arguments); };
+              var injectMe = function injectMe() { return zipObject(injectMe.$inject, arguments); };
               injectMe.$inject = objectKeys(pick(pathElement.getResolvables(), $injector.annotate(fn)));
               return pathElement.invokeLater(injectMe, {}, toPath, options);
             }
