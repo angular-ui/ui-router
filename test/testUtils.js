@@ -1,5 +1,7 @@
 var module = angular.mock.module;
 var uiRouter = require("ui-router");
+var common = uiRouter.common;
+var forEach = common.forEach;
 
 // Promise testing support
 angular.module('ngMock').config(function ($provide) {

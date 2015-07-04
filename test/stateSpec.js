@@ -1,9 +1,12 @@
 var module = angular.mock.module;
 var uiRouter = require("ui-router");
-var forEach = uiRouter.common.forEach;
-var StateMatcher = uiRouter.state.StateMatcher;
-var StateBuilder = uiRouter.state.StateBuilder;
-var StateReference = uiRouter.state.StateReference;
+var common = uiRouter.common;
+var extend = common.extend,
+  forEach = common.forEach;
+var state = uiRouter.state;
+var StateMatcher = state.StateMatcher,
+  StateBuilder = state.StateBuilder,
+  StateReference = state.StateReference;
 
 describe('state helpers', function() {
 
@@ -220,6 +223,17 @@ describe('state', function () {
     return function () {
       if (logEnterExit) log += this.name + '.' + what + ';';
     };
+  }
+
+  function obj(instance) {
+    var instanceObj = {};
+    for (var i in instance) {
+      if (instance.hasOwnProperty(i) && !/^\$/.test(i)) {
+        instanceObj[i] = instance[i];
+      }
+    }
+
+    return instanceObj;
   }
 
   var A = { data: {}, controller: function() { log += "controller;"; } },
@@ -1472,7 +1486,7 @@ describe('state', function () {
     it('should inject $stateParams into templateUrl function', inject(function ($state, $q, $httpBackend) {
       $httpBackend.expectGET("/templates/foo.html").respond("200");
       $state.transitionTo('about.sidebar.item', { item: "foo" }); $q.flush();
-      expect(templateParams).toEqualData({ '#': null, item: "foo" });
+      expect(obj(templateParams)).toEqual({ '#': null, item: "foo" });
     }));
   });
 
