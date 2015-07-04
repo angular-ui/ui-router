@@ -1,7 +1,10 @@
 var module = angular.mock.module;
 var uiRouter = require("ui-router");
-var UrlMatcher = uiRouter.urlMatcherFactory.UrlMatcher;
-var ParamSet = uiRouter.urlMatcherFactory.ParamSet;
+var umf       = uiRouter.urlMatcherFactory,
+  runtime     = umf.runtime,
+  UrlMatcher  = umf.UrlMatcher,
+  ParamSet    = umf.ParamSet,
+  Param       = umf.Param;
 
 describe("UrlMatcher", function () {
 
@@ -15,6 +18,7 @@ describe("UrlMatcher", function () {
     module('ui.router.router', 'ui.router.router.test');
 
     inject(function($injector) {
+      runtime.injector = $injector;
       $injector.invoke(provider.$get);
     });
   });
@@ -95,10 +99,10 @@ describe("UrlMatcher", function () {
 
     it("should not match if invalid", function() {
       var err = "Invalid parameter name '-snake' in pattern '/users/?from&to&-snake'";
-      expect(function() { new UrlMatcher('/users/?from&to&-snake'); }).toThrow(err);
+      expect(function() { new UrlMatcher('/users/?from&to&-snake'); }).toThrowError(err);
 
       err = "Invalid parameter name 'snake-' in pattern '/users/?from&to&snake-'";
-      expect(function() { new UrlMatcher('/users/?from&to&snake-'); }).toThrow(err);
+      expect(function() { new UrlMatcher('/users/?from&to&snake-'); }).toThrowError(err);
     });
   });
 
@@ -144,7 +148,7 @@ describe("UrlMatcher", function () {
       };
 
       angular.forEach(shouldThrow, function(url, route) {
-        expect(function() { new UrlMatcher(route).exec(url, {}); }).toThrow(
+        expect(function() { new UrlMatcher(route).exec(url, {}); }).toThrowError(
           "Unbalanced capture group in route '" + route + "'"
         );
       });
@@ -509,7 +513,7 @@ describe("urlMatcherFactory", function () {
 
     it("should reject duplicate definitions", function () {
       $umf.type("myType", { encode: function () {}, decode: function () {} });
-      expect(function() { $umf.type("myType", {}); }).toThrow("A type named 'myType' has already been defined.");
+      expect(function() { $umf.type("myType", {}); }).toThrowError("A type named 'myType' has already been defined.");
     });
 
     it("should accept injected function definitions", inject(function ($stateParams) {
@@ -844,10 +848,10 @@ describe("urlMatcherFactory", function () {
     var params = {};
     beforeEach(function() {
       var types = { int: $umf.type("int"), string: $umf.type("string"), any: $umf.type("any") }
-      params.grandparent  = new $umf.Param("grandparent", types.int, {}, "path");
-      params.parent       = new $umf.Param("parent", types.string, {}, "path");
-      params.child        = new $umf.Param("child", types.string, {}, "path");
-      params.param4       = new $umf.Param("param4", types.any, {}, "path");
+      params.grandparent  = new Param("grandparent", types.int, {}, "path");
+      params.parent       = new Param("parent", types.string, {}, "path");
+      params.child        = new Param("child", types.string, {}, "path");
+      params.param4       = new Param("param4", types.any, {}, "path");
     });
 
     describe(".$$new", function() {

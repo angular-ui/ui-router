@@ -658,7 +658,8 @@ function $TransitionProvider() {
              * @returns a $q promise for the resolved data by name
              */
             getLocalsFor: function makeLocalsForContext(fn) {
-              var injectMe = function injectMe() { return zipObject(injectMe.$inject, arguments); };
+              var args = Array.prototype.slice.call(arguments);
+              var injectMe = function injectMe() { return zipObject(injectMe.$inject, args); };
               injectMe.$inject = objectKeys(pick(pathElement.getResolvables(), $injector.annotate(fn)));
               return pathElement.invokeLater(injectMe, {}, toPath, options);
             }

@@ -1,9 +1,13 @@
 /// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 import {IServiceProviderFactory} from "angular";
-import {forEach, extend, inherit, map, filter, indexOf, objectKeys, isObject, isDefined, isArray, isString, isInjectable, isFunction, toJson, fromJson, identity, equals} from "./common";
+import {forEach, extend, inherit, map, filter, indexOf, objectKeys,
+    isObject, isDefined, isArray, isString, isInjectable, isFunction,
+    toJson, fromJson, identity, equals} from "./common";
 
 
-export var $$UMFP; // reference to $UrlMatcherFactoryProvider
+// We use a reference to the $injector to allow custom types to inject their encode/decode functions
+// This variable is set when $get() is invoked (at Angular 1 runtime)  ... ugly.
+export var runtime = { injector: undefined };
 
 interface params {
   $$validates: (params: string) => Array<string>;
@@ -105,7 +109,7 @@ export class UrlMatcher {
       compiled = '^', last = 0, m,
       segments = this.segments = [],
       parentParams = parentMatcher ? parentMatcher.params : {},
-      params = this.params = parentMatcher ? parentMatcher.params.$$new() : new $$UMFP.ParamSet(),
+      params = this.params = parentMatcher ? parentMatcher.params.$$new() : new ParamSet(),
       paramNames = [];
 
     function addParameter(id, type, config, location) {
@@ -113,7 +117,7 @@ export class UrlMatcher {
       if (parentParams[id]) return parentParams[id];
       if (!/^\w+(-+\w+)*(?:\[\])?$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
       if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
-      params[id] = new $$UMFP.Param(id, type, config, location);
+      params[id] = new Param(id, type, config, location);
       return params[id];
     }
 
@@ -138,7 +142,7 @@ export class UrlMatcher {
       cfg         = config.params[id];
       segment     = pattern.substring(last, m.index);
       regexp      = isSearch ? m[4] : m[4] || (m[1] == '*' ? '.*' : null);
-      type        = $$UMFP.type(regexp || "string") || inherit($$UMFP.type("string"), { pattern: new RegExp(regexp, config.caseInsensitive ? 'i' : undefined) });
+      type        = paramTypes.type(regexp || "string") || inherit(paramTypes.type("string"), { pattern: new RegExp(regexp, config.caseInsensitive ? 'i' : undefined) });
       return {
         id: id, regexp: regexp, segment: segment, type: type, cfg: cfg
       };
@@ -213,9 +217,9 @@ export class UrlMatcher {
     // parameters to the end of the new pattern. Parse the new pattern by itself
     // and then join the bits together, but it's much easier to do this on a string level.
     var defaultConfig = {
-      caseInsensitive: $$UMFP.caseInsensitive(),
-      strict: $$UMFP.strictMode(),
-      squash: $$UMFP.defaultSquashPolicy()
+      caseInsensitive: matcherConfig.caseInsensitive(),
+      strict: matcherConfig.strictMode(),
+      squash: matcherConfig.defaultSquashPolicy()
     };
     return new UrlMatcher(this.sourcePath + pattern + this.sourceSearch, extend(defaultConfig, config), this);
   }
@@ -585,25 +589,15 @@ export class Type {
 
 Type.prototype.pattern = /.*/;
 
+function valToString(val) { return val != null ? val.toString().replace(/\//g, "%2F") : val; }
+function valFromString(val) { return val != null ? val.toString().replace(/%2F/g, "/") : val; }
 
+class ParamTypes {
+  types: any;
+  enqueue: boolean = true;
+  typeQueue: any[] = [];
 
-/**
- * @ngdoc object
- * @name ui.router.util.$urlMatcherFactory
- *
- * @description
- * Factory for {@link ui.router.util.type:UrlMatcher `UrlMatcher`} instances. The factory
- * is also available to providers under the name `$urlMatcherFactoryProvider`.
- */
-function $UrlMatcherFactory() {
-  $$UMFP = this;
-
-  var isCaseInsensitive = false, isStrictMode = true, defaultSquashPolicy = false;
-
-  function valToString(val) { return val != null ? val.toString().replace(/\//g, "%2F") : val; }
-  function valFromString(val) { return val != null ? val.toString().replace(/%2F/g, "/") : val; }
-
-  var $types: any = {}, enqueue = true, typeQueue = [], injector, defaultTypes = {
+  private defaultTypes:any = {
     hash: {
       encode: valToString,
       decode: valFromString,
@@ -663,21 +657,75 @@ function $UrlMatcherFactory() {
     }
   };
 
-  function getDefaultConfig() {
-    return {
-      strict: isStrictMode,
-      caseInsensitive: isCaseInsensitive
-    };
+  constructor() {
+    // Register default types. Store them in the prototype of this.types.
+    const makeType = (definition, name) => new Type(extend({name: name}, definition));
+    this.types = inherit(map(this.defaultTypes, makeType), {});
   }
 
-  /**
-   * [Internal] Get the default value of a parameter, which may be an injectable function.
-   */
-  $UrlMatcherFactory.prototype.$$getDefaultValue = function(config) {
-    if (!isInjectable(config.value)) return config.value;
-    if (!injector) throw new Error("Injectable functions cannot be called at configuration time");
-    return injector.invoke(config.value);
-  };
+  type(name, definition?: any, definitionFn?: Function) {
+    if (!isDefined(definition)) return this.types[name];
+    if (this.types.hasOwnProperty(name)) throw new Error("A type named '" + name + "' has already been defined.");
+
+    this.types[name] = new Type(extend({ name: name }, definition));
+    if (definitionFn) {
+      this.typeQueue.push({ name: name, def: definitionFn });
+      if (!this.enqueue) this._flushTypeQueue();
+    }
+    return this;
+  }
+
+  _flushTypeQueue() {
+    while(this.typeQueue.length) {
+      var type = this.typeQueue.shift();
+      if (type.pattern) throw new Error("You cannot override a type's .pattern at runtime.");
+      extend(this.types[type.name], runtime.injector.invoke(type.def));
+    }
+  }
+}
+
+export var paramTypes: ParamTypes = new ParamTypes();
+
+class MatcherConfig {
+  _isCaseInsensitive: boolean = false;
+  _isStrictMode: boolean = false;
+  _defaultSquashPolicy: (boolean|string) = false;
+
+  caseInsensitive(value?: boolean): boolean {
+    if (!isDefined(value)) return this._isCaseInsensitive;
+    return this._isCaseInsensitive = value;
+  }
+
+  strictMode(value?: boolean): boolean {
+    if (!isDefined(value)) return this._isStrictMode;
+    return this._isStrictMode = value;
+  }
+
+  defaultSquashPolicy(value?: (boolean|string)): (boolean|string) {
+    if (!isDefined(value)) return this._defaultSquashPolicy;
+    if (value !== true && value !== false && !isString(value))
+      throw new Error("Invalid squash policy: " + value + ". Valid policies: false, true, arbitrary-string");
+    return this._defaultSquashPolicy = value;
+  }
+}
+
+var matcherConfig = new MatcherConfig();
+
+/**
+ * @ngdoc object
+ * @name ui.router.util.$urlMatcherFactory
+ *
+ * @description
+ * Factory for {@link ui.router.util.type:UrlMatcher `UrlMatcher`} instances. The factory
+ * is also available to providers under the name `$urlMatcherFactoryProvider`.
+ */
+function $UrlMatcherFactory() {
+  function getDefaultConfig() {
+    return {
+      strict: matcherConfig.strictMode(),
+      caseInsensitive: matcherConfig.caseInsensitive()
+    };
+  }
 
   /**
    * @ngdoc function
@@ -691,9 +739,7 @@ function $UrlMatcherFactory() {
    * @returns {boolean} the current value of caseInsensitive
    */
   this.caseInsensitive = function(value) {
-    if (isDefined(value))
-      isCaseInsensitive = value;
-    return isCaseInsensitive;
+    return matcherConfig.caseInsensitive(value);
   };
 
   /**
@@ -708,9 +754,7 @@ function $UrlMatcherFactory() {
    * @returns {boolean} the current value of strictMode
    */
   this.strictMode = function(value) {
-    if (isDefined(value))
-      isStrictMode = value;
-    return isStrictMode;
+    return matcherConfig.strictMode(value);
   };
 
   /**
@@ -729,11 +773,7 @@ function $UrlMatcherFactory() {
    *             the parameter value from the URL and replace it with this string.
    */
   this.defaultSquashPolicy = function(value) {
-    if (!isDefined(value)) return defaultSquashPolicy;
-    if (value !== true && value !== false && !isString(value))
-      throw new Error("Invalid squash policy: " + value + ". Valid policies: false, true, arbitrary-string");
-    defaultSquashPolicy = value;
-    return value;
+    return matcherConfig.defaultSquashPolicy(value);
   };
 
   /**
@@ -884,44 +924,34 @@ function $UrlMatcherFactory() {
    * </pre>
    */
   this.type = function (name, definition, definitionFn) {
-    if (!isDefined(definition)) return $types[name];
-    if ($types.hasOwnProperty(name)) throw new Error("A type named '" + name + "' has already been defined.");
-
-    $types[name] = new Type(extend({ name: name }, definition));
-    if (definitionFn) {
-      typeQueue.push({ name: name, def: definitionFn });
-      if (!enqueue) flushTypeQueue();
-    }
-    return this;
+    var type = paramTypes.type(name, definition, definitionFn);
+    return !isDefined(definition) ? type : this;
   };
-
-  // `flushTypeQueue()` waits until `$urlMatcherFactory` is injected before invoking the queued `definitionFn`s
-  function flushTypeQueue() {
-    while(typeQueue.length) {
-      var type = typeQueue.shift();
-      if (type.pattern) throw new Error("You cannot override a type's .pattern at runtime.");
-      extend($types[type.name], injector.invoke(type.def));
-    }
-  }
-
-  // Register default types. Store them in the prototype of $types.
-  forEach(defaultTypes, function(type, name) { $types[name] = new Type(extend({name: name}, type)); });
-  $types = inherit($types, {});
 
   /* No need to document $get, since it returns this */
   this.$get = ['$injector', function ($injector) {
-    injector = $injector;
-    enqueue = false;
-    flushTypeQueue();
-
-    forEach(defaultTypes, function(type, name) {
-      if (!$types[name]) $types[name] = new Type(type);
-    });
+    runtime.injector = $injector;
+    paramTypes.enqueue = false;
+    paramTypes._flushTypeQueue();
     return this;
   }];
 
-  this.Param = function Param(id, type, config, location) {
-    var self = this;
+  this.Param = Param;
+  this.ParamSet = ParamSet;
+}
+
+export class Param {
+  id: string;
+  type: Type;
+  location: string;
+  array: boolean;
+  squash: (boolean|string);
+  replace: any;
+  isOptional: boolean;
+  dynamic: boolean;
+  config: any;
+  
+  constructor(id, type, config, location) {
     config = unwrapShorthand(config);
     type = getType(config, type, location);
     var arrayMode = getArrayMode();
@@ -932,24 +962,28 @@ function $UrlMatcherFactory() {
     var replace = getReplace(config, arrayMode, isOptional, squash);
 
     function unwrapShorthand(config) {
-      var configKeys = ["value", "type", "squash", "array", "dynamic"].filter(function(key) { return (config || {}).hasOwnProperty(key); });
+      var configKeys = ["value", "type", "squash", "array", "dynamic"].filter(function (key) {
+        return (config || {}).hasOwnProperty(key);
+      });
       var isShorthand = configKeys.length === 0;
-      if (isShorthand) config = { value: config };
-      config.$$fn = isInjectable(config.value) ? config.value : function () { return config.value; };
+      if (isShorthand) config = {value: config};
+      config.$$fn = isInjectable(config.value) ? config.value : function () {
+        return config.value;
+      };
       return config;
     }
 
     function getType(config, urlType, location) {
-      if (config.type && urlType) throw new Error("Param '"+id+"' has two type configurations.");
+      if (config.type && urlType) throw new Error("Param '" + id + "' has two type configurations.");
       if (urlType) return urlType;
-      if (!config.type) return (location === "config" ? $types.any : $types.string);
+      if (!config.type) return (location === "config" ? paramTypes.type("any") : paramTypes.type("string"));
       return config.type instanceof Type ? config.type : new Type(config.type);
     }
 
     // array config: param name (param[]) overrides default settings.  explicit config overrides param name.
     function getArrayMode() {
-      var arrayDefaults = { array: (location === "search" ? "auto" : false) };
-      var arrayParamNomenclature = id.match(/\[\]$/) ? { array: true } : {};
+      var arrayDefaults = {array: (location === "search" ? "auto" : false)};
+      var arrayParamNomenclature = id.match(/\[\]$/) ? {array: true} : {};
       return extend(arrayDefaults, arrayParamNomenclature, config).array;
     }
 
@@ -959,49 +993,26 @@ function $UrlMatcherFactory() {
     function getSquashPolicy(config, isOptional) {
       var squash = config.squash;
       if (!isOptional || squash === false) return false;
-      if (!isDefined(squash) || squash == null) return defaultSquashPolicy;
+      if (!isDefined(squash) || squash == null) return matcherConfig.defaultSquashPolicy();
       if (squash === true || isString(squash)) return squash;
       throw new Error("Invalid squash policy: '" + squash + "'. Valid policies: false, true, or arbitrary string");
     }
 
     function getReplace(config, arrayMode, isOptional, squash) {
       var replace, configuredKeys, defaultPolicy = [
-        { from: "",   to: (isOptional || arrayMode ? undefined : "") },
-        { from: null, to: (isOptional || arrayMode ? undefined : "") }
+        {from: "", to: (isOptional || arrayMode ? undefined : "")},
+        {from: null, to: (isOptional || arrayMode ? undefined : "")}
       ];
       replace = isArray(config.replace) ? config.replace : [];
       if (isString(squash))
-        replace.push({ from: squash, to: undefined });
-      configuredKeys = map(replace, function(item) { return item.from; } );
-      return filter(defaultPolicy, function(item) { return indexOf(configuredKeys, item.from) === -1; }).concat(replace);
+        replace.push({from: squash, to: undefined});
+      configuredKeys = map(replace, function (item) {
+        return item.from;
+      });
+      return filter(defaultPolicy, function (item) {
+        return indexOf(configuredKeys, item.from) === -1;
+      }).concat(replace);
     }
-
-    /**
-     * [Internal] Get the default value of a parameter, which may be an injectable function.
-     */
-    function $$getDefaultValue() {
-      if (!injector) throw new Error("Injectable functions cannot be called at configuration time");
-      var defaultValue = injector.invoke(config.$$fn);
-      if (defaultValue !== null && defaultValue !== undefined && !self.type.is(defaultValue))
-        throw new Error("Default value (" + defaultValue + ") for parameter '" + self.id + "' is not an instance of Type (" + self.type.name + ")");
-      return defaultValue;
-    }
-
-    /**
-     * [Internal] Gets the decoded representation of a value if the value is defined, otherwise, returns the
-     * default value, which may be the result of an injectable function.
-     */
-    function $value(value) {
-      function hasReplaceVal(val) { return function(obj) { return obj.from === val; }; }
-      function $replace(value) {
-        var replacement = map(filter(self.replace, hasReplaceVal(value)), function(obj) { return obj.to; });
-        return replacement.length ? replacement[0] : value;
-      }
-      value = $replace(value);
-      return !isDefined(value) ? $$getDefaultValue() : self.type.$normalize(value);
-    }
-
-    function toString() { return "{Param:" + id + " " + type + " squash: '" + squash + "' optional: " + isOptional + "}"; }
 
     extend(this, {
       id: id,
@@ -1011,14 +1022,38 @@ function $UrlMatcherFactory() {
       squash: squash,
       replace: replace,
       isOptional: isOptional,
-      value: $value,
       dynamic: dynamic,
-      config: config,
-      toString: toString
+      config: config
     });
-  };
+  }
 
-  this.ParamSet = ParamSet;
+  /**
+   * [Internal] Gets the decoded representation of a value if the value is defined, otherwise, returns the
+   * default value, which may be the result of an injectable function.
+   */
+  value(value) {
+    /**
+     * [Internal] Get the default value of a parameter, which may be an injectable function.
+     */
+    const $$getDefaultValue = () => {
+      if (!runtime.injector) throw new Error("Injectable functions cannot be called at configuration time");
+      var defaultValue = runtime.injector.invoke(this.config.$$fn);
+      if (defaultValue !== null && defaultValue !== undefined && !this.type.is(defaultValue))
+        throw new Error("Default value (" + defaultValue + ") for parameter '" + this.id + "' is not an instance of Type (" + this.type.name + ")");
+      return defaultValue;
+    };
+
+    function hasReplaceVal(val) { return function(obj) { return obj.from === val; }; }
+    const $replace = (value) => {
+      var replacement = map(filter(this.replace, hasReplaceVal(value)), function(obj) { return obj.to; });
+      return replacement.length ? replacement[0] : value;
+    };
+    value = $replace(value);
+    return !isDefined(value) ? $$getDefaultValue() : this.type.$normalize(value);
+  }
+
+  toString() { return "{Param:" + this.id + " " + this.type + " squash: '" + this.squash + "' optional: " + this.isOptional + "}"; }
+
 }
 
 export class ParamSet {
@@ -1044,9 +1079,9 @@ export class ParamSet {
   }
 
   $$values(paramValues) {
-    var values = {}, self = this;
-    forEach(self.$$keys(), function(key) {
-      values[key] = self[key].value(paramValues && paramValues[key]);
+    var values = {};
+    forEach(this.$$keys(), key => {
+      values[key] = this[key].value(paramValues && paramValues[key]);
     });
     return values;
   }

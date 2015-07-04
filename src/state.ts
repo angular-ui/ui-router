@@ -3,8 +3,7 @@ import {not, prop, pipe, val} from "./common";
 import {isDefined, isFunction, isArray, isObject, isString} from "./common";
 import {Glob} from "./glob";
 import {TransitionRejection} from "./transition";
-import {$$UMFP} from "./urlMatcherFactory";
-import {ParamSet} from "./urlMatcherFactory";
+import {Param, ParamSet} from "./urlMatcherFactory";
 import {IServiceProviderFactory} from "angular";
 
 export interface IPublicState {
@@ -122,7 +121,7 @@ export function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
     ownParams: function(state) {
       var params = state.url && state.url.params || new ParamSet();
       forEach(state.params || {}, function(config, id) {
-        if (!params[id]) params[id] = new $$UMFP.Param(id, null, config, "config");
+        if (!params[id]) params[id] = new Param(id, null, config, "config");
       });
       if (state.reloadOnSearch === false) {
         forEach(params, function(value, param) { if (param.location === 'search') param.dynamic = true; });
