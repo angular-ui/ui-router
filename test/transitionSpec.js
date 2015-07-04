@@ -1,14 +1,17 @@
 var module = angular.mock.module;
 var uiRouter = require("ui-router");
-var extend = uiRouter.common.extend;
-var forEach = uiRouter.common.forEach;
-var map = uiRouter.common.map;
-var omit = uiRouter.common.omit;
-var pick = uiRouter.common.pick;
-var pluck = uiRouter.common.pluck;
-var StateMatcher = uiRouter.state.StateMatcher;
-var StateBuilder = uiRouter.state.StateBuilder;
-var StateQueueManager = uiRouter.state.StateQueueManager;
+var common = uiRouter.common;
+var extend = common.extend,
+  forEach = common.forEach,
+  map = common.map,
+  omit = common.omit,
+  pick = common.pick,
+  pluck = common.pluck;
+var state = uiRouter.state;
+var StateMatcher = state.StateMatcher,
+  StateBuilder = state.StateBuilder,
+  StateQueueManager = state.StateQueueManager;
+var TransitionRejection = uiRouter.transition.TransitionRejection;
 
 describe('transition', function () {
 
