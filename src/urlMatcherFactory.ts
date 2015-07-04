@@ -1039,7 +1039,7 @@ export class Param {
       if (!runtime.injector) throw new Error("Injectable functions cannot be called at configuration time");
       var defaultValue = runtime.injector.invoke(this.config.$$fn);
       if (defaultValue !== null && defaultValue !== undefined && !this.type.is(defaultValue))
-        throw new Error("Default value (" + defaultValue + ") for parameter '" + this.id + "' is not an instance of Type (" + this.type.name + ")");
+        throw new Error(`Default value (${defaultValue}) for parameter '${this.id}' is not an instance of Type (${this.type.name})`);
       return defaultValue;
     };
 
@@ -1052,7 +1052,7 @@ export class Param {
     return !isDefined(value) ? $$getDefaultValue() : this.type.$normalize(value);
   }
 
-  toString() { return "{Param:" + this.id + " " + this.type + " squash: '" + this.squash + "' optional: " + this.isOptional + "}"; }
+  toString() { return `{Param:${this.id} ${this.type} squash: '${this.squash}' optional: ${this.isOptional}}`; }
 
 }
 
