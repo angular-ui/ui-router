@@ -360,7 +360,8 @@ describe('transition', function () {
         $q.flush();
 
         expect(pluck(states, 'name')).toEqual([ 'B', 'C', 'G' ]);
-        expect(rejection instanceof TransitionRejection).toBe(true);
+        // TODO: change back to instanceof check after imports/exports is cleaned up
+        expect(rejection.constructor.name).toBe('TransitionRejection');
         expect(rejection.type).toEqual(transition.SUPERSEDED);
         expect(rejection.detail.to()).toEqual("G");
         expect(rejection.detail.from()).toEqual("A");

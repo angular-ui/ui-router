@@ -11,21 +11,29 @@ import {Glob} from "./glob";
 
 export var Transition, REJECT;
 
-export function TransitionRejection(type, message, detail) {
-  extend(this, {
-    type: type,
-    message: message,
-    detail: detail
-  });
+export class TransitionRejection {
+  type: number;
+  message: string;
+  detail: string;
+  redirected: boolean;
+
+  constructor(type, message, detail) {
+    extend(this, {
+      type: type,
+      message: message,
+      detail: detail
+    });
+  }
+
+  toString() {
+    var types = {};
+    forEach(filter(Transition.prototype, isNumber), function(val, key) { types[val] = key; });
+    var tplData = {type: types[this.type] || this.type, message: this.message, detail: detailString(this.detail)};
+    return tpl("TransitionRejection(type: {type}, message: {message}, detail: {detail})", tplData);
+  }
 }
 
-TransitionRejection.prototype.toString = function() {
-  function detailString(d) { return d && d.toString !== Object.prototype.toString ? d.toString() : JSON.stringify(d); }
-  var types = {};
-  forEach(filter(Transition.prototype, isNumber), function(val, key) { types[val] = key; });
-  var tplData = {type: types[this.type] || this.type, message: this.message, detail: detailString(this.detail)};
-  return tpl("TransitionRejection(type: {type}, message: {message}, detail: {detail})", tplData);
-};
+function detailString(d) { return d && d.toString !== Object.prototype.toString ? d.toString() : JSON.stringify(d); }
 
 function RejectFactory($q) {
   extend(this, {
@@ -58,7 +66,6 @@ function RejectFactory($q) {
 }
 
 export function TransitionStep(pathElement, fn, locals, pathContext, options) {
-  var self = this;
   options = defaults(options, {
     async: true,
     rejectIfSuperseded: true,
@@ -109,7 +116,7 @@ export function TransitionStep(pathElement, fn, locals, pathContext, options) {
   ]);
 
   function invokeStep() {
-    if (options.trace) trace.traceHookInvocation(self, options);
+    if (options.trace) trace.traceHookInvocation(this, options);
     if (options.rejectIfSuperseded && /* !this.isActive() */ options.transition !== options.current()) {
       return REJECT.superseded(options.current());
     }
@@ -137,7 +144,7 @@ export function TransitionStep(pathElement, fn, locals, pathContext, options) {
     rejectIfSuperseded: options.rejectIfSuperseded,
     state: pathElement.state,
     data:  options.data,
-    invokeStep: invokeStep,
+    invokeStep: () => invokeStep(),
     toString: transitionStepToString
   });
 }
