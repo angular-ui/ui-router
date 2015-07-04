@@ -1504,10 +1504,10 @@ describe('state', function () {
     }));
 
     it('should allow built-in decorators to be extended', inject(function ($state, $q, $httpBackend) {
-      stateProvider.decorator('views', function(state, parent) {
+      stateProvider.decorator('views', function(state) {
         var result = {};
 
-        angular.forEach(parent(state), function(config, name) {
+        angular.forEach(state.views, function(config, name) {
           result[name] = angular.extend(config, { templateProvider: function() {
             return "Template for " + name;
           }});

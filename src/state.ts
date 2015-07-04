@@ -211,7 +211,7 @@ export function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 
       for (var key in builders) {
         var steps = isArray(builders[key]) ? builders[key].reverse() : [builders[key]];
-        var chainFns = (memo, step) => { return step(state, memo); };
+        var chainFns = (memo, step) => step(state, memo);
         state[key] = steps.reduce(chainFns, noop);
       }
       return state;
@@ -408,33 +408,37 @@ export function StateReference(identifier, definition, params, base) {
   });
 }
 
-function TransitionQueue() {
-  this._items = [];
+export class TransitionQueue {
+  _items: Array<any>;
+
+  constructor() {
+    this._items = [];
+  }
+
+  push(transition) {
+    this._items.push(transition);
+    return transition;
+  }
+
+  clear() {
+    var current = this._items;
+    this._items = [];
+    return current;
+  }
+
+  size() {
+    return this._items.length;
+  }
+
+  pop(transition) {
+    var idx = this._items.indexOf(transition);
+    return idx > -1 && this._items.splice(idx, 1)[0];
+  }
+
+  last() {
+    return this._items[this._items.length - 1];
+  }
 }
-
-TransitionQueue.prototype.push = function(transition) {
-  this._items.push(transition);
-  return transition;
-};
-
-TransitionQueue.prototype.clear = function() {
-  var current = this._items;
-  this._items = [];
-  return current;
-};
-
-TransitionQueue.prototype.size = function() {
-  return this._items.length;
-};
-
-TransitionQueue.prototype.pop = function(transition) {
-  var idx = this._items.indexOf(transition);
-  return idx > -1 && this._items.splice(idx, 1)[0];
-};
-
-TransitionQueue.prototype.last = function() {
-  return this._items[this._items.length - 1];
-};
 
 /**
  * @ngdoc object
