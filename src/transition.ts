@@ -426,7 +426,7 @@ function $TransitionProvider() {
         try {
           var hookResult = hooks[i].invokeStep();
           // If a hook returns a promise, that promise is added to an array to be resolved asynchronously.
-          if (hookResult && isFunction(hookResult.then))
+          if (hookResult && isPromise(hookResult))
             promises.push(hookResult);
         } catch (ex) {
           if (!swallowExceptions) throw ex;

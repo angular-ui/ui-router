@@ -76,7 +76,7 @@ export class Resolvable {
         deferred.reject(error);
       }
       return this.promise;
-    }).then(function(data) {
+    }).then(data => {
       this.data = data;
       return this.promise;
     });
