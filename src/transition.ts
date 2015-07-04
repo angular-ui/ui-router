@@ -4,7 +4,7 @@ import {IServiceProviderFactory} from "angular";
 import {trace} from "./trace";
 import {Resolvable, Path, PathElement} from "./resolve";
 import {StateParams} from "./state";
-import {objectKeys, filter, tpl, defaults, map, val, not, is, eq, isEq, parse, invoke,
+import {objectKeys, filter, defaults, map, val, not, is, eq, isEq, parse, invoke,
     extend, forEach, flatten, prop, pluck, zipObject, pick, pipe, pattern, unnest, unroll,
     isFunction, isNumber, isObject, isPromise, isString, noop, identity, toJson} from "./common";
 import {Glob} from "./glob";
@@ -28,8 +28,10 @@ export class TransitionRejection {
   toString() {
     var types = {};
     forEach(filter(Transition.prototype, isNumber), function(val, key) { types[val] = key; });
-    var tplData = {type: types[this.type] || this.type, message: this.message, detail: detailString(this.detail)};
-    return tpl("TransitionRejection(type: {type}, message: {message}, detail: {detail})", tplData);
+    var type = types[this.type] || this.type,
+      message = this.message,
+      detail = detailString(this.detail);
+    return `TransitionRejection(type: ${type}, message: ${message}, detail: ${detail})`;
   }
 }
 
@@ -129,14 +131,12 @@ export function TransitionStep(pathElement, fn, locals, pathContext, options) {
   }
 
   function transitionStepToString() {
-    return tpl("Step {event} (fn: '{name}', match:{from: '{from}', to: '{to}'}, {pathContext})", {
-      event:  parse("data.eventType")(options) || "internal",
-      name:   fn.name || "(anonymous)",
-      from:   parse("data.from.name")(options),
-      to:     parse("data.to.name")(options),
-      state:  parse("data.pathElement.state.name")(options),
-      pathContext: pathContext.toString()
-    });
+    var event = parse("data.eventType")(options) || "internal",
+      name = fn.name || "(anonymous)",
+      from = parse("data.from.name")(options),
+      to = parse("data.to.name")(options),
+      state = parse("data.pathElement.state.name")(options);
+    return `Step ${event} (fn: '${name}', match:{from: '${from}', to: '${to}'}, ${pathContext.toString()})`;
   }
 
   extend(this, {
@@ -882,14 +882,13 @@ function $TransitionProvider() {
           var toStateOrName = transition.to();
 
           // (X) means the to state is invalid.
-          return tpl("Transition#{id}( '{from}'{fromParams} -> {toValid}'{to}'{toParams} )", {
-            id:         transition.$id,
-            from:       isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
-            fromParams: toJson(transition.$from().params()),
-            toValid:    transition.$to().valid() ? "" : "(X) ",
-            to:         isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
-            toParams:   toJson(transition.params())
-          });
+          var id = transition.$id,
+            from = isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
+            fromParams = toJson(transition.$from().params()),
+            toValid = transition.$to().valid() ? "" : "(X) ",
+            to = isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
+            toParams = toJson(transition.params());
+          return `Transition#${id}( '${from}'${fromParams} -> ${toValid}'${to}'${toParams} )`;
         }
       });
     };
