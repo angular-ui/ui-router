@@ -987,7 +987,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       });
 
       // If we're reloading, find the state object to reload from
-      if (isObject(options.reload) && !options.reload.name) { throw new Error('Invalid reload state object: ${options.reload}'); }
+      if (isObject(options.reload) && !options.reload.name) { throw new Error('Invalid reload state object'); }
       options.reloadState = options.reload === true ? $state.$current.path[0] : matcher.find(options.reload, options.relative);
       if (options.reload && !options.reloadState) {
         throw new Error("No such reload state '" + (isString(options.reload) ? options.reload : options.reload.name) + "'");

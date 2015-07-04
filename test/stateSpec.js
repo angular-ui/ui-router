@@ -238,6 +238,10 @@ describe('state', function () {
     return instanceObj;
   }
 
+  function resolvedValue(promise) {
+    return promise.$$resolved.success;
+  }
+
   function resolvedError(promise) {
     return !promise.$$resolved.success;
   }
@@ -886,8 +890,9 @@ describe('state', function () {
       $q.flush();
       expect(log).toBe('logA;logB;logC;');
 
+      var invalidObject = {foo:'bar'};
       expect(function(){
-          $state.reload({foo:'bar'})}
+          $state.reload(invalidObject)}
         ).toThrowError(Error, "Invalid reload state object");
 
       expect(function(){
