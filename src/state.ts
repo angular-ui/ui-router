@@ -30,7 +30,7 @@ export function StateQueueManager(states, builder, $urlRouterProvider, $state) {
 
       if (!isString(state.name)) throw new Error("State must have a valid name");
       if (states.hasOwnProperty(state.name) || pluck(queue, 'name').indexOf(state.name) !== -1)
-        throw new Error("State '" + state.name + "' is already defined");
+        throw new Error(`State '${state.name}' is already defined`);
 
       queue[pre ? "unshift" : "push"](state);
       if (queueManager.autoFlush) {
@@ -49,7 +49,7 @@ export function StateQueueManager(states, builder, $urlRouterProvider, $state) {
 
         if (result) {
           if (states.hasOwnProperty(state.name))
-            throw new Error("State '" + name + "' is already defined");
+            throw new Error(`State '${name}' is already defined`);
           states[state.name] = state;
           this.attachRoute($state, state);
           if (orphanIdx >= 0) orphans.splice(orphanIdx, 1);
@@ -60,7 +60,7 @@ export function StateQueueManager(states, builder, $urlRouterProvider, $state) {
         previousQueueLength[state.name] = queue.length;
         if (orphanIdx >= 0 && prev === queue.length) {
           // Wait until two consecutive iterations where no additional states were dequeued successfully.
-          throw new Error("Cannot register orphaned state '" + state.name + "'");
+          throw new Error(`Cannot register orphaned state '${state.name}'`);
         } else if (orphanIdx < 0) {
           orphans.push(state);
         }
@@ -110,7 +110,7 @@ export function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
         return ((parent && parent.navigable) || root()).url.concat(url, config);
       }
       if (!url || $urlMatcherFactoryProvider.isMatcher(url)) return url;
-      throw new Error("Invalid url '" + url + "' in state '" + state + "'");
+      throw new Error(`Invalid url '${url}' in state '${state}'`);
     },
 
     // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
@@ -259,7 +259,7 @@ export function StateMatcher(states) {
     },
 
     resolvePath: function(name, base) {
-      if (!base) throw new Error("No reference point given for path '"  + name + "'");
+      if (!base) throw new Error(`No reference point given for path '${name}'`);
       base = this.find(base);
       
       var rel = name.split("."), i = 0, pathLength = rel.length, current = base;
@@ -270,7 +270,7 @@ export function StateMatcher(states) {
           continue;
         }
         if (rel[i] === "^") {
-          if (!current.parent) throw new Error("Path '" + name + "' not valid for state '" + base.name + "'");
+          if (!current.parent) throw new Error(`Path '${name}' not valid for state '${base.name}'`);
           current = current.parent;
           continue;
         }
@@ -396,13 +396,13 @@ export function StateReference(identifier, definition, params, base) {
     error: function() {
       switch (true) {
         case (!definition && !!base):
-          return "Could not resolve '" + identifier + "' from state '" + base + "'";
+          return `Could not resolve '${identifier}' from state '${base}'`;
         case (!definition):
-          return "No such state '" + identifier + "'";
+          return `No such state '${identifier}'`;
         case !definition.self:
-          return "State '" + identifier + "' has an invalid definition";
+          return `State '${identifier}' has an invalid definition`;
         case definition.self[abstractKey]:
-          return "Cannot transition to abstract state '" + identifier + "'";
+          return `Cannot transition to abstract state '${identifier}'`;
       }
     }
   });
@@ -990,7 +990,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (isObject(options.reload) && !options.reload.name) { throw new Error('Invalid reload state object'); }
       options.reloadState = options.reload === true ? $state.$current.path[0] : matcher.find(options.reload, options.relative);
       if (options.reload && !options.reloadState) {
-        throw new Error("No such reload state '" + (isString(options.reload) ? options.reload : options.reload.name) + "'");
+        throw new Error(`No such reload state '${(isString(options.reload) ? options.reload : options.reload.name)}'`);
       }
 
       var transition = transQueue.push($transition.create(
