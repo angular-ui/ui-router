@@ -1,7 +1,7 @@
 /// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
 import {isDefined, isObject, isString, extend, forEach, isArray, identity, noop} from "./common";
-import {defaults, pick, map, merge, tpl, filter, omit, parse, pluck, find, pipe, prop, eq}  from "./common";
+import {defaults, pick, map, merge, filter, omit, parse, pluck, find, pipe, prop, eq}  from "./common";
 import {trace}  from "./trace";
 import {IPromise, IQService} from "angular";
 import {IPublicState} from "./state";
@@ -89,7 +89,7 @@ export class Resolvable {
   resolve(pathContext, options) { return this.resolveResolvable(pathContext, options); }
 
   toString() {
-    return tpl("Resolvable(name: {name}, state: {state.name}, requires: [{deps}])", this);
+    return `Resolvable(name: ${this.name}, state: ${this.state.name}, requires: [${this.deps}])`;
   }
 }
 
@@ -194,8 +194,8 @@ export class PathElement {
   }
 
   toString(): string {
-    var tplData = { state: parse("state.name")(this) || "(root)" };
-    return tpl("PathElement({state})", tplData);
+    var state = parse("state.name")(this) || "(root)";
+    return `PathElement(${state})`;
   }
 }
 
@@ -304,8 +304,8 @@ export class Path {
   }
 
   toString() {
-    var tplData = { elements: this.elements.map(function(e) { return e.state.name; }).join(", ") };
-    return tpl("Path([{elements}])", tplData);
+    var elements = this.elements.map(e => e.state.name).join(", ");
+    return `Path([${elements}])`;
   }
 }
 
