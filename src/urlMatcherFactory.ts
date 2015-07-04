@@ -1023,7 +1023,6 @@ function $UrlMatcherFactory() {
 
 export class ParamSet {
   constructor(params?: any) {
-    console.log("Yo");
     extend(this, params || {});
   }
 
