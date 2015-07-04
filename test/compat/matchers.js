@@ -45,8 +45,12 @@ beforeEach(function() {
       return jasmine.matchers.toEqual.call(this, expected);
     },
 
-    toEqualData: function(expected) {
-      return angular.equals(this.actual, expected);
+    toEqualData: function() {
+      return {
+        compare: function(actual, expected) {
+          return { pass: angular.equals(actual, expected) };
+        }
+      }
     },
 
     toEqualError: function(message) {
