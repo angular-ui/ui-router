@@ -1,3 +1,4 @@
+import * as angular1 from "./angular1"
 import * as common from "./common"
 import * as glob from "./glob"
 import * as resolve from "./resolve"
@@ -15,5 +16,5 @@ import * as view from "./view"
 import * as viewDirective from "./viewDirective"
 import * as viewScroll from "./viewScroll"
 
-export { common, glob, resolve, state, stateDirectives, stateEvents, stateFilters, templateFactory,
+export { angular1, common, glob, resolve, state, stateDirectives, stateEvents, stateFilters, templateFactory,
     trace, transition, urlMatcherFactory, urlRouter, view, viewDirective, viewScroll };

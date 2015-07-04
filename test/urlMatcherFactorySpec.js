@@ -1,10 +1,7 @@
-var module = angular.mock.module;
-var uiRouter = require("ui-router");
-var umf       = uiRouter.urlMatcherFactory,
-  runtime     = umf.runtime,
-  UrlMatcher  = umf.UrlMatcher,
-  ParamSet    = umf.ParamSet,
-  Param       = umf.Param;
+var module    = angular.mock.module;
+var uiRouter  = require("ui-router");
+var UrlMatcher, ParamSet, Param;
+
 
 describe("UrlMatcher", function () {
 
@@ -13,12 +10,15 @@ describe("UrlMatcher", function () {
   beforeEach(function() {
     angular.module('ui.router.router.test', function() {}).config(function ($urlMatcherFactoryProvider) {
       provider = $urlMatcherFactoryProvider;
+      UrlMatcher = provider.UrlMatcher;
+      ParamSet = provider.ParamSet;
+      Param = provider.Param;
     });
 
     module('ui.router.router', 'ui.router.router.test');
 
     inject(function($injector) {
-      runtime.injector = $injector;
+      uiRouter.angular1.runtime.setRuntimeInjector($injector);
       $injector.invoke(provider.$get);
     });
   });
@@ -198,7 +198,7 @@ describe("UrlMatcher", function () {
     it("should return a new matcher", function () {
       var base = new UrlMatcher('/users/:id/details/{type}?from');
       var matcher = base.concat('/{repeat:[0-9]+}?to');
-      expect(matcher).toNotBe(base);
+      expect(matcher).not.toBe(base);
     });
 
     it("should respect $urlMatcherFactoryProvider.strictMode", function() {

@@ -17,7 +17,8 @@ describe('Resolvables system:', function () {
   var counts;
   var asyncCount;
 
-  beforeEach(inject(function ($transition) {
+  beforeEach(inject(function ($transition, $injector) {
+    uiRouter.angular1.runtime.setRuntimeInjector($injector);
     emptyPath = new Path([]);
     asyncCount = 0;
   }));

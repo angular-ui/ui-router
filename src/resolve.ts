@@ -5,8 +5,7 @@ import {defaults, pick, map, merge, tpl, filter, omit, parse, pluck, find, pipe,
 import {trace}  from "./trace";
 import {IPromise, IQService} from "angular";
 import {IPublicState} from "./state";
-
-var $injector: ng.auto.IInjectorService, $q: IQService;
+import {runtime} from "./angular1"
 
 /**
  * The basic building block for the resolve system.
@@ -25,7 +24,7 @@ export class Resolvable {
     this.name = name;
     this.resolveFn = resolveFn;
     this.state = state;
-    this.deps = $injector.annotate(resolveFn);
+    this.deps = runtime.$injector.annotate(resolveFn);
   }
 
   name: String;
@@ -51,7 +50,7 @@ export class Resolvable {
     options = options || {};
     if (options.trace) trace.traceResolveResolvable(this, options);
     // First, set up an overall deferred/promise for this Resolvable
-    var deferred = $q.defer();
+    var deferred = runtime.$q.defer();
     this.promise = deferred.promise;
 
     // Load a map of all resolvables for this state from the context path
@@ -68,9 +67,9 @@ export class Resolvable {
 
     // Return a promise chain that waits for all the deps to resolve, then invokes the resolveFn passing in the
     // dependencies as locals, then unwraps the resulting promise's data.
-    return $q.all(depPromises).then(locals => {
+    return runtime.$q.all(depPromises).then(locals => {
       try {
-        var result = $injector.invoke(this.resolveFn, this.state, locals);
+        var result = runtime.$injector.invoke(this.resolveFn, this.state, locals);
         deferred.resolve(result);
       } catch (error) {
         deferred.reject(error);
@@ -152,7 +151,7 @@ export class PathElement {
 
     if (options.trace) trace.traceResolvePathElement(this, filter(resolvables, matchesPolicy), options);
     var resolvablePromises = map(filter(resolvables, matchesPolicy), getResolvePromise);
-    return $q.all(resolvablePromises).then(noop);
+    return runtime.$q.all(resolvablePromises).then(noop);
   }
 
   // Injects a function at this PathElement level with available Resolvables
@@ -164,16 +163,16 @@ export class PathElement {
   // pathContext is a Path which is used to retrieve dependent Resolvables for injecting
   invokeLater(fn, locals, pathContext, options): IPromise<any> {
     options = options || {};
-    var deps = $injector.annotate(fn);
+    var deps = runtime.$injector.annotate(fn);
     var resolvables = pick(pathContext.pathFromRoot(this).getResolvables(), deps);
     if (options.trace) trace.tracePathElementInvoke(this, fn, deps, extend({ when: "Later"}, options));
 
     var promises: any = map(resolvables, function(resolvable) { return resolvable.get(pathContext); });
-    return $q.all(promises).then(() => {
+    return runtime.$q.all(promises).then(() => {
       try {
         return this.invokeNow(fn, locals, pathContext, options);
       } catch (error) {
-        return $q.reject(error);
+        return runtime.$q.reject(error);
       }
     });
   }
@@ -185,13 +184,13 @@ export class PathElement {
   // Does not wait until all Resolvables have been resolved; you must call PathElement.resolve() (or manually resolve each dep) first
   invokeNow(fn, locals, pathContext, options) {
     options = options || {};
-    var deps = $injector.annotate(fn);
+    var deps = runtime.$injector.annotate(fn);
     var resolvables = pick(pathContext.pathFromRoot(this).getResolvables(), deps);
-    if (options.trace) trace.tracePathElementInvoke(this, fn, $injector.annotate(fn), extend({ when: "Now  "}, options));
+    if (options.trace) trace.tracePathElementInvoke(this, fn, runtime.$injector.annotate(fn), extend({ when: "Now  "}, options));
 
     var moreLocals = map(resolvables, function(resolvable) { return resolvable.data; });
     var combinedLocals = extend({}, locals, moreLocals);
-    return $injector.invoke(fn, this.state, combinedLocals);
+    return runtime.$injector.invoke(fn, this.state, combinedLocals);
   }
 
   toString(): string {
@@ -232,7 +231,7 @@ export class Path {
     options = options || {};
     if (options.trace) trace.traceResolvePath(this, options);
     const elementPromises = (element => element.resolvePathElement(this, options));
-    return $q.all(<any> map(this.elements, elementPromises)).then(noop);
+    return runtime.$q.all(<any> map(this.elements, elementPromises)).then(noop);
   }
   // TODO nuke this in favor of resolvePath()
   resolve(options: any) { return this.resolvePath(options); }
@@ -309,13 +308,6 @@ export class Path {
     return tpl("Path([{elements}])", tplData);
   }
 }
-
-run.$inject = ['$q',    '$injector'];
-function run(  _$q_,    _$injector_) {
-  $q = _$q_;
-  $injector = _$injector_;
-}
-
 
 /**
  * @ngdoc object
@@ -569,4 +561,4 @@ function $Resolve(  $q,    $injector) {
   };
 }
 
-angular.module('ui.router.util').service('$resolve', $Resolve).run(run);
+angular.module('ui.router.util').service('$resolve', $Resolve);

@@ -491,6 +491,6 @@ angular.module('ui.router.state', ['ui.router.router', 'ui.router.util']);
  * </html>
  * </pre>
  */
-angular.module('ui.router', ['ui.router.state']);
+angular.module('ui.router', ['ui.router.state', 'ui.router.angular1']);
 
 angular.module('ui.router.compat', ['ui.router']);
