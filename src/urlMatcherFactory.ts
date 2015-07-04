@@ -115,8 +115,8 @@ export class UrlMatcher {
     function addParameter(id, type, config, location) {
       paramNames.push(id);
       if (parentParams[id]) return parentParams[id];
-      if (!/^\w+(-+\w+)*(?:\[\])?$/.test(id)) throw new Error("Invalid parameter name '" + id + "' in pattern '" + pattern + "'");
-      if (params[id]) throw new Error("Duplicate parameter name '" + id + "' in pattern '" + pattern + "'");
+      if (!/^\w+(-+\w+)*(?:\[\])?$/.test(id)) throw new Error(`Invalid parameter name '${id}' in pattern '${pattern}'`);
+      if (params[id]) throw new Error(`Duplicate parameter name '${id}' in pattern '${pattern}'`);
       params[id] = new Param(id, type, config, location);
       return params[id];
     }
@@ -127,7 +127,7 @@ export class UrlMatcher {
       switch(squash) {
         case false: surroundPattern = ['(', ')' + (optional ? "?" : "")]; break;
         case true:  surroundPattern = ['?(', ')?']; break;
-        default:    surroundPattern = ['(' + squash + "|", ')?']; break;
+        default:    surroundPattern = [`(${squash}|`, ')?']; break;
       }
       return result + surroundPattern[0] + pattern + surroundPattern[1];
     }
@@ -261,7 +261,7 @@ export class UrlMatcher {
       nPath = this.segments.length - 1,
       values = {}, i, j, cfg, paramName;
 
-    if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
+    if (nPath !== m.length - 1) throw new Error(`Unbalanced capture group in route '${this.source}'`);
 
     function decodePathArray(string) {
       function reverseString(str) { return str.split("").reverse().join(""); }
@@ -352,7 +352,7 @@ export class UrlMatcher {
     var i, search = false, nPath = segments.length - 1, nTotal = params.length, result = segments[0];
 
     function encodeDashes(str) { // Replace dashes with encoded "\-"
-      return encodeURIComponent(str).replace(/-/g, function(c) { return '%5C%' + c.charCodeAt(0).toString(16).toUpperCase(); });
+      return encodeURIComponent(str).replace(/-/g, function(c) { return `%5C%${c.charCodeAt(0).toString(16).toUpperCase()}`; });
     }
 
     for (i = 0; i < nTotal; i++) {
@@ -382,8 +382,8 @@ export class UrlMatcher {
       } else {
         if (encoded == null || (isDefaultValue && squash !== false)) continue;
         if (!isArray(encoded)) encoded = [ encoded ];
-        encoded = map(encoded, encodeURIComponent).join('&' + name + '=');
-        result += (search ? '&' : '?') + (name + '=' + encoded);
+        encoded = map(encoded, encodeURIComponent).join(`&${name}=`);
+        result += (search ? '&' : '?') + (`${name}=${encoded}`);
         search = true;
       }
     }
@@ -509,7 +509,7 @@ export class Type {
   }
 
   toString() {
-    return "{Type:" + this.name + "}";
+    return `{Type:${this.name}}`;
   }
 
 /** Given an encoded string, or a decoded object, returns a decoded object */
@@ -665,7 +665,7 @@ class ParamTypes {
 
   type(name, definition?: any, definitionFn?: Function) {
     if (!isDefined(definition)) return this.types[name];
-    if (this.types.hasOwnProperty(name)) throw new Error("A type named '" + name + "' has already been defined.");
+    if (this.types.hasOwnProperty(name)) throw new Error(`A type named '${name}' has already been defined.`);
 
     this.types[name] = new Type(extend({ name: name }, definition));
     if (definitionFn) {
@@ -704,7 +704,7 @@ class MatcherConfig {
   defaultSquashPolicy(value?: (boolean|string)): (boolean|string) {
     if (!isDefined(value)) return this._defaultSquashPolicy;
     if (value !== true && value !== false && !isString(value))
-      throw new Error("Invalid squash policy: " + value + ". Valid policies: false, true, arbitrary-string");
+      throw new Error(`Invalid squash policy: ${value}. Valid policies: false, true, arbitrary-string`);
     return this._defaultSquashPolicy = value;
   }
 }
@@ -995,7 +995,7 @@ export class Param {
       if (!isOptional || squash === false) return false;
       if (!isDefined(squash) || squash == null) return matcherConfig.defaultSquashPolicy();
       if (squash === true || isString(squash)) return squash;
-      throw new Error("Invalid squash policy: '" + squash + "'. Valid policies: false, true, or arbitrary string");
+      throw new Error(`Invalid squash policy: '${squash}'. Valid policies: false, true, or arbitrary string`);
     }
 
     function getReplace(config, arrayMode, isOptional, squash) {
