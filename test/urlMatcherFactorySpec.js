@@ -108,7 +108,7 @@ describe("UrlMatcher", function () {
   describe(".exec()", function() {
     it("should capture parameter values", function () {
       var m = new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?from&to');
-      expect(m.exec('/users/123/details//0', {})).toEqual({ id:'123', type:'', repeat:'0' });
+      expect(m.exec('/users/123/details//0', {})).toEqualData({ id:'123', type:'', repeat:'0'});
     });
 
     it("should capture catch-all parameters", function () {
@@ -322,7 +322,7 @@ describe("UrlMatcher", function () {
     it("should be wrapped in an array if paramname looks like param[]", inject(function($location) {
       var m = new UrlMatcher('/foo?param1[]');
 
-      expect(m.exec("/foo")).toEqual({});
+      expect(m.exec("/foo")).toEqualData({});
 
       $location.url("/foo?param1[]=bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { "param1[]": [ 'bar' ] } );
@@ -338,7 +338,7 @@ describe("UrlMatcher", function () {
     it("should not be wrapped by ui-router into an array if array: false", inject(function($location) {
       var m = new UrlMatcher('/foo?param1', { params: { param1: { array: false } } });
 
-      expect(m.exec("/foo")).toEqual({});
+      expect(m.exec("/foo")).toEqualData({});
 
       $location.url("/foo?param1=bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: 'bar' } );
