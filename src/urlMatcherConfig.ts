@@ -6,7 +6,7 @@ class MatcherConfig {
   _defaultSquashPolicy: (boolean|string) = false;
 
   caseInsensitive(value?: boolean): boolean {
-    if (!isDefined(value))
+    if (!isDefined(value)) 
       return this._isCaseInsensitive;
 
     return this._isCaseInsensitive = value;

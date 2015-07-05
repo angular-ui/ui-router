@@ -465,6 +465,11 @@ describe("urlMatcherFactoryProvider", function () {
       expect(m.exec("/test", {foo: ['1', '2']})).toEqual({ foo: [ { status: 'decoded' }, { status: 'decoded' }] });
     }));
   });
+
+  // TODO: Fix object pollution between tests for urlMatcherConfig
+  afterEach(inject(function($urlMatcherFactory) {
+    $urlMatcherFactory.caseInsensitive(false);
+  }));
 });
 
 describe("urlMatcherFactory", function () {
