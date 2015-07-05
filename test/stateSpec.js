@@ -7,8 +7,7 @@ var state = uiRouter.state;
 var StateMatcher = state.StateMatcher,
   StateBuilder = state.StateBuilder,
   StateReference = state.StateReference;
-var urlMatcherFactory = uiRouter.urlMatcherFactory;
-var UrlMatcher = urlMatcherFactory.UrlMatcher;
+var UrlMatcher = uiRouter.urlMatcher.UrlMatcher;
 
 describe('state helpers', function() {
 
