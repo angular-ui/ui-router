@@ -506,24 +506,24 @@ describe("urlMatcherFactory", function () {
   describe("typed parameters", function() {
     it("should accept object definitions", function () {
       var type = { encode: function() {}, decode: function() {} };
-      $umf.type("myType", type);
-      expect($umf.type("myType").encode).toBe(type.encode);
+      $umf.type("myType1", type);
+      expect($umf.type("myType1").encode).toBe(type.encode);
     });
 
     it("should reject duplicate definitions", function () {
-      $umf.type("myType", { encode: function () {}, decode: function () {} });
-      expect(function() { $umf.type("myType", {}); }).toThrowError("A type named 'myType' has already been defined.");
+      $umf.type("myType2", { encode: function () {}, decode: function () {} });
+      expect(function() { $umf.type("myType2", {}); }).toThrowError("A type named 'myType2' has already been defined.");
     });
 
     it("should accept injected function definitions", inject(function ($stateParams) {
-      $umf.type("myType", {}, function($stateParams) {
+      $umf.type("myType3", {}, function($stateParams) {
         return {
           decode: function() {
             return $stateParams;
           }
         };
       });
-      expect($umf.type("myType").decode()).toBe($stateParams);
+      expect($umf.type("myType3").decode()).toBe($stateParams);
     }));
 
     it("should accept annotated function definitions", inject(function ($stateParams) {
