@@ -6,13 +6,13 @@ export class ParamSet {
   }
 
   $$new(params) {
-    return inherit(this, extend(new ParamSet(), { $$parent: this}, params || {}));
+    return inherit(inherit(this, { $$parent: () => this }), params);
   }
 
   $$keys() {
     var keys = [], chain = [], parent = this,
-        ignore = ['$$parent'].concat(objectKeys(ParamSet.prototype));
-    while (parent) { chain.push(parent); parent = parent.$$parent; }
+        ignore = objectKeys(ParamSet.prototype);
+    while (parent) { chain.push(parent); parent = parent.$$parent(); }
     chain.reverse();
     forEach(chain, function(paramset) {
       forEach(objectKeys(paramset), function(key) {
@@ -66,5 +66,5 @@ export class ParamSet {
     return subset;
   }
 
-  $$parent: any = undefined
+  $$parent() { return null; }
 }

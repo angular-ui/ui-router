@@ -229,7 +229,7 @@ describe('state', function () {
   function obj(instance) {
     var instanceObj = {};
     for (var i in instance) {
-      if (instance.hasOwnProperty(i) && !/^\$/.test(i)) {
+      if (instance.hasOwnProperty(i) && !/^\$/.test(i) && !/^#$/.test(i)) {
         instanceObj[i] = instance[i];
       }
     }
@@ -765,7 +765,7 @@ describe('state', function () {
       $q.flush();
 
       expect($state.$current.name).toBe('about.person.item');
-      expect(obj($stateParams)).toEqual({ "#": null, person: 'bob', id: "5" });
+      expect(obj($stateParams)).toEqual({ person: 'bob', id: "5" });
 
       $state.go('^.^.sidebar');
       $q.flush();
@@ -1141,8 +1141,8 @@ describe('state', function () {
       $state.get("OPT").onEnter = function($stateParams) { stateParams = $stateParams; };
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
-      expect(obj($state.params)).toEqual({ "#": null, param: "100" });
-      expect(obj(stateParams)).toEqual({ "#": null, param: "100" });
+      expect(obj($state.params)).toEqual({ param: "100" });
+      expect(obj(stateParams)).toEqual({ param: "100" });
     }));
 
     it("should allow null default value for non-url params", inject(function($state, $q) {
@@ -1168,7 +1168,7 @@ describe('state', function () {
       $state.get("OPT").onEnter = function($stateParams) { count++; };
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
-      expect(obj($state.params)).toEqual({ "#": null, param: "100" });
+      expect(obj($state.params)).toEqual({ param: "100" });
       expect(count).toEqual(1);
     }));
 
@@ -1178,12 +1178,12 @@ describe('state', function () {
       $state.get("OPT.OPT2").onEnter = function($stateParams) { count++; };
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
-      expect(obj($state.params)).toEqual({ "#": null, param: "100" });
+      expect(obj($state.params)).toEqual({ param: "100" });
       expect(count).toEqual(1);
 
       $state.go("OPT.OPT2", { param2: 200 }); $q.flush();
       expect($state.current.name).toBe("OPT.OPT2");
-      expect(obj($state.params)).toEqual({ "#": null, param: "100", param2: "200", param3: "300", param4: "400" });
+      expect(obj($state.params)).toEqual({ param: "100", param2: "200", param3: "300", param4: "400" });
       expect(count).toEqual(2);
     }));
   });
@@ -1196,14 +1196,14 @@ describe('state', function () {
       $state.get("OPT.OPT2").onEnter = function() { count++; };
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
-      expect(obj($state.params)).toEqual({ "#": null, param: "100" });
+      expect(obj($state.params)).toEqual({ param: "100" });
       expect(count).toEqual(1);
 
 
       $state.go("OPT.OPT2"); // no, because missing non-optional param2
       $q.flush();
       expect($state.current.name).toBe("OPT");
-      expect(obj($state.params)).toEqual({ "#": null, param: "100" });
+      expect(obj($state.params)).toEqual({ param: "100" });
       expect(count).toEqual(1);
     }));
   });
@@ -1213,13 +1213,13 @@ describe('state', function () {
       $location.path("/about/bob");
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
-      expect(obj($state.params)).toEqual({ "#": null, person: "bob" });
+      expect(obj($state.params)).toEqual({ person: "bob" });
       expect($state.current.name).toBe('about.person');
 
       $location.path("/about/larry");
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
-      expect(obj($state.params)).toEqual({ "#": null, person: "larry" });
+      expect(obj($state.params)).toEqual({ person: "larry" });
       expect($state.current.name).toBe('about.person');
     }));
 
@@ -1297,7 +1297,7 @@ describe('state', function () {
         $state.go("badParam", { param: 5 });
         $rootScope.$apply();
         expect($state.current.name).toBe("badParam");
-        expect(obj($stateParams)).toEqual({"#": null, param: 5});
+        expect(obj($stateParams)).toEqual({param: 5});
 
         $state.go("badParam2", { param: '12345' }); // must be 5 digits
         $rootScope.$apply();
@@ -1496,7 +1496,7 @@ describe('state', function () {
     it('should inject $stateParams into templateUrl function', inject(function ($state, $q, $httpBackend) {
       $httpBackend.expectGET("/templates/foo.html").respond("200");
       $state.transitionTo('about.sidebar.item', { item: "foo" }); $q.flush();
-      expect(obj(templateParams)).toEqual({ '#': null, item: "foo" });
+      expect(obj(templateParams)).toEqual({ item: "foo" });
     }));
   });
 

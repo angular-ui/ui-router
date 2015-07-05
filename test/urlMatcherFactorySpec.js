@@ -859,10 +859,10 @@ describe("urlMatcherFactory", function () {
     });
 
     describe(".$$new", function() {
-      it("should return a new ParamSet, which has the previous paramset as prototype", function() {
+      it("should return a new ParamSet, which returns the previous paramset as $$parent()", function() {
         var parent = new ParamSet();
         var child = parent.$$new();
-        expect(child.__proto__).toBe(parent);
+        expect(child.$$parent()).toBe(parent);
       });
 
       it("should return a new ParamSet, which exposes parent params", function() {
