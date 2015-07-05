@@ -256,7 +256,7 @@ export class UrlMatcher {
         nPath = this.segments.length - 1,
         values = {}, i, j, cfg, paramName;
 
-    if (nPath !== m.length - 1) throw new Error("Unbalanced capture group in route '" + this.source + "'");
+    if (nPath !== m.length - 1) throw new Error(`Unbalanced capture group in route '${this.source}'`);
 
     function decodePathArray(string) {
       function reverseString(str) { return str.split("").reverse().join(""); }
@@ -377,8 +377,8 @@ export class UrlMatcher {
       } else {
         if (encoded == null || (isDefaultValue && squash !== false)) continue;
         if (!isArray(encoded)) encoded = [ encoded ];
-        encoded = map(encoded, encodeURIComponent).join('&' + name + '=');
-        result += (search ? '&' : '?') + (name + '=' + encoded);
+        encoded = map(encoded, encodeURIComponent).join(`&${name}=`);
+        result += (search ? '&' : '?') + (`${name}=${encoded}`);
         search = true;
       }
     }
