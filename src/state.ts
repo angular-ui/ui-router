@@ -465,13 +465,13 @@ $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
   var root, states = {};
+  var $state: any = function $state() {};
 
   var matcher    = new StateMatcher(states);
   var builder    = new StateBuilder(function() { return root; }, matcher, $urlMatcherFactoryProvider);
   var stateQueue = new StateQueueManager(states, builder, $urlRouterProvider, $state);
   var transQueue = new TransitionQueue();
 
-  var $state: any = function $state() {}
 
   /**
    * @ngdoc function

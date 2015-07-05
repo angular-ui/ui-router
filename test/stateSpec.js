@@ -1303,7 +1303,7 @@ describe('state', function () {
           $q.flush();
 
           expect($state.current.name).toBe(state.name || state); // allow object
-          expect(obj($state.params)).toEqual(extend({}, defaults, params, nonurlparams));
+          expect(obj($state.params)).toEqualData(extend({}, defaults, params, nonurlparams));
           expect($location.url()).toBe(url);
 
           initStateTo(A);
@@ -1313,7 +1313,7 @@ describe('state', function () {
           $q.flush();
 
           expect($state.current.name).toBe(state.name || state); // allow object
-          expect(obj($state.params)).toEqual(extend({}, defaults, params));
+          expect(obj($state.params)).toEqualData(extend({}, defaults, params));
           expect($location.url()).toBe(url);
         }
       }
