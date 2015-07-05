@@ -1,20 +1,19 @@
 var module    = angular.mock.module;
 var uiRouter  = require("ui-router");
-var UrlMatcher, ParamSet, Param;
+var provide, UrlMatcher, ParamSet, Param;
 
+beforeEach(function() {
+  var app = angular.module('ui.router.router.test', function () { });
+  app.config(function ($urlMatcherFactoryProvider) {
+    provider = $urlMatcherFactoryProvider;
+    UrlMatcher = provider.UrlMatcher;
+    ParamSet = provider.ParamSet;
+    Param = provider.Param;
+  });
+});
 
 describe("UrlMatcher", function () {
-
-  var provider;
-
   beforeEach(function() {
-    angular.module('ui.router.router.test', function() {}).config(function ($urlMatcherFactoryProvider) {
-      provider = $urlMatcherFactoryProvider;
-      UrlMatcher = provider.UrlMatcher;
-      ParamSet = provider.ParamSet;
-      Param = provider.Param;
-    });
-
     module('ui.router.router', 'ui.router.router.test');
 
     inject(function($injector) {
