@@ -347,7 +347,7 @@ export class UrlMatcher {
     var i, search = false, nPath = segments.length - 1, nTotal = params.length, result = segments[0];
 
     function encodeDashes(str) { // Replace dashes with encoded "\-"
-      return encodeURIComponent(str).replace(/-/g, function(c) { return '%5C%' + c.charCodeAt(0).toString(16).toUpperCase(); });
+      return encodeURIComponent(str).replace(/-/g, function(c) { return `%5C%${c.charCodeAt(0).toString(16).toUpperCase()}`; });
     }
 
     for (i = 0; i < nTotal; i++) {

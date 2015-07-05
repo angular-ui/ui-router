@@ -24,7 +24,7 @@ class MatcherConfig {
       return this._defaultSquashPolicy;
 
     if (value !== true && value !== false && !isString(value))
-      throw new Error("Invalid squash policy: " + value + ". Valid policies: false, true, arbitrary-string");
+      throw new Error(`Invalid squash policy: ${value}. Valid policies: false, true, arbitrary-string`);
 
     return this._defaultSquashPolicy = value;
   }
