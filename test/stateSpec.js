@@ -165,6 +165,7 @@ describe('state', function () {
     $rootScope.$on('$stateChangeStart', eventLogger);
     $rootScope.$on('$stateChangeCancel', eventLogger);
     $rootScope.$on('$stateChangeSuccess', eventLogger);
+    $rootScope.$on('$stateParamsChange', eventLogger);
     $rootScope.$on('$stateChangeError', eventLogger);
     $rootScope.$on('$stateNotFound', eventLogger);
   }));
@@ -227,6 +228,18 @@ describe('state', function () {
       $q.flush();
       expect($stateParams).toEqual({term: 'hello'});
       expect(called).toBeFalsy();
+    }));
+
+    it('trigger state params change when state.reloadOnSearch=false and only query params changed', inject(function ($state, $stateParams, $q, $location, $rootScope){
+      initStateTo(RS);
+      $location.search({term: 'hello'});
+      var called;
+      $rootScope.$on('$stateParamsChange', function (ev, to, toParams, from, fromParams) {
+        called = true
+      });
+      $q.flush();
+      expect($stateParams).toEqual({term: 'hello'});
+      expect(called).toBeTruthy();
     }));
 
     it('updates URL when changing only query params via $state.go() when reloadOnSearch=false', inject(function ($state, $stateParams, $q, $location, $rootScope){
@@ -495,7 +508,9 @@ describe('state', function () {
       $q.flush();
       expect($state.current).toBe(A);
       expect(resolvedError(superseded)).toBeTruthy();
-      expect(log).toBe('$stateChangeStart(B,A);');
+      expect(log).toBe(
+        '$stateChangeStart(B,A);' +
+        '$stateParamsChange(A,A);');
     }));
 
     it('aborts pending transitions when aborted from callbacks', inject(function ($state, $q) {

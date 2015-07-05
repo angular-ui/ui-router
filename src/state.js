@@ -1042,6 +1042,25 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
           $urlRouter.update(true);
         }
         $state.transition = null;
+
+        // Broadcast params changed event
+        if (nonSearchParamsEqual(from, fromParams, toParams) && options.notify) {
+          /**
+           * @ngdoc event
+           * @name ui.router.state.$state#$stateParamsChange
+           * @eventOf ui.router.state.$state
+           * @eventType broadcast on root scope
+           * @description
+           * Fired during the state transition when state is the same but stateParams are different.
+           *
+           * @param {Object} event Event object.
+           * @param {State} toState The state being transitioned to.
+           * @param {Object} toParams The params supplied to the `toState`.
+           * @param {State} fromState The current state, pre-transition.
+           * @param {Object} fromParams The params supplied to the `fromState`.
+           */
+          $rootScope.$broadcast('$stateParamsChange', to.self, toParams, from.self, fromParams);
+        }
         return $q.when($state.current);
       }
 
@@ -1434,18 +1453,19 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     return $state;
   }
 
-  function shouldSkipReload(to, toParams, from, fromParams, locals, options) {
-    // Return true if there are no differences in non-search (path/object) params, false if there are differences
-    function nonSearchParamsEqual(fromAndToState, fromParams, toParams) {
-      // Identify whether all the parameters that differ between `fromParams` and `toParams` were search params.
-      function notSearchParam(key) {
-        return fromAndToState.params[key].location != "search";
-      }
-      var nonQueryParamKeys = fromAndToState.params.$$keys().filter(notSearchParam);
-      var nonQueryParams = pick.apply({}, [fromAndToState.params].concat(nonQueryParamKeys));
-      var nonQueryParamSet = new $$UMFP.ParamSet(nonQueryParams);
-      return nonQueryParamSet.$$equals(fromParams, toParams);
+  // Return true if there are no differences in non-search (path/object) params, false if there are differences
+  function nonSearchParamsEqual(fromAndToState, fromParams, toParams) {
+    // Identify whether all the parameters that differ between `fromParams` and `toParams` were search params.
+    function notSearchParam(key) {
+      return fromAndToState.params[key].location != "search";
     }
+    var nonQueryParamKeys = fromAndToState.params.$$keys().filter(notSearchParam);
+    var nonQueryParams = pick.apply({}, [fromAndToState.params].concat(nonQueryParamKeys));
+    var nonQueryParamSet = new $$UMFP.ParamSet(nonQueryParams);
+    return nonQueryParamSet.$$equals(fromParams, toParams);
+  }
+
+  function shouldSkipReload(to, toParams, from, fromParams, locals, options) {
 
     // If reload was not explicitly requested
     // and we're transitioning to the same state we're already in

@@ -401,7 +401,9 @@ describe('uiSrefActive', function() {
     $stateProvider.state('top', {
       url: ''
     }).state('contacts', {
-      url: '/contacts',
+      url: '/contacts?sortBy',
+      params: { sortBy: 'name' },
+      reloadOnSearch: false,
       views: {
         '@': {
           template: '<a ui-sref=".item({ id: 6 })" ui-sref-active="active">Contacts</a>'
@@ -440,6 +442,24 @@ describe('uiSrefActive', function() {
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
 
     $state.transitionTo('contacts.item', { id: 2 });
+    $q.flush();
+    timeoutFlush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+  }));
+
+  it('should update after state\'s parameters change', inject(function($rootScope, $q, $compile, $state) {
+    el = angular.element('<div><a ui-sref="contacts({ sortBy: \'name\' })" ui-sref-active="active">Sort By Name</a></div>');
+    template = $compile(el)($rootScope);
+    $rootScope.$digest();
+
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+    $state.transitionTo('contacts', { sortBy: 'name' });
+    $q.flush();
+    timeoutFlush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
+
+    $q.flush();
+    $state.transitionTo('contacts', { sortBy: 'foo' });
     $q.flush();
     timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
