@@ -30,7 +30,7 @@ describe('UI-Router v0.2.x $state events', function () {
   function obj(instance) {
     var instanceObj = {};
     for (var i in instance) {
-      if (instance.hasOwnProperty(i) && !/^\$/.test(i)) {
+      if (instance.hasOwnProperty(i) && !/^\$/.test(i) && !/^#\$/.test(i)) {
         instanceObj[i] = instance[i];
       }
     }

@@ -125,7 +125,7 @@ export function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
         if (!params[id]) params[id] = new Param(id, null, config, "config");
       });
       if (state.reloadOnSearch === false) {
-        forEach(params, function(value, param) { if (param.location === 'search') param.dynamic = true; });
+        forEach(params, function(param) { if (param && param.location === 'search') param.dynamic = true; });
       }
       return params;
     },
