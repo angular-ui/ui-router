@@ -35,7 +35,8 @@ routerFiles = {
     'src/trace.ts'
   ],
   testUtils: [
-    'test/testUtils.js'
+    'test/testUtils.js',
+    'test/compat/matchers.js'
   ],
   test: [
     'test/commonSpec.js',

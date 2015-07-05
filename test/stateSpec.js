@@ -226,25 +226,6 @@ describe('state', function () {
     };
   }
 
-  function obj(instance) {
-    var instanceObj = {};
-    for (var i in instance) {
-      if (instance.hasOwnProperty(i) && !/^\$/.test(i) && !/^#$/.test(i)) {
-        instanceObj[i] = instance[i];
-      }
-    }
-
-    return instanceObj;
-  }
-
-  function resolvedValue(promise) {
-    return promise.$$resolved.success;
-  }
-
-  function resolvedError(promise) {
-    return !promise.$$resolved.success;
-  }
-
   var A = { data: {}, controller: function() { log += "controller;"; } },
     B = {},
     C = {},

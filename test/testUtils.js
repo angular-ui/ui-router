@@ -1,8 +1,3 @@
-var module = angular.mock.module;
-var uiRouter = require("ui-router");
-var common = uiRouter.common;
-var forEach = common.forEach;
-
 // Promise testing support
 angular.module('ngMock').config(function ($provide) {
   $provide.decorator('$q', function ($delegate, $rootScope) {
@@ -44,7 +39,7 @@ angular.module('ngMock').config(function ($provide) {
       var deferred = qDefer();
       expose(deferred.promise);
       return deferred;
-    }
+    };
 
     return $delegate;
   });
@@ -66,7 +61,7 @@ try {
 
 function testablePromise(promise) {
   if (!promise || !promise.then) throw new Error('Expected a promise, but got ' + jasmine.pp(promise) + '.');
-  if (!isDefined(promise.$$resolved)) throw new Error('Promise has not been augmented by ngMock');
+  if (!angular.isDefined(promise.$$resolved)) throw new Error('Promise has not been augmented by ngMock');
   return promise;
 }
 
@@ -109,7 +104,7 @@ function caught(fn) {
 // Usage of this helper should be replaced with a custom matcher in jasmine 2.0+
 function obj(object) {
   var o = {};
-  forEach(object, function (val, key) {
+  angular.forEach(object, function (val, key) {
     if (!/^\$/.test(key) && key != "#")
       o[key] = val;
   });
@@ -119,4 +114,4 @@ function obj(object) {
 // Utils for test from core angular
 var noop = angular.noop,
     toJson = angular.toJson;
-beforeEach(module('ui.router.compat'));
+beforeEach(angular.mock.module('ui.router.compat'));

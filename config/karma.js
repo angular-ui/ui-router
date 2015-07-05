@@ -8,10 +8,10 @@ module.exports = function (karma) {
     basePath: '..',
 
     // list of files / patterns to load in the browser
-    files: [].concat(files.angular('1.2.14'), files.testUtils, files.buildDest, files.test),
+    files: [].concat(files.angular('1.2.14'), files.testUtils, files.buildDest, 'test/tests.js'),
     preprocessors: {
       'lib/angular*.js': ['webpack'],
-      'test/*.js': ['webpack']
+      'test/tests.js': ['webpack']
     },
 
     // level of logging
