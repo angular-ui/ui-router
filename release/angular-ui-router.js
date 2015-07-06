@@ -1,6 +1,6 @@
 /**
  * State-based routing for AngularJS
- * @version v0.2.15-dev-2015-06-05
+ * @version v0.2.15-dev-2015-07-06
  * @link http://angular-ui.github.com/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -1989,7 +1989,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
     var baseHref = $browser.baseHref(), location = $location.url(), lastPushedUrl;
 
     function appendBasePath(url, isHtml5, absolute, instance) {
-      if (instance.current_instance && baseHref === '/') return url;
+      if (instance && instance.current_instance && baseHref === '/') return url;
       if (isHtml5) return baseHref.slice(0, -1) + url;
       if (absolute) return baseHref.slice(1) + url;
       return url;
@@ -4126,8 +4126,8 @@ function stateContext(el) {
  * @param {string} ui-sref 'stateName' can be any valid absolute or relative state
  * @param {Object} ui-sref-opts options to pass to {@link ui.router.state.$state#go $state.go()}
  */
-$StateRefDirective.$inject = ['$state', '$timeout', '$modal'];
-function $StateRefDirective($state, $timeout, $modal) {
+$StateRefDirective.$inject = ['$state', '$timeout'];
+function $StateRefDirective($state, $timeout) {
   var allowedOptions = ['instance', 'location', 'inherit', 'reload', 'absolute'];
 
   return {
@@ -4169,7 +4169,7 @@ function $StateRefDirective($state, $timeout, $modal) {
         attrs.$set(attr, newHref);
 
         if (options.instance && !options.instance.current_instance) {
-            attrs.$set('target', '_self');
+            attrs.$set('target', '_blank');
         }
       };
 
