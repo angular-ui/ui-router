@@ -1,3 +1,20 @@
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+import {isInjectable, isDefined, isArray, defaults, extend, forEach, map, parse, objectKeys, noop} from "./common";
+import {IDeferred} from "angular";
+
+interface config {
+  controllerProvider?: Function;
+  controller?: any;
+  template?: any;
+  templateUrl?: any;
+  templateProvider?: Function;
+}
+
+interface waitingState {
+  stateContext: any;
+  defer: IDeferred<any>;
+}
+
 /**
  * Represents the union of a template and (optional) controller.
  *
@@ -5,9 +22,12 @@
  *
  * @returns {Object} New `ViewConfig` object
  */
-function ViewConfig(config) {
-  this.config = config;
-}
+class ViewConfig {
+  config: config;
+
+  constructor(config) {
+    this.config = config;
+  }
 
 /**
  * Gets the controller for a view configuration.
@@ -16,33 +36,41 @@ function ViewConfig(config) {
  *
  * @returns {Function|Promise.<Function>} Returns a controller, or a promise that resolves to a controller.
  */
-ViewConfig.prototype.controller = function controller(context) {
-  var cfg = this.config, provider = this.config.controllerProvider;
-  return isInjectable(provider) ? context.invoke(provider) : cfg.controller;
-};
+  controller(context = {invoke: noop}) {
+    var cfg = this.config, provider = this.config.controllerProvider;
+    return isInjectable(provider) ? context.invoke(provider) : cfg.controller;
+  }
 
 /**
  * Checks a view configuration to ensure that it specifies a template.
  *
  * @return {boolean} Returns `true` if the configuration contains a valid template, otherwise `false`.
  */
-ViewConfig.prototype.hasTemplate = function() {
-  return !!(this.config.template || this.config.templateUrl || this.config.templateProvider);
-};
+  hasTemplate() {
+    return !!(this.config.template || this.config.templateUrl || this.config.templateProvider);
+  }
 
-ViewConfig.prototype.template = function($factory, params, context) {
-  return $factory.fromConfig(this.config, params, context.invoke);
-};
+  template($factory, params, context) {
+    return $factory.fromConfig(this.config, params, context.invoke.bind(context));
+  }
+}
+
 
 /**
  * Class responsible for queuing view configurations waiting to be populated into views.
  */
-function ViewQueue(views) {
-  this.map = {};
-  this.queued = {};
-  this.waiting = [];
-  this.views = views; // function $View() { var viewDefs = {} }
-}
+class ViewQueue {
+  map: Object;
+  queued: Object;
+  waiting: Array<waitingState>;
+  views: Array<any>;
+
+  constructor(views) {
+    this.map = {};
+    this.queued = {};
+    this.waiting = [];
+    this.views = views; // function $View() { var viewDefs = {} }
+  }
 
 /**
  * Pushes a view configuration to be assigned to a named `uiView` element that either already
@@ -61,18 +89,18 @@ function ViewQueue(views) {
  *                        a UI state object), that can be used to look up the view later by a
  *                        relative/non-fully-qualified name.
  */
-ViewQueue.prototype.push = function(name, async, config) {
-  if (config && config.$context && this.waiting.length) {
-    this.digest(name, config.$context.state);
+  push(name, async, config) {
+    if (config && config.$context && this.waiting.length) {
+      this.digest(name, config.$context.state);
+    }
+    if (this.views[name]) {
+      this.views[name](config);
+      this.views[name].$config = config;
+      return config;
+    }
+    var err = "Attempted to synchronously load template into non-existent view " + name;
+    return (async) ? (this.map[name] = config) : new Error(err);
   }
-  if (this.views[name]) {
-    this.views[name](config);
-    this.views[name].$config = config;
-    return config;
-  }
-  var err = "Attempted to synchronously load template into non-existent view " + name;
-  return (async) ? (this.map[name] = config) : new Error(err);
-};
 
 /**
  * Pops a queued view configuration for a `uiView` that has come into existence.
@@ -81,12 +109,12 @@ ViewQueue.prototype.push = function(name, async, config) {
  * @param {Function} callback The initialization function passed by `uiView` to
  *                            `$view.register()`.
  */
-ViewQueue.prototype.pop = function(name, callback) {
-  if (!this.queued[name]) return;
-  callback(this.queued[name]);
-  this.views[name].$config = this.queued[name];
-  delete this.queued[name];
-};
+  pop(name, callback) {
+    if (!this.queued[name]) return;
+    callback(this.queued[name]);
+    this.views[name].$config = this.queued[name];
+    delete this.queued[name];
+  }
 
 /**
  * Invoked when views have been queued for which fully-qualified names cannot be resolved
@@ -97,17 +125,18 @@ ViewQueue.prototype.pop = function(name, callback) {
  * @param {String} name The name of the loaded view.
  * @param {Object} stateContext The context object responsible for the view.
  */
-ViewQueue.prototype.digest = function(name, stateContext) {
-  for (var i = this.waiting.length - 1; i >= 0; i--) {
-    if (this.waiting[i].stateContext !== stateContext) continue;
-    this.waiting.splice(i, 1)[0].defer.resolve(name);
+  digest(name, stateContext) {
+    for (var i = this.waiting.length - 1; i >= 0; i--) {
+      if (this.waiting[i].stateContext !== stateContext) continue;
+      this.waiting.splice(i, 1)[0].defer.resolve(name);
+    }
   }
-};
 
-ViewQueue.prototype.waitFor = function(stateContext, defer) {
-  this.waiting.push({ stateContext: stateContext, defer: defer });
-  return defer ? defer.promise : null;
-};
+  waitFor(stateContext, defer) {
+    this.waiting.push({ stateContext: stateContext, defer: defer });
+    return defer ? defer.promise : null;
+  }
+}
 
 /**
  * @ngdoc object
@@ -197,7 +226,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
 
     var promises = {
       template: $q.when(viewConfig.template($templateFactory, opts.params, opts.context)),
-      controller: viewConfig.controller(),
+      controller: viewConfig.controller(opts.context),
       viewName: fqn ? $q.when(fqn) : viewQueue.waitFor(opts.parent, $q.defer()).then(function (parent) {
         return parent + "." + name;
       })
@@ -273,7 +302,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
    * @return {Boolean} Returns `true` if the view exists on the page, otherwise `false`.
    */
   this.exists = function exists (name, contextState) {
-    return isDefined(viewDefs[context ? this.find(name, contextState) : name]);
+    return isDefined(viewDefs[contextState ? this.find(name, contextState) : name]);
   };
 
   /**
@@ -292,7 +321,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
       return map(name, function(name) { return this.find(name, contextState); });
     }
 
-    angular.forEach(viewDefs, function(def, absName) {
+    forEach(viewDefs, function(def, absName) {
       if (parse("$config.$context.state")(def) !== contextState) {
         return;
       }
@@ -318,7 +347,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
   this.active = function active () {
     var result = [];
 
-    angular.forEach(viewDefs, function(config, key) {
+    forEach(viewDefs, function(config, key) {
       if (config && config.$config) {
         result.push(key);
       }

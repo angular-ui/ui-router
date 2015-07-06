@@ -1,3 +1,18 @@
+var module = angular.mock.module;
+var uiRouter = require("ui-router");
+var common = uiRouter.common;
+var extend = common.extend,
+  forEach = common.forEach,
+  map = common.map,
+  omit = common.omit,
+  pick = common.pick,
+  pluck = common.pluck;
+var state = uiRouter.state;
+var StateMatcher = state.StateMatcher,
+  StateBuilder = state.StateBuilder,
+  StateQueueManager = state.StateQueueManager;
+var TransitionRejection = uiRouter.transition.TransitionRejection;
+
 describe('transition', function () {
 
   var transitionProvider, matcher, statesMap, queue;
@@ -345,7 +360,8 @@ describe('transition', function () {
         $q.flush();
 
         expect(pluck(states, 'name')).toEqual([ 'B', 'C', 'G' ]);
-        expect(rejection instanceof TransitionRejection).toBe(true);
+        // TODO: change back to instanceof check after imports/exports is cleaned up
+        expect(rejection.constructor.name).toBe('TransitionRejection');
         expect(rejection.type).toEqual(transition.SUPERSEDED);
         expect(rejection.detail.to()).toEqual("G");
         expect(rejection.detail.from()).toEqual("A");

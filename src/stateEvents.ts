@@ -1,3 +1,10 @@
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+
+import {extend, forEach, isFunction} from "./common";
+import {StateParams} from "./state";
+import {IServiceProviderFactory} from "angular";
+
+
 stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$urlRouter'];
 function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRouter) {
   if (!$transition$.$to().valid() || !$transition$.options().notify)
@@ -147,7 +154,7 @@ function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
   if (e.defaultPrevented) {
     return false;
   } else if (e.retry || $state.get(redirect.to)) {
-    return e.retry && angular.isFunction(e.retry.then) ? e.retry.then(redirectFn) : redirectFn();
+    return e.retry && isFunction(e.retry.then) ? e.retry.then(redirectFn) : redirectFn();
   }
 
   throw new Error($transition$.$to().error());
@@ -156,10 +163,10 @@ function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
 
 $StateEventsProvider.$inject = [];
 function $StateEventsProvider() {
-  $StateEventsProvider.instance = this;
+  $StateEventsProvider.prototype.instance = this;
 
   var runtime = false;
-  var enabledStateEvents = {};
+  var enabledStateEvents = { $stateNotFound: false, $stateChangeStart: false};
 
   /**
    * Enables a set of State Events by name.
@@ -190,7 +197,7 @@ function $StateEventsProvider() {
       $transition.provider.onBefore({}, stateChangeStartHandler, { priority: 1000 });
 
     return {
-      provider: $StateEventsProvider.instance
+      provider: $StateEventsProvider.prototype.instance
     };
   }];
 }
@@ -198,5 +205,5 @@ function $StateEventsProvider() {
 
 
 angular.module('ui.router.state.events', ['ui.router.state'])
-  .provider("$stateEvents", $StateEventsProvider)
+  .provider("$stateEvents", <IServiceProviderFactory> $StateEventsProvider)
   .run([ '$stateEvents', function($stateEvents) { /* Invokes $get() */ }]);

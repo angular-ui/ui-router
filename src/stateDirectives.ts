@@ -1,3 +1,6 @@
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+import {equalForKeys, forEach, copy} from "./common";
+
 function parseStateRef(ref, current) {
   var preparsed = ref.match(/^\s*({[^}]*})\s*$/), parsed;
   if (preparsed) ref = current + '(' + preparsed[1] + ')';
@@ -93,14 +96,14 @@ function $StateRefDirective($state, $timeout) {
       var options = { relative: base, inherit: true };
       var optionsOverride = scope.$eval(attrs.uiSrefOpts) || {};
 
-      angular.forEach(allowedOptions, function(option) {
+      forEach(allowedOptions, function(option) {
         if (option in optionsOverride) {
           options[option] = optionsOverride[option];
         }
       });
 
-      var update = function(newVal) {
-        if (newVal) params = angular.copy(newVal);
+      var update = function(newVal?: any) {
+        if (newVal) params = copy(newVal);
         if (!nav) return;
 
         newHref = $state.href(ref.state, params, options);
@@ -120,7 +123,7 @@ function $StateRefDirective($state, $timeout) {
         scope.$watch(ref.paramExpr, function(newVal, oldVal) {
           if (newVal !== params) update(newVal);
         }, true);
-        params = angular.copy(scope.$eval(ref.paramExpr));
+        params = copy(scope.$eval(ref.paramExpr));
       }
       update();
 

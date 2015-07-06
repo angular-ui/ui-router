@@ -1,15 +1,23 @@
+var module    = angular.mock.module;
+var uiRouter  = require("ui-router");
+var provide, UrlMatcher, ParamSet, Param;
+
+beforeEach(function() {
+  var app = angular.module('ui.router.router.test', function () { });
+  app.config(function ($urlMatcherFactoryProvider) {
+    provider = $urlMatcherFactoryProvider;
+    UrlMatcher = provider.UrlMatcher;
+    ParamSet = provider.ParamSet;
+    Param = provider.Param;
+  });
+});
+
 describe("UrlMatcher", function () {
-
-  var provider;
-
   beforeEach(function() {
-    angular.module('ui.router.router.test', function() {}).config(function ($urlMatcherFactoryProvider) {
-      provider = $urlMatcherFactoryProvider;
-    });
-
     module('ui.router.router', 'ui.router.router.test');
 
     inject(function($injector) {
+      uiRouter.angular1.runtime.setRuntimeInjector($injector);
       $injector.invoke(provider.$get);
     });
   });
@@ -90,17 +98,17 @@ describe("UrlMatcher", function () {
 
     it("should not match if invalid", function() {
       var err = "Invalid parameter name '-snake' in pattern '/users/?from&to&-snake'";
-      expect(function() { new UrlMatcher('/users/?from&to&-snake'); }).toThrow(err);
+      expect(function() { new UrlMatcher('/users/?from&to&-snake'); }).toThrowError(err);
 
       err = "Invalid parameter name 'snake-' in pattern '/users/?from&to&snake-'";
-      expect(function() { new UrlMatcher('/users/?from&to&snake-'); }).toThrow(err);
+      expect(function() { new UrlMatcher('/users/?from&to&snake-'); }).toThrowError(err);
     });
   });
 
   describe(".exec()", function() {
     it("should capture parameter values", function () {
       var m = new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?from&to');
-      expect(m.exec('/users/123/details//0', {})).toEqual({ id:'123', type:'', repeat:'0' });
+      expect(m.exec('/users/123/details//0', {})).toEqualData({ id:'123', type:'', repeat:'0'});
     });
 
     it("should capture catch-all parameters", function () {
@@ -139,7 +147,7 @@ describe("UrlMatcher", function () {
       };
 
       angular.forEach(shouldThrow, function(url, route) {
-        expect(function() { new UrlMatcher(route).exec(url, {}); }).toThrow(
+        expect(function() { new UrlMatcher(route).exec(url, {}); }).toThrowError(
           "Unbalanced capture group in route '" + route + "'"
         );
       });
@@ -189,7 +197,7 @@ describe("UrlMatcher", function () {
     it("should return a new matcher", function () {
       var base = new UrlMatcher('/users/:id/details/{type}?from');
       var matcher = base.concat('/{repeat:[0-9]+}?to');
-      expect(matcher).toNotBe(base);
+      expect(matcher).not.toBe(base);
     });
 
     it("should respect $urlMatcherFactoryProvider.strictMode", function() {
@@ -314,7 +322,7 @@ describe("UrlMatcher", function () {
     it("should be wrapped in an array if paramname looks like param[]", inject(function($location) {
       var m = new UrlMatcher('/foo?param1[]');
 
-      expect(m.exec("/foo")).toEqual({});
+      expect(m.exec("/foo")).toEqualData({});
 
       $location.url("/foo?param1[]=bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { "param1[]": [ 'bar' ] } );
@@ -330,7 +338,7 @@ describe("UrlMatcher", function () {
     it("should not be wrapped by ui-router into an array if array: false", inject(function($location) {
       var m = new UrlMatcher('/foo?param1', { params: { param1: { array: false } } });
 
-      expect(m.exec("/foo")).toEqual({});
+      expect(m.exec("/foo")).toEqualData({});
 
       $location.url("/foo?param1=bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: 'bar' } );
@@ -457,6 +465,11 @@ describe("urlMatcherFactoryProvider", function () {
       expect(m.exec("/test", {foo: ['1', '2']})).toEqual({ foo: [ { status: 'decoded' }, { status: 'decoded' }] });
     }));
   });
+
+  // TODO: Fix object pollution between tests for urlMatcherConfig
+  afterEach(inject(function($urlMatcherFactory) {
+    $urlMatcherFactory.caseInsensitive(false);
+  }));
 });
 
 describe("urlMatcherFactory", function () {
@@ -498,24 +511,24 @@ describe("urlMatcherFactory", function () {
   describe("typed parameters", function() {
     it("should accept object definitions", function () {
       var type = { encode: function() {}, decode: function() {} };
-      $umf.type("myType", type);
-      expect($umf.type("myType").encode).toBe(type.encode);
+      $umf.type("myType1", type);
+      expect($umf.type("myType1").encode).toBe(type.encode);
     });
 
     it("should reject duplicate definitions", function () {
-      $umf.type("myType", { encode: function () {}, decode: function () {} });
-      expect(function() { $umf.type("myType", {}); }).toThrow("A type named 'myType' has already been defined.");
+      $umf.type("myType2", { encode: function () {}, decode: function () {} });
+      expect(function() { $umf.type("myType2", {}); }).toThrowError("A type named 'myType2' has already been defined.");
     });
 
     it("should accept injected function definitions", inject(function ($stateParams) {
-      $umf.type("myType", {}, function($stateParams) {
+      $umf.type("myType3", {}, function($stateParams) {
         return {
           decode: function() {
             return $stateParams;
           }
         };
       });
-      expect($umf.type("myType").decode()).toBe($stateParams);
+      expect($umf.type("myType3").decode()).toBe($stateParams);
     }));
 
     it("should accept annotated function definitions", inject(function ($stateParams) {
@@ -839,27 +852,27 @@ describe("urlMatcherFactory", function () {
     var params = {};
     beforeEach(function() {
       var types = { int: $umf.type("int"), string: $umf.type("string"), any: $umf.type("any") }
-      params.grandparent  = new $umf.Param("grandparent", types.int, {}, "path");
-      params.parent       = new $umf.Param("parent", types.string, {}, "path");
-      params.child        = new $umf.Param("child", types.string, {}, "path");
-      params.param4       = new $umf.Param("param4", types.any, {}, "path");
+      params.grandparent  = new Param("grandparent", types.int, {}, "path");
+      params.parent       = new Param("parent", types.string, {}, "path");
+      params.child        = new Param("child", types.string, {}, "path");
+      params.param4       = new Param("param4", types.any, {}, "path");
     });
 
     describe(".$$new", function() {
-      it("should return a new ParamSet, which has the previous paramset as prototype", function() {
-        var parent = new $umf.ParamSet();
+      it("should return a new ParamSet, which returns the previous paramset as $$parent()", function() {
+        var parent = new ParamSet();
         var child = parent.$$new();
-        expect(child.__proto__).toBe(parent);
+        expect(child.$$parent()).toBe(parent);
       });
 
       it("should return a new ParamSet, which exposes parent params", function() {
-        var parent = new $umf.ParamSet({ parent: params.parent });
+        var parent = new ParamSet({ parent: params.parent });
         var child = parent.$$new();
         expect(child.parent).toBe(params.parent);
       });
 
       it("should return a new ParamSet, which exposes ancestor params", function() {
-        var grandparent = new $umf.ParamSet({ grandparent: params.grandparent });
+        var grandparent = new ParamSet({ grandparent: params.grandparent });
         var parent = grandparent.$$new({ parent: params.parent });
         var child = parent.$$new({ child: params.child });
 
@@ -871,15 +884,15 @@ describe("urlMatcherFactory", function () {
 
     describe(".$$keys", function() {
       it("should return keys for current param set", function() {
-        var ps = new $umf.ParamSet();
+        var ps = new ParamSet();
         expect(ps.$$keys()).toEqual([]);
 
-        ps = new $umf.ParamSet({ foo: {}, bar: {}});
+        ps = new ParamSet({ foo: {}, bar: {}});
         expect(ps.$$keys()).toEqual(['foo', 'bar']);
       });
 
       it("should return keys for current and ancestor paramset(s)", function () {
-        var gpa = new $umf.ParamSet({grandparent: params.grandparent});
+        var gpa = new ParamSet({grandparent: params.grandparent});
         expect(gpa.$$keys()).toEqual(['grandparent']);
 
         var pa = gpa.$$new({ parent: params.parent });
@@ -892,7 +905,7 @@ describe("urlMatcherFactory", function () {
 
     describe(".$$values", function() {
       it("should return typed param values for current param set, from a set of input values", function() {
-        var gpa = new $umf.ParamSet({grandparent: params.grandparent});
+        var gpa = new ParamSet({grandparent: params.grandparent});
         var pa = gpa.$$new({ parent: params.parent });
         var child = pa.$$new({ child: params.child });
         var values = { grandparent: "1", parent: 2, child: "3" };
@@ -902,7 +915,7 @@ describe("urlMatcherFactory", function () {
 
     describe(".$$filter", function() {
       it("should return a new ParamSet which is a subset of the current param set", function() {
-        var gpa = new $umf.ParamSet({grandparent: params.grandparent});
+        var gpa = new ParamSet({grandparent: params.grandparent});
         var pa = gpa.$$new({ parent: params.parent });
         var child = pa.$$new({ child: params.child });
 

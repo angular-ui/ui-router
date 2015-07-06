@@ -1,23 +1,45 @@
-var Transition, REJECT;
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
-function TransitionRejection(type, message, detail) {
-  angular.extend(this, {
-    type: type,
-    message: message,
-    detail: detail
-  });
+import {IServiceProviderFactory} from "angular";
+import {trace} from "./trace";
+import {Resolvable, Path, PathElement} from "./resolve";
+import {StateParams} from "./state";
+import {ViewContext} from "./viewContext";
+import {objectKeys, filter, defaults, map, val, not, is, eq, isEq, parse, invoke,
+    extend, forEach, flatten, prop, pluck, zipObject, pick, pipe, pattern, unnest, unroll,
+    isFunction, isNumber, isObject, isPromise, isString, noop, identity, toJson} from "./common";
+import {Glob} from "./glob";
+
+export var Transition, REJECT;
+
+export class TransitionRejection {
+  type: number;
+  message: string;
+  detail: string;
+  redirected: boolean;
+
+  constructor(type, message, detail) {
+    extend(this, {
+      type: type,
+      message: message,
+      detail: detail
+    });
+  }
+
+  toString() {
+    var types = {};
+    forEach(filter(Transition.prototype, isNumber), function(val, key) { types[val] = key; });
+    var type = types[this.type] || this.type,
+      message = this.message,
+      detail = detailString(this.detail);
+    return `TransitionRejection(type: ${type}, message: ${message}, detail: ${detail})`;
+  }
 }
 
-TransitionRejection.prototype.toString = function() {
-  function detailString(d) { return d && d.toString !== Object.prototype.toString ? d.toString() : JSON.stringify(d); }
-  var types = {};
-  angular.forEach(filter(Transition.prototype, angular.isNumber), function(val, key) { types[val] = key; });
-  var tplData = {type: types[this.type] || this.type, message: this.message, detail: detailString(this.detail)};
-  return tpl("TransitionRejection(type: {type}, message: {message}, detail: {detail})", tplData);
-};
+function detailString(d) { return d && d.toString !== Object.prototype.toString ? d.toString() : JSON.stringify(d); }
 
 function RejectFactory($q) {
-  return {
+  extend(this, {
     superseded: function (detail, options) {
       var message = "The transition has been superseded by a different transition (see detail).";
       var reason = new TransitionRejection(Transition.prototype.SUPERSEDED, message, detail);
@@ -28,11 +50,13 @@ function RejectFactory($q) {
       return REJECT.superseded(detail, { redirected: true } );
     },
     invalid: function(detail) {
+      var message = "This transition is invalid (see detail)";
       var reason = new TransitionRejection(Transition.prototype.INVALID, message, detail);
       return extend($q.reject(reason), { reason: reason });
     },
     ignored: function(detail) {
-      var reason = new TransitionRejection(Transition.prototype.IGNORED, "The transition was ignored.", detail);
+      var message = "The transition was ignored.";
+      var reason = new TransitionRejection(Transition.prototype.IGNORED, message, detail);
       return extend($q.reject(reason), { reason: reason });
     },
     aborted: function (detail) {
@@ -41,15 +65,14 @@ function RejectFactory($q) {
       var reason = new TransitionRejection(Transition.prototype.ABORTED, message, detail);
       return extend($q.reject(reason), { reason: reason });
     }
-  };
+  });
 }
 
-function TransitionStep(pathElement, fn, locals, pathContext, options) {
-  var self = this;
+export function TransitionStep(pathElement, fn, locals, pathContext, options) {
   options = defaults(options, {
     async: true,
     rejectIfSuperseded: true,
-    current: angular.noop,
+    current: noop,
     transition: null,
     trace: false,
     data: {}
@@ -59,9 +82,10 @@ function TransitionStep(pathElement, fn, locals, pathContext, options) {
    * Validates the result map as a "resolve:" style object.
    * Creates Resolvable objects from the result object and adds them to the target object
    */
-  function mapNewResolves(resolves) {
-    var invalid = filter(resolves, not(isFunction)), keys = Object.keys(invalid);
-    if (invalid.length) throw new Error("Invalid resolve key/value: " + keys[0] + "/", invalid[keys[0]]);
+  function mapNewResolves(resolves: Object) {
+    var invalid = filter(resolves, not(isFunction)), keys = objectKeys(invalid);
+    if (keys.length)
+      throw new Error("Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}");
 
     // If result is an object, it should be a map of strings to functions.
     return map(resolves, function(val, key) {
@@ -95,7 +119,7 @@ function TransitionStep(pathElement, fn, locals, pathContext, options) {
   ]);
 
   function invokeStep() {
-    if (options.trace) trace.traceHookInvocation(self, options);
+    if (options.trace) trace.traceHookInvocation(this, options);
     if (options.rejectIfSuperseded && /* !this.isActive() */ options.transition !== options.current()) {
       return REJECT.superseded(options.current());
     }
@@ -108,14 +132,12 @@ function TransitionStep(pathElement, fn, locals, pathContext, options) {
   }
 
   function transitionStepToString() {
-    return tpl("Step {event} (fn: '{name}', match:{from: '{from}', to: '{to}'}, {pathContext})", {
-      event:  parse("data.eventType")(options) || "internal",
-      name:   fn.name || "(anonymous)",
-      from:   parse("data.from.name")(options),
-      to:     parse("data.to.name")(options),
-      state:  parse("data.pathElement.state.name")(options),
-      pathContext: pathContext.toString()
-    });
+    var event = parse("data.eventType")(options) || "internal",
+      name = fn.name || "(anonymous)",
+      from = parse("data.from.name")(options),
+      to = parse("data.to.name")(options),
+      state = parse("data.pathElement.state.name")(options);
+    return `Step ${event} (fn: '${name}', match:{from: '${from}', to: '${to}'}, ${pathContext.toString()})`;
   }
 
   extend(this, {
@@ -123,7 +145,7 @@ function TransitionStep(pathElement, fn, locals, pathContext, options) {
     rejectIfSuperseded: options.rejectIfSuperseded,
     state: pathElement.state,
     data:  options.data,
-    invokeStep: invokeStep,
+    invokeStep: () => invokeStep(),
     toString: transitionStepToString
   });
 }
@@ -134,9 +156,9 @@ function TransitionStep(pathElement, fn, locals, pathContext, options) {
  */
 $TransitionProvider.$inject = [];
 function $TransitionProvider() {
-  $TransitionProvider.instance = this;
+  $TransitionProvider.prototype.instance = this;
 
-  var $transition = {};
+  var $transition: TransitionService = {};
   var transitionEvents = {
     onBefore: [], onInvalid: [], onStart: [], on: [], entering: [], exiting: [], onSuccess: [], onError: []
   };
@@ -156,7 +178,7 @@ function $TransitionProvider() {
 
     function matchGlobs(state) {
       for (var i = 0; i < toMatch.length; i++) {
-        var glob = GlobBuilder.fromString(toMatch[i]);
+        var glob = Glob.fromString(toMatch[i]);
 
         if ((glob && glob.matches(state.name)) || (!glob && toMatch[i] === state.name)) {
           return true;
@@ -395,10 +417,10 @@ function $TransitionProvider() {
    * The `$transition` service manages changes in states and parameters.
    */
   this.$get = $get;
-  $get.$inject = ['$q', '$injector', '$resolve', '$stateParams', '$timeout'];
-  function $get(   $q,   $injector,   $resolve,   $stateParams,   $timeout) {
+  $get.$inject = ['$q', '$injector'];
+  function $get(   $q,   $injector ) {
 
-    $TransitionProvider.instance.on({}, function $rejectIfInvalid($transition$) {
+    $TransitionProvider.prototype.instance.on({}, function $rejectIfInvalid($transition$) {
       if (!$transition$.$to().valid())
         throw new Error($transition$.$to().error());
     });
@@ -406,13 +428,13 @@ function $TransitionProvider() {
     REJECT = new RejectFactory($q);
     var transitionCount = 0;
 
-    function runSynchronousHooks(hooks, swallowExceptions) {
+    function runSynchronousHooks(hooks, swallowExceptions: boolean = false) {
       var promises = [];
       for (var i = 0; i < hooks.length; i++) {
         try {
           var hookResult = hooks[i].invokeStep();
           // If a hook returns a promise, that promise is added to an array to be resolved asynchronously.
-          if (hookResult && isFunction(hookResult.then))
+          if (hookResult && isPromise(hookResult))
             promises.push(hookResult);
         } catch (ex) {
           if (!swallowExceptions) throw ex;
@@ -451,7 +473,7 @@ function $TransitionProvider() {
       };
 
       // grab $transition's current path
-      var toPath, retained, entering, exiting; // Path() objects
+      var toPath: Path, retained: Path, entering: Path, exiting: Path; // Path() objects
       var keep = 0, state, hasCalculated = false;
 
       var fromState = from.$state();
@@ -602,7 +624,7 @@ function $TransitionProvider() {
          */
         exiting: function() {
           calculateTreeChanges();
-          var exitingStates = pluck(exiting.elements, 'state');
+          var exitingStates = <any[]> pluck(exiting.elements, 'state');
           exitingStates.reverse();
           return exitingStates;
         },
@@ -624,24 +646,7 @@ function $TransitionProvider() {
         },
 
         context: function context(pathElement) {
-          return {
-            state: pathElement.state,
-
-            /** Invokes an annotated function in the context of the toPath */
-            invoke: function invokeInContext(injectedFn, locals) {
-              return pathElement.invokeLater(injectedFn, locals, toPath, options);
-            },
-
-            /**
-             * For the fn passed in, resolves any Resolvable dependencies within the transition toPath context
-             * @returns a $q promise for the resolved data by name
-             */
-            getLocalsFor: function makeLocalsForContext(fn) {
-              var injectMe = function injectMe() { return pairs(injectMe.$inject, arguments); };
-              injectMe.$inject = objectKeys(pick(pathElement.getResolvables(), $injector.annotate(fn)));
-              return pathElement.invokeLater(injectMe, {}, toPath, options);
-            }
-          }
+          return new ViewContext(pathElement, toPath, options, $injector);
         },
 
         views: function(states) {
@@ -670,7 +675,8 @@ function $TransitionProvider() {
          * @returns {Transition} Returns a new `Transition` instance.
          */
         redirect: function(newTo, newOptions) {
-          if (newTo.state() === to && newTo.params() === params) return this;
+          // This code wasn't working because 'params' isn't a thing
+          //if (newTo.state() === to && newTo.params() === params) return this;
 
           return new Transition(from, newTo, extend(newOptions || this.options(), {
             previous: this
@@ -706,7 +712,7 @@ function $TransitionProvider() {
            * 2) the to state
            * 3) the from state
            */
-          function makeSteps(eventType, to, from, pathElement, locals, pathContext, options) {
+          function makeSteps(eventType, to, from, pathElement, locals, pathContext, options ?: Object): any[] {
             // trace stuff
             var stepData = {
               eventType: eventType,
@@ -718,9 +724,9 @@ function $TransitionProvider() {
             };
             options = extend(options || {}, baseHookOptions, { data: stepData });
 
-            var hooks = transitionEvents[eventType];
+            var hooks = <any[]> transitionEvents[eventType];
 
-            return map(filter(hooks, invoke('matches', [to, from])), function(hook) {
+            return map(filter(hooks, invoke('matches', [to, from])), function (hook) {
               return new TransitionStep(pathElement, hook.callback, locals, pathContext, options);
             });
           }
@@ -815,7 +821,7 @@ function $TransitionProvider() {
 
           // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
           var invalidOrStartHooks = transition.$to().valid() ? onStartHooks : onInvalidHooks;
-          var asyncSteps = filter(flatten([invalidOrStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]), angular.identity);
+          var asyncSteps = filter(flatten([invalidOrStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]), identity);
 
           // -----------------------------------------------------------------------
           // Transition Steps
@@ -859,14 +865,13 @@ function $TransitionProvider() {
           var toStateOrName = transition.to();
 
           // (X) means the to state is invalid.
-          return tpl("Transition#{id}( '{from}'{fromParams} -> {toValid}'{to}'{toParams} )", {
-            id:         transition.$id,
-            from:       isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
-            fromParams: angular.toJson(transition.$from().params()),
-            toValid:    transition.$to().valid() ? "" : "(X) ",
-            to:         isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
-            toParams:   angular.toJson(transition.params())
-          });
+          var id = transition.$id,
+            from = isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
+            fromParams = toJson(transition.$from().params()),
+            toValid = transition.$to().valid() ? "" : "(X) ",
+            to = isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
+            toParams = toJson(transition.params());
+          return `Transition#${id}( '${from}'${fromParams} -> ${toValid}'${to}'${toParams} )`;
         }
       });
     };
@@ -882,11 +887,18 @@ function $TransitionProvider() {
 
     $transition.isTransition = is(Transition);
 
-    $transition.provider = $TransitionProvider.instance;
+    $transition.provider = $TransitionProvider.prototype.instance;
 
     return $transition;
   }
 }
 
+interface TransitionService {
+  transition?: Object,
+  create?: Function,
+  isTransition?: Function,
+  provider?: Object,
+}
+
 angular.module('ui.router.state')
-  .provider('$transition', $TransitionProvider);
+  .provider('$transition', <IServiceProviderFactory> $TransitionProvider);

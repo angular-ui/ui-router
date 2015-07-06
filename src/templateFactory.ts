@@ -1,3 +1,6 @@
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+import {isDefined, isFunction} from "./common";
+
 /**
  * @ngdoc object
  * @name ui.router.util.$templateFactory

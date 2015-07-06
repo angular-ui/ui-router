@@ -1,3 +1,14 @@
+var module = angular.mock.module;
+var uiRouter = require("ui-router");
+var common = uiRouter.common;
+var extend = common.extend,
+  forEach = common.forEach;
+var state = uiRouter.state;
+var StateMatcher = state.StateMatcher,
+  StateBuilder = state.StateBuilder,
+  StateReference = state.StateReference;
+var UrlMatcher = uiRouter.urlMatcher.UrlMatcher;
+
 describe('state helpers', function() {
 
   var states;
@@ -63,7 +74,7 @@ describe('state helpers', function() {
       expect(matcher.find('^.^.company', states['home.about.people.person'])).toBe(states['home.about.company']);
       expect(matcher.find('^.foo', states.home)).toBeUndefined();
       expect(matcher.find('^.other.foo', states.home)).toBe(states['other.foo']);
-      expect(function() { matcher.find('^.^', states.home); }).toThrow("Path '^.^' not valid for state 'home'");
+      expect(function() { matcher.find('^.^', states.home); }).toThrowError(Error, "Path '^.^' not valid for state 'home'");
     });
   });
 
@@ -120,7 +131,7 @@ describe('state helpers', function() {
 
       it('should compile a UrlMatcher for ^ URLs', function() {
         var url = {};
-        spyOn(urlMatcherFactoryProvider, 'compile').andReturn(url);
+        spyOn(urlMatcherFactoryProvider, 'compile').and.returnValue(url);
 
         expect(builder.builder('url')({ url: "^/foo" })).toBe(url);
         expect(urlMatcherFactoryProvider.compile).toHaveBeenCalledWith("/foo", { params: {} });
@@ -128,7 +139,7 @@ describe('state helpers', function() {
 
       it('should concatenate URLs from root', function() {
         root = { url: { concat: function() {} } }, url = {};
-        spyOn(root.url, 'concat').andReturn(url);
+        spyOn(root.url, 'concat').and.returnValue(url);
 
         expect(builder.builder('url')({ url: "/foo" })).toBe(url);
         expect(root.url.concat).toHaveBeenCalledWith("/foo", { params: {} });
@@ -140,17 +151,17 @@ describe('state helpers', function() {
 
       it('should pass through custom UrlMatchers', function() {
         var url = ["!"];
-        spyOn(urlMatcherFactoryProvider, 'isMatcher').andReturn(true);
+        spyOn(urlMatcherFactoryProvider, 'isMatcher').and.returnValue(true);
         expect(builder.builder('url')({ url: url })).toBe(url);
         expect(urlMatcherFactoryProvider.isMatcher).toHaveBeenCalledWith(url);
       });
 
       it('should throw on invalid UrlMatchers', function() {
-        spyOn(urlMatcherFactoryProvider, 'isMatcher').andReturn(false);
+        spyOn(urlMatcherFactoryProvider, 'isMatcher').and.returnValue(false);
 
         expect(function() {
           builder.builder('url')({ toString: function() { return "foo"; }, url: { foo: "bar" } });
-        }).toThrow("Invalid url '[object Object]' in state 'foo'");
+        }).toThrowError(Error, "Invalid url '[object Object]' in state 'foo'");
 
         expect(urlMatcherFactoryProvider.isMatcher).toHaveBeenCalledWith({ foo: "bar" });
       });
@@ -201,7 +212,7 @@ describe('state helpers', function() {
 
 describe('state', function () {
 
-  var stateProvider, locationProvider, templateParams, template, ctrlName;
+  var $injector, stateProvider, locationProvider, templateParams, template, ctrlName;
 
   beforeEach(module('ui.router', function($locationProvider) {
     locationProvider = $locationProvider;
@@ -350,14 +361,15 @@ describe('state', function () {
     $provide.value('AppInjectable', AppInjectable);
   }));
 
-  beforeEach(inject(function ($rootScope) {
+  beforeEach(inject(function (_$injector_) {
+    $injector = _$injector_;
     log = '';
     logEvents = logEnterExit = false;
   }));
 
 
   function $get(what) {
-    return jasmine.getEnv().currentSpec.$injector.get(what);
+    return $injector.get(what);
   }
 
   function initStateTo(state, params) {
@@ -849,7 +861,7 @@ describe('state', function () {
 
       expect(function(){
           $state.reload('logInvalid')}
-        ).toThrow("No such reload state 'logInvalid'");
+        ).toThrowError(Error, "No such reload state 'logInvalid'");
     }));
 
     it('should throw an exception for invalid reload state object', inject(function ($state, $q, $timeout, $rootScope, $compile) {
@@ -858,13 +870,14 @@ describe('state', function () {
       $q.flush();
       expect(log).toBe('logA;logB;logC;');
 
+      var invalidObject = {foo:'bar'};
       expect(function(){
-          $state.reload({foo:'bar'})}
-        ).toThrow("Invalid reload state object");
+          $state.reload(invalidObject)}
+        ).toThrowError(Error, "Invalid reload state object");
 
       expect(function(){
           $state.reload({name:'invalidState'})}
-        ).toThrow("No such reload state 'invalidState'");
+        ).toThrowError(Error, "No such reload state 'invalidState'");
     }));
   });
 
@@ -1044,7 +1057,7 @@ describe('state', function () {
 
     describe('when $browser.baseHref() exists', function() {
       beforeEach(inject(function($browser) {
-        spyOn($browser, 'baseHref').andCallFake(function() {
+        spyOn($browser, 'baseHref').and.callFake(function() {
           return '/base/';
         });
       }));
@@ -1290,7 +1303,7 @@ describe('state', function () {
           $q.flush();
 
           expect($state.current.name).toBe(state.name || state); // allow object
-          expect(obj($state.params)).toEqual(extend({}, defaults, params, nonurlparams));
+          expect(obj($state.params)).toEqualData(extend({}, defaults, params, nonurlparams));
           expect($location.url()).toBe(url);
 
           initStateTo(A);
@@ -1300,7 +1313,7 @@ describe('state', function () {
           $q.flush();
 
           expect($state.current.name).toBe(state.name || state); // allow object
-          expect(obj($state.params)).toEqual(extend({}, defaults, params));
+          expect(obj($state.params)).toEqualData(extend({}, defaults, params));
           expect($location.url()).toBe(url);
         }
       }
@@ -1464,7 +1477,7 @@ describe('state', function () {
     it('should inject $stateParams into templateUrl function', inject(function ($state, $q, $httpBackend) {
       $httpBackend.expectGET("/templates/foo.html").respond("200");
       $state.transitionTo('about.sidebar.item', { item: "foo" }); $q.flush();
-      expect(templateParams).toEqualData({ '#': null, item: "foo" });
+      expect(obj(templateParams)).toEqual({ item: "foo" });
     }));
   });
 
@@ -1497,10 +1510,10 @@ describe('state', function () {
     }));
 
     it('should allow built-in decorators to be extended', inject(function ($state, $q, $httpBackend) {
-      stateProvider.decorator('views', function(state, parent) {
+      stateProvider.decorator('views', function(state) {
         var result = {};
 
-        angular.forEach(parent(state), function(config, name) {
+        angular.forEach(state.views, function(config, name) {
           result[name] = angular.extend(config, { templateProvider: function() {
             return "Template for " + name;
           }});

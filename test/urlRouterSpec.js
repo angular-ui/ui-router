@@ -1,3 +1,7 @@
+var module = angular.mock.module;
+var uiRouter = require("ui-router");
+var UrlMatcher = uiRouter.urlMatcher.UrlMatcher;
+
 describe("UrlRouter", function () {
 
   var $urp, $lp, $ur, location, match, scope;
@@ -20,8 +24,8 @@ describe("UrlRouter", function () {
     });
 
     it("should throw on non-function rules", function () {
-      expect(function() { $urp.rule(null); }).toThrow("'rule' must be a function")
-      expect(function() { $urp.otherwise(null); }).toThrow("'rule' must be a function")
+      expect(function() { $urp.rule(null); }).toThrowError("'rule' must be a function");
+      expect(function() { $urp.otherwise(null); }).toThrowError("'rule' must be a function");
     });
 
     it("should allow location changes to be deferred", inject(function ($urlRouter, $location, $rootScope) {
@@ -108,9 +112,9 @@ describe("UrlRouter", function () {
         handler: function() {}
       };
 
-      spyOn(custom.url, "exec").andReturn({});
-      spyOn(custom.url, "format").andReturn("/foo-bar");
-      spyOn(custom, "handler").andReturn(true);
+      spyOn(custom.url, "exec").and.returnValue({});
+      spyOn(custom.url, "format").and.returnValue("/foo-bar");
+      spyOn(custom, "handler").and.returnValue(true);
 
       $urp.when(custom.url, custom.handler);
       scope.$broadcast("$locationChangeSuccess");
@@ -192,7 +196,7 @@ describe("UrlRouter", function () {
       it('can read and sync a copy of location URL', inject(function($urlRouter, $location) {
         $location.url('/old');
 
-        spyOn($location, 'url').andCallThrough();
+        spyOn($location, 'url').and.callThrough();
         $urlRouter.update(true);
         expect($location.url).toHaveBeenCalled();
 

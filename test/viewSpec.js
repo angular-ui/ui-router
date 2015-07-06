@@ -1,8 +1,18 @@
+var module = angular.mock.module;
+var uiRouter = require("ui-router");
+var Path = uiRouter.resolve.Path;
+var Resolvable = uiRouter.resolve.Resolvable;
+var ViewContext = uiRouter.viewContext.ViewContext;
+
 describe('view', function() {
+  var scope, $compile, $injector, elem, $controllerProvider;
 
-  var scope, $compile, $injector, elem;
-
-  beforeEach(module('ui.router'));
+  beforeEach(module('ui.router', function(_$provide_, _$controllerProvider_) {
+    _$provide_.factory('foo', function() {
+      return "Foo";
+    });
+    $controllerProvider = _$controllerProvider_;
+  }));
 
   beforeEach(inject(function ($rootScope, _$compile_, _$injector_) {
     scope = $rootScope.$new();
@@ -12,24 +22,25 @@ describe('view', function() {
   }));
 
   describe('controller handling', function() {
-    it('uses the controllerProvider to get controller dynamically', inject(function ($view, $q) {
-      var ctrl, locals = function(fn, locals) {
-        locals = angular.extend(locals || {}, { $stateParams: { type: "Acme" }})
-        return $injector.invoke(fn, null, locals);
-      };
+    var state = { name: "foo" };
+    var path = new Path([state]);
 
+    it('uses the controllerProvider to get controller dynamically', inject(function ($view, $q, $injector) {
+      var ctrlExpression;
+      $controllerProvider.register("AcmeFooController", function($scope, foo) { });
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
 
       $view.load('$default', {
         template: "test",
         params: { type: "Acme" },
-        controllerProvider: function($stateParams, foo) {
-          ctrl = $stateParams.type + foo + "Controller";
+        controllerProvider: function(/* $stateParams, */ foo) { // todo: reimplement localized $stateParams
+          ctrlExpression = /* $stateParams.type + */ foo + "Controller as foo";
           return ctrl;
-        }
+        },
+        context: new ViewContext(path.last(), path, {}, $injector)
       });
       $q.flush();
-      expect(ctrl).toEqual("AcmeFooController");
+      expect(ctrlExpression).toEqual("FooController as foo");
     }));
   });
 

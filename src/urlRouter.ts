@@ -1,3 +1,8 @@
+/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+
+import {isFunction, isString, isDefined, isArray, isObject, extend} from "./common";
+import {IServiceProviderFactory} from "angular";
+
 /**
  * @ngdoc object
  * @name ui.router.router.$urlRouterProvider
@@ -278,7 +283,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
     }
 
     // TODO: Optimize groups of rules with non-empty prefix into some sort of decision tree
-    function update(evt) {
+    function update(evt?: any) {
       if (evt && evt.defaultPrevented) return;
 
       function check(rule) {
@@ -384,7 +389,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
         if (!urlMatcher.validates(params)) return null;
 
         var isHtml5 = $locationProvider.html5Mode();
-        if (angular.isObject(isHtml5)) {
+        if (isObject(isHtml5)) {
           isHtml5 = isHtml5.enabled;
         }
         
@@ -409,4 +414,4 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
   }
 }
 
-angular.module('ui.router.router').provider('$urlRouter', $UrlRouterProvider);
+angular.module('ui.router.router').provider('$urlRouter', <IServiceProviderFactory> $UrlRouterProvider);

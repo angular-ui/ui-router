@@ -1,3 +1,17 @@
+var module = angular.mock.module;
+var uiRouter = require("ui-router");
+
+var Glob = uiRouter.glob.Glob;
+var common = uiRouter.common,
+  defaults = common.defaults,
+  filter = common.filter,
+  is = common.is,
+  eq = common.eq,
+  isEq = common.isEq,
+  not = common.not,
+  pattern = common.pattern,
+  val = common.val;
+
 /**
  * Because PhantomJS sucks...
  */
@@ -26,61 +40,33 @@ if (!Function.prototype.bind) {
   };
 }
 
+
 describe('common', function() {
-  describe('GlobBuilder', function() {
-    it('should match glob strings', function() {
-      expect(GlobBuilder.is('*')).toBe(true);
-      expect(GlobBuilder.is('**')).toBe(true);
-      expect(GlobBuilder.is('*.*')).toBe(true);
 
-      expect(GlobBuilder.is('')).toBe(false);
-      expect(GlobBuilder.is('.')).toBe(false);
-    });
-
-    it('should construct glob matchers', function() {
-      expect(GlobBuilder.fromString('')).toBeNull();
-
-      var state = 'about.person.item';
-
-      expect(GlobBuilder.fromString('*.person.*').matches(state)).toBe(true);
-      expect(GlobBuilder.fromString('*.person.**').matches(state)).toBe(true);
-
-      expect(GlobBuilder.fromString('**.item.*').matches(state)).toBe(false);
-      expect(GlobBuilder.fromString('**.item').matches(state)).toBe(true);
-      expect(GlobBuilder.fromString('**.stuff.*').matches(state)).toBe(false);
-      expect(GlobBuilder.fromString('*.*.*').matches(state)).toBe(true);
-
-      expect(GlobBuilder.fromString('about.*.*').matches(state)).toBe(true);
-      expect(GlobBuilder.fromString('about.**').matches(state)).toBe(true);
-      expect(GlobBuilder.fromString('*.about.*').matches(state)).toBe(false);
-      expect(GlobBuilder.fromString('about.*.*').matches(state)).toBe(true);
-    });
-  });
-
-  describe('FunctionIterator', function() {
-    it('should allow recursive function calling', function() {
-
-      var it = new FunctionIterator([
-        function wrap(initial, next)    { return "[" + next() + "]"; },
-        function exclaim(initial, next) { return next() + "!"; },
-        function greet(initial, next)   { return "Hello " + next(); },
-        function name(initial)          { return initial.name; }
-      ]);
-
-      expect(it({ name: "Foo" })).toBe('[Hello Foo!]');
-    });
-
-    it('should allow short-circuiting the chain', function() {
-
-      var it = new FunctionIterator([
-        function top(initial, next) { return next().concat(["Baz"]); },
-        function mid(initial, next) { return initial.concat(["Bar"]); },
-        function bottom(initial) { throw new Error("This shouldn't happen"); }
-      ]);
-
-      expect(it(["Foo"])).toEqual(["Foo", "Bar", "Baz"]);
-    });
-  });
+  //describe('FunctionIterator', function() {
+  //  it('should allow recursive function calling', function() {
+  //
+  //    var it = new FunctionIterator([
+  //      function wrap(initial, next)    { return "[" + next() + "]"; },
+  //      function exclaim(initial, next) { return next() + "!"; },
+  //      function greet(initial, next)   { return "Hello " + next(); },
+  //      function name(initial)          { return initial.name; }
+  //    ]);
+  //
+  //    expect(it({ name: "Foo" })).toBe('[Hello Foo!]');
+  //  });
+  //
+  //  it('should allow short-circuiting the chain', function() {
+  //
+  //    var it = new FunctionIterator([
+  //      function top(initial, next) { return next().concat(["Baz"]); },
+  //      function mid(initial, next) { return initial.concat(["Bar"]); },
+  //      function bottom(initial) { throw new Error("This shouldn't happen"); }
+  //    ]);
+  //
+  //    expect(it(["Foo"])).toEqual(["Foo", "Bar", "Baz"]);
+  //  });
+  //});
 
   describe('filter', function() {
     it("should filter arrays", function() {

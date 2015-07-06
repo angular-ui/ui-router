@@ -1,8 +1,8 @@
 beforeEach(function() {
 
   function cssMatcher(presentClasses, absentClasses) {
-    return function() {
-      var element = angular.element(this.actual);
+    return function(actual) {
+      var element = angular.element(actual);
       var present = true;
       var absent = false;
 
@@ -30,7 +30,7 @@ beforeEach(function() {
     return -1;
   }
 
-  this.addMatchers({
+  jasmine.addMatchers({
     toBeInvalid: cssMatcher('ng-invalid', 'ng-valid'),
     toBeValid: cssMatcher('ng-valid', 'ng-invalid'),
     toBeDirty: cssMatcher('ng-dirty', 'ng-pristine'),
@@ -42,11 +42,15 @@ beforeEach(function() {
             ? this.actual.toString()
             : this.actual.toArray();
       }
-      return jasmine.Matchers.prototype.toEqual.call(this, expected);
+      return jasmine.matchers.toEqual.call(this, expected);
     },
 
-    toEqualData: function(expected) {
-      return angular.equals(this.actual, expected);
+    toEqualData: function() {
+      return {
+        compare: function(actual, expected) {
+          return { pass: angular.equals(actual, expected) };
+        }
+      }
     },
 
     toEqualError: function(message) {

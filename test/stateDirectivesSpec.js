@@ -1,3 +1,6 @@
+var module = angular.mock.module;
+var uiRouter = require("ui-router");
+
 describe('uiStateRef', function() {
 
   var timeoutFlush, el, el2, template, scope, document, _locationProvider;
@@ -384,7 +387,7 @@ describe('uiStateRef', function() {
     it('uses allowed transition options', inject(function($q, $timeout, $state) {
       var transitionOptions;
 
-      spyOn($state, 'go').andCallFake(function(state, params, options) {
+      spyOn($state, 'go').and.callFake(function(state, params, options) {
         transitionOptions = options;
       });
 

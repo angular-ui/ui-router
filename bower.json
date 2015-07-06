@@ -19,5 +19,8 @@
     "ngdoc_assets",
     "Gruntfile.js",
     "files.js"
-  ]
+  ],
+  "devDependencies": {
+    "DefinitelyTyped": "*"
+  }
 }

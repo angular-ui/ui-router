@@ -1,4 +1,22 @@
-function StateQueueManager(states, builder, $urlRouterProvider, $state) {
+import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEach, pick, objectKeys, ancestors, arraySearch, noop, identity} from "./common";
+import {not, prop, pipe, val} from "./common";
+import {isDefined, isFunction, isArray, isObject, isString} from "./common";
+import {Glob} from "./glob";
+import {TransitionRejection} from "./transition";
+import {Param} from "./param";
+import {ParamSet} from "./paramSet";
+import {IServiceProviderFactory} from "angular";
+
+export interface IPublicState {
+  name: string;
+  resolve: any; // key->Function
+  url: string;
+  resolvePolicy: (string|Object);
+  // TODO: finish defining state API.  Maybe start with what's on Definitely Typed.
+}
+
+
+export function StateQueueManager(states, builder, $urlRouterProvider, $state) {
   var queue = [];
 
   var queueManager = extend(this, {
@@ -12,7 +30,7 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
 
       if (!isString(state.name)) throw new Error("State must have a valid name");
       if (states.hasOwnProperty(state.name) || pluck(queue, 'name').indexOf(state.name) !== -1)
-        throw new Error("State '" + state.name + "' is already defined");
+        throw new Error(`State '${state.name}' is already defined`);
 
       queue[pre ? "unshift" : "push"](state);
       if (queueManager.autoFlush) {
@@ -31,7 +49,7 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
 
         if (result) {
           if (states.hasOwnProperty(state.name))
-            throw new Error("State '" + name + "' is already defined");
+            throw new Error(`State '${name}' is already defined`);
           states[state.name] = state;
           this.attachRoute($state, state);
           if (orphanIdx >= 0) orphans.splice(orphanIdx, 1);
@@ -42,7 +60,7 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
         previousQueueLength[state.name] = queue.length;
         if (orphanIdx >= 0 && prev === queue.length) {
           // Wait until two consecutive iterations where no additional states were dequeued successfully.
-          throw new Error("Cannot register orphaned state '" + state.name + "'");
+          throw new Error(`Cannot register orphaned state '${state.name}'`);
         } else if (orphanIdx < 0) {
           orphans.push(state);
         }
@@ -67,7 +85,7 @@ function StateQueueManager(states, builder, $urlRouterProvider, $state) {
 }
 
 // Builds state properties from definition passed to StateQueueManager.register()
-function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
+export function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 
   var self = this, builders = {
 
@@ -92,7 +110,7 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
         return ((parent && parent.navigable) || root()).url.concat(url, config);
       }
       if (!url || $urlMatcherFactoryProvider.isMatcher(url)) return url;
-      throw new Error("Invalid url '" + url + "' in state '" + state + "'");
+      throw new Error(`Invalid url '${url}' in state '${state}'`);
     },
 
     // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
@@ -102,19 +120,19 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 
     // Own parameters for this state. state.url.params is already built at this point. Create and add non-url params
     ownParams: function(state) {
-      var params = state.url && state.url.params || new $$UMFP.ParamSet();
+      var params = state.url && state.url.params || new ParamSet();
       forEach(state.params || {}, function(config, id) {
-        if (!params[id]) params[id] = new $$UMFP.Param(id, null, config, "config");
+        if (!params[id]) params[id] = new Param(id, null, config, "config");
       });
       if (state.reloadOnSearch === false) {
-        forEach(params, function(param) { if (param.location === 'search') param.dynamic = true; });
+        forEach(params, function(param) { if (param && param.location === 'search') param.dynamic = true; });
       }
       return params;
     },
 
     // Derive parameters for this state and ensure they're a super-set of parent's parameters
     params: function(state) {
-      var base = state.parent && state.parent.params ? state.parent.params.$$new() : new $$UMFP.ParamSet();
+      var base = state.parent && state.parent.params ? state.parent.params.$$new() : new ParamSet();
       return extend(base, state.ownParams);
     },
 
@@ -193,7 +211,8 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 
       for (var key in builders) {
         var steps = isArray(builders[key]) ? builders[key].reverse() : [builders[key]];
-        state[key] = (new FunctionIterator(steps))(state);
+        var chainFns = (memo, step) => step(state, memo);
+        state[key] = steps.reduce(chainFns, noop);
       }
       return state;
     },
@@ -215,7 +234,7 @@ function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
   });
 }
 
-function StateMatcher(states) {
+export function StateMatcher(states) {
   extend(this, {
     isRelative: function(stateName) {
       stateName = stateName || "";
@@ -240,7 +259,7 @@ function StateMatcher(states) {
     },
 
     resolvePath: function(name, base) {
-      if (!base) throw new Error("No reference point given for path '"  + name + "'");
+      if (!base) throw new Error(`No reference point given for path '${name}'`);
       base = this.find(base);
       
       var rel = name.split("."), i = 0, pathLength = rel.length, current = base;
@@ -251,7 +270,7 @@ function StateMatcher(states) {
           continue;
         }
         if (rel[i] === "^") {
-          if (!current.parent) throw new Error("Path '" + name + "' not valid for state '" + base.name + "'");
+          if (!current.parent) throw new Error(`Path '${name}' not valid for state '${base.name}'`);
           current = current.parent;
           continue;
         }
@@ -275,7 +294,7 @@ function StateMatcher(states) {
  *
  * @returns {Object}  Returns a new `State` object.
  */
-function State(config) {
+function State(config?: any) {
   extend(this, config);
 }
 
@@ -308,7 +327,7 @@ State.prototype.is = function(ref) {
  * @returns {string} Returns a dot-separated name of the state.
  */
 State.prototype.fqn = function() {
-  if (!this.parent || !this.parent instanceof this.constructor) {
+  if (!this.parent || !(this.parent instanceof this.constructor)) {
     return this.name;
   }
   var name = this.parent.fqn();
@@ -353,9 +372,8 @@ State.prototype.root = function() {
  *
  * @returns {Function}
  */
-function StateReference(identifier, definition, params, base) {
-
-  return extend(this, {
+export function StateReference(identifier, definition, params, base) {
+  extend(this, {
     identifier: function() {
       return identifier;
     },
@@ -378,45 +396,49 @@ function StateReference(identifier, definition, params, base) {
     error: function() {
       switch (true) {
         case (!definition && !!base):
-          return "Could not resolve '" + identifier + "' from state '" + base + "'";
+          return `Could not resolve '${identifier}' from state '${base}'`;
         case (!definition):
-          return "No such state '" + identifier + "'";
+          return `No such state '${identifier}'`;
         case !definition.self:
-          return "State '" + identifier + "' has an invalid definition";
+          return `State '${identifier}' has an invalid definition`;
         case definition.self[abstractKey]:
-          return "Cannot transition to abstract state '" + identifier + "'";
+          return `Cannot transition to abstract state '${identifier}'`;
       }
     }
   });
 }
 
-function TransitionQueue() {
-  this._items = [];
+export class TransitionQueue {
+  _items: Array<any>;
+
+  constructor() {
+    this._items = [];
+  }
+
+  push(transition) {
+    this._items.push(transition);
+    return transition;
+  }
+
+  clear() {
+    var current = this._items;
+    this._items = [];
+    return current;
+  }
+
+  size() {
+    return this._items.length;
+  }
+
+  pop(transition) {
+    var idx = this._items.indexOf(transition);
+    return idx > -1 && this._items.splice(idx, 1)[0];
+  }
+
+  last() {
+    return this._items[this._items.length - 1];
+  }
 }
-
-TransitionQueue.prototype.push = function(transition) {
-  this._items.push(transition);
-  return transition;
-};
-
-TransitionQueue.prototype.clear = function() {
-  var current = this._items;
-  this._items = [];
-  return current;
-};
-
-TransitionQueue.prototype.size = function() {
-  return this._items.length;
-};
-
-TransitionQueue.prototype.pop = function(transition) {
-  var idx = this._items.indexOf(transition);
-  return idx > -1 && this._items.splice(idx, 1)[0];
-};
-
-TransitionQueue.prototype.last = function() {
-  return this._items[this._items.length - 1];
-};
 
 /**
  * @ngdoc object
@@ -443,13 +465,13 @@ $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
   var root, states = {};
+  var $state: any = function $state() {};
 
   var matcher    = new StateMatcher(states);
   var builder    = new StateBuilder(function() { return root; }, matcher, $urlMatcherFactoryProvider);
   var stateQueue = new StateQueueManager(states, builder, $urlRouterProvider, $state);
   var transQueue = new TransitionQueue();
 
-  function $state() {}
 
   /**
    * @ngdoc function
@@ -803,7 +825,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
     $state.reload = function reload(reloadState) {
-      var reloadOpt = angular.isDefined(reloadState) ? reloadState : true;
+      var reloadOpt = isDefined(reloadState) ? reloadState : true;
       return $state.transitionTo($state.current, $stateParams, {
         reload: reloadOpt,
         inherit: false,
@@ -965,10 +987,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       });
 
       // If we're reloading, find the state object to reload from
-      if (isObject(options.reload) && !options.reload.name) { throw new Error('Invalid reload state object', options.reload); }
+      if (isObject(options.reload) && !options.reload.name) { throw new Error('Invalid reload state object'); }
       options.reloadState = options.reload === true ? $state.$current.path[0] : matcher.find(options.reload, options.relative);
       if (options.reload && !options.reloadState) {
-        throw new Error("No such reload state '" + (isString(options.reload) ? options.reload : options.reload.name) + "'");
+        throw new Error(`No such reload state '${(isString(options.reload) ? options.reload : options.reload.name)}'`);
       }
 
       var transition = transQueue.push($transition.create(
@@ -1023,7 +1045,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
               return REJECT.aborted();
             if (error.type === transition.SUPERSEDED) {
               //if (error.redirected && error.detail instanceof Transition) { // TODO: expose Transition class for instanceof
-              if (error.redirected && error.detail && angular.isFunction(error.detail.run)) {
+              if (error.redirected && error.detail && isFunction(error.detail.run)) {
                 return stateHandler.runTransition(error.detail);
               }
               // Return $q.reject(error)?  i.e., the original rejection? It has more information.
@@ -1056,7 +1078,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       // Return a promise for the transition, which also has the transition object on it.
       // Allows, for instance:
       // $state.go("foo").transition.redirects.then(function() { alert("Ive been redirected to state " + $state.current.name); }
-      return extend(result.then(angular.identity), { transition: transition });
+      return extend(result.then(identity), { transition: transition });
     };
 
     /**
@@ -1154,7 +1176,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      */
     $state.includes = function includes(stateOrName, params, options) {
       options = extend({ relative: $state.$current }, options || {});
-      var glob = isString(stateOrName) && GlobBuilder.fromString(stateOrName);
+      var glob = isString(stateOrName) && Glob.fromString(stateOrName);
 
       if (glob) {
         if (!glob.matches($state.$current.name)) return false;
@@ -1240,7 +1262,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
   }
 }
 
-function StateParams() { }
+export function StateParams() { }
 
 $StateParamsProvider.$inject = [];
 function $StateParamsProvider() {
@@ -1256,7 +1278,7 @@ function $StateParamsProvider() {
       };
     }
 
-    function observeChange(key, val) {
+    function observeChange(key, val?: any) {
       if (!observers[key] || !observers[key].length) return;
 
       forEach(observers[key], function(func) {
@@ -1374,6 +1396,6 @@ function $StateParamsProvider() {
 }
 
 angular.module('ui.router.state')
-  .provider('$stateParams', $StateParamsProvider)
-  .provider('$state', $StateProvider)
+  .provider('$stateParams', <IServiceProviderFactory> $StateParamsProvider)
+  .provider('$state', <IServiceProviderFactory> $StateProvider)
   .run(['$state', function($state) { /* This effectively calls $get() to init when we enter runtime */ }]);
