@@ -41,7 +41,7 @@ export class Param {
       if (config.type && urlType) throw new Error(`Param '${id}' has two type configurations.`);
       if (urlType) return urlType;
       if (!config.type) return (location === "config" ? paramTypes.type("any") : paramTypes.type("string"));
-      return config.type instanceof Type ? config.type : new Type(config.type);
+      return config.type instanceof Type ? config.type : paramTypes.type(config.type);
     }
 
     // array config: param name (param[]) overrides default settings.  explicit config overrides param name.
