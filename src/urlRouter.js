@@ -268,7 +268,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
     var baseHref = $browser.baseHref(), location = $location.url(), lastPushedUrl;
 
     function appendBasePath(url, isHtml5, absolute, instance) {
-      if (instance.current_instance && baseHref === '/') return url;
+      if (instance && instance.current_instance && baseHref === '/') return url;
       if (isHtml5) return baseHref.slice(0, -1) + url;
       if (absolute) return baseHref.slice(1) + url;
       return url;
