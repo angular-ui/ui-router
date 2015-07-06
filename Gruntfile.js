@@ -115,14 +115,14 @@ module.exports = function (grunt) {
         background: false,
         browsers: [ grunt.option('browser') || 'Chrome' ]
       },
-      past: {
-        configFile: 'config/karma-1.0.8.js'
+      onetwo: {
+        configFile: 'config/karma-1.2.28.js'
       },
-      unstable: {
-        configFile: 'config/karma-1.1.5.js'
+      onethree: {
+        configFile: 'config/karma-1.3.16.js'
       },
-      future: {
-        configFile: 'config/karma-1.3.0-rc.1.js'
+      onefour: {
+        configFile: 'config/karma-1.4.1.js'
       },
       background: {
           background: true,
@@ -155,7 +155,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('integrate', ['build', 'karma:unit', 'karma:past', 'karma:unstable']);
+  grunt.registerTask('integrate', ['build', 'karma:onetwo', 'karma:onethree', 'karma:onefour']);
   grunt.registerTask('default', ['build', 'karma:unit']);
   grunt.registerTask('build', 'Perform a normal build', ['ts', 'webpack', 'uglify']);
   grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
