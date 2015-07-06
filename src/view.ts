@@ -51,7 +51,7 @@ class ViewConfig {
   }
 
   template($factory, params, context) {
-    return $factory.fromConfig(this.config, params, context.invoke);
+    return $factory.fromConfig(this.config, params, context.invoke.bind(context));
   }
 }
 
@@ -226,7 +226,7 @@ function $View(   $rootScope,   $templateFactory,   $q) {
 
     var promises = {
       template: $q.when(viewConfig.template($templateFactory, opts.params, opts.context)),
-      controller: viewConfig.controller(),
+      controller: viewConfig.controller(opts.context),
       viewName: fqn ? $q.when(fqn) : viewQueue.waitFor(opts.parent, $q.defer()).then(function (parent) {
         return parent + "." + name;
       })

@@ -1,6 +1,7 @@
 /// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
-import {parse, extend, isDefined} from "./common";
+import {parse, extend, isDefined, isString} from "./common";
+import {annotateController} from "./angular1";
 
 /**
  * @ngdoc directive
@@ -259,9 +260,13 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
         var link = $compile($element.contents());
 
         if (data.$$controller) {
-          var context = data.$context;
+          var context = data.$context, annotatedFn = data.$$controller;
+          if (isString(data.$$controller)) {
+            annotatedFn = function() {};
+            annotatedFn.$inject = annotateController($controller, $injector, data.$$controller);
+          }
 
-          context.getLocalsFor(data.$$controller).then(function(locals) {
+          context.getLocalsFor(annotatedFn).then(function(locals) {
             var controller = $controller(data.$$controller, extend(locals, { $scope: scope })); // $stateParams?
             if (data.$$controllerAs) scope[data.$$controllerAs] = controller;
 

@@ -13,8 +13,9 @@ import * as urlMatcher from "./urlMatcher"
 import * as urlMatcherFactory from "./urlMatcherFactory"
 import * as urlRouter from "./urlRouter"
 import * as view from "./view"
+import * as viewContext from "./viewContext"
 import * as viewDirective from "./viewDirective"
 import * as viewScroll from "./viewScroll"
 
 export { angular1, common, glob, resolve, state, stateDirectives, stateEvents, stateFilters, templateFactory,
-    trace, transition, urlMatcher, urlMatcherFactory, urlRouter, view, viewDirective, viewScroll };
+    trace, transition, urlMatcher, urlMatcherFactory, urlRouter, view, viewContext, viewDirective, viewScroll };

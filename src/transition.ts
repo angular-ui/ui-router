@@ -4,6 +4,7 @@ import {IServiceProviderFactory} from "angular";
 import {trace} from "./trace";
 import {Resolvable, Path, PathElement} from "./resolve";
 import {StateParams} from "./state";
+import {ViewContext} from "./viewContext";
 import {objectKeys, filter, defaults, map, val, not, is, eq, isEq, parse, invoke,
     extend, forEach, flatten, prop, pluck, zipObject, pick, pipe, pattern, unnest, unroll,
     isFunction, isNumber, isObject, isPromise, isString, noop, identity, toJson} from "./common";
@@ -645,27 +646,7 @@ function $TransitionProvider() {
         },
 
         context: function context(pathElement) {
-          return {
-            state: pathElement.state,
-
-            /** Invokes an annotated function in the context of the toPath */
-            invoke: function invokeInContext(injectedFn, locals) {
-              return pathElement.invokeLater(injectedFn, locals, toPath, options);
-            },
-
-            /**
-             * For the fn passed in, resolves any Resolvable dependencies within the transition toPath context
-             * @returns a $q promise for the resolved data by name
-             */
-            getLocalsFor: function makeLocalsForContext(fn) {
-              var injectMe = function injectMe() {
-                var args = Array.prototype.slice.call(arguments);
-                return zipObject(injectMe.$inject, args);
-              };
-              injectMe.$inject = objectKeys(pick(pathElement.getResolvables(), $injector.annotate(fn)));
-              return pathElement.invokeLater(injectMe, {}, toPath, options);
-            }
-          }
+          return new ViewContext(pathElement, toPath, options, $injector);
         },
 
         views: function(states) {
