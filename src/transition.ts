@@ -153,6 +153,22 @@ export function TransitionStep(pathElement, fn, locals, pathContext, options) {
 }
 
 /**
+ * The default transition options.
+ * Include this object when applying custom defaults:
+ * var reloadOpts = { reload: true, notify: true }
+ * var options = defaults(theirOpts, customDefaults, defaultOptions);
+ */
+export var defaultTransOpts = {
+  location: true,
+  relative: null,
+  inherit:  false,
+  notify:   true,
+  reload:   false,
+  trace:    false,
+  custom:   {}
+};
+
+/**
  * @ngdoc object
  * @name ui.router.state.$transitionProvider
  */

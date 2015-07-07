@@ -8,10 +8,20 @@ export function inherit(parent, extra) {
   return extend(new (extend(function() {}, { prototype: parent }))(), extra);
 }
 
-export function defaults(opts, defs) {
-  return extend({}, defs, pick(opts || {}, objectKeys(defs)));
+/**
+ * Applies a set of defaults to an options object.  The options object is filtered
+ * to only those properties of the objects in the defaultsList.
+ * Earlier objects in the defaultsList take precedence when applying defaults.
+ */
+export function defaults(opts = {}, ...defaultsList) {
+  var defaults = merge.apply(null, [{}].concat(defaultsList));
+  return extend({}, defaults, pick(opts || {}, objectKeys(defaults)));
 }
 
+/**
+ * Merges properties from the list of objects to the destination object.
+ * If a property already exists in the destination object, then it is not overwritten.
+ */
 export function merge(dst, ...objs: Object[]) {
   forEach(objs, function(obj) {
     forEach(obj, function(value, key) {
@@ -20,35 +30,6 @@ export function merge(dst, ...objs: Object[]) {
   });
   return dst;
 }
-
-///**
-// * Recursive function iterator
-// */
-//export function FunctionIterator(items) {
-//  var self = this;
-//
-//  var it = function(initial) {
-//    var get  = function() { return this.next() || noop; }.bind(self);
-//    var next = function() { return get()(initial, next); };
-//    return next();
-//  };
-//
-//  extend(this, {
-//    items: items,
-//    _current: -1
-//  });
-//
-//  return it.bind(this);
-//}
-//
-//FunctionIterator.prototype.current = function() {
-//  return this.items[this._current];
-//};
-//
-//FunctionIterator.prototype.next = function() {
-//  this._current++;
-//  return this.current();
-//};
 
 /**
  * Finds the common ancestor path between two states.

@@ -2,7 +2,7 @@ import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEa
 import {not, prop, pipe, val} from "./common";
 import {isDefined, isFunction, isArray, isObject, isString} from "./common";
 import {Glob} from "./glob";
-import {TransitionRejection} from "./transition";
+import {TransitionRejection, defaultTransOpts} from "./transition";
 import {Param} from "./param";
 import {ParamSet} from "./paramSet";
 import {IServiceProviderFactory} from "angular";
@@ -20,7 +20,7 @@ export function StateQueueManager(states, builder, $urlRouterProvider, $state) {
   var queue = [];
 
   var queueManager = extend(this, {
-    register: function(config, pre) {
+    register: function(config: IPublicState, pre?: boolean) {
       // Wrap a new object around the state so we can store our private details easily.
       var state = inherit(new State(), extend({}, config, {
         self: config,
@@ -294,7 +294,7 @@ export function StateMatcher(states) {
  *
  * @returns {Object}  Returns a new `State` object.
  */
-function State(config?: any) {
+function State(config?: IPublicState) {
   extend(this, config);
 }
 
@@ -900,14 +900,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      */
     $state.go = function go(to, params, options) {
-      return $state.transitionTo(to, params, defaults(options, {
-        location: true,
-        relative: $state.$current,
-        inherit:  true,
-        notify:   true,
-        reload:   false,
-        trace:    false
-      }));
+      var defautGoOpts = { relative: $state.$current, inherit: true };
+      return $state.transitionTo(to, params, defaults(options, defautGoOpts, defaultTransOpts));
     };
 
     /**
@@ -977,14 +971,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
     $state.transitionTo = function transitionTo(to, toParams, options) {
-      options = defaults(options, {
-        location: true,
-        relative: null,
-        inherit:  false,
-        notify:   true,
-        reload:   false,
-        trace:    false
-      });
+      options = defaults(options, defaultTransOpts);
 
       // If we're reloading, find the state object to reload from
       if (isObject(options.reload) && !options.reload.name) { throw new Error('Invalid reload state object'); }
@@ -1116,7 +1103,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {boolean} Returns true if it is the state.
      */
     $state.is = function is(stateOrName, params, options) {
-      options = extend({ relative: $state.$current }, options || {});
+      options = defaults(options, { relative: $state.$current });
       var state = matcher.find(stateOrName, options.relative);
       if (!isDefined(state)) return undefined;
       if ($state.$current !== state) return false;
@@ -1175,7 +1162,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {boolean} Returns true if it does include the state
      */
     $state.includes = function includes(stateOrName, params, options) {
-      options = extend({ relative: $state.$current }, options || {});
+      options = defaults(options, { relative: $state.$current });
       var glob = isString(stateOrName) && Glob.fromString(stateOrName);
 
       if (glob) {
@@ -1218,12 +1205,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {string} compiled state url
      */
     $state.href = function href(stateOrName, params, options) {
-      options = defaults(options || {}, {
+      var defaultHrefOpts = {
         lossy:    true,
         inherit:  true,
         absolute: false,
         relative: $state.$current
-      });
+      };
+      options = defaults(options, defaultHrefOpts);
 
       var state = matcher.find(stateOrName, options.relative);
 

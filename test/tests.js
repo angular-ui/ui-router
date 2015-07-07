@@ -1,5 +1,5 @@
 var testsContext = require.context(".", true, /.Spec/);
-var ignoredSpecs = [/stateDirectivesSpec/, /viewDirectiveSpec/, /viewScrollSpec/];
+var ignoredSpecs = [/viewDirectiveSpec/, /viewScrollSpec/];
 
 var notIgnored = function (key) {
   var ignored = ignoredSpecs.reduce(function(memo, regexp) { return memo || regexp.exec(key); }, false);

@@ -1,5 +1,6 @@
 /// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
-import {equalForKeys, forEach, copy} from "./common";
+import {equalForKeys, forEach, copy, defaults} from "./common";
+import {defaultTransOpts} from "./transition";
 
 function parseStateRef(ref, current) {
   var preparsed = ref.match(/^\s*({[^}]*})\s*$/), parsed;
@@ -81,8 +82,6 @@ function stateContext(el) {
  */
 $StateRefDirective.$inject = ['$state', '$timeout'];
 function $StateRefDirective($state, $timeout) {
-  var allowedOptions = ['location', 'inherit', 'reload'];
-
   return {
     restrict: 'A',
     require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
@@ -93,14 +92,9 @@ function $StateRefDirective($state, $timeout) {
       var isForm = element[0].nodeName === "FORM";
       var attr = isForm ? "action" : "href", nav = true;
 
-      var options = { relative: base, inherit: true };
-      var optionsOverride = scope.$eval(attrs.uiSrefOpts) || {};
-
-      forEach(allowedOptions, function(option) {
-        if (option in optionsOverride) {
-          options[option] = optionsOverride[option];
-        }
-      });
+      var srefOpts = scope.$eval(attrs.uiSrefOpts);
+      var defaultSrefOpts = { relative: base, inherit: true };
+      var options = defaults(srefOpts, defaultSrefOpts, defaultTransOpts);
 
       var update = function(newVal?: any) {
         if (newVal) params = copy(newVal);
