@@ -1,19 +1,6 @@
 routerFiles = {
   buildSrc: [
-    './build/ts2es5/ui-router.js',
-    './build/ts2es5/resolve.js',
-    './build/ts2es5/templateFactory.js',
-    './build/ts2es5/urlMatcherFactory.js',
-    './build/ts2es5/transition.js',
-    './build/ts2es5/urlRouter.js',
-    './build/ts2es5/state.js',
-    './build/ts2es5/view.js',
-    './build/ts2es5/viewScroll.js',
-    './build/ts2es5/viewDirective.js',
-    './build/ts2es5/stateDirectives.js',
-    './build/ts2es5/stateFilters.js',
-    './build/ts2es5/stateEvents.js',
-    './build/ts2es5/trace.js'
+    './build/ts2es5/ui-router.js'
   ],
   buildDest: [
     'build/angular-ui-router.js'

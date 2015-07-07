@@ -155,7 +155,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('integrate', ['build', 'karma:onetwo', 'karma:onethree', 'karma:onefour']);
+  grunt.registerTask('integrate', ['clean', 'build', 'karma:onetwo', 'karma:onethree', 'karma:onefour']);
   grunt.registerTask('default', ['build', 'karma:unit']);
   grunt.registerTask('build', 'Perform a normal build', ['ts', 'webpack', 'uglify']);
   grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
