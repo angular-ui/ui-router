@@ -2,7 +2,9 @@
 
 import {IServiceProviderFactory} from "angular";
 import {trace} from "./trace";
-import {Resolvable, Path, PathElement} from "./resolve";
+import Resolvable from "./resolve/resolvable";
+import Path from "./resolve/path";
+import PathElement from "./resolve/pathElement";
 import {StateParams} from "./state";
 import {ViewContext} from "./viewContext";
 import {objectKeys, filter, defaults, map, val, not, is, eq, isEq, parse, invoke,

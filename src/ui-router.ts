@@ -1,7 +1,10 @@
 import * as angular1 from "./angular1"
 import * as common from "./common"
 import * as glob from "./glob"
-import * as resolve from "./resolve"
+import Resolvable from "./resolve/resolvable"
+import Path from "./resolve/path"
+import PathElement from "./resolve/pathElement"
+var resolve = { Resolvable, Path, PathElement };
 import * as state from "./state"
 import * as stateDirectives from "./stateDirectives"
 import * as stateEvents from "./stateEvents"

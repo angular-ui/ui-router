@@ -1,6 +1,6 @@
 import {isNull, isPromise, is, invoke, not, val, pattern, parse, objectKeys}  from "./common";
 import {isDefined, isObject, isString, isFunction, extend, forEach, isArray, identity} from "./common";
-import {Resolvable}  from "./resolve";
+import Resolvable  from "./resolve/resolvable";
 import {Transition, TransitionRejection}  from "./transition";
 
 function promiseToString(p) {
