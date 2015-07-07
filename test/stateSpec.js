@@ -689,7 +689,7 @@ describe('state', function () {
     it('updates the location #fragment, if specified', inject(function ($state, $q, $location) {
       // html5mode disabled
       locationProvider.html5Mode(false);
-      expect(locationProvider.html5Mode()).toBe(false);
+      expect(html5Compat(locationProvider.html5Mode())).toBe(false);
       $state.transitionTo('home.item', {id: 'world', '#': 'frag'});
       $q.flush();
       expect($location.url()).toBe('/front/world#frag');
@@ -697,7 +697,7 @@ describe('state', function () {
 
       // html5mode enabled
       locationProvider.html5Mode(true);
-      expect(locationProvider.html5Mode()).toBe(true);
+      expect(html5Compat(locationProvider.html5Mode())).toBe(true);
       $state.transitionTo('home.item', {id: 'world', '#': 'frag'});
       $q.flush();
       expect($location.url()).toBe('/front/world#frag');

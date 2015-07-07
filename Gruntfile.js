@@ -96,7 +96,7 @@ module.exports = function (grunt) {
     },
     karma: {
       options: {
-        configFile: 'config/karma.js',
+        configFile: 'config/karma-1.4.1.js',
         singleRun: true,
         exclude: [],
         frameworks: ['jasmine'],

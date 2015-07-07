@@ -111,6 +111,11 @@ function obj(object) {
   return o;
 }
 
+function html5Compat(html5mode) {
+  return (angular.isObject(html5mode) && html5mode.hasOwnProperty("enabled") ? html5mode.enabled : html5mode);
+}
+
+
 // Utils for test from core angular
 var noop = angular.noop,
     toJson = angular.toJson;
