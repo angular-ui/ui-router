@@ -5,7 +5,7 @@ module.exports = {
   basePath: '..',
 
   // list of files / patterns to load in the browser
-  files: [].concat(files.testUtils, files.buildDest, 'test/tests.js'),
+  _files: [].concat(files.testUtils, files.buildDest, 'test/tests.js'),
   preprocessors: {
     'lib/angular*.js': ['webpack'],
     'test/tests.js': ['webpack']
