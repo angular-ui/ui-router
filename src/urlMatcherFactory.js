@@ -259,6 +259,9 @@ UrlMatcher.prototype.exec = function (path, searchParams) {
     }
     if (paramVal && param.array === true) paramVal = decodePathArray(paramVal);
     values[paramName] = param.value(paramVal);
+    if(!param.isOptional && (typeof values[paramName] === 'undefined' || !param.type.is(values[paramName]))){
+      return null;
+    }
   }
   for (/**/; i < nTotal; i++) {
     paramName = paramNames[i];

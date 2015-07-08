@@ -335,7 +335,7 @@ describe("UrlMatcher", function () {
     it("should be split on - in url and wrapped in an array if array: true", inject(function($location) {
       var m = new UrlMatcher('/foo/:param1', { params: { param1: { array: true } } });
 
-      expect(m.exec("/foo/")).toEqual({ param1: undefined });
+      expect(m.exec("/foo/")).toBeNull();
       expect(m.exec("/foo/bar")).toEqual({ param1: [ "bar" ] });
       $location.url("/foo/bar-baz");
       expect(m.exec($location.url())).toEqual({ param1: [ "bar", "baz" ] });
@@ -356,12 +356,12 @@ describe("UrlMatcher", function () {
       expect(m.format({ "param1[]": [ "1" ] })).toBe("/foo/1");
       expect(m.format({ "param1[]": [ "1", "2" ] })).toBe("/foo/1-2");
 
-      expect(m.exec("/foo/")).toEqual({ "param1[]": undefined });
+      expect(m.exec("/foo/")).toBeNull();
       expect(m.exec("/foo/1")).toEqual({ "param1[]": [ "1" ] });
       expect(m.exec("/foo/1-2")).toEqual({ "param1[]": [ "1", "2" ] });
 
       $location.url("/foo/");
-      expect(m.exec($location.path(), $location.search())).toEqual( { "param1[]": undefined } );
+      expect(m.exec($location.path(), $location.search())).toBeNull();
       $location.url("/foo/bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { "param1[]": [ 'bar' ] } );
       $location.url("/foo/bar-baz");
@@ -378,7 +378,7 @@ describe("UrlMatcher", function () {
     it("should be split on - in url and wrapped in an array if paramname looks like param[]", inject(function($location) {
       var m = new UrlMatcher('/foo/:param1[]');
 
-      expect(m.exec("/foo/")).toEqual({ "param1[]": undefined });
+      expect(m.exec("/foo/")).toBeNull();
       expect(m.exec("/foo/bar")).toEqual({ "param1[]": [ "bar" ] });
       expect(m.exec("/foo/bar-baz")).toEqual({ "param1[]": [ "bar", "baz" ] });
 
@@ -390,7 +390,7 @@ describe("UrlMatcher", function () {
     it("should allow path param arrays with '-' in the values", inject(function($location) {
       var m = new UrlMatcher('/foo/:param1[]');
 
-      expect(m.exec("/foo/")).toEqual({ "param1[]": undefined });
+      expect(m.exec("/foo/")).toBeNull();
       expect(m.exec("/foo/bar\\-")).toEqual({ "param1[]": [ "bar-" ] });
       expect(m.exec("/foo/bar\\--\\-baz")).toEqual({ "param1[]": [ "bar-", "-baz" ] });
 
@@ -545,6 +545,18 @@ describe("urlMatcherFactory", function () {
 
       expect(m.format({ id: 1138 })).toBe("/users/1138");
       expect(m.format({ id: "alpha" })).toBeNull();
+    });
+
+    it('should not match invalid custom type value', function () {
+      $umf.type('custom', {
+        is: function (val) {
+          return val === 'ok';
+        }
+      });
+      var m = new UrlMatcher('/users/{custom:custom}');
+
+      expect(m.exec('/users/val')).toBeNull();
+      expect(m.exec('/users/ok').custom).toBe('ok');
     });
 
     it("should automatically handle multiple search param values", inject(function($location) {
