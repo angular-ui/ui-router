@@ -260,12 +260,8 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
             removeClass($element, activeEqClass);
           }
         }
-        return $state.includes(state.name) && matchesParams();
       }
 
-      function matchesParams() {
-        return !params || equalForKeys(params, $stateParams);
-      }
 
       function addClass(el, className) { $timeout(function () { el.addClass(className); }); }
 
