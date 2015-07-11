@@ -1,6 +1,7 @@
 import * as angular1 from "./common/angular1"
 import * as common from "./common/common"
 import * as glob from "./state/glob"
+import * as rejectFactory from "./transition/rejectFactory"
 import Resolvable from "./resolve/resolvable"
 import Path from "./resolve/path"
 import PathElement from "./resolve/pathElement"
@@ -20,5 +21,5 @@ import * as viewContext from "./view/viewContext"
 import * as viewDirective from "./view/viewDirective"
 import * as viewScroll from "./view/viewScroll"
 
-export { angular1, common, glob, resolve, state, stateDirectives, stateEvents, stateFilters, templateFactory,
+export { angular1, common, glob, rejectFactory, resolve, state, stateDirectives, stateEvents, stateFilters, templateFactory,
     trace, transition, urlMatcher, urlMatcherFactory, urlRouter, view, viewContext, viewDirective, viewScroll };

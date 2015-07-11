@@ -1,6 +1,7 @@
 var module = angular.mock.module;
 var uiRouter = require("ui-router");
 var common = uiRouter.common;
+var RejectType = uiRouter.rejectFactory.RejectType;
 var extend = common.extend,
   forEach = common.forEach;
 var state = uiRouter.state;
@@ -439,7 +440,7 @@ describe('state', function () {
         expect(destState).toBe(RS);
       });
 
-      it('rejects a fully dynamic transition.run() with transition.IGNORED', function () {
+      it('rejects a fully dynamic transition.run() with RejectType.IGNORED', function () {
         initStateTo(RS);
         var promise = $state.go(".", {term: "hello"});
         var caught, transition = promise.transition;
@@ -448,7 +449,7 @@ describe('state', function () {
         });
         $q.flush();
         expect($state.current).toBe(RS);
-        expect(caught.type).toBe(transition.IGNORED);
+        expect(caught.type).toBe(RejectType.IGNORED);
         expect($location.search()).toEqual({term: 'hello'});
       });
 
@@ -567,7 +568,7 @@ describe('state', function () {
           });
           $q.flush();
           expect($state.current).toBe(RS);
-          expect(caught.type).toBe(transition.IGNORED);
+          expect(caught.type).toBe(RejectType.IGNORED);
           expect($location.search()).toEqual({term: 'hello'});
         });
 

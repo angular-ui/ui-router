@@ -1,6 +1,7 @@
 var module = angular.mock.module;
 var uiRouter = require("ui-router");
 var common = uiRouter.common;
+var RejectType = uiRouter.rejectFactory.RejectType;
 var extend = common.extend,
   forEach = common.forEach,
   map = common.map,
@@ -325,7 +326,7 @@ describe('transition', function () {
         transition.promise.catch(function(err) { rejection = err; });
         transition.run(); $q.flush();
         expect(pluck(states, 'name')).toEqual([ 'A', 'B', 'C' ]);
-        expect(rejection.type).toEqual(transition.ABORTED);
+        expect(rejection.type).toEqual(RejectType.ABORTED);
       }));
 
       it("return value of type Transition should abort the transition with SUPERSEDED status", inject(function($transition, $q) {
@@ -337,7 +338,7 @@ describe('transition', function () {
         transition.run(); $q.flush();
 
         expect(pluck(states, 'name')).toEqual([ 'B', 'C' ]);
-        expect(rejection.type).toEqual(transition.SUPERSEDED);
+        expect(rejection.type).toEqual(RejectType.SUPERSEDED);
         expect(rejection.detail.to()).toEqual("B");
         expect(rejection.detail.from()).toEqual("A");
         expect(rejection.redirected).toEqual(true);
@@ -362,7 +363,7 @@ describe('transition', function () {
         expect(pluck(states, 'name')).toEqual([ 'B', 'C', 'G' ]);
         // TODO: change back to instanceof check after imports/exports is cleaned up
         expect(rejection.constructor.name).toBe('TransitionRejection');
-        expect(rejection.type).toEqual(transition.SUPERSEDED);
+        expect(rejection.type).toEqual(RejectType.SUPERSEDED);
         expect(rejection.detail.to()).toEqual("G");
         expect(rejection.detail.from()).toEqual("A");
         expect(rejection.redirected).toBeUndefined();

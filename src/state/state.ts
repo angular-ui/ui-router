@@ -2,7 +2,8 @@ import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEa
 import {not, prop, pipe, val} from "../common/common";
 import {isDefined, isFunction, isArray, isObject, isString} from "../common/common";
 import {Glob} from "./glob";
-import {TransitionRejection, defaultTransOpts} from "../transition/transition";
+import {TransitionRejection, RejectType, RejectFactory} from "../transition/rejectFactory";
+import {defaultTransOpts} from "../transition/transition";
 import {Param} from "../params/param";
 import {ParamSet} from "../params/paramSet";
 import {IServiceProviderFactory} from "angular";
@@ -742,20 +743,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
   $get.$inject = ['$rootScope', '$q', '$injector', '$view', '$stateParams', '$urlRouter', '$transition', '$urlMatcherFactory'];
   function $get(   $rootScope,   $q,   $injector,   $view,   $stateParams,   $urlRouter,   $transition,   $urlMatcherFactory) {
 
-    var TransitionSuperseded = $q.reject(new Error('transition superseded'));
-    var TransitionPrevented = $q.reject(new Error('transition prevented'));
-    var TransitionAborted = $q.reject(new Error('transition aborted'));
-    var TransitionFailed = $q.reject(new Error('transition failed'));
-    var TransitionIgnored = $q.reject(new Error('transition ignored'));
-
-    var REJECT = $state.REJECT = {
-      superseded: function() { return TransitionSuperseded; },
-      prevented: function() { return TransitionPrevented; },
-      aborted: function() { return TransitionAborted; },
-      failed: function() { return TransitionFailed; },
-      ignored: function() { return TransitionIgnored; }
-    };
-
     // Implicit root state that is always active
     root = stateQueue.register({
       name: '',
@@ -1021,23 +1008,22 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         transitionFailure: function transitionFailure(error) {
           // Handle redirect and abort
           if (error instanceof TransitionRejection) {
-            if (error.type === transition.IGNORED) {
+            if (error.type === RejectType.IGNORED) {
               // Update $stateParmas/$state.params/$location.url if transition ignored, but dynamic params have changed.
               if (!$state.$current.params.$$filter(not(not(prop('dynamic')))).$$equals($stateParams, transition.params())) {
                 stateHandler.updateStateParams(transition);
               }
               return $state.current;
             }
-            if (error.type === transition.ABORTED)
-              return REJECT.aborted();
-            if (error.type === transition.SUPERSEDED) {
+
+            if (error.type === RejectType.SUPERSEDED) {
               //if (error.redirected && error.detail instanceof Transition) { // TODO: expose Transition class for instanceof
               if (error.redirected && error.detail && isFunction(error.detail.run)) {
                 return stateHandler.runTransition(error.detail);
               }
-              // Return $q.reject(error)?  i.e., the original rejection? It has more information.
-              return REJECT.superseded();
             }
+
+            return $q.reject(error);
           }
 
           return $q.reject(error);

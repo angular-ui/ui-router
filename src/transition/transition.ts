@@ -5,6 +5,7 @@ import {trace} from "./../common/trace";
 import Resolvable from "./../resolve/resolvable";
 import Path from "./../resolve/path";
 import PathElement from "./../resolve/pathElement";
+import {RejectFactory, RejectType} from "./rejectFactory"
 import {StateParams} from "../state/state";
 import {ViewContext} from "../view/viewContext";
 import {objectKeys, filter, defaults, map, val, not, is, eq, isEq, parse, invoke,
@@ -13,62 +14,6 @@ import {objectKeys, filter, defaults, map, val, not, is, eq, isEq, parse, invoke
 import {Glob} from "../state/glob";
 
 export var Transition, REJECT;
-
-export class TransitionRejection {
-  type: number;
-  message: string;
-  detail: string;
-  redirected: boolean;
-
-  constructor(type, message, detail) {
-    extend(this, {
-      type: type,
-      message: message,
-      detail: detail
-    });
-  }
-
-  toString() {
-    var types = {};
-    forEach(filter(Transition.prototype, isNumber), function(val, key) { types[val] = key; });
-    var type = types[this.type] || this.type,
-      message = this.message,
-      detail = detailString(this.detail);
-    return `TransitionRejection(type: ${type}, message: ${message}, detail: ${detail})`;
-  }
-}
-
-function detailString(d) { return d && d.toString !== Object.prototype.toString ? d.toString() : JSON.stringify(d); }
-
-function RejectFactory($q) {
-  extend(this, {
-    superseded: function (detail, options) {
-      var message = "The transition has been superseded by a different transition (see detail).";
-      var reason = new TransitionRejection(Transition.prototype.SUPERSEDED, message, detail);
-      if (options && options.redirected) { reason.redirected = true; }
-      return extend($q.reject(reason), { reason: reason });
-    },
-    redirected: function (detail) {
-      return REJECT.superseded(detail, { redirected: true } );
-    },
-    invalid: function(detail) {
-      var message = "This transition is invalid (see detail)";
-      var reason = new TransitionRejection(Transition.prototype.INVALID, message, detail);
-      return extend($q.reject(reason), { reason: reason });
-    },
-    ignored: function(detail) {
-      var message = "The transition was ignored.";
-      var reason = new TransitionRejection(Transition.prototype.IGNORED, message, detail);
-      return extend($q.reject(reason), { reason: reason });
-    },
-    aborted: function (detail) {
-      // TODO think about how to encapsulate an Error() object
-      var message = "The transition has been aborted.";
-      var reason = new TransitionRejection(Transition.prototype.ABORTED, message, detail);
-      return extend($q.reject(reason), { reason: reason });
-    }
-  });
-}
 
 export function TransitionStep(pathElement, fn, locals, pathContext, options) {
   options = defaults(options, {
@@ -900,11 +845,6 @@ function $TransitionProvider() {
         }
       });
     };
-
-    Transition.prototype.SUPERSEDED = 2;
-    Transition.prototype.ABORTED    = 3;
-    Transition.prototype.INVALID    = 4;
-    Transition.prototype.IGNORED    = 5;
 
     $transition.create = function create(from, to, options) {
       return new Transition(from, to, options || {});

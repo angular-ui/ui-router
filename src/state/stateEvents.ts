@@ -1,6 +1,7 @@
 /// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
 import {extend, forEach, isFunction} from "../common/common";
+import {RejectType} from "../transition/rejectFactory";
 import {StateParams} from "./state";
 import {IServiceProviderFactory} from "angular";
 
@@ -69,7 +70,7 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
 
   if (enabledEvents.$stateChangeError) {
     $transition$.promise["catch"](function (error) {
-      if (error && (error.type == $transition$.SUPERSEDED || error.type == $transition$.ABORTED))
+      if (error && (error.type == RejectType.SUPERSEDED || error.type == RejectType.ABORTED))
         return;
 
       /**
