@@ -569,7 +569,7 @@ describe('uiView controllers or onEnter handlers', function() {
       .state('aside',         { url: '/aside', template: '<div class="aside"></div>' })
       .state('A',           { url: '/A', template: '<div class="A" ui-view="fwd"></div>' })
       .state('A.fwd', {
-        url: '/fwd', views: { 'fwd@A': {
+        url: '/fwd', views: { 'fwd': {
           template: '<div class="fwd" ui-view>',
           controller: function($state) { if (count++ < 20 && $state.current.name == 'A.fwd') $state.go(".nest"); }
         }}
