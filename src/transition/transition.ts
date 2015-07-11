@@ -1,16 +1,16 @@
-/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+/// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
 import {IServiceProviderFactory} from "angular";
-import {trace} from "./trace";
-import Resolvable from "./resolve/resolvable";
-import Path from "./resolve/path";
-import PathElement from "./resolve/pathElement";
-import {StateParams} from "./state";
-import {ViewContext} from "./viewContext";
+import {trace} from "./../common/trace";
+import Resolvable from "./../resolve/resolvable";
+import Path from "./../resolve/path";
+import PathElement from "./../resolve/pathElement";
+import {StateParams} from "../state/state";
+import {ViewContext} from "../view/viewContext";
 import {objectKeys, filter, defaults, map, val, not, is, eq, isEq, parse, invoke,
     extend, forEach, flatten, prop, pluck, zipObject, pick, pipe, pattern, unnest, unroll,
-    isFunction, isNumber, isObject, isPromise, isString, noop, identity, toJson} from "./common";
-import {Glob} from "./glob";
+    isFunction, isNumber, isObject, isPromise, isString, noop, identity, toJson} from "./../common/common";
+import {Glob} from "../state/glob";
 
 export var Transition, REJECT;
 

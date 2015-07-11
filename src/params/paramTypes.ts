@@ -1,6 +1,6 @@
-import {isDefined, fromJson, toJson, isObject, identity, equals, inherit, map, extend} from "./../common";
-import {Type} from "./../type";
-import {runtime} from "./../angular1";
+import {isDefined, fromJson, toJson, isObject, identity, equals, inherit, map, extend} from "../common/common";
+import {Type} from "./type";
+import {runtime} from "../common/angular1";
 
 function valToString(val) { return val != null ? val.toString().replace(/\//g, "%2F") : val; }
 function valFromString(val) { return val != null ? val.toString().replace(/%2F/g, "/") : val; }

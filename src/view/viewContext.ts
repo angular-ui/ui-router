@@ -1,7 +1,7 @@
-import Path from "./resolve/path";
-import PathElement from "./resolve/pathElement";
-import {IPublicState} from "./state";
-import {objectKeys, zipObject, pick} from "./common";
+import Path from "../resolve/path";
+import PathElement from "../resolve/pathElement";
+import {IPublicState} from "../state/state";
+import {objectKeys, zipObject, pick} from "../common/common";
 
 export class ViewContext {
   state: IPublicState;

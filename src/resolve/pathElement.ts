@@ -1,12 +1,12 @@
 /// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
-import {isObject, isString, extend, forEach, noop, pick, map, filter, parse} from "../common";
-import {trace}  from "./../trace";
+import {isObject, isString, extend, forEach, noop, pick, map, filter, parse} from "../common/common";
+import {trace}  from "../common/trace";
 import {IPromise} from "angular";
-import {IPublicState} from "../state";
+import {IPublicState} from "../state/state";
 import Path from "./path";
 import Resolvable from "./resolvable";
-import {runtime} from "./../angular1"
+import {runtime} from "../common/angular1"
 
 
 // Eager resolves are resolved before the transition starts.

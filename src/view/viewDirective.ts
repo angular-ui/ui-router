@@ -1,7 +1,7 @@
-/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+/// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
-import {parse, extend, isDefined, isString} from "./common";
-import {annotateController} from "./angular1";
+import {parse, extend, isDefined, isString} from "../common/common";
+import {annotateController} from "../common/angular1";
 
 /**
  * @ngdoc directive

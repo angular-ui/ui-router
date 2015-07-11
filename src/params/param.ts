@@ -1,8 +1,8 @@
-import {isInjectable, extend, isDefined, isString, isArray, filter, map, indexOf} from "./../common";
-import {runtime} from "./../angular1";
-import {matcherConfig} from "./../urlMatcherConfig";
+import {isInjectable, extend, isDefined, isString, isArray, filter, map, indexOf} from "../common/common";
+import {runtime} from "../common/angular1";
+import {matcherConfig} from "../url/urlMatcherConfig";
 import {paramTypes} from "./paramTypes";
-import {Type} from "./../type";
+import {Type} from "./type";
 
 export class Param {
   id: string;

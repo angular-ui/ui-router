@@ -1,8 +1,8 @@
-import {map, extend, inherit, isDefined, isObject, isArray, isString} from "./common";
+import {map, extend, inherit, isDefined, isObject, isArray, isString} from "./../common/common";
 import {matcherConfig} from "./urlMatcherConfig"
-import {paramTypes} from "./params/paramTypes"
-import {ParamSet} from "./params/paramSet"
-import {Param} from "./params/param"
+import {paramTypes} from "./../params/paramTypes"
+import {ParamSet} from "./../params/paramSet"
+import {Param} from "./../params/param"
 
 interface params {
   $$validates: (params: string) => Array<string>;

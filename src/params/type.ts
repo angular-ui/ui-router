@@ -1,4 +1,4 @@
-import {extend, isArray, isDefined, filter, map} from "./common";
+import {extend, isArray, isDefined, filter, map} from "../common/common";
 
 /**
  * @ngdoc object

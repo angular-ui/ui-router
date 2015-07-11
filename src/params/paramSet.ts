@@ -1,4 +1,4 @@
-import {extend, inherit, forEach, objectKeys, indexOf, isString} from "./../common";
+import {extend, inherit, forEach, objectKeys, indexOf, isString} from "../common/common";
 
 export class ParamSet {
   constructor(params?: any) {

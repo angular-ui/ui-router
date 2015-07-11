@@ -1,10 +1,10 @@
-import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEach, pick, objectKeys, ancestors, arraySearch, noop, identity} from "./common";
-import {not, prop, pipe, val} from "./common";
-import {isDefined, isFunction, isArray, isObject, isString} from "./common";
+import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEach, pick, objectKeys, ancestors, arraySearch, noop, identity} from "../common/common";
+import {not, prop, pipe, val} from "../common/common";
+import {isDefined, isFunction, isArray, isObject, isString} from "../common/common";
 import {Glob} from "./glob";
-import {TransitionRejection, defaultTransOpts} from "./transition";
-import {Param} from "./params/param";
-import {ParamSet} from "./params/paramSet";
+import {TransitionRejection, defaultTransOpts} from "../transition/transition";
+import {Param} from "../params/param";
+import {ParamSet} from "../params/paramSet";
 import {IServiceProviderFactory} from "angular";
 
 export interface IPublicState {

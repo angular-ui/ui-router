@@ -1,10 +1,10 @@
 /// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
-import {pick, map}  from "../common";
-import {trace}  from "../trace";
+import {pick, map}  from "../common/common";
+import {trace}  from "../common/trace";
 import {IPromise} from "angular";
-import {IPublicState} from "../state";
-import {runtime} from "../angular1"
+import {IPublicState} from "../state/state";
+import {runtime} from "../common/angular1"
 
 /**
  * The basic building block for the resolve system.

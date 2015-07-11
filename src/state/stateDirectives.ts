@@ -1,6 +1,6 @@
-/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
-import {equalForKeys, forEach, copy, defaults} from "./common";
-import {defaultTransOpts} from "./transition";
+/// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+import {equalForKeys, forEach, copy, defaults} from "../common/common";
+import {defaultTransOpts} from "../transition/transition";
 
 function parseStateRef(ref, current) {
   var preparsed = ref.match(/^\s*({[^}]*})\s*$/), parsed;

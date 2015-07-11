@@ -1,4 +1,4 @@
-import {isDefined, isString} from "./common";
+import {isDefined, isString} from "./../common/common";
 
 class MatcherConfig {
   _isCaseInsensitive: boolean = false;

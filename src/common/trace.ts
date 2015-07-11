@@ -1,7 +1,7 @@
-import {isNull, isPromise, is, invoke, not, val, pattern, parse, objectKeys}  from "./common";
-import {isDefined, isObject, isString, isFunction, extend, forEach, isArray, identity} from "./common";
-import Resolvable  from "./resolve/resolvable";
-import {Transition, TransitionRejection}  from "./transition";
+import {isNull, isPromise, is, invoke, not, val, pattern, parse, objectKeys}  from "../common/common";
+import {isDefined, isObject, isString, isFunction, extend, forEach, isArray, identity} from "../common/common";
+import Resolvable  from "../resolve/resolvable";
+import {Transition, TransitionRejection}  from "../transition/transition";
 
 function promiseToString(p) {
   if (is(TransitionRejection)(p.reason)) return p.reason.toString();

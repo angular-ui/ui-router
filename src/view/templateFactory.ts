@@ -1,5 +1,5 @@
-/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
-import {isDefined, isFunction} from "./common";
+/// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+import {isDefined, isFunction} from "../common/common";
 
 /**
  * @ngdoc object

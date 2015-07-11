@@ -1,6 +1,6 @@
-/// <reference path='../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+/// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
-import {isFunction, isString, isDefined, isArray, isObject, extend} from "./common";
+import {isFunction, isString, isDefined, isArray, isObject, extend} from "./../common/common";
 import {IServiceProviderFactory} from "angular";
 
 /**
