@@ -16,3 +16,6 @@ script:
 
 git:
   depth: 10
+
+notifications:
+  slack: angularbuddies:b6leQM9gkBCW0S7MNDsELpqU
