@@ -82,6 +82,7 @@ describe('uiView', function () {
     controller: function() {
       this.someProperty = "value"
     },
+    template: "hi",
     controllerAs: "vm"
   },
   lState = {
