@@ -6,9 +6,9 @@ import {forEach, extend, inherit, map, filter, indexOf, objectKeys,
     toJson, fromJson, identity, equals} from "./common";
 import {matcherConfig} from "./urlMatcherConfig";
 import {UrlMatcher} from "./urlMatcher";
-import {Param} from "./param";
-import {ParamSet} from "./paramSet";
-import {paramTypes} from "./paramTypes";
+import {Param} from "./params/param";
+import {ParamSet} from "./params/paramSet";
+import {paramTypes} from "./params/paramTypes";
 import {Type} from "./type";
 
 /**

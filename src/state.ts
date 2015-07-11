@@ -3,8 +3,8 @@ import {not, prop, pipe, val} from "./common";
 import {isDefined, isFunction, isArray, isObject, isString} from "./common";
 import {Glob} from "./glob";
 import {TransitionRejection, defaultTransOpts} from "./transition";
-import {Param} from "./param";
-import {ParamSet} from "./paramSet";
+import {Param} from "./params/param";
+import {ParamSet} from "./params/paramSet";
 import {IServiceProviderFactory} from "angular";
 
 export interface IPublicState {
