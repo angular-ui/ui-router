@@ -64,16 +64,15 @@ class Trace {
   traceHookInvocation(step, options) {
     var tid = parse("transition.$id")(options),
       digest = this.approximateDigests;
-    this._trace(`Transition #${tid} Digest #${digest}:   Hook: ${step.toString()}`);
+    this._trace(`Transition #${tid} Digest #${digest}:   Hook -> ${step.toString()}`);
   }
 
   traceHookResult(hookResult, transitionResult, transitionOptions) {
-    if (!isDefined(hookResult)) return;
     var tid = parse("transition.$id")(transitionOptions),
       digest = this.approximateDigests,
       hookResultStr = this._stringify(hookResult),
       transitionResultStr = this._stringify(transitionResult);
-    this._trace(`Transition #${tid} Digest #${digest}:   Hook returned: ${hookResultStr} -> ${transitionResultStr}`);
+    this._trace(`Transition #${tid} Digest #${digest}:   Hook <- returned: ${hookResultStr} result: ${transitionResultStr}`);
   }
 
   traceResolvePath(path, options) {

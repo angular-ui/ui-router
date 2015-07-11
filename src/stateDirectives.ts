@@ -222,7 +222,7 @@ $StateRefActiveDirective.$inject = ['$state', '$stateParams', '$interpolate'];
 function $StateRefActiveDirective($state, $stateParams, $interpolate) {
   return  {
     restrict: "A",
-    controller: ['$scope', '$element', '$attrs', '$timeout', function ($scope, $element, $attrs, $timeout) {
+    controller: ['$scope', '$element', '$attrs', '$timeout', '$transition', function ($scope, $element, $attrs, $timeout, $transition) {
       var states = [], activeClass, activeEqClass;
 
       // There probably isn't much point in $observing this
@@ -243,7 +243,9 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
         update();
       };
 
-      $scope.$on('$stateChangeSuccess', update);
+      var updateAfterTransition = function ($transition$) { $transition$.promise.then(update); }
+      var deregisterFn = $transition.provider.on({}, updateAfterTransition);
+      $scope.$on('$destroy', deregisterFn);
 
       // Update route state
       function update() {

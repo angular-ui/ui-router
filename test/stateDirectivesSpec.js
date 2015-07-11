@@ -413,12 +413,12 @@ describe('uiSrefActive', function() {
     }).state('contacts', {
       url: '/contacts',
       views: {
-        '@': {
+        '$default': {
           template: '<a ui-sref=".item({ id: 6 })" ui-sref-active="active">Contacts</a>'
         }
       }
     }).state('contacts.item', {
-      url: '/:id',
+      url: '/:id'
     }).state('contacts.item.detail', {
       url: '/detail/:foo'
     }).state('contacts.item.edit', {
@@ -561,13 +561,14 @@ describe('uiSrefActive', function() {
     expect(angular.element(template[0]).attr('class')).toBe('ng-scope active');
   }));
 
-  it('should match fuzzy on lazy loaded states', inject(function($rootScope, $q, $compile, $state) {
+  it('should match fuzzy on lazy loaded states', inject(function($transition, $rootScope, $q, $compile, $state) {
     el = angular.element('<div><a ui-sref="contacts.lazy" ui-sref-active="active">Lazy Contact</a></div>');
     template = $compile(el)($rootScope);
-    $rootScope.$digest();
+    $q.flush();
 
-    $rootScope.$on('$stateNotFound', function () {
+    $transition.provider.onInvalid({}, function ($state, $transition$) {
       _stateProvider.state('contacts.lazy', {});
+      return $state.redirect($transition$).to("contacts.lazy");
     });
 
     $state.transitionTo('contacts.item', { id: 1 });
@@ -581,13 +582,14 @@ describe('uiSrefActive', function() {
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
   }));
 
-  it('should match exactly on lazy loaded states', inject(function($rootScope, $q, $compile, $state) {
+  it('should match exactly on lazy loaded states', inject(function($transition, $rootScope, $q, $compile, $state) {
     el = angular.element('<div><a ui-sref="contacts.lazy" ui-sref-active-eq="active">Lazy Contact</a></div>');
     template = $compile(el)($rootScope);
-    $rootScope.$digest();
+    $q.flush();
 
-    $rootScope.$on('$stateNotFound', function () {
+    $transition.provider.onInvalid({}, function ($state, $transition$) {
       _stateProvider.state('contacts.lazy', {});
+      return $state.redirect($transition$).to("contacts.lazy");
     });
 
     $state.transitionTo('contacts.item', { id: 1 });

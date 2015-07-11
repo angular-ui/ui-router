@@ -212,10 +212,17 @@ function $TransitionProvider() {
   function registerEventHook(eventType) {
     return function(matchObject, callback, options) {
       options = options || {};
-      transitionEvents[eventType].push(new EventHook(matchObject, callback, options));
-      transitionEvents[eventType].sort(function(a, b) {
+      var eventHook = new EventHook(matchObject, callback, options);
+      var hooks = transitionEvents[eventType];
+      hooks.push(eventHook);
+      hooks.sort(function(a, b) {
         return a.priority - b.priority;
       });
+
+      return function deregisterEventHook() {
+        var idx = hooks.indexOf(eventHook);
+        idx != -1 && hooks.splice(idx, 1)
+      }
     };
   }
 
