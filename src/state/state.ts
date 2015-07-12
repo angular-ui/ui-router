@@ -3,7 +3,7 @@ import {not, prop, pipe, val} from "../common/common";
 import {isDefined, isFunction, isArray, isObject, isString} from "../common/common";
 import {Glob} from "./glob";
 import {TransitionRejection, RejectType, RejectFactory} from "../transition/rejectFactory";
-import {defaultTransOpts} from "../transition/transition";
+import {defaultTransOpts} from "../transition/transitionService";
 import {Param} from "../params/param";
 import {ParamSet} from "../params/paramSet";
 import {IServiceProviderFactory} from "angular";

@@ -1,19 +1,9 @@
 /// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
 
 import {IServiceProviderFactory} from "angular";
-import {trace} from "./../common/trace";
-import Resolvable from "./../resolve/resolvable";
-import Path from "./../resolve/path";
-import PathElement from "./../resolve/pathElement";
-import {RejectFactory, RejectType} from "./rejectFactory"
-import {StateParams} from "../state/state";
-import {ViewContext} from "../view/viewContext";
-import {objectKeys, filter, defaults, map, val, not, is, eq, isEq, parse, invoke,
-    extend, forEach, flatten, prop, pluck, zipObject, pick, pipe, pattern, unnest, unroll,
-    isFunction, isNumber, isObject, isPromise, isString, noop, identity, toJson} from "./../common/common";
+import {Transition} from "./transition";
 import {Glob} from "../state/glob";
-
-export var Transition, REJECT;
+import {extend, is, isFunction, isString, val} from "../common/common";
 
 /**
  * The default transition options.
@@ -32,6 +22,36 @@ export var defaultTransOpts = {
 };
 
 /**
+ * Determines if the given state matches the matchCriteria
+ * @param state a State Object to test against
+ * @param matchCriteria {string|array|function}
+ * - If a string, matchState uses the string as a glob-matcher against the state name
+ * - If an array (of strings), matchState uses each string in the array as a glob-matchers against the state name
+ *   and returns a positive match if any of the globs match.
+ * - If a function, matchState calls the function with the state and returns true if the function's result is truthy.
+ * @returns {boolean}
+ */
+export function matchState(state, matchCriteria) {
+  var toMatch = isString(matchCriteria) ? [matchCriteria] : matchCriteria;
+
+  function matchGlobs(state) {
+    for (var i = 0; i < toMatch.length; i++) {
+      var glob = Glob.fromString(toMatch[i]);
+
+      if ((glob && glob.matches(state.name)) || (!glob && toMatch[i] === state.name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  return !!(isFunction(toMatch) ? toMatch : matchGlobs)(state);
+}
+
+export var $transition: TransitionService = {};
+
+
+/**
  * @ngdoc object
  * @name ui.router.state.$transitionProvider
  */
@@ -39,37 +59,9 @@ $TransitionProvider.$inject = [];
 function $TransitionProvider() {
   $TransitionProvider.prototype.instance = this;
 
-  var $transition: TransitionService = {};
   var transitionEvents = {
     onBefore: [], onInvalid: [], onStart: [], on: [], entering: [], exiting: [], onSuccess: [], onError: []
   };
-
-  /**
-   * Determines if the given state matches the matchCriteria
-   * @param state a State Object to test against
-   * @param matchCriteria {string|array|function}
-   * - If a string, matchState uses the string as a glob-matcher against the state name
-   * - If an array (of strings), matchState uses each string in the array as a glob-matchers against the state name
-   *   and returns a positive match if any of the globs match.
-   * - If a function, matchState calls the function with the state and returns true if the function's result is truthy.
-   * @returns {boolean}
-   */
-  function matchState(state, matchCriteria) {
-    var toMatch = isString(matchCriteria) ? [matchCriteria] : matchCriteria;
-
-    function matchGlobs(state) {
-      for (var i = 0; i < toMatch.length; i++) {
-        var glob = Glob.fromString(toMatch[i]);
-
-        if ((glob && glob.matches(state.name)) || (!glob && toMatch[i] === state.name)) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    return !!(isFunction(toMatch) ? toMatch : matchGlobs)(state);
-  }
 
   // Return a registration function of the requested type.
   function registerEventHook(eventType) {
@@ -313,28 +305,6 @@ function $TransitionProvider() {
         throw new Error($transition$.$to().error());
     });
 
-    REJECT = new RejectFactory($q);
-    var transitionCount = 0;
-
-    function runSynchronousHooks(hooks, swallowExceptions: boolean = false) {
-      var promises = [];
-      for (var i = 0; i < hooks.length; i++) {
-        try {
-          var hookResult = hooks[i].invokeStep();
-          // If a hook returns a promise, that promise is added to an array to be resolved asynchronously.
-          if (hookResult && isPromise(hookResult))
-            promises.push(hookResult);
-        } catch (ex) {
-          if (!swallowExceptions) throw ex;
-          console.log("Swallowed exception during synchronous hook handler: " + ex); // TODO: What to do here?
-        }
-      }
-
-      return promises.reduce(function(memo, val) {
-        return memo.then(function() { return val; });
-      }, $q.when(true));
-    }
-
     $transition.create = function create(from, to, options) {
       return new Transition(from, to, options || {});
     };
@@ -342,6 +312,10 @@ function $TransitionProvider() {
     $transition.isTransition = is(Transition);
 
     $transition.provider = $TransitionProvider.prototype.instance;
+
+    (<any> $transition).$$hooks = function(type: string) {
+      return [].concat(transitionEvents[type])
+    };
 
     return $transition;
   }
@@ -351,7 +325,7 @@ interface TransitionService {
   transition?: Object,
   create?: Function,
   isTransition?: Function,
-  provider?: Object,
+  provider?: Object
 }
 
 angular.module('ui.router.state')
