@@ -22,7 +22,7 @@ var defaultResolvePolicy = "jit"; // TODO: make this configurable
  * Should be passed a state object.  I think maybe state could even be the public state, so users can add resolves
  * on the fly.
  */
-class PathElement {
+export default class PathElement {
   constructor(state: IPublicState) {
     this.state = state;
     // Convert state's resolvable assoc-array into an assoc-array of empty Resolvable(s)
@@ -113,5 +113,3 @@ class PathElement {
     return `PathElement(${state})`;
   }
 }
-
-export default PathElement;

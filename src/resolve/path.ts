@@ -105,7 +105,7 @@ class Path {
     return pluck(this.elements, "state");
   }
 
-  elementForState(state: IPublicState) {
+  elementForState(state: IPublicState): PathElement {
     return find(this.elements, pipe(prop('state'), eq(state)));
   }
 

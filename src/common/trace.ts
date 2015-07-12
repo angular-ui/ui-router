@@ -48,17 +48,17 @@ class Trace {
     return this._toJson(o);
   }
 
-  traceTransitionStart(transition) {
+  traceTransitionStart(transition: Transition) {
     var tid = transition.$id,
       digest = this.approximateDigests,
       transitionStr = this._stringify(transition);
     this._trace(`Transition #${tid} Digest #${digest}: Started ${transitionStr}`);
   }
 
-  traceTransitionIgnored(transition) {
+  traceTransitionIgnored(transition: Transition) {
     var tid = transition.$id,
       digest = this.approximateDigests,
-      transitionStr = this._stringify(transition)
+      transitionStr = this._stringify(transition);
     this._trace(`Transition #${tid} Digest #${digest}: Ignored ${transitionStr}`);
   }
 
@@ -111,13 +111,13 @@ class Trace {
     this._trace(`Transition #${tid} Digest #${digest}:         ${title}: ${fnName} ${pathElementStr} requires: [${deps}]`);
   }
 
-  traceError(error, transition) {
+  traceError(error, transition: Transition) {
     var tid = transition.$id,
       digest = this.approximateDigests;
     this._trace(`Transition #${tid} Digest #${digest}: Transition Rejected, reason: ${error}`);
   }
 
-  traceSuccess(finalState, transition) {
+  traceSuccess(finalState, transition: Transition) {
     var tid = transition.$id,
       digest = this.approximateDigests,
       state = finalState.name;

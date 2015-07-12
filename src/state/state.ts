@@ -16,6 +16,18 @@ export interface IPublicState {
   // TODO: finish defining state API.  Maybe start with what's on Definitely Typed.
 }
 
+export interface IState {
+  name: string;
+  resolve: any; // key->Function
+  url: string;
+  resolvePolicy: (string|Object);
+  self: IPublicState;
+  params: ParamSet;
+  root(): IState;
+  path: IState[];
+  // TODO: finish defining state API.  Maybe start with what's on Definitely Typed.
+}
+
 
 export function StateQueueManager(states, builder, $urlRouterProvider, $state) {
   var queue = [];
@@ -373,40 +385,58 @@ State.prototype.root = function() {
  *
  * @returns {Function}
  */
-export function StateReference(identifier, definition, params, base) {
-  extend(this, {
-    identifier: function() {
-      return identifier;
-    },
-    $state: function() {
-      return definition;
-    },
-    state: function() {
-      return definition && definition.self;
-    },
-    params: function(newParams) {
-      if (newParams) return new StateReference(identifier, definition, newParams, base);
-      return params;
-    },
-    base: function() {
-      return base;
-    },
-    valid: function() {
-      return !!(definition && definition.self && !definition.self[abstractKey] && definition.params.$$validates(params));
-    },
-    error: function() {
-      switch (true) {
-        case (!definition && !!base):
-          return `Could not resolve '${identifier}' from state '${base}'`;
-        case (!definition):
-          return `No such state '${identifier}'`;
-        case !definition.self:
-          return `State '${identifier}' has an invalid definition`;
-        case definition.self[abstractKey]:
-          return `Cannot transition to abstract state '${identifier}'`;
-      }
+export class StateReference {
+  private _identifier;
+  private _definition: IState;
+  private _params;
+  private _base;
+
+  constructor(identifier, definition: IState, params, base) {
+    this._identifier = identifier;
+    this._definition = definition;
+    this._params = params;
+    this._base = base;
+  }
+
+  identifier() {
+    return this._identifier;
+  }
+
+  $state(): IState {
+    return this._definition;
+  }
+
+  state(): IPublicState {
+    return this._definition && this._definition.self;
+  }
+
+  params(newParams?: any) {
+    if (newParams)
+      return new StateReference(this._identifier, this._definition, newParams, this._base);
+    return this._params;
+  }
+
+  base() {
+    return this._base;
+  }
+
+  valid() {
+    var def = this._definition;
+    return !!(def && def.self && !def.self[abstractKey] && def.params.$$validates(this._params));
+  }
+
+  error() {
+    switch (true) {
+      case (!this._definition && !!this._base):
+        return `Could not resolve '${this._identifier}' from state '${this._base}'`;
+      case (!this._definition):
+        return `No such state '${this._identifier}'`;
+      case !this._definition.self:
+        return `State '${this._identifier}' has an invalid definition`;
+      case this._definition.self[abstractKey]:
+        return `Cannot transition to abstract state '${this._identifier}'`;
     }
-  });
+  }
 }
 
 export class TransitionQueue {
