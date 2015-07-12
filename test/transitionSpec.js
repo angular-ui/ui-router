@@ -69,8 +69,8 @@ describe('transition', function () {
   beforeEach(inject(function ($transition, $state) {
     matcher = new StateMatcher(statesMap);
     queue.flush($state);
-    makeTransition = function makeTransition(from, to) {
-      return $transition.create(matcher.reference(from), matcher.reference(to));
+    makeTransition = function makeTransition(from, to, options) {
+      return $transition.create(matcher.reference(from), matcher.reference(to), options);
     };
   }));
 
@@ -345,13 +345,20 @@ describe('transition', function () {
       }));
 
       it("hooks which start a new transition should cause the old transition to be rejected.", inject(function($transition, $q) {
+        var current = null;
+        function currenTransition() {
+          return current;
+        }
+
         var states = [], rejection, transition2, transition2success,
-          transition = makeTransition("A", "D");
+          transition = current = makeTransition("A", "D", { current: currenTransition });
+
         transitionProvider.entering({ from: "*", to: "*" }, function($state$) { states.push($state$); });
         transitionProvider.entering({ from: "A", to: "C" }, function() {
-          transition2 = makeTransition("A", "G"); // similar to using $state.go() in a controller, etc.
+          transition2 = current = makeTransition("A", "G", { current: currenTransition }); // similar to using $state.go() in a controller, etc.
           transition2.run();
         });
+
         transition.promise.catch(function(err) { rejection = err; });
         transition.run();
         $q.flush();

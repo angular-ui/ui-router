@@ -3,22 +3,36 @@
 import {IServiceProviderFactory} from "angular";
 import {Transition} from "./transition";
 import {Glob} from "../state/glob";
-import {extend, is, isFunction, isString, val} from "../common/common";
+import {IPublicState, IState} from "../state/state";
+import {extend, is, isFunction, isString, val, noop} from "../common/common";
 
+export interface ITransitionOptions {
+  location    ?: boolean,
+  relative    ?: (boolean|IPublicState|IState),
+  inherit     ?: boolean,
+  notify      ?: boolean,
+  reload      ?: (boolean|string|IPublicState|IState),
+  reloadState ?: (IState),
+  trace       ?: boolean,
+  custom      ?: any,
+  previous    ?: Transition,
+  current()   : Transition
+}
 /**
  * The default transition options.
  * Include this object when applying custom defaults:
  * var reloadOpts = { reload: true, notify: true }
  * var options = defaults(theirOpts, customDefaults, defaultOptions);
  */
-export var defaultTransOpts = {
-  location: true,
-  relative: null,
-  inherit:  false,
-  notify:   true,
-  reload:   false,
-  trace:    false,
-  custom:   {}
+export var defaultTransOpts: ITransitionOptions = {
+  location    : true,
+  relative    : null,
+  inherit     : false,
+  notify      : true,
+  reload      : false,
+  trace       : false,
+  custom      : {},
+  current     : () => null
 };
 
 /**

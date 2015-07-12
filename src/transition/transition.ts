@@ -4,7 +4,7 @@
 import {runtime} from "../common/angular1";
 import {IPromise} from "angular";
 import {trace} from "../common/trace";
-import {$transition, matchState} from "./transitionService";
+import {$transition, matchState, ITransitionOptions} from "./transitionService";
 import Resolvable from "../resolve/resolvable";
 import Path from "../resolve/path";
 import PathElement from "../resolve/pathElement";
@@ -66,7 +66,7 @@ function TransitionStep(pathElement, fn, locals, pathContext, options) {
     }]
   ]);
 
-  function invokeStep() {
+  const invokeStep = () => {
     if (options.trace) trace.traceHookInvocation(this, options);
     if (options.rejectIfSuperseded && /* !this.isActive() */ options.transition !== options.current()) {
       return REJECT.superseded(options.current());
@@ -77,7 +77,7 @@ function TransitionStep(pathElement, fn, locals, pathContext, options) {
       return handleHookResult(pathElement.invokeNow(fn, locals, pathContext));
     }
     return pathElement.invokeLater(fn, locals, pathContext, options).then(handleHookResult);
-  }
+  };
 
   function transitionStepToString() {
     var event = parse("data.eventType")(options) || "internal",
@@ -93,7 +93,7 @@ function TransitionStep(pathElement, fn, locals, pathContext, options) {
     rejectIfSuperseded: options.rejectIfSuperseded,
     state: pathElement.state,
     data:  options.data,
-    invokeStep: () => invokeStep(),
+    invokeStep: invokeStep,
     toString: transitionStepToString
   });
 }
@@ -143,7 +143,7 @@ interface TreeChanges {
 export class Transition {
   $id: number;
 
-  private _options: any;
+  private _options: ITransitionOptions;
 
   private _deferreds: any;
 
@@ -155,13 +155,13 @@ export class Transition {
   prepromise: IPromise<any>;
   redirects: IPromise<any>;
 
-  constructor(from: StateReference, to: StateReference, options) {
+  constructor(from: StateReference, to: StateReference, options: ITransitionOptions) {
     this.$id = transitionCount++;
 
     this._from = from;
     this._to = to;
 
-    this._options = extend(options, {current: val(this)});
+    this._options = extend({current: val(this)}, options);
 
     this._deferreds = {
       prehooks: runtime.$q.defer(), // Resolved when the transition is complete, but success callback not run yet
@@ -409,9 +409,7 @@ export class Transition {
     var baseHookOptions = {
       trace: this._options.trace,
       transition: this,
-      current: function () {
-        return $transition.transition; // TODO
-      }
+      current: this._options.current
     };
 
     /**

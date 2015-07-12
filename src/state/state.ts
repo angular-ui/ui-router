@@ -1049,6 +1049,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
             if (error.type === RejectType.SUPERSEDED) {
               //if (error.redirected && error.detail instanceof Transition) { // TODO: expose Transition class for instanceof
               if (error.redirected && error.detail && isFunction(error.detail.run)) {
+                transQueue.push(error.detail);
                 return stateHandler.runTransition(error.detail);
               }
             }
