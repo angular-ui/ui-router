@@ -5,6 +5,7 @@ import {runtime} from "../common/angular1";
 import {IPromise} from "angular";
 import {trace} from "../common/trace";
 import {$transition, matchState, ITransitionOptions} from "./transitionService";
+import TransitionHook from "./transitionHook";
 import Resolvable from "../resolve/resolvable";
 import Path from "../resolve/path";
 import PathElement from "../resolve/pathElement";
@@ -16,87 +17,6 @@ import {defaults, eq, extend, filter, flatten, forEach, identity, invoke, is, is
 
 var transitionCount = 0, REJECT = new RejectFactory();
 
-function TransitionStep(pathElement, fn, locals, pathContext, options) {
-  options = defaults(options, {
-    async: true,
-    rejectIfSuperseded: true,
-    current: noop,
-    transition: null,
-    trace: false,
-    data: {}
-  });
-
-  /**
-   * Validates the result map as a "resolve:" style object.
-   * Creates Resolvable objects from the result object and adds them to the target object
-   */
-  function mapNewResolves(resolves: Object) {
-    var invalid = filter(resolves, not(isFunction)), keys = objectKeys(invalid);
-    if (keys.length)
-      throw new Error("Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}");
-
-    // If result is an object, it should be a map of strings to functions.
-    return map(resolves, function(val, key) {
-      return new Resolvable(key, val, pathElement.state);
-    });
-  }
-
-  function handleHookResult(hookResult) {
-    var transitionResult = mapHookResult(hookResult);
-    if (options.trace) trace.traceHookResult(hookResult, transitionResult, options);
-    return transitionResult;
-  }
-
-  /**
-   * Handles transition abort and transition redirect. Also adds any returned resolvables
-   * to the pathContext for the current pathElement.  If the transition is rejected, then a rejected
-   * promise is returned here, otherwise undefined is returned.
-   */
-  var mapHookResult = pattern([
-    // Transition is no longer current
-    [not(isEq(options.current, val(options.transition))), pipe(options.current, REJECT.superseded.bind(REJECT))],
-    // If the hook returns false, abort the current Transition
-    [eq(false), val(REJECT.aborted("Hook aborted transition"))],
-    // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
-    [is(Transition), REJECT.redirected.bind(REJECT)],
-    [isPromise, function(result) { return result.then(handleHookResult); }],
-    // If the hook returns any new resolves, add them to the pathContext via the PathElement
-    [isObject, function(result) {
-      return pathElement.addResolvables(mapNewResolves(result));
-    }]
-  ]);
-
-  const invokeStep = () => {
-    if (options.trace) trace.traceHookInvocation(this, options);
-    if (options.rejectIfSuperseded && /* !this.isActive() */ options.transition !== options.current()) {
-      return REJECT.superseded(options.current());
-    }
-
-    // TODO: Need better integration of returned promises in synchronous code.
-    if (!options.async) {
-      return handleHookResult(pathElement.invokeNow(fn, locals, pathContext));
-    }
-    return pathElement.invokeLater(fn, locals, pathContext, options).then(handleHookResult);
-  };
-
-  function transitionStepToString() {
-    var event = parse("data.eventType")(options) || "internal",
-        name = fn.name || "(anonymous)",
-        from = parse("data.from.name")(options),
-        to = parse("data.to.name")(options),
-        state = parse("data.pathElement.state.name")(options);
-    return `Step ${event} (fn: '${name}', match:{from: '${from}', to: '${to}'}, ${pathContext.toString()})`;
-  }
-
-  extend(this, {
-    async: options.async,
-    rejectIfSuperseded: options.rejectIfSuperseded,
-    state: pathElement.state,
-    data:  options.data,
-    invokeStep: invokeStep,
-    toString: transitionStepToString
-  });
-}
 
 function runSynchronousHooks(hooks, swallowExceptions: boolean = false) {
   var promises = [];
@@ -433,11 +353,11 @@ export class Transition {
       var hooks = <any[]> (<any> $transition).$$hooks(eventType);
 
       return map(filter(hooks, invoke('matches', [to, from])), function (hook) {
-        return new TransitionStep(pathElement, hook.callback, locals, pathContext, options);
+        return new TransitionHook(pathElement, hook.callback, locals, pathContext, options);
       });
     }
 
-    /** Returns a TransitionStep which resolves an entire path according to a given resolvePolicy */
+    /** Returns a TransitionHook which resolves an entire path according to a given resolvePolicy */
     function makeEagerResolvePathStep(path, locals) {
       if (!path.elements.length) return null;
       var options = extend({resolvePolicy: 'eager'}, baseHookOptions);
@@ -446,10 +366,10 @@ export class Transition {
         return path.resolvePath(options);
       }
 
-      return new TransitionStep(path.last(), $eagerResolvePath, locals, path, options);
+      return new TransitionHook(path.last(), $eagerResolvePath, locals, path, options);
     }
 
-    /** Returns a TransitionStep which resolves a single path element according to a given resolvePolicy */
+    /** Returns a TransitionHook which resolves a single path element according to a given resolvePolicy */
     function makeLazyResolvePathElementStep(path, pathElement, locals) {
       var options = extend({resolvePolicy: 'lazy'}, baseHookOptions);
 
@@ -457,7 +377,7 @@ export class Transition {
         return pathElement.resolvePathElement(path, options);
       }
 
-      return new TransitionStep(pathElement, $resolvePathElement, locals, path, options);
+      return new TransitionHook(pathElement, $resolvePathElement, locals, path, options);
     }
 
     if (this.ignored()) {
@@ -500,7 +420,7 @@ export class Transition {
       var steps = makeSteps("exiting", to, elem.state, elem, locals, fromPath);
 
       return !elem.state.self.onExit ? steps : steps.concat([
-        new TransitionStep(elem, elem.state.self.onExit, locals, fromPath, baseHookOptions)
+        new TransitionHook(elem, elem.state.self.onExit, locals, fromPath, baseHookOptions)
       ]);
     });
 
@@ -511,7 +431,7 @@ export class Transition {
       var steps = [lazyResolveStep].concat(makeSteps("entering", elem.state, from, elem, locals, toPath));
 
       return !elem.state.self.onEnter ? steps : steps.concat([
-        new TransitionStep(elem, elem.state.self.onEnter, locals, toPath, baseHookOptions)
+        new TransitionHook(elem, elem.state.self.onEnter, locals, toPath, baseHookOptions)
       ]);
     });
 

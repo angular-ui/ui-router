@@ -97,8 +97,7 @@ export default class PathElement {
 
   // Injects a function at this PathElement level with available Resolvables
   // Does not wait until all Resolvables have been resolved; you must call PathElement.resolve() (or manually resolve each dep) first
-  invokeNow(fn, locals, pathContext, options) {
-    options = options || {};
+  invokeNow(fn: Function, locals: any, pathContext: Path, options: any = {}) {
     var deps = runtime.$injector.annotate(fn);
     var resolvables = pick(pathContext.pathFromRoot(this).getResolvables(), deps);
     if (options.trace) trace.tracePathElementInvoke(this, fn, runtime.$injector.annotate(fn), extend({ when: "Now  "}, options));
