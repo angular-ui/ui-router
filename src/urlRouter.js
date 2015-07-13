@@ -267,8 +267,8 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
 
     var baseHref = $browser.baseHref(), location = $location.url(), lastPushedUrl;
 
-    function appendBasePath(url, isHtml5, absolute) {
-      if (baseHref === '/') return url;
+    function appendBasePath(url, isHtml5, absolute, instance) {
+      if (instance && instance.current_instance && baseHref === '/') return url;
       if (isHtml5) return baseHref.slice(0, -1) + url;
       if (absolute) return baseHref.slice(1) + url;
       return url;
@@ -409,7 +409,11 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
           url += '#' + params['#'];
         }
 
-        url = appendBasePath(url, isHtml5, options.absolute);
+        if (options.instance && !options.instance.current_instance) {
+            return $location.protocol() + '://' + options.instance.domain_name + url;
+        }
+
+        url = appendBasePath(url, isHtml5, options.absolute, options.instance);
 
         if (!options.absolute || !url) {
           return url;

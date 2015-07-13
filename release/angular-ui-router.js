@@ -1,6 +1,6 @@
 /**
  * State-based routing for AngularJS
- * @version v0.2.15
+ * @version v0.2.15-dev-2015-07-06
  * @link http://angular-ui.github.com/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -1988,8 +1988,8 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
 
     var baseHref = $browser.baseHref(), location = $location.url(), lastPushedUrl;
 
-    function appendBasePath(url, isHtml5, absolute) {
-      if (baseHref === '/') return url;
+    function appendBasePath(url, isHtml5, absolute, instance) {
+      if (instance && instance.current_instance && baseHref === '/') return url;
       if (isHtml5) return baseHref.slice(0, -1) + url;
       if (absolute) return baseHref.slice(1) + url;
       return url;
@@ -2130,7 +2130,11 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
           url += '#' + params['#'];
         }
 
-        url = appendBasePath(url, isHtml5, options.absolute);
+        if (options.instance && !options.instance.current_instance) {
+            return $location.protocol() + '://' + options.instance.domain_name + url;
+        }
+
+        url = appendBasePath(url, isHtml5, options.absolute, options.instance);
 
         if (!options.absolute || !url) {
           return url;
@@ -3486,6 +3490,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      */
     $state.href = function href(stateOrName, params, options) {
       options = extend({
+        instance: false,
         lossy:    true,
         inherit:  true,
         absolute: false,
@@ -3503,6 +3508,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         return null;
       }
       return $urlRouter.href(nav.url, filterByKeys(state.params.$$keys().concat('#'), params || {}), {
+        instance: options.instance,
         absolute: options.absolute
       });
     };
@@ -4122,7 +4128,7 @@ function stateContext(el) {
  */
 $StateRefDirective.$inject = ['$state', '$timeout'];
 function $StateRefDirective($state, $timeout) {
-  var allowedOptions = ['location', 'inherit', 'reload', 'absolute'];
+  var allowedOptions = ['instance', 'location', 'inherit', 'reload', 'absolute'];
 
   return {
     restrict: 'A',
@@ -4161,6 +4167,10 @@ function $StateRefDirective($state, $timeout) {
           return false;
         }
         attrs.$set(attr, newHref);
+
+        if (options.instance && !options.instance.current_instance) {
+            attrs.$set('target', '_blank');
+        }
       };
 
       if (ref.paramExpr) {
@@ -4176,6 +4186,10 @@ function $StateRefDirective($state, $timeout) {
       element.bind("click", function(e) {
         var button = e.which || e.button;
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
+          if (options.instance && !options.instance.current_instance) {
+            return;
+          }
+
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
           var transition = $timeout(function() {
             $state.go(ref.state, params, options);
