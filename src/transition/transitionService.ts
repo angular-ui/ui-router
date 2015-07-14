@@ -18,6 +18,7 @@ export interface ITransitionOptions {
   previous    ?: Transition,
   current()   : Transition
 }
+
 /**
  * The default transition options.
  * Include this object when applying custom defaults:
