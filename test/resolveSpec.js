@@ -11,77 +11,80 @@ var resolve = uiRouter.resolve,
   Path = resolve.Path,
   PathElement = resolve.PathElement;
 
-describe('Resolvables system:', function () {
-  var statesTree, statesMap = {};
-  var emptyPath;
-  var counts;
-  var asyncCount;
+///////////////////////////////////////////////
 
+var statesTree, statesMap = {};
+var emptyPath;
+var counts, expectCounts;
+var asyncCount;
+
+beforeEach(function () {
+  counts = { _J: 0, _J2: 0, _K: 0, _L: 0, _M: 0};
+  expectCounts = angular.copy(counts);
+  states = {
+    A: { resolve: { _A: function () { return "A"; }, _A2: function() { return "A2"; }},
+      B: { resolve: { _B: function () { return "B"; }, _B2: function() { return "B2"; }},
+        C: { resolve: { _C: function (_A, _B) { return _A + _B + "C"; }, _C2: function() { return "C2"; }},
+          D: { resolve: { _D: function (_D2) { return "D1" + _D2; }, _D2: function () { return "D2"; }} }
+        }
+      },
+      E: { resolve: { _E: function() { return "E"; } },
+        F: { resolve: { _E: function() { return "_E"; }, _F: function(_E) { return _E + "F"; }} }
+      },
+      G: { resolve: { _G: function() { return "G"; } },
+        H: { resolve: { _G: function(_G) { return _G + "_G"; }, _H: function(_G) { return _G + "H"; } } }
+      },
+      I: { resolve: { _I: function(_I) { return "I"; } } }
+    },
+    J: { resolve: { _J: function() { counts['_J']++; return "J"; }, _J2: function(_J) { counts['_J2']++; return _J + "J2"; } },
+      K: { resolve: { _K: function(_J2) { counts['_K']++; return _J2 + "K"; }},
+        L: { resolve: { _L: function(_K) { counts['_L']++; return _K + "L"; }},
+          M: { resolve: { _M: function(_L) { counts['_M']++; return _L + "M"; }} }
+        }
+      },
+      N: {
+        resolve: { _N: function(_J) { return _J + "N"; }, _N2: function(_J) { return _J + "N2"; }, _N3: function(_J) { return _J + "N3"; } },
+        resolvePolicy: { _N: "eager", _N2: "lazy", _N3: "jit" }
+      }
+    },
+    O: { resolve: { _O: function(_O2) { return _O2 + "O"; }, _O2: function(_O) { return _O + "O2"; } }
+    }
+  };
+
+  var stateProps = ["resolve", "resolvePolicy"];
+  statesTree = loadStates({}, states, '');
+
+  function loadStates(parent, state, name) {
+    var thisState = pick.apply(null, [state].concat(stateProps));
+    var substates = omit.apply(null, [state].concat(stateProps));
+
+    thisState.name = name;
+    thisState.parent = parent.name;
+    thisState.data = { children: [] };
+
+    angular.forEach(substates, function (value, key) {
+      thisState.data.children.push(loadStates(thisState, value, key));
+    });
+    statesMap[name] = thisState;
+    return thisState;
+  }
+//    console.log(map(makePath([ "A", "B", "C" ]), function(s) { return s.name; }));
+});
+
+function makePath(names) {
+  return new Path(map(names, function(name) { return statesMap[name]; }));
+}
+
+function getResolvedData(pathContext) {
+  return map(pathContext.getResolvables(), function(r) { return r.data; });
+}
+
+describe('Resolvables system:', function () {
   beforeEach(inject(function ($transition, $injector) {
     uiRouter.angular1.runtime.setRuntimeInjector($injector);
     emptyPath = new Path([]);
     asyncCount = 0;
   }));
-
-  beforeEach(function () {
-    counts = { _J: 0, _J2: 0, _K: 0, _L: 0, _M: 0};
-    states = {
-      A: { resolve: { _A: function () { return "A"; }, _A2: function() { return "A2"; }},
-        B: { resolve: { _B: function () { return "B"; }, _B2: function() { return "B2"; }},
-          C: { resolve: { _C: function (_A, _B) { return _A + _B + "C"; }, _C2: function() { return "C2"; }},
-            D: { resolve: { _D: function (_D2) { return "D1" + _D2; }, _D2: function () { return "D2"; }} }
-          }
-        },
-        E: { resolve: { _E: function() { return "E"; } },
-          F: { resolve: { _E: function() { return "_E"; }, _F: function(_E) { return _E + "F"; }} }
-        },
-        G: { resolve: { _G: function() { return "G"; } },
-          H: { resolve: { _G: function(_G) { return _G + "_G"; }, _H: function(_G) { return _G + "H"; } } }
-        },
-        I: { resolve: { _I: function(_I) { return "I"; } } }
-      },
-      J: { resolve: { _J: function() { counts['_J']++; return "J"; }, _J2: function(_J) { counts['_J2']++; return _J + "J2"; } },
-        K: { resolve: { _K: function(_J2) { counts['_K']++; return _J2 + "K"; }},
-          L: { resolve: { _L: function(_K) { counts['_L']++; return _K + "L"; }},
-            M: { resolve: { _M: function(_L) { counts['_M']++; return _L + "M"; }} }
-          }
-        },
-        N: {
-          resolve: { _N: function(_J) { return _J + "N"; }, _N2: function(_J) { return _J + "N2"; }, _N3: function(_J) { return _J + "N3"; } },
-          resolvePolicy: { _N: "eager", _N2: "lazy", _N3: "jit" }
-        }
-      },
-      O: { resolve: { _O: function(_O2) { return _O2 + "O"; }, _O2: function(_O) { return _O + "O2"; } }
-      }
-    };
-
-    var stateProps = ["resolve", "resolvePolicy"];
-    statesTree = loadStates({}, states, '');
-
-    function loadStates(parent, state, name) {
-      var thisState = pick.apply(null, [state].concat(stateProps));
-      var substates = omit.apply(null, [state].concat(stateProps));
-
-      thisState.name = name;
-      thisState.parent = parent.name;
-      thisState.data = { children: [] };
-
-      angular.forEach(substates, function (value, key) {
-        thisState.data.children.push(loadStates(thisState, value, key));
-      });
-      statesMap[name] = thisState;
-      return thisState;
-    }
-//    console.log(map(makePath([ "A", "B", "C" ]), function(s) { return s.name; }));
-  });
-
-  function makePath(names) {
-    return new Path(map(names, function(name) { return statesMap[name]; }));
-  }
-
-  function getResolvedData(pathContext) {
-    return map(pathContext.getResolvables(), function(r) { return r.data; });
-  }
 
   describe('PathElement.resolvePathElement()', function () {
     it('should resolve all resolves in a PathElement', inject(function ($q) {
@@ -475,3 +478,95 @@ describe('Resolvables system:', function () {
   // TODO: Implement and test injection into controllers
 });
 
+describe("State transitions with resolves", function() {
+  beforeEach(module(function($stateProvider) {
+    // allow tests to specify controllers after registration
+    function controllerProvider(state) {
+      return function() {
+        return statesMap[state.name].controller || function emptyController() {}
+      }
+    }
+
+    angular.forEach(statesMap, function(state, key) {
+      if (!key) return;
+      state.template = "<div ui-view></div> state"+key;
+      state.controllerProvider = controllerProvider(state);
+      $stateProvider.state(key, state);
+    });
+  }));
+
+  var $state, $transition, $q, $compile, $rootScope, $scope, $timeout;
+  beforeEach(inject(function (_$transition_, _$state_, _$q_, _$compile_, _$rootScope_, _$timeout_, $injector) {
+    $state = _$state_;
+    $transition = _$transition_;
+    $q = _$q_;
+    $compile = _$compile_;
+    $rootScope = _$rootScope_;
+    $timeout = _$timeout_;
+    $scope = $rootScope.$new();
+    uiRouter.angular1.runtime.setRuntimeInjector($injector);
+    emptyPath = new Path([]);
+    asyncCount = 0;
+    $compile(angular.element("<div ui-view></div>"))($scope);
+  }));
+
+  function flush() {
+    $q.flush();
+    $timeout.flush();
+  }
+
+  function testGo(state, params, options) {
+    $state.go(state, params, options);
+    $q.flush();
+    expect($state.current).toBe($state.get(state));
+  }
+
+  it("should not resolve jit resolves that are not injected anywhere", inject(function() {
+    testGo("J");
+    expect(counts).toEqualData(expectCounts);
+    testGo("K");
+    expect(counts).toEqualData(expectCounts);
+  }));
+
+  it("should invoke jit resolves when they are injected", inject(function() {
+    statesMap.J.controller = function JController(_J) { };
+
+    testGo("J", {}, {trace: true});
+    expectCounts._J++;
+    expect(counts).toEqualData(expectCounts);
+  }));
+
+  it("should invoke jit resolves only when injected", inject(function() {
+    statesMap.K.controller = function KController(_K) { };
+
+    testGo("J");
+    expect(counts).toEqualData(expectCounts);
+
+    testGo("K");
+    expectCounts._K++;
+    expectCounts._J++;
+    expectCounts._J2++;
+    expect(counts).toEqualData(expectCounts);
+  }));
+
+  it("should not re-invoke jit resolves", inject(function() {
+    statesMap.J.controller = function KController(_J) { };
+    statesMap.K.controller = function KController(_K) { };
+    testGo("J");
+    expectCounts._J++;
+    expect(counts).toEqualData(expectCounts);
+
+    testGo("K");
+
+    expectCounts._K++;
+    expectCounts._J2++;
+    expect(counts).toEqualData(expectCounts);
+  }));
+
+  it("should invoke jit resolves during a transition that are injected in a hook like onEnter", inject(function() {
+    statesMap.J.onEnter = function onEnter(_J) {};
+    testGo("J", {}, { trace: true });
+    expectCounts._J++;
+    expect(counts).toEqualData(expectCounts);
+  }));
+});
