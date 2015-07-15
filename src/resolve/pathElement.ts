@@ -83,7 +83,7 @@ export default class PathElement {
     var resolvables = pick(pathContext.pathFromRoot(this).getResolvables(), deps);
     if (options.trace) trace.tracePathElementInvoke(this, fn, deps, extend({ when: "Later"}, options));
 
-    var promises: any = map(resolvables, function(resolvable) { return resolvable.get(pathContext); });
+    var promises: any = map(resolvables, function(resolvable) { return resolvable.get(pathContext, options); });
     return runtime.$q.all(promises).then(() => {
       try {
         return this.invokeNow(fn, locals, pathContext, options);

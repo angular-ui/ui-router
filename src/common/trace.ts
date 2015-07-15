@@ -73,7 +73,7 @@ class Trace {
       digest = this.approximateDigests,
       hookResultStr = this._stringify(hookResult),
       transitionResultStr = this._stringify(transitionResult);
-    this._trace(`Transition #${tid} Digest #${digest}:   Hook <- returned: ${hookResultStr} result: ${transitionResultStr}`);
+    this._trace(`Transition #${tid} Digest #${digest}:   Hook <- returned: ${hookResultStr}, transition result: ${transitionResultStr}`);
   }
 
   traceResolvePath(path, options) {
@@ -96,9 +96,16 @@ class Trace {
   traceResolveResolvable(resolvable, options) {
     var tid = parse("transition.$id")(options),
       digest = this.approximateDigests,
+      resolvableStr = resolvable && resolvable.toString();
+    this._trace(`Transition #${tid} Digest #${digest}:               Resolving -> ${resolvableStr}`);
+  }
+
+  traceResolvableResolved(resolvable, options) {
+    var tid = parse("transition.$id")(options),
+      digest = this.approximateDigests,
       resolvableStr = resolvable && resolvable.toString(),
       policyStr = options && options.resolvePolicy;
-    this._trace(`Transition #${tid} Digest #${digest}:               Resolving ${resolvableStr} (${policyStr})`);
+    this._trace(`Transition #${tid} Digest #${digest}:               Resolved  <- ${resolvableStr} to: ${resolvable.data}`);
   }
 
   tracePathElementInvoke(pathElement, fn, deps, options) {

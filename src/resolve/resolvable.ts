@@ -61,7 +61,7 @@ class Resolvable {
 
     // Get promises (or synchronously invoke resolveFn) for deps
     var depPromises: any = map(depResolvables, function(resolvable) {
-      return resolvable.get(pathContext);
+      return resolvable.get(pathContext, options);
     });
 
     // Return a promise chain that waits for all the deps to resolve, then invokes the resolveFn passing in the
@@ -76,6 +76,7 @@ class Resolvable {
       return this.promise;
     }).then(data => {
       this.data = data;
+      trace.traceResolvableResolved(this, options);
       return this.promise;
     });
   }
