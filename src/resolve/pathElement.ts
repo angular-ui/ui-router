@@ -46,7 +46,7 @@ export default class PathElement {
   // options.policy: only return promises for those Resolvables which are at the specified policy strictness, or above.
   resolvePathElement(pathContext, options): IPromise<any> {
     options = options || {};
-    var policyOrdinal = resolvePolicies[options && options.policy || defaultResolvePolicy];
+    var policyOrdinal = resolvePolicies[options && options.resolvePolicy || defaultResolvePolicy];
 
     var policyConf = {
       $$state: isString(this.state.resolvePolicy) ? this.state.resolvePolicy : defaultResolvePolicy,
@@ -64,8 +64,9 @@ export default class PathElement {
     const matchesPolicy = (resolvable) => policyConf[resolvable.name] >= policyOrdinal;
     const getResolvePromise = (resolvable) => resolvable.get(pathContext, options);
 
-    if (options.trace) trace.traceResolvePathElement(this, filter(resolvables, matchesPolicy), options);
-    var resolvablePromises = map(filter(resolvables, matchesPolicy), getResolvePromise);
+    var matchingResolves = filter(resolvables, matchesPolicy);
+    if (options.trace) trace.traceResolvePathElement(this, matchingResolves, options);
+    var resolvablePromises = map(matchingResolves, getResolvePromise);
     return runtime.$q.all(resolvablePromises).then(noop);
   }
 
