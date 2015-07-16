@@ -1,4 +1,4 @@
-/// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+/// <reference path='../../typings/angularjs/angular.d.ts' />
 var { isDefined, isFunction, isNumber, isString, isObject, isArray, forEach, extend, copy, noop, toJson, fromJson, equals, identity } = angular;
 export { isDefined, isFunction, isNumber, isString, isObject, isArray, forEach, extend, copy, noop, toJson, fromJson, equals, identity };
 "use strict";

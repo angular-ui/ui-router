@@ -1,4 +1,4 @@
-/// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+/// <reference path='../../typings/angularjs/angular.d.ts' />
 
 import {isObject, isString, extend, forEach, noop, pick, map, filter, parse} from "../common/common";
 import {trace}  from "../common/trace";

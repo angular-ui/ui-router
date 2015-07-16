@@ -1,4 +1,4 @@
-/// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+/// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IPromise, IQService} from "angular";
 
 var app = angular.module("ui.router.angular1", []);

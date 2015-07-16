@@ -1,4 +1,4 @@
-/// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+/// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IServiceProviderFactory} from "angular";
 import {runtime} from "./../common/angular1";
 import {forEach, extend, inherit, map, filter, indexOf, objectKeys,

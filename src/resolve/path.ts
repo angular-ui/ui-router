@@ -1,4 +1,4 @@
-/// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+/// <reference path='../../typings/angularjs/angular.d.ts' />
 
 import {extend, isArray, identity, noop} from "../common/common";
 import {defaults, map, omit, pluck, find, pipe, prop, eq}  from "../common/common";

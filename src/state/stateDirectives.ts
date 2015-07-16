@@ -1,4 +1,4 @@
-/// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+/// <reference path='../../typings/angularjs/angular.d.ts' />
 import {equalForKeys, forEach, copy, defaults} from "../common/common";
 import {defaultTransOpts} from "../transition/transitionService";
 

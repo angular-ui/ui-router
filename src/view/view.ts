@@ -1,4 +1,4 @@
-/// <reference path='../../bower_components/DefinitelyTyped/angularjs/angular.d.ts' />
+/// <reference path='../../typings/angularjs/angular.d.ts' />
 import {isInjectable, isDefined, isArray, defaults, extend, forEach, map, parse, objectKeys, noop} from "../common/common";
 import {IDeferred} from "angular";
 

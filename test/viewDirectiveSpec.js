@@ -422,7 +422,7 @@ describe('uiView', function () {
         expect(uiViews.eq(2).text()).toBe(lState.views.view3.template);
       }));
 
-      it ('should interpolate ui-view names', inject(function($state, $q, $compile) {
+      fit ('should interpolate ui-view names', inject(function($state, $q, $compile) {
         elem.append($compile('<div ng-repeat="view in views">' +
           '<ui-view name="view{{$index + 1}}">hallo</ui-view>' +
           '</div>')(scope));
