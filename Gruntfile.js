@@ -23,8 +23,9 @@ module.exports = function (grunt) {
         src: files.src,
         outDir: '<%= builddir %>/ts2es5',
         options: {
+		      //target: "es6"
           //module: 'amd', //or commonjs
-          module: 'commonjs'
+           module: 'commonjs'
         }
       }
     },
