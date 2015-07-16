@@ -306,7 +306,8 @@ describe('state', function () {
           badness: function($q) {
             return $q.reject("!");
           }
-        }
+        },
+        onEnter: function(badness) {}
       })
       .state('resolveTimeout', {
         url: "/:foo",
@@ -315,6 +316,7 @@ describe('state', function () {
             return $timeout(function() { log += "Success!"; }, 1);
           }
         },
+        onEnter: function(value) {},
         template: "-",
         controller: function() { log += "controller;"}
       })

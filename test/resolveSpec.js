@@ -114,7 +114,7 @@ describe('Resolvables system:', function () {
 
     it('should resolve only eager resolves when run with "eager" policy', inject(function ($q) {
       var path = makePath([ "J", "N" ]);
-      var promise = path.elements[1].resolvePathElement(path, { policy: "eager" });
+      var promise = path.elements[1].resolvePathElement(path, { resolvePolicy: "eager" });
       promise.then(function () {
         var results = map(path.getResolvables(), function(r) { return r.data; });
         expect(results).toEqualData({_J: "J", _N: "JN" });
@@ -127,7 +127,7 @@ describe('Resolvables system:', function () {
 
     it('should resolve only eager and lazy resolves in PathElement when run with "lazy" policy', inject(function ($q) {
       var path = makePath([ "J", "N" ]);
-      var promise = path.elements[1].resolvePathElement(path, { policy: "lazy" });
+      var promise = path.elements[1].resolvePathElement(path, { resolvePolicy: "lazy" });
       promise.then(function () {
         expect(getResolvedData(path)).toEqualData({ _J: "J", _N: "JN", _N2: "JN2" });
         asyncCount++;
@@ -162,7 +162,7 @@ describe('Resolvables system:', function () {
 
     it('should resolve only eager resolves when run with "eager" policy', inject(function ($q) {
       var path = makePath([ "J", "N" ]);
-      var promise = path.resolvePath({ policy: "eager" });
+      var promise = path.resolvePath({ resolvePolicy: "eager" });
       promise.then(function () {
         expect(getResolvedData(path)).toEqualData({ _J: "J", _N: "JN" });
         asyncCount++;
@@ -174,7 +174,7 @@ describe('Resolvables system:', function () {
 
     it('should resolve only lazy and eager resolves when run with "lazy" policy', inject(function ($q) {
       var path = makePath([ "J", "N" ]);
-      var promise = path.resolvePath({ policy: "lazy" });
+      var promise = path.resolvePath({ resolvePolicy: "lazy" });
       promise.then(function () {
         expect(getResolvedData(path)).toEqualData({ _J: "J", _N: "JN", _N2: "JN2"});
         asyncCount++;
@@ -531,7 +531,7 @@ describe("State transitions with resolves", function() {
   it("should invoke jit resolves when they are injected", inject(function() {
     statesMap.J.controller = function JController(_J) { };
 
-    testGo("J", {}, {trace: true});
+    testGo("J");
     expectCounts._J++;
     expect(counts).toEqualData(expectCounts);
   }));
@@ -550,7 +550,7 @@ describe("State transitions with resolves", function() {
   }));
 
   it("should not re-invoke jit resolves", inject(function() {
-    statesMap.J.controller = function KController(_J) { };
+    statesMap.J.controller = function JController(_J) { };
     statesMap.K.controller = function KController(_K) { };
     testGo("J");
     expectCounts._J++;
@@ -565,7 +565,7 @@ describe("State transitions with resolves", function() {
 
   it("should invoke jit resolves during a transition that are injected in a hook like onEnter", inject(function() {
     statesMap.J.onEnter = function onEnter(_J) {};
-    testGo("J", {}, { trace: true });
+    testGo("J");
     expectCounts._J++;
     expect(counts).toEqualData(expectCounts);
   }));

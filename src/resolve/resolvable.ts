@@ -76,7 +76,7 @@ class Resolvable {
       return this.promise;
     }).then(data => {
       this.data = data;
-      trace.traceResolvableResolved(this, options);
+      if (options.trace) trace.traceResolvableResolved(this, options);
       return this.promise;
     });
   }
