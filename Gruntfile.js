@@ -83,8 +83,8 @@ module.exports = function (grunt) {
       dest: 'release'
     },
     watch: {
-      files: ['src/*.ts', 'src/*.js', 'test/**/*.js'],
-      tasks: ['build', 'karma:background:run']
+      files: ['src/**/*.ts', 'src/**/*.js', 'test/**/*.js'],
+      tasks: ['build', 'karma:unit']
     },
     connect: {
       server: {},
