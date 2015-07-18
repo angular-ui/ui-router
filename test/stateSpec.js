@@ -32,6 +32,7 @@ describe('state', function () {
       RSP = { url: '^/:doReload/search?term', reloadOnSearch: false },
       OPT = { url: '/opt/:param', params: { param: "100" } },
       OPT2 = { url: '/opt2/:param2/:param3', params: { param3: "300", param4: "400" } },
+      ISS2101 = { params: { bar: { squash: false, value: 'qux'}}, url: '/2101/{bar:string}' };
       AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -55,6 +56,7 @@ describe('state', function () {
       .state('HHH', HHH)
       .state('OPT', OPT)
       .state('OPT.OPT2', OPT2)
+      .state('ISS2101', ISS2101)
       .state('RS', RS)
       .state('RSP', RSP)
 
@@ -931,6 +933,10 @@ describe('state', function () {
       expect($state.href("home")).toEqual("#!/");
     }));
 
+    it('generates urls with unsquashable default params', inject(function($state) {
+      expect($state.href("ISS2101")).toEqual("#/2101/qux");
+    }));
+
     describe('when $browser.baseHref() exists', function() {
       beforeEach(inject(function($browser) {
         spyOn($browser, 'baseHref').andCallFake(function() {
@@ -977,6 +983,7 @@ describe('state', function () {
         'H',
         'HH',
         'HHH',
+        'ISS2101',
         'OPT',
         'OPT.OPT2',
         'RS',
