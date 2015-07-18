@@ -252,6 +252,7 @@ describe('state', function () {
     },
     OPT = { url: '/opt/:param', params: { param: "100" }, template: "opt" },
     OPT2 = { url: '/opt2/:param2/:param3', params: { param3: "300", param4: "400" }, template: "opt2" },
+    ISS2101 = { params: { bar: { squash: false, value: 'qux'}}, url: '/2101/{bar:string}'},
     URLLESS = { url: '/urllessparams', params: { myparam: { type: 'int' } } },
     AppInjectable = {};
 
@@ -277,6 +278,7 @@ describe('state', function () {
       .state('dynamicstate', dynamicstate)
       .state('OPT', OPT)
       .state('OPT.OPT2', OPT2)
+      .state('ISS2101', ISS2101)
       .state('URLLESS', URLLESS)
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
@@ -1081,6 +1083,10 @@ describe('state', function () {
       expect($state.href("home")).toEqual("#!/");
     }));
 
+    it('generates urls with unsquashable default params', inject(function($state) {
+      expect($state.href("ISS2101")).toEqual("#/2101/qux");
+    }));
+
     describe('when $browser.baseHref() exists', function() {
       beforeEach(inject(function($browser) {
         spyOn(services.locationConfig, 'baseHref').and.callFake(function() {
@@ -1114,7 +1120,7 @@ describe('state', function () {
 
     it("should return all of the state's config", inject(function ($state) {
       var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
-      var names = ['', 'A', 'B', 'C', 'D', 'DD', 'E', 'F', 'H', 'HH', 'HHH', 'OPT', 'OPT.OPT2', 'RS', 'URLLESS',
+      var names = ['', 'A', 'B', 'C', 'D', 'DD', 'E', 'F', 'H', 'HH', 'HHH', 'ISS2101', 'OPT', 'OPT.OPT2', 'RS', 'URLLESS',
         'about', 'about.person', 'about.person.item', 'about.sidebar', 'about.sidebar.item',
         'badParam', 'badParam2', 'dynamicTemplate', 'dynamicstate', 'first', 'home', 'home.item', 'home.redirect',
         'json', 'logA', 'logA.logB', 'logA.logB.logC', 'resolveFail', 'resolveTimeout',
