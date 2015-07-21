@@ -10,6 +10,10 @@
       "web": "https://radify.io"
     },
     {
+      "name": "Chris Thielen",
+      "web": "https://github.com/christopherthielen"
+    },
+    {
       "name": "Tim Kindberg",
       "web": "https://github.com/timkindberg"
     },
@@ -63,7 +67,7 @@
     "load-grunt-tasks": "~0.4.0",
     "grunt-conventional-changelog": "~1.1.0",
     "grunt-ngdocs": "~0.1.7",
-    "grunt-ts": "https://github.com/christopherthielen/grunt-ts/tarball/2529971636e0eada4b81712f8d2f12fa89545ca8",
+    "grunt-ts": "~4.2.0",
     "grunt-webpack": "^1.0.10"
   },
   "main": "release/angular-ui-router"

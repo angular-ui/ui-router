@@ -395,7 +395,7 @@ describe('uiView', function () {
       }));
 
       it ('should populate each view with content', inject(function($state, $q, $compile) {
-        elem.append($compile('<div><ui-view ng-repeat="view in views" name="{{view}}"></ui-view></div>')(scope));
+        elem.append($compile('<div><ui-view ng-repeat="view in views" name="{{view}}">defaultcontent</ui-view></div>')(scope));
 
         $state.transitionTo(lState);
         $q.flush();

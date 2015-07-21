@@ -101,7 +101,7 @@ describe('uiStateRef', function() {
     }
   };
 
-  describe('links', function() {
+  xdescribe('links', function() {
     beforeEach(inject(buildDOM));
 
     it('should generate the correct href', function() {

@@ -227,26 +227,26 @@ describe('state', function () {
     };
   }
 
-  var A = { data: {}, controller: function() { log += "controller;"; } },
-    B = {},
-    C = {},
-    D = { params: { x: null, y: null } },
-    DD = { parent: D, params: { x: null, y: null, z: null } },
+  var A = { data: {}, controller: function() { log += "controller;"; }, template: "a" },
+    B = { template: "b"},
+    C = { template: "c"},
+    D = { params: { x: null, y: null }, template: "d" },
+    DD = { parent: D, params: { x: null, y: null, z: null }, template: "dd" },
     DDDD = { parent: D, controller: function() {}, template: "hey"},
-    E = { params: { i: {} } },
-    F = { params: { a: '', b: false, c: 0, d: undefined, e: -1 }},
-    H = { data: {propA: 'propA', propB: 'propB'} },
-    HH = { parent: H },
-    HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
-    RS = { url: '^/search?term', reloadOnSearch: false },
+    E = { params: { i: {} }, template: "e" },
+    F = { params: { a: '', b: false, c: 0, d: undefined, e: -1 }, template: "f" },
+    H = { data: {propA: 'propA', propB: 'propB'}, template: "h" },
+    HH = { parent: H, template: "hh" },
+    HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'}, template: "hhh" },
+    RS = { url: '^/search?term', reloadOnSearch: false, template: "rs" },
     dynamicstate = {
       url: '^/dynstate/:path/:pathDyn?search&searchDyn', params: {
         pathDyn: { dynamic: true },
         searchDyn: { dynamic: true }
-      }
+      }, template: "dynamicstate"
     },
-    OPT = { url: '/opt/:param', params: { param: "100" } },
-    OPT2 = { url: '/opt2/:param2/:param3', params: { param3: "300", param4: "400" } },
+    OPT = { url: '/opt/:param', params: { param: "100" }, template: "opt" },
+    OPT2 = { url: '/opt2/:param2/:param3', params: { param3: "300", param4: "400" }, template: "opt2" },
     AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -358,7 +358,7 @@ describe('state', function () {
                 controller: function() {log += "logC;"}
           }
         }
-      })
+      });
     $stateProvider.state('root.sub2', {url: '/2?param2' });
 
     $provide.value('AppInjectable', AppInjectable);

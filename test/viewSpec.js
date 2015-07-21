@@ -3,6 +3,7 @@ var uiRouter = require("ui-router");
 var Path = uiRouter.resolve.Path;
 var Resolvable = uiRouter.resolve.Resolvable;
 var ViewContext = uiRouter.viewContext.ViewContext;
+var ViewConfig = uiRouter.view.ViewConfig;
 
 describe('view', function() {
   var scope, $compile, $injector, elem, $controllerProvider;
@@ -30,15 +31,19 @@ describe('view', function() {
       $controllerProvider.register("AcmeFooController", function($scope, foo) { });
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
 
-      $view.load('$default', {
-        template: "test",
-        params: { type: "Acme" },
-        controllerProvider: function(/* $stateParams, */ foo) { // todo: reimplement localized $stateParams
-          ctrlExpression = /* $stateParams.type + */ foo + "Controller as foo";
-          return ctrl;
+      var svc = {
+        view: {
+          template: "test",
+          controllerProvider: function (/* $stateParams, */ foo) { // todo: reimplement localized $stateParams
+            ctrlExpression = /* $stateParams.type + */ foo + "Controller as foo";
+            return ctrl;
+          }
         },
-        context: new ViewContext(path.last(), path, {}, $injector)
-      });
+        name: '$default',
+        params: {type: "Acme"},
+        locals: new ViewContext(path.last(), path, {}, $injector)
+      };
+      $view.load(new ViewConfig(svc));
       $q.flush();
       expect(ctrlExpression).toEqual("FooController as foo");
     }));

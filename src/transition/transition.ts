@@ -13,8 +13,9 @@ import PathElement from "../resolve/pathElement";
 import {RejectFactory} from "./rejectFactory"
 import {StateParams, StateReference, IState, IPublicState} from "../state/state";
 import {ViewContext} from "../view/viewContext";
+import {StateViewConfig} from "../view/view";
 import {defaults, eq, extend, filter, flatten, forEach, identity, invoke, is, isEq, isFunction, isObject, isPromise, isDefined,
-    map, noop, not, objectKeys, parse, pattern, pipe, pluck, prop, toJson, unnest, unroll, val} from "../common/common";
+    map, noop, not, objectKeys, parse, pattern, pipe, pluck, prop, toJson, unnest, unroll, val, pairs} from "../common/common";
 
 var transitionCount = 0, REJECT = new RejectFactory();
 
@@ -261,13 +262,15 @@ export class Transition {
     return new ViewContext(pathElement, this._treeChanges.to, this._options, runtime.$injector);
   }
 
-  views(states) {
-    states = states || this._treeChanges.entering.states();
+  views(pathname: string = "entering") {
+    var path = this._treeChanges[pathname];
+    var states = states || path.states();
+    var params = this._to.params();
 
     return unnest(map(states, (state) => {
-      var elem = this._treeChanges.to.elementForState(state);
-      var toList = unroll((view) => [this.context(elem), view, this._to.params()]);
-      return toList(state.views);
+      var context = state, locals = this.context(path.elementForState(state));
+      const makeViewConfig = ([name, view]) => { return {name, view, context, locals, params} };
+      return pairs(state.views).map(makeViewConfig)
     }));
   }
 

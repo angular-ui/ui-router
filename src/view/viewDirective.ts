@@ -1,7 +1,11 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
-import {parse, extend, isDefined, isString} from "../common/common";
+import {parse, extend, isDefined, isString, noop} from "../common/common";
 import {annotateController} from "../common/angular1";
+import {ViewConfig} from "./view"
+
+const debug = noop;
+//const debug = function() { console.log.apply(console, arguments); };
 
 /**
  * @ngdoc directive
@@ -136,9 +140,9 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
 
   function configsEqual(config1, config2) {
     return (config1 === config2) || (config1 && config2 && (
-      config1.controller === config2.controller &&
-      config1.template   === config2.template &&
-      parse("context.state")(config1) === parse("context.state")(config2)
+      config1.controller    === config2.controller &&
+      config1.template      === config2.template &&
+      config1.controllerAs  === config2.controllerAs
       ));
   }
 
@@ -150,44 +154,56 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
     compile: function (tElement, tAttrs, $transclude) {
 
       return function (scope, $element, attrs) {
+        debug(`Invoking link function on ${$element.html()}`, $element);
         var previousEl, currentEl, currentScope, unregister,
             onloadExp     = attrs.onload || '',
             autoScrollExp = attrs.autoscroll,
             renderer      = getRenderer(attrs, scope),
             viewConfig    = {},
-            inherited     = $element.inheritedData('$uiView'),
+            inherited     = $element.inheritedData('$uiView') || { context: $view.rootContext() },
             name          = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default';
 
+        function configUpdatedCallback(config) {
+          if (configsEqual(viewConfig, config)) return;
+          debug(`Updating uiView "${viewData.fqn}" (${viewData.name} in context=${viewData.context}/parent=${viewData.parentContext}) with new config template "${config.template}"`);
+          viewConfig = angular.copy(config);
+          updateView(config);
+        }
+
         var viewData = {
-          name: (inherited && inherited.name) ? inherited.name + "." + name : name
+          name: name,
+          fqn: inherited.name ? inherited.name + "." + name : name,
+          config: null,
+          context: null,
+          configUpdated: configUpdatedCallback,
+          get parentContext() { return inherited.context }
         };
+
         $element.data('$uiView', viewData);
 
         updateView();
 
-        function configUpdatedCallback(config) {
-          if (configsEqual(viewConfig, config)) return;
-          updateView(config);
-        }
-
-        unregister = $view.register(viewData.name, configUpdatedCallback);
+        unregister = $view.registerUiView(viewData);
         scope.$on("$destroy", function() {
+          debug(`Destroying uiView "${viewData.fqn}" (${viewData.name} in context=${viewData.context}/parent=${viewData.parentContext})`);
           unregister();
         });
 
-
         function cleanupLastView() {
           if (previousEl) {
+            debug("Cleaning up last El");
             previousEl.remove();
             previousEl = null;
           }
 
           if (currentScope) {
+            debug(`Destroying current scope: ${Object.keys(currentScope)}`);
             currentScope.$destroy();
             currentScope = null;
           }
 
           if (currentEl) {
+            debug("Animate out");
             renderer.leave(currentEl, function() {
               previousEl = null;
             });
@@ -197,15 +213,16 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
           }
         }
 
-        function updateView(config?: any) {
-          config = config || {};
+        function updateView(config?: ViewConfig) {
+          config = config || <any> {};
           var newScope = scope.$new();
 
           extend(viewData, {
+            context: config.context,
             $template: config.template,
-            $$controller: config.controller,
-            $$controllerAs: config.config && config.config.controllerAs,
-            $context: config.$context
+            $controller: config.controller,
+            $controllerAs: config.controllerAs,
+            $locals: config.locals
           });
 
           var clone = $transclude(newScope, function(clone) {
@@ -257,21 +274,26 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
 
         $element.html(data.$template || initial);
 
+        debug(`Fill: ${data.fqn}: Element contents: "${$element.html()}"`);
         var link = $compile($element.contents());
+        var controller = data.$controller;
+        var controllerAs = data.$controllerAs;
 
-        if (data.$$controller) {
-          var context = data.$context, annotatedFn = data.$$controller;
-          if (isString(data.$$controller)) {
+        if (controller) {
+          var locals = data.$locals, annotatedFn = controller;
+          if (isString(controller)) {
             annotatedFn = function() {};
-            annotatedFn.$inject = annotateController($controller, $injector, data.$$controller);
+            annotatedFn.$inject = annotateController($controller, $injector, controller);
           }
 
-          context.getLocalsFor(annotatedFn).then(function(locals) {
-            var controller = $controller(data.$$controller, extend(locals, { $scope: scope })); // $stateParams?
-            if (data.$$controllerAs) scope[data.$$controllerAs] = controller;
+          locals.getLocalsFor(annotatedFn).then(function(locals) {
+            if (!controller || controller != data.$controller)
+              debugger;
+            var controllerInstance = $controller(controller, extend(locals, { $scope: scope })); // $stateParams?
+            if (controllerAs) scope[controllerAs] = controllerInstance;
 
-            $element.data('$ngControllerController', controller);
-            $element.children().data('$ngControllerController', controller);
+            $element.data('$ngControllerController', controllerInstance);
+            $element.children().data('$ngControllerController', controllerInstance);
           });
         }
 

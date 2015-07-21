@@ -3,6 +3,16 @@ var { isDefined, isFunction, isNumber, isString, isObject, isArray, forEach, ext
 export { isDefined, isFunction, isNumber, isString, isObject, isArray, forEach, extend, copy, noop, toJson, fromJson, equals, identity };
 "use strict";
 
+export interface Predicate {
+  (any): boolean;
+}
+export interface F {
+  (any): any;
+}
+export interface HOF {
+  (fn1: F, fn2: F): F
+}
+
 export var abstractKey = 'abstract';
 export function inherit(parent, extra) {
   return extend(new (extend(function() {}, { prototype: parent }))(), extra);
@@ -88,6 +98,12 @@ export function indexOf(array, value) {
   }
   return -1;
 }
+
+export const removeFrom = (array) => (obj) => {
+  var idx = array.indexOf(obj);
+  if (idx >= 0) array.splice(idx, 1);
+  return array;
+};
 
 /**
  * Merges a set of parameters with all parameters inherited between the common parents of the
@@ -207,9 +223,8 @@ export function filter<T>(collection: T, callback: Function): T {
   return <T>(arr ? resultarray : resultobj);
 }
 
-export function _filter(callback) {
-  return function (collection) { return filter(collection, callback); };
-}
+export const _filter = (callback) =>
+    (collection) => filter(collection, callback);
 
 export function find(collection, callback) {
   var result;
@@ -231,9 +246,8 @@ export function map<T> (collection: T, callback): T {
   return <T> result;
 }
 
-export function _map(callback) {
-  return function mapper(collection) { return map(collection, callback); };
-}
+export const _map = (callback) =>
+  (collection) => map(collection, callback);
 
 export function unnest(list) {
   var result = [];
@@ -326,7 +340,7 @@ export function pipe(...funcs: Function[]) {
   return compose.apply(null, [].slice.call(arguments).reverse());
 }
 
-export function prop(name): Function {
+export function prop(name): F {
   return function(obj) { return obj && obj[name]; };
 }
 
@@ -350,22 +364,22 @@ export function or(fn1, fn2): Function {
   };
 }
 
-export function is(ctor): Function {
+export function is(ctor): Predicate {
   return function(val) { return val != null && val.constructor === ctor || val instanceof ctor; };
 }
 
-export function eq(comp): Function {
+export function eq(comp): Predicate {
   return function(val) { return val === comp; };
 }
 
-export function isEq(fn1, fn2): Function {
+export function isEq(fn1: F, fn2: F): () => boolean {
   return function() {
     var args = [].slice.call(arguments);
     return fn1.apply(null, args) === fn2.apply(null, args);
   };
 }
 
-export function val(v): Function {
+export function val(v): F {
   return function() { return v; };
 }
 

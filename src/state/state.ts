@@ -786,6 +786,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
     root.navigable = null;
 
+    $view.rootContext(root);
+
     extend($state, {
       params: new StateParams(),
       current: root.self,
@@ -1016,15 +1018,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         },
 
         transitionSuccess: function transitionSuccess(transition) {
-          // TODO: sync on entering state, not transition success?
-          $view.sync(transition.views());
-          // TODO: Refactor this stuff. Maybe a Path can return views() for elements
-          transition.exiting().forEach(function(state) {
-            forEach(state.views, function (view, key) {
-              var found = $view.find(key, state.parent);
-              found && $view.reset(found);
-            });
-          });
+          // TODO: sync on entering/exiting state, not transition success?
+          transition.views("exiting").forEach($view.reset.bind($view));
+          $view.sync();
+          transition.views("entering").forEach($view.registerStateViewConfig.bind($view));
+          $view.sync();
 
           // Update globals in $state
           $state.$current = transition.$to().$state();

@@ -16,7 +16,7 @@ export interface ITransitionOptions {
   trace       ?: boolean,
   custom      ?: any,
   previous    ?: Transition,
-  current()   : Transition
+  current     ?: () => Transition
 }
 
 /**
