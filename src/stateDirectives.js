@@ -253,18 +253,23 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
 
       // Update route state
       function update() {
-        for (var i = 0; i < states.length; i++) {
-          if (anyMatch(states[i].state, states[i].params)) {
-            addClass($element, activeClass);
-          } else {
-            removeClass($element, activeClass);
-          }
+        var matchedAny, matchedExact;
 
-          if (exactMatch(states[i].state, states[i].params)) {
-            addClass($element, activeEqClass);
-          } else {
-            removeClass($element, activeEqClass);
-          }
+        for (var i = 0; i < states.length; i++) {
+          matchedAny = matchedAny || anyMatch(states[i].state, states[i].params);
+          matchedExact = matchedExact || exactMatch(states[i].state, states[i].params);
+        }
+
+        if (matchedAny) {
+          addClass($element, activeClass);
+        } else {
+          removeClass($element, activeClass);
+        }
+
+        if (matchedExact) {
+          addClass($element, activeEqClass);
+        } else {
+          removeClass($element, activeEqClass);
         }
       }
 
