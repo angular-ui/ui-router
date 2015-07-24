@@ -11,7 +11,8 @@ import Resolvable from "../resolve/resolvable";
 import Path from "../resolve/path";
 import PathElement from "../resolve/pathElement";
 import {RejectFactory} from "./rejectFactory"
-import {StateParams, StateReference, IState, IPublicState} from "../state/state";
+import {StateParams, StateReference} from "../state/state"
+import {IState, IStateDeclaration} from "../interface";
 import {ViewContext} from "../view/viewContext";
 import {StateViewConfig} from "../view/view";
 import {defaults, eq, extend, filter, flatten, forEach, identity, invoke, is, isEq, isFunction, isObject, isPromise, isDefined,
@@ -262,6 +263,10 @@ export class Transition {
     return new ViewContext(pathElement, this._treeChanges.to, this._options, runtime.$injector);
   }
 
+  /**
+   * Returns a list of StateViewConfig objects;
+   * Returns one StateViewConfig for each view in each state in a named path of the transition's tree changes
+   */
   views(pathname: string = "entering") {
     var path = this._treeChanges[pathname];
     var states = states || path.states();
@@ -338,7 +343,7 @@ export class Transition {
     var options = this._options;
     var tLocals = {$transition$: this};
 
-    var rootPE = new PathElement(this._from.$state().root().self);
+    var rootPE = new PathElement(this._from.$state().root());
     var rootPath = new Path([rootPE]);
     var exitingElements = exiting.slice(0).reverse().elements;
     var enteringElements = entering.elements;

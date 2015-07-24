@@ -3,15 +3,15 @@
 import {IServiceProviderFactory} from "angular";
 import {Transition} from "./transition";
 import {Glob} from "../state/glob";
-import {IPublicState, IState} from "../state/state";
+import {IStateDeclaration, IState} from "../interface";
 import {extend, is, isFunction, isString, val, noop} from "../common/common";
 
 export interface ITransitionOptions {
   location    ?: boolean,
-  relative    ?: (boolean|IPublicState|IState),
+  relative    ?: (boolean|IStateDeclaration|IState),
   inherit     ?: boolean,
   notify      ?: boolean,
-  reload      ?: (boolean|string|IPublicState|IState),
+  reload      ?: (boolean|string|IStateDeclaration|IState),
   reloadState ?: (IState),
   trace       ?: boolean,
   custom      ?: any,

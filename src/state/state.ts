@@ -7,33 +7,14 @@ import {defaultTransOpts} from "../transition/transitionService";
 import {Param} from "../params/param";
 import {ParamSet} from "../params/paramSet";
 import {IServiceProviderFactory} from "angular";
-
-export interface IPublicState {
-  name: string;
-  resolve: any; // key->Function
-  url: string;
-  resolvePolicy: (string|Object);
-  // TODO: finish defining state API.  Maybe start with what's on Definitely Typed.
-}
-
-export interface IState {
-  name: string;
-  resolve: any; // key->Function
-  url: string;
-  resolvePolicy: (string|Object);
-  self: IPublicState;
-  params: ParamSet;
-  root(): IState;
-  path: IState[];
-  // TODO: finish defining state API.  Maybe start with what's on Definitely Typed.
-}
-
+import {UrlMatcher} from "../url/urlMatcher";
+import {IState, IStateDeclaration} from "../interface";
 
 export function StateQueueManager(states, builder, $urlRouterProvider, $state) {
   var queue = [];
 
   var queueManager = extend(this, {
-    register: function(config: IPublicState, pre?: boolean) {
+    register: function(config: IStateDeclaration, pre?: boolean) {
       // Wrap a new object around the state so we can store our private details easily.
       var state = inherit(new State(), extend({}, config, {
         self: config,
@@ -307,7 +288,7 @@ export function StateMatcher(states) {
  *
  * @returns {Object}  Returns a new `State` object.
  */
-function State(config?: IPublicState) {
+function State(config?: IStateDeclaration) {
   extend(this, config);
 }
 
@@ -406,7 +387,7 @@ export class StateReference {
     return this._definition;
   }
 
-  state(): IPublicState {
+  state(): IStateDeclaration {
     return this._definition && this._definition.self;
   }
 

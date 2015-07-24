@@ -3,7 +3,7 @@
 import {pick, map}  from "../common/common";
 import {trace}  from "../common/trace";
 import {IPromise} from "angular";
-import {IPublicState} from "../state/state";
+import {IState} from "../interface";
 import {runtime} from "../common/angular1"
 
 /**
@@ -19,7 +19,7 @@ import {runtime} from "../common/angular1"
  * parameter to those fns.
  */
 class Resolvable {
-  constructor(name: string, resolveFn: Function, state: IPublicState) {
+  constructor(name: string, resolveFn: Function, state: IState) {
     this.name = name;
     this.resolveFn = resolveFn;
     this.state = state;
@@ -28,7 +28,7 @@ class Resolvable {
 
   name: String;
   resolveFn: Function;
-  state: IPublicState;
+  state: IState;
   deps: string[];
 
   promise: IPromise<any> = undefined;

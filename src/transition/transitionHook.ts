@@ -4,7 +4,7 @@ import {RejectFactory} from "./rejectFactory";
 import PathElement from "../resolve/pathElement";
 import Path from "../resolve/path";
 import {Transition} from "./transition";
-import {IPublicState} from "../state/state";
+import {IState} from "../interface";
 import Resolvable from "../resolve/resolvable";
 
 var REJECT = new RejectFactory();
@@ -23,7 +23,7 @@ export default class TransitionHook {
   // TODO these are redundant, check why we're doubling up on them.
   async: boolean;
   rejectIfSuperseded: boolean;
-  state: IPublicState;
+  state: IState;
   data: any;
 
   constructor(pathElement: PathElement, fn: Function, locals: any, pathContext: Path, options: any) {

@@ -4,7 +4,7 @@ import {extend, isArray, identity, noop} from "../common/common";
 import {defaults, map, omit, pluck, find, pipe, prop, eq}  from "../common/common";
 import {trace}  from "../common/trace";
 import {IPromise} from "angular";
-import {IPublicState} from "../state/state";
+import {IState} from "../interface";
 import {runtime} from "../common/angular1"
 import PathElement from "./pathElement";
 import Resolvable from "./resolvable";
@@ -25,7 +25,7 @@ import Resolvable from "./resolvable";
  */
 
 class Path {
-  constructor(statesOrPathElements: (IPublicState[] | PathElement[])) {
+  constructor(statesOrPathElements: (IState[] | PathElement[])) {
     if (!isArray(statesOrPathElements))
       throw new Error("states must be an array of state(s) or PathElement(s): ${statesOrPathElements}");
 
@@ -101,11 +101,11 @@ class Path {
     return this;
   }
 
-  states(): IPublicState[] {
+  states(): IState[] {
     return pluck(this.elements, "state");
   }
 
-  elementForState(state: IPublicState): PathElement {
+  elementForState(state: IState): PathElement {
     return find(this.elements, pipe(prop('state'), eq(state)));
   }
 

@@ -99,7 +99,7 @@ export function indexOf(array, value) {
   return -1;
 }
 
-export const removeFrom = (array) => (obj) => {
+export const removeFrom = (array: any[]) => (obj) => {
   var idx = array.indexOf(obj);
   if (idx >= 0) array.splice(idx, 1);
   return array;
@@ -379,7 +379,7 @@ export function isEq(fn1: F, fn2: F): () => boolean {
   };
 }
 
-export function val(v): F {
+export function val<T>(v: T): () => T {
   return function() { return v; };
 }
 

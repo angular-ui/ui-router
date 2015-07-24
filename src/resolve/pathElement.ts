@@ -3,7 +3,7 @@
 import {isObject, isString, extend, forEach, noop, pick, map, filter, parse} from "../common/common";
 import {trace}  from "../common/trace";
 import {IPromise} from "angular";
-import {IPublicState} from "../state/state";
+import {IState} from "../interface";
 import Path from "./path";
 import Resolvable from "./resolvable";
 import {runtime} from "../common/angular1"
@@ -23,7 +23,7 @@ var defaultResolvePolicy = "jit"; // TODO: make this configurable
  * on the fly.
  */
 export default class PathElement {
-  constructor(state: IPublicState) {
+  constructor(state: IState) {
     this.state = state;
     // Convert state's resolvable assoc-array into an assoc-array of empty Resolvable(s)
     this._resolvables = map(state.resolve || {}, function(resolveFn, resolveName) {
@@ -31,7 +31,7 @@ export default class PathElement {
     });
   }
 
-  state: IPublicState;
+  state: IState;
   private _resolvables: Object;
 
   getResolvables(): Object {
