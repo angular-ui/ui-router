@@ -15,11 +15,12 @@ var resolve = uiRouter.resolve,
 
 var statesTree, statesMap = {};
 var emptyPath;
-var counts, expectCounts;
+var vals, counts, expectCounts;
 var asyncCount;
 
 beforeEach(function () {
-  counts = { _J: 0, _J2: 0, _K: 0, _L: 0, _M: 0};
+  counts = { _J: 0, _J2: 0, _K: 0, _L: 0, _M: 0, _Q: 0 };
+  vals = { _Q: null };
   expectCounts = angular.copy(counts);
   states = {
     A: { resolve: { _A: function () { return "A"; }, _A2: function() { return "A2"; }},
@@ -47,7 +48,9 @@ beforeEach(function () {
         resolvePolicy: { _N: "eager", _N2: "lazy", _N3: "jit" }
       }
     },
-    O: { resolve: { _O: function(_O2) { return _O2 + "O"; }, _O2: function(_O) { return _O + "O2"; } }
+    O: { resolve: { _O: function(_O2) { return _O2 + "O"; }, _O2: function(_O) { return _O + "O2"; } } },
+    P: { resolve: { $state: function($state) { return $state } },
+      Q: { resolve: { _Q: function($state) { counts._Q++; vals._Q = $state; return "foo"; }}}
     }
   };
 
@@ -179,6 +182,21 @@ describe('Resolvables system:', function () {
         expect(getResolvedData(path)).toEqualData({ _J: "J", _N: "JN", _N2: "JN2"});
         asyncCount++;
       });
+
+      $q.flush();
+      expect(asyncCount).toBe(1);
+    }));
+
+    it('should provide each resolveResolvable with a path context, starting from the root to the resolves PathElement', inject(function($q, $state) {
+      "use strict";
+      var path = makePath(["P", "Q"]);
+      var promise = path.resolvePath({ resolvePolicy: "jit" });
+
+      promise.then(function () {
+        expect(getResolvedData(path)).toEqualData({ $state: $state, _Q: "foo" });
+        asyncCount++;
+      });
+
 
       $q.flush();
       expect(asyncCount).toBe(1);

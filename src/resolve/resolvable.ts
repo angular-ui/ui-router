@@ -5,6 +5,7 @@ import trace  from "../common/trace";
 import {IPromise} from "angular";
 import {IState} from "../state/interface";
 import {runtime} from "../common/angular1"
+import Path from "./path"
 
 /**
  * The basic building block for the resolve system.
@@ -45,13 +46,13 @@ export default class Resolvable {
   // - wait for resolveFn promise to resolve
   // - store unwrapped data
   // - resolve the Resolvable's promise
-  resolveResolvable(pathContext, options) {
+  resolveResolvable(path: Path, options) {
     options = options || {};
     if (options.trace) trace.traceResolveResolvable(this, options);
     // First, set up an overall deferred/promise for this Resolvable
     var deferred = runtime.$q.defer();
     this.promise = deferred.promise;
-
+    var pathContext = path.pathFromRoot(path.elementForState(this.state));
     // Load a map of all resolvables for this state from the context path
     // Omit the current Resolvable from the result, so we don't try to inject this into this
     var ancestorsByName = pathContext.getResolvables({  omitOwnLocals: [ this.name ] });
