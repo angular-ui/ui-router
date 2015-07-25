@@ -1,6 +1,6 @@
 import {extend, inherit, forEach, objectKeys, indexOf, isString} from "../common/common";
 
-export class ParamSet {
+export default class ParamSet {
   constructor(params?: any) {
     extend(this, params || {});
   }

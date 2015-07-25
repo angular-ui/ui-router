@@ -2,9 +2,9 @@
 
 import {extend, isArray, identity, noop,
     defaults, map, omit, pluck, find, pipe, prop, eq}  from "../common/common";
-import {trace}  from "../common/trace";
+import trace  from "../common/trace";
 import {IPromise} from "angular";
-import {IState} from "../interface";
+import {IState} from "../state/interface";
 import {runtime} from "../common/angular1"
 import PathElement from "./pathElement";
 import Resolvable from "./resolvable";
@@ -24,7 +24,7 @@ import Resolvable from "./resolvable";
  *  @param statesOrPathElements [array]: an array of either state(s) or PathElement(s)
  */
 
-class Path {
+export default class Path {
   constructor(statesOrPathElements: (IState[] | PathElement[])) {
     if (!isArray(statesOrPathElements))
       throw new Error("states must be an array of state(s) or PathElement(s): ${statesOrPathElements}");
@@ -118,5 +118,3 @@ class Path {
     return `Path([${elements}])`;
   }
 }
-
-export default Path;

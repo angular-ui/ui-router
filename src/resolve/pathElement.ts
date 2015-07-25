@@ -1,9 +1,9 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
 import {isObject, isString, extend, forEach, noop, pick, map, filter, parse} from "../common/common";
-import {trace}  from "../common/trace";
+import trace  from "../common/trace";
 import {IPromise} from "angular";
-import {IState} from "../interface";
+import {IState} from "../state/interface";
 import Path from "./path";
 import Resolvable from "./resolvable";
 import {runtime} from "../common/angular1"

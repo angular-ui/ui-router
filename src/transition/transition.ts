@@ -3,7 +3,7 @@
 
 import {runtime} from "../common/angular1";
 import {IPromise} from "angular";
-import {trace} from "../common/trace";
+import trace from "../common/trace";
 import {$transition, matchState, ITransitionOptions} from "./transitionService";
 import TransitionHook from "./transitionHook";
 import HookBuilder from "./hookBuilder";
@@ -11,10 +11,11 @@ import Resolvable from "../resolve/resolvable";
 import Path from "../resolve/path";
 import PathElement from "../resolve/pathElement";
 import {RejectFactory} from "./rejectFactory"
-import {StateParams, StateReference} from "../state/state"
-import {IState, IStateDeclaration} from "../interface";
-import {ViewContext} from "../view/viewContext";
-import {StateViewConfig} from "../view/view";
+import {StateParams} from "../state/state"
+import StateReference from "../state/stateReference"
+import {IState, IStateDeclaration} from "../state/interface";
+import PathContext from "../resolve/pathContext";
+import {IStateViewConfig} from "../state/interface";
 import {defaults, eq, extend, filter, flatten, forEach, identity, invoke, is, isEq, isFunction, isObject, isPromise, isDefined,
     map, noop, not, objectKeys, parse, pattern, pipe, pluck, prop, toJson, unnest, unroll, val, pairs} from "../common/common";
 
@@ -260,7 +261,7 @@ export class Transition {
   }
 
   context(pathElement) {
-    return new ViewContext(pathElement, this._treeChanges.to, this._options, runtime.$injector);
+    return new PathContext(pathElement, this._treeChanges.to, this._options, runtime.$injector);
   }
 
   /**

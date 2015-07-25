@@ -1,8 +1,8 @@
 var module = angular.mock.module;
 var uiRouter = require("ui-router");
 
-var Glob = uiRouter.glob.Glob;
-var common = uiRouter.common,
+var Glob = uiRouter.state.Glob;
+var common = uiRouter.common.common,
   defaults = common.defaults,
   filter = common.filter,
   is = common.is,

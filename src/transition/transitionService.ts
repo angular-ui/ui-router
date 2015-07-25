@@ -2,8 +2,8 @@
 
 import {IServiceProviderFactory} from "angular";
 import {Transition} from "./transition";
-import {Glob} from "../state/glob";
-import {IStateDeclaration, IState} from "../interface";
+import Glob from "../state/glob";
+import {IStateDeclaration, IState} from "../state/interface";
 import {extend, is, isFunction, isString, val, noop} from "../common/common";
 
 export interface ITransitionOptions {

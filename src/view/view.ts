@@ -1,17 +1,9 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {isInjectable, isDefined, isArray, defaults, equals, extend, forEach, map, parse, objectKeys, noop} from "../common/common";
-import {unnest, prop, pick, pluck, removeFrom, eq, isEq, val, compose, _map} from "../common/common";
-import {ViewContext} from "../view/viewContext";
+import {isInjectable, isDefined, isArray, defaults, equals, extend, forEach, map, parse, objectKeys, noop,
+    unnest, prop, pick, pluck, removeFrom, eq, isEq, val, compose, _map} from "../common/common";
+import PathContext from "../resolve/pathContext";
 import {IDeferred} from "angular";
-
-/** Context obj, State-view definition, transition params */
-export interface StateViewConfig {
-  view: any, // A view block from a state config
-  name: string, // The name of the view block
-  params: any // State params?
-  context: any, // The context object reference
-  locals: ViewContext, // The Resolve context (rename class!)
-}
+import {IStateViewConfig} from "../state/interface";
 
 interface ViewKey {
   context: any,
@@ -45,9 +37,9 @@ export class ViewConfig {
   params: any;
   locals: any;
 
-  sourceStateConfig: StateViewConfig;
+  sourceStateConfig: IStateViewConfig;
 
-  constructor(stateViewConfig: StateViewConfig) {
+  constructor(stateViewConfig: IStateViewConfig) {
     this.sourceStateConfig = stateViewConfig;
     extend(this, pick(stateViewConfig, "name", "context", "params", "locals"));
     extend(this, pick(stateViewConfig.view, "controllerAs"));
@@ -181,7 +173,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
     this.sync();
   };
 
-  this.registerStateViewConfig = function(stateViewConfig: StateViewConfig) {
+  this.registerStateViewConfig = function(stateViewConfig: IStateViewConfig) {
     var viewConfig = new ViewConfig(stateViewConfig);
     viewConfigs.push(viewConfig);
     this.load(viewConfig);

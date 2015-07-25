@@ -30,7 +30,7 @@ import {extend, isArray, isDefined, filter, map} from "../common/common";
  *
  * @returns {Object}  Returns a new `Type` object.
  */
-export class Type {
+export default class Type {
   pattern: RegExp;
   name: string;
 

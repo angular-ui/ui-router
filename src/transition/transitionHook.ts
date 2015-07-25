@@ -1,10 +1,10 @@
 import {defaults, extend, noop, filter, not, isFunction, objectKeys, map, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse} from "../common/common";
-import {trace} from "../common/trace";
+import trace from "../common/trace";
 import {RejectFactory} from "./rejectFactory";
 import PathElement from "../resolve/pathElement";
 import Path from "../resolve/path";
 import {Transition} from "./transition";
-import {IState} from "../interface";
+import {IState} from "../state/interface";
 import Resolvable from "../resolve/resolvable";
 
 var REJECT = new RejectFactory();

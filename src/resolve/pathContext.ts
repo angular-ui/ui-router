@@ -1,17 +1,15 @@
-import Path from "../resolve/path";
-import PathElement from "../resolve/pathElement";
-import {IState} from "../interface";
+import Path from "path";
+import PathElement from "pathElement";
+import {IState} from "../state/interface";
 import {objectKeys, zipObject, pick} from "../common/common";
 
-export class ViewContext {
-  //state: IState;
-  _pathElement: PathElement;
-  _path: Path;
-  _options: any;
-  _injector: ng.auto.IInjectorService;
+export default class PathContext {
+  private _pathElement: PathElement;
+  private _path: Path;
+  private _options: any;
+  private _injector: ng.auto.IInjectorService;
 
   constructor(pathElement: PathElement, path: Path, options: any, $injector: ng.auto.IInjectorService) {
-    //this.state = pathElement.state;
     this._pathElement = pathElement;
     this._path = path;
     this._options = options;

@@ -2,8 +2,9 @@ var module = angular.mock.module;
 var uiRouter = require("ui-router");
 var Path = uiRouter.resolve.Path;
 var Resolvable = uiRouter.resolve.Resolvable;
-var ViewContext = uiRouter.viewContext.ViewContext;
-var ViewConfig = uiRouter.view.ViewConfig;
+var PathContext = uiRouter.resolve.PathContext;
+var ViewContext = uiRouter.view.ViewContext;
+var ViewConfig = uiRouter.view.view.ViewConfig;
 
 describe('view', function() {
   var scope, $compile, $injector, elem, $controllerProvider;
@@ -30,6 +31,7 @@ describe('view', function() {
       var ctrlExpression;
       $controllerProvider.register("AcmeFooController", function($scope, foo) { });
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+      console.log(JSON.stringify(PathContext));
 
       var svc = {
         view: {
@@ -41,7 +43,7 @@ describe('view', function() {
         },
         name: '$default',
         params: {type: "Acme"},
-        locals: new ViewContext(path.last(), path, {}, $injector)
+        locals: new PathContext(path.last(), path, {}, $injector)
       };
       $view.load(new ViewConfig(svc));
       $q.flush();

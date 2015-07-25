@@ -1,14 +1,14 @@
 var module = angular.mock.module;
 var uiRouter = require("ui-router");
-var common = uiRouter.common;
-var RejectType = uiRouter.rejectFactory.RejectType;
+var common = uiRouter.common.common;
+var RejectType = uiRouter.transition.rejectFactory.RejectType;
 var extend = common.extend,
   forEach = common.forEach;
 var state = uiRouter.state;
-var StateMatcher = state.StateMatcher,
-  StateBuilder = state.StateBuilder,
-  StateReference = state.StateReference;
-var UrlMatcher = uiRouter.urlMatcher.UrlMatcher;
+var StateMatcher = state.StateMatcher;
+var StateBuilder = uiRouter.state.StateBuilder;
+var StateReference = state.StateReference;
+var UrlMatcher = uiRouter.url.UrlMatcher;
 
 describe('state helpers', function() {
 

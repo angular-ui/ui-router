@@ -1,8 +1,8 @@
-import {map, extend, inherit, isDefined, isObject, isArray, isString} from "./../common/common";
-import {matcherConfig} from "./urlMatcherConfig"
-import {paramTypes} from "./../params/paramTypes"
-import {ParamSet} from "./../params/paramSet"
-import {Param} from "./../params/param"
+import {map, extend, inherit, isDefined, isObject, isArray, isString} from "../common/common";
+import matcherConfig from "./urlMatcherConfig"
+import paramTypes from "../params/paramTypes"
+import ParamSet from "../params/paramSet"
+import Param from "../params/param"
 
 interface params {
   $$validates: (params: string) => Array<string>;
@@ -73,7 +73,7 @@ interface params {
  *
  * @returns {Object}  New `UrlMatcher` object
  */
-export class UrlMatcher {
+export default class UrlMatcher {
   params: params;
   prefix: string;
   regexp: RegExp;

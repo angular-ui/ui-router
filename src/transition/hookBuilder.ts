@@ -1,6 +1,6 @@
 import {extend, map, filter, invoke, isPromise} from "../common/common";
 import {runtime} from "../common/angular1";
-import {trace} from "../common/trace";
+import trace from "../common/trace";
 import PathElement from "../resolve/pathElement";
 import Path from "../resolve/path";
 import TransitionHook from "./transitionHook";

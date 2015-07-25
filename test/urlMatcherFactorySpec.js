@@ -17,7 +17,7 @@ describe("UrlMatcher", function () {
     module('ui.router.router', 'ui.router.router.test');
 
     inject(function($injector) {
-      uiRouter.angular1.runtime.setRuntimeInjector($injector);
+      uiRouter.common.angular1.runtime.setRuntimeInjector($injector);
       $injector.invoke(provider.$get);
     });
   });

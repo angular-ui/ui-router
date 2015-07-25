@@ -1,7 +1,7 @@
 var module = angular.mock.module;
 var uiRouter = require("ui-router");
 
-var common = uiRouter.common,
+var common = uiRouter.common.common,
   omit = common.omit,
   map = common.map,
   pick = common.pick;
@@ -81,7 +81,7 @@ function getResolvedData(pathContext) {
 
 describe('Resolvables system:', function () {
   beforeEach(inject(function ($transition, $injector) {
-    uiRouter.angular1.runtime.setRuntimeInjector($injector);
+    uiRouter.common.angular1.runtime.setRuntimeInjector($injector);
     emptyPath = new Path([]);
     asyncCount = 0;
   }));
@@ -504,7 +504,7 @@ describe("State transitions with resolves", function() {
     $rootScope = _$rootScope_;
     $timeout = _$timeout_;
     $scope = $rootScope.$new();
-    uiRouter.angular1.runtime.setRuntimeInjector($injector);
+    uiRouter.common.angular1.runtime.setRuntimeInjector($injector);
     emptyPath = new Path([]);
     asyncCount = 0;
     $compile(angular.element("<div ui-view></div>"))($scope);

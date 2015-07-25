@@ -1,4 +1,4 @@
-import {isDefined, isString} from "./../common/common";
+import {isDefined, isString} from "../common/common";
 
 class MatcherConfig {
   _isCaseInsensitive: boolean = false;
@@ -30,4 +30,5 @@ class MatcherConfig {
   }
 }
 
-export var matcherConfig = new MatcherConfig();
+var matcherConfig = new MatcherConfig();
+export default matcherConfig;

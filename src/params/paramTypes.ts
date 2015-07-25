@@ -1,5 +1,5 @@
 import {isDefined, fromJson, toJson, isObject, identity, equals, inherit, map, extend} from "../common/common";
-import {Type} from "./type";
+import Type from "./type";
 import {runtime} from "../common/angular1";
 
 function valToString(val) { return val != null ? val.toString().replace(/\//g, "%2F") : val; }
@@ -97,4 +97,4 @@ class ParamTypes {
   }
 }
 
-export var paramTypes: ParamTypes = new ParamTypes();
+export default new ParamTypes();

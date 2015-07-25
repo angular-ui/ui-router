@@ -132,7 +132,8 @@ class Trace {
   }
 }
 
-export var trace = new Trace();
+var trace = new Trace();
+export default trace;
 
 angular.module("ui.router").run(function($rootScope) {
   $rootScope.$watch(function() { trace.approximateDigests++; });

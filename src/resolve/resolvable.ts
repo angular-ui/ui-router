@@ -1,9 +1,9 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
 import {pick, map}  from "../common/common";
-import {trace}  from "../common/trace";
+import trace  from "../common/trace";
 import {IPromise} from "angular";
-import {IState} from "../interface";
+import {IState} from "../state/interface";
 import {runtime} from "../common/angular1"
 
 /**
@@ -18,7 +18,7 @@ import {runtime} from "../common/angular1"
  * Resolvable.get() and Resolvable.resolve() both execute within a context Path, which is passed as the first
  * parameter to those fns.
  */
-class Resolvable {
+export default class Resolvable {
   constructor(name: string, resolveFn: Function, state: IState) {
     this.name = name;
     this.resolveFn = resolveFn;
@@ -92,5 +92,3 @@ class Resolvable {
     return `Resolvable(name: ${this.name}, state: ${this.state.name}, requires: [${this.deps}])`;
   }
 }
-
-export default Resolvable;

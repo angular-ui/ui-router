@@ -1,5 +1,18 @@
-import {UrlMatcher} from "url/urlMatcher";
-import {ParamSet} from "params/paramSet";
+import UrlMatcher from "../url/urlMatcher";
+import ParamSet from "../params/paramSet";
+
+import {IViewContext} from "../view/interface"
+import PathContext from "../resolve/pathContext"
+
+
+/** Context obj, State-view definition, transition params */
+export interface IStateViewConfig {
+  view: IViewDeclaration, // A view block from a state config
+  name: string, // The name of the view block
+  params: any // State params?
+  context: IViewContext, // The context object reference
+  pathContext: PathContext, // The Resolve context (rename class!)
+}
 
 /** View declaration inside state declaration */
 export interface IViewDeclaration {
