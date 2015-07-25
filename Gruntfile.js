@@ -108,9 +108,18 @@ module.exports = function (grunt) {
         autoWatchInterval: 1
       }
     },
-    changelog: {
-      options: {
-        dest: 'CHANGELOG.md'
+    conventionalGithubReleaser: {
+      release: {
+        options: {
+          auth: {
+            type: 'oauth',
+            token: process.env.GITHUB_AUTHTOKEN
+          },
+          changelogOpts: {
+            preset: 'angular',
+            releaseCount: 0
+          }
+        }
       }
     },
     ngdocs: {
@@ -141,9 +150,9 @@ module.exports = function (grunt) {
   grunt.registerTask('widedocs', 'Convert to bootstrap container-fluid', function () {
     promising(this,
       system(
-      'sed -i.bak ' + 
-      '-e \'s/class="row"/class="row-fluid"/\' ' + 
-      '-e \'s/icon-cog"><\\/i>/icon-cog"><\\/i>Provider/\' ' + 
+      'sed -i.bak ' +
+      '-e \'s/class="row"/class="row-fluid"/\' ' +
+      '-e \'s/icon-cog"><\\/i>/icon-cog"><\\/i>Provider/\' ' +
       '-e \'s/role="main" class="container"/role="main" class="container-fluid"/\' site/index.html')
     );
   });
