@@ -66,7 +66,7 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
       var allKeys = tplKeys.concat(ctrlKeys);
 
       forEach(state.views || { "$default": pick(state, allKeys) }, function (config, name) {
-
+        name = name || "$default"; // Account for views: { "": { template... } }
         // Allow controller settings to be defined at the state level for all views
         forEach(ctrlKeys, function(key) {
           if (state[key] && !config[key]) config[key] = state[key];
