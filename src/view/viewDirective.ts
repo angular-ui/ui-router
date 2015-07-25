@@ -4,8 +4,11 @@ import {parse, extend, isDefined, isString, noop} from "../common/common";
 import {annotateController} from "../common/angular1";
 import {ViewConfig} from "./view"
 
-const debug = noop;
-//const debug = function() { console.log.apply(console, arguments); };
+//const debug = noop;
+const _debug = false;
+const debug = function(...any) {
+  if (_debug) { console.log.apply(console, arguments); }
+};
 
 /**
  * @ngdoc directive
@@ -163,10 +166,10 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
             inherited     = $element.inheritedData('$uiView') || { context: $view.rootContext() },
             name          = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default';
 
-        function configUpdatedCallback(config) {
+        function configUpdatedCallback(config: ViewConfig) {
           if (configsEqual(viewConfig, config)) return;
-          debug(`Updating uiView "${viewData.fqn}" (${viewData.name} in context=${viewData.context}/parent=${viewData.parentContext}) with new config template "${config.template}"`);
-          viewConfig = angular.copy(config);
+          debug(`Updating uiView '${viewData.fqn}' (${viewData.name} in context=${viewData.context}/parent=${viewData.parentContext}) with new config template '${config.template}'`);
+          viewConfig = extend({}, config);
           updateView(config);
         }
 
@@ -185,7 +188,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
 
         unregister = $view.registerUiView(viewData);
         scope.$on("$destroy", function() {
-          debug(`Destroying uiView "${viewData.fqn}" (${viewData.name} in context=${viewData.context}/parent=${viewData.parentContext})`);
+          debug(`Destroying uiView '${viewData.fqn}' (${viewData.name} in context=${viewData.context}/parent=${viewData.parentContext})`);
           unregister();
         });
 
@@ -274,7 +277,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
 
         $element.html(data.$template || initial);
 
-        debug(`Fill: ${data.fqn}: Element contents: "${$element.html()}"`);
+        debug(`Fill: ${data.fqn}: Element contents: '${$element.html()}'`);
         var link = $compile($element.contents());
         var controller = data.$controller;
         var controllerAs = data.$controllerAs;

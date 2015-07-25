@@ -11,8 +11,10 @@ interface ViewKey {
   item: any
 }
 
-const debug = noop;
-//const debug = function() { console.log.call(console, arguments); };
+const _debug = false;
+const debug = function(...any) {
+  if (_debug) { console.log.call(console, arguments); }
+};
 
 const viewKey = (item: any) =>
   extend(pick(item, "name", "context", "parentContext"),  { item: item });
@@ -202,7 +204,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
   this.registerUiView = function register(uiView) {
     var fqnMatches = isEq(prop("fqn"), val(uiView.fqn));
     if (uiViews.filter(fqnMatches).length)
-      debug(`uiView already exists with name: "${uiView.fqn}" (named ${uiView.name} in context ${uiView.context})`);
+      debug(`uiView already exists with name: '${uiView.fqn}' (named ${uiView.name} in context ${uiView.context})`);
 
     uiViews.push(uiView);
     this.sync();
