@@ -1,5 +1,5 @@
-import {isNull, isPromise, is, invoke, not, val, pattern, parse, objectKeys}  from "../common/common";
-import {isDefined, isObject, isString, isFunction, extend, forEach, isArray, identity} from "../common/common";
+import {isNull, isPromise, is, invoke, not, val, pattern, parse, objectKeys,
+    isDefined, isObject, isString, isFunction, extend, forEach, isArray, identity} from "../common/common";
 import Resolvable  from "../resolve/resolvable";
 import {Transition}  from "../transition/transition";
 import {TransitionRejection}  from "../transition/rejectFactory";

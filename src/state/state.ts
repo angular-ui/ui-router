@@ -1,6 +1,5 @@
-import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEach, pick, objectKeys, ancestors, arraySearch, noop, identity} from "../common/common";
-import {not, prop, pipe, val} from "../common/common";
-import {isDefined, isFunction, isArray, isObject, isString} from "../common/common";
+import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEach, pick, objectKeys, ancestors, arraySearch, noop, identity,
+    not, prop, pipe, val, isDefined, isFunction, isArray, isObject, isString} from "../common/common";
 import {Glob} from "./glob";
 import {TransitionRejection, RejectType, RejectFactory} from "../transition/rejectFactory";
 import {defaultTransOpts} from "../transition/transitionService";

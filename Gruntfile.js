@@ -3,6 +3,8 @@ module.exports = function (grunt) {
 
   require('load-grunt-tasks')(grunt);
   var files = require('./files').files;
+  var systemjs = require('systemjs');
+  //var jspm = require('jspm');
 
   // Project configuration.
   grunt.initConfig({
@@ -19,29 +21,15 @@ module.exports = function (grunt) {
     },
     clean: [ '<%= builddir %>' ],
     ts: {
-      base: {
+      es5: {
         src: files.src,
-        outDir: '<%= builddir %>/ts2es5',
-        options: {
-		      //target: "es6"
-          //module: 'amd', //or commonjs
-           module: 'commonjs'
-        }
-      }
-    },
-    concat: {
-      options: {
-        banner: '<%= meta.banner %>\n\n'+
-                '/* commonjs package manager support (eg componentjs) */\n'+
-                'if (typeof module !== "undefined" && typeof exports !== "undefined" && module.exports === exports){\n'+
-                '  module.exports = \'ui.router\';\n'+
-                '}\n\n'+
-                '(function (window, angular, undefined) {\n',
-        footer: '})(window, window.angular);'
+        outDir: '<%= builddir %>/es5',
+        options: { module: 'commonjs'}
       },
-      build: {
+      es6: {
         src: files.src,
-        dest: '<%= builddir %>/<%= pkg.name %>.js'
+        outDir: '<%= builddir %>/es6',
+        options: { target: "es6"}
       }
     },
     uglify: {
@@ -56,7 +44,7 @@ module.exports = function (grunt) {
     },
     webpack: {
       build: {
-        entry: files.buildSrc,
+        entry: files.commonJsEntrypoint,
         output: {
           path: '<%= builddir %>',
           filename: '<%= pkg.name %>.js',
@@ -84,7 +72,7 @@ module.exports = function (grunt) {
     },
     watch: {
       files: ['src/**/*.ts', 'src/**/*.js', 'test/**/*.js'],
-      tasks: ['build', 'karma:unit']
+      tasks: ['build', 'karma']
     },
     connect: {
       server: {},
@@ -97,38 +85,53 @@ module.exports = function (grunt) {
     },
     karma: {
       options: {
-        configFile: 'config/karma-1.4.1.js',
+        configFile: 'config/karma.js',
         singleRun: true,
         exclude: [],
-        frameworks: ['jasmine'],
+        frameworks: ['systemjs', 'jasmine'],
         reporters: 'dots', // 'dots' || 'progress'
         port: 8080,
         colors: true,
         autoWatch: false,
         autoWatchInterval: 0,
+        // Serve and load angular files using regular Karma mode
+        files: files.karmaServedFiles('1.4.1'),
+        systemjs: {
+          configFile: 'config/system.config.js',
+          // These files are served by Karma, but loaded using SystemJS
+          files: ['src/**/*.ts'].concat(files.testUtils, files.test),
+          // This is turned into a regexp and used to load specs into Karma
+          testFileSuffix: "/test/\\S+.[tj]s"
+        },
         browsers: [ grunt.option('browser') || 'PhantomJS' ]
       },
+      // Same as karma:base
       unit: {
         browsers: [ grunt.option('browser') || 'PhantomJS' ]
       },
+      // Launch Karma in Chrome, click debug button, debug tests
       debug: {
         singleRun: false,
         background: false,
         browsers: [ grunt.option('browser') || 'Chrome' ]
       },
-      onetwo: {
-        configFile: 'config/karma-1.2.28.js'
+      // Test with angular 1.2
+      ng12: {
+        options: { files: files.karmaServedFiles('1.2.28') }
       },
-      onethree: {
-        configFile: 'config/karma-1.3.16.js'
+      // Test with angular 1.3
+      ng13: {
+        options: { files: files.karmaServedFiles('1.3.16') }
       },
-      onefour: {
-        configFile: 'config/karma-1.4.1.js'
+      // Test with angular 1.4
+      ng14: {
+        options: { files: files.karmaServedFiles('1.4.1') }
       },
       background: {
           background: true,
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
       },
+      // PhantomJS in the console; watch for changes to tests/src
       watch: {
         configFile: 'config/karma.js',
         singleRun: false,
@@ -156,12 +159,11 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('integrate', ['clean', 'build', 'karma:onetwo', 'karma:onethree', 'karma:onefour']);
+  grunt.registerTask('integrate', ['clean', 'build', 'karma:ng12', 'karma:ng13', 'karma:ng14']);
   grunt.registerTask('default', ['build', 'karma:unit']);
-  grunt.registerTask('build', 'Perform a normal build', ['ts', 'webpack', 'uglify']);
-  grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
-  grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['dist', 'ngdocs']);
-  grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'dist', 'perform-release']);
+  grunt.registerTask('build', 'Perform a normal build', ['clean', 'ts', 'webpack', 'uglify']);
+  grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['build', 'ngdocs']);
+  grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'build', 'perform-release']);
   grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect:server', 'karma:background', 'watch']);
   grunt.registerTask('sample', 'Run connect server with keepalive:true for sample app development', ['connect:sample']);
 
@@ -216,7 +218,7 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('perform-release', function () {
-    grunt.task.requires([ 'prepare-release', 'dist' ]);
+    grunt.task.requires([ 'prepare-release', 'build' ]);
 
     var version = grunt.config('pkg.version'), releasedir = grunt.config('builddir');
     promising(this,

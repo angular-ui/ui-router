@@ -1,35 +1,22 @@
 routerFiles = {
-  buildSrc: [
-    './build/ts2es5/ui-router.js'
-  ],
-  buildDest: [
-    'build/angular-ui-router.js'
-  ],
-  src: [
-    'src/ui-router.ts',
-    'src/resolve.ts',
-    'src/templateFactory.ts',
-    'src/urlMatcherFactory.ts',
-    'src/transition.ts',
-    'src/urlRouter.ts',
-    'src/state.ts',
-    'src/view.ts',
-    'src/viewScroll.ts',
-    'src/viewDirective.ts',
-    'src/stateDirectives.ts',
-    'src/stateFilters.ts',
-    'src/stateEvents.ts',
-    'src/trace.ts'
-  ],
+  commonJsEntrypoint: ['./build/es5/ui-router.js'],
+  es6Entrypoint:      ['./build/es6/ui-router.js'],
+
+  buildDest:          ['build/angular-ui-router.js'], // The distribution file
+  src:                ['src/ui-router.ts'], // Main UI-Router module (imports everything else)
+
+  // Test helpers
   testUtils: [
     'test/testUtils.js',
     'test/compat/matchers.js'
   ],
+
+  // Tests to load
   test: [
     'test/commonSpec.js',
     'test/globSpec.js',
     'test/resolveSpec.js',
-    //'test/stateDirectivesSpec.js',
+    'test/stateDirectivesSpec.js',
     'test/stateEventsSpec.js',
     'test/stateFiltersSpec.js',
     'test/stateSpec.js',
@@ -37,16 +24,29 @@ routerFiles = {
     'test/transitionSpec.js',
     'test/urlMatcherFactorySpec.js',
     'test/urlRouterSpec.js',
-    //'test/viewDirectiveSpec.js',
-    //'test/viewScrollSpec.js',
+    'test/viewDirectiveSpec.js',
+    'test/viewScrollSpec.js',
     'test/compat/matchers.js'
   ],
+
+  // Returns necessary files for a specific version of angular
   angular: function(version) {
     return [
       'lib/angular-' + version + '/angular.js',
       'lib/angular-' + version + '/angular-mocks.js',
       'lib/angular-' + version + '/angular-animate.js'
     ];
+  },
+
+  // This returns a Karma 'files configuration' for the files served by the Karma web server
+  // http://karma-runner.github.io/0.8/config/files.html
+  karmaServedFiles: function(version) {
+    return [
+      routerFiles.angular(version),
+      { watched: true, included: false, nocache: true, pattern: 'src/**/*.ts' },
+      { watched: true, included: false, nocache: true, pattern: 'test/**/*.ts' },
+      { watched: true, included: false, nocache: true, pattern: 'test/**/*.js' }
+    ]
   }
 };
 

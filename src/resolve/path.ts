@@ -1,7 +1,7 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
-import {extend, isArray, identity, noop} from "../common/common";
-import {defaults, map, omit, pluck, find, pipe, prop, eq}  from "../common/common";
+import {extend, isArray, identity, noop,
+    defaults, map, omit, pluck, find, pipe, prop, eq}  from "../common/common";
 import {trace}  from "../common/trace";
 import {IPromise} from "angular";
 import {IState} from "../interface";
