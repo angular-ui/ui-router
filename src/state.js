@@ -1113,7 +1113,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
           if (exiting.self.onExit) {
             $injector.invoke(exiting.self.onExit, exiting.self, exiting.locals.globals);
           }
-          exiting.locals = null;
+          exiting.locals = {};
         }
 
         // Enter 'to' states not kept
