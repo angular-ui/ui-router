@@ -4,7 +4,8 @@ import Glob from "./glob";
 import StateQueueManager from "./stateQueueManager";
 import StateBuilder from "./stateBuilder";
 import StateMatcher from "./stateMatcher";
-import TransitionQueue from "./transitionQueue";
+import Queue from "../common/queue";
+import {Transition} from "../transition/transition"
 import {TransitionRejection, RejectType, RejectFactory} from "../transition/rejectFactory";
 import {defaultTransOpts} from "../transition/transitionService";
 import Param from "../params/param";
@@ -116,7 +117,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
   var matcher    = new StateMatcher(states);
   var builder    = new StateBuilder(function() { return root; }, matcher, $urlMatcherFactoryProvider);
   var stateQueue = new StateQueueManager(states, builder, $urlRouterProvider, $state);
-  var transQueue = new TransitionQueue();
+  var transQueue = new Queue<Transition>();
 
 
   /**
@@ -614,11 +615,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         throw new Error(`No such reload state '${(isString(options.reload) ? options.reload : options.reload.name)}'`);
       }
 
-      var transition = transQueue.push($transition.create(
+      var transition = transQueue.enqueue($transition.create(
         matcher.reference($state.current, null, extend({}, $stateParams)),
         matcher.reference(to, options && options.relative, toParams),
         extend(options, {
-          current: transQueue.last.bind(transQueue)
+          current: transQueue.peek.bind(transQueue)
         })
       ));
 
@@ -661,8 +662,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
             if (error.type === RejectType.SUPERSEDED) {
               //if (error.redirected && error.detail instanceof Transition) { // TODO: expose Transition class for instanceof
-              if (error.redirected && error.detail && isFunction(error.detail.run)) {
-                transQueue.push(error.detail);
+              if (error.redirected && error.detail instanceof Transition) {
+                transQueue.enqueue(error.detail);
                 return stateHandler.runTransition(error.detail);
               }
             }
@@ -688,9 +689,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       };
 
       var result = stateHandler.runTransition(transition);
-
-      // Pop the transition off the queue
-      result.finally(pipe(val(transition), transQueue.pop.bind(transQueue)));
+      result.finally(() => transQueue.remove(transition));
 
       // Return a promise for the transition, which also has the transition object on it.
       // Allows, for instance:

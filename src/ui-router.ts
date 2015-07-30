@@ -26,9 +26,9 @@ import StateMatcher from "./state/stateMatcher";
 import StateQueueManager from "./state/stateQueueManager";
 import StateReference from "./state/stateReference";
 //import StateService from "./state/stateService";
-import TransitionQueue from "./state/transitionQueue";
+import Queue from "./common/queue";
 var state = { Glob, stateInterface, state: stateState, StateBuilder, stateDirectives,
-  stateEvents, stateFilters, StateMatcher, StateQueueManager, StateReference, TransitionQueue};
+  stateEvents, stateFilters, StateMatcher, StateQueueManager, StateReference, Queue};
 
 import HookBuilder from "./transition/hookBuilder"
 import * as rejectFactory from "./transition/rejectFactory"
