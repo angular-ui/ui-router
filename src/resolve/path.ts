@@ -8,6 +8,7 @@ import {IState} from "../state/interface";
 import {runtime} from "../common/angular1"
 import PathElement from "./pathElement";
 import Resolvable from "./resolvable";
+import {IResolvables} from "./interface";
 
 
 /**
@@ -67,7 +68,7 @@ export default class Path {
    *   state({ name: 'G.G2', resolve: { _G: function(_G) { return _G + "G2"; } } });
    *   where injecting _G into a controller will yield "GG2"
    */
-  getResolvables(options?: any): { [key:string]:Resolvable; } {
+  getResolvables(options?: any): IResolvables {
     options = defaults(options, { omitOwnLocals: [] });
     var last = this.last();
     return this.elements.reduce(function(memo, elem) {
