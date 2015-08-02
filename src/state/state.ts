@@ -4,6 +4,7 @@ import Glob from "./glob";
 import StateQueueManager from "./stateQueueManager";
 import StateBuilder from "./stateBuilder";
 import StateMatcher from "./stateMatcher";
+import StateHandler from "./stateHandler";
 import Queue from "../common/queue";
 import {Transition} from "../transition/transition"
 import {TransitionRejection, RejectType, RejectFactory} from "../transition/rejectFactory";
@@ -622,70 +623,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           current: transQueue.peek.bind(transQueue)
         })
       ));
-
-      var stateHandler = {
-
-        runTransition: function runTransition(transition) {
-          // When the transition promise (prepromise; before callbacks) is resolved/rejected, update the $state service
-          function handleSuccess() { return stateHandler.transitionSuccess(transition); }
-          function handleFailure(error) { return stateHandler.transitionFailure(error); }
-          transition.run();
-          return transition.prepromise.then(handleSuccess, handleFailure);
-        },
-
-        transitionSuccess: function transitionSuccess(transition) {
-          // TODO: sync on entering/exiting state, not transition success?
-          transition.views("exiting").forEach($view.reset.bind($view));
-          $view.sync();
-          transition.views("entering").forEach($view.registerStateViewConfig.bind($view));
-          $view.sync();
-
-          // Update globals in $state
-          $state.$current = transition.$to().$state();
-          $state.current = transition.$to().state();
-
-          stateHandler.updateStateParams(transition);
-          transQueue.clear();
-          return transition;
-        },
-
-        transitionFailure: function transitionFailure(error) {
-          // Handle redirect and abort
-          if (error instanceof TransitionRejection) {
-            if (error.type === RejectType.IGNORED) {
-              // Update $stateParmas/$state.params/$location.url if transition ignored, but dynamic params have changed.
-              if (!$state.$current.params.$$filter(not(not(prop('dynamic')))).$$equals($stateParams, transition.params())) {
-                stateHandler.updateStateParams(transition);
-              }
-              return $state.current;
-            }
-
-            if (error.type === RejectType.SUPERSEDED) {
-              //if (error.redirected && error.detail instanceof Transition) { // TODO: expose Transition class for instanceof
-              if (error.redirected && error.detail instanceof Transition) {
-                transQueue.enqueue(error.detail);
-                return stateHandler.runTransition(error.detail);
-              }
-            }
-          }
-
-          return $q.reject(error);
-        },
-
-        updateStateParams: function updateStateParams(transition) {
-          var options = transition.options();
-          $state.params = transition.params();
-          copy($state.params, $stateParams);
-          $stateParams.$sync().$off();
-
-          if (options.location && $state.$current.navigable) {
-            $urlRouter.push($state.$current.navigable.url, $stateParams, { replace: options.location === 'replace' });
-          }
-
-          $urlRouter.update(true);
-        }
-      };
-
+      let stateHandler = new StateHandler($urlRouter, $view, $state, $stateParams, $q, transQueue);
       var result = stateHandler.runTransition(transition);
       result.finally(() => transQueue.remove(transition));
 
