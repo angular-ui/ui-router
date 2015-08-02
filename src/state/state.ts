@@ -667,8 +667,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
                 return stateHandler.runTransition(error.detail);
               }
             }
-
-            return $q.reject(error);
           }
 
           return $q.reject(error);
