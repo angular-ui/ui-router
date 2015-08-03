@@ -1,19 +1,12 @@
-import Path from "path";
-import PathElement from "pathElement";
+import Path from "./path";
 import {IState} from "../state/interface";
 import {objectKeys, zipObject, pick} from "../common/common";
 
+// TODO: Refactor!
+// TODO: this is better named ViewContext?
 export default class PathContext {
-  private _pathElement: PathElement;
-  private _path: Path;
-  private _options: any;
-  private _injector: ng.auto.IInjectorService;
-
-  constructor(pathElement: PathElement, path: Path, options: any, $injector: ng.auto.IInjectorService) {
-    this._pathElement = pathElement;
-    this._path = path;
-    this._options = options;
-    this._injector = $injector;
+  constructor(private _pathElement: PathElement, private _path: PathResolver, private _options: any, private _injector: ng.auto.IInjectorService) {
+    
   }
 
   /** Invokes an annotated function in the context of the toPath */

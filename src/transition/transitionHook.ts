@@ -1,7 +1,6 @@
 import {defaults, extend, noop, filter, not, isFunction, objectKeys, map, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse} from "../common/common";
 import trace from "../common/trace";
 import {RejectFactory} from "./rejectFactory";
-import PathElement from "../resolve/pathElement";
 import Path from "../resolve/path";
 import {Transition} from "./transition";
 import {IState} from "../state/interface";
@@ -15,10 +14,10 @@ export interface ITransitionHookOptions {
 
 export default class TransitionHook {
   options: ITransitionHookOptions;
-  pathElement: PathElement;
+  // pathElement: PathElement;
   fn: Function;
   locals: any;
-  pathContext: Path;
+  // pathContext: Path;
 
   // TODO these are redundant, check why we're doubling up on them.
   async: boolean;
@@ -35,10 +34,10 @@ export default class TransitionHook {
       trace: false,
       data: {}
     });
-    this.pathElement = pathElement;
+    // this.pathElement = pathElement;
     this.fn = fn;
     this.locals = locals;
-    this.pathContext = pathContext;
+    // this.pathContext = pathContext;
 
     // TODO this is redundant, check why we're doubling up on these.
     this.async = options.async;

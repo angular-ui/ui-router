@@ -9,11 +9,11 @@ import Type from "./params/type"
 import paramTypes from "./params/paramTypes"
 var params = { Param, ParamSet, Type, paramTypes };
 
-import Resolvable from "./resolve/resolvable"
 import Path from "./resolve/path"
-import PathElement from "./resolve/pathElement"
 import PathContext from "./resolve/pathContext"
-var resolve = { Resolvable, Path, PathElement, PathContext };
+import Resolvable from "./resolve/resolvable"
+import ResolveContext from "./resolve/resolveContext"
+var resolve = { Path, PathContext, Resolvable, ResolveContext };
 
 import Glob from "./state/glob";
 import * as stateInterface from "./state/interface";

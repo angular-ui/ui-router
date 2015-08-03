@@ -68,3 +68,14 @@ export interface IState {
   data: any;
   includes: (name: string) => boolean;
 }
+
+export interface IStateParams {
+  $digest: () => void,
+  $inherit: (newParams, $current, $to: IState) => IStateParams
+  $set: (params, url) => boolean,
+  $sync: () => IStateParams,
+  $off: () => IStateParams,
+  $raw: () => any,
+  $localize: () => IStateParams,
+  $observe: (key, fn) => () => void
+}

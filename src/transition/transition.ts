@@ -9,13 +9,14 @@ import TransitionHook from "./transitionHook";
 import HookBuilder from "./hookBuilder";
 import Resolvable from "../resolve/resolvable";
 import Path from "../resolve/path";
-import PathElement from "../resolve/pathElement";
+import ResolveContext from "../resolve/resolveContext";
+import {IResolvePath} from "../resolve/interface";
 import {RejectFactory} from "./rejectFactory"
 import {StateParams} from "../state/state"
 import StateReference from "../state/stateReference"
 import {IState, IStateDeclaration} from "../state/interface";
 import PathContext from "../resolve/pathContext";
-import {IStateViewConfig} from "../state/interface";
+import {IStateViewConfig, IStateParams} from "../state/interface";
 import {defaults, eq, extend, filter, flatten, forEach, identity, invoke, is, isEq, isFunction, isObject, isPromise, isDefined,
     map, noop, not, objectKeys, parse, pattern, pipe, pluck, prop, toJson, unnest, unroll, val, pairs} from "../common/common";
 
@@ -23,11 +24,11 @@ var transitionCount = 0, REJECT = new RejectFactory();
 
 
 interface TreeChanges {
-  from: Path;
-  to: Path;
-  retained: Path;
-  entering: Path;
-  exiting: Path;
+  from: IResolvePath;
+  to: IResolvePath;
+  retained: IResolvePath;
+  entering: IResolvePath;
+  exiting: IResolvePath;
 }
 
 /**
@@ -52,19 +53,19 @@ export class Transition {
 
   private _deferreds: any;
 
-  private _from: StateReference;
-  private _to: StateReference;
-  private _fromPath: Path;
+  // private _from: StateReference;
+  // private _to: StateReference;
+  private _fromPath: IResolvePath;
 
   promise: IPromise<any>;
   prepromise: IPromise<any>;
   redirects: IPromise<any>;
 
-  constructor(from: StateReference, to: StateReference, options: ITransitionOptions) {
+  constructor(from: IResolvePath, to: IResolvePath, options: ITransitionOptions) {
     this.$id = transitionCount++;
 
-    this._from = from;
-    this._to = to;
+    // this._from = from;
+    // this._to = to;
 
     this._options = extend({current: val(this)}, options);
 
@@ -73,12 +74,12 @@ export class Transition {
       posthooks: runtime.$q.defer(), // Resolved when the transition is complete, after success callbacks
       redirects: runtime.$q.defer() // Resolved when any transition redirects are complete
     };
+    
+    var fromState = from.last().state;
+    var toState = to.last().state;
+    this._fromPath = from;
 
-    var fromState = from.$state();
-    var toState = to.$state();
-    this._fromPath = new Path(fromState.path);
-
-    var fromParams = extend(new StateParams(), from.params());
+    var fromParams = extend(new StateParams(), from.last().params());
     var toParams = (options.inherit && toState) ? fromParams.$inherit(to.params(), fromState, toState) : to.params();
     toParams = toState ? extend(new StateParams(), toState.params.$$values(toParams)) : toParams;
 
