@@ -3,21 +3,19 @@
 import {IServiceProviderFactory} from "angular";
 import {Transition} from "./transition";
 import Glob from "../state/glob";
-import {IStateDeclaration, IState} from "../state/interface";
-import {extend, is, isFunction, isString, val, noop} from "../common/common";
 
-export interface ITransitionOptions {
-  location    ?: boolean,
-  relative    ?: (boolean|IStateDeclaration|IState),
-  inherit     ?: boolean,
-  notify      ?: boolean,
-  reload      ?: (boolean|string|IStateDeclaration|IState),
-  reloadState ?: (IState),
-  trace       ?: boolean,
-  custom      ?: any,
-  previous    ?: Transition,
-  current     ?: () => Transition
-}
+import {IStateDeclaration, IState} from "../state/interface";
+import {StateParams} from "../state/state"
+
+import {IRawParams} from "../params/interface"
+
+import {IResolvables, IPath, IParamsPath, ITransPath, INode, IParamsNode, ITransNode} from "../resolve/interface"
+import ResolveContext from "../resolve/resolveContext"
+import Path from "../resolve/path"
+
+import {ITransitionOptions} from "./interface"
+
+import {extend, defaults, find, is, isFunction, isString, val, noop} from "../common/common";
 
 /**
  * The default transition options.
@@ -320,8 +318,18 @@ function $TransitionProvider() {
         throw new Error($transition$.$to().error());
     });
 
-    $transition.create = function create(from, to, options) {
-      return new Transition(from, to, options || {});
+    $transition.create = function create(fromPath: ITransPath, to: IPath, toParams: IRawParams, options: ITransitionOptions) {
+      const paramsFor = (path: IParamsPath, state: IState) => path.elementForState(state).ownParams
+      
+      const makeParamsNode = (node: INode) => {
+        let fromParams = paramsFor(fromPath, node.state) || {}; 
+        let newParams: IRawParams = <any> node.state.ownParams.$$values(toParams);
+        let ownParams: IRawParams = extend({}, fromParams, newParams);
+        return { state: node.state, ownParams };
+      }
+      
+      let toPath: IParamsPath = new Path(to.nodes().map(makeParamsNode))
+      return new Transition(fromPath, toPath, options || {});
     };
 
     $transition.isTransition = is(Transition);

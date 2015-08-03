@@ -1,5 +1,6 @@
 import {IPromise} from "angular";
 import {IState, IStateParams} from "../state/interface";
+import {IRawParams} from "../params/interface";
 import {StateParams} from "../state/state";
 import Resolvable from "./resolvable";
 import Path from "./path"; 
@@ -20,20 +21,30 @@ export interface IOptions1 {
 }
 
 
-
+/** Base data (contains a state) for a node in a Path */
 export interface INode {
   state: IState
 }
 
-export interface ITransNode extends INode { 
+/** Data, including raw params values, for a node in a Path */
+export interface IParamsNode extends INode { 
+  ownParams: IRawParams
+}
+
+/** Transition Data for a node in a Path (either to path or from path) */
+export interface ITransNode extends INode, IParamsNode { 
   ownResolvables: IResolvables,
   resolveContext: ResolveContext,
-  rawParams: any,
   params: IStateParams
 }
 
+/** A basic Path. Each node contains the data necessary for a Transition to work. */
+export interface IPath extends Path<INode> {};
+/** A Params Path. Each node contains raw params data for each state */
+export interface IParamsPath extends Path<IParamsNode> {};
+/** A Transition Path. Each node contains the data necessary for a Transition to work. */
+export interface ITransPath extends Path<ITransNode> {};
 
-export interface IResolvePath extends Path<ITransNode> {};
 interface IOrdinals { [key: string]: number };
 interface IPolicies { [key: string]: string };
 

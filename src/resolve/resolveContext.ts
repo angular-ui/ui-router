@@ -3,7 +3,7 @@
 import {IPromise} from "angular";
 import Path from "./path";
 import Resolvable from "./resolvable";
-import {IPromises, IResolvables, IResolvePath, ResolvePolicy, ITransNode, IGeIOptions1rom "./interface";
+import {IPromises, IResolvables, ITransPath, ResolvePolicy, ITransNode, IOptions1} from "./interface";
 import {IState} from "../state/interface";
 import trace from "../common/trace";
 import {runtime} from "../common/angular1";
@@ -15,7 +15,7 @@ interface IOrdinals { [key: string]: number };
 interface IPolicies { [key: string]: string };
 
 export default class ResolveContext {
-  constructor(private _path: IResolvePath, private _state: IState) {
+  constructor(private _path: ITransPath, private _state: IState) {
     this._path = _path.pathFromRootTo(_state);
   }
  
@@ -69,7 +69,7 @@ export default class ResolveContext {
   // resolve both 'lazy' and 'eager' resolves.
   resolvePathElement(options): IPromise<any> {
     options = options || {};
-    var state = this._state;
+    let state = this._state;
 
     // The caller can request the path be resolved for a given policy and "below" 
     let policy: string = options && options.resolvePolicy;

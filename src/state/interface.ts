@@ -71,7 +71,7 @@ export interface IState {
 
 export interface IStateParams {
   $digest: () => void,
-  $inherit: (newParams, $current, $to: IState) => IStateParams
+  $inherit: (newParams, $current: IState, $to: IState) => IStateParams
   $set: (params, url) => boolean,
   $sync: () => IStateParams,
   $off: () => IStateParams,

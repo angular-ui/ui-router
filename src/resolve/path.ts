@@ -10,17 +10,14 @@ import Resolvable from "./resolvable";
 import {IResolvables, INode} from "./interface";
 
 /**
- *  A Path Object holds an ordered list of PathElements.
+ * A Path Object represents a Path of nested States within the State Hierarchy. 
+ * Each node of the path holds the IState object, and additional data, according
+ * to the use case.   
  *
- *  This object is used to store resolve status for an entire path of states. It has concat and slice
- *  helper methods to return new Paths, based on the current Path.
+ * A Path can be used to construct new Paths based on the current Path via the concat 
+ * and slice helper methods.
  *
- *
- *  Path becomes the replacement data structure for $state.$current.locals.
- *  The Path is used in the three resolve() functions (Path.resolvePath, PathElement.resolvePathElement,
- *  and Resolvable.resolveResolvable) and provides context for injectable dependencies (Resolvables)
- *
- *  @param statesOrPathElements [array]: an array of either state(s) or PathElement(s)
+ * @param _nodes [array]: an array of INode data
  */
 export default class Path<NODE extends INode> {
   constructor(private _nodes: NODE[]) { }
@@ -48,7 +45,7 @@ export default class Path<NODE extends INode> {
   }
 
   states(): IState[] {
-    return pluck(this._nodes, "state");
+    return this._nodes.map(prop("state"));
   }
 
   elementForState(state: IState): NODE {

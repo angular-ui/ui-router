@@ -5,7 +5,7 @@ import trace  from "../common/trace";
 import {IPromise} from "angular";
 import {IState} from "../state/interface";
 import {runtime} from "../common/angular1"
-import {IResolvePath, IResolvables} from "./interface"
+import {ITransPath, IResolvables} from "./interface"
 
 /**
  * The basic building block for the resolve system.
@@ -46,7 +46,7 @@ export default class Resolvable {
   // - wait for resolveFn promise to resolve
   // - store unwrapped data
   // - resolve the Resolvable's promise
-  resolveResolvable(pathContext: IResolvePath, options) {
+  resolveResolvable(pathContext: ITransPath, options) {
     options = options || {};
     let {state, name, deps, resolveFn} = this;
     
@@ -84,7 +84,7 @@ export default class Resolvable {
     });
   }
 
-  get(pathContext: IResolvePath, options): IPromise<any> {
+  get(pathContext: ITransPath, options): IPromise<any> {
     return this.promise || this.resolveResolvable(pathContext, options);
   }
 
