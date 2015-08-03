@@ -239,10 +239,7 @@ export function find(collection, callback) {
 
 export function map<T> (collection: T, callback): T {
   var result = isArray(collection) ? [] : {};
-
-  forEach(collection, function(val, i) {
-    result[i] = callback(val, i);
-  });
+  forEach(collection, (val, i) =>  result[i] = callback(val, i));
   return <T> result;
 }
 
@@ -401,6 +398,20 @@ export function pattern(struct: Function[][]): Function {
 
 export var isPromise = and(isObject, pipe(prop('then'), isFunction));
 
+// Stolen: http://stackoverflow.com/questions/4394747/javascript-curry-function
+export function curry(fn: F): F {
+    var initial_args = [].slice.apply(arguments, [1]);
+    var func_args_length = fn.length;
+    
+    function curried(args) {
+        if (args.length >= func_args_length)
+            return fn.apply(null, args);
+        return function () {
+            return curried(args.concat([].slice.apply(arguments)));
+        };
+    }
+    return curried(initial_args);
+}
 /**
  * @ngdoc overview
  * @name ui.router.util
