@@ -267,7 +267,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
 
     var baseHref = $browser.baseHref(), location = $location.url(), lastPushedUrl;
 
-    function appendBasePath(url, isHtml5, absolute) {
+    function prependBasePath(url, isHtml5, absolute) {
       if (baseHref === '/') return url;
       if (isHtml5) return baseHref.slice(0, -1) + url;
       if (absolute) return baseHref.slice(1) + url;
@@ -386,6 +386,8 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
        * @param {object=} options Options object. The options are:
        *
        * - **`absolute`** - {boolean=false},  If true will generate an absolute url, e.g. "http://www.example.com/fullurl".
+       * - **`prependBasePath`** - {boolean=true}, If false will not prepend base path (`<base href="/path/">`) to path. Will always prepend
+       *    base path if `absolute` is true.
        *
        * @returns {string} Returns the fully compiled URL, or `null` if `params` fail validation against `urlMatcher`
        */
@@ -411,7 +413,9 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
           url += '#' + params['#'];
         }
 
-        url = appendBasePath(url, isHtml5, options.absolute);
+        if (options.absolute || options.prependBasePath) {
+          url = prependBasePath(url, isHtml5, options.absolute);
+        }
 
         if (!options.absolute || !url) {
           return url;

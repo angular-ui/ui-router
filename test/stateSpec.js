@@ -958,6 +958,18 @@ describe('state', function () {
         expect($state.href("home")).toEqual("/base/");
         expect($state.href("home", null, { absolute: true })).toEqual("http://server/base/");
       }));
+
+      describe('base path prepending', function() {
+        it('should not prepend when argument is non-truthy', inject(function($state) {
+          locationProvider.html5Mode(true);
+          expect($state.href("home", null, { prependBasePath: false })).toEqual("/");
+        }));
+
+        it('should ignore prependBasePath option for absolute URLs', inject(function($state) {
+          locationProvider.html5Mode(true);
+          expect($state.href("home", null, { prependBasePath: false, absolute: true })).toEqual("http://server/base/");
+        }));
+      });
     });
   });
 
