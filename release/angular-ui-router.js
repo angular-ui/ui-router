@@ -3948,41 +3948,45 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate)
         }
 
         function updateView(firstTime) {
-          var newScope,
-              name            = getUiViewName(scope, attrs, $element, $interpolate),
-              previousLocals  = name && $state.$current && $state.$current.locals[name];
+          try {
+            var newScope,
+                name = getUiViewName(scope, attrs, $element, $interpolate),
+                previousLocals = name && $state.$current && $state.$current.locals[name];
 
-          if (!firstTime && previousLocals === latestLocals) return; // nothing to do
-          newScope = scope.$new();
-          latestLocals = $state.$current.locals[name];
+            if (!firstTime && previousLocals === latestLocals) return; // nothing to do
+            newScope = scope.$new();
+            latestLocals = $state.$current.locals[name];
 
-          var clone = $transclude(newScope, function(clone) {
-            renderer.enter(clone, $element, function onUiViewEnter() {
-              if(currentScope) {
-                currentScope.$emit('$viewContentAnimationEnded');
-              }
+            var clone = $transclude(newScope, function (clone) {
+              renderer.enter(clone, $element, function onUiViewEnter() {
+                if (currentScope) {
+                  currentScope.$emit('$viewContentAnimationEnded');
+                }
 
-              if (angular.isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
-                $uiViewScroll(clone);
-              }
+                if (angular.isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
+                  $uiViewScroll(clone);
+                }
+              });
+              cleanupLastView();
             });
-            cleanupLastView();
-          });
 
-          currentEl = clone;
-          currentScope = newScope;
-          /**
-           * @ngdoc event
-           * @name ui.router.state.directive:ui-view#$viewContentLoaded
-           * @eventOf ui.router.state.directive:ui-view
-           * @eventType emits on ui-view directive scope
-           * @description           *
-           * Fired once the view is **loaded**, *after* the DOM is rendered.
-           *
-           * @param {Object} event Event object.
-           */
-          currentScope.$emit('$viewContentLoaded');
-          currentScope.$eval(onloadExp);
+            currentEl = clone;
+            currentScope = newScope;
+            /**
+             * @ngdoc event
+             * @name ui.router.state.directive:ui-view#$viewContentLoaded
+             * @eventOf ui.router.state.directive:ui-view
+             * @eventType emits on ui-view directive scope
+             * @description           *
+             * Fired once the view is **loaded**, *after* the DOM is rendered.
+             *
+             * @param {Object} event Event object.
+             */
+            currentScope.$emit('$viewContentLoaded');
+            currentScope.$eval(onloadExp);
+          } catch(e){
+            updateView(true);
+          }
         }
       };
     }
