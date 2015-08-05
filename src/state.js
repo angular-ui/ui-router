@@ -965,7 +965,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         location: true, inherit: false, relative: null, notify: true, reload: false, $retry: false
       }, options || {});
 
-      var from = $state.$current, fromParams = $state.params, fromPath = from.path;
+      var from = options.$from ? options.$from : $state.$current,
+          fromParams = options.$fromParams ? options.$fromParams : $state.params,
+          fromPath = from.path;
       var evt, toState = findState(to, options.relative);
 
       // Store the hash param for later (since it will be stripped out by various methods)
@@ -1137,6 +1139,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         $state.params = toParams;
         copy($state.params, $stateParams);
         $state.transition = null;
+
+        // defaultPrevented, don't continue
+        if ($rootScope.$broadcast('$stateChanging', to, toParams, from.self, fromParams).defaultPrevented) {
+          return ;
+        }
 
         if (options.location && to.navigable) {
           $urlRouter.push(to.navigable.url, to.navigable.locals.globals.$stateParams, {
