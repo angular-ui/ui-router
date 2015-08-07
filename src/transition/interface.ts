@@ -9,7 +9,7 @@ import TransitionHook from "./transitionHook"
 
 export interface ITransitionOptions {
   location    ?: boolean,
-  relative    ?: (boolean|IStateDeclaration|IState),
+  relative    ?: (string|IStateDeclaration|IState),
   inherit     ?: boolean,
   notify      ?: boolean,
   reload      ?: (boolean|string|IStateDeclaration|IState),

@@ -1,9 +1,6 @@
 import {extend, isString} from "../common/common"
 import StateReference from "./stateReference"
-import {IState, IStateDeclaration} from "./interface"
-
-type PStateRef = (string|IStateDeclaration|IState);
-
+import {IState, IStateDeclaration, PStateRef} from "./interface"
 
 export default class StateMatcher {
   constructor (private _states: {[key: string]: IState}) { }

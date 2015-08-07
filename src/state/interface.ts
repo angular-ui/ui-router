@@ -1,9 +1,19 @@
-import UrlMatcher from "../url/urlMatcher";
-import ParamSet from "../params/paramSet";
+import {IPromise} from "angular"
+
+import UrlMatcher from "../url/urlMatcher"
+import ParamSet from "../params/paramSet"
 
 import {IViewContext} from "../view/interface"
 import PathContext from "../resolve/pathContext"
 
+import {StateParams} from "./state"
+
+import {IRawParams} from "../params/interface"
+
+import {ITransitionOptions} from "../transition/interface"
+import {Transition} from "../transition/transition"
+
+export type PStateRef = (string|IStateDeclaration|IState);
 
 /** Context obj, State-view definition, transition params */
 export interface IStateViewConfig {
@@ -79,3 +89,26 @@ export interface IStateParams {
   $localize: () => IStateParams,
   $observe: (key, fn) => () => void
 }
+
+export interface IHrefOptions {
+  relative  ?: PStateRef,
+  lossy     ?: boolean,
+  inherit   ?: boolean,
+  absolute  ?: boolean
+}
+
+export interface IStateService {
+  params: any, // TODO: StateParams
+  current: IStateDeclaration,
+  $current: IState,
+  transition: Transition,
+  reload(stateOrName: PStateRef): IPromise<IState>,
+  go(to: PStateRef, params: IRawParams, options: ITransitionOptions): IPromise<IState>,
+  transitionTo(to: PStateRef, toParams: IRawParams, options: ITransitionOptions): IPromise<IState>,  
+  redirect(transition: Transition): { to: (state: PStateRef, params: IRawParams, options: ITransitionOptions) => Transition },
+  is(stateOrName: PStateRef, params?: IRawParams, options?: ITransitionOptions): boolean,
+  includes(stateOrName: PStateRef, params?: IRawParams, options?: ITransitionOptions): boolean,
+  href(stateOrName: PStateRef, params?: IRawParams, options?: IHrefOptions): string,
+  get(stateOrName: PStateRef, base: PStateRef): (IStateDeclaration|IStateDeclaration[])
+}
+
