@@ -112,7 +112,7 @@ State.prototype.root = function() {
 $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
-  var root, states = {};
+  var root, states: {[key: string]: IState} = {};
   var $state: any = function $state() {};
 
   var matcher    = new StateMatcher(states);
@@ -806,9 +806,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @param {string|object=} context When stateOrName is a relative state reference, the state will be retrieved relative to context.
      * @returns {Object|Array} State configuration object or array of all objects.
      */
-    $state.get = function (stateOrName, context) {
+    $state.get = function (stateOrName, context): (IStateDeclaration|IStateDeclaration[]) {
       if (arguments.length === 0) return objectKeys(states).map(function(name) { return states[name].self; });
-      return (matcher.find(stateOrName, context || $state.$current) || {}).self || null;
+      var found = matcher.find(stateOrName, context || $state.$current);
+        return found && found.self || null;
     };
 
     return $state;

@@ -1,50 +1,57 @@
 import {extend, isString} from "../common/common"
 import StateReference from "./stateReference"
+import {IState, IStateDeclaration} from "./interface"
 
-export default function StateMatcher(states) {
-  extend(this, {
-    isRelative: function(stateName) {
-      stateName = stateName || "";
-      return stateName.indexOf(".") === 0 || stateName.indexOf("^") === 0;
-    },
+type PStateRef = (string|IStateDeclaration|IState);
 
-    find: function(stateOrName, base) {
-      if (!stateOrName && stateOrName !== "") return undefined;
-      var isStr = isString(stateOrName), name = isStr ? stateOrName : stateOrName.name;
 
-      if (this.isRelative(name)) name = this.resolvePath(name, base);
-      var state = states[name];
+export default class StateMatcher {
+  constructor (private _states: {[key: string]: IState}) { }
+  
+  isRelative(stateName: string) {
+    stateName = stateName || "";
+    return stateName.indexOf(".") === 0 || stateName.indexOf("^") === 0;
+  }
 
-      if (state && (isStr || (!isStr && (state === stateOrName || state.self === stateOrName)))) {
-        return state;
-      }
-      return undefined;
-    },
 
-    reference: function(identifier, base, params) {
-      return new StateReference(identifier, this.find(identifier, base), params, base);
-    },
+  find(stateOrName: PStateRef, base?: PStateRef): IState {
+    if (!stateOrName && stateOrName !== "") return undefined;
+    let isStr = isString(stateOrName);
+    let name: string = isStr ? stateOrName : (<any>stateOrName).name;
 
-    resolvePath: function(name, base) {
-      if (!base) throw new Error(`No reference point given for path '${name}'`);
-      base = this.find(base);
+    if (this.isRelative(name)) name = this.resolvePath(name, base);
+    var state = this._states[name];
 
-      var rel = name.split("."), i = 0, pathLength = rel.length, current = base;
-
-      for (; i < pathLength; i++) {
-        if (rel[i] === "" && i === 0) {
-          current = base;
-          continue;
-        }
-        if (rel[i] === "^") {
-          if (!current.parent) throw new Error(`Path '${name}' not valid for state '${base.name}'`);
-          current = current.parent;
-          continue;
-        }
-        break;
-      }
-      rel = rel.slice(i).join(".");
-      return current.name + (current.name && rel ? "." : "") + rel;
+    if (state && (isStr || (!isStr && (state === stateOrName || state.self === stateOrName)))) {
+      return state;
     }
-  });
+    return undefined;
+  }
+
+  reference(identifier: PStateRef, base: PStateRef, params): StateReference {
+    return new StateReference(identifier, this.find(identifier, base), params, base);
+  }
+
+  resolvePath(name: string, base: PStateRef) {
+    if (!base) throw new Error(`No reference point given for path '${name}'`);
+    
+    let baseState: IState = this.find(base);
+
+    var splitName = name.split("."), i = 0, pathLength = splitName.length, current = baseState;
+
+    for (; i < pathLength; i++) {
+      if (splitName[i] === "" && i === 0) {
+        current = baseState;
+        continue;
+      }
+      if (splitName[i] === "^") {
+        if (!current.parent) throw new Error(`Path '${name}' not valid for state '${baseState.name}'`);
+        current = current.parent;
+        continue;
+      }
+      break;
+    }
+    let relName = splitName.slice(i).join(".");
+    return current.name + (current.name && relName ? "." : "") + relName;
+  }
 }
