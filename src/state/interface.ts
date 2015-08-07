@@ -26,7 +26,7 @@ export interface IViewDeclaration {
 /** hash of strings->views */
 interface IViewDeclarations     { [key:string]: IViewDeclaration; }
 /** hash of strings->resolve fns */
-interface IResolveDeclarations  { [key:string]: Function; }
+export interface IResolveDeclarations  { [key:string]: Function; }
 /** hash of strings->param declarations */
 // If the value is of type 'any', then it is syntax sugar for an IParamDeclaration { value: value }
 interface IParamsDeclaration    { [key:string]: (IParamDeclaration|any) }

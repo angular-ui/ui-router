@@ -9,7 +9,7 @@ import Type from "./params/type"
 import paramTypes from "./params/paramTypes"
 var params = { Param, ParamSet, Type, paramTypes };
 
-import Path from "./resolve/path"
+import Path from "./path/path"
 import PathContext from "./resolve/pathContext"
 import Resolvable from "./resolve/resolvable"
 import ResolveContext from "./resolve/resolveContext"

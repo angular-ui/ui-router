@@ -236,8 +236,11 @@ export function find(collection, callback) {
 
   return result;
 }
+export function mapObj<T, U> (obj: {[key: string]: T}, callback: (T, K?: string) => U): {[key: string]: U} {
+  return <any> map(obj, callback);
+}
 
-export function map<T> (collection: T, callback): T {
+export function map<C, T> (collection: T, callback): T {
   var result = isArray(collection) ? [] : {};
   forEach(collection, (val, i) =>  result[i] = callback(val, i));
   return <T> result;

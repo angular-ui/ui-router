@@ -1,31 +1,26 @@
-import {defaults, extend, noop, filter, not, isFunction, objectKeys, map, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse} from "../common/common";
+import {defaults, extend, noop, filter, not, isFunction, objectKeys, map, mapObj, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse} from "../common/common";
 import trace from "../common/trace";
 import {RejectFactory} from "./rejectFactory";
-import Path from "../resolve/path";
+import Path from "../path/path";
 import {Transition} from "./transition";
-import {IState} from "../state/interface";
+import {IState, IResolveDeclarations} from "../state/interface";
 import Resolvable from "../resolve/resolvable";
+import ResolveContext from "../resolve/resolveContext";
+import {ITransitionHookOptions} from "./interface"
 
 var REJECT = new RejectFactory();
 
-export interface ITransitionHookOptions {
-  async: boolean, rejectIfSuperseded: boolean, current(), transition: Transition, trace: boolean, data: any
-}
-
 export default class TransitionHook {
-  options: ITransitionHookOptions;
-  // pathElement: PathElement;
-  fn: Function;
-  locals: any;
-  // pathContext: Path;
-
   // TODO these are redundant, check why we're doubling up on them.
   async: boolean;
   rejectIfSuperseded: boolean;
-  state: IState;
   data: any;
 
-  constructor(pathElement: PathElement, fn: Function, locals: any, pathContext: Path, options: any) {
+  constructor(private state: IState,
+              private fn: Function,
+              private locals: any,
+              private resolveContext: ResolveContext,
+              private options: ITransitionHookOptions) {
     this.options = defaults(options, {
       async: true,
       rejectIfSuperseded: true,
@@ -34,15 +29,10 @@ export default class TransitionHook {
       trace: false,
       data: {}
     });
-    // this.pathElement = pathElement;
-    this.fn = fn;
-    this.locals = locals;
-    // this.pathContext = pathContext;
 
     // TODO this is redundant, check why we're doubling up on these.
     this.async = options.async;
     this.rejectIfSuperseded = options.rejectIfSuperseded;
-    this.state = pathElement.state;
     this.data = options.data;
   }
 
@@ -50,15 +40,14 @@ export default class TransitionHook {
    * Validates the result map as a "resolve:" style object.
    * Creates Resolvable objects from the result object and adds them to the target object
    */
-  mapNewResolves(resolves: Object) {
+  mapNewResolves(resolves: IResolveDeclarations) {
     var invalid = filter(resolves, not(isFunction)), keys = objectKeys(invalid);
     if (keys.length)
       throw new Error("Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}");
 
     // If result is an object, it should be a map of strings to functions.
-    return map(resolves, (val, key) => {
-      return new Resolvable(key, val, this.pathElement.state);
-    });
+    const makeResolvable = (fn, name) => new Resolvable(name, fn, this.state);
+    return mapObj(resolves, makeResolvable);
   }
 
   handleHookResult(hookResult) {
@@ -82,11 +71,11 @@ export default class TransitionHook {
     // A promise was returned, wait for the promise and then chain another hookHandler
     [isPromise, (result) => result.then(this.handleHookResult.bind(this))],
     // If the hook returns any new resolves, add them to the pathContext via the PathElement
-    [isObject, (result) => this.pathElement.addResolvables(this.mapNewResolves(result))]
+    [isObject, (result) => this.resolveContext.addResolvables(this.mapNewResolves(result), this.state)]
   ])(hookResult);
 
   invokeStep = () => {
-    var { options, fn, locals, pathContext, pathElement } = this;
+    var { options, fn, locals, resolveContext, state } = this;
     if (options.trace) trace.traceHookInvocation(this, options);
     if (options.rejectIfSuperseded && /* !this.isActive() */ options.transition !== options.current()) {
       return REJECT.superseded(options.current());
@@ -94,19 +83,20 @@ export default class TransitionHook {
 
     // TODO: Need better integration of returned promises in synchronous code.
     if (!options.async) {
-      return this.handleHookResult(pathElement.invokeNow(fn, locals, pathContext));
+      let hookResult = resolveContext.invokeNow(state, fn, locals, options);
+      return this.handleHookResult(hookResult);
     }
-    return pathElement.invokeLater(fn, locals, pathContext, options).then(this.handleHookResult.bind(this));
+    return resolveContext.invokeLater(state, fn, locals, options).then(this.handleHookResult.bind(this));
   };
 
 
   toString() {
-    var { options, fn, pathContext } = this;
+    var { options, fn, resolveContext } = this;
     var event = parse("data.eventType")(options) || "internal",
         name = (<any> fn).name || "(anonymous)",
         from = parse("data.from.name")(options),
         to = parse("data.to.name")(options),
         state = parse("data.pathElement.state.name")(options);
-    return `Step ${event} (fn: '${name}', match:{from: '${from}', to: '${to}'}, ${pathContext.toString()})`;
+    return `Step ${event} (fn: '${name}', match:{from: '${from}', to: '${to}'}, ${resolveContext.toString()})`;
   }
 }

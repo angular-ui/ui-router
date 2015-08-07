@@ -1,19 +1,29 @@
 import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEach, pick, objectKeys, ancestors, arraySearch, noop, identity,
-    not, prop, pipe, val, isDefined, isFunction, isArray, isObject, isString} from "../common/common";
-import Glob from "./glob";
-import StateQueueManager from "./stateQueueManager";
-import StateBuilder from "./stateBuilder";
-import StateMatcher from "./stateMatcher";
-import StateHandler from "./stateHandler";
-import Queue from "../common/queue";
+    not, prop, pipe, val, isDefined, isFunction, isArray, isObject, isString} from "../common/common"
+import Queue from "../common/queue"
+import {IServiceProviderFactory} from "angular"
+
+import {IState, IStateDeclaration} from "./interface"
+import Glob from "./glob"
+import StateQueueManager from "./stateQueueManager"
+import StateBuilder from "./stateBuilder"
+import StateMatcher from "./stateMatcher"
+import StateHandler from "./stateHandler"
+import StateReference from "./stateReference";
+
+import {ITransitionService} from "../transition/interface"
 import {Transition} from "../transition/transition"
-import {TransitionRejection, RejectType, RejectFactory} from "../transition/rejectFactory";
-import {defaultTransOpts} from "../transition/transitionService";
-import Param from "../params/param";
-import ParamSet from "../params/paramSet";
-import {IServiceProviderFactory} from "angular";
-import UrlMatcher from "../url/urlMatcher";
-import {IState, IStateDeclaration} from "interface";
+import {TransitionRejection, RejectType, RejectFactory} from "../transition/rejectFactory"
+import {defaultTransOpts} from "../transition/transitionService"
+
+import {INode, IParamsNode, ITransNode, IPath, IParamsPath, ITransPath} from "../path/interface"
+import Path from "../path/path"
+
+import Param from "../params/param"
+import ParamSet from "../params/paramSet"
+
+import UrlMatcher from "../url/urlMatcher"
+
 
 /**
  * @ngdoc object
@@ -388,8 +398,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
    */
   this.$get = $get;
   $get.$inject = ['$rootScope', '$q', '$injector', '$view', '$stateParams', '$urlRouter', '$transition', '$urlMatcherFactory'];
-  function $get(   $rootScope,   $q,   $injector,   $view,   $stateParams,   $urlRouter,   $transition,   $urlMatcherFactory) {
-
+  function $get(   $rootScope,   $q,   $injector,   $view,   $stateParams,   $urlRouter,   _$transition,   $urlMatcherFactory) {
+    let $transition: ITransitionService = <any> _$transition;
     // Implicit root state that is always active
     root = stateQueue.register({
       name: '',
@@ -414,7 +424,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
     stateQueue.flush($state);
     stateQueue.autoFlush = true; // Autoflush once we are in runtime
-
+    let currentPath: ITransPath = new Path<ITransNode>([]);
     /**
      * @ngdoc function
      * @name ui.router.state.$state#reload
@@ -608,6 +618,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      */
     $state.transitionTo = function transitionTo(to, toParams, options) {
       options = defaults(options, defaultTransOpts);
+      let transOptions = extend(options, { current: transQueue.peek.bind(transQueue)});
 
       // If we're reloading, find the state object to reload from
       if (isObject(options.reload) && !options.reload.name) { throw new Error('Invalid reload state object'); }
@@ -616,13 +627,15 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         throw new Error(`No such reload state '${(isString(options.reload) ? options.reload : options.reload.name)}'`);
       }
 
-      var transition = transQueue.enqueue($transition.create(
-        matcher.reference($state.current, null, extend({}, $stateParams)),
-        matcher.reference(to, options && options.relative, toParams),
-        extend(options, {
-          current: transQueue.peek.bind(transQueue)
-        })
-      ));
+      // matcher.reference(to, options && options.relative, toParams),
+      let ref: StateReference = matcher.reference(to, options && options.relative, toParams);
+
+      // TODO: handle invalid state correctly here in $state, not in $transition
+      if (!ref.valid()) throw new Error(`Invalid, yo: ${ref}`);
+      let toPath: IPath = new Path<INode>(ref.$state().path.map((state) => ({state})));
+
+      let newTrans = $transition.create(currentPath, toPath, toParams, transOptions);
+      var transition: Transition = transQueue.enqueue(newTrans);
       let stateHandler = new StateHandler($urlRouter, $view, $state, $stateParams, $q, transQueue);
       var result = stateHandler.runTransition(transition);
       result.finally(() => transQueue.remove(transition));
@@ -809,7 +822,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     $state.get = function (stateOrName, context): (IStateDeclaration|IStateDeclaration[]) {
       if (arguments.length === 0) return objectKeys(states).map(function(name) { return states[name].self; });
       var found = matcher.find(stateOrName, context || $state.$current);
-        return found && found.self || null;
+      return found && found.self || null;
     };
 
     return $state;

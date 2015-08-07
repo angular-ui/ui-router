@@ -1,11 +1,15 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-
 import {pick, map}  from "../common/common";
 import trace  from "../common/trace";
-import {IPromise} from "angular";
-import {IState} from "../state/interface";
 import {runtime} from "../common/angular1"
-import {ITransPath, IResolvables} from "./interface"
+import {IPromise} from "angular";
+
+import {IState} from "../state/interface";
+
+import {IResolvables} from "./interface"
+import ResolveContext from "./resolveContext"
+
+import {ITransPath} from "../path/interface"
 
 /**
  * The basic building block for the resolve system.
@@ -46,7 +50,7 @@ export default class Resolvable {
   // - wait for resolveFn promise to resolve
   // - store unwrapped data
   // - resolve the Resolvable's promise
-  resolveResolvable(pathContext: ITransPath, options) {
+  resolveResolvable(resolveContext: ResolveContext, options) {
     options = options || {};
     let {state, name, deps, resolveFn} = this;
     
@@ -54,17 +58,16 @@ export default class Resolvable {
     // First, set up an overall deferred/promise for this Resolvable
     var deferred = runtime.$q.defer();
     this.promise = deferred.promise;
-    var resolveContext = pathContext.elementForState(state).resolveContext;
     // Load a map of all resolvables for this state from the context path
     // Omit the current Resolvable from the result, so we don't try to inject this into this
-    var ancestorsByName: IResolvables = resolveContext.getResolvables({  omitOwnLocals: [ name ] });
+    var ancestorsByName: IResolvables = resolveContext.getResolvables(null, {  omitOwnLocals: [ name ] });
 
     // Limit the ancestors Resolvables map to only those that the current Resolvable fn's annotations depends on
     var depResolvables: IResolvables = <any> pick(ancestorsByName, deps);
 
     // Get promises (or synchronously invoke resolveFn) for deps
     var depPromises: any = map(depResolvables, function(resolvable: Resolvable) {
-      return resolvable.get(pathContext, options);
+      return resolvable.get(resolveContext, options);
     });
 
     // Return a promise chain that waits for all the deps to resolve, then invokes the resolveFn passing in the
@@ -84,8 +87,8 @@ export default class Resolvable {
     });
   }
 
-  get(pathContext: ITransPath, options): IPromise<any> {
-    return this.promise || this.resolveResolvable(pathContext, options);
+  get(resolveContext: ResolveContext, options): IPromise<any> {
+    return this.promise || this.resolveResolvable(resolveContext, options);
   }
 
   toString() {

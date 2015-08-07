@@ -63,6 +63,7 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
        * @param fromParams
        */
       $rootScope.$broadcast('$stateChangeSuccess',
+        //TODO: fix the params
         $transition$.to(), extend(new StateParams(), $transition$.params()).$raw(),
         $transition$.from(), extend(new StateParams(), $transition$.$from().params()).$raw());
     });

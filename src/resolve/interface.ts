@@ -1,9 +1,10 @@
 import {IPromise} from "angular";
 import {IState, IStateParams} from "../state/interface";
 import {IRawParams} from "../params/interface";
+import {ParamValues} from "../params/paramValues";
 import {StateParams} from "../state/state";
 import Resolvable from "./resolvable";
-import Path from "./path"; 
+import Path from "./../path/path";
 import ResolveContext from "./resolveContext"
 
 export interface IResolvables { 
@@ -15,38 +16,13 @@ export interface IPromises {
 }
 
 export interface IOptions1 {
-  omitOwnLocals: string[],
-  resolvePolicy: string,
-  trace: boolean  
+  omitOwnLocals ?: string[],
+  resolvePolicy ?: string,
+  trace         ?: boolean  
 }
 
-
-/** Base data (contains a state) for a node in a Path */
-export interface INode {
-  state: IState
-}
-
-/** Data, including raw params values, for a node in a Path */
-export interface IParamsNode extends INode { 
-  ownParams: IRawParams
-}
-
-/** Transition Data for a node in a Path (either to path or from path) */
-export interface ITransNode extends INode, IParamsNode { 
-  ownResolvables: IResolvables,
-  resolveContext: ResolveContext,
-  params: IStateParams
-}
-
-/** A basic Path. Each node contains the data necessary for a Transition to work. */
-export interface IPath extends Path<INode> {};
-/** A Params Path. Each node contains raw params data for each state */
-export interface IParamsPath extends Path<IParamsNode> {};
-/** A Transition Path. Each node contains the data necessary for a Transition to work. */
-export interface ITransPath extends Path<ITransNode> {};
-
-interface IOrdinals { [key: string]: number };
-interface IPolicies { [key: string]: string };
+interface IOrdinals { [key: string]: number }
+interface IPolicies { [key: string]: string }
 
 // TODO: convert to enum
 // Defines the available policies and their ordinals.

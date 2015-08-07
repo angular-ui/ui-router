@@ -1,21 +1,24 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
+import {extend, defaults, find, is, isFunction, isString, val, noop} from "../common/common";
 import {IServiceProviderFactory} from "angular";
+
 import {Transition} from "./transition";
-import Glob from "../state/glob";
 
 import {IStateDeclaration, IState} from "../state/interface";
 import {StateParams} from "../state/state"
+import Glob from "../state/glob";
+
+import {IPath, IParamsPath, ITransPath, INode, IParamsNode, ITransNode} from "../path/interface"
+import Path from "../path/path"
 
 import {IRawParams} from "../params/interface"
 
-import {IResolvables, IPath, IParamsPath, ITransPath, INode, IParamsNode, ITransNode} from "../resolve/interface"
+import {IResolvables} from "../resolve/interface"
 import ResolveContext from "../resolve/resolveContext"
-import Path from "../resolve/path"
 
-import {ITransitionOptions} from "./interface"
+import {ITransitionService, ITransitionOptions, IStateMatch, IMatchCriteria} from "./interface"
 
-import {extend, defaults, find, is, isFunction, isString, val, noop} from "../common/common";
 
 /**
  * The default transition options.
@@ -44,7 +47,7 @@ export var defaultTransOpts: ITransitionOptions = {
  * - If a function, matchState calls the function with the state and returns true if the function's result is truthy.
  * @returns {boolean}
  */
-export function matchState(state, matchCriteria) {
+export function matchState(state: IState, matchCriteria: (string|IStateMatch)) {
   var toMatch = isString(matchCriteria) ? [matchCriteria] : matchCriteria;
 
   function matchGlobs(state) {
@@ -58,10 +61,11 @@ export function matchState(state, matchCriteria) {
     return false;
   }
 
-  return !!(isFunction(toMatch) ? toMatch : matchGlobs)(state);
+  let matchFn = <any> (isFunction(toMatch) ? toMatch : matchGlobs);
+  return !!matchFn(state);
 }
 
-export var $transition: TransitionService = {};
+export var $transition: ITransitionService = <any> {};
 
 
 /**
@@ -289,7 +293,7 @@ function $TransitionProvider() {
    */
   this.onError = registerEventHook("onError");
 
-  function EventHook(matchCriteria, callback, options) {
+  function EventHook(matchCriteria: IMatchCriteria, callback: () => any, options = { priority: 0 }) {
     matchCriteria = extend({ to: val(true), from: val(true) }, matchCriteria);
     this.callback = callback;
     this.priority = options.priority || 0;
@@ -319,16 +323,19 @@ function $TransitionProvider() {
     });
 
     $transition.create = function create(fromPath: ITransPath, to: IPath, toParams: IRawParams, options: ITransitionOptions) {
-      const paramsFor = (path: IParamsPath, state: IState) => path.elementForState(state).ownParams
+      const paramsFor = (path: IParamsPath, state: IState) => {
+        var node = path.elementForState(state);
+        return node && node.ownParams;
+      };
       
       const makeParamsNode = (node: INode) => {
-        let fromParams = paramsFor(fromPath, node.state) || {}; 
+        let fromParams = paramsFor(fromPath, node.state) || {};
         let newParams: IRawParams = <any> node.state.ownParams.$$values(toParams);
         let ownParams: IRawParams = extend({}, fromParams, newParams);
         return { state: node.state, ownParams };
-      }
+      };
       
-      let toPath: IParamsPath = new Path(to.nodes().map(makeParamsNode))
+      let toPath: IParamsPath = new Path(to.nodes().map(makeParamsNode));
       return new Transition(fromPath, toPath, options || {});
     };
 
@@ -336,19 +343,12 @@ function $TransitionProvider() {
 
     $transition.provider = $TransitionProvider.prototype.instance;
 
-    (<any> $transition).$$hooks = function(type: string) {
+    $transition.$$hooks = function(type: string) {
       return [].concat(transitionEvents[type])
     };
 
     return $transition;
   }
-}
-
-interface TransitionService {
-  transition?: Object,
-  create?: Function,
-  isTransition?: Function,
-  provider?: Object
 }
 
 angular.module('ui.router.state')

@@ -1,13 +1,16 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-
 import {extend, isArray, identity, noop,
     defaults, map, omit, pluck, find, pipe, prop, eq}  from "../common/common";
 import trace  from "../common/trace";
-import {IPromise} from "angular";
-import {IState} from "../state/interface";
 import {runtime} from "../common/angular1"
-import Resolvable from "./resolvable";
-import {IResolvables, INode} from "./interface";
+import {IPromise} from "angular";
+
+import {INode} from "./interface";
+
+import {IState} from "../state/interface";
+
+import {IResolvables} from "../resolve/interface";
+import Resolvable from "../resolve/resolvable";
 
 /**
  * A Path Object represents a Path of nested States within the State Hierarchy. 
@@ -58,6 +61,11 @@ export default class Path<NODE extends INode> {
 
   last(): NODE {
     return this._nodes.length ? this._nodes[this._nodes.length - 1] : null;
+  }
+
+  adapt<T extends INode>(nodeMapper: (NODE) => T): Path<T> {
+    var adaptedNodes = this._nodes.map(nodeMapper);
+    return new Path(adaptedNodes);
   }
 
   toString() {
