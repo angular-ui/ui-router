@@ -71,17 +71,9 @@ export class Transition {
       redirects: runtime.$q.defer() // Resolved when any transition redirects are complete
     };
     
-    var fromNode = this._treeChanges.from.last();
-    var toNode = this._treeChanges.to.last();
-
-    // var fromParams: IStateParams = _fromPath.last().params;
-    // var toParams = (_options.inherit && toState) ? fromParams.$inherit(_toPath.last().params, fromState, toState) : _toPath.last().params;
-    // toParams = toState ? extend(new StateParams(), toState.params.$$values(toParams)) : toParams;
-    // this._to = (toParams && to.params(toParams)) || to;
-
     // Expose three promises to users of Transition
-    this.promise = this._deferreds.posthooks.promise;
     this.prepromise = this._deferreds.prehooks.promise;
+    this.promise = this._deferreds.posthooks.promise;
     this.redirects = this._deferreds.redirects.promise;
   }
 
@@ -97,8 +89,7 @@ export class Transition {
     const nodesMatch = (node1: IParamsNode, node2: IParamsNode) =>
       node1.state == node2.state && nonDynamicParams(node1.state).$$equals(node1.ownParams, node2.ownParams)
     
-    // if (this._to.valid()) {
-    
+    // TODO: if (this._to.valid()) {
     while (keep < max && fromNodes[keep].state !== reloadState && nodesMatch(fromNodes[keep], toNodes[keep])) {
       keep++;
     }
@@ -334,18 +325,14 @@ export class Transition {
     $transition.transition = this;
 
     let {to, from, entering, exiting} = this._treeChanges;
-    let [toState, fromState]  = [to, from].map((path) => path.last().state)
-    let [toParams, fromParams]  = [to, from].map((path) => ParamValues.fromPath(path))
-    let rootState = to.last().state.root();
-    
-    var options = this._options;
+    let [toState, fromState]  = [to, from].map((path) => path.last().state);
+    let [toParams, fromParams]  = [to, from].map((path) => ParamValues.fromPath(path));
     var tLocals = { $transition$: this };
     
     var fromContext = new ResolveContext(from);
     var toContext = new ResolveContext(to);
 
     // Build a bunch of arrays of promises for each step of the transition
-    // TODO: Provide makeSteps with the StateReference, not the $state().
     var onBeforeHooks =     hookBuilder.makeSteps("onBefore",   toState, fromState, tLocals, fromContext, {async: false});
     var onInvalidHooks =    hookBuilder.makeSteps("onInvalid",  toState, fromState, tLocals, fromContext);
     var onStartHooks =      hookBuilder.makeSteps("onStart",    toState, fromState, tLocals, fromContext);
@@ -380,7 +367,7 @@ export class Transition {
 
     // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
     // var invalidOrStartHooks = this.$to().valid() ? onStartHooks : onInvalidHooks;
-    var invalidOrStartHooks = true ? onStartHooks : onInvalidHooks;
+    var invalidOrStartHooks = true ? onStartHooks : onInvalidHooks; // TODO
     var asyncSteps = filter(flatten([invalidOrStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]), identity);
 
     // -----------------------------------------------------------------------
@@ -426,7 +413,7 @@ export class Transition {
         from = isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
         fromParams = toJson(ParamValues.fromPath(this._treeChanges.from)),
         // toValid = this.$to().valid() ? "" : "(X) ",
-        toValid = true ? "" : "(X) ",
+        toValid = true ? "" : "(X) ", // TODO
         to = isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
         toParams = toJson(this.params());
     return `Transition#${id}( '${from}'${fromParams} -> ${toValid}'${to}'${toParams} )`;

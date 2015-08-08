@@ -1,29 +1,35 @@
+import {IQService} from "angular"
 import {copy, prop} from "../common/common"
+import Queue from "../common/queue"
 
-import {TransitionRejection, RejectType} from "../transition/rejectFactory"
+import {ITreeChanges} from "../transition/interface"
 import {Transition} from "../transition/transition"
+import {TransitionRejection, RejectType} from "../transition/rejectFactory"
+
 import {IStateService} from "../state/interface"
+
+import {ITransPath} from "../path/interface"
 
 export default class StateHandler {
   constructor(private $urlRouter,
      private $view,
      private $state: IStateService,
      private $stateParams, 
-     private $q, 
-     private transQueue) {
-    
-  } 
+     private $q: IQService,
+     private transQueue: Queue<Transition>,
+     private treeChangeQueue: Queue<ITreeChanges>
+  ) { }
   
   runTransition(transition: Transition) {
     // When the transition promise (prepromise; before callbacks) is resolved/rejected, update the $state service
-    const handleSuccess = () => this.transitionSuccess(transition)
-    const handleFailure = (error) => this.transitionFailure(transition, error)
+    const handleSuccess = (treeChanges: ITreeChanges) => this.transitionSuccess(treeChanges, transition);
+    const handleFailure = (error) => this.transitionFailure(transition, error);
     transition.run();
     return transition.prepromise.then(handleSuccess, handleFailure);
   }
 
-  transitionSuccess(transition: Transition) {
-    let {$view, $state, transQueue} = this;
+  transitionSuccess(treeChanges: ITreeChanges, transition: Transition) {
+    let {$view, $state, transQueue, treeChangeQueue} = this;
     // TODO: sync on entering/exiting state, not transition success?
     transition.views("exiting").forEach($view.reset.bind($view));
     $view.sync();
@@ -33,14 +39,16 @@ export default class StateHandler {
     // Update globals in $state
     $state.$current = transition.$to();
     $state.current = $state.$current.self;
-
     this.updateStateParams(transition);
-    transQueue.clear();
+    transQueue.remove(transition);
+    treeChangeQueue.enqueue(treeChanges);
+
     return transition;
   }
 
   transitionFailure(transition: Transition, error) {
     let {$state, $stateParams, $q, transQueue} = this;
+    transQueue.remove(transition);
     // Handle redirect and abort
     if (error instanceof TransitionRejection) {
       if (error.type === RejectType.IGNORED) {

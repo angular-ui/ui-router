@@ -1,3 +1,5 @@
+import {map} from "./common"
+
 export default class Queue<T> {
   _items: Array<T>;
 
@@ -30,7 +32,12 @@ export default class Queue<T> {
     return idx > -1 && this._items.splice(idx, 1)[0];
   }
 
-  peek(): T {
+  peekTail(): T {
     return this._items[this._items.length - 1];
+  }
+
+  peekHead(): T {
+    if (this.size())
+      return this._items[0];
   }
 }

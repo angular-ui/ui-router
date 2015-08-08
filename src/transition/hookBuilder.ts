@@ -36,7 +36,7 @@ export default class HookBuilder {
     this.fromState = treeChanges.from.last().state;
     this.transitionOptions = transition.options();
     this.tLocals = { $transition$: transition };
-    let rootNode: INode = { state: this.toState.root() }
+    let rootNode: INode = { state: this.toState.root() };
     this.rootPath = new Path<INode>([rootNode]);
   }
 
@@ -105,19 +105,19 @@ export default class HookBuilder {
 
 
   successHooks() {
-    var { transition, transitionOptions, toState, fromState, tLocals, rootPath, successErrorOptions } = this;
+    var { transition, transitionOptions, toState, fromState, tLocals, successErrorOptions } = this;
 
     return () => {
       if (transitionOptions.trace) trace.traceSuccess(toState, transition);
-      transition._deferreds.prehooks.resolve(toState);
+      transition._deferreds.prehooks.resolve(this.treeChanges);
       var onSuccessHooks = this.makeSteps("onSuccess", toState, fromState, tLocals, new ResolveContext(this.treeChanges.to), successErrorOptions);
       this.runSynchronousHooks(onSuccessHooks, true);
-      transition._deferreds.posthooks.resolve(toState);
+      transition._deferreds.posthooks.resolve(this.treeChanges);
     }
   }
 
   errorHooks() {
-    var { transition, transitionOptions, toState, fromState, tLocals, rootPath, successErrorOptions } = this;
+    var { transition, transitionOptions, toState, fromState, tLocals, successErrorOptions } = this;
 
     return (error) => {
       if (transitionOptions.trace) trace.traceError(error, transition);

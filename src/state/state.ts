@@ -11,7 +11,7 @@ import StateMatcher from "./stateMatcher"
 import StateHandler from "./stateHandler"
 import StateReference from "./stateReference"
 
-import {ITransitionService, ITransitionOptions} from "../transition/interface"
+import {ITransitionService, ITransitionOptions, ITreeChanges} from "../transition/interface"
 import {Transition} from "../transition/transition"
 import {TransitionRejection, RejectType, RejectFactory} from "../transition/rejectFactory"
 import {defaultTransOpts} from "../transition/transitionService"
@@ -131,6 +131,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
   var builder       = new StateBuilder(() => root, matcher, $urlMatcherFactoryProvider);
   var stateQueue    = new StateQueueManager(states, builder, $urlRouterProvider, $state);
   var transQueue    = new Queue<Transition>();
+  var treeChangesQueue = new Queue<ITreeChanges>();
   let pathFactory   = new PathFactory(() => root);
 
   /**
@@ -426,7 +427,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
     stateQueue.flush($state);
     stateQueue.autoFlush = true; // Autoflush once we are in runtime
-    let currentPath: ITransPath = PathFactory.transPath(pathFactory.paramsPath(null));
     
     /**
      * @ngdoc function
@@ -621,7 +621,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      */
     $state.transitionTo = function transitionTo(to: PStateRef, toParams: IRawParams, options: ITransitionOptions): IPromise<IState> {
       options = defaults(options, defaultTransOpts);
-      let transOptions = extend(options, { current: transQueue.peek.bind(transQueue)});
+      let transOptions = extend(options, { current: transQueue.peekTail.bind(transQueue)});
 
       // If we're reloading, find the state object to reload from
       if (isObject(options.reload) && !(<any>options.reload).name) { throw new Error('Invalid reload state object'); }
@@ -633,13 +633,15 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       // matcher.reference(to, options && options.relative, toParams),
       let ref: StateReference = matcher.reference(to, options && options.relative, toParams);
 
+      let latestTreeChanges: ITreeChanges = treeChangesQueue.peekTail();
+      let currentPath: ITransPath = latestTreeChanges ? latestTreeChanges.to : PathFactory.transPath(pathFactory.paramsPath(null));
       // TODO: handle invalid state correctly here in $state, not in $transition
       if (!ref.valid()) throw new Error(`Invalid, yo: ${ref}`);
       let toPath: IPath = pathFactory.paramsPath(ref);
 
       let newTrans = $transition.create(currentPath, toPath, toParams, transOptions);
       var transition: Transition = transQueue.enqueue(newTrans);
-      let stateHandler = new StateHandler($urlRouter, $view, $state, $stateParams, $q, transQueue);
+      let stateHandler = new StateHandler($urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
       var result = stateHandler.runTransition(transition);
       result.finally(() => transQueue.remove(transition));
 
