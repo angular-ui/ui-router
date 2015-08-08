@@ -10,6 +10,9 @@ import paramTypes from "./params/paramTypes"
 var params = { Param, ParamSet, Type, paramTypes };
 
 import Path from "./path/path"
+import PathFactory from "./path/pathFactory"
+var path = { Path, PathFactory }
+
 import PathContext from "./resolve/pathContext"
 import Resolvable from "./resolve/resolvable"
 import ResolveContext from "./resolve/resolveContext"
@@ -52,4 +55,4 @@ import * as viewScroll from "./view/viewScroll" // TODO
 var view = { viewInterface, templateFactory, view: _view, viewDirective, viewScroll };
 
 // Export the submodules
-export { common, params, resolve, state, transition, url, view }
+export { common, params, path, resolve, state, transition, url, view }

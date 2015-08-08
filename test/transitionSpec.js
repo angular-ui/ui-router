@@ -8,6 +8,7 @@ var extend = common.extend,
   omit = common.omit,
   pick = common.pick,
   pluck = common.pluck;
+var PathFactory = uiRouter.path.PathFactory;
 var state = uiRouter.state;
 var StateMatcher = state.StateMatcher;
 var StateBuilder = state.StateBuilder;
@@ -16,7 +17,7 @@ var TransitionRejection = uiRouter.transition.TransitionRejection;
 
 describe('transition', function () {
 
-  var transitionProvider, matcher, statesMap, queue;
+  var transitionProvider, matcher, pathFactory, statesMap, queue;
 
   beforeEach(module('ui.router', function ($transitionProvider, $urlMatcherFactoryProvider) {
     transitionProvider = $transitionProvider;
@@ -42,8 +43,9 @@ describe('transition', function () {
     };
 
     matcher = new StateMatcher(statesMap = {});
+    pathFactory = new PathFactory(function() { return root; });
     var builder = new StateBuilder(function() { return root; }, matcher, $urlMatcherFactoryProvider);
-    queue   = new StateQueueManager(statesMap, builder, { when: function() {} });
+    queue = new StateQueueManager(statesMap, builder, { when: function() {} });
     var root = queue.register({ name: '', url: '^', views: null, 'abstract': true});
     root.navigable = null;
 
@@ -70,7 +72,10 @@ describe('transition', function () {
     matcher = new StateMatcher(statesMap);
     queue.flush($state);
     makeTransition = function makeTransition(from, to, options) {
-      return $transition.create(matcher.reference(from), matcher.reference(to), options);
+      var fromPath = pathFactory.paramsPath(matcher.reference(from));
+      fromPath = PathFactory.transPath(fromPath);
+      var toPath = pathFactory.paramsPath(matcher.reference(to));
+      return $transition.create(fromPath, toPath, options);
     };
   }));
 
