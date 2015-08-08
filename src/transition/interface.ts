@@ -8,7 +8,7 @@ import {Transition} from "./transition"
 import TransitionHook from "./transitionHook"
 
 export interface ITransitionOptions {
-  location    ?: boolean,
+  location    ?: (boolean|string),
   relative    ?: (string|IStateDeclaration|IState),
   inherit     ?: boolean,
   notify      ?: boolean,

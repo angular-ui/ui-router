@@ -456,7 +456,7 @@ angular.module('ui.router.router', ['ui.router.util']);
  * in your angular app (use {@link ui.router} module instead).
  * 
  */
-angular.module('ui.router.state', ['ui.router.router', 'ui.router.util']);
+angular.module('ui.router.state', ['ui.router.router', 'ui.router.util', 'ui.router.angular1']);
 
 /**
  * @ngdoc overview

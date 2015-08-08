@@ -1,5 +1,7 @@
 import {extend, inherit, forEach, objectKeys, indexOf, isString} from "../common/common";
 
+import {IRawParams} from "../params/interface"
+
 export default class ParamSet {
   constructor(params?: any) {
     extend(this, params || {});
@@ -22,12 +24,12 @@ export default class ParamSet {
     return keys;
   }
 
-  $$values(paramValues) {
+  $$values(paramValues): IRawParams {
     var values = {};
-    forEach(this.$$keys(), key => {
+    forEach(this.$$keys(), (key: string) => {
       values[key] = this[key].value(paramValues && paramValues[key]);
     });
-    return values;
+    return <IRawParams> values;
   }
 
   $$equals(paramValues1, paramValues2) {

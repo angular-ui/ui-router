@@ -5,9 +5,11 @@ import trace  from "../common/trace";
 import {runtime} from "../common/angular1"
 import {IPromise} from "angular";
 
-import {INode} from "./interface";
+import {INode, IParamsNode, IParamsPath} from "./interface";
 
 import {IState} from "../state/interface";
+
+import StateReference from "../state/stateReference"
 
 import {IResolvables} from "../resolve/interface";
 import Resolvable from "../resolve/resolvable";
@@ -33,8 +35,8 @@ export default class Path<NODE extends INode> {
     return this.slice(0, elementIdx + 1);
   }
 
-  concat(path): Path<NODE> {
-    return new Path(this._nodes.concat(path.elements));
+  concat(path: Path<NODE>): Path<NODE> {
+    return new Path(this._nodes.concat(path._nodes));
   }
 
   slice(start: number, end?: number): Path<NODE> {

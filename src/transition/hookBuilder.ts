@@ -78,26 +78,29 @@ export default class HookBuilder {
   }
 
   /** Returns a TransitionHook which resolves an entire path according to a given resolvePolicy */
-  makeEagerResolvePathStep(path, locals) {
-    if (!path.elements.length) return null;
+  makeEagerResolvePathStep(path: ITransPath, locals) {
+    if (!path.nodes().length) return null;
     var options = extend({resolvePolicy: 'eager'}, this.baseHookOptions);
+    var resolveContext = new ResolveContext(path);
+    var state: IState = path.last().state;
 
     function $eagerResolvePath() {
-      return path.resolvePath(options);
+      return resolveContext.resolvePath(options);
     }
 
-    return new TransitionHook(path.last(), $eagerResolvePath, locals, path, options);
+    return new TransitionHook(state, $eagerResolvePath, locals, resolveContext, options);
   }
 
   /** Returns a TransitionHook which resolves a single path element according to a given resolvePolicy */
-  makeLazyResolvePathElementStep(path, pathElement, locals) {
+  makeLazyResolvePathElementStep(path: ITransPath, state: IState, locals) {
     var options = extend({resolvePolicy: 'lazy'}, this.baseHookOptions);
+    var resolveContext = new ResolveContext(path);
 
     function $resolvePathElement() {
-      return pathElement.resolvePathElement(path, options);
+      return resolveContext.resolvePathElement(state, options);
     }
 
-    return new TransitionHook(pathElement, $resolvePathElement, locals, path, options);
+    return new TransitionHook(state, $resolvePathElement, locals, resolveContext, options);
   }
 
 

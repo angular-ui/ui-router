@@ -317,10 +317,11 @@ function $TransitionProvider() {
   $get.$inject = ['$q', '$injector'];
   function $get(   $q,   $injector ) {
 
-    $TransitionProvider.prototype.instance.on({}, function $rejectIfInvalid($transition$) {
-      if (!$transition$.$to().valid())
-        throw new Error($transition$.$to().error());
-    });
+    // TODO:  implement invalid toState handling this in $state
+    // $TransitionProvider.prototype.instance.on({}, function $rejectIfInvalid($transition$: Transition) {
+    //   if (!$transition$.$to().valid())
+    //     throw new Error($transition$.$to().error());
+    // });
 
     $transition.create = function create(fromPath: ITransPath, to: IPath, toParams: IRawParams, options: ITransitionOptions) {
       const paramsFor = (path: IParamsPath, state: IState) => {

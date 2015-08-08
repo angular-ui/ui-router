@@ -11,6 +11,7 @@ import {RejectFactory} from "./rejectFactory"
 
 import {IParamsNode, ITransNode, IPath, IParamsPath, ITransPath} from "../path/interface";
 import Path from "../path/path";
+import PathFactory from "../path/pathFactory"
 
 import {IPromises, IResolvables} from "../resolve/interface";
 import Resolvable from "../resolve/resolvable";
@@ -102,23 +103,10 @@ export class Transition {
       keep++;
     }
 
-    const makeResolvable = (node) =>
-        (fn, name: string) => new Resolvable(name, fn, node.state);
-
-    const adaptParamsToTrans = (node: IParamsNode) => {
-      let ownResolvables = mapObj(node.state.resolve, makeResolvable(node));
-      return <ITransNode> {
-        state: node.state,
-        ownParams: node.ownParams,
-        ownResolvables: ownResolvables
-      };
-    };
-
-
     let from: ITransPath      = fromPath;
     let retained: ITransPath  = from.slice(0, keep);
     let exiting: ITransPath   = from.slice(keep);
-    let entering: ITransPath  = toPath.slice(keep).adapt(adaptParamsToTrans);
+    let entering: ITransPath  = PathFactory.transPath(toPath.slice(keep));
     let to: ITransPath        = retained.concat(entering);
 
     return { from, to, retained, exiting, entering };
@@ -348,39 +336,43 @@ export class Transition {
     let {to, from, entering, exiting} = this._treeChanges;
     let [toState, fromState]  = [to, from].map((path) => path.last().state)
     let [toParams, fromParams]  = [to, from].map((path) => ParamValues.fromPath(path))
-
+    let rootState = to.last().state.root();
+    
     var options = this._options;
     var tLocals = { $transition$: this };
     
-    var emptyResolveContext = new ResolveContext(new Path<ITransNode>([]))
+    var fromContext = new ResolveContext(from);
+    var toContext = new ResolveContext(to);
 
     // Build a bunch of arrays of promises for each step of the transition
     // TODO: Provide makeSteps with the StateReference, not the $state().
-    var onBeforeHooks =     hookBuilder.makeSteps("onBefore",   toState, fromState, tLocals, emptyResolveContext, {async: false});
-    var onInvalidHooks =    hookBuilder.makeSteps("onInvalid",  toState, fromState, tLocals, emptyResolveContext);
-    var onStartHooks =      hookBuilder.makeSteps("onStart",    toState, fromState, tLocals, emptyResolveContext);
-    var transitionOnHooks = hookBuilder.makeSteps("on",         toState, fromState, tLocals, emptyResolveContext);
+    var onBeforeHooks =     hookBuilder.makeSteps("onBefore",   toState, fromState, tLocals, fromContext, {async: false});
+    var onInvalidHooks =    hookBuilder.makeSteps("onInvalid",  toState, fromState, tLocals, fromContext);
+    var onStartHooks =      hookBuilder.makeSteps("onStart",    toState, fromState, tLocals, fromContext);
+    var transitionOnHooks = hookBuilder.makeSteps("on",         toState, fromState, tLocals, toContext);
 
-    var exitingStateHooks = map(exiting.reverse().nodes(), function (node) {
-      var stepLocals = {$state$: node.state, $stateParams: node.state.params.$$values(fromParams)};
+    var exitingStateHooks = map(exiting.reverse().nodes(), function (node: ITransNode) {
+      var state = node.state;
+      var stepLocals = {$state$: state, $stateParams: state.params.$$values(fromParams)};
       var locals = extend({}, tLocals, stepLocals);
-      var steps = hookBuilder.makeSteps("exiting", toState, node.state, node, locals, from);
-      let resolveContext = new ResolveContext(from.pathFromRootTo(node.state))
+      var steps = hookBuilder.makeSteps("exiting", toState, state, node, locals, from);
+      let resolveContext = fromContext.isolateRootTo(state);
 
-      return !node.state.self.onExit ? steps : steps.concat([
-        new TransitionHook(node, node.state.self.onExit, locals, resolveContext, baseHookOptions)
+      return !state.self.onExit ? steps : steps.concat([
+        new TransitionHook(state, state.self.onExit, locals, resolveContext, baseHookOptions)
       ]);
     });
 
-    var enteringStateHooks = map(entering.nodes(), function (node) {
-      var stepLocals = {$state$: node.state, $stateParams: node.state.params.$$values(fromParams)};
-      var locals = extend({}, tLocals, stepLocals);
-      var lazyResolveStep = hookBuilder.makeLazyResolvePathElementStep(to, node, locals);
-      var steps = [lazyResolveStep].concat(hookBuilder.makeSteps("entering", node.state, fromState, node, locals, to));
-      let resolveContext = new ResolveContext(from.pathFromRootTo(node.state))
+    var enteringStateHooks = map(entering.nodes(), function (node: ITransNode) {
+      let state: IState = node.state;
+      let stepLocals = {$state$: state, $stateParams: state.params.$$values(fromParams)};
+      let locals = extend({}, tLocals, stepLocals);
+      let lazyResolveStep = hookBuilder.makeLazyResolvePathElementStep(to, state, locals);
+      let resolveContext = toContext.isolateRootTo(state);
+      let steps = [lazyResolveStep].concat(hookBuilder.makeSteps("entering", state, fromState, locals, resolveContext));
       
-      return !node.state.self.onEnter ? steps : steps.concat([
-        new TransitionHook(node, node.state.self.onEnter, locals, resolveContext, baseHookOptions)
+      return !state.self.onEnter ? steps : steps.concat([
+        new TransitionHook(state, state.self.onEnter, locals, resolveContext, baseHookOptions)
       ]);
     });
 

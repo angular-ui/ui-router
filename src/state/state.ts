@@ -9,7 +9,7 @@ import StateQueueManager from "./stateQueueManager"
 import StateBuilder from "./stateBuilder"
 import StateMatcher from "./stateMatcher"
 import StateHandler from "./stateHandler"
-import StateReference from "./stateReference";
+import StateReference from "./stateReference"
 
 import {ITransitionService, ITransitionOptions} from "../transition/interface"
 import {Transition} from "../transition/transition"
@@ -18,6 +18,7 @@ import {defaultTransOpts} from "../transition/transitionService"
 
 import {INode, IParamsNode, ITransNode, IPath, IParamsPath, ITransPath} from "../path/interface"
 import Path from "../path/path"
+import PathFactory from "../path/pathFactory"
 
 import {IRawParams} from "../params/interface"
 import Param from "../params/param"
@@ -126,11 +127,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
   var root, states: {[key: string]: IState} = {};
   var $state: IStateService = <any> function $state() {};
 
-  var matcher    = new StateMatcher(states);
-  var builder    = new StateBuilder(function() { return root; }, matcher, $urlMatcherFactoryProvider);
-  var stateQueue = new StateQueueManager(states, builder, $urlRouterProvider, $state);
-  var transQueue = new Queue<Transition>();
-
+  var matcher       = new StateMatcher(states);
+  var builder       = new StateBuilder(() => root, matcher, $urlMatcherFactoryProvider);
+  var stateQueue    = new StateQueueManager(states, builder, $urlRouterProvider, $state);
+  var transQueue    = new Queue<Transition>();
+  let pathFactory   = new PathFactory(() => root);
 
   /**
    * @ngdoc function
@@ -425,7 +426,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
     stateQueue.flush($state);
     stateQueue.autoFlush = true; // Autoflush once we are in runtime
-    let currentPath: ITransPath = new Path<ITransNode>([]);
+    let currentPath: ITransPath = PathFactory.transPath(pathFactory.paramsPath(null));
+    
     /**
      * @ngdoc function
      * @name ui.router.state.$state#reload
@@ -471,7 +473,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
-    $state.reload = function reload(reloadState: PStateRef) {
+    $state.reload = function reload(reloadState: PStateRef): IPromise<IState> {
       var reloadOpt = isDefined(reloadState) ? reloadState : true;
       return $state.transitionTo($state.current, $stateParams, {
         reload: reloadOpt,
@@ -633,7 +635,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
       // TODO: handle invalid state correctly here in $state, not in $transition
       if (!ref.valid()) throw new Error(`Invalid, yo: ${ref}`);
-      let toPath: IPath = new Path<INode>(ref.$state().path.map((state) => ({state})));
+      let toPath: IPath = pathFactory.paramsPath(ref);
 
       let newTrans = $transition.create(currentPath, toPath, toParams, transOptions);
       var transition: Transition = transQueue.enqueue(newTrans);

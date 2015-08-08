@@ -1,21 +1,28 @@
-import {TransitionRejection, RejectType} from "../transition/rejectFactory";
-import {Transition} from "../transition/transition";
-import {copy, prop} from "../common/common";
+import {copy, prop} from "../common/common"
+
+import {TransitionRejection, RejectType} from "../transition/rejectFactory"
+import {Transition} from "../transition/transition"
+import {IStateService} from "../state/interface"
 
 export default class StateHandler {
-  constructor(private $urlRouter, private $view, private $state, private $stateParams, private $q, private transQueue) {
+  constructor(private $urlRouter,
+     private $view,
+     private $state: IStateService,
+     private $stateParams, 
+     private $q, 
+     private transQueue) {
     
   } 
   
-  runTransition(transition) {
+  runTransition(transition: Transition) {
     // When the transition promise (prepromise; before callbacks) is resolved/rejected, update the $state service
     const handleSuccess = () => this.transitionSuccess(transition)
     const handleFailure = (error) => this.transitionFailure(transition, error)
     transition.run();
     return transition.prepromise.then(handleSuccess, handleFailure);
-  };
+  }
 
-  transitionSuccess(transition) {
+  transitionSuccess(transition: Transition) {
     let {$view, $state, transQueue} = this;
     // TODO: sync on entering/exiting state, not transition success?
     transition.views("exiting").forEach($view.reset.bind($view));
@@ -24,15 +31,15 @@ export default class StateHandler {
     $view.sync();
 
     // Update globals in $state
-    $state.$current = transition.$to().$state();
-    $state.current = transition.$to().state();
+    $state.$current = transition.$to();
+    $state.current = $state.$current.self;
 
     this.updateStateParams(transition);
     transQueue.clear();
     return transition;
   }
 
-  transitionFailure(transition, error) {
+  transitionFailure(transition: Transition, error) {
     let {$state, $stateParams, $q, transQueue} = this;
     // Handle redirect and abort
     if (error instanceof TransitionRejection) {
@@ -56,7 +63,7 @@ export default class StateHandler {
     return $q.reject(error);
   }
 
-  updateStateParams(transition) {
+  updateStateParams(transition: Transition) {
     let {$urlRouter, $state, $stateParams} = this;
     var options = transition.options();
     $state.params = transition.params();
