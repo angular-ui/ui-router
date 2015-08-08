@@ -1,4 +1,4 @@
-import {isInjectable, extend, isDefined, isString, isArray, filter, map, indexOf} from "../common/common";
+import {isInjectable, extend, isDefined, isString, isArray, filter, map, prop, indexOf} from "../common/common";
 import {runtime} from "../common/angular1";
 import matcherConfig from "../url/urlMatcherConfig";
 import paramTypes from "./paramTypes";
@@ -70,9 +70,7 @@ export default class Param {
       replace = isArray(config.replace) ? config.replace : [];
       if (isString(squash))
         replace.push({from: squash, to: undefined});
-      configuredKeys = map(replace, function (item) {
-        return item.from;
-      });
+      configuredKeys = map(replace, prop("from"));
       return filter(defaultPolicy, function (item) {
         return indexOf(configuredKeys, item.from) === -1;
       }).concat(replace);
@@ -95,7 +93,7 @@ export default class Param {
    * [Internal] Gets the decoded representation of a value if the value is defined, otherwise, returns the
    * default value, which may be the result of an injectable function.
    */
-  value(value) {
+  value(value?: any) {
     /**
      * [Internal] Get the default value of a parameter, which may be an injectable function.
      */
@@ -109,7 +107,7 @@ export default class Param {
 
     function hasReplaceVal(val) { return function(obj) { return obj.from === val; }; }
     const $replace = (value) => {
-      var replacement = map(filter(this.replace, hasReplaceVal(value)), function(obj) { return obj.to; });
+      var replacement: any = map(filter(this.replace, hasReplaceVal(value)), prop("to"));
       return replacement.length ? replacement[0] : value;
     };
     value = $replace(value);

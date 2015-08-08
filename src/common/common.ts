@@ -1,17 +1,17 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
+import trace from "./trace"
 var { isDefined, isFunction, isNumber, isString, isObject, isArray, forEach, extend, copy, noop, toJson, fromJson, equals, identity } = angular;
 export { isDefined, isFunction, isNumber, isString, isObject, isArray, forEach, extend, copy, noop, toJson, fromJson, equals, identity };
-"use strict";
 
-export interface Predicate {
-  (any): boolean;
-}
-export interface F {
-  (any): any;
-}
-export interface HOF {
-  (fn1: F, fn2: F): F
-}
+export interface TypedMap<T> { [key: string]: T }
+
+export interface Predicate<X> { (x: X): boolean; }
+export interface Fx<X,T> { (x: X): T }
+export interface F extends Fx<any,any> { }
+export interface HOF { (fn1: F, fn2: F): F }
+
+export interface ObjMapFn<X, T> { (x:X, key?: string): T }
+export interface ArrMapFn<X, T> { (x:X, key?: number): T }
 
 export var abstractKey = 'abstract';
 export function inherit(parent, extra) {
@@ -205,13 +205,17 @@ export function omit(obj) {
   return copy;
 }
 
-export function pluck(collection, key) {
-  return map(collection, prop(key));
+export function pluck(collection: any[], propName: string): any[]
+export function pluck(collection: TypedMap<any>, propName: string): TypedMap<any>
+export function pluck(collection, propName): any {
+  return map(collection, prop(propName));
 }
 
 // Given an array or object, return a new array or object with:
 // - array: only the elements which passed the callback predicate
 // - object: only the properties that passed the callback predicate
+export function filter<T>(collection: TypedMap<T>, callback: Predicate<T>): TypedMap<T>
+export function filter<T>(collection: T[], callback: Predicate<T>): T[]
 export function filter<T>(collection: T, callback: Function): T {
   var arr = isArray(collection), resultarray = [], resultobj = {};
   forEach(collection, function(val, i) {
@@ -236,18 +240,20 @@ export function find(collection, callback) {
 
   return result;
 }
-export function mapObj<T, U> (obj: {[key: string]: T}, callback: (T, K?: string) => U): {[key: string]: U} {
-  return <any> map(obj, callback);
-}
 
-export function map<C, T> (collection: T, callback): T {
+export function map<T, U>(collection: TypedMap<T>, callback: ObjMapFn<T,U>): TypedMap<U>
+export function map<T, U>(collection: T[], callback: ArrMapFn<T,U>): U[]
+export function map<T>(collection: T, callback): T { // This T is either Array or Map
   var result = isArray(collection) ? [] : {};
   forEach(collection, (val, i) =>  result[i] = callback(val, i));
   return <T> result;
 }
 
-export const _map = (callback) =>
-  (collection) => map(collection, callback);
+// export function _map<T,U>(callback: ObjMapFn<T,U>): Fx<TypedMap<T>,TypedMap<U>>
+// export function _map<T,U>(callback: ArrMapFn<T,U>): Fx<T[],U[]>
+export function _map<T,U>(callback: any): any {
+  return (collection) => map(collection, callback);
+}
 
 export function unnest(list) {
   var result = [];
@@ -348,7 +354,7 @@ export function parse(name) {
   return pipe.apply(null, name.split(".").map(prop));
 }
 
-export function not(fn): Function {
+export function not(fn): Predicate<any> {
   return function() { return !fn.apply(null, [].slice.call(arguments)); };
 }
 
@@ -364,11 +370,11 @@ export function or(fn1, fn2): Function {
   };
 }
 
-export function is(ctor): Predicate {
+export function is(ctor): Predicate<any> {
   return function(val) { return val != null && val.constructor === ctor || val instanceof ctor; };
 }
 
-export function eq(comp): Predicate {
+export function eq(comp): Predicate<any> {
   return function(val) { return val === comp; };
 }
 

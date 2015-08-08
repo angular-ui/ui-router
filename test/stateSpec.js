@@ -1156,7 +1156,7 @@ describe('state', function () {
       expect(count).toEqual(1);
     }));
 
-     fit("should allow mixed URL and config params", inject(function($state, $q) {
+    it("should allow mixed URL and config params", inject(function($state, $q) {
       var count = 0;
       $state.get("OPT").onEnter =      function($stateParams) { count++; };
       $state.get("OPT.OPT2").onEnter = function($stateParams) { count++; };

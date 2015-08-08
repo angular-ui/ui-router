@@ -1,4 +1,4 @@
-import {mapObj} from "../common/common"
+import {map} from "../common/common"
 
 import {IState} from "../state/interface"
 import StateReference from "../state/stateReference"
@@ -12,7 +12,7 @@ const makeResolvable = (node) =>
     (fn, name: string) => new Resolvable(name, fn, node.state);
 
 const adaptParamsToTrans = (node: IParamsNode) => {
-  let ownResolvables = mapObj(node.state.resolve, makeResolvable(node));
+  let ownResolvables = map(node.state.resolve, makeResolvable(node));
   
   return {
     state: node.state,

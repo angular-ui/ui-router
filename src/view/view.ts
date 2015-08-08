@@ -1,6 +1,6 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {isInjectable, isDefined, isArray, defaults, equals, extend, forEach, map, parse, objectKeys, noop,
-    unnest, prop, pick, pluck, removeFrom, eq, isEq, val, compose, _map} from "../common/common";
+    unnest, prop, pick, pluck, removeFrom, eq, isEq, val, compose, _map, Fx} from "../common/common";
 import PathContext from "../resolve/pathContext";
 import {IDeferred} from "angular";
 import {IStateViewConfig} from "../state/interface";
@@ -16,8 +16,9 @@ const debug = function(...any) {
   if (_debug) { console.log.call(console, arguments); }
 };
 
-const viewKey = (item: any) =>
-  extend(pick(item, "name", "context", "parentContext"),  { item: item });
+function viewKey(item: any): ViewKey {
+  return extend(pick(item, "name", "context", "parentContext"),  { item: item });
+}
 
 /**
  * Represents the union of a template and (optional) controller.
@@ -182,7 +183,8 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
   };
 
   this.sync = () => {
-    var [uiViewKeys, viewConfigKeys] = [uiViews, viewConfigs].map(_map(viewKey));
+    var viewKeyMapper: Fx<any[],ViewConfig[]> = _map(viewKey);
+    var [uiViewKeys, viewConfigKeys] = [uiViews, viewConfigs].map(viewKeyMapper);
     var matchingKeyPairs = unnest(uiViewKeys.map((uiView) => {
       var matches = viewConfigKeys.filter(match(uiView, "name", "parentContext"));
       return matches.map((config) => [uiView, config]);

@@ -1,6 +1,6 @@
 
 import {IPromise} from "angular"
-import {extend, map, filter, invoke, isPromise} from "../common/common"
+import {extend, map, filter, invoke, isPromise, Predicate} from "../common/common"
 import {runtime} from "../common/angular1"
 import trace from "../common/trace"
 
@@ -71,8 +71,9 @@ export default class HookBuilder {
     options = extend(options || {}, this.baseHookOptions, {data: stepData});
 
     var hooks = this.$transition.$$hooks(eventName);
-
-    return map(filter(hooks, invoke('matches', [to, from])), function (hook) {
+    let hookMatch = <Predicate<any>> invoke('matches', [to, from]);
+    var filtered = filter(hooks, hookMatch);
+    return map(filtered, function (hook) {
       return new TransitionHook(to, hook.callback, locals, resolveContext, options);
     });
   }

@@ -72,7 +72,7 @@ export default class Type {
    *        meta-programming of `Type` objects.
    * @returns {string}  Returns a string representation of `val` that can be encoded in a URL.
    */
-  encode(val, key) {
+  encode(val, key?): (string|string[]) {
     return val;
   }
 
@@ -145,7 +145,7 @@ export default class Type {
       }
 
       // Wrap non-array value as array
-      function arrayWrap(val) { return isArray(val) ? val : (isDefined(val) ? [ val ] : []); }
+      function arrayWrap(val): any[] { return isArray(val) ? val : (isDefined(val) ? [ val ] : []); }
       // Unwrap array value for "auto" mode. Return undefined for empty array.
       function arrayUnwrap(val) {
         switch(val.length) {
@@ -159,8 +159,8 @@ export default class Type {
       // Wraps type (.is/.encode/.decode) functions to operate on each value of an array
       function arrayHandler(callback, allTruthyMode?: boolean) {
         return function handleArray(val) {
-          val = arrayWrap(val);
-          var result = map(val, callback);
+          let arr = arrayWrap(val);
+          var result = map(arr, callback);
           if (allTruthyMode === true)
             return filter(result, falsey).length === 0;
           return arrayUnwrap(result);

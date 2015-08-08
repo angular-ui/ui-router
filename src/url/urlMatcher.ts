@@ -74,7 +74,7 @@ interface params {
  * @returns {Object}  New `UrlMatcher` object
  */
 export default class UrlMatcher {
-  params: params;
+  params: ParamSet;
   prefix: string;
   regexp: RegExp;
   segments: Array<string>;
@@ -258,9 +258,9 @@ export default class UrlMatcher {
 
     if (nPath !== m.length - 1) throw new Error(`Unbalanced capture group in route '${this.source}'`);
 
-    function decodePathArray(string) {
-      function reverseString(str) { return str.split("").reverse().join(""); }
-      function unquoteDashes(str) { return str.replace(/\\-/g, "-"); }
+    function decodePathArray(string: string) {
+      function reverseString(str: string) { return str.split("").reverse().join(""); }
+      function unquoteDashes(str: string) { return str.replace(/\\-/g, "-"); }
 
       var split = reverseString(string).split(/-(?!\\)/);
       var allReversed = map(split, reverseString);
@@ -270,7 +270,7 @@ export default class UrlMatcher {
     for (i = 0; i < nPath; i++) {
       paramName = paramNames[i];
       var param = this.params[paramName];
-      var paramVal = m[i+1];
+      var paramVal: (any|any[]) = m[i+1];
       // if the param value matches a pre-replace pair, replace the value before decoding.
       for (j = 0; j < param.replace; j++) {
         if (param.replace[j].from === paramVal) paramVal = param.replace[j].to;
@@ -352,7 +352,7 @@ export default class UrlMatcher {
 
     for (i = 0; i < nTotal; i++) {
       var isPathParam = i < nPath;
-      var name = params[i], param = paramset[name], value = param.value(values[name]);
+      var name = params[i], param: Param = paramset[name], value = param.value(values[name]);
       var isDefaultValue = param.isOptional && param.type.equals(param.value(), value);
       var squash = isDefaultValue ? param.squash : false;
       var encoded = param.type.encode(value);
@@ -362,9 +362,9 @@ export default class UrlMatcher {
         if (squash === false) {
           if (encoded != null) {
             if (isArray(encoded)) {
-              result += map(encoded, encodeDashes).join("-");
+              result += map(<string[]> encoded, encodeDashes).join("-");
             } else {
-              result += encodeURIComponent(encoded);
+              result += encodeURIComponent(<string>encoded);
             }
           }
           result += nextSegment;
@@ -376,8 +376,8 @@ export default class UrlMatcher {
         }
       } else {
         if (encoded == null || (isDefaultValue && squash !== false)) continue;
-        if (!isArray(encoded)) encoded = [ encoded ];
-        encoded = map(encoded, encodeURIComponent).join(`&${name}=`);
+        if (!isArray(encoded)) encoded = [ <string> encoded ];
+        encoded = map(<string[]>encoded, encodeURIComponent).join(`&${name}=`);
         result += (search ? '&' : '?') + (`${name}=${encoded}`);
         search = true;
       }

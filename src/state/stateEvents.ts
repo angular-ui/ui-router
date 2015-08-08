@@ -8,7 +8,7 @@ import {IServiceProviderFactory} from "angular";
 
 stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$urlRouter'];
 function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRouter) {
-  if (!$transition$.$to().valid() || !$transition$.options().notify)
+   // if (!$transition$.$to().valid() || !$transition$.options().notify)
     return;
 
   var enabledEvents = $stateEvents.provider.enabledEvents();
@@ -105,7 +105,7 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
 
 stateNotFoundHandler.$inject = ['$transition$', '$state', '$rootScope', '$urlRouter'];
 function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
-  if ($transition$.$to().valid())
+  // if ($transition$.$to().valid())
     return;
 
   /**

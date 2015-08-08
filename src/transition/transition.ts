@@ -28,7 +28,7 @@ import {IRawParams} from "../params/interface"
 import {ParamValues} from "../params/paramValues"
 
 import {defaults, eq, extend, filter, flatten, forEach, identity, invoke, is, isEq, isFunction, isObject, isPromise, isDefined,
-    map, mapObj, noop, not, objectKeys, parse, pattern, pipe, pluck, prop, toJson, unnest, unroll, val, pairs} from "../common/common";
+    map, noop, not, objectKeys, parse, pattern, pipe, pluck, prop, toJson, unnest, unroll, val, pairs} from "../common/common";
 
 
 var transitionCount = 0, REJECT = new RejectFactory();
@@ -245,8 +245,8 @@ export class Transition {
   }
 
   // TODO
-  context(state: IState): PathContext {
-    let path = this._treeChanges.to.pathFromRootTo(state);
+  context(pathname: string, state: IState): PathContext {
+    let path = this._treeChanges[pathname].pathFromRootTo(state);
     return new PathContext(new ResolveContext(path), state, runtime.$injector, this._options);
   }
 
@@ -259,8 +259,8 @@ export class Transition {
     var states: IState[] = states || path.states();
     var params: ParamValues = this.params();
 
-    return unnest(map(states, (state) => {
-      var context = state, locals: PathContext = this.context(state);
+    return unnest(map(states, (state: IState) => {
+      var context = state, locals: PathContext = this.context(pathname, state);
       const makeViewConfig = ([name, view]) => { return {name, view, context, locals, params} };
       return pairs(state.views).map(makeViewConfig)
     }));

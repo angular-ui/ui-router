@@ -1,4 +1,4 @@
-import {defaults, extend, noop, filter, not, isFunction, objectKeys, map, mapObj, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse} from "../common/common";
+import {defaults, extend, noop, filter, not, isFunction, objectKeys, map, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse} from "../common/common";
 import trace from "../common/trace";
 import {RejectFactory} from "./rejectFactory";
 import Path from "../path/path";
@@ -47,7 +47,7 @@ export default class TransitionHook {
 
     // If result is an object, it should be a map of strings to functions.
     const makeResolvable = (fn, name) => new Resolvable(name, fn, this.state);
-    return mapObj(resolves, makeResolvable);
+    return map(resolves, makeResolvable);
   }
 
   handleHookResult(hookResult) {
