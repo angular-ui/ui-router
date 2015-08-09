@@ -53,17 +53,19 @@ const stateSelf = (state: IState) => state.self;
 export class Transition {
   $id: number;
 
-  _deferreds: any;
+  private _options: ITransitionOptions;
   private _treeChanges: ITreeChanges;
+
+  private _deferreds: any;
 
   promise: IPromise<any>;
   prepromise: IPromise<any>;
   redirects: IPromise<any>;
 
-  constructor(fromPath: ITransPath, toPath: IParamsPath, private _options: ITransitionOptions = {}) {
-    this._treeChanges = this._calcTreeChanges(fromPath, toPath, _options.reloadState);
+  constructor(fromPath: ITransPath, toPath: IParamsPath, _options: ITransitionOptions = {}) {
+    this._options = extend({ current: val(this) }, _options);
     this.$id = transitionCount++;
-    this._options.current = val(this);
+    this._treeChanges = this._calcTreeChanges(fromPath, toPath, _options.reloadState);
 
     this._deferreds = {
       prehooks: runtime.$q.defer(), // Resolved when the transition is complete, but success callback not run yet
