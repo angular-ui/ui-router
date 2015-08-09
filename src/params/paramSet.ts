@@ -11,6 +11,10 @@ export default class ParamSet {
     return inherit(inherit(this, { $$parent: () => this }), params);
   }
 
+  $$own() {
+    return extend(new ParamSet(), this);
+  }
+
   $$keys() {
     var keys = [], chain = [], parent = this,
         ignore = objectKeys(ParamSet.prototype);

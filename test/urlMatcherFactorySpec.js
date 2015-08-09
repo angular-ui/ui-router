@@ -1,6 +1,8 @@
 var module    = angular.mock.module;
 var uiRouter  = require("ui-router");
-var provide, UrlMatcher, ParamSet, Param;
+var ParamSet = uiRouter.params.ParamSet;
+var Param = uiRouter.params.Param;
+var provide, UrlMatcher;
 
 beforeEach(function() {
   var app = angular.module('ui.router.router.test', function () { });
@@ -8,7 +10,7 @@ beforeEach(function() {
     provider = $urlMatcherFactoryProvider;
     UrlMatcher = provider.UrlMatcher;
     ParamSet = provider.ParamSet;
-    Param = provider.Param;
+    //Param = provider.Param;
   });
 });
 
@@ -503,7 +505,7 @@ describe("urlMatcherFactory", function () {
     expect($umf.compile('/hello/world').exec('/heLLo/WORLD')).toBeNull();
   });
 
-  it("should handle case insensistive URL", function () {
+  it("should handle case insensitive URL", function () {
     $umf.caseInsensitive(true);
     expect($umf.compile('/hello/world').exec('/heLLo/WORLD')).toEqual({});
   });
@@ -879,6 +881,22 @@ describe("urlMatcherFactory", function () {
         expect(child.grandparent).toBe(params.grandparent);
         expect(child.parent).toBe(params.parent);
         expect(child.child).toBe(params.child);
+      });
+    });
+
+    describe(".$$own", function() {
+      it("should return a new ParamSet which does not expose ancestor Params (only exposes own Params)", function() {
+        var grandparent = new ParamSet({ grandparent: params.grandparent });
+        var parent = grandparent.$$new({ parent: params.parent });
+        var child = parent.$$new({ child: params.child });
+
+        expect(child.grandparent).toBe(params.grandparent);
+        var own = child.$$own();
+
+        expect(own.$$keys()).toEqual(["child"]);
+        expect(own.child).toBe(params.child);
+        expect(own.parent).toBeUndefined();
+        expect(own.grandparent).toBeUndefined();
       });
     });
 
