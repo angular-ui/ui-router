@@ -171,8 +171,8 @@ export class Transition {
    * @returns {StateParams} the StateParams object for the transition.
    */
   // TODO
-  params(): ParamValues {
-    return ParamValues.fromPath(this._treeChanges.to);
+  params(pathname: string = "to"): ParamValues {
+    return ParamValues.fromPath(this._treeChanges[pathname]);
   }
 
   /**
@@ -400,11 +400,12 @@ export class Transition {
     return isEq(this._options.current, val(this))();
   }
 
-  abort() {
-    if (this.isActive()) {
-      $transition.transition = null; // TODO
-    }
-  }
+  // This doesn't work, and should probably go away.
+  // abort() {
+  //   if (this.isActive()) {
+  //     $transition.transition = null; // TODO
+  //   }
+  // }
 
   toString () {
     var fromStateOrName = this.from();
