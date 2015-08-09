@@ -1,3 +1,6 @@
+/// <reference path='../typings/angularjs/angular.d.ts' />
+/// <reference path='../typings/jasmine/jasmine.d.ts' />
+
 // Promise testing support
 angular.module('ngMock').config(function ($provide) {
   $provide.decorator('$q', function ($delegate, $rootScope) {

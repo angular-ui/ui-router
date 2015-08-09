@@ -7,7 +7,7 @@ import {IPromise} from "angular"
 import {ITransPath, ITransNode} from "../path/interface"
 import Path from "./../path/path"
 
-import {IPromises, IResolvables,ResolvePolicy, IOptions1} from "./interface"
+import {IPromises, IResolvables, ResolvePolicy, IOptions1} from "./interface"
 import Resolvable from "./resolvable"
 import {IState} from "../state/interface"
 
@@ -67,8 +67,7 @@ export default class ResolveContext {
   }
    
   // Returns a promise for an array of resolved Path Element promises
-  resolvePath(options: IOptions1): IPromise<any> {
-    options = options || <any> {};
+  resolvePath(options: IOptions1 = {}): IPromise<any> {
     if (options.trace) trace.traceResolvePath(this, options);
     const promiseForNode = (node: ITransNode) => this.resolvePathElement(node.state, options);
     return runtime.$q.all(<any> map(this._path.nodes(), promiseForNode)).then(noop);
@@ -78,8 +77,7 @@ export default class ResolveContext {
   // options.resolvePolicy: only return promises for those Resolvables which are at 
   // the specified policy, or above.  i.e., options.resolvePolicy === 'lazy' will
   // resolve both 'lazy' and 'eager' resolves.
-  resolvePathElement(state: IState, options: IOptions1): IPromise<any> {
-    options = options || {};
+  resolvePathElement(state: IState, options: IOptions1 = {}): IPromise<any> {
     // The caller can request the path be resolved for a given policy and "below" 
     let policy: string = options && options.resolvePolicy;
     let policyOrdinal: number = ResolvePolicy[policy || defaultResolvePolicy];
@@ -112,8 +110,7 @@ export default class ResolveContext {
    * @param locals: are the angular $injector-style locals to inject
    * @param options: options (TODO: document)
    */
-  invokeLater(state: IState, fn: Function, locals: any, options): IPromise<any> {
-    options = options || {};
+  invokeLater(state: IState, fn: Function, locals: any, options: IOptions1 = {}): IPromise<any> {
     var resolvables = resolvablesForFn(fn, this.isolateRootTo(state), options, "Later");
     const getPromise = (resolvable: Resolvable) => resolvable.get(this.isolateRootTo(state), options);
     var promises: IPromises = <any> map(resolvables, getPromise);

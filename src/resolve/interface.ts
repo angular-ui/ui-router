@@ -27,7 +27,7 @@ interface IPolicies { [key: string]: string }
 // TODO: convert to enum
 // Defines the available policies and their ordinals.
 export enum ResolvePolicy {
-  EAGER, // Eager resolves are resolved before the transition starts.
+  JIT, // JIT resolves are resolved just-in-time, right before an injected function that depends on them is invoked.
   LAZY, // Lazy resolves are resolved before their state is entered.
-  JIT // JIT resolves are resolved just-in-time, right before an injected function that depends on them is invoked.
+  EAGER // Eager resolves are resolved before the transition starts.
 }

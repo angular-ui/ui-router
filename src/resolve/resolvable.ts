@@ -6,7 +6,7 @@ import {IPromise} from "angular";
 
 import {IState} from "../state/interface";
 
-import {IResolvables} from "./interface"
+import {IResolvables, IOptions1} from "./interface"
 import ResolveContext from "./resolveContext"
 
 import {ITransPath} from "../path/interface"
@@ -50,8 +50,7 @@ export default class Resolvable {
   // - wait for resolveFn promise to resolve
   // - store unwrapped data
   // - resolve the Resolvable's promise
-  resolveResolvable(resolveContext: ResolveContext, options) {
-    options = options || {};
+  resolveResolvable(resolveContext: ResolveContext, options: IOptions1 = {}) {
     let {state, name, deps, resolveFn} = this;
     
     if (options.trace) trace.traceResolveResolvable(this, options);
@@ -87,7 +86,7 @@ export default class Resolvable {
     });
   }
 
-  get(resolveContext: ResolveContext, options): IPromise<any> {
+  get(resolveContext: ResolveContext, options?: IOptions1): IPromise<any> {
     return this.promise || this.resolveResolvable(resolveContext, options);
   }
 
