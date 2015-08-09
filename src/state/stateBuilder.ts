@@ -38,7 +38,7 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
 
     // Own parameters for this state. state.url.params is already built at this point. Create and add non-url params
     ownParams: function(state) {
-      var params = state.url && state.url.params || new ParamSet();
+      var params = state.url && state.url.params.$$own() || new ParamSet();
       forEach(state.params || {}, function(config, id) {
         if (!params[id]) params[id] = new Param(id, null, config, "config");
       });
