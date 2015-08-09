@@ -639,8 +639,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (!ref.valid()) throw new Error(`Invalid, yo: ${ref}`);
       let toPath: IPath = pathFactory.paramsPath(ref);
 
-      let newTrans = $transition.create(currentPath, toPath, toParams, transOptions);
-      var transition: Transition = transQueue.enqueue(newTrans);
+      let transition = $transition.create(currentPath, toPath, toParams, transOptions);
       let stateHandler = new StateHandler($urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
       var result = stateHandler.runTransition(transition);
       result.finally(() => transQueue.remove(transition));

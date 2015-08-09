@@ -12,24 +12,26 @@ import {ITransPath} from "../path/interface"
 
 export default class StateHandler {
   constructor(private $urlRouter,
-     private $view,
+     private $view, // service
      private $state: IStateService,
-     private $stateParams, 
+     private $stateParams, // service/obj
      private $q: IQService,
-     private transQueue: Queue<Transition>,
-     private treeChangeQueue: Queue<ITreeChanges>
+     private activeTransQ: Queue<Transition>,
+     private changeHistory: Queue<ITreeChanges>
   ) { }
   
   runTransition(transition: Transition) {
     // When the transition promise (prepromise; before callbacks) is resolved/rejected, update the $state service
     const handleSuccess = (treeChanges: ITreeChanges) => this.transitionSuccess(treeChanges, transition);
     const handleFailure = (error) => this.transitionFailure(transition, error);
+    this.activeTransQ.clear();
+    this.activeTransQ.enqueue(transition);
     transition.run();
     return transition.prepromise.then(handleSuccess, handleFailure);
   }
 
   transitionSuccess(treeChanges: ITreeChanges, transition: Transition) {
-    let {$view, $state, transQueue, treeChangeQueue} = this;
+    let {$view, $state, activeTransQ, changeHistory} = this;
     // TODO: sync on entering/exiting state, not transition success?
     transition.views("exiting").forEach($view.reset.bind($view));
     $view.sync();
@@ -40,15 +42,15 @@ export default class StateHandler {
     $state.$current = transition.$to();
     $state.current = $state.$current.self;
     this.updateStateParams(transition);
-    transQueue.remove(transition);
-    treeChangeQueue.enqueue(treeChanges);
+    activeTransQ.remove(transition);
+    changeHistory.enqueue(treeChanges);
 
     return transition;
   }
 
   transitionFailure(transition: Transition, error) {
-    let {$state, $stateParams, $q, transQueue} = this;
-    transQueue.remove(transition);
+    let {$state, $stateParams, $q, activeTransQ} = this;
+    activeTransQ.remove(transition);
     // Handle redirect and abort
     if (error instanceof TransitionRejection) {
       if (error.type === RejectType.IGNORED) {
@@ -62,7 +64,7 @@ export default class StateHandler {
       if (error.type === RejectType.SUPERSEDED) {
         //if (error.redirected && error.detail instanceof Transition) { // TODO: expose Transition class for instanceof
         if (error.redirected && error.detail instanceof Transition) {
-          transQueue.enqueue(error.detail);
+          activeTransQ.enqueue(error.detail);
           return this.runTransition(error.detail);
         }
       }
