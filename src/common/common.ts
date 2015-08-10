@@ -7,7 +7,7 @@ export interface TypedMap<T> { [key: string]: T }
 
 export interface Predicate<X> { (x: X): boolean; }
 export interface Fx<X,T> { (x: X): T }
-export interface F extends Fx<any,any> { }
+export interface F extends Function { }
 export interface HOF { (fn1: F, fn2: F): F }
 
 export interface ObjMapFn<X, T> { (x:X, key?: string): T }
@@ -346,7 +346,7 @@ export function pipe(...funcs: Function[]) {
   return compose.apply(null, [].slice.call(arguments).reverse());
 }
 
-export function prop(name): F {
+export function prop(name): Fx<any,any> {
   return function(obj) { return obj && obj[name]; };
 }
 

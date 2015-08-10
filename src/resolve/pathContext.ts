@@ -9,7 +9,7 @@ export default class PathContext {
   constructor(private _resolveContext: ResolveContext, 
     private _state: IState, 
     private _injector: ng.auto.IInjectorService, 
-    private _options) { }
+    private _options = {}) { }
 
   /** Invokes an annotated function in the context of the toPath */
   invoke(injectedFn, locals) {

@@ -40,7 +40,7 @@ export interface ITreeChanges {
 
 export interface ITransitionService {
   transition: Transition,
-  create: (from: ITransPath, to: IPath, toParams: IRawParams, opts: ITransitionOptions) => Transition,
+  create: (from: ITransPath, to: IParamsPath, opts: ITransitionOptions) => Transition,
   isTransition: (Transition) => boolean,
   provider: Object,
   $$hooks: (string) => IEventHook[]

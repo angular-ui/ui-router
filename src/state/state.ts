@@ -619,7 +619,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
-    $state.transitionTo = function transitionTo(to: PStateRef, toParams: IRawParams, options: ITransitionOptions): IPromise<IState> {
+    $state.transitionTo = function transitionTo(to: PStateRef, toParams: IRawParams, options: ITransitionOptions = {}): IPromise<IState> {
+      toParams = toParams || {};
       options = defaults(options, defaultTransOpts);
       let transOptions = extend(options, { current: transQueue.peekTail.bind(transQueue)});
 
@@ -637,9 +638,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       let currentPath: ITransPath = latestTreeChanges ? latestTreeChanges.to : PathFactory.transPath(pathFactory.paramsPath(null));
       // TODO: handle invalid state correctly here in $state, not in $transition
       if (!ref.valid()) throw new Error(`Invalid, yo: ${ref}`);
-      let toPath: IPath = pathFactory.paramsPath(ref);
+      let toPath: IParamsPath = pathFactory.paramsPath(ref);
+      if (options.inherit)
+        toPath = PathFactory.inheritParams(currentPath, toPath, objectKeys(toParams));
 
-      let transition = $transition.create(currentPath, toPath, toParams, transOptions);
+      let transition = $transition.create(currentPath, toPath, transOptions);
       let stateHandler = new StateHandler($urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
       var result = stateHandler.runTransition(transition);
       result.finally(() => transQueue.remove(transition));

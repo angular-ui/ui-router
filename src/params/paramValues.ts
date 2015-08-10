@@ -25,7 +25,7 @@ export class ParamValues {
     static fromPath(path: IParamsPath): ParamValues {
         let $byState = ParamValues.paramsByState(path);
         let params = inherit(new ParamValues($byState), {});
-        const extendParams = (memo, node: IParamsNode) => extend(params, node.ownParams);
+        const extendParams = (memo, node: IParamsNode) => extend(memo, node.ownParams);
         return path.nodes().reduce(extendParams, params);
     }
 }

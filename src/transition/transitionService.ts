@@ -1,6 +1,6 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
-import {extend, defaults, find, is, isFunction, isString, val, noop} from "../common/common";
+import {extend, defaults, objectKeys, pick, find, is, isFunction, isString, val, noop} from "../common/common";
 import {IServiceProviderFactory} from "angular";
 
 import {Transition} from "./transition";
@@ -323,21 +323,8 @@ function $TransitionProvider() {
     //     throw new Error($transition$.$to().error());
     // });
 
-    $transition.create = function create(fromPath: ITransPath, to: IPath, toParams: IRawParams, options: ITransitionOptions) {
-      const paramsFor = (path: IParamsPath, state: IState) => {
-        var node = path.elementForState(state);
-        return node && node.ownParams;
-      };
-      
-      const makeParamsNode = (node: INode) => {
-        let fromParams = paramsFor(fromPath, node.state) || {};
-        let newParams: IRawParams = <any> node.state.ownParams.$$values(toParams);
-        let ownParams: IRawParams = extend({}, fromParams, newParams);
-        return { state: node.state, ownParams };
-      };
-      
-      let toPath: IParamsPath = new Path(to.nodes().map(makeParamsNode));
-      return new Transition(fromPath, toPath, options || {});
+    $transition.create = function create(fromPath: ITransPath, toPath: IParamsPath, options: ITransitionOptions = {}) {
+      return new Transition(fromPath, toPath, options);
     };
 
     $transition.isTransition = is(Transition);

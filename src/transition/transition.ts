@@ -256,13 +256,13 @@ export class Transition {
    * Returns a list of StateViewConfig objects;
    * Returns one StateViewConfig for each view in each state in a named path of the transition's tree changes
    */
-  views(pathname: string = "entering") {
+  views(pathname: string = "entering", contextPathname: string = "to") {
     var path: ITransPath = this._treeChanges[pathname];
     var states: IState[] = states || path.states();
     var params: ParamValues = this.params();
 
     return unnest(map(states, (state: IState) => {
-      var context = state, locals: PathContext = this.context(pathname, state);
+      var context = state, locals: PathContext = this.context(contextPathname, state);
       const makeViewConfig = ([name, view]) => { return {name, view, context, locals, params} };
       return pairs(state.views).map(makeViewConfig)
     }));

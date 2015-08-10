@@ -1,10 +1,18 @@
+/// <reference path='../typings/angularjs/angular.d.ts' />
+/// <reference path='../typings/angularjs/angular-mocks.d.ts' />
+/// <reference path='../typings/jasmine/jasmine.d.ts' />
+
 var module = angular.mock.module;
-var uiRouter = require("ui-router");
-var Path = uiRouter.resolve.Path;
-var Resolvable = uiRouter.resolve.Resolvable;
-var PathContext = uiRouter.resolve.PathContext;
-var ViewContext = uiRouter.view.ViewContext;
-var ViewConfig = uiRouter.view.view.ViewConfig;
+
+import * as uiRouter from "../src/ui-router"
+import Path from "../src/path/path"
+import Resolvable from "../src/resolve/resolvable"
+import ResolveContext from "../src/resolve/resolveContext"
+import PathContext from "../src/resolve/pathContext"
+import PathFactory from "../src/path/pathFactory"
+import {ViewConfig} from "../src/view/view"
+
+import {IState} from "../src/state/interface"
 
 describe('view', function() {
   var scope, $compile, $injector, elem, $controllerProvider;
@@ -24,31 +32,32 @@ describe('view', function() {
   }));
 
   describe('controller handling', function() {
-    var state = { name: "foo" };
-    var path = new Path([state]);
+    var state: IState = <any> { name: "foo" };
+    var root: IState = <any> { name: "" };
+    var nodes = [root,state].map(state => ({ state: state, ownParams: {}}));
+    var path = PathFactory.transPath(<any> new Path(nodes));
+    var ctx = new ResolveContext(path);
 
     it('uses the controllerProvider to get controller dynamically', inject(function ($view, $q, $injector) {
       var ctrlExpression;
       $controllerProvider.register("AcmeFooController", function($scope, foo) { });
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
-      console.log(JSON.stringify(PathContext));
 
-      var svc = {
+      var viewConfig = {
         view: {
           template: "test",
           controllerProvider: function (/* $stateParams, */ foo) { // todo: reimplement localized $stateParams
             ctrlExpression = /* $stateParams.type + */ foo + "Controller as foo";
-            return ctrl;
+            return ctrlExpression;
           }
         },
         name: '$default',
         params: {type: "Acme"},
-        locals: new PathContext(path.last(), path, {}, $injector)
+        locals: new PathContext(ctx, state, $injector)
       };
-      $view.load(new ViewConfig(svc));
+      $view.load(new ViewConfig(<any> viewConfig));
       $q.flush();
       expect(ctrlExpression).toEqual("FooController as foo");
     }));
   });
-
 });
