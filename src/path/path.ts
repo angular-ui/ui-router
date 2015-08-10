@@ -65,7 +65,8 @@ export default class Path<NODE extends INode> {
     return this._nodes.length ? this._nodes[this._nodes.length - 1] : null;
   }
 
-  adapt<T extends INode>(nodeMapper: (NODE) => T): Path<T> {
+  /** Returns a new path where each path element is mapped using the nodeMapper function */
+  adapt<T extends INode>(nodeMapper: (NODE, idx?) => T): Path<T> {
     var adaptedNodes = this._nodes.map(nodeMapper);
     return new Path(adaptedNodes);
   }

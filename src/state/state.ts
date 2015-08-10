@@ -635,10 +635,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       let ref: StateReference = matcher.reference(to, options && options.relative, toParams);
 
       let latestTreeChanges: ITreeChanges = treeChangesQueue.peekTail();
-      let currentPath: ITransPath = latestTreeChanges ? latestTreeChanges.to : PathFactory.transPath(pathFactory.paramsPath(null));
+      let currentPath: ITransPath = latestTreeChanges ? latestTreeChanges.to : PathFactory.transPath(pathFactory.makeParamsPath(null));
       // TODO: handle invalid state correctly here in $state, not in $transition
       if (!ref.valid()) throw new Error(`Invalid, yo: ${ref}`);
-      let toPath: IParamsPath = pathFactory.paramsPath(ref);
+      let toPath: IParamsPath = pathFactory.makeParamsPath(ref);
       if (options.inherit)
         toPath = PathFactory.inheritParams(currentPath, toPath, objectKeys(toParams));
 

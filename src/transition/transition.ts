@@ -11,7 +11,7 @@ import {RejectFactory} from "./rejectFactory"
 
 import {IParamsNode, ITransNode, IPath, IParamsPath, ITransPath} from "../path/interface";
 import Path from "../path/path";
-import PathFactory from "../path/pathFactory"
+import PathFactory, {makeTransNode} from "../path/pathFactory"
 
 import {IPromises, IResolvables} from "../resolve/interface";
 import Resolvable from "../resolve/resolvable";
@@ -96,11 +96,19 @@ export class Transition {
       keep++;
     }
 
-    let from: ITransPath      = fromPath;
-    let retained: ITransPath  = from.slice(0, keep);
-    let exiting: ITransPath   = from.slice(keep);
-    let entering: ITransPath  = PathFactory.transPath(toPath.slice(keep));
-    let to: ITransPath        = retained.concat(entering);
+    /** Given a retained node, return a new node which uses the to node's param values */
+    function applyToParams(retainedNode: ITransNode, idx: number): ITransNode {
+      let toNodeParams = toPath.nodes()[idx].ownParams;
+      return extend({}, retainedNode, { ownParams: toNodeParams })
+    }
+
+    let from      = fromPath;
+    let retained  = from.slice(0, keep);
+    let exiting   = from.slice(keep);
+    // "entering" is the tail of toPath, with new resolvables added
+    let entering  = toPath.slice(keep).adapt(makeTransNode);
+    // "to" is: retained path (but with "to params" applied) concatenated with entering path
+    let to        = retained.adapt(applyToParams).concat(entering);
 
     return { from, to, retained, exiting, entering };
   }

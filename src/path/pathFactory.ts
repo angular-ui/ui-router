@@ -10,10 +10,11 @@ import Path from "../path/path"
 
 import Resolvable from "../resolve/resolvable"
 
-const makeResolvable = (node) =>
-    (fn, name: string) => new Resolvable(name, fn, node.state);
+/** Given an IParamsNode, make an ITransNode by creating resolvables for the state's resolve declaration */
+export function makeTransNode(node: IParamsNode): ITransNode {
+  const makeResolvable = (node: INode) =>
+      (resolveFn: Function, name: string) => new Resolvable(name, resolveFn, node.state);
 
-const adaptParamsToTrans = (node: IParamsNode) => {
   let ownResolvables = map(node.state.resolve, makeResolvable(node));
   
   return {
@@ -21,7 +22,14 @@ const adaptParamsToTrans = (node: IParamsNode) => {
     ownParams: node.ownParams,
     ownResolvables: ownResolvables
   };
-};
+}
+
+export function makeParamsNode(params: IRawParams, state: IState) {
+  return {
+    state,
+    ownParams: state.ownParams.$$values(params)
+  };
+}
 
 export default class PathFactory {
   constructor(rootGetter: () => IState) { 
@@ -32,14 +40,12 @@ export default class PathFactory {
     return null;
   }
 
-  paramsPath(ref: StateReference): IParamsPath { 
+  makeParamsPath(ref: StateReference): IParamsPath {
     let states = ref ? ref.$state().path : [];
     let params = ref ? ref.params() : {};
     states = [this.root()].concat(states);
-    const makeParamsNode = (state: IState) => ({ state, ownParams: state.ownParams.$$values(params) });
-    
-    let nodes = states.map(makeParamsNode);
-    return new Path(nodes);
+    const toParamsNode: (IState) => IParamsNode = curry(makeParamsNode)(params);
+    return new Path(states.map(toParamsNode));
   }
 
   /**
@@ -80,6 +86,6 @@ export default class PathFactory {
   }
   
   static transPath(path: IParamsPath): ITransPath {
-    return path.slice(0).adapt(adaptParamsToTrans)
+    return path.slice(0).adapt(makeTransNode)
   }
 }
