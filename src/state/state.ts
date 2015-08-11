@@ -3,7 +3,7 @@ import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEa
 import Queue from "../common/queue"
 import {IServiceProviderFactory, IPromise} from "angular"
 
-import {IStateService, IState, IStateDeclaration, PStateRef, IHrefOptions} from "./interface"
+import {IStateService, IState, IStateDeclaration, IStateOrName, IHrefOptions} from "./interface"
 import Glob from "./glob"
 import StateQueueManager from "./stateQueueManager"
 import StateBuilder from "./stateBuilder"
@@ -473,7 +473,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
-    $state.reload = function reload(reloadState: PStateRef): IPromise<IState> {
+    $state.reload = function reload(reloadState: IStateOrName): IPromise<IState> {
       var reloadOpt = isDefined(reloadState) ? reloadState : true;
       return $state.transitionTo($state.current, $stateParams, {
         reload: reloadOpt,
@@ -548,7 +548,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * - *resolve error* - when an error has occurred with a `resolve`
      *
      */
-    $state.go = function go(to: PStateRef, params: IRawParams, options: ITransitionOptions): IPromise<IState> {
+    $state.go = function go(to: IStateOrName, params: IRawParams, options: ITransitionOptions): IPromise<IState> {
       var defautGoOpts = { relative: $state.$current, inherit: true };
       return $state.transitionTo(to, params, defaults(options, defautGoOpts, defaultTransOpts));
     };
@@ -575,7 +575,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      */
     $state.redirect = <any> function redirect(transition: Transition) {
       return {
-        to: function(state: PStateRef, params: IRawParams, options: ITransitionOptions): Transition {
+        to: function(state: IStateOrName, params: IRawParams, options: ITransitionOptions): Transition {
           return transition.redirect(matcher.reference(state, null, params), options);
         }
       };
@@ -619,7 +619,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
-    $state.transitionTo = function transitionTo(to: PStateRef, toParams: IRawParams, options: ITransitionOptions = {}): IPromise<IState> {
+    $state.transitionTo = function transitionTo(to: IStateOrName, toParams: IRawParams, options: ITransitionOptions = {}): IPromise<IState> {
       toParams = toParams || {};
       options = defaults(options, defaultTransOpts);
       let transOptions = extend(options, { current: transQueue.peekTail.bind(transQueue)});
@@ -688,7 +688,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      * @returns {boolean} Returns true if it is the state.
      */
-    $state.is = function is(stateOrName: PStateRef, params?: IRawParams, options?: ITransitionOptions): boolean {
+    $state.is = function is(stateOrName: IStateOrName, params?: IRawParams, options?: ITransitionOptions): boolean {
       options = defaults(options, { relative: $state.$current });
       var state = matcher.find(stateOrName, options.relative);
       if (!isDefined(state)) return undefined;
@@ -747,7 +747,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      * @returns {boolean} Returns true if it does include the state
      */
-    $state.includes = function includes(stateOrName: PStateRef, params?: IRawParams, options?: ITransitionOptions): boolean {
+    $state.includes = function includes(stateOrName: IStateOrName, params?: IRawParams, options?: ITransitionOptions): boolean {
       options = defaults(options, { relative: $state.$current });
       var glob = isString(stateOrName) && Glob.fromString(<string> stateOrName);
 
@@ -790,7 +790,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      * @returns {string} compiled state url
      */
-    $state.href = function href(stateOrName: PStateRef, params?: IRawParams, options?: IHrefOptions): string {
+    $state.href = function href(stateOrName: IStateOrName, params?: IRawParams, options?: IHrefOptions): string {
       var defaultHrefOpts = {
         lossy:    true,
         inherit:  true,
@@ -827,7 +827,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @param {string|object=} base When stateOrName is a relative state reference, the state will be retrieved relative to context.
      * @returns {Object|Array} State configuration object or array of all objects.
      */
-    $state.get = function (stateOrName: PStateRef, base: PStateRef): (IStateDeclaration|IStateDeclaration[]) {
+    $state.get = function (stateOrName: IStateOrName, base: IStateOrName): (IStateDeclaration|IStateDeclaration[]) {
       if (arguments.length === 0) return objectKeys(states).map(function(name) { return states[name].self; });
       var found = matcher.find(stateOrName, base || $state.$current);
       return found && found.self || null;
