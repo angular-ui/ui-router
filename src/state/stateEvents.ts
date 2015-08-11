@@ -1,11 +1,16 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
-import {extend, forEach, isFunction} from "../common/common";
-import {RejectType} from "../transition/rejectFactory";
-import {StateParams} from "./state";
 import {IServiceProviderFactory} from "angular";
-import {Transition} from "../transition/transition"
+import {extend, forEach, isFunction} from "../common/common";
 
+import {IStateService} from "./interface";
+import {StateParams} from "./state";
+
+import {IRawParams} from "../params/interface";
+
+import {ITransitionService} from "../transition/interface"
+import {Transition} from "../transition/transition"
+import {RejectType} from "../transition/rejectFactory";
 
 stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$urlRouter'];
 function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootScope, $urlRouter) {
@@ -109,7 +114,7 @@ function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootSc
 }
 
 stateNotFoundHandler.$inject = ['$transition$', '$state', '$rootScope', '$urlRouter'];
-function stateNotFoundHandler($transition$: Transition, $state, $rootScope, $urlRouter) {
+export function stateNotFoundHandler($transition$: Transition, $state: IStateService, $rootScope, $urlRouter) {
   // if ($transition$.$to().valid())
     return;
 
@@ -155,7 +160,7 @@ function stateNotFoundHandler($transition$: Transition, $state, $rootScope, $url
 
   function redirectFn() {
     return $state.redirect($transition$)
-      .to(redirect.to, redirect.toParams, extend({ $isRetrying: true }, options));
+      .to(redirect.to, <any> redirect.toParams, extend({ $isRetrying: true }, options));
   }
 
   if (e.defaultPrevented) {
@@ -196,11 +201,11 @@ function $StateEventsProvider() {
     return enabledStateEvents;
   };
 
-  this.$get = [ '$transition', function($transition) {
+  this.$get = [ '$transition', function($transition: ITransitionService) {
     runtime = true;
 
-    if (enabledStateEvents.$stateNotFound)
-      $transition.provider.onBefore({}, stateNotFoundHandler, { priority: 1000 });
+    //if (enabledStateEvents.$stateNotFound)
+    //  $state.onInvalid({}, stateNotFoundHandler, { priority: 1000 });
     if (enabledStateEvents. $stateChangeStart)
       $transition.provider.onBefore({}, stateChangeStartHandler, { priority: 1000 });
 

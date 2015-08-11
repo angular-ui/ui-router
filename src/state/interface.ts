@@ -106,11 +106,11 @@ export interface IStateService {
   transition: Transition,
   reload(stateOrName: PStateRef): IPromise<IState>,
   go(to: PStateRef, params: IRawParams, options: ITransitionOptions): IPromise<IState>,
-  transitionTo(to: PStateRef, toParams: IRawParams, options: ITransitionOptions): IPromise<IState>,  
+  transitionTo(to: PStateRef, toParams: IRawParams, options: ITransitionOptions): IPromise<IState>,
   redirect(transition: Transition): { to: (state: PStateRef, params: IRawParams, options: ITransitionOptions) => Transition },
   is(stateOrName: PStateRef, params?: IRawParams, options?: ITransitionOptions): boolean,
   includes(stateOrName: PStateRef, params?: IRawParams, options?: ITransitionOptions): boolean,
   href(stateOrName: PStateRef, params?: IRawParams, options?: IHrefOptions): string,
-  get(stateOrName: PStateRef, base: PStateRef): (IStateDeclaration|IStateDeclaration[])
+  get(stateOrName: PStateRef, base?: PStateRef): (IStateDeclaration|IStateDeclaration[])
 }
 

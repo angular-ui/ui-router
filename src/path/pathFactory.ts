@@ -10,42 +10,35 @@ import Path from "../path/path"
 
 import Resolvable from "../resolve/resolvable"
 
-/** Given an IParamsNode, make an ITransNode by creating resolvables for the state's resolve declaration */
-export function makeTransNode(node: IParamsNode): ITransNode {
-  const makeResolvable = (node: INode) =>
-      (resolveFn: Function, name: string) => new Resolvable(name, resolveFn, node.state);
-
-  let ownResolvables = map(node.state.resolve, makeResolvable(node));
-  
-  return {
-    state: node.state,
-    ownParams: node.ownParams,
-    ownResolvables: ownResolvables
-  };
-}
-
-export function makeParamsNode(params: IRawParams, state: IState) {
-  return {
-    state,
-    ownParams: state.ownParams.$$values(params)
-  };
-}
-
 export default class PathFactory {
-  constructor(rootGetter: () => IState) { 
-    this.root = rootGetter
-  }
+  constructor() { }
 
-  root(): IState {
-    return null;
-  }
-
-  makeParamsPath(ref: StateReference): IParamsPath {
+  static makeParamsPath(ref: StateReference): IParamsPath {
     let states = ref ? ref.$state().path : [];
     let params = ref ? ref.params() : {};
-    states = [this.root()].concat(states);
-    const toParamsNode: (IState) => IParamsNode = curry(makeParamsNode)(params);
+    const toParamsNode: (IState) => IParamsNode = curry(PathFactory.makeParamsNode)(params);
     return new Path(states.map(toParamsNode));
+  }
+
+  static makeParamsNode(params: IRawParams, state: IState) {
+    return {
+      state,
+      ownParams: state.ownParams.$$values(params)
+    };
+  }
+
+  /** Given an IParamsNode, make an ITransNode by creating resolvables for the state's resolve declaration */
+  static makeTransNode(node: IParamsNode): ITransNode {
+    const makeResolvable = (node: INode) =>
+        (resolveFn: Function, name: string) => new Resolvable(name, resolveFn, node.state);
+
+    let ownResolvables = map(node.state.resolve, makeResolvable(node));
+
+    return {
+      state: node.state,
+      ownParams: node.ownParams,
+      ownResolvables: ownResolvables
+    };
   }
 
   /**
@@ -86,6 +79,6 @@ export default class PathFactory {
   }
   
   static transPath(path: IParamsPath): ITransPath {
-    return path.slice(0).adapt(makeTransNode)
+    return path.slice(0).adapt(PathFactory.makeTransNode)
   }
 }

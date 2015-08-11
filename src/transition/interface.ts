@@ -42,16 +42,28 @@ export interface ITransitionService {
   transition: Transition,
   create: (from: ITransPath, to: IParamsPath, opts: ITransitionOptions) => Transition,
   isTransition: (Transition) => boolean,
-  provider: Object,
+  provider: ITransitionProvider,
   $$hooks: (string) => IEventHook[]
+}
+
+
+export interface ITransitionProvider {
+    onBefore:   (matchObject: IMatchCriteria, callback: Function, options?) => Function,
+    onInvalid:  (matchObject: IMatchCriteria, callback: Function, options?) => Function,
+    onStart:    (matchObject: IMatchCriteria, callback: Function, options?) => Function,
+    on:         (matchObject: IMatchCriteria, callback: Function, options?) => Function,
+    entering:   (matchObject: IMatchCriteria, callback: Function, options?) => Function,
+    exiting:    (matchObject: IMatchCriteria, callback: Function, options?) => Function,
+    onSuccess:  (matchObject: IMatchCriteria, callback: Function, options?) => Function,
+    onError:    (matchObject: IMatchCriteria, callback: Function, options?) => Function
 }
 
 export interface IStateMatch {
   (IState): boolean
 }
 export interface IMatchCriteria {
-  to: (string|IStateMatch),
-  from: (string|IStateMatch)
+  to?: (string|IStateMatch),
+  from?: (string|IStateMatch)
 }
 
 export interface IEventHook {

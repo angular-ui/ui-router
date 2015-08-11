@@ -1,5 +1,7 @@
 import {IParamsPath, IParamsNode} from "../path/interface"
 import {IState} from "../state/interface"
+import {IRawParams} from "../params/interface"
+
 import {extend, inherit} from "../common/common"
 
 /** 
@@ -14,7 +16,7 @@ export class ParamValues {
         return this._byState[stateName]; 
     }
     
-    static paramsByState(path: IParamsPath): {[key: string]: any} {
+    static paramsByState(path: IParamsPath): IRawParams {
         const byState = (memo, node: IParamsNode) => { 
             memo[node.state.name] = node.ownParams; 
             return memo; 

@@ -79,7 +79,7 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
 
     // Keep a full path from the root down to this state as this is needed for state activation.
     path: function(state) {
-      return state.parent ? state.parent.path.concat(state) : []; // exclude root from path
+      return state.parent ? state.parent.path.concat(state) : /*root*/ [state];
     },
 
     // Speed up $state.includes() as it's used a lot

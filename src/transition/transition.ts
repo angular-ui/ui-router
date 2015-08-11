@@ -11,7 +11,7 @@ import {RejectFactory} from "./rejectFactory"
 
 import {IParamsNode, ITransNode, IPath, IParamsPath, ITransPath} from "../path/interface";
 import Path from "../path/path";
-import PathFactory, {makeTransNode} from "../path/pathFactory"
+import PathFactory from "../path/pathFactory"
 
 import {IPromises, IResolvables} from "../resolve/interface";
 import Resolvable from "../resolve/resolvable";
@@ -56,7 +56,7 @@ export class Transition {
   private _options: ITransitionOptions;
   private _treeChanges: ITreeChanges;
 
-  private _deferreds: any;
+  _deferreds: any;
 
   promise: IPromise<any>;
   prepromise: IPromise<any>;
@@ -106,7 +106,7 @@ export class Transition {
     let retained  = from.slice(0, keep);
     let exiting   = from.slice(keep);
     // "entering" is the tail of toPath, with new resolvables added
-    let entering  = toPath.slice(keep).adapt(makeTransNode);
+    let entering  = toPath.slice(keep).adapt(PathFactory.makeTransNode);
     // "to" is: retained path (but with "to params" applied) concatenated with entering path
     let to        = retained.adapt(applyToParams).concat(entering);
 

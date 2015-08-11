@@ -124,7 +124,7 @@ State.prototype.root = function() {
 $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
-  var root, states: {[key: string]: IState} = {};
+  var root: IState, states: {[key: string]: IState} = {};
   var $state: IStateService = <any> function $state() {};
 
   var matcher       = new StateMatcher(states);
@@ -132,7 +132,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
   var stateQueue    = new StateQueueManager(states, builder, $urlRouterProvider, $state);
   var transQueue    = new Queue<Transition>();
   var treeChangesQueue = new Queue<ITreeChanges>();
-  let pathFactory   = new PathFactory(() => root);
 
   /**
    * @ngdoc function
@@ -415,6 +414,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     }, true);
 
     root.navigable = null;
+    const rootPath = () => PathFactory.transPath(new Path([PathFactory.makeParamsNode({}, root)]));
 
     $view.rootContext(root);
 
@@ -625,20 +625,21 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       let transOptions = extend(options, { current: transQueue.peekTail.bind(transQueue)});
 
       // If we're reloading, find the state object to reload from
-      if (isObject(options.reload) && !(<any>options.reload).name) { throw new Error('Invalid reload state object'); }
+      if (isObject(options.reload) && !(<any>options.reload).name)
+        throw new Error('Invalid reload state object');
       options.reloadState = options.reload === true ? $state.$current.path[0] : matcher.find(<any> options.reload, options.relative);
-      if (options.reload && !options.reloadState) {
+      if (options.reload && !options.reloadState)
         throw new Error(`No such reload state '${(isString(options.reload) ? options.reload : (<any>options.reload).name)}'`);
-      }
 
       // matcher.reference(to, options && options.relative, toParams),
       let ref: StateReference = matcher.reference(to, options && options.relative, toParams);
 
       let latestTreeChanges: ITreeChanges = treeChangesQueue.peekTail();
-      let currentPath: ITransPath = latestTreeChanges ? latestTreeChanges.to : PathFactory.transPath(pathFactory.makeParamsPath(null));
+      let currentPath: ITransPath = latestTreeChanges ? latestTreeChanges.to : rootPath();
+
       // TODO: handle invalid state correctly here in $state, not in $transition
       if (!ref.valid()) throw new Error(`Invalid, yo: ${ref}`);
-      let toPath: IParamsPath = pathFactory.makeParamsPath(ref);
+      let toPath: IParamsPath = PathFactory.makeParamsPath(ref);
       if (options.inherit)
         toPath = PathFactory.inheritParams(currentPath, toPath, objectKeys(toParams));
 
