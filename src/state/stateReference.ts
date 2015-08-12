@@ -18,16 +18,10 @@ import {abstractKey} from "../common/common";
  * @returns {Function}
  */
 export default class StateReference {
-  private _identifier;
-  private _definition: IState;
-  private _params;
-  private _base;
+  constructor(private _identifier, private _definition: IState, private _params, private _base) { }
 
-  constructor(identifier, definition: IState, params, base) {
-    this._identifier = identifier;
-    this._definition = definition;
-    this._params = params;
-    this._base = base;
+  name() {
+    return this._definition && this._definition.name || this._identifier;
   }
 
   identifier() {
@@ -58,15 +52,15 @@ export default class StateReference {
   }
 
   error() {
-    switch (true) {
-      case (!this._definition && !!this._base):
-        return `Could not resolve '${this._identifier}' from state '${this._base}'`;
-      case (!this._definition):
-        return `No such state '${this._identifier}'`;
-      case !this._definition.self:
-        return `State '${this._identifier}' has an invalid definition`;
-      case this._definition.self[abstractKey]:
-        return `Cannot transition to abstract state '${this._identifier}'`;
-    }
+      if (!this._definition && !!this._base)
+        return `Could not resolve '${this.name()}' from state '${this._base}'`;
+      if (!this._definition)
+        return `No such state '${this.name()}'`;
+      if (!this._definition.self)
+        return `State '${this.name()}' has an invalid definition`;
+      if (this._definition.self[abstractKey])
+        return `Cannot transition to abstract state '${this.name()}'`;
+      if (!this._definition.params.$$validates(this._params))
+        return `Param values not valid for state '${this.name()}'`;
   }
 }
