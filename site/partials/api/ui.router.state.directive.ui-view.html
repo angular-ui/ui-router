@@ -1,4 +1,4 @@
-<a href="https://github.com/angular-ui/ui-router.git/edit/master/src/viewDirective.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router.git/blob/a980f89/src/viewDirective.js#L114" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">ui-view</code>
+<a href="https://github.com/angular-ui/ui-router/edit/master/src/viewDirective.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/viewDirective.js#L114" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">ui-view</code>
 <div><span class="hint">directive in module <code ng:non-bindable="">ui.router.state</code>
 </span>
 </div>
@@ -47,8 +47,7 @@ functionality, call <code>$uiViewScrollProvider.useAnchorScroll()</code>.</em></
 </div></td></tr></tbody></table></div>
 <div class="member event"><h2 id="events">Events</h2>
 <ul class="events"><li><h3 id="events_$viewcontentloaded">$viewContentLoaded</h3>
-<div class="$viewcontentloaded"><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-viewcontentloaded-page"><p><em>
-Fired once the view is <strong>loaded</strong>, </em>after* the DOM is rendered.</p>
+<div class="$viewcontentloaded"><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-viewcontentloaded-page"><p>Fired once the view is <strong>loaded</strong>, <em>after</em> the DOM is rendered.</p>
 </div><div class="inline"><h4 id="events_$viewcontentloaded_type">Type:</h4>
 <div class="type">emits</div>
 </div>
@@ -56,6 +55,19 @@ Fired once the view is <strong>loaded</strong>, </em>after* the DOM is rendered.
 <div class="target">ui-view directive scope</div>
 </div>
 <h5 id="events_$viewcontentloaded_target_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>event</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-viewcontentloaded-page"><p>Event object.</p>
+</div></td></tr><tr><td>viewName</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-viewcontentloaded-page"><p>Name of the view.</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="events_$viewcontentloading">$viewContentLoading</h3>
+<div class="$viewcontentloading"><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-viewcontentloading-page"><p>Fired once the view <strong>begins loading</strong>, <em>before</em> the DOM is rendered.</p>
+</div><div class="inline"><h4 id="events_$viewcontentloading_type">Type:</h4>
+<div class="type">emits</div>
+</div>
+<div class="inline"><h4 id="events_$viewcontentloading_target">Target:</h4>
+<div class="target">ui-view directive scope</div>
+</div>
+<h5 id="events_$viewcontentloading_target_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>event</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-viewcontentloading-page"><p>Event object.</p>
+</div></td></tr><tr><td>viewName</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-directive-page ui-router-state-directive-ui-view-viewcontentloading-page"><p>Name of the view.</p>
 </div></td></tr></tbody></table></div>
 </li>
 </ul>
