@@ -3,13 +3,14 @@ import {IState} from "../state/interface"
 import {IRawParams} from "../params/interface"
 
 import {extend, inherit} from "../common/common"
-
 /** 
  * This class calculates parameter values from a IParamsPath.  The param values for the path
  * are available directly on the resulting object.  Param values for a specific state in the
  * path may be retrieved using the $byState(stateName) function.  
  */
-export class ParamValues {
+export default class ParamValues implements IRawParams {
+    [key: string]: any
+    
     constructor(private _byState) {}
     
     $byState(stateName: string) {

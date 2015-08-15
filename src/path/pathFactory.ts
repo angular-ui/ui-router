@@ -1,6 +1,7 @@
 import {map, extend, pick, omit, curry, Fx} from "../common/common"
 
 import {IRawParams} from "../params/interface"
+import ParamValues from "../params/paramValues"
 
 import {IState} from "../state/interface"
 import StateReference from "../state/stateReference"
@@ -18,6 +19,11 @@ export default class PathFactory {
     let params = ref ? ref.params() : {};
     const toParamsNode: (IState) => IParamsNode = curry(PathFactory.makeParamsNode)(params);
     return new Path(states.map(toParamsNode));
+  }
+  
+  static makeStateReference(path: IParamsPath): StateReference {
+    let state = path.last().state;
+    return new StateReference(state, state, <any> ParamValues.fromPath(path))
   }
 
   static makeParamsNode(params: IRawParams, state: IState) {

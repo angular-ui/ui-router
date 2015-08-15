@@ -7,6 +7,7 @@ import {IViewContext} from "../view/interface"
 import PathContext from "../resolve/pathContext"
 
 import {StateParams} from "./state"
+import StateReference from "./stateReference"
 
 import {IRawParams} from "../params/interface"
 
@@ -99,12 +100,20 @@ export interface IHrefOptions {
   absolute  ?: boolean
 }
 
+export interface IStateProvider {
+  state(state: IStateDeclaration): IStateProvider,
+  state(name: string, state: IStateDeclaration): IStateProvider
+  onInvalid(callback: Function): void,
+  decorator(name: string, func: Function)
+}
+
 export interface IStateService {
   params: any, // TODO: StateParams
   current: IStateDeclaration,
   $current: IState,
   transition: Transition,
   reload(stateOrName: IStateOrName): IPromise<IState>,
+  reference(identifier: IStateOrName, base: IStateOrName, params: IRawParams): StateReference,
   go(to: IStateOrName, params: IRawParams, options: ITransitionOptions): IPromise<IState>,
   transitionTo(to: IStateOrName, toParams: IRawParams, options: ITransitionOptions): IPromise<IState>,
   redirect(transition: Transition): { to: (state: IStateOrName, params: IRawParams, options: ITransitionOptions) => Transition },

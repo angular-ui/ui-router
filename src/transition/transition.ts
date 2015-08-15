@@ -25,7 +25,7 @@ import StateReference from "../state/stateReference"
 import {IState, IStateDeclaration} from "../state/interface";
 
 import {IRawParams} from "../params/interface"
-import {ParamValues} from "../params/paramValues"
+import ParamValues from "../params/paramValues"
 
 import {defaults, eq, extend, filter, flatten, forEach, identity, invoke, is, isEq, isFunction, isObject, isPromise, isDefined,
     map, noop, not, objectKeys, parse, pattern, pipe, pluck, prop, toJson, unnest, unroll, val, pairs} from "../common/common";
@@ -344,7 +344,6 @@ export class Transition {
 
     // Build a bunch of arrays of promises for each step of the transition
     var onBeforeHooks =     hookBuilder.makeSteps("onBefore",   toState, fromState, tLocals, fromContext, {async: false});
-    var onInvalidHooks =    hookBuilder.makeSteps("onInvalid",  toState, fromState, tLocals, fromContext);
     var onStartHooks =      hookBuilder.makeSteps("onStart",    toState, fromState, tLocals, fromContext);
     var transitionOnHooks = hookBuilder.makeSteps("on",         toState, fromState, tLocals, toContext);
 
@@ -376,9 +375,7 @@ export class Transition {
     var eagerResolves = hookBuilder.makeEagerResolvePathStep(to, tLocals);
 
     // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
-    // var invalidOrStartHooks = this.$to().valid() ? onStartHooks : onInvalidHooks;
-    var invalidOrStartHooks = true ? onStartHooks : onInvalidHooks; // TODO
-    var asyncSteps = filter(flatten([invalidOrStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]), identity);
+    var asyncSteps = filter(flatten([onStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]), identity);
 
     // -----------------------------------------------------------------------
     // Transition Steps

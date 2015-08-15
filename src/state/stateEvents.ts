@@ -3,12 +3,13 @@
 import {IServiceProviderFactory} from "angular";
 import {extend, forEach, isFunction} from "../common/common";
 
-import {IStateService} from "./interface";
+import {IStateService, IStateProvider} from "./interface";
 import {StateParams} from "./state";
+import StateReference from "./stateReference";
 
 import {IRawParams} from "../params/interface";
 
-import {ITransitionService} from "../transition/interface"
+import {ITransitionService, ITransitionOptions, ITransitionDestination} from "../transition/interface"
 import {Transition} from "../transition/transition"
 import {RejectType} from "../transition/rejectFactory";
 
@@ -113,11 +114,13 @@ function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootSc
   }
 }
 
-stateNotFoundHandler.$inject = ['$transition$', '$state', '$rootScope', '$urlRouter'];
-export function stateNotFoundHandler($transition$: Transition, $state: IStateService, $rootScope, $urlRouter) {
-  // if ($transition$.$to().valid())
-    return;
-
+stateNotFoundHandler.$inject = ['$to$', '$from$', '$state', '$rootScope', '$urlRouter'];
+export function stateNotFoundHandler(
+  $to$: ITransitionDestination, 
+  $from$: StateReference, 
+  $state: IStateService, 
+  $rootScope, 
+  $urlRouter) {
   /**
    * @ngdoc event
    * @name ui.router.state.$state#$stateNotFound
@@ -135,7 +138,6 @@ export function stateNotFoundHandler($transition$: Transition, $state: IStateSer
    * @param {Object} unfoundState Unfound State information. Contains: `to, toParams, options` properties.
    * @param {State} fromState Current state object.
    * @param {Object} fromParams Current state params.
-   * @param {Transition} transition Current transition object
    * @example
    *
    * <pre>
@@ -151,16 +153,18 @@ export function stateNotFoundHandler($transition$: Transition, $state: IStateSer
    * });
    * </pre>
    */
-  var options = $transition$.options();
-  var redirect = { to: $transition$.to(), toParams: $transition$.params(), options: options };
-  var e = $rootScope.$broadcast('$stateNotFound', redirect, $transition$.from(), $transition$.params("from"), $transition$);
+  var redirect = { to: $to$.ref.identifier(), toParams: $to$.ref.params(), options: $to$.options };
+  var e = $rootScope.$broadcast('$stateNotFound', redirect, $from$.state(), $from$.params());
 
   if (e.defaultPrevented || e.retry)
     $urlRouter.update();
 
   function redirectFn() {
-    return $state.redirect($transition$)
-      .to(redirect.to, <any> redirect.toParams, extend({ $isRetrying: true }, options));
+    let { options } = redirect;
+    let ref = $state.reference(redirect.to, null, redirect.toParams);
+
+    let dest: ITransitionDestination = { ref, options };
+    return dest;
   }
 
   if (e.defaultPrevented) {
@@ -168,14 +172,11 @@ export function stateNotFoundHandler($transition$: Transition, $state: IStateSer
   } else if (e.retry || $state.get(redirect.to)) {
     return e.retry && isFunction(e.retry.then) ? e.retry.then(redirectFn) : redirectFn();
   }
-
-  throw new Error($transition$.$to().toString());
-  // throw new Error($transition$.$to().error());
 }
 
 
-$StateEventsProvider.$inject = [];
-function $StateEventsProvider() {
+$StateEventsProvider.$inject = ['$stateProvider'];
+function $StateEventsProvider($stateProvider: IStateProvider) {
   $StateEventsProvider.prototype.instance = this;
 
   var runtime = false;
@@ -204,8 +205,8 @@ function $StateEventsProvider() {
   this.$get = [ '$transition', function($transition: ITransitionService) {
     runtime = true;
 
-    //if (enabledStateEvents.$stateNotFound)
-    //  $state.onInvalid({}, stateNotFoundHandler, { priority: 1000 });
+    if (enabledStateEvents.$stateNotFound)
+      $stateProvider.onInvalid(stateNotFoundHandler);
     if (enabledStateEvents. $stateChangeStart)
       $transition.provider.onBefore({}, stateChangeStartHandler, { priority: 1000 });
 

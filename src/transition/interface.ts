@@ -1,4 +1,5 @@
 import {IStateDeclaration, IState} from "../state/interface"
+import StateReference from "../state/stateReference"
 
 import {IPath, IParamsPath, ITransPath} from "../path/interface"
 
@@ -6,6 +7,11 @@ import {IRawParams} from "../params/interface"
 
 import {Transition} from "./transition"
 import TransitionHook from "./transitionHook"
+
+export interface ITransitionDestination {
+  ref: StateReference,
+  options: ITransitionOptions
+}
 
 export interface ITransitionOptions {
   location    ?: (boolean|string),
@@ -49,7 +55,6 @@ export interface ITransitionService {
 
 export interface ITransitionProvider {
     onBefore:   (matchObject: IMatchCriteria, callback: Function, options?) => Function,
-    onInvalid:  (matchObject: IMatchCriteria, callback: Function, options?) => Function,
     onStart:    (matchObject: IMatchCriteria, callback: Function, options?) => Function,
     on:         (matchObject: IMatchCriteria, callback: Function, options?) => Function,
     entering:   (matchObject: IMatchCriteria, callback: Function, options?) => Function,

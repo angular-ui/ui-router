@@ -1,5 +1,7 @@
-import {IState, IStateDeclaration} from "./interface";
 import {abstractKey} from "../common/common";
+import {IState, IStateDeclaration, IStateOrName} from "./interface";
+import {IRawParams} from "../params/interface"
+
 /**
  * @ngdoc object
  * @name ui.router.state.type:StateReference
@@ -18,13 +20,13 @@ import {abstractKey} from "../common/common";
  * @returns {Function}
  */
 export default class StateReference {
-  constructor(private _identifier, private _definition: IState, private _params, private _base) { }
+  constructor(private _identifier: IStateOrName, private _definition?: IState, private _params?: IRawParams, private _base?) { }
 
   name() {
     return this._definition && this._definition.name || this._identifier;
   }
 
-  identifier() {
+  identifier(): IStateOrName {
     return this._identifier;
   }
 
@@ -36,7 +38,9 @@ export default class StateReference {
     return this._definition && this._definition.self;
   }
 
-  params(newParams?: any) {
+  params(): IRawParams
+  params(newParams: IRawParams): StateReference
+  params(newParams?): any {
     if (newParams)
       return new StateReference(this._identifier, this._definition, newParams, this._base);
     return this._params;
@@ -46,12 +50,12 @@ export default class StateReference {
     return this._base;
   }
 
-  valid() {
+  valid(): boolean {
     var def = this._definition;
     return !!(def && def.self && !def.self[abstractKey] && def.params.$$validates(this._params));
   }
 
-  error() {
+  error(): string {
       if (!this._definition && !!this._base)
         return `Could not resolve '${this.name()}' from state '${this._base}'`;
       if (!this._definition)

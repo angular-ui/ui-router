@@ -1,6 +1,7 @@
 import {extend, inherit, pluck, defaults, copy, abstractKey, equalForKeys, forEach, pick, objectKeys, ancestors, arraySearch, noop, identity,
-    not, prop, pipe, val, isDefined, isFunction, isArray, isObject, isString} from "../common/common"
+    not, prop, pipe, val, isDefined, isFunction, isArray, isObject, isString, isPromise} from "../common/common"
 import Queue from "../common/queue"
+import {runtime} from "../common/angular1"
 import {IServiceProviderFactory, IPromise} from "angular"
 
 import {IStateService, IState, IStateDeclaration, IStateOrName, IHrefOptions} from "./interface"
@@ -11,7 +12,7 @@ import StateMatcher from "./stateMatcher"
 import StateHandler from "./stateHandler"
 import StateReference from "./stateReference"
 
-import {ITransitionService, ITransitionOptions, ITreeChanges} from "../transition/interface"
+import {ITransitionService, ITransitionOptions, ITreeChanges, ITransitionDestination} from "../transition/interface"
 import {Transition} from "../transition/transition"
 import {TransitionRejection, RejectType, RejectFactory} from "../transition/rejectFactory"
 import {defaultTransOpts} from "../transition/transitionService"
@@ -23,6 +24,7 @@ import PathFactory from "../path/pathFactory"
 import {IRawParams} from "../params/interface"
 import Param from "../params/param"
 import ParamSet from "../params/paramSet"
+import ParamValues from "../params/paramValues"
 
 import UrlMatcher from "../url/urlMatcher"
 
@@ -132,6 +134,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
   var stateQueue    = new StateQueueManager(states, builder, $urlRouterProvider, $state);
   var transQueue    = new Queue<Transition>();
   var treeChangesQueue = new Queue<ITreeChanges>();
+  var rejectFactory = new RejectFactory();
 
   /**
    * @ngdoc function
@@ -225,7 +228,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
    * @return {object} $stateProvider - $stateProvider instance
    */
   this.decorator = decorator;
-  function decorator(name, func) {
+  function decorator(name: string, func: Function) {
     /*jshint validthis: true */
     return builder.builder(name, func) || this;
   }
@@ -373,6 +376,34 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     return this;
   }
 
+
+
+  let invalidCallbacks: Function[] = [];
+  this.onInvalid = onInvalid;
+  
+  /**
+   * @ngdoc function
+   * @name ui.router.state.$stateProvider#onInvalid
+   * @methodOf ui.router.state.$stateProvider
+   *
+   * @description
+   * Registers a function to be injected and invoked when transitionTo has been called with an invalid 
+   * state reference parameter
+   *  
+   * This function can be injected with one some special values:
+   * - **`$to$`**: StateReference
+   * - **`$from$`**: StateReference
+   *
+   * @param {function} callback
+   *   The function which will be injected and invoked, when a matching transition is started.
+   *   The function may optionally return a {StateReference} or a Promise for a StateReference.  If one
+   *   is returned, it is treated as a redirect.
+   */
+  
+  function onInvalid(callback: Function) {
+    invalidCallbacks.push(callback);
+  }
+
   /**
    * @ngdoc object
    * @name ui.router.state.$state
@@ -401,6 +432,40 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
   this.$get = $get;
   $get.$inject = ['$rootScope', '$q', '$injector', '$view', '$stateParams', '$urlRouter', '$transition', '$urlMatcherFactory'];
   function $get(   $rootScope,   $q,   $injector,   $view,   $stateParams,   $urlRouter,   _$transition,   $urlMatcherFactory) {
+
+    function handleInvalidDestination(fromPath: IParamsPath, $to$: ITransitionDestination) {
+      let $from$ = PathFactory.makeStateReference(fromPath);
+      let callbackQueue = new Queue<Function>();
+      invalidCallbacks.forEach(callbackQueue.enqueue.bind(callbackQueue));
+
+      const invokeOnInvalidCallback = (callback: Function) =>
+          $injector.invoke(callback, null, { $to$, $from$ });
+
+      function unwrapCallbackResult(result) {
+        if (isPromise(result)) {
+          return result.then(unwrapCallbackResult);
+        } else if (result && result.ref && result.ref instanceof StateReference) {
+          let ref = <StateReference> result.ref;
+          return $state.transitionTo(ref.state(), ref.params(), $to$.options);
+        } else if (result === false) {
+          // silent abort, rejects promise
+          return rejectFactory.aborted($to$.ref.error());
+        }
+      }
+
+      function invokeNextCallback() {
+        var nextCallback = callbackQueue.dequeue();
+        if (nextCallback === undefined)
+          // noisy abort
+          throw new Error($to$.ref.error());
+
+        var nextResult = unwrapCallbackResult(invokeOnInvalidCallback(nextCallback));
+        return nextResult || invokeNextCallback();
+      }
+
+      return invokeNextCallback();
+    }
+
     let $transition: ITransitionService = <any> _$transition;
     // Implicit root state that is always active
     root = stateQueue.register({
@@ -580,6 +645,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         }
       };
     };
+    
+    /** Factory method for creating a StateReference */
+    $state.reference = function reference(identifier: IStateOrName, base: IStateOrName, params: IRawParams): StateReference {
+      return matcher.reference(identifier, base, params);
+    };
 
     /**
      * @ngdoc function
@@ -631,14 +701,13 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (options.reload && !options.reloadState)
         throw new Error(`No such reload state '${(isString(options.reload) ? options.reload : (<any>options.reload).name)}'`);
 
-      // matcher.reference(to, options && options.relative, toParams),
       let ref: StateReference = matcher.reference(to, options && options.relative, toParams);
-
       let latestTreeChanges: ITreeChanges = treeChangesQueue.peekTail();
       let currentPath: ITransPath = latestTreeChanges ? latestTreeChanges.to : rootPath();
 
-      // TODO: handle invalid state correctly here in $state, not in $transition
-      if (!ref.valid()) throw new Error(`Invalid, yo: ${ref}`);
+      if (!ref.valid())
+        return handleInvalidDestination(currentPath, { ref, options });
+
       let toPath: IParamsPath = PathFactory.makeParamsPath(ref);
       if (options.inherit)
         toPath = PathFactory.inheritParams(currentPath, toPath, objectKeys(toParams));

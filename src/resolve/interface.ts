@@ -1,7 +1,7 @@
 import {IPromise} from "angular";
 import {IState, IStateParams} from "../state/interface";
 import {IRawParams} from "../params/interface";
-import {ParamValues} from "../params/paramValues";
+import ParamValues from "../params/paramValues";
 import {StateParams} from "../state/state";
 import Resolvable from "./resolvable";
 import Path from "./../path/path";
