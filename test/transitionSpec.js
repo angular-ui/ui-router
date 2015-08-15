@@ -72,9 +72,9 @@ describe('transition', function () {
     matcher = new StateMatcher(statesMap);
     queue.flush($state);
     makeTransition = function makeTransition(from, to, options) {
-      var fromPath = pathFactory.makeParamsPath(matcher.reference(from));
+      var fromPath = PathFactory.makeParamsPath(matcher.reference(from));
       fromPath = PathFactory.transPath(fromPath);
-      var toPath = pathFactory.makeParamsPath(matcher.reference(to));
+      var toPath = PathFactory.makeParamsPath(matcher.reference(to));
       return $transition.create(fromPath, toPath, options);
     };
   }));
