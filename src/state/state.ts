@@ -446,7 +446,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           return result.then(unwrapCallbackResult);
         } else if (result && result.ref && result.ref instanceof StateReference) {
           let ref = <StateReference> result.ref;
-          return $state.transitionTo(ref.state(), ref.params(), $to$.options);
+          return $state.transitionTo(ref.identifier(), ref.params(), $to$.options);
         } else if (result === false) {
           // silent abort, rejects promise
           return rejectFactory.aborted($to$.ref.error());
