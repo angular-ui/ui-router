@@ -206,7 +206,7 @@ describe('Resolvables system:', function () {
       "use strict";
       let path = makePath(["P", "Q"]);
       let ctx = new ResolveContext(path);
-      let promise = ctx.resolvePath({ resolvePolicy: "jit" });
+      let promise = ctx.resolvePath({ resolvePolicy: "JIT" });
 
       promise.then(function () {
         expect(getResolvedData(ctx)).toEqualData({ $state: $state, _Q: "foo" });
