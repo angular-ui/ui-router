@@ -3,7 +3,7 @@
 // Definitions by: Michel Salib <https://github.com/michelsalib>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
-declare module ng.ui {
+declare angular.ui {
 
     interface IState {
         name?: string;
@@ -11,7 +11,7 @@ declare module ng.ui {
         templateUrl?: any; // string || () => string
         templateProvider?: any; // () => string || IPromise<string>
         controller?: any;
-        controllerAs?: string;    
+        controllerAs?: string;
         controllerProvider?: any;
         resolve?: {};
         url?: string;
@@ -118,7 +118,7 @@ declare module ng.ui {
 
     interface IUiViewScrollProvider {
         /*
-         * Reverts back to using the core $anchorScroll service for scrolling 
+         * Reverts back to using the core $anchorScroll service for scrolling
          * based on the url anchor.
          */
         useAnchorScroll(): void;
