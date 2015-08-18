@@ -74,5 +74,5 @@ export interface IMatchCriteria {
 export interface IEventHook {
   callback: () => any,
   priority: number,
-  matches: (a, b) => boolean
+  matches: (a: IState, b: IState) => boolean
 }

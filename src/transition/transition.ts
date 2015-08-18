@@ -288,8 +288,9 @@ export class Transition {
    *
    * @returns {Transition} Returns a new `Transition` instance.
    */
-  redirect(newTo, newOptions): Transition {
-    return new Transition(this._treeChanges.from, newTo, extend(newOptions || this.options(), {
+  redirect(newTo: StateReference, newOptions: ITransitionOptions): Transition {
+    var newToPath = PathFactory.transPath(PathFactory.makeParamsPath(newTo));
+    return new Transition(this._treeChanges.from, newToPath, extend(newOptions || this.options(), {
       previous: this
     }));
   }
@@ -335,44 +336,23 @@ export class Transition {
     $transition.transition = this;
 
     let {to, from, entering, exiting} = this._treeChanges;
-    let [toState, fromState]  = [to, from].map((path) => path.last().state);
-    let [toParams, fromParams]  = [to, from].map((path) => ParamValues.fromPath(path));
-    var tLocals = { $transition$: this };
+    let [toState, fromState]    = [to, from].map(path => path.last().state);
+    let [toParams, fromParams]  = [to, from].map(path => ParamValues.fromPath(path));
+    let tLocals = { $transition$: this };
     
-    var fromContext = new ResolveContext(from);
-    var toContext = new ResolveContext(to);
+    let fromContext = new ResolveContext(from);
+    let toContext = new ResolveContext(to);
+
+    let toFrom = { to: toState, from: fromState };
 
     // Build a bunch of arrays of promises for each step of the transition
-    var onBeforeHooks =     hookBuilder.makeSteps("onBefore",   toState, fromState, tLocals, fromContext, {async: false});
-    var onStartHooks =      hookBuilder.makeSteps("onStart",    toState, fromState, tLocals, fromContext);
-    var transitionOnHooks = hookBuilder.makeSteps("on",         toState, fromState, tLocals, toContext);
+    let onBeforeHooks       = hookBuilder.makeSteps("onBefore",   toState, toFrom, fromContext, tLocals, {async: false});
+    let onStartHooks        = hookBuilder.makeSteps("onStart",    toState, toFrom, fromContext, tLocals);
+    let transitionOnHooks   = hookBuilder.makeSteps("on",         toState, toFrom, toContext, tLocals);
 
-    var exitingStateHooks = map(exiting.reverse().nodes(), function (node: ITransNode) {
-      var state = node.state;
-      var stepLocals = {$state$: state, $stateParams: state.params.$$values(fromParams)};
-      var locals = extend({}, tLocals, stepLocals);
-      var steps = hookBuilder.makeSteps("exiting", toState, state, node, locals, from);
-      let resolveContext = fromContext.isolateRootTo(state);
-
-      return !state.self.onExit ? steps : steps.concat([
-        new TransitionHook(state, state.self.onExit, locals, resolveContext, baseHookOptions)
-      ]);
-    });
-
-    var enteringStateHooks = map(entering.nodes(), function (node: ITransNode) {
-      let state: IState = node.state;
-      let stepLocals = {$state$: state, $stateParams: state.params.$$values(fromParams)};
-      let locals = extend({}, tLocals, stepLocals);
-      let lazyResolveStep = hookBuilder.makeLazyResolvePathElementStep(to, state, locals);
-      let resolveContext = toContext.isolateRootTo(state);
-      let steps = [lazyResolveStep].concat(hookBuilder.makeSteps("entering", state, fromState, locals, resolveContext));
-      
-      return !state.self.onEnter ? steps : steps.concat([
-        new TransitionHook(state, state.self.onEnter, locals, resolveContext, baseHookOptions)
-      ]);
-    });
-
-    var eagerResolves = hookBuilder.makeEagerResolvePathStep(to, tLocals);
+    var eagerResolves       = hookBuilder.makeEagerResolvePathStep(to, tLocals);
+    let exitingStateHooks   = hookBuilder.exitingStateHooks(fromContext, tLocals, toParams, this._options);
+    let enteringStateHooks  = hookBuilder.enteringStateHooks(toContext, tLocals, toParams, this._options);
 
     // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
     var asyncSteps = filter(flatten([onStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]), identity);

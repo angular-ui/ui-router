@@ -4,7 +4,7 @@ import {extend, map, filter, invoke, isPromise, Predicate} from "../common/commo
 import {runtime} from "../common/angular1"
 import trace from "../common/trace"
 
-import {ITransitionOptions, ITransitionHookOptions, ITreeChanges, ITransitionService} from "./interface"
+import {ITransitionOptions, ITransitionHookOptions, ITreeChanges, IEventHook, IMatchCriteria, ITransitionService} from "./interface"
 import TransitionHook from "./transitionHook"
 import {Transition} from "./transition"
 
@@ -15,6 +15,10 @@ import Path from "../path/path"
 
 import ResolveContext from "../resolve/resolveContext"
 
+interface IToFrom {
+  to: IState,
+  from: IState
+}
 
 export default class HookBuilder {
   successErrorOptions = { 
@@ -60,21 +64,21 @@ export default class HookBuilder {
   }
 
   /**
-   * returns an array of transition steps (promises) that matched
+   * returns an array of the registered transition hooks which matched:
    * 1) the eventType
    * 2) the to state
    * 3) the from state
    */
-  makeSteps(eventName: string, to: IState, from: IState, locals, resolveContext: ResolveContext, options?: ITransitionHookOptions): any[] {
+  makeSteps(eventName: string, state: IState, toFrom: IToFrom, resolveContext: ResolveContext, locals, options?: ITransitionHookOptions): any[] {
     // trace stuff
-    var stepData = { to, from, locals, resolveContext, eventType: eventName };
+    var stepData = { toFrom, state, locals, resolveContext, eventType: eventName };
     options = extend(options || {}, this.baseHookOptions, {data: stepData});
 
     var hooks = this.$transition.$$hooks(eventName);
-    let hookMatch = <Predicate<any>> invoke('matches', [to, from]);
-    var filtered = filter(hooks, hookMatch);
-    return map(filtered, function (hook) {
-      return new TransitionHook(to, hook.callback, locals, resolveContext, options);
+    let hookMatch = (hook: IEventHook) => hook.matches(toFrom.to, toFrom.from);
+    var matchingHooks = filter(hooks, hookMatch);
+    return map(matchingHooks, function (hook) {
+      return new TransitionHook(state, hook.callback, locals, resolveContext, options);
     });
   }
 
@@ -104,27 +108,63 @@ export default class HookBuilder {
     return new TransitionHook(state, $resolvePathElement, locals, resolveContext, options);
   }
 
+  exitingStateHooks(context: ResolveContext, tLocals, toParams, options?: ITransitionHookOptions) {
+    var nodes = this.treeChanges.exiting.reverse().nodes();
+    return map(nodes, (node:ITransNode) => {
+      let state: IState = node.state;
+      let toFrom = {to: this.toState, from: state};
+      let stepLocals = {$state$: state, $stateParams: state.params.$$values(toParams)};
+      let locals = extend({}, tLocals, stepLocals);
+      let resolveContext = context.isolateRootTo(state);
+      let steps = this.makeSteps("exiting", state, toFrom, resolveContext, locals, options);
+
+      return !state.self.onExit ? steps : steps.concat([
+        new TransitionHook(state, state.self.onExit, locals, resolveContext, options)
+      ]);
+    });
+  }
+
+  enteringStateHooks(context: ResolveContext, tLocals, toParams, options?: ITransitionHookOptions) {
+    var nodes = this.treeChanges.entering.nodes();
+    var to = this.treeChanges.to;
+    return map(nodes, (node:ITransNode) => {
+      let state:IState = node.state;
+      let toFrom = {to: state, from: this.fromState};
+      let stepLocals = {$state$: state, $stateParams: state.params.$$values(toParams)};
+      let locals = extend({}, tLocals, stepLocals);
+      let resolveContext = context.isolateRootTo(state);
+      let lazyResolveStep = this.makeLazyResolvePathElementStep(to, state, locals);
+      let steps = [lazyResolveStep].concat(this.makeSteps("entering", state, toFrom, resolveContext, locals, options));
+
+      return !state.self.onEnter ? steps : steps.concat([
+        new TransitionHook(state, state.self.onEnter, locals, resolveContext, options)
+      ]);
+    });
+  }
+
 
   successHooks() {
-    var { transition, transitionOptions, toState, fromState, tLocals, successErrorOptions } = this;
+    let { transition, transitionOptions, toState, fromState, tLocals, successErrorOptions } = this;
+    let toFrom = { to: toState, from: fromState };
 
     return () => {
       if (transitionOptions.trace) trace.traceSuccess(toState, transition);
       transition._deferreds.prehooks.resolve(this.treeChanges);
-      var onSuccessHooks = this.makeSteps("onSuccess", toState, fromState, tLocals, new ResolveContext(this.treeChanges.to), successErrorOptions);
+      var onSuccessHooks = this.makeSteps("onSuccess", toState, toFrom, new ResolveContext(this.treeChanges.to), tLocals, successErrorOptions);
       this.runSynchronousHooks(onSuccessHooks, true);
       transition._deferreds.posthooks.resolve(this.treeChanges);
     }
   }
 
   errorHooks() {
-    var { transition, transitionOptions, toState, fromState, tLocals, successErrorOptions } = this;
-
+    let { transition, transitionOptions, toState, fromState, tLocals, successErrorOptions } = this;
+    let toFrom = { to: toState, from: fromState };
+    
     return (error) => {
       if (transitionOptions.trace) trace.traceError(error, transition);
       transition._deferreds.prehooks.reject(error);
       var onErrorLocals = extend({}, tLocals, {$error$: error});
-      var onErrorHooks = this.makeSteps("onError", toState, fromState, onErrorLocals, new ResolveContext(this.treeChanges.from), successErrorOptions);
+      var onErrorHooks = this.makeSteps("onError", toState, toFrom, new ResolveContext(this.treeChanges.from), onErrorLocals, successErrorOptions);
       this.runSynchronousHooks(onErrorHooks, true);
       transition._deferreds.posthooks.reject(error);
     }

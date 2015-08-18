@@ -111,13 +111,14 @@ export default class ResolveContext {
    * @param options: options (TODO: document)
    */
   invokeLater(state: IState, fn: Function, locals: any, options: IOptions1 = {}): IPromise<any> {
-    var resolvables = resolvablesForFn(fn, this.isolateRootTo(state), options, "Later");
-    const getPromise = (resolvable: Resolvable) => resolvable.get(this.isolateRootTo(state), options);
-    var promises: IPromises = <any> map(resolvables, getPromise);
+    let isolateCtx = this.isolateRootTo(state);
+    let resolvables = resolvablesForFn(fn, isolateCtx, options, "Later");
+    const getPromise = (resolvable: Resolvable) => resolvable.get(isolateCtx, options);
+    let promises: IPromises = <any> map(resolvables, getPromise);
     
     return runtime.$q.all(promises).then(() => {
       try {
-        return this.invokeNow(state, fn, locals, options);
+        return isolateCtx.invokeNow(state, fn, locals, options);
       } catch (error) {
         return runtime.$q.reject(error);
       }

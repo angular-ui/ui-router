@@ -433,34 +433,36 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
   $get.$inject = ['$rootScope', '$q', '$injector', '$view', '$stateParams', '$urlRouter', '$transition', '$urlMatcherFactory'];
   function $get(   $rootScope,   $q,   $injector,   $view,   $stateParams,   $urlRouter,   _$transition,   $urlMatcherFactory) {
 
-    function handleInvalidDestination(fromPath: IParamsPath, $to$: ITransitionDestination) {
+    /**
+     * Invokes the onInvalid callbacks, in natural order.  Each callback's return value is checked in sequence
+     * until one of them returns an instance of ITargetState.   The results of the callbacks are wrapped
+     * in $q.when(), so the callbacks may return promises.
+     *
+     * If a callback returns an ITargetState, then it is used as arguments to $state.transitionTo() and
+     * the result returned.
+     */
+    function handleInvalidTargetState(fromPath: IParamsPath, $to$: ITransitionDestination) {
+      const latestThing = () => transQueue.peekTail() || treeChangesQueue.peekTail();
+      let latest = latestThing();
       let $from$ = PathFactory.makeStateReference(fromPath);
-      let callbackQueue = new Queue<Function>();
-      invalidCallbacks.forEach(callbackQueue.enqueue.bind(callbackQueue));
+      let callbackQueue = new Queue<Function>([].concat(invalidCallbacks));
 
-      const invokeOnInvalidCallback = (callback: Function) =>
-          $injector.invoke(callback, null, { $to$, $from$ });
+      const invokeCallback = (callback: Function) =>
+          $q.when($injector.invoke(callback, null, { $to$, $from$ }));
 
-      function unwrapCallbackResult(result) {
-        if (isPromise(result)) {
-          return result.then(unwrapCallbackResult);
-        } else if (result && result.ref && result.ref instanceof StateReference) {
+      function checkForRedirect(result) {
+        if (result && result.ref && result.ref instanceof StateReference) {
           let ref = <StateReference> result.ref;
+          if (!ref.valid()) return rejectFactory.invalid($to$.ref.error());
+          if (latestThing() !== latest) return rejectFactory.superseded();
           return $state.transitionTo(ref.identifier(), ref.params(), $to$.options);
-        } else if (result === false) {
-          // silent abort, rejects promise
-          return rejectFactory.aborted($to$.ref.error());
         }
       }
 
       function invokeNextCallback() {
         var nextCallback = callbackQueue.dequeue();
-        if (nextCallback === undefined)
-          // noisy abort
-          throw new Error($to$.ref.error());
-
-        var nextResult = unwrapCallbackResult(invokeOnInvalidCallback(nextCallback));
-        return nextResult || invokeNextCallback();
+        if (nextCallback === undefined) return rejectFactory.invalid($to$.ref.error());
+        return invokeCallback(nextCallback).then(checkForRedirect).then(result => result || invokeNextCallback())
       }
 
       return invokeNextCallback();
@@ -706,7 +708,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       let currentPath: ITransPath = latestTreeChanges ? latestTreeChanges.to : rootPath();
 
       if (!ref.valid())
-        return handleInvalidDestination(currentPath, { ref, options });
+        return handleInvalidTargetState(currentPath, { ref, options });
 
       let toPath: IParamsPath = PathFactory.makeParamsPath(ref);
       if (options.inherit)

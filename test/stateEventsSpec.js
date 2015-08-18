@@ -119,11 +119,8 @@ describe('UI-Router v0.2.x $state events', function () {
         called = true;
       });
       var message;
-      try {
-        $state.transitionTo('never_defined', {x: '1', y: '2'});
-      } catch (err) {
-        message = err.message;
-      }
+      $state.transitionTo('never_defined', {x: '1', y: '2'})
+          .catch(function(e) { message = e.detail; });
       $q.flush();
       expect(message).toEqual('No such state \'never_defined\'');
       expect(called).toBeTruthy();
@@ -131,11 +128,13 @@ describe('UI-Router v0.2.x $state events', function () {
     }));
 
     it('throws Error on failed relative state resolution', inject(function ($state, $q) {
-      $state.transitionTo(DD);
+      $state.transitionTo(DD); $q.flush();
+      var error, promise = $state.transitionTo("^.Z", null, { relative: $state.$current });
+      promise.catch(function(e) { error = e.detail; });
       $q.flush();
 
       var err = "Could not resolve '^.Z' from state 'DD'";
-      expect(function() { $state.transitionTo("^.Z", null, { relative: $state.$current }); }).toThrowError(Error, err);
+      expect(error).toBe(err);
     }));
 
 

@@ -266,7 +266,7 @@ function $TransitionProvider() {
     matchCriteria = extend({ to: val(true), from: val(true) }, matchCriteria);
     this.callback = callback;
     this.priority = options.priority || 0;
-    this.matches = function matches(to, from) {
+    this.matches = function matches(to: IState, from: IState) {
       return matchState(to, matchCriteria.to) && matchState(from, matchCriteria.from);
     };
   }
@@ -285,13 +285,6 @@ function $TransitionProvider() {
   this.$get = $get;
   $get.$inject = ['$q', '$injector'];
   function $get(   $q,   $injector ) {
-
-    // TODO:  implement invalid toState handling this in $state
-    // $TransitionProvider.prototype.instance.on({}, function $rejectIfInvalid($transition$: Transition) {
-    //   if (!$transition$.$to().valid())
-    //     throw new Error($transition$.$to().error());
-    // });
-
     $transition.create = function create(fromPath: ITransPath, toPath: IParamsPath, options: ITransitionOptions = {}) {
       return new Transition(fromPath, toPath, options);
     };

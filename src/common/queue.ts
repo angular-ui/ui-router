@@ -1,11 +1,7 @@
 import {map} from "./common"
 
 export default class Queue<T> {
-  _items: Array<T>;
-
-  constructor() {
-    this._items = [];
-  }
+  constructor(private _items: T[] = []) { }
 
   enqueue(item: T) {
     this._items.push(item);

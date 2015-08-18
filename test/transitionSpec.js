@@ -134,34 +134,6 @@ describe('transition', function () {
         expect(t).toBe(tsecond);
       }));
 
-      describe('.onInvalid()', function() {
-        it('should fire matching handlers when the to-state reference is invalid', inject(function($state, $transition, $q) {
-          var t = null;
-          transitionProvider.onInvalid({}, function($transition$) {
-            t = $transition$;
-            return false;
-          });
-
-          makeTransition("first", "invalid").run(); $q.flush();
-          expect(t).not.toBeNull();
-        }));
-
-
-        it('should handle redirection by rejecting the transition and providing the new Transition in err.detail', inject(function($state, $transition, $q) {
-          var redirect, t = makeTransition("first", "invalid");
-          transitionProvider.onInvalid({}, function($state, $transition$) {
-            return $state.redirect($transition$).to("second");
-          });
-
-          t.promise.catch(function(err) {
-            redirect = err.detail;
-          });
-
-          t.run(); $q.flush();
-          expect(angular.isFunction(redirect.run)).toBe(true);
-        }));
-      });
-
       describe('.on()', function() {
         it('should fire matching events when transition starts', inject(function($transition, $q) {
           var t = null;
@@ -269,8 +241,7 @@ describe('transition', function () {
 
       describe('.onSuccess()', function() {
         it('should only be called if the transition succeeds', inject(function($transition, $q) {
-          transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) {
-            states.push($transition$.to()); });
+          transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to().name); });
           transitionProvider.entering({ from: "A", to: "C" }, function() { return false; });
 
           var states = [];
@@ -284,7 +255,7 @@ describe('transition', function () {
 
         it('should be called even if other .onSuccess() callbacks fail (throw errors, etc)', inject(function($transition, $q) {
           transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { throw new Error("oops!"); });
-          transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to()); });
+          transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to().name); });
 
           var states = [];
           makeTransition("B", "C").run(); $q.flush();
@@ -295,7 +266,7 @@ describe('transition', function () {
       describe('.onError()', function() {
         it('should be called if the transition aborts.', inject(function($transition, $q) {
           transitionProvider.entering({ from: "A", to: "C" }, function($transition$) { return false;  });
-          transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to()); });
+          transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to().name); });
 
           var states = [];
           makeTransition("A", "D").run(); $q.flush();
@@ -304,7 +275,7 @@ describe('transition', function () {
 
         it('should be called if any part of the transition fails.', inject(function($transition, $q) {
           transitionProvider.entering({ from: "A", to: "C" }, function($transition$) { throw new Erorr("oops!");  });
-          transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to()); });
+          transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to().name); });
 
           var states = [];
           makeTransition("A", "D").run(); $q.flush();
@@ -337,15 +308,17 @@ describe('transition', function () {
       it("return value of type Transition should abort the transition with SUPERSEDED status", inject(function($transition, $q) {
         var states = [], rejection, transition = makeTransition("A", "D");
         transitionProvider.entering({ from: "*", to: "*" }, function($state$) { states.push($state$); });
-        transitionProvider.entering({ from: "*", to: "C" }, function($transition$) { return $transition$.redirect(matcher.reference("B")); });
+        transitionProvider.entering({ from: "*", to: "C" }, function($transition$) { 
+          return $transition$.redirect(matcher.reference("B")); 
+        });
         transition.promise.catch(function(err) { rejection = err; });
 
         transition.run(); $q.flush();
 
         expect(pluck(states, 'name')).toEqual([ 'B', 'C' ]);
         expect(rejection.type).toEqual(RejectType.SUPERSEDED);
-        expect(rejection.detail.to()).toEqual("B");
-        expect(rejection.detail.from()).toEqual("A");
+        expect(rejection.detail.to().name).toEqual("B");
+        expect(rejection.detail.from().name).toEqual("A");
         expect(rejection.redirected).toEqual(true);
       }));
 
@@ -376,8 +349,8 @@ describe('transition', function () {
         // TODO: change back to instanceof check after imports/exports is cleaned up
         expect(rejection.constructor.name).toBe('TransitionRejection');
         expect(rejection.type).toEqual(RejectType.SUPERSEDED);
-        expect(rejection.detail.to()).toEqual("G");
-        expect(rejection.detail.from()).toEqual("A");
+        expect(rejection.detail.to().name).toEqual("G");
+        expect(rejection.detail.from().name).toEqual("A");
         expect(rejection.redirected).toBeUndefined();
 
         expect(transition2success).toBe(true);
