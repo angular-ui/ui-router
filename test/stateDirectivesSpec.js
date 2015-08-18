@@ -291,6 +291,70 @@ describe('uiStateRef', function() {
     }));
   });
 
+  describe('links with dynamic state definitions', function () {
+    var template;
+
+    beforeEach(inject(function($rootScope, $compile, $state) {
+      el = angular.element('<a ui-state="state">state</a>');
+      scope = $rootScope;
+      scope.state = 'contacts';
+      template = $compile(el)(scope);
+      scope.$digest();
+    }));
+
+    it('sets the correct initial href', function () {
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+    });
+
+    it('updates to the new href', function () {
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+
+      scope.state = 'contacts.item({ id: 5 })';
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/5');
+
+      scope.state = 'contacts.item({ id: 25 })';
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/25');
+    });
+
+    it('retains the old href if the new points to a non-state', function () {
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+      scope.state = 'nostate';
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+    });
+
+    it('accepts param overrides', inject(function ($compile) {
+      el = angular.element('<a ui-state="state" ui-state-params="params">state</a>');
+      scope.state  = 'contacts.item';
+      scope.params = { id: 10 };
+      template = $compile(el)(scope);
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/10');
+    }));
+
+    it('accepts option overrides', inject(function ($compile, $timeout, $state) {
+      var transitionOptions;
+
+      el = angular.element('<a ui-state="state" ui-state-opts="opts">state</a>');
+      scope.state  = 'contacts';
+      scope.opts = { reload: true };
+      template = $compile(el)(scope);
+      scope.$digest();
+
+      spyOn($state, 'go').andCallFake(function(state, params, options) {
+        transitionOptions = options;
+      });
+
+      triggerClick(template)
+      $timeout.flush();
+
+      expect(transitionOptions.reload).toEqual(true);
+      expect(transitionOptions.absolute).toBeUndefined();
+    }));
+  });
+
   describe('forms', function() {
     var el, scope;
 
