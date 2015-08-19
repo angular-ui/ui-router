@@ -291,6 +291,71 @@ describe('uiStateRef', function() {
     }));
   });
 
+  describe('links with dynamic state definitions', function () {
+    var template;
+
+    beforeEach(inject(function($rootScope, $compile, $state) {
+      el = angular.element('<a ui-state="state" ui-state-params="params">state</a>');
+      scope = $rootScope;
+      angular.extend(scope, { state: 'contacts', params: {} });
+      template = $compile(el)(scope);
+      scope.$digest();
+    }));
+
+    it('sets the correct initial href', function () {
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+    });
+
+    it('updates to the new href', function () {
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+
+      scope.state = 'contacts.item';
+      scope.params = { id: 5 };
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/5');
+
+      scope.params.id = 25;
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/25');
+    });
+
+    it('retains the old href if the new points to a non-state', function () {
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+      scope.state = 'nostate';
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+    });
+
+    it('accepts param overrides', inject(function ($compile) {
+      el = angular.element('<a ui-state="state" ui-state-params="params">state</a>');
+      scope.state  = 'contacts.item';
+      scope.params = { id: 10 };
+      template = $compile(el)(scope);
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/10');
+    }));
+
+    it('accepts option overrides', inject(function ($compile, $timeout, $state) {
+      var transitionOptions;
+
+      el = angular.element('<a ui-state="state" ui-state-opts="opts">state</a>');
+      scope.state  = 'contacts';
+      scope.opts = { reload: true };
+      template = $compile(el)(scope);
+      scope.$digest();
+
+      spyOn($state, 'go').andCallFake(function(state, params, options) {
+        transitionOptions = options;
+      });
+
+      triggerClick(template)
+      $timeout.flush();
+
+      expect(transitionOptions.reload).toEqual(true);
+      expect(transitionOptions.absolute).toBeUndefined();
+    }));
+  });
+
   describe('forms', function() {
     var el, scope;
 
@@ -360,33 +425,6 @@ describe('uiStateRef', function() {
       $timeout.flush();
       $q.flush();
       expect($state.$current.name).toBe("contacts");
-    }));
-  });
-
-  describe('transition options', function() {
-
-    beforeEach(inject(function($rootScope, $compile, $state) {
-      el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })" ui-sref-opts="{ reload: true, absolute: true, notify: true }">Details</a>');
-      scope = $rootScope;
-      scope.contact = { id: 5 };
-
-      $compile(el)(scope);
-      scope.$digest();
-    }));
-
-    it('uses allowed transition options', inject(function($q, $timeout, $state) {
-      var transitionOptions;
-
-      spyOn($state, 'go').andCallFake(function(state, params, options) {
-        transitionOptions = options;
-      });
-
-      triggerClick(el);
-      $timeout.flush();
-
-      expect(transitionOptions.reload).toEqual(true);
-      expect(transitionOptions.absolute).toEqual(true);
-      expect(transitionOptions.notify).toBeUndefined();
     }));
   });
 });

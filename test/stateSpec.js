@@ -542,7 +542,7 @@ describe('state', function () {
       $state.transitionTo('dynamicController', { type: "Acme" });
       $q.flush();
       expect(ctrlName).toEqual("AcmeFooController");
-    }));+
+    }));
 
     it('uses the templateProvider to get template dynamically', inject(function ($state, $q) {
       $state.transitionTo('dynamicTemplate', { type: "Acme" });
