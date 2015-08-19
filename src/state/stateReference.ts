@@ -50,9 +50,13 @@ export default class StateReference {
     return this._base;
   }
 
+  exists(): boolean {
+    return !!(this._definition && this._definition.self);
+  }
+
   valid(): boolean {
     var def = this._definition;
-    return !!(def && def.self && !def.self[abstractKey] && def.params.$$validates(this._params));
+    return !!(this.exists() && !def.self[abstractKey] && def.params.$$validates(this._params));
   }
 
   error(): string {

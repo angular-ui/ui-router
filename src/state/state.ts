@@ -707,7 +707,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       let latestTreeChanges: ITreeChanges = treeChangesQueue.peekTail();
       let currentPath: ITransPath = latestTreeChanges ? latestTreeChanges.to : rootPath();
 
-      if (!ref.valid())
+      if (!ref.exists())
         return handleInvalidTargetState(currentPath, { ref, options });
 
       let toPath: IParamsPath = PathFactory.makeParamsPath(ref);
