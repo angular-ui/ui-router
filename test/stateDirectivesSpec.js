@@ -15,8 +15,7 @@ describe('uiStateRef', function() {
       url: '/contacts',
       template: '<a ui-sref=".item({ id: 5 })" class="item">Person</a> <ui-view></ui-view>'
     }).state('contacts.item', {
-      url: '/:id',
-      params: { id: null },
+      url: '/{id:int}',
       template: '<a ui-sref=".detail" class="item-detail">Detail</a> | <a ui-sref="^" class="item-parent">Parent</a> | <ui-view></ui-view>'
     }).state('contacts.item.detail', {
       template: '<div class="title">Detail</div> | <a ui-sref="^" class="item-parent2">Item</a>'
@@ -134,7 +133,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect(obj($stateParams)).toEqualData({ id: "5" });
+      expect(obj($stateParams)).toEqualData({ id: 5 });
     }));
 
     it('should transition when given a click that contains no data (fake-click)', inject(function($state, $stateParams, $q) {
@@ -151,7 +150,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect(obj($stateParams)).toEqualData({ id: "5" });
+      expect(obj($stateParams)).toEqualData({ id: 5 });
     }));
 
     it('should not transition states when ctrl-clicked', inject(function($state, $stateParams, $q) {
@@ -404,7 +403,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.$current.name).toBe("contacts.item.detail");
-      expect(obj($state.params)).toEqualData({ id: "5" });
+      expect(obj($state.params)).toEqualData({ id: 5 });
     }));
 
     it('should resolve states from parent uiView', inject(function ($state, $stateParams, $q, $timeout) {
