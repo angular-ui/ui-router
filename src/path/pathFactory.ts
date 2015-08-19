@@ -4,7 +4,7 @@ import {IRawParams} from "../params/interface"
 import ParamValues from "../params/paramValues"
 
 import {IState} from "../state/interface"
-import StateReference from "../state/stateReference"
+import TargetState from "../state/targetState"
 
 import {INode, IParamsNode, ITransNode, IParamsPath, ITransPath} from "../path/interface"
 import Path from "../path/path"
@@ -14,16 +14,16 @@ import Resolvable from "../resolve/resolvable"
 export default class PathFactory {
   constructor() { }
 
-  static makeParamsPath(ref: StateReference): IParamsPath {
+  static makeParamsPath(ref: TargetState): IParamsPath {
     let states = ref ? ref.$state().path : [];
     let params = ref ? ref.params() : {};
     const toParamsNode: (IState) => IParamsNode = curry(PathFactory.makeParamsNode)(params);
     return new Path(states.map(toParamsNode));
   }
   
-  static makeStateReference(path: IParamsPath): StateReference {
+  static makeStateReference(path: IParamsPath): TargetState {
     let state = path.last().state;
-    return new StateReference(state, state, <any> ParamValues.fromPath(path))
+    return new TargetState(state, state, <any> ParamValues.fromPath(path))
   }
 
   static makeParamsNode(params: IRawParams, state: IState) {

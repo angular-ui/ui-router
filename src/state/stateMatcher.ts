@@ -1,5 +1,5 @@
 import {extend, isString} from "../common/common"
-import StateReference from "./stateReference"
+import TargetState from "./targetState"
 import {IState, IStateDeclaration, IStateOrName} from "./interface"
 
 export default class StateMatcher {
@@ -25,8 +25,8 @@ export default class StateMatcher {
     return undefined;
   }
 
-  reference(identifier: IStateOrName, base: IStateOrName, params): StateReference {
-    return new StateReference(identifier, this.find(identifier, base), params, base);
+  reference(identifier: IStateOrName, base: IStateOrName, params): TargetState {
+    return new TargetState(identifier, this.find(identifier, base), params, base);
   }
 
   resolvePath(name: string, base: IStateOrName) {

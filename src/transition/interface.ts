@@ -1,5 +1,5 @@
 import {IStateDeclaration, IState} from "../state/interface"
-import StateReference from "../state/stateReference"
+import TargetState from "../state/targetState"
 
 import {IPath, IParamsPath, ITransPath} from "../path/interface"
 
@@ -9,7 +9,7 @@ import {Transition} from "./transition"
 import TransitionHook from "./transitionHook"
 
 export interface ITransitionDestination {
-  ref: StateReference,
+  ref: TargetState,
   options: ITransitionOptions
 }
 

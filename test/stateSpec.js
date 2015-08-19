@@ -7,7 +7,7 @@ var extend = common.extend,
 var state = uiRouter.state;
 var StateMatcher = state.StateMatcher;
 var StateBuilder = uiRouter.state.StateBuilder;
-var StateReference = state.StateReference;
+var TargetState = state.TargetState;
 var UrlMatcher = uiRouter.url.UrlMatcher;
 
 describe('state helpers', function() {
@@ -181,28 +181,28 @@ describe('state helpers', function() {
     });
   });
 
-  describe('StateReference', function () {
+  describe('TargetState', function () {
     it('should be callable and return the correct values', function() {
-      var state = { name: "foo.bar" }, ref = new StateReference(state.name, state, {});
+      var state = { name: "foo.bar" }, ref = new TargetState(state.name, state, {});
       expect(ref.identifier()).toBe("foo.bar");
       expect(ref.$state()).toBe(state);
       expect(ref.params()).toEqual({});
     });
 
     it('should validate state definition', function() {
-      var ref = new StateReference("foo", null, {}, {});
+      var ref = new TargetState("foo", null, {}, {});
       expect(ref.valid()).toBe(false);
       expect(ref.error()).toBe("Could not resolve 'foo' from state '[object Object]'");
 
-      ref = new StateReference("foo");
+      ref = new TargetState("foo");
       expect(ref.valid()).toBe(false);
       expect(ref.error()).toBe("No such state 'foo'");
 
-      ref = new StateReference("foo", { name: "foo" });
+      ref = new TargetState("foo", { name: "foo" });
       expect(ref.valid()).toBe(false);
       expect(ref.error()).toBe("State 'foo' has an invalid definition");
 
-      ref = new StateReference("foo", {
+      ref = new TargetState("foo", {
         name: "foo", self: { "abstract": true }
       });
       expect(ref.valid()).toBe(false);

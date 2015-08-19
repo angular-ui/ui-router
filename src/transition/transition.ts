@@ -21,7 +21,7 @@ import PathContext from "../resolve/pathContext";
 
 import {IStateViewConfig, IStateParams} from "../state/interface";
 import {StateParams} from "../state/state"
-import StateReference from "../state/stateReference"
+import TargetState from "../state/targetState"
 import {IState, IStateDeclaration} from "../state/interface";
 
 import {IRawParams} from "../params/interface"
@@ -129,7 +129,7 @@ export class Transition {
    * @description
    * Returns the origin state of the current transition, as passed to the `Transition` constructor.
    *
-   * @returns {StateReference} The origin state reference of the transition ("from state").
+   * @returns {TargetState} The origin state reference of the transition ("from state").
    */
   from() {
     return this.$from().self;
@@ -143,7 +143,7 @@ export class Transition {
    * @description
    * Returns the target state of the current transition, as passed to the `Transition` constructor.
    *
-   * @returns {StateReference} The state reference the transition is targetting ("to state")
+   * @returns {TargetState} The state reference the transition is targetting ("to state")
    */
   to() {
     return this.$to().self;
@@ -288,7 +288,7 @@ export class Transition {
    *
    * @returns {Transition} Returns a new `Transition` instance.
    */
-  redirect(newTo: StateReference, newOptions: ITransitionOptions): Transition {
+  redirect(newTo: TargetState, newOptions: ITransitionOptions): Transition {
     var newToPath = PathFactory.transPath(PathFactory.makeParamsPath(newTo));
     return new Transition(this._treeChanges.from, newToPath, extend(newOptions || this.options(), {
       previous: this

@@ -10,7 +10,7 @@ import StateQueueManager from "./stateQueueManager"
 import StateBuilder from "./stateBuilder"
 import StateMatcher from "./stateMatcher"
 import StateHandler from "./stateHandler"
-import StateReference from "./stateReference"
+import TargetState from "./targetState"
 
 import {ITransitionService, ITransitionOptions, ITreeChanges, ITransitionDestination} from "../transition/interface"
 import {Transition} from "../transition/transition"
@@ -391,12 +391,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
    * state reference parameter
    *  
    * This function can be injected with one some special values:
-   * - **`$to$`**: StateReference
-   * - **`$from$`**: StateReference
+   * - **`$to$`**: TargetState
+   * - **`$from$`**: TargetState
    *
    * @param {function} callback
    *   The function which will be injected and invoked, when a matching transition is started.
-   *   The function may optionally return a {StateReference} or a Promise for a StateReference.  If one
+   *   The function may optionally return a {TargetState} or a Promise for a TargetState.  If one
    *   is returned, it is treated as a redirect.
    */
   
@@ -451,8 +451,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
           $q.when($injector.invoke(callback, null, { $to$, $from$ }));
 
       function checkForRedirect(result) {
-        if (result && result.ref && result.ref instanceof StateReference) {
-          let ref = <StateReference> result.ref;
+        if (result && result.ref && result.ref instanceof TargetState) {
+          let ref = <TargetState> result.ref;
           if (!ref.valid()) return rejectFactory.invalid($to$.ref.error());
           if (latestThing() !== latest) return rejectFactory.superseded();
           return $state.transitionTo(ref.identifier(), ref.params(), $to$.options);
@@ -648,8 +648,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       };
     };
     
-    /** Factory method for creating a StateReference */
-    $state.reference = function reference(identifier: IStateOrName, base: IStateOrName, params: IRawParams): StateReference {
+    /** Factory method for creating a TargetState */
+    $state.reference = function reference(identifier: IStateOrName, base: IStateOrName, params: IRawParams): TargetState {
       return matcher.reference(identifier, base, params);
     };
 
@@ -703,7 +703,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (options.reload && !options.reloadState)
         throw new Error(`No such reload state '${(isString(options.reload) ? options.reload : (<any>options.reload).name)}'`);
 
-      let ref: StateReference = matcher.reference(to, options && options.relative, toParams);
+      let ref: TargetState = matcher.reference(to, options && options.relative, toParams);
       let latestTreeChanges: ITreeChanges = treeChangesQueue.peekTail();
       let currentPath: ITransPath = latestTreeChanges ? latestTreeChanges.to : rootPath();
 

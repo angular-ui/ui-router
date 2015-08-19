@@ -5,7 +5,7 @@ import {extend, forEach, isFunction} from "../common/common";
 
 import {IStateService, IStateProvider} from "./interface";
 import {StateParams} from "./state";
-import StateReference from "./stateReference";
+import TargetState from "./targetState";
 
 import {IRawParams} from "../params/interface";
 
@@ -117,7 +117,7 @@ function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootSc
 stateNotFoundHandler.$inject = ['$to$', '$from$', '$state', '$rootScope', '$urlRouter'];
 export function stateNotFoundHandler(
   $to$: ITransitionDestination, 
-  $from$: StateReference, 
+  $from$: TargetState,
   $state: IStateService, 
   $rootScope, 
   $urlRouter) {
@@ -129,7 +129,7 @@ export function stateNotFoundHandler(
    * @description
    * Fired when a requested state **cannot be found** using the provided state name during transition.
    * The event is broadcast allowing any handlers a single chance to deal with the error (usually by
-   * lazy-loading the unfound state). A `StateReference` object is passed to the listener handler,
+   * lazy-loading the unfound state). A `TargetState` object is passed to the listener handler,
    * you can see its properties in the example. You can use `event.preventDefault()` to abort the
    * transition and the promise returned from `transitionTo()` will be rejected with a
    * `'transition aborted'` error.

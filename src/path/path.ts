@@ -9,7 +9,7 @@ import {INode, IParamsNode, IParamsPath} from "./interface";
 
 import {IState} from "../state/interface";
 
-import StateReference from "../state/stateReference"
+import TargetState from "../state/targetState"
 
 import {IResolvables} from "../resolve/interface";
 import Resolvable from "../resolve/resolvable";

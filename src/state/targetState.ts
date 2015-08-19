@@ -4,7 +4,7 @@ import {IRawParams} from "../params/interface"
 
 /**
  * @ngdoc object
- * @name ui.router.state.type:StateReference
+ * @name ui.router.state.type:TargetState
  *
  * @description
  * Wraps a state and a set of parameters with the value used to identify the state. Allows states
@@ -19,7 +19,7 @@ import {IRawParams} from "../params/interface"
  *
  * @returns {Function}
  */
-export default class StateReference {
+export default class TargetState {
   constructor(private _identifier: IStateOrName, private _definition?: IState, private _params?: IRawParams, private _base?) { }
 
   name() {
@@ -39,10 +39,10 @@ export default class StateReference {
   }
 
   params(): IRawParams
-  params(newParams: IRawParams): StateReference
+  params(newParams: IRawParams): TargetState
   params(newParams?): any {
     if (newParams)
-      return new StateReference(this._identifier, this._definition, newParams, this._base);
+      return new TargetState(this._identifier, this._definition, newParams, this._base);
     return this._params;
   }
 

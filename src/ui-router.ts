@@ -27,11 +27,11 @@ import * as stateEvents from "./state/stateEvents";
 import * as stateFilters from "./state/stateFilters";
 import StateMatcher from "./state/stateMatcher";
 import StateQueueManager from "./state/stateQueueManager";
-import StateReference from "./state/stateReference";
+import TargetState from "./state/targetState";
 //import StateService from "./state/stateService";
 import Queue from "./common/queue";
 var state = { Glob, stateInterface, state: stateState, StateBuilder, stateDirectives,
-  stateEvents, stateFilters, StateMatcher, StateQueueManager, StateReference, Queue};
+  stateEvents, stateFilters, StateMatcher, StateQueueManager, TargetState, Queue};
 
 import HookBuilder from "./transition/hookBuilder"
 import * as rejectFactory from "./transition/rejectFactory"
