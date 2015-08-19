@@ -120,7 +120,7 @@ function $StateRefDirective($state, $timeout) {
     require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
     link: function(scope, element, attrs, uiSrefActive) {
       var ref    = parseStateRef(attrs.uiSref, $state.current.name);
-      var def    = { state: ref.state, href: null, nav: true, params: null };
+      var def    = { state: ref.state, href: null, params: null };
       var type   = getTypeInfo(element);
       var active = uiSrefActive[1] || uiSrefActive[0];
 
@@ -128,13 +128,10 @@ function $StateRefDirective($state, $timeout) {
 
       var update = function(val) {
         if (val) def.params = angular.copy(val);
-        if (!def.nav) return;
-
         def.href = $state.href(ref.state, def.params, def.options);
-        def.nav = (def.href !== null);
 
         if (active) active.$$addStateInfo(ref.state, def.params);
-        if (def.nav) attrs.$set(type.attr, def.href);
+        if (def.href !== null) attrs.$set(type.attr, def.href);
       };
 
       if (ref.paramExpr) {
