@@ -27,8 +27,8 @@ export function $IsStateFilter($state) {
  */
 $IncludedByStateFilter.$inject = ['$state'];
 export function $IncludedByStateFilter($state) {
-  return function(state) {
-    return $state.includes(state);
+  return function(state, params, options) {
+    return $state.includes(state, params, options);
   };
 }
 
