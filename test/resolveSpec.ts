@@ -7,7 +7,7 @@ import ResolveContext from "../src/resolve/resolveContext"
 import Resolvable from "../src/resolve/resolvable"
 
 import {IState} from "../src/state/interface"
-import {IParamsPath, ITransPath} from "../src/path/interface"
+import {IParamsPath, IResolvePath} from "../src/path/interface"
 import Path from "../src/path/path"
 import PathFactory from "../src/path/pathFactory"
 
@@ -77,7 +77,7 @@ beforeEach(function () {
 //    console.log(map(makePath([ "A", "B", "C" ]), function(s) { return s.name; }));
 });
 
-function makePath(names: string[]): ITransPath {
+function makePath(names: string[]): IResolvePath {
   let nodes = map(names, name => ({ state: statesMap[name], ownParams: <any> {} }));
   let pPath = new Path(nodes);
   return PathFactory.transPath(pPath); 

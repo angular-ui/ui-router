@@ -9,7 +9,7 @@ import {IStateDeclaration, IState} from "../state/interface";
 import {StateParams} from "../state/state"
 import Glob from "../state/glob";
 
-import {IPath, IParamsPath, ITransPath, INode, IParamsNode, ITransNode} from "../path/interface"
+import {IPath, IParamsPath, IResolvePath, INode, IParamsNode, IResolveNode} from "../path/interface"
 import Path from "../path/path"
 
 import {IRawParams} from "../params/interface"
@@ -285,7 +285,7 @@ function $TransitionProvider() {
   this.$get = $get;
   $get.$inject = ['$q', '$injector'];
   function $get(   $q,   $injector ) {
-    $transition.create = function create(fromPath: ITransPath, toPath: IParamsPath, options: ITransitionOptions = {}) {
+    $transition.create = function create(fromPath: IResolvePath, toPath: IParamsPath, options: ITransitionOptions = {}) {
       return new Transition(fromPath, toPath, options);
     };
 

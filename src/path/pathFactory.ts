@@ -6,7 +6,7 @@ import ParamValues from "../params/paramValues"
 import {IState} from "../state/interface"
 import TargetState from "../state/targetState"
 
-import {INode, IParamsNode, ITransNode, IParamsPath, ITransPath} from "../path/interface"
+import {INode, IParamsNode, IResolveNode, IParamsPath, IResolvePath} from "../path/interface"
 import Path from "../path/path"
 
 import Resolvable from "../resolve/resolvable"
@@ -33,8 +33,8 @@ export default class PathFactory {
     };
   }
 
-  /** Given an IParamsNode, make an ITransNode by creating resolvables for the state's resolve declaration */
-  static makeTransNode(node: IParamsNode): ITransNode {
+  /** Given an IParamsNode, make an IResolveNode by creating resolvables for the state's resolve declaration */
+  static makeTransNode(node: IParamsNode): IResolveNode {
     const makeResolvable = (node: INode) =>
         (resolveFn: Function, name: string) => new Resolvable(name, resolveFn, node.state);
 
@@ -84,7 +84,7 @@ export default class PathFactory {
     return new Path(<IParamsNode[]> toPath.nodes().map(curry(makeInheritedParamsNode)(fromPath, toKeys)));
   }
   
-  static transPath(path: IParamsPath): ITransPath {
+  static transPath(path: IParamsPath): IResolvePath {
     return path.slice(0).adapt(PathFactory.makeTransNode)
   }
 }

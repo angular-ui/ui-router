@@ -8,7 +8,7 @@ import {TransitionRejection, RejectType} from "../transition/rejectFactory"
 
 import {IStateService} from "../state/interface"
 
-import {ITransPath} from "../path/interface"
+import {IResolvePath} from "../path/interface"
 
 export default class StateHandler {
   constructor(private $urlRouter,

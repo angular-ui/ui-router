@@ -4,7 +4,7 @@ import trace from "../common/trace"
 import {runtime} from "../common/angular1"
 import {IPromise} from "angular"
 
-import {ITransPath, ITransNode} from "../path/interface"
+import {IResolvePath, IResolveNode} from "../path/interface"
 import Path from "./../path/path"
 
 import {IPromises, IResolvables, ResolvePolicy, IOptions1} from "./interface"
@@ -17,7 +17,7 @@ interface IOrdinals { [key: string]: number }
 interface IPolicies { [key: string]: string }
 
 export default class ResolveContext {
-  constructor(private _path: ITransPath) { }
+  constructor(private _path: IResolvePath) { }
  
   /**
    * Gets the available Resolvables for the last element of this path.
@@ -42,7 +42,7 @@ export default class ResolveContext {
    */
   getResolvables(state?: IState, options?: any): IResolvables {
     options = defaults(options, { omitOwnLocals: [] });
-    let path: ITransPath = (state ? this._path.pathFromRootTo(state) : this._path);
+    let path: IResolvePath = (state ? this._path.pathFromRootTo(state) : this._path);
     var last = path.last();
     
     return path.nodes().reduce((memo, node) => {
@@ -69,7 +69,7 @@ export default class ResolveContext {
   // Returns a promise for an array of resolved Path Element promises
   resolvePath(options: IOptions1 = {}): IPromise<any> {
     if (options.trace) trace.traceResolvePath(this, options);
-    const promiseForNode = (node: ITransNode) => this.resolvePathElement(node.state, options);
+    const promiseForNode = (node: IResolveNode) => this.resolvePathElement(node.state, options);
     return runtime.$q.all(<any> map(this._path.nodes(), promiseForNode)).then(noop);
   }
 
@@ -97,7 +97,7 @@ export default class ResolveContext {
   
   
   /**
-   * Injects a function given the Resolvables available in the ITransPath, from the first node
+   * Injects a function given the Resolvables available in the IResolvePath, from the first node
    * up to the node for the given state.
    *
    * First it resolves all the resolvable depencies.  When they are done resolving, it invokes
@@ -126,7 +126,7 @@ export default class ResolveContext {
   }
 
   /**
-   * Immediately injects a function with the dependent Resolvables available in the ITransPath, from
+   * Immediately injects a function with the dependent Resolvables available in the IResolvePath, from
    * the first node up to the node for the given state.
    *
    * If a Resolvable is not yet resolved, then null is injected in place of the resolvable.

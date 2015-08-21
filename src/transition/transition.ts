@@ -9,7 +9,7 @@ import TransitionHook from "./transitionHook";
 import HookBuilder from "./hookBuilder";
 import {RejectFactory} from "./rejectFactory"
 
-import {IParamsNode, ITransNode, IPath, IParamsPath, ITransPath} from "../path/interface";
+import {IParamsNode, IResolveNode, IPath, IParamsPath, IResolvePath} from "../path/interface";
 import Path from "../path/path";
 import PathFactory from "../path/pathFactory"
 
@@ -62,7 +62,7 @@ export class Transition {
   prepromise: IPromise<any>;
   redirects: IPromise<any>;
 
-  constructor(fromPath: ITransPath, toPath: IParamsPath, _options: ITransitionOptions = {}) {
+  constructor(fromPath: IResolvePath, toPath: IParamsPath, _options: ITransitionOptions = {}) {
     this._options = extend({ current: val(this) }, _options);
     this.$id = transitionCount++;
     this._treeChanges = this._calcTreeChanges(fromPath, toPath, _options.reloadState);
@@ -79,7 +79,7 @@ export class Transition {
     this.redirects = this._deferreds.redirects.promise;
   }
 
-  _calcTreeChanges(fromPath: ITransPath, toPath: IParamsPath, reloadState: IState): ITreeChanges {
+  _calcTreeChanges(fromPath: IResolvePath, toPath: IParamsPath, reloadState: IState): ITreeChanges {
     function nonDynamicParams(state) {
       return state.params.$$filter(not(prop('dynamic')));
     }
@@ -97,7 +97,7 @@ export class Transition {
     }
 
     /** Given a retained node, return a new node which uses the to node's param values */
-    function applyToParams(retainedNode: ITransNode, idx: number): ITransNode {
+    function applyToParams(retainedNode: IResolveNode, idx: number): IResolveNode {
       let toNodeParams = toPath.nodes()[idx].ownParams;
       return extend({}, retainedNode, { ownParams: toNodeParams })
     }
@@ -265,7 +265,7 @@ export class Transition {
    * Returns one StateViewConfig for each view in each state in a named path of the transition's tree changes
    */
   views(pathname: string = "entering", contextPathname: string = "to") {
-    var path: ITransPath = this._treeChanges[pathname];
+    var path: IResolvePath = this._treeChanges[pathname];
     var states: IState[] = states || path.states();
     var params: ParamValues = this.params();
 

@@ -14,7 +14,7 @@ export interface IParamsNode extends INode {
 }
 
 /** Transition Data for a node in a Path (either to path or from path) */
-export interface ITransNode extends INode, IParamsNode { 
+export interface IResolveNode extends IParamsNode {
   ownResolvables: IResolvables
 }
 
@@ -23,4 +23,4 @@ export interface IPath extends Path<INode> {}
 /** A Params Path. Each node contains raw params data for each state */
 export interface IParamsPath extends Path<IParamsNode> {}
 /** A Transition Path. Each node contains the data necessary for a Transition to work. */
-export interface ITransPath extends Path<ITransNode> { }
+export interface IResolvePath extends Path<IResolveNode> { }

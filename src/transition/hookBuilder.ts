@@ -10,7 +10,7 @@ import {Transition} from "./transition"
 
 import {IState} from "../state/interface"
 
-import {ITransPath, INode, IParamsNode, ITransNode} from "../path/interface"
+import {IResolvePath, INode, IParamsNode, IResolveNode} from "../path/interface"
 import Path from "../path/path"
 
 import ResolveContext from "../resolve/resolveContext"
@@ -83,7 +83,7 @@ export default class HookBuilder {
   }
 
   /** Returns a TransitionHook which resolves an entire path according to a given resolvePolicy */
-  makeEagerResolvePathStep(path: ITransPath, locals) {
+  makeEagerResolvePathStep(path: IResolvePath, locals) {
     if (!path.nodes().length) return null;
     var options = extend({resolvePolicy: 'eager'}, this.baseHookOptions);
     var resolveContext = new ResolveContext(path);
@@ -97,7 +97,7 @@ export default class HookBuilder {
   }
 
   /** Returns a TransitionHook which resolves a single path element according to a given resolvePolicy */
-  makeLazyResolvePathElementStep(path: ITransPath, state: IState, locals) {
+  makeLazyResolvePathElementStep(path: IResolvePath, state: IState, locals) {
     var options = extend({resolvePolicy: 'lazy'}, this.baseHookOptions);
     var resolveContext = new ResolveContext(path);
 
@@ -110,7 +110,7 @@ export default class HookBuilder {
 
   exitingStateHooks(context: ResolveContext, tLocals, toParams, options?: ITransitionHookOptions) {
     var nodes = this.treeChanges.exiting.reverse().nodes();
-    return map(nodes, (node:ITransNode) => {
+    return map(nodes, (node:IResolveNode) => {
       let state: IState = node.state;
       let toFrom = {to: this.toState, from: state};
       let stepLocals = {$state$: state, $stateParams: state.params.$$values(toParams)};
@@ -127,7 +127,7 @@ export default class HookBuilder {
   enteringStateHooks(context: ResolveContext, tLocals, toParams, options?: ITransitionHookOptions) {
     var nodes = this.treeChanges.entering.nodes();
     var to = this.treeChanges.to;
-    return map(nodes, (node:ITransNode) => {
+    return map(nodes, (node:IResolveNode) => {
       let state:IState = node.state;
       let toFrom = {to: state, from: this.fromState};
       let stepLocals = {$state$: state, $stateParams: state.params.$$values(toParams)};

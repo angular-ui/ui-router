@@ -17,7 +17,7 @@ import {Transition} from "../transition/transition"
 import {TransitionRejection, RejectType, RejectFactory} from "../transition/rejectFactory"
 import {defaultTransOpts} from "../transition/transitionService"
 
-import {INode, IParamsNode, ITransNode, IPath, IParamsPath, ITransPath} from "../path/interface"
+import {INode, IParamsNode, IResolveNode, IPath, IParamsPath, IResolvePath} from "../path/interface"
 import Path from "../path/path"
 import PathFactory from "../path/pathFactory"
 
@@ -705,7 +705,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
       let ref: TargetState = matcher.reference(to, options && options.relative, toParams);
       let latestTreeChanges: ITreeChanges = treeChangesQueue.peekTail();
-      let currentPath: ITransPath = latestTreeChanges ? latestTreeChanges.to : rootPath();
+      let currentPath: IResolvePath = latestTreeChanges ? latestTreeChanges.to : rootPath();
 
       if (!ref.exists())
         return handleInvalidTargetState(currentPath, { ref, options });

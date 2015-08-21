@@ -1,7 +1,7 @@
 import {IStateDeclaration, IState} from "../state/interface"
 import TargetState from "../state/targetState"
 
-import {IPath, IParamsPath, ITransPath} from "../path/interface"
+import {IPath, IParamsPath, IResolvePath} from "../path/interface"
 
 import {IRawParams} from "../params/interface"
 
@@ -37,16 +37,16 @@ export interface ITransitionHookOptions {
 }
 
 export interface ITreeChanges {
-  from: ITransPath;
-  to: ITransPath;
-  retained: ITransPath;
-  entering: ITransPath;
-  exiting: ITransPath;
+  from: IResolvePath;
+  to: IResolvePath;
+  retained: IResolvePath;
+  entering: IResolvePath;
+  exiting: IResolvePath;
 }
 
 export interface ITransitionService {
   transition: Transition,
-  create: (from: ITransPath, to: IParamsPath, opts: ITransitionOptions) => Transition,
+  create: (from: IResolvePath, to: IParamsPath, opts: ITransitionOptions) => Transition,
   isTransition: (Transition) => boolean,
   provider: ITransitionProvider,
   $$hooks: (string) => IEventHook[]

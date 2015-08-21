@@ -9,7 +9,7 @@ import {IState} from "../state/interface";
 import {IResolvables, IOptions1} from "./interface"
 import ResolveContext from "./resolveContext"
 
-import {ITransPath} from "../path/interface"
+import {IResolvePath} from "../path/interface"
 
 /**
  * The basic building block for the resolve system.
