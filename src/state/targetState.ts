@@ -1,26 +1,35 @@
-import {abstractKey} from "../common/common";
-import {IState, IStateDeclaration, IStateOrName} from "./interface";
-import {IRawParams} from "../params/interface"
+import {abstractKey} from "../common/common"
+import {IState, IStateDeclaration, IStateOrName} from "./interface"
 
+import {IRawParams, IParamsOrArray} from "../params/interface"
+import ParamValues from "../params/paramValues"
+
+import {IParamsPath, IParamsNode} from "../path/interface"
+import Path from "../path/path"
+import PathFactory from "../path/pathFactory"
+
+import {ITransitionOptions} from "../transition/interface"
 /**
  * @ngdoc object
  * @name ui.router.state.type:TargetState
  *
  * @description
- * Wraps a state and a set of parameters with the value used to identify the state. Allows states
- * to be referenced in a consistent way in application code, separate from state definitions.
+ * Encapsulate the desired target of a transition.
+ * Wraps an identifier for a state, a set of parameters, and transition options with the definition of the state.
  *
- * @param {*} identifier  An identifier for a state. Either a fully-qualified path, or the object
+ * @param {IStateOrName} _identifier  An identifier for a state. Either a fully-qualified path, or the object
  *            used to define the state.
- * @param {State} definition The `State` object definition.
- * @param {Object} params Parameters attached to the current state reference.
- * @param {Object} params Parameters attached to the current state reference.
- * @param {Object} base Optional. Base state used during lookup of state definition by identifier.
- *
- * @returns {Function}
+ * @param {IState} _definition The `State` object definition.
+ * @param {IParamsOrArray} _params Parameters for the target state
+ * @param {ITransitionOptions} _options Transition options.
  */
 export default class TargetState {
-  constructor(private _identifier: IStateOrName, private _definition?: IState, private _params?: IRawParams, private _base?) { }
+  constructor(
+    private _identifier: IStateOrName, 
+    private _definition?: IState,
+    private _params: IParamsOrArray = {},
+    private _options: ITransitionOptions = {}) {
+  }
 
   name() {
     return this._definition && this._definition.name || this._identifier;
@@ -28,6 +37,10 @@ export default class TargetState {
 
   identifier(): IStateOrName {
     return this._identifier;
+  }
+
+  params(): IParamsOrArray {
+    return this._params;
   }
 
   $state(): IState {
@@ -38,16 +51,8 @@ export default class TargetState {
     return this._definition && this._definition.self;
   }
 
-  params(): IRawParams
-  params(newParams: IRawParams): TargetState
-  params(newParams?): any {
-    if (newParams)
-      return new TargetState(this._identifier, this._definition, newParams, this._base);
-    return this._params;
-  }
-
-  base() {
-    return this._base;
+  options() {
+    return this._options;
   }
 
   exists(): boolean {
@@ -55,20 +60,18 @@ export default class TargetState {
   }
 
   valid(): boolean {
-    var def = this._definition;
-    return !!(this.exists() && !def.self[abstractKey] && def.params.$$validates(this._params));
+    return !this.error();
   }
 
   error(): string {
-      if (!this._definition && !!this._base)
-        return `Could not resolve '${this.name()}' from state '${this._base}'`;
-      if (!this._definition)
-        return `No such state '${this.name()}'`;
-      if (!this._definition.self)
-        return `State '${this.name()}' has an invalid definition`;
-      if (this._definition.self[abstractKey])
-        return `Cannot transition to abstract state '${this.name()}'`;
-      if (!this._definition.params.$$validates(this._params))
-        return `Param values not valid for state '${this.name()}'`;
+    let base = <any> this.options().relative;
+    if (!this._definition && !!base) {
+      let stateName = base.name ? base.name : base;
+      return `Could not resolve '${this.name()}' from state '${stateName}'`;
+    }
+    if (!this._definition)
+      return `No such state '${this.name()}'`;
+    if (!this._definition.self)
+      return `State '${this.name()}' has an invalid definition`;
   }
 }

@@ -79,8 +79,8 @@ beforeEach(function () {
 
 function makePath(names: string[]): IResolvePath {
   let nodes = map(names, name => ({ state: statesMap[name], ownParams: <any> {} }));
-  let pPath = new Path(nodes);
-  return PathFactory.transPath(pPath); 
+  let pPath = new Path(nodes).adapt(PathFactory.makeResolveNode);
+  return PathFactory.bindTransNodesToPath(pPath);
 }
 
 function getResolvedData(pathContext: ResolveContext) {
@@ -493,7 +493,8 @@ describe('Resolvables system:', function () {
 
       let slicedPath = path.slice(0, 2);
       expect(slicedPath.nodes().length).toBe(2);
-      expect(slicedPath.nodes()[1]).toBe(path.nodes()[1]);
+      expect(slicedPath.nodes()[0].state).toBe(path.nodes()[0].state);
+      expect(slicedPath.nodes()[1].state).toBe(path.nodes()[1].state);
       let path2 = path.concat(makePath([ "L", "M" ]));
       let ctx2 = new ResolveContext(path2);
       ctx2.resolvePath().then(function () {

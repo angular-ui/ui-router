@@ -25,10 +25,6 @@ export default class StateMatcher {
     return undefined;
   }
 
-  reference(identifier: IStateOrName, base: IStateOrName, params): TargetState {
-    return new TargetState(identifier, this.find(identifier, base), params, base);
-  }
-
   resolvePath(name: string, base: IStateOrName) {
     if (!base) throw new Error(`No reference point given for path '${name}'`);
     

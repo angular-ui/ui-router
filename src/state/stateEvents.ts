@@ -15,7 +15,6 @@ import {RejectType} from "../transition/rejectFactory";
 
 stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$urlRouter'];
 function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootScope, $urlRouter) {
-  // if (!$transition$.$to().valid() || !$transition$.options().notify)
   if (!$transition$.options().notify)
     return;
 
@@ -115,12 +114,7 @@ function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootSc
 }
 
 stateNotFoundHandler.$inject = ['$to$', '$from$', '$state', '$rootScope', '$urlRouter'];
-export function stateNotFoundHandler(
-  $to$: ITransitionDestination, 
-  $from$: TargetState,
-  $state: IStateService, 
-  $rootScope, 
-  $urlRouter) {
+export function stateNotFoundHandler($to$: TargetState, $from$: TargetState, $state: IStateService, $rootScope, $urlRouter) {
   /**
    * @ngdoc event
    * @name ui.router.state.$state#$stateNotFound
@@ -153,18 +147,14 @@ export function stateNotFoundHandler(
    * });
    * </pre>
    */
-  var redirect = { to: $to$.ref.identifier(), toParams: $to$.ref.params(), options: $to$.options };
+  var redirect = { to: $to$.identifier(), toParams: $to$.params(), options: $to$.options() };
   var e = $rootScope.$broadcast('$stateNotFound', redirect, $from$.state(), $from$.params());
 
   if (e.defaultPrevented || e.retry)
     $urlRouter.update();
 
-  function redirectFn() {
-    let { options } = redirect;
-    let ref = $state.reference(redirect.to, null, redirect.toParams);
-
-    let dest: ITransitionDestination = { ref, options };
-    return dest;
+  function redirectFn(): TargetState {
+    return $state.targetState(redirect.to, redirect.toParams, redirect.options);
   }
 
   if (e.defaultPrevented) {

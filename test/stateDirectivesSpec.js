@@ -568,7 +568,7 @@ describe('uiSrefActive', function() {
     $q.flush();
 
     _stateProvider.onInvalid(function ($to$) {
-      if ($to$.ref.name() === 'contacts.lazy') {
+      if ($to$.name() === 'contacts.lazy') {
         _stateProvider.state('contacts.lazy', {});
         return $to$;
       }
@@ -591,7 +591,7 @@ describe('uiSrefActive', function() {
     $q.flush();
 
     _stateProvider.onInvalid(function ($to$) {
-      if ($to$.ref.name() === 'contacts.lazy') {
+      if ($to$.name() === 'contacts.lazy') {
         _stateProvider.state('contacts.lazy', {});
         return $to$;
       }

@@ -9,7 +9,7 @@ import TransitionHook from "./transitionHook";
 import HookBuilder from "./hookBuilder";
 import {RejectFactory} from "./rejectFactory"
 
-import {IParamsNode, IResolveNode, IPath, IParamsPath, IResolvePath} from "../path/interface";
+import {IParamsNode, IResolveNode, ITransNode, IPath, IParamsPath, IResolvePath, ITransPath} from "../path/interface";
 import Path from "../path/path";
 import PathFactory from "../path/pathFactory"
 
@@ -28,7 +28,7 @@ import {IRawParams} from "../params/interface"
 import ParamValues from "../params/paramValues"
 
 import {defaults, eq, extend, filter, flatten, forEach, identity, invoke, is, isEq, isFunction, isObject, isPromise, isDefined,
-    map, noop, not, objectKeys, parse, pattern, pipe, pluck, prop, toJson, unnest, unroll, val, pairs} from "../common/common";
+    map, noop, not, objectKeys, parse, pattern, pipe, pluck, prop, toJson, unnest, unroll, val, pairs, abstractKey} from "../common/common";
 
 
 var transitionCount = 0, REJECT = new RejectFactory();
@@ -62,10 +62,13 @@ export class Transition {
   prepromise: IPromise<any>;
   redirects: IPromise<any>;
 
-  constructor(fromPath: IResolvePath, toPath: IParamsPath, _options: ITransitionOptions = {}) {
-    this._options = extend({ current: val(this) }, _options);
+  constructor(fromPath: ITransPath, targetState: TargetState) {
+    if (targetState.error()) throw new Error(targetState.error());
+
+    this._options = extend({ current: val(this) }, targetState.options());
     this.$id = transitionCount++;
-    this._treeChanges = this._calcTreeChanges(fromPath, toPath, _options.reloadState);
+    let toPath = PathFactory.buildToPath(fromPath, targetState);
+    this._treeChanges = PathFactory.treeChanges(fromPath, toPath, this._options.reloadState);
 
     this._deferreds = {
       prehooks: runtime.$q.defer(), // Resolved when the transition is complete, but success callback not run yet
@@ -77,40 +80,6 @@ export class Transition {
     this.prepromise = this._deferreds.prehooks.promise;
     this.promise = this._deferreds.posthooks.promise;
     this.redirects = this._deferreds.redirects.promise;
-  }
-
-  _calcTreeChanges(fromPath: IResolvePath, toPath: IParamsPath, reloadState: IState): ITreeChanges {
-    function nonDynamicParams(state) {
-      return state.params.$$filter(not(prop('dynamic')));
-    }
-    
-    let fromNodes = fromPath.nodes();
-    let toNodes = toPath.nodes();
-    let keep = 0, max = Math.min(fromNodes.length, toNodes.length);  
-    
-    const nodesMatch = (node1: IParamsNode, node2: IParamsNode) =>
-      node1.state == node2.state && nonDynamicParams(node1.state).$$equals(node1.ownParams, node2.ownParams)
-    
-    // TODO: if (this._to.valid()) {
-    while (keep < max && fromNodes[keep].state !== reloadState && nodesMatch(fromNodes[keep], toNodes[keep])) {
-      keep++;
-    }
-
-    /** Given a retained node, return a new node which uses the to node's param values */
-    function applyToParams(retainedNode: IResolveNode, idx: number): IResolveNode {
-      let toNodeParams = toPath.nodes()[idx].ownParams;
-      return extend({}, retainedNode, { ownParams: toNodeParams })
-    }
-
-    let from      = fromPath;
-    let retained  = from.slice(0, keep);
-    let exiting   = from.slice(keep);
-    // "entering" is the tail of toPath, with new resolvables added
-    let entering  = toPath.slice(keep).adapt(PathFactory.makeTransNode);
-    // "to" is: retained path (but with "to params" applied) concatenated with entering path
-    let to        = retained.adapt(applyToParams).concat(entering);
-
-    return { from, to, retained, exiting, entering };
   }
 
   $from() {
@@ -180,7 +149,7 @@ export class Transition {
    */
   // TODO
   params(pathname: string = "to"): ParamValues {
-    return ParamValues.fromPath(this._treeChanges[pathname]);
+    return this._treeChanges[pathname].last().paramValues;
   }
 
   /**
@@ -288,11 +257,10 @@ export class Transition {
    *
    * @returns {Transition} Returns a new `Transition` instance.
    */
-  redirect(newTo: TargetState, newOptions: ITransitionOptions): Transition {
-    var newToPath = PathFactory.transPath(PathFactory.makeParamsPath(newTo));
-    return new Transition(this._treeChanges.from, newToPath, extend(newOptions || this.options(), {
-      previous: this
-    }));
+  redirect(targetState: TargetState): Transition {
+    let newOptions = extend({}, this.options(), targetState.options(), { previous: this} );
+    targetState = new TargetState(targetState.identifier(), targetState.$state(), targetState.params(), newOptions);
+    return new Transition(this._treeChanges.from, targetState);
   }
 
   /**
@@ -308,14 +276,15 @@ export class Transition {
    */
   ignored() {
     let {to, from} = this._treeChanges;
-    let [toState, fromState]  = [to, from].map((path) => path.last().state)
-    let [toParams, fromParams]  = [to, from].map((path) => ParamValues.fromPath(path))
+    let [toState, fromState]  = [to, from].map((path) => path.last().state);
+    let [toParams, fromParams]  = [to, from].map((path) => path.last().paramValues);
     return !this._options.reload &&
         toState === fromState &&
         toState.params.$$filter(not(prop('dynamic'))).$$equals(toParams, fromParams);
   }
 
   run () {
+    if (this.error()) throw new Error(this.error());
     if (this._options.trace) trace.traceTransitionStart(this);
     var baseHookOptions = {
       trace: this._options.trace,
@@ -337,7 +306,7 @@ export class Transition {
 
     let {to, from, entering, exiting} = this._treeChanges;
     let [toState, fromState]    = [to, from].map(path => path.last().state);
-    let [toParams, fromParams]  = [to, from].map(path => ParamValues.fromPath(path));
+    let [toParams, fromParams]  = [to, from].map(path => path.last().paramValues);
     let tLocals = { $transition$: this };
     
     let fromContext = new ResolveContext(from);
@@ -392,6 +361,18 @@ export class Transition {
   //   }
   // }
 
+  valid() {
+    return !this.error();
+  }
+
+  error() {
+    let state = this._treeChanges.to.last().state;
+    if (state.self[abstractKey])
+      return `Cannot transition to abstract state '${state.name}'`;
+    if (!state.params.$$validates(this.params()))
+      return `Param values not valid for state '${state.name}'`;
+  }
+
   toString () {
     var fromStateOrName = this.from();
     var toStateOrName = this.to();
@@ -399,11 +380,11 @@ export class Transition {
     // (X) means the to state is invalid.
     var id = this.$id,
         from = isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
-        fromParams = toJson(ParamValues.fromPath(this._treeChanges.from)),
-        // toValid = this.$to().valid() ? "" : "(X) ",
-        toValid = true ? "" : "(X) ", // TODO
+        fromParams = toJson(this._treeChanges.from.last().paramValues),
+        toValid = this.valid() ? "" : "(X) ",
         to = isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
         toParams = toJson(this.params());
+        
     return `Transition#${id}( '${from}'${fromParams} -> ${toValid}'${to}'${toParams} )`;
   }
 }

@@ -12,12 +12,19 @@ var PathFactory = uiRouter.path.PathFactory;
 var state = uiRouter.state;
 var StateMatcher = state.StateMatcher;
 var StateBuilder = state.StateBuilder;
+var TargetState = state.TargetState;
 var StateQueueManager = state.StateQueueManager;
 var TransitionRejection = uiRouter.transition.TransitionRejection;
 
 describe('transition', function () {
 
   var transitionProvider, matcher, pathFactory, statesMap, queue;
+
+  var targetState = function(identifier, params, options) {
+    options = options || {};
+    var stateDefinition = matcher.find(identifier, options.relative);
+    return new TargetState(identifier, stateDefinition, params, options);
+  };
 
   beforeEach(module('ui.router', function ($transitionProvider, $urlMatcherFactoryProvider) {
     transitionProvider = $transitionProvider;
@@ -72,10 +79,9 @@ describe('transition', function () {
     matcher = new StateMatcher(statesMap);
     queue.flush($state);
     makeTransition = function makeTransition(from, to, options) {
-      var fromPath = PathFactory.makeParamsPath(matcher.reference(from));
-      fromPath = PathFactory.transPath(fromPath);
-      var toPath = PathFactory.makeParamsPath(matcher.reference(to));
-      return $transition.create(fromPath, toPath, options);
+      var paramsPath = PathFactory.makeParamsPath(targetState(from));
+      var fromPath = PathFactory.bindTransNodesToPath(paramsPath);
+      return $transition.create(fromPath, targetState(to, null, options));
     };
   }));
 
@@ -308,8 +314,8 @@ describe('transition', function () {
       it("return value of type Transition should abort the transition with SUPERSEDED status", inject(function($transition, $q) {
         var states = [], rejection, transition = makeTransition("A", "D");
         transitionProvider.entering({ from: "*", to: "*" }, function($state$) { states.push($state$); });
-        transitionProvider.entering({ from: "*", to: "C" }, function($transition$) { 
-          return $transition$.redirect(matcher.reference("B")); 
+        transitionProvider.entering({ from: "*", to: "C" }, function($state, $transition$) { 
+          return $transition$.redirect(targetState("B"));
         });
         transition.promise.catch(function(err) { rejection = err; });
 

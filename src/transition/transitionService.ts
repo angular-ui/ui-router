@@ -1,15 +1,16 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
-import {extend, defaults, objectKeys, pick, find, is, isFunction, isString, val, noop} from "../common/common";
-import {IServiceProviderFactory} from "angular";
+import {extend, defaults, objectKeys, pick, find, is, isFunction, isString, val, noop} from "../common/common"
+import {IServiceProviderFactory} from "angular"
 
-import {Transition} from "./transition";
+import {Transition} from "./transition"
 
-import {IStateDeclaration, IState} from "../state/interface";
+import {IStateDeclaration, IState} from "../state/interface"
+import TargetState from "../state/targetState"
 import {StateParams} from "../state/state"
-import Glob from "../state/glob";
+import Glob from "../state/glob"
 
-import {IPath, IParamsPath, IResolvePath, INode, IParamsNode, IResolveNode} from "../path/interface"
+import {IPath, IParamsPath, IResolvePath, ITransPath, INode, IParamsNode, IResolveNode} from "../path/interface"
 import Path from "../path/path"
 
 import {IRawParams} from "../params/interface"
@@ -285,8 +286,8 @@ function $TransitionProvider() {
   this.$get = $get;
   $get.$inject = ['$q', '$injector'];
   function $get(   $q,   $injector ) {
-    $transition.create = function create(fromPath: IResolvePath, toPath: IParamsPath, options: ITransitionOptions = {}) {
-      return new Transition(fromPath, toPath, options);
+    $transition.create = function create(fromPath: ITransPath, targetState: TargetState) {
+      return new Transition(fromPath, targetState);
     };
 
     $transition.isTransition = is(Transition);

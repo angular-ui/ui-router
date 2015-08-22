@@ -1,6 +1,6 @@
- // Without importing something, TSC complains that this file isn't a module
-import {noop} from "../common/common"; 
+import ParamValues from "./paramValues";
 
 export interface IRawParams {
-	[key: string]: any
+    [key: string]: any
 }
+export type IParamsOrArray = (IRawParams|IRawParams[]|ParamValues);

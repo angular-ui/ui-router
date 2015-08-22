@@ -190,7 +190,7 @@ describe('state helpers', function() {
     });
 
     it('should validate state definition', function() {
-      var ref = new TargetState("foo", null, {}, {});
+      var ref = new TargetState("foo", null, {}, { relative: {} });
       expect(ref.valid()).toBe(false);
       expect(ref.error()).toBe("Could not resolve 'foo' from state '[object Object]'");
 
@@ -201,12 +201,6 @@ describe('state helpers', function() {
       ref = new TargetState("foo", { name: "foo" });
       expect(ref.valid()).toBe(false);
       expect(ref.error()).toBe("State 'foo' has an invalid definition");
-
-      ref = new TargetState("foo", {
-        name: "foo", self: { "abstract": true }
-      });
-      expect(ref.valid()).toBe(false);
-      expect(ref.error()).toBe("Cannot transition to abstract state 'foo'");
     });
   });
 });
@@ -1751,7 +1745,7 @@ describe('.onInvalid()', function() {
   it('should fire when the to-state reference is invalid', inject(function($state, $transition, $q) {
     var ref = null;
     $stateProvider.onInvalid(function($to$) {
-      ref = $to$.ref;
+      ref = $to$;
       return false;
     });
 
@@ -1764,7 +1758,7 @@ describe('.onInvalid()', function() {
 
   it('should allow redirection if an ITargetState is returned', inject(function($state, $transition, $q) {
     $stateProvider.onInvalid(function($to$) {
-      return { ref: $state.reference("second"), options: $to$.options };
+      return $state.targetState("second", $to$.params(), $to$.options());
     });
 
     $state.go("invalid");

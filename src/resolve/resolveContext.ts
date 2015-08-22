@@ -57,13 +57,13 @@ export default class ResolveContext {
   }
   
   addResolvables(resolvables: IResolvables, state: IState) {
-    let node = this._path.elementForState(state);
+    let node = this._path.nodeForState(state);
     extend(node.ownResolvables, resolvables);
   }
   
   /** Gets the resolvables declared on a particular state */
   getOwnResolvables(state: IState): IResolvables {
-    return extend({}, this._path.elementForState(state).ownResolvables);
+    return extend({}, this._path.nodeForState(state).ownResolvables);
   }
    
   // Returns a promise for an array of resolved Path Element promises

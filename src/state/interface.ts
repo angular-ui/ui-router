@@ -1,15 +1,16 @@
 import {IPromise} from "angular"
 
 import UrlMatcher from "../url/urlMatcher"
+
+import {IRawParams, IParamsOrArray} from "../params/interface"
 import ParamSet from "../params/paramSet"
+import ParamValues from "../params/paramValues"
 
 import {IViewContext} from "../view/interface"
 import PathContext from "../resolve/pathContext"
 
 import {StateParams} from "./state"
 import TargetState from "./targetState"
-
-import {IRawParams} from "../params/interface"
 
 import {ITransitionOptions} from "../transition/interface"
 import {Transition} from "../transition/transition"
@@ -112,14 +113,13 @@ export interface IStateService {
   current: IStateDeclaration,
   $current: IState,
   transition: Transition,
-  reload(stateOrName: IStateOrName): IPromise<IState>,
-  reference(identifier: IStateOrName, base: IStateOrName, params: IRawParams): TargetState,
-  go(to: IStateOrName, params: IRawParams, options: ITransitionOptions): IPromise<IState>,
-  transitionTo(to: IStateOrName, toParams: IRawParams, options: ITransitionOptions): IPromise<IState>,
-  redirect(transition: Transition): { to: (state: IStateOrName, params: IRawParams, options: ITransitionOptions) => Transition },
-  is(stateOrName: IStateOrName, params?: IRawParams, options?: ITransitionOptions): boolean,
-  includes(stateOrName: IStateOrName, params?: IRawParams, options?: ITransitionOptions): boolean,
-  href(stateOrName: IStateOrName, params?: IRawParams, options?: IHrefOptions): string,
-  get(stateOrName: IStateOrName, base?: IStateOrName): (IStateDeclaration|IStateDeclaration[])
+  reload        (stateOrName: IStateOrName): IPromise<IState>,
+  targetState   (identifier: IStateOrName, params: IParamsOrArray, options: ITransitionOptions): TargetState,
+  go            (to: IStateOrName, params: IRawParams, options: ITransitionOptions): IPromise<IState>,
+  transitionTo  (to: IStateOrName, toParams: IParamsOrArray, options: ITransitionOptions): IPromise<IState>,
+  is            (stateOrName: IStateOrName, params?: IRawParams, options?: ITransitionOptions): boolean,
+  includes      (stateOrName: IStateOrName, params?: IRawParams, options?: ITransitionOptions): boolean,
+  href          (stateOrName: IStateOrName, params?: IRawParams, options?: IHrefOptions): string,
+  get           (stateOrName: IStateOrName, base?: IStateOrName): (IStateDeclaration|IStateDeclaration[])
 }
 

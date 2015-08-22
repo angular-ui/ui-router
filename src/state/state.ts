@@ -17,11 +17,11 @@ import {Transition} from "../transition/transition"
 import {TransitionRejection, RejectType, RejectFactory} from "../transition/rejectFactory"
 import {defaultTransOpts} from "../transition/transitionService"
 
-import {INode, IParamsNode, IResolveNode, IPath, IParamsPath, IResolvePath} from "../path/interface"
+import {INode, IParamsNode, IResolveNode, IPath, IParamsPath, IResolvePath, ITransPath} from "../path/interface"
 import Path from "../path/path"
 import PathFactory from "../path/pathFactory"
 
-import {IRawParams} from "../params/interface"
+import {IRawParams, IParamsOrArray} from "../params/interface"
 import Param from "../params/param"
 import ParamSet from "../params/paramSet"
 import ParamValues from "../params/paramValues"
@@ -100,6 +100,7 @@ State.prototype.root = function() {
   return result;
 };
 
+State.prototype.toString = () => this.fqn();
 
 
 /**
@@ -441,27 +442,30 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * If a callback returns an ITargetState, then it is used as arguments to $state.transitionTo() and
      * the result returned.
      */
-    function handleInvalidTargetState(fromPath: IParamsPath, $to$: ITransitionDestination) {
+    function handleInvalidTargetState(fromPath: IParamsPath, $to$: TargetState) {
       const latestThing = () => transQueue.peekTail() || treeChangesQueue.peekTail();
       let latest = latestThing();
-      let $from$ = PathFactory.makeStateReference(fromPath);
+      let $from$ = PathFactory.makeTargetState(fromPath);
       let callbackQueue = new Queue<Function>([].concat(invalidCallbacks));
 
       const invokeCallback = (callback: Function) =>
           $q.when($injector.invoke(callback, null, { $to$, $from$ }));
 
       function checkForRedirect(result) {
-        if (result && result.ref && result.ref instanceof TargetState) {
-          let ref = <TargetState> result.ref;
-          if (!ref.valid()) return rejectFactory.invalid($to$.ref.error());
+        if (result instanceof TargetState) {
+          let target = <TargetState> result;
+          // Recreate the TargetState, in case the state is now defined.
+          target = $state.targetState(target.identifier(), target.params(), target.options());
+          if (!target.valid()) return rejectFactory.invalid(target.error());
           if (latestThing() !== latest) return rejectFactory.superseded();
-          return $state.transitionTo(ref.identifier(), ref.params(), $to$.options);
+
+          return $state.transitionTo(target.identifier(), target.params(), target.options());
         }
       }
 
       function invokeNextCallback() {
         var nextCallback = callbackQueue.dequeue();
-        if (nextCallback === undefined) return rejectFactory.invalid($to$.ref.error());
+        if (nextCallback === undefined) return rejectFactory.invalid($to$.error());
         return invokeCallback(nextCallback).then(checkForRedirect).then(result => result || invokeNextCallback())
       }
 
@@ -481,7 +485,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     }, true);
 
     root.navigable = null;
-    const rootPath = () => PathFactory.transPath(new Path([PathFactory.makeParamsNode({}, root)]));
+    const rootPath = () => PathFactory.bindTransNodesToPath(new Path([PathFactory.makeResolveNode(PathFactory.makeParamsNode({}, root))]));
 
     $view.rootContext(root);
 
@@ -617,40 +621,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      */
     $state.go = function go(to: IStateOrName, params: IRawParams, options: ITransitionOptions): IPromise<IState> {
       var defautGoOpts = { relative: $state.$current, inherit: true };
-      return $state.transitionTo(to, params, defaults(options, defautGoOpts, defaultTransOpts));
+      var transOpts = defaults(options, defautGoOpts, defaultTransOpts);
+      return $state.transitionTo(to, params, transOpts);
     };
-
-    /**
-     * @ngdoc function
-     * @name ui.router.state.$state#redirect
-     * @methodOf ui.router.state.$state
-     *
-     * @description
-     * Creates a redirect transition from an existing transition. Used in the context of a callback function
-     * which can receive a `$transition$` injectable. The result is then returned from the callback.
-     *
-     * @example
-     * <pre>
-     * $transitionProvider.on({ from: "first", to: "second" }, function($state, $transition$) {
-     *   var params = { foo: 'bar' };
-     *   return $state.redirect($transition$).to("third", params);
-     * });
-     * </pre>
-     *
-     * @returns {Transition} A new {@link ui.router.state.type:Transition `Transition`} that
-     * targets a new state or set of parameters.
-     */
-    $state.redirect = <any> function redirect(transition: Transition) {
-      return {
-        to: function(state: IStateOrName, params: IRawParams, options: ITransitionOptions): Transition {
-          return transition.redirect(matcher.reference(state, null, params), options);
-        }
-      };
-    };
-    
+  
     /** Factory method for creating a TargetState */
-    $state.reference = function reference(identifier: IStateOrName, base: IStateOrName, params: IRawParams): TargetState {
-      return matcher.reference(identifier, base, params);
+    $state.targetState = function targetState(identifier: IStateOrName, params: IParamsOrArray, options: ITransitionOptions = {}): TargetState {
+      let stateDefinition = matcher.find(identifier, options.relative);
+      return new TargetState(identifier, stateDefinition, params, options);
     };
 
     /**
@@ -694,7 +672,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     $state.transitionTo = function transitionTo(to: IStateOrName, toParams: IRawParams, options: ITransitionOptions = {}): IPromise<IState> {
       toParams = toParams || {};
       options = defaults(options, defaultTransOpts);
-      let transOptions = extend(options, { current: transQueue.peekTail.bind(transQueue)});
+      options = extend(options, { current: transQueue.peekTail.bind(transQueue)});
 
       // If we're reloading, find the state object to reload from
       if (isObject(options.reload) && !(<any>options.reload).name)
@@ -703,18 +681,19 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (options.reload && !options.reloadState)
         throw new Error(`No such reload state '${(isString(options.reload) ? options.reload : (<any>options.reload).name)}'`);
 
-      let ref: TargetState = matcher.reference(to, options && options.relative, toParams);
+      let ref: TargetState = $state.targetState(to, toParams, options);
       let latestTreeChanges: ITreeChanges = treeChangesQueue.peekTail();
-      let currentPath: IResolvePath = latestTreeChanges ? latestTreeChanges.to : rootPath();
+      let currentPath: ITransPath = latestTreeChanges ? latestTreeChanges.to : rootPath();
 
       if (!ref.exists())
-        return handleInvalidTargetState(currentPath, { ref, options });
+        return handleInvalidTargetState(currentPath, ref);
+      if (!ref.valid())
+        return $q.reject(ref.error());
 
-      let toPath: IParamsPath = PathFactory.makeParamsPath(ref);
-      if (options.inherit)
-        toPath = PathFactory.inheritParams(currentPath, toPath, objectKeys(toParams));
+      let transition = $transition.create(currentPath, ref);
+      if (!transition.valid())
+        return $q.reject(transition.error());
 
-      let transition = $transition.create(currentPath, toPath, transOptions);
       let stateHandler = new StateHandler($urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
       var result = stateHandler.runTransition(transition);
       result.finally(() => transQueue.remove(transition));

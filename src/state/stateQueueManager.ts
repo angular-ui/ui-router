@@ -11,7 +11,7 @@ export default function StateQueueManager(states, builder, $urlRouterProvider, $
       var state = inherit(new State(), extend({}, config, {
         self: config,
         resolve: config.resolve || {},
-        toString: function() { return this.name; }
+        toString: () => config.name
       }));
 
       if (!isString(state.name)) throw new Error("State must have a valid name");
