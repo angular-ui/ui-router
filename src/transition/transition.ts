@@ -5,35 +5,25 @@ import trace from "../common/trace";
 
 import {ITransitionOptions, ITreeChanges} from "./interface";
 import {$transition, matchState} from "./transitionService";
-import TransitionHook from "./transitionHook";
 import HookBuilder from "./hookBuilder";
-import {RejectFactory} from "./rejectFactory"
+import {RejectFactory} from "./rejectFactory";
 
-import {IParamsNode, IResolveNode, ITransNode, IPath, IParamsPath, IResolvePath, ITransPath} from "../path/interface";
-import Path from "../path/path";
-import PathFactory from "../path/pathFactory"
+import {IResolvePath, ITransPath} from "../path/interface";
+import PathFactory from "../path/pathFactory";
 
-import {IPromises, IResolvables} from "../resolve/interface";
-import Resolvable from "../resolve/resolvable";
 import ResolveContext from "../resolve/resolveContext";
 import PathContext from "../resolve/pathContext";
 
-
-import {IStateViewConfig, IStateParams} from "../state/interface";
-import {StateParams} from "../state/state"
-import TargetState from "../state/targetState"
+import TargetState from "../state/targetState";
 import {IState, IStateDeclaration} from "../state/interface";
 
-import {IRawParams} from "../params/interface"
-import ParamValues from "../params/paramValues"
+import ParamValues from "../params/paramValues";
 
-import {defaults, eq, extend, filter, flatten, forEach, identity, invoke, is, isEq, isFunction, isObject, isPromise, isDefined,
-    map, noop, not, objectKeys, parse, pattern, pipe, pluck, prop, toJson, unnest, unroll, val, pairs, abstractKey} from "../common/common";
+import {extend, filter, flatten, forEach, identity, isEq, isObject, map, not, prop, toJson, unnest, val,
+    pairs, abstractKey} from "../common/common";
 
-
-var transitionCount = 0, REJECT = new RejectFactory();
-
-const stateSelf = (state: IState) => state.self;
+let transitionCount = 0, REJECT = new RejectFactory();
+const stateSelf: (_state: IState) => IStateDeclaration = prop("self");
 
 /**
  * @ngdoc object
@@ -53,14 +43,13 @@ const stateSelf = (state: IState) => state.self;
 export class Transition {
   $id: number;
 
-  private _options: ITransitionOptions;
-  private _treeChanges: ITreeChanges;
-
-  _deferreds: any;
-
   promise: IPromise<any>;
   prepromise: IPromise<any>;
   redirects: IPromise<any>;
+
+  private _options: ITransitionOptions;
+  private _treeChanges: ITreeChanges;
+  private _deferreds: any;
 
   constructor(fromPath: ITransPath, targetState: TargetState) {
     if (targetState.error()) throw new Error(targetState.error());
@@ -75,7 +64,7 @@ export class Transition {
       posthooks: runtime.$q.defer(), // Resolved when the transition is complete, after success callbacks
       redirects: runtime.$q.defer() // Resolved when any transition redirects are complete
     };
-    
+
     // Expose three promises to users of Transition
     this.prepromise = this._deferreds.prehooks.promise;
     this.promise = this._deferreds.posthooks.promise;
@@ -203,7 +192,7 @@ export class Transition {
    * @returns {Array} Returns an array of states that will be exited in this transition.
    */
   exiting(): IStateDeclaration[] {
-    var exitingStates = this._treeChanges.exiting.states().map(stateSelf);
+    let exitingStates = this._treeChanges.exiting.states().map(stateSelf);
     exitingStates.reverse();
     return exitingStates;
   }
@@ -234,14 +223,15 @@ export class Transition {
    * Returns one StateViewConfig for each view in each state in a named path of the transition's tree changes
    */
   views(pathname: string = "entering", contextPathname: string = "to") {
-    var path: IResolvePath = this._treeChanges[pathname];
-    var states: IState[] = states || path.states();
-    var params: ParamValues = this.params();
+    let path: IResolvePath = this._treeChanges[pathname];
+    let states: IState[] = path.states();
+    let params: ParamValues = this.params();
 
     return unnest(map(states, (state: IState) => {
-      var context = state, locals: PathContext = this.context(contextPathname, state);
-      const makeViewConfig = ([name, view]) => { return {name, view, context, locals, params} };
-      return pairs(state.views).map(makeViewConfig)
+      let context = state;
+      let locals: PathContext = this.context(contextPathname, state);
+      const makeViewConfig = ([name, view]) => { return {name, view, context, locals, params}; };
+      return pairs(state.views).map(makeViewConfig);
     }));
   }
 
@@ -286,29 +276,29 @@ export class Transition {
   run () {
     if (this.error()) throw new Error(this.error());
     if (this._options.trace) trace.traceTransitionStart(this);
-    var baseHookOptions = {
+    let baseHookOptions = {
       trace: this._options.trace,
       transition: this,
       current: this._options.current
     };
 
-    var hookBuilder = new HookBuilder($transition, this._treeChanges, this, baseHookOptions);
+    let hookBuilder = new HookBuilder($transition, this._treeChanges, this, baseHookOptions);
 
     if (this.ignored()) {
       if (this._options.trace) trace.traceTransitionIgnored(this);
       $transition.transition = null;
-      var ignored = REJECT.ignored();
+      let ignored = REJECT.ignored();
       forEach(this._deferreds, (def) => def.reject(ignored.reason));
       return ignored;
     }
 
     $transition.transition = this;
 
-    let {to, from, entering, exiting} = this._treeChanges;
+    let {to, from} = this._treeChanges;
     let [toState, fromState]    = [to, from].map(path => path.last().state);
-    let [toParams, fromParams]  = [to, from].map(path => path.last().paramValues);
+    let [toParams]  = [to].map(path => path.last().paramValues);
     let tLocals = { $transition$: this };
-    
+
     let fromContext = new ResolveContext(from);
     let toContext = new ResolveContext(to);
 
@@ -319,12 +309,12 @@ export class Transition {
     let onStartHooks        = hookBuilder.makeSteps("onStart",    toState, toFrom, fromContext, tLocals);
     let transitionOnHooks   = hookBuilder.makeSteps("on",         toState, toFrom, toContext, tLocals);
 
-    var eagerResolves       = hookBuilder.makeEagerResolvePathStep(to, tLocals);
+    let eagerResolves       = hookBuilder.makeEagerResolvePathStep(to, tLocals);
     let exitingStateHooks   = hookBuilder.exitingStateHooks(fromContext, tLocals, toParams, this._options);
     let enteringStateHooks  = hookBuilder.enteringStateHooks(toContext, tLocals, toParams, this._options);
 
     // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
-    var asyncSteps = filter(flatten([onStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]), identity);
+    let asyncSteps = filter(flatten([onStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]), identity);
 
     // -----------------------------------------------------------------------
     // Transition Steps
@@ -332,7 +322,7 @@ export class Transition {
 
     // ---- Synchronous hooks ----
     // Run the "onBefore" hooks and save their promises
-    var chain = hookBuilder.runSynchronousHooks(onBeforeHooks);
+    let chain = hookBuilder.runSynchronousHooks(onBeforeHooks);
 
     // ---- Asynchronous section ----
 
@@ -344,7 +334,7 @@ export class Transition {
 
     // When the last step of the chain has resolved or any step has rejected (i.e., the transition is completed),
     // invoke the registered success or error hooks when the transition is completed.
-    chain = chain.then(hookBuilder.successHooks()).catch(hookBuilder.errorHooks());
+    chain = chain.then(hookBuilder.successHooks(this._deferreds)).catch(hookBuilder.errorHooks(this._deferreds));
 
     // Return the overall transition promise, which is resolved/rejected in successHooks/errorHooks
     return this.promise;
@@ -374,17 +364,17 @@ export class Transition {
   }
 
   toString () {
-    var fromStateOrName = this.from();
-    var toStateOrName = this.to();
+    let fromStateOrName = this.from();
+    let toStateOrName = this.to();
 
     // (X) means the to state is invalid.
-    var id = this.$id,
+    let id = this.$id,
         from = isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
         fromParams = toJson(this._treeChanges.from.last().paramValues),
         toValid = this.valid() ? "" : "(X) ",
         to = isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
         toParams = toJson(this.params());
-        
+
     return `Transition#${id}( '${from}'${fromParams} -> ${toValid}'${to}'${toParams} )`;
   }
 }
