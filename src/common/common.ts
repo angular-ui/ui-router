@@ -230,6 +230,8 @@ export function filter<T>(collection: T, callback: Function): T {
 export const _filter = (callback) =>
     (collection) => filter(collection, callback);
 
+export function find<T>(collection: TypedMap<T>, callback: Predicate<T>): T
+export function find<T>(collection: T[], callback: Predicate<T>): T
 export function find(collection, callback) {
   var result;
 
