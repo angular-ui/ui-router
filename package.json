@@ -74,6 +74,7 @@
     "phantomjs-polyfill": "0.0.1",
     "shelljs": "~0.2.6",
     "systemjs": "^0.18.4",
+    "tslint": "^2.4.3",
     "typescript": "^1.5.3"
   },
   "main": "release/angular-ui-router"
