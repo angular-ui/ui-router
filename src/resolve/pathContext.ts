@@ -1,14 +1,13 @@
-import ResolveContext from "../resolve/resolveContext"
-import Path from "./../path/path";
+import ResolveContext from "../resolve/resolveContext";
 import {IState} from "../state/interface";
 import {objectKeys, zipObject, pick} from "../common/common";
 
 // TODO: Refactor!
 // TODO: this is better named ViewContext?
 export default class PathContext {
-  constructor(private _resolveContext: ResolveContext, 
-    private _state: IState, 
-    private _injector: ng.auto.IInjectorService, 
+  constructor(private _resolveContext: ResolveContext,
+    private _state: IState,
+    private _injector: ng.auto.IInjectorService,
     private _options = {}) { }
 
   /** Invokes an annotated function in the context of the toPath */
