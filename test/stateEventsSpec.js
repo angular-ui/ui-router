@@ -27,7 +27,7 @@ describe('UI-Router v0.2.x $state events', function () {
     B = {},
     C = {},
     D = { params: { x: {}, y: {} } },
-    DD = { parent: D, params: { x: {}, y: {}, z: {} } },
+    DD = { parent: D, params: { z: {} } },
     E = { params: { i: {} } };
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -72,21 +72,17 @@ describe('UI-Router v0.2.x $state events', function () {
     it('triggers $stateChangeStart', inject(function ($state, $q, $rootScope) {
       initStateTo(E, {i: 'iii'});
       var called;
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, transition) {
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
         expect(from).toBe(E);
-        expect(transition.from()).toBe(E);
 
         expect(obj(fromParams)).toEqual({i: 'iii'});
-        expect(obj(transition.$from().params())).toEqual({i: 'iii'});
 
         expect(to).toBe(D);
-        expect(transition.to()).toBe(D);
 
         expect(obj(toParams)).toEqual({x: '1', y: '2'});
-        expect(obj(transition.params())).toEqual({x: '1', y: '2'});
 
-        expect($state.current).toBe(transition.from()); // $state not updated yet
-        expect(obj($state.params)).toEqual(obj(transition.$from().params()));
+        expect($state.current).toBe(from); // $state not updated yet
+        expect(obj($state.params)).toEqual(obj(fromParams));
         called = true;
       });
       $state.transitionTo(D, {x: '1', y: '2'});
@@ -112,22 +108,19 @@ describe('UI-Router v0.2.x $state events', function () {
     it('triggers $stateNotFound', inject(function ($state, $q, $rootScope) {
       initStateTo(E, {i: 'iii'});
       var called;
-      $rootScope.$on('$stateNotFound', function (ev, unfoundState, fromState, fromParams, transition) {
-        expect(transition.from()).toBe(E);
-        expect(obj(transition.$from().params())).toEqual({i: 'iii'});
-        expect(transition.to()).toEqual('never_defined');
-        expect(transition.params()).toEqual({x: '1', y: '2'});
+      $rootScope.$on('$stateNotFound', function (ev, unfoundState, fromState, fromParams) {
+        expect(fromState).toBe(E);
+        expect(obj(fromParams)).toEqual({i: 'iii'});
+        expect(unfoundState.to).toEqual('never_defined');
+        expect(unfoundState.toParams).toEqual({x: '1', y: '2'});
 
         expect($state.current).toBe(E); // $state not updated yet
         expect(obj($state.params)).toEqual({i: 'iii'});
         called = true;
       });
       var message;
-      try {
-        $state.transitionTo('never_defined', {x: '1', y: '2'});
-      } catch (err) {
-        message = err.message;
-      }
+      $state.transitionTo('never_defined', {x: '1', y: '2'})
+          .catch(function(e) { message = e.detail; });
       $q.flush();
       expect(message).toEqual('No such state \'never_defined\'');
       expect(called).toBeTruthy();
@@ -135,11 +128,13 @@ describe('UI-Router v0.2.x $state events', function () {
     }));
 
     it('throws Error on failed relative state resolution', inject(function ($state, $q) {
-      $state.transitionTo(DD);
+      $state.transitionTo(DD); $q.flush();
+      var error, promise = $state.transitionTo("^.Z", null, { relative: $state.$current });
+      promise.catch(function(e) { error = e.detail; });
       $q.flush();
 
       var err = "Could not resolve '^.Z' from state 'DD'";
-      expect(function() { $state.transitionTo("^.Z", null, { relative: $state.$current }); }).toThrowError(Error, err);
+      expect(error).toBe(err);
     }));
 
 
@@ -176,7 +171,7 @@ describe('UI-Router v0.2.x $state events', function () {
       initStateTo(DD, {x: 1, y: 2, z: 3});
       var called;
       $rootScope.$on('$stateNotFound', function (ev, redirect) {
-        stateProvider.state(redirect.to, {parent: DD, params: {x: {}, y: {}, z: {}, w: {}}});
+        stateProvider.state(redirect.to, {parent: DD, params: { w: {}}});
         ev.retry = called = true;
       });
       var promise = $state.go('DDD', {w: 4});

@@ -1,6 +1,10 @@
-beforeEach(function() {
-  jasmine.addMatchers({
+/// <reference path='../../typings/jasmine/jasmine.d.ts' />
+/// <reference path='../../typings/angularjs/angular.d.ts' />
+/// <reference path='../../typings/angularjs/angular-mocks.d.ts' />
+import {map} from "../../src/common/common"
 
+beforeEach(function() {
+  jasmine.addMatchers(<any> {
     toEqualData: function() {
       return {
         compare: function(actual, expected) {

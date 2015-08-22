@@ -7,7 +7,7 @@ var extend = common.extend,
 var state = uiRouter.state;
 var StateMatcher = state.StateMatcher;
 var StateBuilder = uiRouter.state.StateBuilder;
-var StateReference = state.StateReference;
+var TargetState = state.TargetState;
 var UrlMatcher = uiRouter.url.UrlMatcher;
 
 describe('state helpers', function() {
@@ -181,32 +181,26 @@ describe('state helpers', function() {
     });
   });
 
-  describe('StateReference', function () {
+  describe('TargetState', function () {
     it('should be callable and return the correct values', function() {
-      var state = { name: "foo.bar" }, ref = new StateReference(state.name, state, {});
+      var state = { name: "foo.bar" }, ref = new TargetState(state.name, state, {});
       expect(ref.identifier()).toBe("foo.bar");
       expect(ref.$state()).toBe(state);
       expect(ref.params()).toEqual({});
     });
 
     it('should validate state definition', function() {
-      var ref = new StateReference("foo", null, {}, {});
+      var ref = new TargetState("foo", null, {}, { relative: {} });
       expect(ref.valid()).toBe(false);
       expect(ref.error()).toBe("Could not resolve 'foo' from state '[object Object]'");
 
-      ref = new StateReference("foo");
+      ref = new TargetState("foo");
       expect(ref.valid()).toBe(false);
       expect(ref.error()).toBe("No such state 'foo'");
 
-      ref = new StateReference("foo", { name: "foo" });
+      ref = new TargetState("foo", { name: "foo" });
       expect(ref.valid()).toBe(false);
       expect(ref.error()).toBe("State 'foo' has an invalid definition");
-
-      ref = new StateReference("foo", {
-        name: "foo", self: { "abstract": true }
-      });
-      expect(ref.valid()).toBe(false);
-      expect(ref.error()).toBe("Cannot transition to abstract state 'foo'");
     });
   });
 });
@@ -680,7 +674,7 @@ describe('state', function () {
         actual = err;
       });
       $q.flush();
-      expect(actual.message).toEqual(err)
+      expect(actual.detail).toEqual(err)
     }));
 
     it('uses the templateProvider to get template dynamically', inject(function ($state, $q) {
@@ -1738,4 +1732,37 @@ describe("Targeted Views", function() {
       expect(elem[0].querySelector("#named_A").textContent).toBe("fhqwhgads");
     }));
   });
+});
+
+
+describe('.onInvalid()', function() {
+  var states, scope, $compile, $injector, $q, $state, elem, $controllerProvider;
+  beforeEach(module('ui.router', function(_$provide_, _$controllerProvider_,_$stateProvider_) {
+    $stateProvider = _$stateProvider_;
+    $stateProvider.state("second", { template: "foo"} );
+  }));
+
+  it('should fire when the to-state reference is invalid', inject(function($state, $transition, $q) {
+    var ref = null;
+    $stateProvider.onInvalid(function($to$) {
+      ref = $to$;
+      return false;
+    });
+
+    $state.go("invalid");
+    $q.flush();
+    expect(ref).not.toBeNull();
+    expect(ref.valid()).toBeFalsy();
+  }));
+
+
+  it('should allow redirection if an ITargetState is returned', inject(function($state, $transition, $q) {
+    $stateProvider.onInvalid(function($to$) {
+      return $state.targetState("second", $to$.params(), $to$.options());
+    });
+
+    $state.go("invalid");
+    $q.flush();
+    expect($state.current.name).toBe("second")
+  }));
 });

@@ -562,14 +562,16 @@ describe('uiSrefActive', function() {
     expect(angular.element(template[0]).attr('class')).toBe('ng-scope active');
   }));
 
-  it('should match fuzzy on lazy loaded states', inject(function($transition, $rootScope, $q, $compile, $state) {
+  it('should match fuzzy on lazy loaded states', inject(function($rootScope, $q, $compile, $state) {
     el = angular.element('<div><a ui-sref="contacts.lazy" ui-sref-active="active">Lazy Contact</a></div>');
     template = $compile(el)($rootScope);
     $q.flush();
 
-    $transition.provider.onInvalid({}, function ($state, $transition$) {
-      _stateProvider.state('contacts.lazy', {});
-      return $state.redirect($transition$).to("contacts.lazy");
+    _stateProvider.onInvalid(function ($to$) {
+      if ($to$.name() === 'contacts.lazy') {
+        _stateProvider.state('contacts.lazy', {});
+        return $to$;
+      }
     });
 
     $state.transitionTo('contacts.item', { id: 1 });
@@ -588,9 +590,11 @@ describe('uiSrefActive', function() {
     template = $compile(el)($rootScope);
     $q.flush();
 
-    $transition.provider.onInvalid({}, function ($state, $transition$) {
-      _stateProvider.state('contacts.lazy', {});
-      return $state.redirect($transition$).to("contacts.lazy");
+    _stateProvider.onInvalid(function ($to$) {
+      if ($to$.name() === 'contacts.lazy') {
+        _stateProvider.state('contacts.lazy', {});
+        return $to$;
+      }
     });
 
     $state.transitionTo('contacts.item', { id: 1 });

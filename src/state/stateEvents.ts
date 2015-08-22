@@ -1,14 +1,21 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
-import {extend, forEach, isFunction} from "../common/common";
-import {RejectType} from "../transition/rejectFactory";
-import {StateParams} from "./state";
 import {IServiceProviderFactory} from "angular";
+import {extend, forEach, isFunction} from "../common/common";
 
+import {IStateService, IStateProvider} from "./interface";
+import {StateParams} from "./state";
+import TargetState from "./targetState";
+
+import {IRawParams} from "../params/interface";
+
+import {ITransitionService, ITransitionOptions, ITransitionDestination} from "../transition/interface"
+import {Transition} from "../transition/transition"
+import {RejectType} from "../transition/rejectFactory";
 
 stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$urlRouter'];
-function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRouter) {
-  if (!$transition$.$to().valid() || !$transition$.options().notify)
+function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootScope, $urlRouter) {
+  if (!$transition$.options().notify)
     return;
 
   var enabledEvents = $stateEvents.provider.enabledEvents();
@@ -37,10 +44,13 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
            * })
    * </pre>
    */
+  
+  let toParams = $transition$.params("to");
+  let fromParams = $transition$.params("from");
 
-  if (enabledEvents.$stateChangeStart && $rootScope.$broadcast('$stateChangeStart', $transition$.to(), $transition$.params(), $transition$.from(), $transition$.$from().params(), $transition$).defaultPrevented) {
+  if (enabledEvents.$stateChangeStart && $rootScope.$broadcast('$stateChangeStart', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$).defaultPrevented) {
     if (enabledEvents.$stateChangeCancel) {
-      $rootScope.$broadcast('$stateChangeCancel', $transition$.to(), $transition$.params(), $transition$.from(), $transition$.$from().params(), $transition$);
+      $rootScope.$broadcast('$stateChangeCancel', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$);
     }
     $urlRouter.update();
     return false;
@@ -63,8 +73,9 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
        * @param fromParams
        */
       $rootScope.$broadcast('$stateChangeSuccess',
-        $transition$.to(), extend(new StateParams(), $transition$.params()).$raw(),
-        $transition$.from(), extend(new StateParams(), $transition$.$from().params()).$raw());
+        //TODO: fix the params
+        $transition$.to(), extend(new StateParams(), toParams).$raw(),
+        $transition$.from(), extend(new StateParams(), fromParams).$raw());
     });
   }
 
@@ -92,8 +103,8 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
        * @param {Error} error The resolve error object.
        */
       var evt = $rootScope.$broadcast('$stateChangeError',
-        $transition$.to(), extend(new StateParams(), $transition$.params()).$raw(),
-        $transition$.from(), extend(new StateParams(), $transition$.$from().params()).$raw(), error);
+        $transition$.to(), extend(new StateParams(), toParams).$raw(),
+        $transition$.from(), extend(new StateParams(), fromParams).$raw(), error);
 
       if (!evt.defaultPrevented) {
         $urlRouter.update();
@@ -102,11 +113,8 @@ function stateChangeStartHandler($transition$, $stateEvents, $rootScope, $urlRou
   }
 }
 
-stateNotFoundHandler.$inject = ['$transition$', '$state', '$rootScope', '$urlRouter'];
-function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
-  if ($transition$.$to().valid())
-    return;
-
+stateNotFoundHandler.$inject = ['$to$', '$from$', '$state', '$rootScope', '$urlRouter'];
+export function stateNotFoundHandler($to$: TargetState, $from$: TargetState, $state: IStateService, $rootScope, $urlRouter) {
   /**
    * @ngdoc event
    * @name ui.router.state.$state#$stateNotFound
@@ -115,7 +123,7 @@ function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
    * @description
    * Fired when a requested state **cannot be found** using the provided state name during transition.
    * The event is broadcast allowing any handlers a single chance to deal with the error (usually by
-   * lazy-loading the unfound state). A `StateReference` object is passed to the listener handler,
+   * lazy-loading the unfound state). A `TargetState` object is passed to the listener handler,
    * you can see its properties in the example. You can use `event.preventDefault()` to abort the
    * transition and the promise returned from `transitionTo()` will be rejected with a
    * `'transition aborted'` error.
@@ -124,7 +132,6 @@ function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
    * @param {Object} unfoundState Unfound State information. Contains: `to, toParams, options` properties.
    * @param {State} fromState Current state object.
    * @param {Object} fromParams Current state params.
-   * @param {Transition} transition Current transition object
    * @example
    *
    * <pre>
@@ -140,16 +147,14 @@ function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
    * });
    * </pre>
    */
-  var options = $transition$.options();
-  var redirect = { to: $transition$.to(), toParams: $transition$.params(), options: options };
-  var e = $rootScope.$broadcast('$stateNotFound', redirect, $transition$.from(), $transition$.$from().params(), $transition$);
+  var redirect = { to: $to$.identifier(), toParams: $to$.params(), options: $to$.options() };
+  var e = $rootScope.$broadcast('$stateNotFound', redirect, $from$.state(), $from$.params());
 
   if (e.defaultPrevented || e.retry)
     $urlRouter.update();
 
-  function redirectFn() {
-    return $state.redirect($transition$)
-      .to(redirect.to, redirect.toParams, extend({ $isRetrying: true }, options));
+  function redirectFn(): TargetState {
+    return $state.targetState(redirect.to, redirect.toParams, redirect.options);
   }
 
   if (e.defaultPrevented) {
@@ -157,13 +162,11 @@ function stateNotFoundHandler($transition$, $state, $rootScope, $urlRouter) {
   } else if (e.retry || $state.get(redirect.to)) {
     return e.retry && isFunction(e.retry.then) ? e.retry.then(redirectFn) : redirectFn();
   }
-
-  throw new Error($transition$.$to().error());
 }
 
 
-$StateEventsProvider.$inject = [];
-function $StateEventsProvider() {
+$StateEventsProvider.$inject = ['$stateProvider'];
+function $StateEventsProvider($stateProvider: IStateProvider) {
   $StateEventsProvider.prototype.instance = this;
 
   var runtime = false;
@@ -189,11 +192,11 @@ function $StateEventsProvider() {
     return enabledStateEvents;
   };
 
-  this.$get = [ '$transition', function($transition) {
+  this.$get = [ '$transition', function($transition: ITransitionService) {
     runtime = true;
 
     if (enabledStateEvents.$stateNotFound)
-      $transition.provider.onBefore({}, stateNotFoundHandler, { priority: 1000 });
+      $stateProvider.onInvalid(stateNotFoundHandler);
     if (enabledStateEvents. $stateChangeStart)
       $transition.provider.onBefore({}, stateChangeStartHandler, { priority: 1000 });
 

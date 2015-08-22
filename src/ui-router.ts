@@ -9,11 +9,14 @@ import Type from "./params/type"
 import paramTypes from "./params/paramTypes"
 var params = { Param, ParamSet, Type, paramTypes };
 
-import Resolvable from "./resolve/resolvable"
-import Path from "./resolve/path"
-import PathElement from "./resolve/pathElement"
+import Path from "./path/path"
+import PathFactory from "./path/pathFactory"
+var path = { Path, PathFactory }
+
 import PathContext from "./resolve/pathContext"
-var resolve = { Resolvable, Path, PathElement, PathContext };
+import Resolvable from "./resolve/resolvable"
+import ResolveContext from "./resolve/resolveContext"
+var resolve = { Path, PathContext, Resolvable, ResolveContext };
 
 import Glob from "./state/glob";
 import * as stateInterface from "./state/interface";
@@ -24,11 +27,11 @@ import * as stateEvents from "./state/stateEvents";
 import * as stateFilters from "./state/stateFilters";
 import StateMatcher from "./state/stateMatcher";
 import StateQueueManager from "./state/stateQueueManager";
-import StateReference from "./state/stateReference";
+import TargetState from "./state/targetState";
 //import StateService from "./state/stateService";
 import Queue from "./common/queue";
 var state = { Glob, stateInterface, state: stateState, StateBuilder, stateDirectives,
-  stateEvents, stateFilters, StateMatcher, StateQueueManager, StateReference, Queue};
+  stateEvents, stateFilters, StateMatcher, StateQueueManager, TargetState, Queue};
 
 import HookBuilder from "./transition/hookBuilder"
 import * as rejectFactory from "./transition/rejectFactory"
@@ -52,4 +55,4 @@ import * as viewScroll from "./view/viewScroll" // TODO
 var view = { viewInterface, templateFactory, view: _view, viewDirective, viewScroll };
 
 // Export the submodules
-export { common, params, resolve, state, transition, url, view }
+export { common, params, path, resolve, state, transition, url, view }

@@ -1,11 +1,15 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-
 import {pick, map}  from "../common/common";
 import trace  from "../common/trace";
-import {IPromise} from "angular";
-import {IState} from "../state/interface";
 import {runtime} from "../common/angular1"
-import Path from "./path"
+import {IPromise} from "angular";
+
+import {IState} from "../state/interface";
+
+import {IResolvables, IOptions1} from "./interface"
+import ResolveContext from "./resolveContext"
+
+import {IResolvePath} from "../path/interface"
 
 /**
  * The basic building block for the resolve system.
@@ -27,7 +31,7 @@ export default class Resolvable {
     this.deps = runtime.$injector.annotate(resolveFn);
   }
 
-  name: String;
+  name: string;
   resolveFn: Function;
   state: IState;
   deps: string[];
@@ -46,30 +50,30 @@ export default class Resolvable {
   // - wait for resolveFn promise to resolve
   // - store unwrapped data
   // - resolve the Resolvable's promise
-  resolveResolvable(path: Path, options) {
-    options = options || {};
+  resolveResolvable(resolveContext: ResolveContext, options: IOptions1 = {}) {
+    let {state, name, deps, resolveFn} = this;
+    
     if (options.trace) trace.traceResolveResolvable(this, options);
     // First, set up an overall deferred/promise for this Resolvable
     var deferred = runtime.$q.defer();
     this.promise = deferred.promise;
-    var pathContext = path.pathFromRoot(path.elementForState(this.state));
     // Load a map of all resolvables for this state from the context path
     // Omit the current Resolvable from the result, so we don't try to inject this into this
-    var ancestorsByName = pathContext.getResolvables({  omitOwnLocals: [ this.name ] });
+    var ancestorsByName: IResolvables = resolveContext.getResolvables(null, {  omitOwnLocals: [ name ] });
 
     // Limit the ancestors Resolvables map to only those that the current Resolvable fn's annotations depends on
-    var depResolvables = pick(ancestorsByName, this.deps);
+    var depResolvables: IResolvables = <any> pick(ancestorsByName, deps);
 
     // Get promises (or synchronously invoke resolveFn) for deps
-    var depPromises: any = map(depResolvables, function(resolvable) {
-      return resolvable.get(pathContext, options);
+    var depPromises: any = map(depResolvables, function(resolvable: Resolvable) {
+      return resolvable.get(resolveContext, options);
     });
 
     // Return a promise chain that waits for all the deps to resolve, then invokes the resolveFn passing in the
     // dependencies as locals, then unwraps the resulting promise's data.
     return runtime.$q.all(depPromises).then(locals => {
       try {
-        var result = runtime.$injector.invoke(this.resolveFn, this.state, locals);
+        var result = runtime.$injector.invoke(resolveFn, state, locals);
         deferred.resolve(result);
       } catch (error) {
         deferred.reject(error);
@@ -82,12 +86,9 @@ export default class Resolvable {
     });
   }
 
-  get(pathContext, options): IPromise<any> {
-    return this.promise || this.resolveResolvable(pathContext, options);
+  get(resolveContext: ResolveContext, options?: IOptions1): IPromise<any> {
+    return this.promise || this.resolveResolvable(resolveContext, options);
   }
-
-  // TODO: nuke this in favor of resolveResolvable
-  resolve(pathContext, options) { return this.resolveResolvable(pathContext, options); }
 
   toString() {
     return `Resolvable(name: ${this.name}, state: ${this.state.name}, requires: [${this.deps}])`;

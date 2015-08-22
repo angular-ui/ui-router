@@ -1,39 +1,56 @@
-import {TransitionRejection, RejectType} from "../transition/rejectFactory";
-import {Transition} from "../transition/transition";
-import {copy, prop} from "../common/common";
+import {IQService} from "angular"
+import {copy, prop} from "../common/common"
+import Queue from "../common/queue"
+
+import {ITreeChanges} from "../transition/interface"
+import {Transition} from "../transition/transition"
+import {TransitionRejection, RejectType} from "../transition/rejectFactory"
+
+import {IStateService} from "../state/interface"
+
+import {IResolvePath} from "../path/interface"
 
 export default class StateHandler {
-  constructor(private $urlRouter, private $view, private $state, private $stateParams, private $q, private transQueue) {
-    
-  } 
+  constructor(private $urlRouter,
+     private $view, // service
+     private $state: IStateService,
+     private $stateParams, // service/obj
+     private $q: IQService,
+     private activeTransQ: Queue<Transition>,
+     private changeHistory: Queue<ITreeChanges>
+  ) { }
   
-  runTransition(transition) {
+  runTransition(transition: Transition) {
     // When the transition promise (prepromise; before callbacks) is resolved/rejected, update the $state service
-    const handleSuccess = () => this.transitionSuccess(transition)
-    const handleFailure = (error) => this.transitionFailure(transition, error)
+    const handleSuccess = (treeChanges: ITreeChanges) => this.transitionSuccess(treeChanges, transition);
+    const handleFailure = (error) => this.transitionFailure(transition, error);
+    this.activeTransQ.clear();
+    this.activeTransQ.enqueue(transition);
     transition.run();
     return transition.prepromise.then(handleSuccess, handleFailure);
-  };
+  }
 
-  transitionSuccess(transition) {
-    let {$view, $state, transQueue} = this;
+  transitionSuccess(treeChanges: ITreeChanges, transition: Transition) {
+    let {$view, $state, activeTransQ, changeHistory} = this;
     // TODO: sync on entering/exiting state, not transition success?
-    transition.views("exiting").forEach($view.reset.bind($view));
+    transition.views("exiting", "from").forEach($view.reset.bind($view));
     $view.sync();
-    transition.views("entering").forEach($view.registerStateViewConfig.bind($view));
+    transition.views("entering", "to").forEach($view.registerStateViewConfig.bind($view));
     $view.sync();
 
     // Update globals in $state
-    $state.$current = transition.$to().$state();
-    $state.current = transition.$to().state();
-
+    $state.$current = transition.$to();
+    $state.current = $state.$current.self;
     this.updateStateParams(transition);
-    transQueue.clear();
+    activeTransQ.remove(transition);
+    changeHistory.enqueue(treeChanges);
+
     return transition;
   }
 
-  transitionFailure(transition, error) {
-    let {$state, $stateParams, $q, transQueue} = this;
+  transitionFailure(transition: Transition, error) {
+    let {$state, $stateParams, $q, activeTransQ} = this;
+    activeTransQ.remove(transition);
     // Handle redirect and abort
     if (error instanceof TransitionRejection) {
       if (error.type === RejectType.IGNORED) {
@@ -47,7 +64,7 @@ export default class StateHandler {
       if (error.type === RejectType.SUPERSEDED) {
         //if (error.redirected && error.detail instanceof Transition) { // TODO: expose Transition class for instanceof
         if (error.redirected && error.detail instanceof Transition) {
-          transQueue.enqueue(error.detail);
+          activeTransQ.enqueue(error.detail);
           return this.runTransition(error.detail);
         }
       }
@@ -56,7 +73,7 @@ export default class StateHandler {
     return $q.reject(error);
   }
 
-  updateStateParams(transition) {
+  updateStateParams(transition: Transition) {
     let {$urlRouter, $state, $stateParams} = this;
     var options = transition.options();
     $state.params = transition.params();

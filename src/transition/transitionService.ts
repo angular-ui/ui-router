@@ -1,23 +1,25 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
-import {IServiceProviderFactory} from "angular";
-import {Transition} from "./transition";
-import Glob from "../state/glob";
-import {IStateDeclaration, IState} from "../state/interface";
-import {extend, is, isFunction, isString, val, noop} from "../common/common";
+import {extend, defaults, objectKeys, pick, find, is, isFunction, isString, val, noop} from "../common/common"
+import {IServiceProviderFactory} from "angular"
 
-export interface ITransitionOptions {
-  location    ?: boolean,
-  relative    ?: (boolean|IStateDeclaration|IState),
-  inherit     ?: boolean,
-  notify      ?: boolean,
-  reload      ?: (boolean|string|IStateDeclaration|IState),
-  reloadState ?: (IState),
-  trace       ?: boolean,
-  custom      ?: any,
-  previous    ?: Transition,
-  current     ?: () => Transition
-}
+import {Transition} from "./transition"
+
+import {IStateDeclaration, IState} from "../state/interface"
+import TargetState from "../state/targetState"
+import {StateParams} from "../state/state"
+import Glob from "../state/glob"
+
+import {IPath, IParamsPath, IResolvePath, ITransPath, INode, IParamsNode, IResolveNode} from "../path/interface"
+import Path from "../path/path"
+
+import {IRawParams} from "../params/interface"
+
+import {IResolvables} from "../resolve/interface"
+import ResolveContext from "../resolve/resolveContext"
+
+import {ITransitionService, ITransitionOptions, IStateMatch, IMatchCriteria} from "./interface"
+
 
 /**
  * The default transition options.
@@ -46,7 +48,7 @@ export var defaultTransOpts: ITransitionOptions = {
  * - If a function, matchState calls the function with the state and returns true if the function's result is truthy.
  * @returns {boolean}
  */
-export function matchState(state, matchCriteria) {
+export function matchState(state: IState, matchCriteria: (string|IStateMatch)) {
   var toMatch = isString(matchCriteria) ? [matchCriteria] : matchCriteria;
 
   function matchGlobs(state) {
@@ -60,10 +62,11 @@ export function matchState(state, matchCriteria) {
     return false;
   }
 
-  return !!(isFunction(toMatch) ? toMatch : matchGlobs)(state);
+  let matchFn = <any> (isFunction(toMatch) ? toMatch : matchGlobs);
+  return !!matchFn(state);
 }
 
-export var $transition: TransitionService = {};
+export var $transition: ITransitionService = <any> {};
 
 
 /**
@@ -75,7 +78,7 @@ function $TransitionProvider() {
   $TransitionProvider.prototype.instance = this;
 
   var transitionEvents = {
-    onBefore: [], onInvalid: [], onStart: [], on: [], entering: [], exiting: [], onSuccess: [], onError: []
+    onBefore: [], onStart: [], on: [], entering: [], exiting: [], onSuccess: [], onError: []
   };
 
   // Return a registration function of the requested type.
@@ -128,37 +131,6 @@ function $TransitionProvider() {
    *        {function}s for values, like the `resolve` object in {@link ui.router.state.$stateProvider#state $stateProvider.state}.
    */
   this.onBefore = registerEventHook("onBefore");
-
-  /**
-   * @ngdoc function
-   * @name ui.router.state.$transitionProvider#onInvalid
-   * @methodOf ui.router.state.$transitionProvider
-   *
-   * @description
-   * Registers a function to be injected and invoked when a transition to an invalid state reference has been started.
-   * This function can be injected with one additional special value:
-   * - **`$transition$`**: The current transition
-   *
-   * @param {object} matchObject An object that specifies which transitions to invoke the callback for (typically this
-   * value will be {} for this callback, to match all invalid transitions)
-   *
-   * - **`to`** - {string|function=} - A glob string that matches the 'to' state's name.
-   *    Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
-   * - **`from`** - {string|function=} - A glob string that matches the 'from' state's name.
-   *    Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
-   *
-   * @param {function} callback
-   *   The function which will be injected and invoked, when a matching transition is started.
-   *   The function may optionally return a {boolean|Transition|object} value which will affect the current transition:
-   *
-   *     - **`false`** to abort the current transition
-   *     - **{Transition}** A Transition object from the $transition$.redirect() factory. If returned, the
-   *        current transition will be aborted and the returned Transition will supersede it.
-   *     - **{object}** A map of resolve functions to be added to the current transition. These resolves will be made
-   *        available for injection to further steps in the transition.  The object should have {string}s for keys and
-   *        {function}s for values, like the `resolve` object in {@link ui.router.state.$stateProvider#state $stateProvider.state}.
-   */
-  this.onInvalid = registerEventHook("onInvalid");
 
   /**
    * @ngdoc function
@@ -291,11 +263,11 @@ function $TransitionProvider() {
    */
   this.onError = registerEventHook("onError");
 
-  function EventHook(matchCriteria, callback, options) {
+  function EventHook(matchCriteria: IMatchCriteria, callback: () => any, options = { priority: 0 }) {
     matchCriteria = extend({ to: val(true), from: val(true) }, matchCriteria);
     this.callback = callback;
     this.priority = options.priority || 0;
-    this.matches = function matches(to, from) {
+    this.matches = function matches(to: IState, from: IState) {
       return matchState(to, matchCriteria.to) && matchState(from, matchCriteria.from);
     };
   }
@@ -314,33 +286,20 @@ function $TransitionProvider() {
   this.$get = $get;
   $get.$inject = ['$q', '$injector'];
   function $get(   $q,   $injector ) {
-
-    $TransitionProvider.prototype.instance.on({}, function $rejectIfInvalid($transition$) {
-      if (!$transition$.$to().valid())
-        throw new Error($transition$.$to().error());
-    });
-
-    $transition.create = function create(from, to, options) {
-      return new Transition(from, to, options || {});
+    $transition.create = function create(fromPath: ITransPath, targetState: TargetState) {
+      return new Transition(fromPath, targetState);
     };
 
     $transition.isTransition = is(Transition);
 
     $transition.provider = $TransitionProvider.prototype.instance;
 
-    (<any> $transition).$$hooks = function(type: string) {
+    $transition.$$hooks = function(type: string) {
       return [].concat(transitionEvents[type])
     };
 
     return $transition;
   }
-}
-
-interface TransitionService {
-  transition?: Object,
-  create?: Function,
-  isTransition?: Function,
-  provider?: Object
 }
 
 angular.module('ui.router.state')

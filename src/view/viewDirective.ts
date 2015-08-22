@@ -297,7 +297,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
 
             $element.data('$ngControllerController', controllerInstance);
             $element.children().data('$ngControllerController', controllerInstance);
-          });
+          }).catch(error => console.log(error));
         }
 
         link(scope);

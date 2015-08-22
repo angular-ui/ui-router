@@ -1,9 +1,6 @@
 import {extend, isString} from "../common/common"
-import StateReference from "./stateReference"
-import {IState, IStateDeclaration} from "./interface"
-
-type PStateRef = (string|IStateDeclaration|IState);
-
+import TargetState from "./targetState"
+import {IState, IStateDeclaration, IStateOrName} from "./interface"
 
 export default class StateMatcher {
   constructor (private _states: {[key: string]: IState}) { }
@@ -14,7 +11,7 @@ export default class StateMatcher {
   }
 
 
-  find(stateOrName: PStateRef, base?: PStateRef): IState {
+  find(stateOrName: IStateOrName, base?: IStateOrName): IState {
     if (!stateOrName && stateOrName !== "") return undefined;
     let isStr = isString(stateOrName);
     let name: string = isStr ? stateOrName : (<any>stateOrName).name;
@@ -28,11 +25,7 @@ export default class StateMatcher {
     return undefined;
   }
 
-  reference(identifier: PStateRef, base: PStateRef, params): StateReference {
-    return new StateReference(identifier, this.find(identifier, base), params, base);
-  }
-
-  resolvePath(name: string, base: PStateRef) {
+  resolvePath(name: string, base: IStateOrName) {
     if (!base) throw new Error(`No reference point given for path '${name}'`);
     
     let baseState: IState = this.find(base);

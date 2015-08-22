@@ -8,11 +8,11 @@ We've totally redesigned UI-Router under the covers (rewrote about 60% of the co
 ##### Resolves
 The Resolve API has been rewritten from scratch.  We've introduced the concept of a resolve policy, which can be one of:
 
-* eager: All eager resolves for a transition are resolved at the beginning, before any states are entered (this is way UI-Router 0.2.x handles resolves)
-* lazy: Lazy resolves are resolved when the state they are declared on is entered.
-* jit: Just-In-Time resolves do not resolve until just before they are injected into some other function. (extremely lazy)
+* EAGER: All eager resolves for a transition are resolved at the beginning, before any states are entered (this is way UI-Router 0.2.x handles resolves)
+* LAZY: Lazy resolves are resolved when the state they are declared on is entered.
+* JIT: Just-In-Time resolves do not resolve until just before they are injected into some other function. (extremely lazy)
 
-In 1.0, by default, resolves on your states are "jit"
+In 1.0, by default, resolves on your states are "JIT"
 
 ##### Transition
 

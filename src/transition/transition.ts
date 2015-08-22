@@ -1,34 +1,39 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-"use strict";
-
 import {runtime} from "../common/angular1";
 import {IPromise} from "angular";
 import trace from "../common/trace";
-import {$transition, matchState, ITransitionOptions} from "./transitionService";
+
+import {ITransitionOptions, ITreeChanges} from "./interface";
+import {$transition, matchState} from "./transitionService";
 import TransitionHook from "./transitionHook";
 import HookBuilder from "./hookBuilder";
-import Resolvable from "../resolve/resolvable";
-import Path from "../resolve/path";
-import PathElement from "../resolve/pathElement";
 import {RejectFactory} from "./rejectFactory"
-import {StateParams} from "../state/state"
-import StateReference from "../state/stateReference"
-import {IState, IStateDeclaration} from "../state/interface";
+
+import {IParamsNode, IResolveNode, ITransNode, IPath, IParamsPath, IResolvePath, ITransPath} from "../path/interface";
+import Path from "../path/path";
+import PathFactory from "../path/pathFactory"
+
+import {IPromises, IResolvables} from "../resolve/interface";
+import Resolvable from "../resolve/resolvable";
+import ResolveContext from "../resolve/resolveContext";
 import PathContext from "../resolve/pathContext";
-import {IStateViewConfig} from "../state/interface";
+
+
+import {IStateViewConfig, IStateParams} from "../state/interface";
+import {StateParams} from "../state/state"
+import TargetState from "../state/targetState"
+import {IState, IStateDeclaration} from "../state/interface";
+
+import {IRawParams} from "../params/interface"
+import ParamValues from "../params/paramValues"
+
 import {defaults, eq, extend, filter, flatten, forEach, identity, invoke, is, isEq, isFunction, isObject, isPromise, isDefined,
-    map, noop, not, objectKeys, parse, pattern, pipe, pluck, prop, toJson, unnest, unroll, val, pairs} from "../common/common";
+    map, noop, not, objectKeys, parse, pattern, pipe, pluck, prop, toJson, unnest, unroll, val, pairs, abstractKey} from "../common/common";
+
 
 var transitionCount = 0, REJECT = new RejectFactory();
 
-
-interface TreeChanges {
-  from: Path;
-  to: Path;
-  retained: Path;
-  entering: Path;
-  exiting: Path;
-}
+const stateSelf = (state: IState) => state.self;
 
 /**
  * @ngdoc object
@@ -49,80 +54,40 @@ export class Transition {
   $id: number;
 
   private _options: ITransitionOptions;
+  private _treeChanges: ITreeChanges;
 
-  private _deferreds: any;
-
-  private _from: StateReference;
-  private _to: StateReference;
-  private _fromPath: Path;
+  _deferreds: any;
 
   promise: IPromise<any>;
   prepromise: IPromise<any>;
   redirects: IPromise<any>;
 
-  constructor(from: StateReference, to: StateReference, options: ITransitionOptions) {
+  constructor(fromPath: ITransPath, targetState: TargetState) {
+    if (targetState.error()) throw new Error(targetState.error());
+
+    this._options = extend({ current: val(this) }, targetState.options());
     this.$id = transitionCount++;
-
-    this._from = from;
-    this._to = to;
-
-    this._options = extend({current: val(this)}, options);
+    let toPath = PathFactory.buildToPath(fromPath, targetState);
+    this._treeChanges = PathFactory.treeChanges(fromPath, toPath, this._options.reloadState);
 
     this._deferreds = {
       prehooks: runtime.$q.defer(), // Resolved when the transition is complete, but success callback not run yet
       posthooks: runtime.$q.defer(), // Resolved when the transition is complete, after success callbacks
       redirects: runtime.$q.defer() // Resolved when any transition redirects are complete
     };
-
-    var fromState = from.$state();
-    var toState = to.$state();
-    this._fromPath = new Path(fromState.path);
-
-    var fromParams = extend(new StateParams(), from.params());
-    var toParams = (options.inherit && toState) ? fromParams.$inherit(to.params(), fromState, toState) : to.params();
-    toParams = toState ? extend(new StateParams(), toState.params.$$values(toParams)) : toParams;
-
-    this._to = (toParams && to.params(toParams)) || to;
-
-    this._treeChanges = this._calcTreeChanges(toParams, fromParams);
+    
     // Expose three promises to users of Transition
-    this.promise = this._deferreds.posthooks.promise;
     this.prepromise = this._deferreds.prehooks.promise;
+    this.promise = this._deferreds.posthooks.promise;
     this.redirects = this._deferreds.redirects.promise;
   }
 
-  _treeChanges: TreeChanges;
-
-  _calcTreeChanges(toParams, fromParams): TreeChanges {
-    function nonDynamicParams(state) {
-      return state.params.$$filter(not(prop('dynamic')));
-    }
-
-    var state, keep = 0;
-    var toState = this._to.$state(), fromState = this._from.$state();
-    if (this._to.valid()) {
-      state = toState.path[keep];
-      while (state && state === fromState.path[keep] && state !== this._options.reloadState && nonDynamicParams(state).$$equals(toParams, fromParams)) {
-        keep++;
-        state = toState.path[keep];
-      }
-    }
-
-    var from = this._fromPath;
-    var retained = from.slice(0, keep);
-    var exiting = from.slice(keep);
-    var entering = this._to.valid() ? new Path(toState.path).slice(keep) : new Path([]);
-    var to = retained.concat(entering);
-
-    return { from, to, retained, exiting, entering };
-  }
-
   $from() {
-    return this._from;
+    return  this._treeChanges.from.last().state;
   }
 
   $to() {
-    return this._to;
+    return this._treeChanges.to.last().state;
   }
 
   /**
@@ -133,10 +98,10 @@ export class Transition {
    * @description
    * Returns the origin state of the current transition, as passed to the `Transition` constructor.
    *
-   * @returns {StateReference} The origin state reference of the transition ("from state").
+   * @returns {TargetState} The origin state reference of the transition ("from state").
    */
   from() {
-    return this._from.identifier();
+    return this.$from().self;
   }
 
   /**
@@ -147,10 +112,10 @@ export class Transition {
    * @description
    * Returns the target state of the current transition, as passed to the `Transition` constructor.
    *
-   * @returns {StateReference} The state reference the transition is targetting ("to state")
+   * @returns {TargetState} The state reference the transition is targetting ("to state")
    */
   to() {
-    return this._to.identifier();
+    return this.$to().self;
   }
 
   /**
@@ -161,14 +126,14 @@ export class Transition {
    * @description
    * Determines whether two transitions are equivalent.
    */
-  is(compare) {
+  is(compare: (Transition|{to: any, from: any})) {
     if (compare instanceof Transition) {
       // TODO: Also compare parameters
-      return this.is({to: compare.$to().$state().name, from: compare.$from.$state().name});
+      return this.is({to: compare.$to().name, from: compare.$from().name});
     }
     return !(
-        (compare.to && !matchState(this.$to().$state(), compare.to)) ||
-        (compare.from && !matchState(this.$from().$state(), compare.from))
+        (compare.to && !matchState(this.$to(), compare.to)) ||
+        (compare.from && !matchState(this.$from(), compare.from))
     );
   }
 
@@ -182,8 +147,9 @@ export class Transition {
    *
    * @returns {StateParams} the StateParams object for the transition.
    */
-  params() {
-    return this._to.params();
+  // TODO
+  params(pathname: string = "to"): ParamValues {
+    return this._treeChanges[pathname].last().paramValues;
   }
 
   /**
@@ -222,9 +188,8 @@ export class Transition {
    *
    * @returns {Array} Returns an array of states that will be entered in this transition.
    */
-  entering() {
-    var entering = this._treeChanges.entering;
-    return pluck(entering.elements, 'state');
+  entering(): IStateDeclaration[] {
+    return this._treeChanges.entering.states().map(stateSelf);
   }
 
   /**
@@ -237,9 +202,8 @@ export class Transition {
    *
    * @returns {Array} Returns an array of states that will be exited in this transition.
    */
-  exiting() {
-    var exiting = this._treeChanges.exiting;
-    var exitingStates = <any[]> pluck(exiting.elements, 'state');
+  exiting(): IStateDeclaration[] {
+    var exitingStates = this._treeChanges.exiting.states().map(stateSelf);
     exitingStates.reverse();
     return exitingStates;
   }
@@ -255,26 +219,27 @@ export class Transition {
    * @returns {Array} Returns an array of states that were entered in a previous transition that
    *           will not be exited.
    */
-  retained() {
-    var retained = this._treeChanges.retained;
-    return pluck(retained.elements, 'state');
+  retained(): IStateDeclaration[] {
+    return this._treeChanges.retained.states().map(stateSelf);
   }
 
-  context(pathElement) {
-    return new PathContext(pathElement, this._treeChanges.to, this._options, runtime.$injector);
+  // TODO
+  context(pathname: string, state: IState): PathContext {
+    let path = this._treeChanges[pathname].pathFromRootTo(state);
+    return new PathContext(new ResolveContext(path), state, runtime.$injector, this._options);
   }
 
   /**
    * Returns a list of StateViewConfig objects;
    * Returns one StateViewConfig for each view in each state in a named path of the transition's tree changes
    */
-  views(pathname: string = "entering") {
-    var path = this._treeChanges[pathname];
-    var states = states || path.states();
-    var params = this._to.params();
+  views(pathname: string = "entering", contextPathname: string = "to") {
+    var path: IResolvePath = this._treeChanges[pathname];
+    var states: IState[] = states || path.states();
+    var params: ParamValues = this.params();
 
-    return unnest(map(states, (state) => {
-      var context = state, locals = this.context(path.elementForState(state));
+    return unnest(map(states, (state: IState) => {
+      var context = state, locals: PathContext = this.context(contextPathname, state);
       const makeViewConfig = ([name, view]) => { return {name, view, context, locals, params} };
       return pairs(state.views).map(makeViewConfig)
     }));
@@ -292,10 +257,10 @@ export class Transition {
    *
    * @returns {Transition} Returns a new `Transition` instance.
    */
-  redirect(newTo, newOptions) {
-    return new Transition(this._from, newTo, extend(newOptions || this.options(), {
-      previous: this
-    }));
+  redirect(targetState: TargetState): Transition {
+    let newOptions = extend({}, this.options(), targetState.options(), { previous: this} );
+    targetState = new TargetState(targetState.identifier(), targetState.$state(), targetState.params(), newOptions);
+    return new Transition(this._treeChanges.from, targetState);
   }
 
   /**
@@ -310,12 +275,16 @@ export class Transition {
    * @returns {boolean} Whether the transition should be ignored.
    */
   ignored() {
+    let {to, from} = this._treeChanges;
+    let [toState, fromState]  = [to, from].map((path) => path.last().state);
+    let [toParams, fromParams]  = [to, from].map((path) => path.last().paramValues);
     return !this._options.reload &&
-        this._to.$state() === this._from.$state() &&
-        this._to.$state().params.$$filter(not(prop('dynamic'))).$$equals(this._to.params(), this._from.params());
+        toState === fromState &&
+        toState.params.$$filter(not(prop('dynamic'))).$$equals(toParams, fromParams);
   }
 
   run () {
+    if (this.error()) throw new Error(this.error());
     if (this._options.trace) trace.traceTransitionStart(this);
     var baseHookOptions = {
       trace: this._options.trace,
@@ -323,7 +292,7 @@ export class Transition {
       current: this._options.current
     };
 
-    var hookBuilder = new HookBuilder($transition, this, baseHookOptions);
+    var hookBuilder = new HookBuilder($transition, this._treeChanges, this, baseHookOptions);
 
     if (this.ignored()) {
       if (this._options.trace) trace.traceTransitionIgnored(this);
@@ -335,56 +304,27 @@ export class Transition {
 
     $transition.transition = this;
 
-    var treeChanges = this._treeChanges;
-    var { entering, exiting } = treeChanges;
-    var toPath = treeChanges.to, fromPath = treeChanges.from;
-    var to = this._to.$state(), from = this._from.$state();
-    var fromParams = this._from.params();
+    let {to, from, entering, exiting} = this._treeChanges;
+    let [toState, fromState]    = [to, from].map(path => path.last().state);
+    let [toParams, fromParams]  = [to, from].map(path => path.last().paramValues);
+    let tLocals = { $transition$: this };
+    
+    let fromContext = new ResolveContext(from);
+    let toContext = new ResolveContext(to);
 
-    var options = this._options;
-    var tLocals = {$transition$: this};
-
-    var rootPE = new PathElement(this._from.$state().root());
-    var rootPath = new Path([rootPE]);
-    var exitingElements = exiting.slice(0).reverse().elements;
-    var enteringElements = entering.elements;
+    let toFrom = { to: toState, from: fromState };
 
     // Build a bunch of arrays of promises for each step of the transition
-    // TODO: Provide makeSteps with the StateReference, not the $state().
-    var onBeforeHooks = hookBuilder.makeSteps("onBefore", to, from, rootPE, tLocals, rootPath, {async: false});
+    let onBeforeHooks       = hookBuilder.makeSteps("onBefore",   toState, toFrom, fromContext, tLocals, {async: false});
+    let onStartHooks        = hookBuilder.makeSteps("onStart",    toState, toFrom, fromContext, tLocals);
+    let transitionOnHooks   = hookBuilder.makeSteps("on",         toState, toFrom, toContext, tLocals);
 
-    var onInvalidHooks = hookBuilder.makeSteps("onInvalid", to, from, rootPE, tLocals, rootPath);
-
-    var onStartHooks = hookBuilder.makeSteps("onStart", to, from, rootPE, tLocals, rootPath);
-
-    var transitionOnHooks = hookBuilder.makeSteps("on", to, from, rootPE, tLocals, rootPath);
-
-    var exitingStateHooks = map(exitingElements, function (elem) {
-      var stepLocals = {$state$: elem.state, $stateParams: elem.state.params.$$values(fromParams)};
-      var locals = extend({}, tLocals, stepLocals);
-      var steps = hookBuilder.makeSteps("exiting", to, elem.state, elem, locals, fromPath);
-
-      return !elem.state.self.onExit ? steps : steps.concat([
-        new TransitionHook(elem, elem.state.self.onExit, locals, fromPath, baseHookOptions)
-      ]);
-    });
-
-    var enteringStateHooks = map(enteringElements, function (elem) {
-      var stepLocals = {$state$: elem.state, $stateParams: elem.state.params.$$values(fromParams)};
-      var locals = extend({}, tLocals, stepLocals);
-      var lazyResolveStep = hookBuilder.makeLazyResolvePathElementStep(toPath, elem, locals);
-      var steps = [lazyResolveStep].concat(hookBuilder.makeSteps("entering", elem.state, from, elem, locals, toPath));
-
-      return !elem.state.self.onEnter ? steps : steps.concat([
-        new TransitionHook(elem, elem.state.self.onEnter, locals, toPath, baseHookOptions)
-      ]);
-    });
-
-    var eagerResolves = hookBuilder.makeEagerResolvePathStep(toPath, tLocals);
+    var eagerResolves       = hookBuilder.makeEagerResolvePathStep(to, tLocals);
+    let exitingStateHooks   = hookBuilder.exitingStateHooks(fromContext, tLocals, toParams, this._options);
+    let enteringStateHooks  = hookBuilder.enteringStateHooks(toContext, tLocals, toParams, this._options);
 
     // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
-    var invalidOrStartHooks = this.$to().valid() ? onStartHooks : onInvalidHooks;
-    var asyncSteps = filter(flatten([invalidOrStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]), identity);
+    var asyncSteps = filter(flatten([onStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]), identity);
 
     // -----------------------------------------------------------------------
     // Transition Steps
@@ -414,10 +354,23 @@ export class Transition {
     return isEq(this._options.current, val(this))();
   }
 
-  abort() {
-    if (this.isActive()) {
-      $transition.transition = null; // TODO
-    }
+  // This doesn't work, and should probably go away.
+  // abort() {
+  //   if (this.isActive()) {
+  //     $transition.transition = null; // TODO
+  //   }
+  // }
+
+  valid() {
+    return !this.error();
+  }
+
+  error() {
+    let state = this._treeChanges.to.last().state;
+    if (state.self[abstractKey])
+      return `Cannot transition to abstract state '${state.name}'`;
+    if (!state.params.$$validates(this.params()))
+      return `Param values not valid for state '${state.name}'`;
   }
 
   toString () {
@@ -427,10 +380,11 @@ export class Transition {
     // (X) means the to state is invalid.
     var id = this.$id,
         from = isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
-        fromParams = toJson(this.$from().params()),
-        toValid = this.$to().valid() ? "" : "(X) ",
+        fromParams = toJson(this._treeChanges.from.last().paramValues),
+        toValid = this.valid() ? "" : "(X) ",
         to = isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
         toParams = toJson(this.params());
+        
     return `Transition#${id}( '${from}'${fromParams} -> ${toValid}'${to}'${toParams} )`;
   }
 }
