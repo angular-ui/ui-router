@@ -173,6 +173,14 @@ describe("UrlMatcher", function () {
       var m = new UrlMatcher('/users/:id#:section');
       expect(m.format({ id: 'bob', section: 'contact-details' })).toEqual('/users/bob#contact-details');
     });
+
+    it("should trim trailing slashes when the terminal value is optional", function () {
+      var config = { params: { id: { squash: true, value: '123' } } },
+          m = new UrlMatcher('/users/:id', config),
+          params = { id: '123' };
+
+      expect(m.format(params)).toEqual('/users');
+    });
   });
 
   describe(".append()", function() {
@@ -700,8 +708,8 @@ describe("urlMatcherFactory", function () {
         params: { id: { value: null, squash: true }, state: { value: null, squash: true } }
       });
 
-      expect(m.format()).toBe("/users/");
-      expect(m.format({ id: 1138 })).toBe("/users/1138/");
+      expect(m.format()).toBe("/users");
+      expect(m.format({ id: 1138 })).toBe("/users/1138");
       expect(m.format({ state: "NY" })).toBe("/users/NY");
       expect(m.format({ id: 1138, state: "NY" })).toBe("/users/1138/NY");
     });

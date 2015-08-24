@@ -372,6 +372,7 @@ export class UrlMatcher {
     // TODO: rewrite as reduce over params with result as initial
     params.map((param: Param, i) => {
       let isPathParam = i < segments.length - 1;
+      var isFinalPathParam = i + 2 === segments.length;
       let value = param.value(values[param.id]);
       let isDefaultValue = param.isDefaultValue(value);
       let squash = isDefaultValue ? param.squash : false;
@@ -396,6 +397,8 @@ export class UrlMatcher {
         if (param.type.raw) return encoded + segment;
         return encodeURIComponent(<string> encoded) + segment;
       })(segments[i + 1], result);
+
+      if (isFinalPathParam && squash === true && result.slice(-1) === '/') result = result.slice(0, -1);
     });
 
     if (values["#"]) result += "#" + values["#"];
