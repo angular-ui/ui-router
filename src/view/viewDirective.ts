@@ -3,13 +3,16 @@
 import {extend, isDefined, isString} from "../common/common";
 import {annotateController} from "../common/angular1";
 import {ViewConfig} from "./view";
+import {IUiViewData} from "./interface";
 
 //const debug = noop;
 const _debug = false;
-const debug = function(...any) {
+function debug(...any);
+function debug() {
   if (_debug) { console.log.apply(console, arguments); }
-};
+}
 
+const uiViewString = (viewData) => `ui-view named '${viewData.name}' created in context='${viewData.creationContext}' / filled with view from context='${viewData.fillContext}'`;
 /**
  * @ngdoc directive
  * @name ui.router.state.directive:ui-view
@@ -155,7 +158,6 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
     compile: function (tElement, tAttrs, $transclude) {
 
       return function (scope, $element, attrs) {
-        debug(`Invoking link function on ${$element.html()}`, $element);
         let previousEl, currentEl, currentScope, unregister,
             onloadExp     = attrs.onload || '',
             autoScrollExp = attrs.autoscroll,
@@ -164,19 +166,20 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
             inherited     = $element.inheritedData('$uiView') || { context: $view.rootContext() },
             name          = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default';
 
-        let viewData = {
+        let viewData: IUiViewData = {
           name: name,
-          fqn: inherited.name ? inherited.name + "." + name : name,
+          fqn: inherited.name ? inherited.fqn + "." + name : name,
           config: null,
-          context: null,
+          fillContext: null,
           configUpdated: configUpdatedCallback,
-          get parentContext() { return inherited.context; }
+          get creationContext() { return inherited.context; }
         };
+
+        debug(`${viewData.fqn}: Invoking link function`);
 
         function configUpdatedCallback(config: ViewConfig) {
           if (configsEqual(viewConfig, config)) return;
-          debug(`Updating uiView '${viewData.fqn}' (${viewData.name} in ` +
-              `context=${viewData.context}/parent=${viewData.parentContext}) with new config template '${config.template}'`);
+          debug(`${viewData.fqn}: Updating (${uiViewString(viewData)}) with ViewConfig from context='${config && config.context}'`);
           viewConfig = extend({}, config);
           updateView(config);
         }
@@ -187,25 +190,25 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
 
         unregister = $view.registerUiView(viewData);
         scope.$on("$destroy", function() {
-          debug(`Destroying uiView '${viewData.fqn}' (${viewData.name} in context=${viewData.context}/parent=${viewData.parentContext})`);
+          debug(`${viewData.fqn}: Destroying (${uiViewString(viewData)})`);
           unregister();
         });
 
         function cleanupLastView() {
           if (previousEl) {
-            debug("Cleaning up last El");
+            debug(`${viewData.fqn}: Removing previous el`);
             previousEl.remove();
             previousEl = null;
           }
 
           if (currentScope) {
-            debug(`Destroying current scope: ${Object.keys(currentScope)}`);
+            debug(`${viewData.fqn}: Destroying current scope: ${Object.keys(currentScope)}`);
             currentScope.$destroy();
             currentScope = null;
           }
 
           if (currentEl) {
-            debug("Animate out");
+            debug(`${viewData.fqn}: Animate out`);
             renderer.leave(currentEl, function() {
               previousEl = null;
             });
@@ -276,7 +279,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
 
         $element.html(data.$template || initial);
 
-        debug(`Fill: ${data.fqn}: Element contents: '${$element.html()}'`);
+        debug(`${data.fqn}: Fill element with contents: ${$element.html()}`);
         let link = $compile($element.contents());
         let controller = data.$controller;
         let controllerAs = data.$controllerAs;

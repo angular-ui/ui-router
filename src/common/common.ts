@@ -299,31 +299,33 @@ export function flatten (array) {
  * in array1 only, where each element of the array is a nested array where the key is in nested[0] and val in nested[1]
  */
 export function zipObject(array1: any[], array2?: any[]) {
-  function ensureArray(array) { if (!isArray(array)) throw new Error("Not an array: " + array); }
-
-  if (!isDefined(array2)) {
-    return array1.reduce((memo, item) => {
-      ensureArray(item);
-      memo[item[0]] = item[1];
-      return memo;
-    }, {});
+  let pairs: any[] = array1;
+  if (isDefined(array2)) {
+    if (array1.length !== array2.length) {
+      throw new Error("pairs(): Unequal length arrays not allowed");
+    }
+    pairs = array1.map((key, idx) => [key, array2[idx]]);
   }
 
-  if (array1.length !== array2.length) {
-    throw new Error("pairs(): Unequal length arrays not allowed");
-  }
-
-  return array1.reduce((memo, key, i) => {
-    memo[key] = array2[i];
-    return memo;
-  }, {});
+  return pairs.reduce(addPairToObj, {});
 }
 
-/** Like _.pairs: Given an object, returns key/value pairs in an array */
-export function pairs(object) {
-  var result = [];
-  forEach(object, (val, key) => result.push([key, val]));
-  return result;
+/** Like _.pairs: Given an object, returns an array of key/value pairs */
+export const pairs = (object) => Object.keys(object).map(key => [ key, object[key]] );
+
+/**
+ * Sets a key/val pair on an object, and returns the object.
+ * Use as a reduce function for an array of key/val pairs
+ *
+ * Given:
+ * var pairs = [ ["fookey", "fooval"], ["barkey","barval"] ]
+ * var pairsToObj = pairs.reduce(addPairToObj, {})
+ * Then:
+ * true === angular.equals(pairsToObj, { fookey: "fooval", barkey: "barval" })
+ */
+export function addPairToObj(obj: TypedMap<any>, [key, val]) {
+  obj[key] = val;
+  return obj;
 }
 
 // Checks if a value is injectable

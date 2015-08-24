@@ -5,7 +5,7 @@ import UrlMatcher from "../url/urlMatcher";
 import {IRawParams, IParamsOrArray} from "../params/interface";
 import ParamSet from "../params/paramSet";
 
-import {IViewContext} from "../view/interface";
+import {IContextRef} from "../view/interface";
 import PathContext from "../resolve/pathContext";
 
 import TargetState from "./targetState";
@@ -17,20 +17,22 @@ export type IStateOrName = (string|IStateDeclaration|IState);
 
 /** Context obj, State-view definition, transition params */
 export interface IStateViewConfig {
-  view: IViewDeclaration; // A view block from a state config
-  name: string; // The name of the view block
-  params: any; // State params?
-  context: IViewContext; // The context object reference
-  pathContext: PathContext; // The Resolve context (rename class!)
+  viewDeclarationObj:   IViewDeclaration; // A view block from a state config
+  rawViewName:          string; // The name of the view block
+  params:               any; // State params?
+  context:              IContextRef; // The context object reference this ViewConfig belongs to
+  locals:               PathContext; // The Resolve context (rename class!)
 }
 
 /** View declaration inside state declaration */
 export interface IViewDeclaration {
-  controllerProvider?: Function;
-  controller?: any;
-  template?: any;
-  templateUrl?: any;
-  templateProvider?: Function;
+  controllerProvider?:  Function;
+  controller?:          (Function|string);
+  controllerAs?:         string;
+
+  template?:            (Function|string);
+  templateUrl?:         string;
+  templateProvider?:    Function;
 }
 
 /** hash of strings->views */

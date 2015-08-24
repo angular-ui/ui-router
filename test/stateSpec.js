@@ -1673,20 +1673,20 @@ describe("Targeted Views", function() {
 
   states = [
     { name: 'A', template: "<div ui-view id='A_default'></div> <div ui-view='named' id='named_A'></div>" },
-    { name: 'A.a', template: "<div ui-view id='Aa_default'>mike</div>" },
+    { name: 'A.a', template: "<div ui-view id='Aa_default'>mike</div><div ui-view='named2' id='Aa_named2'>initial</div>" },
     { name: 'A.a.i', views: {
-      "^.named": { template: "A.a.i" },
+      "^.named2": { template: "A.a.i" },
       "$default": { template: "<div ui-view id='Aai_default'>asdf</div>"}
     } },
     { name: 'A.a.i.1', views: {
-      "^.^.named": { template: "A.a.i.1" },
+      "^.^.^.named": { template: "A.a.i.1" },
       "": { template: "blarg"}
     } },
     { name: 'A.a.i.2', views: {
       "!$default": { template: "rooted!" }
     } },
     { name: 'A.a.i.3', views: {
-      "!$default.$default.named": { template: "fhqwhgads" }
+      "!$default.named": { template: "fhqwhgads" }
     } },
 
     { name: 'A.b', template: "<div ui-view id='Ab'></div>" },
@@ -1701,7 +1701,7 @@ describe("Targeted Views", function() {
   ];
 
 
-  describe("view targetting", function() {
+  describe("view targeting", function() {
     it("should target the unnamed view in the parent context, when the view's name is '$default'", inject(function() {
       $state.go("A.a.i"); $q.flush();
       expect(elem[0].querySelector("#Aa_default").textContent).toBe("asdf");
@@ -1714,7 +1714,7 @@ describe("Targeted Views", function() {
 
     it("should relatively target a view in the grandparent context, when the viewname starts with '^.'", inject(function() {
       $state.go("A.a.i"); $q.flush();
-      expect(elem[0].querySelector("#named_A").textContent).toBe("A.a.i");
+      expect(elem[0].querySelector("#Aa_named2").textContent).toBe("A.a.i");
     }));
 
     it("should relatively target a view in the great-grandparent context, when the viewname starts with '^.^.'", inject(function() {

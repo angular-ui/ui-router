@@ -65,19 +65,21 @@ describe('view', function() {
       $controllerProvider.register("AcmeFooController", function($scope, foo) { });
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
 
+      var rootcontext = {name: "", parent: null};
       var viewConfig = {
-        view: {
+        viewDeclarationObj: {
           template: "test",
           controllerProvider: function (/* $stateParams, */ foo) { // todo: reimplement localized $stateParams
             ctrlExpression = /* $stateParams.type + */ foo + "Controller as foo";
             return ctrlExpression;
           }
         },
-        name: '$default',
+        rawViewName: '$default',
+        context: { name: "blarg", parent: rootcontext },
         params: {type: "Acme"},
         locals: new PathContext(ctx, state, $injector)
       };
-      $view.load(new ViewConfig(<any> viewConfig));
+      $view.load(new ViewConfig(viewConfig));
       $q.flush();
       expect(ctrlExpression).toEqual("FooController as foo");
     }));

@@ -34,7 +34,6 @@ export default class StateHandler {
     let {$view, $state, activeTransQ, changeHistory} = this;
     // TODO: sync on entering/exiting state, not transition success?
     transition.views("exiting", "from").forEach($view.reset.bind($view));
-    $view.sync();
     transition.views("entering", "to").forEach($view.registerStateViewConfig.bind($view));
     $view.sync();
 

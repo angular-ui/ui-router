@@ -15,7 +15,7 @@ import ResolveContext from "../resolve/resolveContext";
 import PathContext from "../resolve/pathContext";
 
 import TargetState from "../state/targetState";
-import {IState, IStateDeclaration} from "../state/interface";
+import {IState, IStateDeclaration, IStateViewConfig} from "../state/interface";
 
 import ParamValues from "../params/paramValues";
 
@@ -230,7 +230,9 @@ export class Transition {
     return unnest(map(states, (state: IState) => {
       let context = state;
       let locals: PathContext = this.context(contextPathname, state);
-      const makeViewConfig = ([name, view]) => { return {name, view, context, locals, params}; };
+      const makeViewConfig = ([rawViewName, viewDeclarationObj]) => { return <IStateViewConfig> {
+        rawViewName, viewDeclarationObj, context, locals, params};
+      };
       return pairs(state.views).map(makeViewConfig);
     }));
   }
@@ -296,13 +298,11 @@ export class Transition {
 
     let {to, from} = this._treeChanges;
     let [toState, fromState]    = [to, from].map(path => path.last().state);
-    let [toParams]  = [to].map(path => path.last().paramValues);
-    let tLocals = { $transition$: this };
-
-    let fromContext = new ResolveContext(from);
-    let toContext = new ResolveContext(to);
-
+    let [toContext, fromContext] = [to, from].map(path => new ResolveContext(path));
     let toFrom = { to: toState, from: fromState };
+    let toParams = to.last().paramValues;
+
+    let tLocals = { $transition$: this };
 
     // Build a bunch of arrays of promises for each step of the transition
     let onBeforeHooks       = hookBuilder.makeSteps("onBefore",   toState, toFrom, fromContext, tLocals, {async: false});
