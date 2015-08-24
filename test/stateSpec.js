@@ -1490,3 +1490,18 @@ describe('state queue', function(){
     });
   });
 });
+
+describe('$stateParams', function () {
+  beforeEach(module('ui.router.state'));
+
+  it('should start empty', inject(function ($stateParams) {
+    expect($stateParams.foo).toBeUndefined();
+  }));
+  it('should allow setting values on it', inject(function ($stateParams) {
+    $stateParams.foo = 'bar';
+    expect($stateParams.foo).toBeDefined();
+  }));
+  it('should be cleared between tests', inject(function ($stateParams) {
+    expect($stateParams.foo).toBeUndefined();
+  }));
+});
