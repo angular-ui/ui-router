@@ -13,6 +13,7 @@ import {IState} from "../state/interface";
 import {IResolvePath, INode, IResolveNode} from "../path/interface";
 import Path from "../path/path";
 
+import {ResolvePolicy} from "../resolve/interface";
 import ResolveContext from "../resolve/resolveContext";
 
 interface IToFrom {
@@ -84,7 +85,7 @@ export default class HookBuilder {
   /** Returns a TransitionHook which resolves an entire path according to a given resolvePolicy */
   makeEagerResolvePathStep(path: IResolvePath, locals) {
     if (!path.nodes().length) return null;
-    var options = extend({resolvePolicy: 'eager'}, this.baseHookOptions);
+    var options = extend({resolvePolicy: ResolvePolicy[ResolvePolicy.EAGER]}, this.baseHookOptions);
     var resolveContext = new ResolveContext(path);
     var state: IState = path.last().state;
 
@@ -97,7 +98,7 @@ export default class HookBuilder {
 
   /** Returns a TransitionHook which resolves a single path element according to a given resolvePolicy */
   makeLazyResolvePathElementStep(path: IResolvePath, state: IState, locals) {
-    var options = extend({resolvePolicy: 'lazy'}, this.baseHookOptions);
+    var options = extend({resolvePolicy: ResolvePolicy[ResolvePolicy.LAZY]}, this.baseHookOptions);
     var resolveContext = new ResolveContext(path);
 
     function $resolvePathElement() {

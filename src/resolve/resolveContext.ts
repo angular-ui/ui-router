@@ -11,7 +11,8 @@ import {IPromises, IResolvables, ResolvePolicy, IOptions1} from "./interface"
 import Resolvable from "./resolvable"
 import {IState} from "../state/interface"
 
-var defaultResolvePolicy = "JIT"; // TODO: make this configurable
+// TODO: make this configurable
+var defaultResolvePolicy = ResolvePolicy[ResolvePolicy.JIT];
 
 interface IOrdinals { [key: string]: number }
 interface IPolicies { [key: string]: string }
