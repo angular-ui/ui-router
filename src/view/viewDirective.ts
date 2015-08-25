@@ -177,7 +177,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
 
         debug(`${viewData.fqn}: Invoking link function`);
 
-        function configUpdatedCallback(config: ViewConfig) {
+        function configUpdatedCallback(config: ViewConfig = <any> {}) {
           if (configsEqual(viewConfig, config)) return;
           debug(`${viewData.fqn}: Updating (${uiViewString(viewData)}) with ViewConfig from context='${config && config.context}'`);
           viewConfig = extend({}, config);

@@ -143,7 +143,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
    * @return {Promise.<string>} Returns a promise that resolves to the value of the template loaded.
    */
   this.load = function load (viewConfig: ViewConfig, options) {
-    debug(`$view: ${viewConfig.uiViewName}@${viewConfig.uiViewContextAnchor}: loading`);
+    debug(`$view: the context named '${viewConfig.context.name}' is loading '${viewConfig.uiViewName}@${viewConfig.uiViewContextAnchor}'`);
     options = defaults(options, {
       context:            null,
       parent:             null,

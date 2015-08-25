@@ -454,10 +454,7 @@ describe('uiView', function () {
     });
   });
 
-  describe('AngularJS 1.2.* Animations', function() {
-    // Only doing tests for AngularJS 1.2.*
-    if (['1.0.8', '1.1.5'].indexOf(angular.version.full) !== -1) return;
-
+  describe('AngularJS Animations', function() {
     it ('should do transition animations', inject(function($state, $q, $compile, $animate) {
       var content = 'Initial Content',
           animation;
