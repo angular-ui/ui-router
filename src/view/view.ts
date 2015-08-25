@@ -1,5 +1,5 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {isInjectable, defaults, extend, curry, addPairToObj, prop, pick, removeFrom, isEq, val, TypedMap} from "../common/common";
+import {isInjectable, isString, defaults, extend, curry, addPairToObj, prop, pick, removeFrom, isEq, val, TypedMap} from "../common/common";
 import {IStateViewConfig, IViewDeclaration} from "../state/interface";
 import {IUiViewData, IContextRef} from "./interface";
 
@@ -18,7 +18,7 @@ function normalizeUiViewTarget(rawViewName = "") {
   // "@" , "$default@^" , "!$default.$default" , "!foo.bar"
   let viewAtContext: string[] = rawViewName.split("@");
   let uiViewName = viewAtContext[0] || "$default";  // default to unnamed view
-  let uiViewContextAnchor = viewAtContext[1] || "^";    // default to parent context
+  let uiViewContextAnchor = isString(viewAtContext[1]) ? viewAtContext[1] : "^";    // default to parent context
 
   // Handle relative view-name sugar syntax.
   // Matches rawViewName "^.^.^.foo.bar" into array: ["^.^.^.foo.bar", "^.^.^", "foo.bar"],

@@ -1654,7 +1654,7 @@ describe("state params", function() {
   });
 });
 
-describe("Targeted Views", function() {
+fdescribe("Targeted Views", function() {
   var states, scope, $compile, $injector, $q, $state, elem, $controllerProvider;
   beforeEach(module('ui.router', function(_$provide_, _$controllerProvider_,_$stateProvider_) {
     $stateProvider = _$stateProvider_;
@@ -1679,8 +1679,7 @@ describe("Targeted Views", function() {
       "$default": { template: "<div ui-view id='Aai_default'>asdf</div>"}
     } },
     { name: 'A.a.i.1', views: {
-      "^.^.^.named": { template: "A.a.i.1" },
-      "": { template: "blarg"}
+      "^.^.^.named": { template: "A.a.i.1" }
     } },
     { name: 'A.a.i.2', views: {
       "!$default": { template: "rooted!" }
@@ -1689,47 +1688,68 @@ describe("Targeted Views", function() {
       "!$default.named": { template: "fhqwhgads" }
     } },
 
-    { name: 'A.b', template: "<div ui-view id='Ab'></div>" },
+    { name: 'A.b', template: "<div ui-view id='Ab_default'>mike</div><div ui-view='named2' id='Ab_named2'>initial</div>" },
     { name: 'A.b.i', views: {
-      "named@A": { template: "A.b.i" },
-      "": { template: "<div ui-view id='Abi_default'></div>"}
+      "named2@A.b": { template: "A.b.i" },
+      "": { template: "<div ui-view id='Abi_default'>asdf</div>"}
     } },
     { name: 'A.b.i.1', views: {
-      "named@A": { template: "A.b.i.1" },
-      "": { template: "<div ui-view id='Abi1_default'></div>"}
+      "named@A": { template: "A.b.i.1" }
+    } },
+    { name: 'A.b.i.2', views: {
+      "@": { template: "rooted!" }
     } }
+
   ];
 
 
   describe("view targeting", function() {
-    it("should target the unnamed view in the parent context, when the view's name is '$default'", inject(function() {
+    it("should target the unnamed ui-view in the parent context, when the view's name is '$default'", inject(function() {
       $state.go("A.a.i"); $q.flush();
       expect(elem[0].querySelector("#Aa_default").textContent).toBe("asdf");
     }));
 
-    it("should target the unnamed view in the parent context, when the view's name is ''", inject(function() {
-      $state.go("A.a.i.1"); $q.flush();
-      expect(elem[0].querySelector("#Aai_default").textContent).toBe("blarg");
-    }));
-
-    it("should relatively target a view in the grandparent context, when the viewname starts with '^.'", inject(function() {
+    it("should relatively target a ui-view in the grandparent context, when the viewname starts with '^.'", inject(function() {
       $state.go("A.a.i"); $q.flush();
       expect(elem[0].querySelector("#Aa_named2").textContent).toBe("A.a.i");
     }));
 
-    it("should relatively target a view in the great-grandparent context, when the viewname starts with '^.^.'", inject(function() {
+    it("should relatively target a ui-view in the great-grandparent context, when the viewname starts with '^.^.'", inject(function() {
       $state.go("A.a.i.1"); $q.flush();
       expect(elem[0].querySelector("#named_A").textContent).toBe("A.a.i.1");
     }));
 
-    it("should target the root view, when the view's name is '!$default'", inject(function() {
+    it("should target the root ui-view, when the view's name is '!$default'", inject(function() {
       $state.go("A.a.i.2"); $q.flush();
       expect(elem[0].textContent).toBe("rooted!");
     }));
 
-    it("should target a view absolutely using the ui-view's FQN when the view name is preceded by the '!' character", inject(function() {
+    it("should target a ui-view absolutely using the ui-view's FQN when the view name is preceded by the '!' character", inject(function() {
       $state.go("A.a.i.3"); $q.flush();
       expect(elem[0].querySelector("#named_A").textContent).toBe("fhqwhgads");
+    }));
+  });
+
+
+  describe("with view@context style view targeting", function() {
+    it("should target the unnamed ui-view in the parent context, when the view's name is ''", inject(function() {
+      $state.go("A.b.i"); $q.flush();
+      expect(elem[0].querySelector("#Ab_default").textContent).toBe("asdf");
+    }));
+
+    it("should target a ui-view named 'named2' at the context named 'A.b' when the view's name is 'named2@A.b'", inject(function() {
+      $state.go("A.b.i"); $q.flush();
+      expect(elem[0].querySelector("#Ab_named2").textContent).toBe("A.b.i");
+    }));
+
+    it("should target a ui-view named 'named' at the context named 'A' when the view's name is 'named@A'", inject(function() {
+      $state.go("A.b.i.1"); $q.flush();
+      expect(elem[0].querySelector("#named_A").textContent).toBe("A.b.i.1");
+    }));
+
+    it("should target the unnamed ui-view at the root context (named ''), when the view's name is '@'", inject(function() {
+      $state.go("A.b.i.2"); $q.flush();
+      expect(elem[0].textContent).toBe("rooted!");
     }));
   });
 });
