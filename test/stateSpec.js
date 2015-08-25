@@ -217,6 +217,7 @@ describe('state', function () {
       $q.flush();
       expect($location.search()).toEqual({term: 'hello'});
       expect(called).toBeFalsy();
+
     }));
 
     it('updates $stateParams when state.reloadOnSearch=false, and only query params changed', inject(function ($state, $stateParams, $q, $location, $rootScope){
@@ -261,6 +262,70 @@ describe('state', function () {
       $state.transitionTo('A', { w00t: 'hi mom!' });
       $q.flush();
       expect($state.current).toBe(A);
+    }));
+
+    it('triggers $stateChangeValidation', inject(function ($state, $q, $rootScope) {
+      initStateTo(E, { i: 'iii' });
+      var called;
+      $rootScope.$on('$stateChangeValidation', function (ev, to, toParams, from, fromParams, registerValidator) {
+        expect(from).toBe(E);
+        expect(fromParams).toEqual({ i: 'iii' });
+        expect(to).toBe(D);
+        expect(toParams).toEqual({ x: '1', y: '2' });
+        expect(typeof registerValidator).toEqual('function');
+
+        expect($state.current).toBe(from); // $state not updated yet
+        expect($state.params).toEqual(fromParams);
+        called = true;
+      });
+      $state.transitionTo(D, { x: '1', y: '2' });
+      $q.flush();
+      expect(called).toBeTruthy();
+      expect($state.current).toBe(D);
+    }));
+
+    it('ignores truthy validators', inject(function ($state, $q, $rootScope) {
+        initStateTo(A);
+        var called;
+        $rootScope.$on('$stateChangeValidation', function (ev, to, toParams, from, fromParams, registerValidator) {
+          registerValidator({});
+          registerValidator($q.when(true));
+          called = true;
+        });
+        var promise = $state.transitionTo(B, {});
+        $q.flush();
+        expect(called).toBeTruthy();
+        expect($state.current).toBe(B);
+    }));
+
+    it('can be asynchronously cancelled by a falsy validator', inject(function ($state, $q, $rootScope) {
+        initStateTo(A);
+        var called;
+        $rootScope.$on('$stateChangeValidation', function (ev, to, toParams, from, fromParams, registerValidator) {
+          registerValidator(true);
+          registerValidator($q.when(null));
+          called = true;
+        });
+        var promise = $state.transitionTo(B, {});
+        $q.flush();
+        expect(called).toBeTruthy();
+        expect($state.current).toBe(A);
+        expect(resolvedError(promise)).toBeTruthy();
+    }));
+
+    it('ignores falsy validator when using preventDefault() in $stateChangeValidation', inject(function ($state, $q, $rootScope) {
+        initStateTo(A);
+        var called;
+        $rootScope.$on('$stateChangeValidation', function (ev, to, toParams, from, fromParams, registerValidator) {
+          ev.preventDefault();
+          registerValidator(false);
+          registerValidator($q.when(null));
+          called = true;
+        });
+        $state.transitionTo(B, {});
+        $q.flush();
+        expect(called).toBeTruthy();
+        expect($state.current).toBe(B);
     }));
 
     it('triggers $stateChangeStart', inject(function ($state, $q, $rootScope) {
@@ -766,7 +831,7 @@ describe('state', function () {
 
     it('should work for relative states', inject(function ($state, $q) {
       var options = { relative: $state.get('about') };
-      
+
       $state.transitionTo('about.person'); $q.flush();
       expect($state.is('.person', undefined, options)).toBe(true);
 
@@ -921,7 +986,7 @@ describe('state', function () {
       expect($state.href("root", {}, {inherit:false})).toEqual("#/root");
       expect($state.href("root", {}, {inherit:true})).toEqual("#/root?param1=1");
     }));
-    
+
     it('generates absolute url when absolute is true', inject(function ($state) {
       expect($state.href("about.sidebar", null, { absolute: true })).toEqual("http://server/#/about");
       locationProvider.html5Mode(true);
