@@ -1654,7 +1654,7 @@ describe("state params", function() {
   });
 });
 
-fdescribe("Targeted Views", function() {
+describe("Targeted Views", function() {
   var states, scope, $compile, $injector, $q, $state, elem, $controllerProvider;
   beforeEach(module('ui.router', function(_$provide_, _$controllerProvider_,_$stateProvider_) {
     $stateProvider = _$stateProvider_;
