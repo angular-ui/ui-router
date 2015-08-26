@@ -688,6 +688,32 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
   /**
    * @ngdoc object
+   * @name ui.router.state.$stateProvider
+   *
+   * @property {object} defaults Object containing default values for {@link ui.router.state.$state#methods_go $state.go}
+   *
+   * - **`location`** - {boolean=true|string=} - If `true` will update the url in the location bar, if `false`
+   *    will not. If string, must be `"replace"`, which will update url and also replace last history record.
+   * - **`inherit`** - {boolean=true}, If `true` will inherit url parameters from current url.
+   * - **`relative`** - {object=$state.$current}, When transitioning with relative path (e.g '^'),
+   *    defines which state to be relative from.
+   * - **`notify`** - {boolean=true}, If `true` will broadcast $stateChangeStart and $stateChangeSuccess events.
+   * - **`reload`** (v0.2.5) - {boolean=false}, If `true` will force transition even if the state or params
+   *    have not changed, aka a reload of the same state. It differs from reloadOnSearch because you'd
+   *    use this when you want to force a reload when *everything* is the same, including search params.
+   *
+   */
+  var defaults = this.defaults = {
+      location: true,
+      inherit: false,
+      relative: null,
+      notify: true,
+      reload: false,
+      $retry: false
+  };
+
+  /**
+   * @ngdoc object
    * @name ui.router.state.$state
    *
    * @requires $rootScope
@@ -962,7 +988,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     $state.transitionTo = function transitionTo(to, toParams, options) {
       toParams = toParams || {};
       options = extend({
-        location: true, inherit: false, relative: null, notify: true, reload: false, $retry: false
+        location: defaults.location, inherit: defaults.inherit, relative: defaults.relative, notify: defaults.notify, reload: defaults.reload, $retry: defaults.$retry
       }, options || {});
 
       var from = $state.$current, fromParams = $state.params, fromPath = from.path;
