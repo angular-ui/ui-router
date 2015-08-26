@@ -64,11 +64,11 @@ import {Transition} from "../transition/transition";
     let fromParams = $transition$.params("from");
 
     if (enabledEvents.$stateChangeSuccess) {
-      let startEvent = $rootScope.$broadcast('$stateChangeStart', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$);
+      let startEvent = $rootScope.$broadcast('$stateChangeStart', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$.options(), $transition$);
 
       if (startEvent.defaultPrevented) {
         if (enabledEvents.$stateChangeCancel) {
-          $rootScope.$broadcast('$stateChangeCancel', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$);
+          $rootScope.$broadcast('$stateChangeCancel', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$.options(), $transition$);
         }
         //Don't update and resync url if there's been a new transition started. see issue #2238, #600
         if ($state.transition == null) $urlRouter.update();
@@ -90,7 +90,7 @@ import {Transition} from "../transition/transition";
          * @param from
          * @param fromParams
          */
-        $rootScope.$broadcast('$stateChangeSuccess', $transition$.to(), toParams, $transition$.from(), fromParams);
+        $rootScope.$broadcast('$stateChangeSuccess', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$.options(), $transition$);
       });
     }
 
@@ -117,7 +117,7 @@ import {Transition} from "../transition/transition";
          * @param {Object} fromParams The params supplied to the `fromState`.
          * @param {Error} error The resolve error object.
          */
-        let evt = $rootScope.$broadcast('$stateChangeError', $transition$.to(), toParams, $transition$.from(), fromParams, error);
+        let evt = $rootScope.$broadcast('$stateChangeError', $transition$.to(), toParams, $transition$.from(), fromParams, error, $transition$.options(), $transition$);
 
         if (!evt.defaultPrevented) {
           $urlRouter.update();

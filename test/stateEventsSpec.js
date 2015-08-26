@@ -62,18 +62,18 @@ describe('UI-Router v0.2.x $state events', function () {
     return $injector.get(what);
   }
 
-  function initStateTo(state, params) {
+  function initStateTo(state, optionalParams, optionalOptions) {
     var $state = $get('$state'), $q = $get('$q');
-    $state.transitionTo(state, params || {});
+    $state.transitionTo(state, optionalParams || {}, optionalOptions || {});
     $q.flush();
     expect($state.current).toBe(state);
   }
 
   describe('.transitionTo()', function () {
     it('triggers $stateChangeStart', inject(function ($state, $q, $rootScope) {
-      initStateTo(E, {i: 'iii'});
+      initStateTo(E, {i: 'iii'}, { anOption: true });
       var called;
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, options) {
         expect(from).toBe(E);
 
         expect(obj(fromParams)).toEqual({i: 'iii'});
@@ -82,11 +82,13 @@ describe('UI-Router v0.2.x $state events', function () {
 
         expect(obj(toParams)).toEqual({x: '1', y: '2'});
 
+        expect(options.custom.anOption).toBe(false);
+
         expect($state.current).toBe(from); // $state not updated yet
         expect(obj($state.params)).toEqual(obj(fromParams));
         called = true;
       });
-      $state.transitionTo(D, {x: '1', y: '2'});
+      $state.transitionTo(D, {x: '1', y: '2'}, { custom: { anOption: false } });
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(D);
