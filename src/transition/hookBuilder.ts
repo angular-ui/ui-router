@@ -46,10 +46,10 @@ export default class HookBuilder {
   }
 
   runSynchronousHooks(hooks: TransitionHook[], swallowExceptions: boolean = false): IPromise<any> {
-    var promises = [];
-    for (var i = 0; i < hooks.length; i++) {
+    let promises = [];
+    for (let i = 0; i < hooks.length; i++) {
       try {
-        var hookResult = hooks[i].invokeStep();
+        let hookResult = hooks[i].invokeStep();
         // If a hook returns a promise, that promise is added to an array to be resolved asynchronously.
         if (hookResult && isPromise(hookResult))
           promises.push(hookResult);
@@ -59,7 +59,7 @@ export default class HookBuilder {
       }
     }
 
-    var resolvedPromise = runtime.$q.when(true);
+    let resolvedPromise = runtime.$q.when(true);
     return promises.reduce((memo, val) => memo.then(() => val), resolvedPromise);
   }
 
@@ -71,12 +71,12 @@ export default class HookBuilder {
    */
   makeSteps(eventName: string, state: IState, toFrom: IToFrom, resolveContext: ResolveContext, locals, options?: ITransitionHookOptions): any[] {
     // trace stuff
-    var stepData = { toFrom, state, locals, resolveContext, eventType: eventName };
+    let stepData = { toFrom, state, locals, resolveContext, eventType: eventName };
     options = extend(options || {}, this.baseHookOptions, {data: stepData});
 
-    var hooks = this.$transition.$$hooks(eventName);
+    let hooks = this.$transition.$$hooks(eventName);
     let hookMatch = (hook: IEventHook) => hook.matches(toFrom.to, toFrom.from);
-    var matchingHooks = filter(hooks, hookMatch);
+    let matchingHooks = filter(hooks, hookMatch);
     return map(matchingHooks, function (hook) {
       return new TransitionHook(state, hook.callback, locals, resolveContext, options);
     });
@@ -85,9 +85,9 @@ export default class HookBuilder {
   /** Returns a TransitionHook which resolves an entire path according to a given resolvePolicy */
   makeEagerResolvePathStep(path: IResolvePath, locals) {
     if (!path.nodes().length) return null;
-    var options = extend({resolvePolicy: ResolvePolicy[ResolvePolicy.EAGER]}, this.baseHookOptions);
-    var resolveContext = new ResolveContext(path);
-    var state: IState = path.last().state;
+    let options = extend({resolvePolicy: ResolvePolicy[ResolvePolicy.EAGER]}, this.baseHookOptions);
+    let resolveContext = new ResolveContext(path);
+    let state: IState = path.last().state;
 
     function $eagerResolvePath() {
       return resolveContext.resolvePath(options);
@@ -98,8 +98,8 @@ export default class HookBuilder {
 
   /** Returns a TransitionHook which resolves a single path element according to a given resolvePolicy */
   makeLazyResolvePathElementStep(path: IResolvePath, state: IState, locals) {
-    var options = extend({resolvePolicy: ResolvePolicy[ResolvePolicy.LAZY]}, this.baseHookOptions);
-    var resolveContext = new ResolveContext(path);
+    let options = extend({resolvePolicy: ResolvePolicy[ResolvePolicy.LAZY]}, this.baseHookOptions);
+    let resolveContext = new ResolveContext(path);
 
     function $resolvePathElement() {
       return resolveContext.resolvePathElement(state, options);
@@ -109,7 +109,7 @@ export default class HookBuilder {
   }
 
   exitingStateHooks(context: ResolveContext, tLocals, toParams, options?: ITransitionHookOptions) {
-    var nodes = this.treeChanges.exiting.reverse().nodes();
+    let nodes = this.treeChanges.exiting.reverse().nodes();
     return map(nodes, (node: IResolveNode) => {
       let state: IState = node.state;
       let toFrom = {to: this.toState, from: state};
@@ -125,8 +125,8 @@ export default class HookBuilder {
   }
 
   enteringStateHooks(context: ResolveContext, tLocals, toParams, options?: ITransitionHookOptions) {
-    var nodes = this.treeChanges.entering.nodes();
-    var to = this.treeChanges.to;
+    let nodes = this.treeChanges.entering.nodes();
+    let to = this.treeChanges.to;
     return map(nodes, (node: IResolveNode) => {
       let state: IState = node.state;
       let toFrom = {to: state, from: this.fromState};
@@ -150,7 +150,7 @@ export default class HookBuilder {
     return () => {
       if (transitionOptions.trace) trace.traceSuccess(toState, transition);
       _deferreds.prehooks.resolve(this.treeChanges);
-      var onSuccessHooks = this.makeSteps("onSuccess", toState, toFrom, new ResolveContext(this.treeChanges.to), tLocals, successErrorOptions);
+      let onSuccessHooks = this.makeSteps("onSuccess", toState, toFrom, new ResolveContext(this.treeChanges.to), tLocals, successErrorOptions);
       this.runSynchronousHooks(onSuccessHooks, true);
       _deferreds.posthooks.resolve(this.treeChanges);
     };
@@ -163,8 +163,8 @@ export default class HookBuilder {
     return (error) => {
       if (transitionOptions.trace) trace.traceError(error, transition);
       _deferreds.prehooks.reject(error);
-      var onErrorLocals = extend({}, tLocals, {$error$: error});
-      var onErrorHooks = this.makeSteps("onError", toState, toFrom, new ResolveContext(this.treeChanges.from), onErrorLocals, successErrorOptions);
+      let onErrorLocals = extend({}, tLocals, {$error$: error});
+      let onErrorHooks = this.makeSteps("onError", toState, toFrom, new ResolveContext(this.treeChanges.from), onErrorLocals, successErrorOptions);
       this.runSynchronousHooks(onErrorHooks, true);
       _deferreds.posthooks.reject(error);
     };
