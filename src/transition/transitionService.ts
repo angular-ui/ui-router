@@ -71,7 +71,7 @@ function $TransitionProvider() {
   $TransitionProvider.prototype.instance = this;
 
   let transitionEvents = {
-    onBefore: [], onStart: [], on: [], entering: [], exiting: [], onSuccess: [], onError: []
+    onBefore: [], onStart: [], onEnter: [], onExit: [], onSuccess: [], onError: []
   };
 
   // Return a registration function of the requested type.
@@ -131,12 +131,12 @@ function $TransitionProvider() {
    * @methodOf ui.router.state.$transitionProvider
    *
    * @description
-   * Registers a function to be injected and invoked when a transition has entered the async portion.
-   * This function can be injected with one additional special value:
-   * - **`$transition$`**: The current transition
+   * Registers a function to be injected and invoked when a transition has begun.  The function is injected in the
+   * destination state's ResolveContext. This function can be injected with one additional special value:
    *
-   * @param {object} matchObject An object that specifies which transitions to invoke the callback for (typically this
-   * value will be {} for this callback, to match all invalid transitions)
+   *  - **`$transition$`**: The current transition
+   *
+   * @param {object} matchObject An object that specifies which transitions to invoke the callback for
    *
    * - **`to`** - {string|function=} - A glob string that matches the 'to' state's name.
    *    Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
@@ -158,42 +158,12 @@ function $TransitionProvider() {
 
   /**
    * @ngdoc function
-   * @name ui.router.state.$transitionProvider#on
-   * @methodOf ui.router.state.$transitionProvider
-   *
-   * @description
-   * Registers a function to be injected and invoked when a transition between the matched 'to' and 'from' states
-   * starts.  This function can be injected with one additional special value:
-   * - **`$transition$`**: The current transition
-   *
-   * @param {object} matchObject An object that specifies which transitions to invoke the callback for.
-   *
-   * - **`to`** - {string|function=} - A glob string that matches the 'to' state's name.
-   *    Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
-   * - **`from`** - {string|function=} - A glob string that matches the 'from' state's name.
-   *    Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
-   *
-   * @param {function} callback
-   *   The function which will be injected and invoked, when a matching transition is started.
-   *   The function may optionally return a {boolean|Transition|object} value which will affect the current transition:
-   *
-   *     - **`false`** to abort the current transition
-   *     - **{Transition}** A Transition object from the $transition$.redirect() factory. If returned, the
-   *        current transition will be aborted and the returned Transition will supersede it.
-   *     - **{object}** A map of resolve functions to be added to the current transition. These resolves will be made
-   *        available for injection to further steps in the transition.  The object should have {string}s for keys and
-   *        {function}s for values, like the `resolve` object in {@link ui.router.state.$stateProvider#state $stateProvider.state}.
-   */
-  this.on = registerEventHook("on");
-
-  /**
-   * @ngdoc function
-   * @name ui.router.state.$transitionProvider#entering
+   * @name ui.router.state.$transitionProvider#onEnter
    * @methodOf ui.router.state.$transitionProvider
    *
    * @description
    * Registers a function to be injected and invoked during a transition between the matched 'to' and 'from' states,
-   * when the matched 'to' state is being entered. This function is in injected with the entering state's resolves.
+   * when the matched 'to' state is being entered. This function is injected with the entering state's resolves.
    *
    * This function can be injected with two additional special value:
    * - **`$transition$`**: The current transition
@@ -202,11 +172,11 @@ function $TransitionProvider() {
    * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
    * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
    */
-  this.entering = registerEventHook("entering");
+  this.onEnter = registerEventHook("onEnter");
 
   /**
    * @ngdoc function
-   * @name ui.router.state.$transitionProvider#exiting
+   * @name ui.router.state.$transitionProvider#onExit
    * @methodOf ui.router.state.$transitionProvider
    *
    * @description
@@ -220,7 +190,7 @@ function $TransitionProvider() {
    * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
    * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
    */
-  this.exiting = registerEventHook("exiting");
+  this.onExit = registerEventHook("onExit");
 
   /**
    * @ngdoc function

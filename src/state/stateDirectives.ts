@@ -244,7 +244,7 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
       };
 
       var updateAfterTransition = function ($transition$) { $transition$.promise.then(update); }
-      var deregisterFn = $transition.provider.on({}, updateAfterTransition);
+      var deregisterFn = $transition.provider.onStart({}, updateAfterTransition);
       $scope.$on('$destroy', deregisterFn);
 
       // Update route state

@@ -51,13 +51,12 @@ export interface ITransitionService {
 
 
 export interface ITransitionProvider {
-    onBefore:   (matchObject: IMatchCriteria, callback: Function, options?) => Function;
-    onStart:    (matchObject: IMatchCriteria, callback: Function, options?) => Function;
-    on:         (matchObject: IMatchCriteria, callback: Function, options?) => Function;
-    entering:   (matchObject: IMatchCriteria, callback: Function, options?) => Function;
-    exiting:    (matchObject: IMatchCriteria, callback: Function, options?) => Function;
-    onSuccess:  (matchObject: IMatchCriteria, callback: Function, options?) => Function;
-    onError:    (matchObject: IMatchCriteria, callback: Function, options?) => Function;
+  onBefore:   (matchObject: IMatchCriteria, callback: Function, options?) => Function;
+  onStart:    (matchObject: IMatchCriteria, callback: Function, options?) => Function;
+  onEnter:    (matchObject: IMatchCriteria, callback: Function, options?) => Function;
+  onExit:     (matchObject: IMatchCriteria, callback: Function, options?) => Function;
+  onSuccess:  (matchObject: IMatchCriteria, callback: Function, options?) => Function;
+  onError:    (matchObject: IMatchCriteria, callback: Function, options?) => Function;
 }
 
 export interface IStateMatch {

@@ -299,14 +299,13 @@ export class Transition {
     // Build a bunch of arrays of promises for each step of the transition
     let onBeforeHooks       = hookBuilder.getOnBeforeHooks();
     let onStartHooks        = hookBuilder.getOnStartHooks();
-    let transitionOnHooks   = hookBuilder.getOnActivateHooks();
 
     let eagerResolves       = [hookBuilder.getEagerResolvePathHook()];
     let exitingStateHooks   = hookBuilder.getOnExitingHooks();
     let enteringStateHooks  = hookBuilder.getOnEnterHooks();
 
     // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
-    let asyncSteps = flatten([onStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]).filter(identity);
+    let asyncSteps = flatten([onStartHooks, eagerResolves, exitingStateHooks, enteringStateHooks]).filter(identity);
 
     // -----------------------------------------------------------------------
     // Transition Steps

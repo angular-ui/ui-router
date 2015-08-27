@@ -48,16 +48,11 @@ export default class HookBuilder {
     return this._findMatchingRegisteredHooks("onBefore", toFrom).map(buildHook);
   }
 
-  getOnStartHooks() {
-    const buildHook = hook => this.buildPathHook(this.treeChanges.from, hook.callback);
-    let toFrom = { to: this.toState, from: this.fromState };
-    return this._findMatchingRegisteredHooks("onStart", toFrom).map(buildHook);
-  }
 
-  getOnActivateHooks() {
+  getOnStartHooks() {
     const buildHook = hook => this.buildPathHook(this.treeChanges.to, hook.callback);
     let toFrom = { to: this.toState, from: this.fromState };
-    return this._findMatchingRegisteredHooks("on", toFrom).map(buildHook);
+    return this._findMatchingRegisteredHooks("onStart", toFrom).map(buildHook);
   }
 
   getEagerResolvePathHook() {
@@ -154,7 +149,7 @@ export default class HookBuilder {
     let toFrom: IToFrom = {to: state, from: this.fromState};
 
     let lazyResolveHook = this.buildNodeHook(node, this._makeLazyResolveEnteringState(node));
-    let registeredHooks = this._findMatchingRegisteredHooks("entering", toFrom)
+    let registeredHooks = this._findMatchingRegisteredHooks("onEnter", toFrom)
         .map(hook => this.buildNodeHook(node, hook.callback));
     let onEnterHook = state.self.onEnter && this.buildNodeHook(node, state.self.onEnter);
 
@@ -165,7 +160,7 @@ export default class HookBuilder {
     let state: IState = node.state;
     let toFrom: IToFrom = {to: this.toState, from: state};
 
-    let registeredHooks = this._findMatchingRegisteredHooks("exiting", toFrom)
+    let registeredHooks = this._findMatchingRegisteredHooks("onExit", toFrom)
         .map(hook => this.buildNodeHook(node, hook.callback));
     let onExitHook = state.self.onExit && this.buildNodeHook(node, state.self.onExit);
 

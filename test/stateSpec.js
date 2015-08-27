@@ -419,7 +419,7 @@ describe('state', function () {
       var stateChanged;
 
       beforeEach(inject(function (_$rootScope_, _$state_, _$stateParams_, _$transition_, _$q_, _$location_) {
-        $transition.provider.on({}, function () {
+        $transition.provider.onStart({}, function () {
           stateChanged = true;
         });
 
@@ -542,7 +542,7 @@ describe('state', function () {
         var called;
         beforeEach(function() {
           initStateTo(RS);
-          $transition.provider.entering({to: 'RS'}, function () {
+          $transition.provider.onEnter({to: 'RS'}, function () {
             called = true
           });
         });
@@ -572,7 +572,7 @@ describe('state', function () {
           initStateTo(RS);
           $location.search({term: 'hello'});
           var called;
-          $transition.provider.entering({to: 'RS'}, function () {
+          $transition.provider.onEnter({to: 'RS'}, function () {
             called = true
           });
           $rootScope.$broadcast("$locationChangeSuccess");
@@ -585,7 +585,7 @@ describe('state', function () {
           initStateTo(RS);
           $state.go(".", {term: 'goodbye'});
           var called;
-          $transition.provider.entering({to: 'RS'}, function () {
+          $transition.provider.onEnter({to: 'RS'}, function () {
             called = true
           });
           $q.flush();
