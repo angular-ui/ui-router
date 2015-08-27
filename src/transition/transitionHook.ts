@@ -1,14 +1,13 @@
-import {defaults, extend, noop, filter, not, isFunction, objectKeys, map, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse} from "../common/common";
+import {defaults, noop, filter, not, isFunction, objectKeys, map, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse} from "../common/common";
 import trace from "../common/trace";
 import {RejectFactory} from "./rejectFactory";
-import Path from "../path/path";
 import {Transition} from "./transition";
 import {IState, IResolveDeclarations} from "../state/interface";
 import Resolvable from "../resolve/resolvable";
 import ResolveContext from "../resolve/resolveContext";
-import {ITransitionHookOptions} from "./interface"
+import {ITransitionHookOptions} from "./interface";
 
-var REJECT = new RejectFactory();
+let REJECT = new RejectFactory();
 
 export default class TransitionHook {
   // TODO these are redundant, check why we're doubling up on them.
@@ -37,26 +36,6 @@ export default class TransitionHook {
   }
 
   /**
-   * Validates the result map as a "resolve:" style object.
-   * Creates Resolvable objects from the result object and adds them to the target object
-   */
-  mapNewResolves(resolves: IResolveDeclarations) {
-    var invalid = filter(resolves, not(isFunction)), keys = objectKeys(invalid);
-    if (keys.length)
-      throw new Error("Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}");
-
-    // If result is an object, it should be a map of strings to functions.
-    const makeResolvable = (fn, name) => new Resolvable(name, fn, this.state);
-    return map(resolves, makeResolvable);
-  }
-
-  handleHookResult(hookResult) {
-    var transitionResult = this.mapHookResult(hookResult);
-    if (this.options.trace) trace.traceHookResult(hookResult, transitionResult, this.options);
-    return transitionResult;
-  }
-
-  /**
    * Handles transition abort and transition redirect. Also adds any returned resolvables
    * to the pathContext for the current pathElement.  If the transition is rejected, then a rejected
    * promise is returned here, otherwise undefined is returned.
@@ -75,7 +54,7 @@ export default class TransitionHook {
   ])(hookResult);
 
   invokeStep = () => {
-    var { options, fn, locals, resolveContext, state } = this;
+    let { options, fn, locals, resolveContext, state } = this;
     if (options.trace) trace.traceHookInvocation(this, options);
     if (options.rejectIfSuperseded && /* !this.isActive() */ options.transition !== options.current()) {
       return REJECT.superseded(options.current());
@@ -90,13 +69,32 @@ export default class TransitionHook {
   };
 
 
+  /**
+   * Validates the result map as a "resolve:" style object.
+   * Creates Resolvable objects from the result object and adds them to the target object
+   */
+  mapNewResolves(resolves: IResolveDeclarations) {
+    let invalid = filter(resolves, not(isFunction)), keys = objectKeys(invalid);
+    if (keys.length)
+      throw new Error("Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}");
+
+    // If result is an object, it should be a map of strings to functions.
+    const makeResolvable = (fn, name) => new Resolvable(name, fn, this.state);
+    return map(resolves, makeResolvable);
+  }
+
+  handleHookResult(hookResult) {
+    let transitionResult = this.mapHookResult(hookResult);
+    if (this.options.trace) trace.traceHookResult(hookResult, transitionResult, this.options);
+    return transitionResult;
+  }
+
   toString() {
-    var { options, fn, resolveContext } = this;
-    var event = parse("data.eventType")(options) || "internal",
+    let { options, fn, resolveContext } = this;
+    let event = parse("data.eventType")(options) || "internal",
         name = (<any> fn).name || "(anonymous)",
         from = parse("data.from.name")(options),
-        to = parse("data.to.name")(options),
-        state = parse("data.pathElement.state.name")(options);
+        to = parse("data.to.name")(options);
     return `Step ${event} (fn: '${name}', match:{from: '${from}', to: '${to}'}, ${resolveContext.toString()})`;
   }
 }
