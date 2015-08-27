@@ -1,5 +1,5 @@
 import {isNull, isPromise, is, invoke, not, val, pattern, parse, objectKeys,
-    isDefined, isObject, isString, isFunction, extend, forEach, isArray, identity} from "../common/common";
+    isDefined, isFunction, identity} from "../common/common";
 import Resolvable  from "../resolve/resolvable";
 import {Transition}  from "../transition/transition";
 import {TransitionRejection}  from "../transition/rejectFactory";
@@ -10,7 +10,7 @@ function promiseToString(p) {
 }
 
 function fnToString(fn) {
-  var name = fn.name ? fn.name : "(anonymous)";
+  let name = fn.name ? fn.name : "(anonymous)";
   return `function ${name}(...)`;
 }
 
@@ -49,27 +49,27 @@ class Trace {
   }
 
   traceTransitionStart(transition: Transition) {
-    var tid = transition.$id,
+    let tid = transition.$id,
       digest = this.approximateDigests,
       transitionStr = this._stringify(transition);
     this._trace(`Transition #${tid} Digest #${digest}: Started ${transitionStr}`);
   }
 
   traceTransitionIgnored(transition: Transition) {
-    var tid = transition.$id,
+    let tid = transition.$id,
       digest = this.approximateDigests,
       transitionStr = this._stringify(transition);
     this._trace(`Transition #${tid} Digest #${digest}: Ignored ${transitionStr}`);
   }
 
   traceHookInvocation(step, options) {
-    var tid = parse("transition.$id")(options),
+    let tid = parse("transition.$id")(options),
       digest = this.approximateDigests;
     this._trace(`Transition #${tid} Digest #${digest}:   Hook -> ${step.toString()}`);
   }
 
   traceHookResult(hookResult, transitionResult, transitionOptions) {
-    var tid = parse("transition.$id")(transitionOptions),
+    let tid = parse("transition.$id")(transitionOptions),
       digest = this.approximateDigests,
       hookResultStr = this._stringify(hookResult),
       transitionResultStr = this._stringify(transitionResult);
@@ -77,7 +77,7 @@ class Trace {
   }
 
   traceResolvePath(path, options) {
-    var tid = parse("transition.$id")(options),
+    let tid = parse("transition.$id")(options),
       digest = this.approximateDigests,
       pathStr = path && path.toString(),
       policyStr = options && options.resolvePolicy;
@@ -85,7 +85,7 @@ class Trace {
   }
 
   traceResolvePathElement(pathElement, resolvablePromises, options) {
-    var tid = parse("transition.$id")(options),
+    let tid = parse("transition.$id")(options),
       digest = this.approximateDigests,
       resolvablePromisesStr = objectKeys(resolvablePromises).join(", "),
       pathElementStr = pathElement && pathElement.toString(),
@@ -94,45 +94,43 @@ class Trace {
   }
 
   traceResolveResolvable(resolvable, options) {
-    var tid = parse("transition.$id")(options),
+    let tid = parse("transition.$id")(options),
       digest = this.approximateDigests,
       resolvableStr = resolvable && resolvable.toString();
     this._trace(`Transition #${tid} Digest #${digest}:               Resolving -> ${resolvableStr}`);
   }
 
   traceResolvableResolved(resolvable, options) {
-    var tid = parse("transition.$id")(options),
+    let tid = parse("transition.$id")(options),
       digest = this.approximateDigests,
-      resolvableStr = resolvable && resolvable.toString(),
-      policyStr = options && options.resolvePolicy;
+      resolvableStr = resolvable && resolvable.toString();
     this._trace(`Transition #${tid} Digest #${digest}:               Resolved  <- ${resolvableStr} to: ${resolvable.data}`);
   }
 
   tracePathElementInvoke(pathElement, fn, deps, options) {
-    var title = `Invoke ${options.when}`,
+    let title = `Invoke ${options.when}`,
       tid = parse("transition.$id")(options),
       digest = this.approximateDigests,
       pathElementStr = pathElement && pathElement.toString(),
-      fnName = fn.name || "(anonymous)",
-      policyStr = options && options.resolvePolicy;
+      fnName = fn.name || "(anonymous)";
     this._trace(`Transition #${tid} Digest #${digest}:         ${title}: ${fnName} ${pathElementStr} requires: [${deps}]`);
   }
 
   traceError(error, transition: Transition) {
-    var tid = transition.$id,
+    let tid = transition.$id,
       digest = this.approximateDigests;
     this._trace(`Transition #${tid} Digest #${digest}: Transition Rejected, reason: ${error}`);
   }
 
   traceSuccess(finalState, transition: Transition) {
-    var tid = transition.$id,
+    let tid = transition.$id,
       digest = this.approximateDigests,
       state = finalState.name;
     this._trace(`Transition #${tid} Digest #${digest}: Transition Success, state: ${state}`);
   }
 }
 
-var trace = new Trace();
+let trace = new Trace();
 export default trace;
 
 angular.module("ui.router").run(function($rootScope) {
