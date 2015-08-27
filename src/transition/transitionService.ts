@@ -1,33 +1,26 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
-import {extend, defaults, objectKeys, pick, find, is, isFunction, isString, val, noop} from "../common/common"
-import {IServiceProviderFactory} from "angular"
+import {extend, is, isFunction, isString, val} from "../common/common";
+import {IServiceProviderFactory} from "angular";
 
-import {Transition} from "./transition"
+import {Transition} from "./transition";
 
-import {IStateDeclaration, IState} from "../state/interface"
-import TargetState from "../state/targetState"
-import {StateParams} from "../state/state"
-import Glob from "../state/glob"
+import {IState} from "../state/interface";
+import TargetState from "../state/targetState";
+import Glob from "../state/glob";
 
-import {IPath, IParamsPath, IResolvePath, ITransPath, INode, IParamsNode, IResolveNode} from "../path/interface"
-import Path from "../path/path"
+import {ITransPath} from "../path/interface";
 
-import {IRawParams} from "../params/interface"
-
-import {IResolvables} from "../resolve/interface"
-import ResolveContext from "../resolve/resolveContext"
-
-import {ITransitionService, ITransitionOptions, IStateMatch, IMatchCriteria} from "./interface"
+import {ITransitionService, ITransitionOptions, IStateMatch, IMatchCriteria} from "./interface";
 
 
 /**
  * The default transition options.
  * Include this object when applying custom defaults:
- * var reloadOpts = { reload: true, notify: true }
- * var options = defaults(theirOpts, customDefaults, defaultOptions);
+ * let reloadOpts = { reload: true, notify: true }
+ * let options = defaults(theirOpts, customDefaults, defaultOptions);
  */
-export var defaultTransOpts: ITransitionOptions = {
+export let defaultTransOpts: ITransitionOptions = {
   location    : true,
   relative    : null,
   inherit     : false,
@@ -49,13 +42,13 @@ export var defaultTransOpts: ITransitionOptions = {
  * @returns {boolean}
  */
 export function matchState(state: IState, matchCriteria: (string|IStateMatch)) {
-  var toMatch = isString(matchCriteria) ? [matchCriteria] : matchCriteria;
+  let toMatch = isString(matchCriteria) ? [matchCriteria] : matchCriteria;
 
-  function matchGlobs(state) {
-    for (var i = 0; i < toMatch.length; i++) {
-      var glob = Glob.fromString(toMatch[i]);
+  function matchGlobs(_state) {
+    for (let i = 0; i < toMatch.length; i++) {
+      let glob = Glob.fromString(toMatch[i]);
 
-      if ((glob && glob.matches(state.name)) || (!glob && toMatch[i] === state.name)) {
+      if ((glob && glob.matches(_state.name)) || (!glob && toMatch[i] === _state.name)) {
         return true;
       }
     }
@@ -66,7 +59,7 @@ export function matchState(state: IState, matchCriteria: (string|IStateMatch)) {
   return !!matchFn(state);
 }
 
-export var $transition: ITransitionService = <any> {};
+export let $transition: ITransitionService = <any> {};
 
 
 /**
@@ -77,7 +70,7 @@ $TransitionProvider.$inject = [];
 function $TransitionProvider() {
   $TransitionProvider.prototype.instance = this;
 
-  var transitionEvents = {
+  let transitionEvents = {
     onBefore: [], onStart: [], on: [], entering: [], exiting: [], onSuccess: [], onError: []
   };
 
@@ -85,17 +78,17 @@ function $TransitionProvider() {
   function registerEventHook(eventType) {
     return function(matchObject, callback, options) {
       options = options || {};
-      var eventHook = new EventHook(matchObject, callback, options);
-      var hooks = transitionEvents[eventType];
+      let eventHook = new EventHook(matchObject, callback, options);
+      let hooks = transitionEvents[eventType];
       hooks.push(eventHook);
       hooks.sort(function(a, b) {
         return a.priority - b.priority;
       });
 
       return function deregisterEventHook() {
-        var idx = hooks.indexOf(eventHook);
-        idx != -1 && hooks.splice(idx, 1)
-      }
+        let idx = hooks.indexOf(eventHook);
+        if (idx !== -1) hooks.splice(idx, 1);
+      };
     };
   }
 
@@ -245,7 +238,7 @@ function $TransitionProvider() {
    * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
    * @param {function} callback The function which will be injected and invoked, when a matching transition is started.
    *   The function's return value is ignored.
-  */
+   */
   this.onSuccess = registerEventHook("onSuccess");
 
   /**
@@ -295,7 +288,7 @@ function $TransitionProvider() {
     $transition.provider = $TransitionProvider.prototype.instance;
 
     $transition.$$hooks = function(type: string) {
-      return [].concat(transitionEvents[type])
+      return [].concat(transitionEvents[type]);
     };
 
     return $transition;
