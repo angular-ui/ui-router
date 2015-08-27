@@ -3,7 +3,7 @@ import {runtime} from "../common/angular1";
 import {IPromise} from "angular";
 import trace from "../common/trace";
 
-import {ITransitionOptions, ITreeChanges} from "./interface";
+import {ITransitionOptions, ITransitionHookOptions, ITreeChanges} from "./interface";
 import {$transition, matchState} from "./transitionService";
 import HookBuilder from "./hookBuilder";
 import {RejectFactory} from "./rejectFactory";
@@ -19,7 +19,7 @@ import {IState, IStateDeclaration, IStateViewConfig} from "../state/interface";
 
 import ParamValues from "../params/paramValues";
 
-import {extend, filter, flatten, forEach, identity, isEq, isObject, map, not, prop, toJson, unnest, val,
+import {extend, flatten, forEach, identity, isEq, isObject, map, not, prop, toJson, unnest, val,
     pairs, abstractKey} from "../common/common";
 
 let transitionCount = 0, REJECT = new RejectFactory();
@@ -278,7 +278,7 @@ export class Transition {
   run () {
     if (this.error()) throw new Error(this.error());
     if (this._options.trace) trace.traceTransitionStart(this);
-    let baseHookOptions = {
+    let baseHookOptions: ITransitionHookOptions = {
       trace: this._options.trace,
       transition: this,
       current: this._options.current
@@ -296,25 +296,17 @@ export class Transition {
 
     $transition.transition = this;
 
-    let {to, from} = this._treeChanges;
-    let [toState, fromState]    = [to, from].map(path => path.last().state);
-    let [toContext, fromContext] = [to, from].map(path => new ResolveContext(path));
-    let toFrom = { to: toState, from: fromState };
-    let toParams = to.last().paramValues;
-
-    let tLocals = { $transition$: this };
-
     // Build a bunch of arrays of promises for each step of the transition
-    let onBeforeHooks       = hookBuilder.makeSteps("onBefore",   toState, toFrom, fromContext, tLocals, {async: false});
-    let onStartHooks        = hookBuilder.makeSteps("onStart",    toState, toFrom, fromContext, tLocals);
-    let transitionOnHooks   = hookBuilder.makeSteps("on",         toState, toFrom, toContext, tLocals);
+    let onBeforeHooks       = hookBuilder.getOnBeforeHooks();
+    let onStartHooks        = hookBuilder.getOnStartHooks();
+    let transitionOnHooks   = hookBuilder.getOnActivateHooks();
 
-    let eagerResolves       = hookBuilder.makeEagerResolvePathStep(to, tLocals);
-    let exitingStateHooks   = hookBuilder.exitingStateHooks(fromContext, tLocals, toParams, this._options);
-    let enteringStateHooks  = hookBuilder.enteringStateHooks(toContext, tLocals, toParams, this._options);
+    let eagerResolves       = [hookBuilder.getEagerResolvePathHook()];
+    let exitingStateHooks   = hookBuilder.getOnExitingHooks();
+    let enteringStateHooks  = hookBuilder.getOnEnterHooks();
 
     // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
-    let asyncSteps = filter(flatten([onStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]), identity);
+    let asyncSteps = flatten([onStartHooks, transitionOnHooks, eagerResolves, exitingStateHooks, enteringStateHooks]).filter(identity);
 
     // -----------------------------------------------------------------------
     // Transition Steps
@@ -334,7 +326,7 @@ export class Transition {
 
     // When the last step of the chain has resolved or any step has rejected (i.e., the transition is completed),
     // invoke the registered success or error hooks when the transition is completed.
-    chain = chain.then(hookBuilder.successHooks(this._deferreds)).catch(hookBuilder.errorHooks(this._deferreds));
+    chain = chain.then(hookBuilder.getSuccessHooks(this._deferreds)).catch(hookBuilder.getErrorHooks(this._deferreds));
 
     // Return the overall transition promise, which is resolved/rejected in successHooks/errorHooks
     return this.promise;
