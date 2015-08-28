@@ -1,4 +1,4 @@
-import {defaults, noop, filter, not, isFunction, objectKeys, map, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse} from "../common/common";
+import {defaults, noop, filter, not, isFunction, isDefined, objectKeys, map, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse} from "../common/common";
 import trace from "../common/trace";
 import {RejectFactory} from "./rejectFactory";
 import {Transition} from "./transition";
@@ -76,7 +76,7 @@ export default class TransitionHook {
   mapNewResolves(resolves: IResolveDeclarations) {
     let invalid = filter(resolves, not(isFunction)), keys = objectKeys(invalid);
     if (keys.length)
-      throw new Error("Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}");
+      throw new Error(`Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}`);
 
     // If result is an object, it should be a map of strings to functions.
     const makeResolvable = (fn, name) => new Resolvable(name, fn, this.state);
@@ -84,8 +84,12 @@ export default class TransitionHook {
   }
 
   handleHookResult(hookResult) {
+    if (!isDefined(hookResult)) return undefined;
+    if (this.options.trace) trace.traceHookResult(hookResult, undefined, this.options);
+
     let transitionResult = this.mapHookResult(hookResult);
-    if (this.options.trace) trace.traceHookResult(hookResult, transitionResult, this.options);
+    if (transitionResult && this.options.trace) trace.traceHookResult(hookResult, transitionResult, this.options);
+
     return transitionResult;
   }
 

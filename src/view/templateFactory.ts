@@ -106,7 +106,7 @@ function $TemplateFactory(  $http,   $templateCache) {
    * for that string.
    */
   this.fromProvider = function (provider, params, locals) {
-    return locals(provider, { params: params });
+    return locals(provider, { $stateParams: params });
   };
 }
 

@@ -9,19 +9,17 @@ import {HookRegistry, matchState} from "./hookRegistry";
 import HookBuilder from "./hookBuilder";
 import {RejectFactory} from "./rejectFactory";
 
-import {IResolvePath, ITransPath} from "../path/interface";
+import {ITransPath} from "../path/interface";
 import PathFactory from "../path/pathFactory";
 
-import ResolveContext from "../resolve/resolveContext";
-import PathContext from "../resolve/pathContext";
-
 import TargetState from "../state/targetState";
-import {IState, IStateDeclaration, IStateViewConfig} from "../state/interface";
+import {IState, IStateDeclaration} from "../state/interface";
 
 import ParamValues from "../params/paramValues";
 
-import {extend, flatten, forEach, identity, isEq, isObject, map, not, prop, toJson, unnest, val,
-    pairs, abstractKey} from "../common/common";
+import {ViewConfig} from "../view/view";
+
+import {extend, flatten, forEach, identity, isEq, isObject, not, prop, toJson, val, abstractKey} from "../common/common";
 
 let transitionCount = 0, REJECT = new RejectFactory();
 const stateSelf: (_state: IState) => IStateDeclaration = prop("self");
@@ -222,29 +220,13 @@ export class Transition implements IHookRegistry {
     return this._treeChanges.retained.states().map(stateSelf);
   }
 
-  // TODO
-  context(pathname: string, state: IState): PathContext {
-    let path = this._treeChanges[pathname].pathFromRootTo(state);
-    return new PathContext(new ResolveContext(path), state, runtime.$injector, this._options);
-  }
-
   /**
-   * Returns a list of StateViewConfig objects;
-   * Returns one StateViewConfig for each view in each state in a named path of the transition's tree changes
+   * Returns a list of ViewConfig objects for a given path. Returns one ViewConfig for each view in
+   * each state in a named path of the transition's tree changes. Optionally limited to a given state in that path.
    */
-  views(pathname: string = "entering", contextPathname: string = "to") {
-    let path: IResolvePath = this._treeChanges[pathname];
-    let states: IState[] = path.states();
-    let params: ParamValues = this.params();
-
-    return unnest(map(states, (state: IState) => {
-      let context = state;
-      let locals: PathContext = this.context(contextPathname, state);
-      const makeViewConfig = ([rawViewName, viewDeclarationObj]) => { return <IStateViewConfig> {
-        rawViewName, viewDeclarationObj, context, locals, params};
-      };
-      return pairs(state.views).map(makeViewConfig);
-    }));
+  views(pathname: string = "entering", state?: IState): ViewConfig[] {
+    let path = this._treeChanges[pathname];
+    return state ? path.nodeForState(state).views : flatten(path.nodes().map(prop("views")));
   }
 
   /**

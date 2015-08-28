@@ -34,6 +34,7 @@ export interface ITransitionHookOptions {
 }
 
 export interface ITreeChanges {
+  [key: string]: ITransPath;
   from:     ITransPath;
   to:       ITransPath;
   retained: ITransPath;

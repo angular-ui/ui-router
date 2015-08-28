@@ -1,4 +1,6 @@
-import {map, extend, prop, pick, omit, not, objectKeys, curry} from "../common/common";
+import {map, extend, pairs, prop, pick, omit, not, objectKeys, curry} from "../common/common";
+
+import {runtime} from "../common/angular1";
 
 import {IRawParams} from "../params/interface";
 import ParamValues from "../params/paramValues";
@@ -13,6 +15,9 @@ import Path from "../path/path";
 
 import Resolvable from "../resolve/resolvable";
 import ResolveContext from "../resolve/resolveContext";
+import PathContext from "../resolve/pathContext";
+
+import {ViewConfig} from "../view/view";
 
 /**
  * This class contains functions which convert TargetStates, Nodes and Paths from one type to another.
@@ -99,16 +104,30 @@ export default class PathFactory {
   /**
    * Given an IResolvePath, upgrades the path to an ITransPath.  Each node is assigned a ResolveContext
    * and ParamValues object which is bound to the whole path, but closes over the subpath from root to the node.
+   * The views are also added to the node.
    */
   static bindTransNodesToPath(resolvePath: IResolvePath): ITransPath {
     let resolveContext = new ResolveContext(resolvePath);
     let paramValues = new ParamValues(resolvePath);
     let transPath = <ITransPath> resolvePath;
 
+    // TODO: this doesn't belong here.
+    // TODO: pass options to PathContext
+    // TODO: rename PathContext
+    function makeViews(node: ITransNode) {
+      let context = node.state, params = node.paramValues;
+      let locals = new PathContext(node.resolveContext, node.state, runtime.$injector, {});
+      const makeViewConfig = ([rawViewName, viewDeclarationObj]) =>
+          new ViewConfig({rawViewName, viewDeclarationObj, context, locals, params});
+      return pairs(node.state.views || {}).map(makeViewConfig);
+    }
+
     // Attach bound resolveContext and paramValues to each node
-    transPath.nodes().forEach(node => {
+    // Attach views to each node
+    transPath.nodes().forEach((node: ITransNode) => {
           node.resolveContext = resolveContext.isolateRootTo(node.state);
           node.paramValues = paramValues.$isolateRootTo(node.state.name);
+          node.views = makeViews(node);
         }
     );
 

@@ -3,6 +3,8 @@ import Path from "./../path/path";
 
 import {IState} from "../state/interface";
 
+import {ViewConfig} from "../view/view";
+
 import {IRawParams} from "../params/interface";
 import ParamValues from "../params/paramValues";
 
@@ -19,7 +21,7 @@ export interface IPath extends Path<INode> {}
 
 
 /** Contains INode base data plus raw params values for the node */
-export interface IParamsNode extends INode { 
+export interface IParamsNode extends INode {
   ownParams: IRawParams;
 }
 /** A Path of IParamsNode(s) */
@@ -33,10 +35,10 @@ export interface IResolveNode extends IParamsNode {
 /** A Path of IResolveNode(s) */
 export interface IResolvePath extends Path<IResolveNode> {}
 
-
 /** Contains IResolveNode data, plus a ResolveContext and ParamsValues (bound to a full path) for the node,  */
 export interface ITransNode extends IResolveNode {
   resolveContext: ResolveContext;
+  views: ViewConfig[];
   paramValues: ParamValues;
 }
 /**

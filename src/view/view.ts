@@ -196,7 +196,6 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
     return $q.all(viewConfig.promises).then((results) => {
       debug(`$view.ViewConfig: Loaded ${viewConfigString(viewConfig)}`);
       extend(viewConfig, results);
-      this.sync();
     });
   };
 
@@ -206,19 +205,14 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
    * @param {String} name The fully-qualified name of the view to reset.
    * @return {Boolean} Returns `true` if the view exists, otherwise `false`.
    */
-  this.reset = function reset (stateViewConfig) {
-    let viewConfig = new ViewConfig(stateViewConfig);
+  this.reset = function reset (viewConfig) {
     debug(`$view.ViewConfig: <- Removing ${viewConfigString(viewConfig)}`);
-    // TODO: Check if this code is doing the right thing
     viewConfigs.filter(match(viewConfig, "uiViewName", "context")).forEach(removeFrom(viewConfigs));
-    //uiViews.filter(match(viewConfig, "name", "parentContext")).forEach(uiView => uiView.configUpdated(null));
   };
 
-  this.registerStateViewConfig = function(stateViewConfig: IStateViewConfig) {
-    let viewConfig = new ViewConfig(stateViewConfig);
+  this.registerStateViewConfig = function(viewConfig: ViewConfig) {
     debug(`$view.ViewConfig: -> Registering ${viewConfigString(viewConfig)}`);
     viewConfigs.push(viewConfig);
-    this.load(viewConfig);
   };
 
   this.sync = () => {
@@ -318,7 +312,13 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
       return [uiView, matchingConfigs[0]];
     };
 
-    const configureUiView = ([uiView, viewConfig]) => uiView.configUpdated(viewConfig);
+    const configureUiView = ([uiView, viewConfig]) => {
+      // If a parent ui-view is reconfigured, it could destroy child ui-views.
+      // Before configuring a child ui-view, make sure it's still in the active uiViews array.
+      if (uiViews.indexOf(uiView) !== -1)
+        uiView.configUpdated(viewConfig);
+    };
+
     uiViews.sort(depthCompare(uiViewDepth, 1)).map(matchingConfigPair).forEach(configureUiView);
   };
 

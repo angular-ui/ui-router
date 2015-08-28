@@ -143,11 +143,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
   }
 
   function configsEqual(config1, config2) {
-    return (config1 === config2) || (config1 && config2 && (
-      config1.controller    === config2.controller &&
-      config1.template      === config2.template &&
-      config1.controllerAs  === config2.controllerAs
-      ));
+    return config1 === config2;
   }
 
   let directive = {
@@ -163,7 +159,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
             onloadExp     = attrs.onload || '',
             autoScrollExp = attrs.autoscroll,
             renderer      = getRenderer(attrs, scope),
-            viewConfig    = {},
+            viewConfig    = undefined,
             inherited     = $element.inheritedData('$uiView') || { context: $view.rootContext() },
             name          = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default';
 
@@ -179,10 +175,11 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
 
         debug(`uiView tag: Linking '${viewData.fqn}#${viewData.id}'`);
 
-        function configUpdatedCallback(config: ViewConfig = <any> {}) {
+        function configUpdatedCallback(config?: ViewConfig) {
           if (configsEqual(viewConfig, config)) return;
-          debug(`uiView tag: Updating '${viewData.fqn}#${viewData.id}': (${uiViewString(viewData)}) with ViewConfig from context='${config.context}'`);
-          viewConfig = extend({}, config);
+          let context = config && config.context;
+          debug(`uiView tag: Updating '${viewData.fqn}#${viewData.id}': (${uiViewString(viewData)}) with ViewConfig from context='${context}'`);
+          viewConfig = config;
           updateView(config);
         }
 

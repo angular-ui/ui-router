@@ -22,6 +22,7 @@ import PathFactory from "../path/pathFactory";
 
 import {IRawParams, IParamsOrArray} from "../params/interface";
 
+import {ViewConfig} from "../view/view";
 
 /**
  * @ngdoc object
@@ -692,10 +693,26 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         return $q.reject(transition.error());
 
 
+      // TODO: Move the Transition instance hook registration to its own function
+      let enteringViews = transition.views("entering");
+      let exitingViews = transition.views("exiting");
+      const loadView = (viewConfig: ViewConfig) => $view.load(viewConfig);
+      const activateView = (viewConfig: ViewConfig) => $view.registerStateViewConfig(viewConfig);
+      const deactivateView = (viewConfig: ViewConfig) => $view.reset(viewConfig);
+
+      const loadAllEnteringViews = () => $q.all(enteringViews.map(loadView)).then(() => undefined);
+      const deactivateAllExitedViews = () => exitingViews.forEach(deactivateView);
+      const activateEnteringViews = ($state$: IState) => transition.views("entering", $state$).forEach(activateView);
+
       // Add hooks
       // TODO: Move this to its own fn
       let hookBuilder = transition.hookBuilder();
+
+      transition.onStart({}, loadAllEnteringViews, { priority: 100 });
+      transition.onStart({}, deactivateAllExitedViews, { priority: 50 });
       transition.onStart({}, hookBuilder.getEagerResolvePathFn(), { priority: 100 });
+
+      transition.onEnter({}, activateEnteringViews, { priority: 101 });
       transition.onEnter({}, hookBuilder.getLazyResolveStateFn(), { priority: 100 });
 
       let onEnterRegistration = (state) => transition.onEnter({to: state.name}, state.onEnter, { priority: -100 });

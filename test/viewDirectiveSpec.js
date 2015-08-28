@@ -463,7 +463,7 @@ describe('uiView', function () {
       // Enter Animation
       animation = $animate.queue.shift();
       expect(animation.event).toBe('enter');
-      expect(animation.element.text()).toBe(content);
+      expect(animation.element.text() + "-1").toBe(content + "-1");
 
       $state.transitionTo(aState);
       $q.flush();
@@ -471,11 +471,11 @@ describe('uiView', function () {
       // Enter Animation
       animation = $animate.queue.shift();
       expect(animation.event).toBe('enter');
-      expect(animation.element.text()).toBe(aState.template);
+      expect(animation.element.text() + "-2").toBe(aState.template + "-2");
       // Leave Animation
       animation = $animate.queue.shift();
       expect(animation.event).toBe('leave');
-      expect(animation.element.text()).toBe(content);
+      expect(animation.element.text() + "-3").toBe(content + "-3");
 
       $state.transitionTo(bState);
       $q.flush();
@@ -483,11 +483,11 @@ describe('uiView', function () {
       // Enter Animation
       animation = $animate.queue.shift();
       expect(animation.event).toBe('enter');
-      expect(animation.element.text()).toBe(bState.template);
+      expect(animation.element.text() + "-4").toBe(bState.template + "-4");
       // Leave Animation
       animation = $animate.queue.shift();
       expect(animation.event).toBe('leave');
-      expect(animation.element.text()).toBe(aState.template);
+      expect(animation.element.text() + "-5").toBe(aState.template + "-5");
 
       // No more animations
       expect($animate.queue.length).toBe(0);

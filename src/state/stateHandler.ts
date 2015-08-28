@@ -30,9 +30,6 @@ export default class StateHandler {
 
   transitionSuccess(treeChanges: ITreeChanges, transition: Transition) {
     let {$view, $state, activeTransQ, changeHistory} = this;
-    // TODO: sync on entering/exiting state, not transition success?
-    transition.views("exiting", "from").forEach($view.reset.bind($view));
-    transition.views("entering", "to").forEach($view.registerStateViewConfig.bind($view));
     $view.sync();
 
     // Update globals in $state
