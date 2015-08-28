@@ -225,6 +225,59 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
     let uiViewsByFqn: TypedMap<IUiViewData> =
         uiViews.map(uiv => [uiv.fqn, uiv]).reduce(addPairToObj, <any> {});
 
+    /**
+     * Given a ui-view and a ViewConfig, determines if they "match".
+     *
+     * A ui-view has a fully qualified name (fqn) and a context object.  The fqn is built from its overall location in
+     * the DOM, describing its nesting relationship to any parent ui-view tags it is nested inside of.
+     *
+     * A ViewConfig has a target ui-view name and a context anchor.  The ui-view name can be a simple name, or
+     * can be a segmented ui-view path, describing a portion of a ui-view fqn.
+     *
+     * If the ViewConfig's target ui-view name is a simple name (no dots), then a ui-view matches if:
+     * - the ui-view's name matches the ViewConfig's target name
+     * - the ui-view's context matches the ViewConfig's anchor
+     *
+     * If the ViewConfig's target ui-view name is a segmented name (with dots), then a ui-view matches if:
+     * - There exists a parent ui-view where:
+     *    - the parent ui-view's name matches the first segment (index 0) of the ViewConfig's target name
+     *    - the parent ui-view's context matches the ViewConfig's anchor
+     * - And the remaining segments (index 1..n) of the ViewConfig's target name match the tail of the ui-view's fqn
+     *
+     * Example:
+     *
+     * DOM:
+     * <div ui-view>                        <!-- created in the root context (name: "") -->
+     *   <div ui-view="foo">                <!-- created in the context named: "A"      -->
+     *     <div ui-view>                    <!-- created in the context named: "A.B"    -->
+     *       <div ui-view="bar">            <!-- created in the context named: "A.B.C"  -->
+     *       </div>
+     *     </div>
+     *   </div>
+     * </div>
+     *
+     * uiViews: [
+     *  { fqn: "$default",                  creationContext: { name: "" } },
+     *  { fqn: "$default.foo",              creationContext: { name: "A" } },
+     *  { fqn: "$default.foo.$default",     creationContext: { name: "A.B" } }
+     *  { fqn: "$default.foo.$default.bar", creationContext: { name: "A.B.C" } }
+     * ]
+     *
+     * These four view configs all match the ui-view with the fqn: "$default.foo.$default.bar":
+     *
+     * - ViewConfig1: { uiViewName: "bar",                       uiViewContextAnchor: "A.B.C" }
+     * - ViewConfig2: { uiViewName: "$default.bar",              uiViewContextAnchor: "A.B" }
+     * - ViewConfig3: { uiViewName: "foo.$default.bar",          uiViewContextAnchor: "A" }
+     * - ViewConfig4: { uiViewName: "$default.foo.$default.bar", uiViewContextAnchor: "" }
+     *
+     * Using ViewConfig3 as an example, it matches the ui-view with fqn "$default.foo.$default.bar" because:
+     * - The ViewConfig's segmented target name is: [ "foo", "$default", "bar" ]
+     * - There exists a parent ui-view (which has fqn: "$default.foo") where:
+     *    - the parent ui-view's name "foo" matches the first segment "foo" of the ViewConfig's target name
+     *    - the parent ui-view's context "A" matches the ViewConfig's anchor context "A"
+     * - And the remaining segments [ "$default", "bar" ].join("."_ of the ViewConfig's target name match
+     *   the tail of the ui-view's fqn "default.bar"
+     */
     const matches = curry(function(uiView: IUiViewData, viewConfig: ViewConfig) {
       // Split names apart from both viewConfig and uiView into segments
       let vcSegments = viewConfig.uiViewName.split(".");
@@ -243,28 +296,30 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
       return viewConfig.uiViewContextAnchor === (uiViewContext && uiViewContext.name);
     });
 
-    // Sorts an array of [ IUiViewData, ViewConfig ] pair in descending order
-    // The sort order is determined by the ViewConfig's context's depth.
-    const sortConfigs = (configs: ViewConfig[]) => {
-      function depth(context: IContextRef) {
-        let count = 0;
-        while (++count && context.parent) context = context.parent;
-        return count;
-      }
+    // Return the number of dots in the fully qualified name
+    function uiViewDepth(uiView: IUiViewData) {
+      return uiView.fqn.split(".").length;
+    }
 
-      const sortFn = (configL, configR) => depth(configR.context) - depth(configL.context);
-      return configs.sort(sortFn);
-    };
+    // Return the ViewConfig's context's depth in the context tree.
+    function viewConfigDepth(config: ViewConfig) {
+      let context: IContextRef = config.context, count = 0;
+      while (++count && context.parent) context = context.parent;
+      return count;
+    }
 
-    const getMatchingConfigPair = uiView => {
+    // Given a depth function, returns a compare function which can return either ascending or descending order
+    const depthCompare = curry((depthFn, posNeg, left, right) => posNeg * (depthFn(left) - depthFn(right)));
+
+    const matchingConfigPair = uiView => {
       let matchingConfigs = viewConfigs.filter(matches(uiView));
       if (matchingConfigs.length > 1)
-        sortConfigs(matchingConfigs);
+        matchingConfigs.sort(depthCompare(viewConfigDepth, -1)); // descending
       return [uiView, matchingConfigs[0]];
     };
 
     const configureUiView = ([uiView, viewConfig]) => uiView.configUpdated(viewConfig);
-    uiViews.map(getMatchingConfigPair).forEach(configureUiView);
+    uiViews.sort(depthCompare(uiViewDepth, 1)).map(matchingConfigPair).forEach(configureUiView);
   };
 
   /**
