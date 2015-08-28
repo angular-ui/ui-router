@@ -64,6 +64,7 @@ beforeEach(function () {
     var thisState = pick.apply(null, [state].concat(stateProps));
     var substates = omit.apply(null, [state].concat(stateProps));
 
+    thisState.template = thisState.template || "empty";
     thisState.name = name;
     thisState.parent = parent.name;
     thisState.data = { children: [] };

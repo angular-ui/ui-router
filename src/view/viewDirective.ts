@@ -12,7 +12,7 @@ function debug() {
   if (_debug) { console.log.apply(console, arguments); }
 }
 
-const uiViewString = (viewData) => `ui-view named '${viewData.name}' created in context='${viewData.creationContext}' / filled with view from context='${viewData.fillContext}'`;
+const uiViewString = (viewData) => `ui-view named '${viewData.name}@${viewData.creationContext}', filled with ViewConfig from context='${viewData.fillContext}'`;
 /**
  * @ngdoc directive
  * @name ui.router.state.directive:ui-view
@@ -126,8 +126,8 @@ const uiViewString = (viewData) => `ui-view named '${viewData.name}' created in 
  * <ui-view autoscroll='scopeVariable'/>
  * </pre>
  */
-$ViewDirective.$inject = ['$view', '$animate', '$uiViewScroll', '$interpolate'];
-function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
+$ViewDirective.$inject = ['$view', '$animate', '$uiViewScroll', '$interpolate', '$q'];
+function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,   $q) {
 
   function getRenderer(attrs, scope) {
     return {
@@ -151,6 +151,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
   }
 
   let directive = {
+    count: 0,
     restrict: 'ECA',
     terminal: true,
     priority: 400,
@@ -167,6 +168,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
             name          = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default';
 
         let viewData: IUiViewData = {
+          id: directive.count++,
           name: name,
           fqn: inherited.name ? inherited.fqn + "." + name : name,
           config: null,
@@ -175,11 +177,11 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
           get creationContext() { return inherited.context; }
         };
 
-        debug(`${viewData.fqn}: Invoking link function`);
+        debug(`uiView tag: Linking '${viewData.fqn}#${viewData.id}'`);
 
         function configUpdatedCallback(config: ViewConfig = <any> {}) {
           if (configsEqual(viewConfig, config)) return;
-          debug(`${viewData.fqn}: Updating (${uiViewString(viewData)}) with ViewConfig from context='${config && config.context}'`);
+          debug(`uiView tag: Updating '${viewData.fqn}#${viewData.id}': (${uiViewString(viewData)}) with ViewConfig from context='${config.context}'`);
           viewConfig = extend({}, config);
           updateView(config);
         }
@@ -190,25 +192,25 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
 
         unregister = $view.registerUiView(viewData);
         scope.$on("$destroy", function() {
-          debug(`${viewData.fqn}: Destroying (${uiViewString(viewData)})`);
+          debug(`uiView tag: Destroying/Unregistering '${viewData.fqn}#${viewData.id}' (${uiViewString(viewData)})`);
           unregister();
         });
 
         function cleanupLastView() {
           if (previousEl) {
-            debug(`${viewData.fqn}: Removing previous el`);
+            debug(`uiView tag: Removing    (previous) el '${viewData.fqn}#${viewData.id}'`);
             previousEl.remove();
             previousEl = null;
           }
 
           if (currentScope) {
-            debug(`${viewData.fqn}: Destroying current scope: ${Object.keys(currentScope)}`);
+            debug(`uiView tag: Destroying  (previous) scope #${currentScope.$id} '${viewData.fqn}#${viewData.id}'`);
             currentScope.$destroy();
             currentScope = null;
           }
 
           if (currentEl) {
-            debug(`${viewData.fqn}: Animate out`);
+            debug(`uiView tag: Animate out (previous) '${viewData.fqn}#${viewData.id}'`);
             renderer.leave(currentEl, function() {
               previousEl = null;
             });
@@ -221,6 +223,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate) {
         function updateView(config?: ViewConfig) {
           config = config || <any> {};
           let newScope = scope.$new();
+          debug(`uiView tag: Created scope #${newScope.$id} for '${viewData.fqn}#${viewData.id}'`);
 
           extend(viewData, {
             context: config.context,
@@ -279,7 +282,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
 
         $element.html(data.$template || initial);
 
-        debug(`${data.fqn}: Fill element with contents: ${$element.html()}`);
+        debug(`uiView tag: Fill '${data.fqn}' with '${$element.html()}'`);
         let link = $compile($element.contents());
         let controller = data.$controller;
         let controllerAs = data.$controllerAs;

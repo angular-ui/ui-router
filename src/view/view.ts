@@ -1,4 +1,5 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
+import {IPromise} from "angular";
 import {isInjectable, isString, defaults, extend, curry, addPairToObj, prop, pick, removeFrom, isEq, val, TypedMap} from "../common/common";
 import {IStateViewConfig, IViewDeclaration} from "../state/interface";
 import {IUiViewData, IContextRef} from "./interface";
@@ -8,6 +9,9 @@ function debug(...any);
 function debug() {
   if (_debug) { console.log.apply(console, arguments); }
 }
+
+const viewConfigString = (viewConfig: ViewConfig) =>
+    `(ViewConfig targeting ui-view: '${viewConfig.uiViewName}@${viewConfig.uiViewContextAnchor}', context: '${viewConfig.context.name}')`;
 
 /**
  * Given a raw view name from a views: config, returns a normalized target viewName and contextAnchor
@@ -46,6 +50,10 @@ function normalizeUiViewTarget(rawViewName = "") {
  */
 export class ViewConfig {
   viewDeclarationObj: IViewDeclaration;
+  promises: {
+    template: IPromise<string>,
+    controller: IPromise<Function>
+  };
 
   template: string;
   controller: Function;
@@ -143,7 +151,6 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
    * @return {Promise.<string>} Returns a promise that resolves to the value of the template loaded.
    */
   this.load = function load (viewConfig: ViewConfig, options) {
-    debug(`$view: the context named '${viewConfig.context.name}' is loading '${viewConfig.uiViewName}@${viewConfig.uiViewContextAnchor}'`);
     options = defaults(options, {
       context:            null,
       parent:             null,
@@ -181,14 +188,16 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
       $rootScope.$broadcast('$viewContentLoading', extend({ targetView: name }, options));
     }
 
-    let promises = {
+    viewConfig.promises = {
       template: $q.when(viewConfig.getTemplate($templateFactory)),
       controller: $q.when(viewConfig.getController())
     };
 
-    return $q.all(promises)
-        .then((results) => extend(viewConfig, results))
-        .then(() => this.sync());
+    return $q.all(viewConfig.promises).then((results) => {
+      debug(`$view.ViewConfig: Loaded ${viewConfigString(viewConfig)}`);
+      extend(viewConfig, results);
+      this.sync();
+    });
   };
 
   /**
@@ -199,6 +208,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
    */
   this.reset = function reset (stateViewConfig) {
     let viewConfig = new ViewConfig(stateViewConfig);
+    debug(`$view.ViewConfig: <- Removing ${viewConfigString(viewConfig)}`);
     // TODO: Check if this code is doing the right thing
     viewConfigs.filter(match(viewConfig, "uiViewName", "context")).forEach(removeFrom(viewConfigs));
     //uiViews.filter(match(viewConfig, "name", "parentContext")).forEach(uiView => uiView.configUpdated(null));
@@ -206,6 +216,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
 
   this.registerStateViewConfig = function(stateViewConfig: IStateViewConfig) {
     let viewConfig = new ViewConfig(stateViewConfig);
+    debug(`$view.ViewConfig: -> Registering ${viewConfigString(viewConfig)}`);
     viewConfigs.push(viewConfig);
     this.load(viewConfig);
   };
@@ -265,10 +276,11 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
    *                   of the view.
    * @return {Function} Returns a de-registration function used when the view is destroyed.
    */
-  this.registerUiView = function register(uiView) {
+  this.registerUiView = function register(uiView: IUiViewData) {
+    debug(`$view.ui-view: -> Registering '${uiView.fqn}' ('${uiView.name}@${uiView.creationContext}')`);
     let fqnMatches = isEq(prop("fqn"), val(uiView.fqn));
     if (uiViews.filter(fqnMatches).length)
-      debug(`uiView already exists with name: '${uiView.fqn}' (named ${uiView.name} in context ${uiView.context})`);
+      debug(`!!!! duplicate uiView named: '${uiView.fqn}' ('${uiView.name}@${uiView.creationContext}')`);
 
     uiViews.push(uiView);
     this.sync();
@@ -279,10 +291,8 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
         debug("Tried removing non-registered uiView");
         return;
       }
-      debug("uiViews: ", uiViews.map(prop("fqn")));
-      debug(`Removing ${uiView.fqn} from uiViews: '${uiView}' (${idx})`);
       removeFrom(uiViews)(uiView);
-      debug("uiViews: ", uiViews.map(prop("fqn")));
+      debug(`$view.ui-view: <- Remove '${uiView.fqn}' from uiViews (new length: ${uiViews.length})`);
     };
   };
 
@@ -291,7 +301,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
    *
    * @return {Array} Returns an array of fully-qualified view names.
    */
-  this.available = () => uiViews.map(prop("name"));
+  this.available = () => uiViews.map(prop("fqn"));
 
   /**
    * Returns the list of views on the page containing loaded content.
