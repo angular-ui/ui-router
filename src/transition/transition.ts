@@ -62,6 +62,7 @@ export class Transition implements IHookRegistry {
 
   constructor(fromPath: ITransPath, targetState: TargetState) {
     if (targetState.error()) throw new Error(targetState.error());
+    HookRegistry.mixin(new HookRegistry(), this);
 
     this._options = extend({ current: val(this) }, targetState.options());
     this.$id = transitionCount++;
@@ -78,9 +79,6 @@ export class Transition implements IHookRegistry {
     this.prepromise = this._deferreds.prehooks.promise;
     this.promise = this._deferreds.posthooks.promise;
     this.redirects = this._deferreds.redirects.promise;
-
-    let registry: HookRegistry = new HookRegistry();
-    HookRegistry.mixin(registry, this);
   }
 
   $from() {
@@ -287,16 +285,19 @@ export class Transition implements IHookRegistry {
         toState.params.$$filter(not(prop('dynamic'))).$$equals(toParams, fromParams);
   }
 
-  run () {
-    if (this.error()) throw new Error(this.error());
-    if (this._options.trace) trace.traceTransitionStart(this);
+  hookBuilder(): HookBuilder {
     let baseHookOptions: ITransitionHookOptions = {
       trace: this._options.trace,
       transition: this,
       current: this._options.current
     };
 
-    let hookBuilder = new HookBuilder($transition, this._treeChanges, this, baseHookOptions);
+    return new HookBuilder($transition, this._treeChanges, this, baseHookOptions);
+  }
+
+  run () {
+    if (this.error()) throw new Error(this.error());
+    if (this._options.trace) trace.traceTransitionStart(this);
 
     if (this.ignored()) {
       if (this._options.trace) trace.traceTransitionIgnored(this);
@@ -305,27 +306,25 @@ export class Transition implements IHookRegistry {
       return ignored;
     }
 
-    // Build a bunch of arrays of promises for each step of the transition
-    let onBeforeHooks       = hookBuilder.getOnBeforeHooks();
-    let onStartHooks        = hookBuilder.getOnStartHooks();
-
-    let eagerResolves       = [hookBuilder.getEagerResolvePathHook()];
-    let exitingStateHooks   = hookBuilder.getOnExitingHooks();
-    let enteringStateHooks  = hookBuilder.getOnEnterHooks();
-
-    // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
-    let asyncSteps = flatten([onStartHooks, eagerResolves, exitingStateHooks, enteringStateHooks]).filter(identity);
-
     // -----------------------------------------------------------------------
     // Transition Steps
     // -----------------------------------------------------------------------
 
+    let hookBuilder = this.hookBuilder();
+
+    let onBeforeHooks       = hookBuilder.getOnBeforeHooks();
     // ---- Synchronous hooks ----
     // Run the "onBefore" hooks and save their promises
     let chain = hookBuilder.runSynchronousHooks(onBeforeHooks);
 
-    // ---- Asynchronous section ----
+    let onStartHooks        = hookBuilder.getOnStartHooks();
+    let exitingStateHooks   = hookBuilder.getOnExitHooks();
+    let enteringStateHooks  = hookBuilder.getOnEnterHooks();
 
+    // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
+    let asyncSteps = flatten([onStartHooks, exitingStateHooks, enteringStateHooks]).filter(identity);
+
+    // ---- Asynchronous section ----
     // The results of the sync hooks is a promise chain (rejected or otherwise) that begins the async portion of the transition.
     // Build the rest of the chain off the sync promise chain out of all the asynchronous steps
     forEach(asyncSteps, function (step) {

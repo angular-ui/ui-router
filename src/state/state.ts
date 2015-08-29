@@ -691,6 +691,21 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (!transition.valid())
         return $q.reject(transition.error());
 
+
+      // Add hooks
+      // TODO: Move this to its own fn
+      let hookBuilder = transition.hookBuilder();
+      transition.onStart({}, hookBuilder.getEagerResolvePathFn(), { priority: 100 });
+      transition.onEnter({}, hookBuilder.getLazyResolveStateFn(), { priority: 100 });
+
+      let onEnterRegistration = (state) => transition.onEnter({to: state.name}, state.onEnter, { priority: -100 });
+      transition.entering().filter(state => !!state.onEnter).forEach(onEnterRegistration);
+
+      let onExitRegistration = (state) => transition.onExit({from: state.name}, state.onExit, { priority: -100 });
+      transition.exiting().filter(state => !!state.onExit).forEach(onExitRegistration);
+
+
+
       let stateHandler = new StateHandler($urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
       let result = stateHandler.runTransition(transition);
       result.finally(() => transQueue.remove(transition));

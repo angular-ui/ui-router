@@ -43,8 +43,7 @@ class TransitionService implements IHookRegistry {
   getHooks  : IHookGetter;
   
   private _reinit() {
-    let registry = new HookRegistry();
-    HookRegistry.mixin(registry, this);
+    HookRegistry.mixin(new HookRegistry(), this);
   }
 
   create(fromPath: ITransPath, targetState: TargetState) {
