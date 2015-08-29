@@ -8,9 +8,9 @@ import TargetState from "../state/targetState";
 
 import {ITransPath} from "../path/interface";
 
-import {IHookRegistry, ITransitionService, ITransitionOptions, IEventHook, IHookRegistration} from "./interface";
+import {IHookRegistry, ITransitionService, ITransitionOptions, IHookRegistration, IHookGetter} from "./interface";
 
-import HookRegistry from "./hookRegistry";
+import {HookRegistry} from "./hookRegistry";
 
 /**
  * The default transition options.
@@ -40,20 +40,16 @@ class TransitionService implements IHookRegistry {
   onExit    : IHookRegistration;
   onSuccess : IHookRegistration;
   onError   : IHookRegistration;
+  getHooks  : IHookGetter;
   
   private _reinit() {
     let registry = new HookRegistry();
-    let passthroughFns = ["onBefore", "onStart", "onEnter", "onExit", "onSuccess", "onError"];
-
-    passthroughFns.forEach(fnName => this[fnName] = registry[fnName].bind(registry));
-    this.$$hooks = (type: string) => registry.transitionEvents[type];
+    HookRegistry.mixin(registry, this);
   }
 
   create(fromPath: ITransPath, targetState: TargetState) {
     return new Transition(fromPath, targetState);
   }
-
-  $$hooks: (type: string) => IEventHook[];
 }
 
 

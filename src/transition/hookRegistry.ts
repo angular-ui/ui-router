@@ -3,7 +3,7 @@ import {extend, val, isString, isFunction} from "../common/common";
 import {IState} from "../state/interface";
 import Glob from "../state/glob";
 
-import {IMatchCriteria, IStateMatch} from "./interface";
+import {IMatchCriteria, IStateMatch, IEventHook, IHookRegistry, IHookRegistration} from "./interface";
 
 /**
  * Determines if the given state matches the matchCriteria
@@ -34,7 +34,7 @@ export function matchState(state: IState, matchCriteria: (string|IStateMatch)) {
 }
 
 
-export class EventHook {
+export class EventHook implements IEventHook{
   callback: Function;
   matchCriteria: IMatchCriteria;
   priority: number;
@@ -46,32 +46,40 @@ export class EventHook {
   }
 
   matches(to: IState, from: IState) {
-    return matchState(to, this.matchCriteria.to) && matchState(from, this.matchCriteria.from);
+    return <boolean> matchState(to, this.matchCriteria.to) && matchState(from, this.matchCriteria.from);
   }
 }
 
-export default class HookRegistry {
-  transitionEvents = {
+interface ITransitionEvents { [key: string]: IEventHook[]; }
+
+// Return a registration function of the requested type.
+function makeHookRegistrationFn(transitionEvents: ITransitionEvents, eventType: string): IHookRegistration {
+  return function (matchObject, callback, options) {
+    let hooks = transitionEvents[eventType];
+    options = options || {};
+    let eventHook = new EventHook(matchObject, callback, options);
+    hooks.push(eventHook);
+    hooks.sort(function (a, b) {
+      return a.priority - b.priority;
+    });
+
+    return function deregisterEventHook() {
+      let idx = hooks.indexOf(eventHook);
+      if (idx !== -1) hooks.splice(idx, 1);
+    };
+  };
+}
+
+export class HookRegistry implements IHookRegistry {
+  static mixin(source: HookRegistry, target: IHookRegistry) {
+    Object.keys(source._transitionEvents).concat(["getHooks"]).forEach(key => target[key] = source[key]);
+  }
+
+  private _transitionEvents: ITransitionEvents = {
     onBefore: [], onStart: [], onEnter: [], onExit: [], onSuccess: [], onError: []
   };
 
-  // Return a registration function of the requested type.
-  private _registerEventHook(eventType) {
-    return function (matchObject, callback, options) {
-      options = options || {};
-      let eventHook = new EventHook(matchObject, callback, options);
-      let hooks = this.transitionEvents[eventType];
-      hooks.push(eventHook);
-      hooks.sort(function (a, b) {
-        return a.priority - b.priority;
-      });
-
-      return function deregisterEventHook() {
-        let idx = hooks.indexOf(eventHook);
-        if (idx !== -1) hooks.splice(idx, 1);
-      };
-    };
-  }
+  getHooks = (name: string) => this._transitionEvents[name];
 
   /**
    * @ngdoc function
@@ -104,7 +112,7 @@ export default class HookRegistry {
    *        available for injection to further steps in the transition.  The object should have {string}s for keys and
    *        {function}s for values, like the `resolve` object in {@link ui.router.state.$stateProvider#state $stateProvider.state}.
    */
-  onBefore = this._registerEventHook("onBefore");
+  onBefore = makeHookRegistrationFn(this._transitionEvents, "onBefore");
 
   /**
    * @ngdoc function
@@ -135,7 +143,7 @@ export default class HookRegistry {
    *        available for injection to further steps in the transition.  The object should have {string}s for keys and
    *        {function}s for values, like the `resolve` object in {@link ui.router.state.$stateProvider#state $stateProvider.state}.
    */
-  onStart = this._registerEventHook("onStart");
+  onStart = makeHookRegistrationFn(this._transitionEvents, "onStart");
 
   /**
    * @ngdoc function
@@ -153,7 +161,7 @@ export default class HookRegistry {
    * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
    * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
    */
-  onEnter = this._registerEventHook("onEnter");
+  onEnter = makeHookRegistrationFn(this._transitionEvents, "onEnter");
 
   /**
    * @ngdoc function
@@ -171,7 +179,7 @@ export default class HookRegistry {
    * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
    * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
    */
-  onExit = this._registerEventHook("onExit");
+  onExit = makeHookRegistrationFn(this._transitionEvents, "onExit");
 
   /**
    * @ngdoc function
@@ -190,7 +198,7 @@ export default class HookRegistry {
    * @param {function} callback The function which will be injected and invoked, when a matching transition is started.
    *   The function's return value is ignored.
    */
-  onSuccess = this._registerEventHook("onSuccess");
+  onSuccess = makeHookRegistrationFn(this._transitionEvents, "onSuccess");
 
   /**
    * @ngdoc function
@@ -205,5 +213,5 @@ export default class HookRegistry {
    * @param {function} callback The function which will be injected and invoked, when a matching transition is started.
    *   The function's return value is ignored.
    */
-  onError = this._registerEventHook("onError");
+  onError = makeHookRegistrationFn(this._transitionEvents, "onError");
 }

@@ -3,9 +3,9 @@ import {runtime} from "../common/angular1";
 import {IPromise} from "angular";
 import trace from "../common/trace";
 
-import {ITransitionOptions, ITransitionHookOptions, ITreeChanges} from "./interface";
+import {ITransitionOptions, ITransitionHookOptions, ITreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";
 import $transition from "./transitionService";
-import {matchState} from "./hookRegistry";
+import {HookRegistry, matchState} from "./hookRegistry";
 import HookBuilder from "./hookBuilder";
 import {RejectFactory} from "./rejectFactory";
 
@@ -41,7 +41,7 @@ const stateSelf: (_state: IState) => IStateDeclaration = prop("self");
  *
  * @returns {Object} New `Transition` object
  */
-export class Transition {
+export class Transition implements IHookRegistry {
   $id: number;
 
   promise: IPromise<any>;
@@ -51,6 +51,14 @@ export class Transition {
   private _options: ITransitionOptions;
   private _treeChanges: ITreeChanges;
   private _deferreds: any;
+
+  onBefore:   IHookRegistration;
+  onStart:    IHookRegistration;
+  onEnter:    IHookRegistration;
+  onExit:     IHookRegistration;
+  onSuccess:  IHookRegistration;
+  onError:    IHookRegistration;
+  getHooks:   IHookGetter;
 
   constructor(fromPath: ITransPath, targetState: TargetState) {
     if (targetState.error()) throw new Error(targetState.error());
@@ -70,6 +78,9 @@ export class Transition {
     this.prepromise = this._deferreds.prehooks.promise;
     this.promise = this._deferreds.posthooks.promise;
     this.redirects = this._deferreds.redirects.promise;
+
+    let registry: HookRegistry = new HookRegistry();
+    HookRegistry.mixin(registry, this);
   }
 
   $from() {

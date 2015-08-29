@@ -43,11 +43,11 @@ export interface ITreeChanges {
 
 export interface ITransitionService extends IHookRegistry {
   create: (fromPath: ITransPath, targetState: TargetState) => Transition;
-  $$hooks: (string) => IEventHook[];
 }
 
 
 
+export type IHookGetter = (hookName: string) => IEventHook[];
 export type IHookRegistration = (matchObject: IMatchCriteria, callback: Function, options?) => Function;
 export interface IHookRegistry {
   onBefore:   IHookRegistration;
@@ -56,6 +56,8 @@ export interface IHookRegistry {
   onExit:     IHookRegistration;
   onSuccess:  IHookRegistration;
   onError:    IHookRegistration;
+
+  getHooks:   IHookGetter;
 }
 
 export interface IStateMatch {
@@ -67,7 +69,7 @@ export interface IMatchCriteria {
 }
 
 export interface IEventHook {
-  callback: () => any;
+  callback: Function;
   priority: number;
   matches:  (a: IState, b: IState) => boolean;
 }

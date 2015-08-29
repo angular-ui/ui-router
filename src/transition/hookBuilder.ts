@@ -139,7 +139,7 @@ export default class HookBuilder {
    * 3) the from state
    */
   private _findMatchingRegisteredHooks(eventName: string, matchCriteria: IToFrom): IEventHook[] {
-    let hooks = this.$transition.$$hooks(eventName);
+    let hooks = this.$transition.getHooks(eventName);
     return hooks.filter(hook => hook.matches(matchCriteria.to, matchCriteria.from));
   }
 
