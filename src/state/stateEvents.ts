@@ -7,10 +7,8 @@ import {IStateService, IStateProvider} from "./interface";
 import {StateParams} from "./state";
 import TargetState from "./targetState";
 
-import {IRawParams} from "../params/interface";
-
-import {ITransitionService, ITransitionOptions, ITransitionDestination} from "../transition/interface"
-import {Transition} from "../transition/transition"
+import {ITransitionService} from "../transition/interface";
+import {Transition} from "../transition/transition";
 import {RejectType} from "../transition/rejectFactory";
 
 stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$urlRouter'];
@@ -18,7 +16,7 @@ function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootSc
   if (!$transition$.options().notify)
     return;
 
-  var enabledEvents = $stateEvents.provider.enabledEvents();
+  let enabledEvents = $stateEvents.provider.enabledEvents();
 
   /**
    * @ngdoc event
@@ -38,10 +36,10 @@ function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootSc
    *
    * <pre>
    * $rootScope.$on('$stateChangeStart', function(event, transition) {
-           *   event.preventDefault();
-           *   // transitionTo() promise will be rejected with
-           *   // a 'transition prevented' error
-           * })
+   *   event.preventDefault();
+   *   // transitionTo() promise will be rejected with
+   *   // a 'transition prevented' error
+   * })
    * </pre>
    */
   
@@ -73,15 +71,17 @@ function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootSc
        * @param fromParams
        */
       $rootScope.$broadcast('$stateChangeSuccess',
-        //TODO: fix the params
-        $transition$.to(), extend(new StateParams(), toParams).$raw(),
-        $transition$.from(), extend(new StateParams(), fromParams).$raw());
+                            //TODO: fix the params
+                            $transition$.to(),
+                            extend(new StateParams(), toParams).$raw(),
+                            $transition$.from(),
+                            extend(new StateParams(), fromParams).$raw());
     });
   }
 
   if (enabledEvents.$stateChangeError) {
     $transition$.promise["catch"](function (error) {
-      if (error && (error.type == RejectType.SUPERSEDED || error.type == RejectType.ABORTED))
+      if (error && (error.type === RejectType.SUPERSEDED || error.type === RejectType.ABORTED))
         return;
 
       /**
@@ -102,9 +102,11 @@ function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootSc
        * @param {Object} fromParams The params supplied to the `fromState`.
        * @param {Error} error The resolve error object.
        */
-      var evt = $rootScope.$broadcast('$stateChangeError',
-        $transition$.to(), extend(new StateParams(), toParams).$raw(),
-        $transition$.from(), extend(new StateParams(), fromParams).$raw(), error);
+      let evt = $rootScope.$broadcast('$stateChangeError',
+                                      $transition$.to(),
+                                      extend(new StateParams(), toParams).$raw(),
+                                      $transition$.from(),
+                                      extend(new StateParams(), fromParams).$raw(), error);
 
       if (!evt.defaultPrevented) {
         $urlRouter.update();
@@ -147,8 +149,8 @@ export function stateNotFoundHandler($to$: TargetState, $from$: TargetState, $st
    * });
    * </pre>
    */
-  var redirect = { to: $to$.identifier(), toParams: $to$.params(), options: $to$.options() };
-  var e = $rootScope.$broadcast('$stateNotFound', redirect, $from$.state(), $from$.params());
+  let redirect = { to: $to$.identifier(), toParams: $to$.params(), options: $to$.options() };
+  let e = $rootScope.$broadcast('$stateNotFound', redirect, $from$.state(), $from$.params());
 
   if (e.defaultPrevented || e.retry)
     $urlRouter.update();
@@ -169,8 +171,8 @@ $StateEventsProvider.$inject = ['$stateProvider'];
 function $StateEventsProvider($stateProvider: IStateProvider) {
   $StateEventsProvider.prototype.instance = this;
 
-  var runtime = false;
-  var enabledStateEvents = { $stateNotFound: false, $stateChangeStart: false};
+  let runtime = false;
+  let enabledStateEvents = { $stateNotFound: false, $stateChangeStart: false};
 
   /**
    * Enables a set of State Events by name.
@@ -182,7 +184,7 @@ function $StateEventsProvider($stateProvider: IStateProvider) {
     if (eventNameArray && runtime)
       throw new Error("Cannot enable events at runtime (use $stateEventsProvider");
 
-    if (eventNameArray == "*")
+    if (eventNameArray === "*")
       eventNameArray = [ '$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError' ];
 
     forEach(eventNameArray || [], function(name) {

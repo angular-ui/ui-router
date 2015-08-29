@@ -1,6 +1,5 @@
-import {extend, isString} from "../common/common"
-import TargetState from "./targetState"
-import {IState, IStateDeclaration, IStateOrName} from "./interface"
+import {isString} from "../common/common";
+import {IState, IStateOrName} from "./interface";
 
 export default class StateMatcher {
   constructor (private _states: {[key: string]: IState}) { }
@@ -17,7 +16,7 @@ export default class StateMatcher {
     let name: string = isStr ? stateOrName : (<any>stateOrName).name;
 
     if (this.isRelative(name)) name = this.resolvePath(name, base);
-    var state = this._states[name];
+    let state = this._states[name];
 
     if (state && (isStr || (!isStr && (state === stateOrName || state.self === stateOrName)))) {
       return state;
@@ -30,7 +29,7 @@ export default class StateMatcher {
     
     let baseState: IState = this.find(base);
 
-    var splitName = name.split("."), i = 0, pathLength = splitName.length, current = baseState;
+    let splitName = name.split("."), i = 0, pathLength = splitName.length, current = baseState;
 
     for (; i < pathLength; i++) {
       if (splitName[i] === "" && i === 0) {

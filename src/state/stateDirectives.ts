@@ -1,9 +1,9 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {equalForKeys, forEach, copy, defaults} from "../common/common";
+import {copy, defaults} from "../common/common";
 import {defaultTransOpts} from "../transition/transitionService";
 
 function parseStateRef(ref, current) {
-  var preparsed = ref.match(/^\s*({[^}]*})\s*$/), parsed;
+  let preparsed = ref.match(/^\s*({[^}]*})\s*$/), parsed;
   if (preparsed) ref = current + '(' + preparsed[1] + ')';
   parsed = ref.replace(/\n/g, " ").match(/^([^(]+?)\s*(\((.*)\))?$/);
   if (!parsed || parsed.length !== 4) throw new Error("Invalid state ref '" + ref + "'");
@@ -11,7 +11,7 @@ function parseStateRef(ref, current) {
 }
 
 function stateContext(el) {
-  var stateData = el.parent().inheritedData('$uiView');
+  let stateData = el.parent().inheritedData('$uiView');
 
   if (stateData && stateData.context && stateData.context.name) {
     return stateData.context;
@@ -86,23 +86,23 @@ function $StateRefDirective($state, $timeout) {
     restrict: 'A',
     require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
     link: function(scope, element, attrs, uiSrefActive) {
-      var ref = parseStateRef(attrs.uiSref, $state.current.name);
-      var params = null, url = null, base = stateContext(element) || $state.$current;
-      var newHref = null, isAnchor = element.prop("tagName") === "A";
-      var isForm = element[0].nodeName === "FORM";
-      var attr = isForm ? "action" : "href", nav = true;
+      let ref = parseStateRef(attrs.uiSref, $state.current.name);
+      let params = null, base = stateContext(element) || $state.$current;
+      let newHref = null, isAnchor = element.prop("tagName") === "A";
+      let isForm = element[0].nodeName === "FORM";
+      let attr = isForm ? "action" : "href", nav = true;
 
-      var srefOpts = scope.$eval(attrs.uiSrefOpts);
-      var defaultSrefOpts = { relative: base, inherit: true };
-      var options = defaults(srefOpts, defaultSrefOpts, defaultTransOpts);
+      let srefOpts = scope.$eval(attrs.uiSrefOpts);
+      let defaultSrefOpts = { relative: base, inherit: true };
+      let options = defaults(srefOpts, defaultSrefOpts, defaultTransOpts);
 
-      var update = function(newVal?: any) {
+      let update = function(newVal?: any) {
         if (newVal) params = copy(newVal);
         if (!nav) return;
 
         newHref = $state.href(ref.state, params, options);
 
-        var activeDirective = uiSrefActive[1] || uiSrefActive[0];
+        let activeDirective = uiSrefActive[1] || uiSrefActive[0];
         if (activeDirective) {
           activeDirective.$$addStateInfo(ref.state, params);
         }
@@ -114,9 +114,7 @@ function $StateRefDirective($state, $timeout) {
       };
 
       if (ref.paramExpr) {
-        scope.$watch(ref.paramExpr, function(newVal, oldVal) {
-          if (newVal !== params) update(newVal);
-        }, true);
+        scope.$watch(ref.paramExpr, newVal => { if (newVal !== params) update(newVal); }, true);
         params = copy(scope.$eval(ref.paramExpr));
       }
       update();
@@ -124,16 +122,16 @@ function $StateRefDirective($state, $timeout) {
       if (isForm) return;
 
       element.bind("click", function(e) {
-        var button = e.which || e.button;
+        let button = e.which || e.button;
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
-          var transition = $timeout(function() {
+          let transition = $timeout(function() {
             $state.go(ref.state, params, options);
           });
           e.preventDefault();
 
           // if the state has no URL, ignore one preventDefault from the <a> directive.
-          var ignorePreventDefaultCount = isAnchor && !newHref ? 1: 0;
+          let ignorePreventDefaultCount = isAnchor && !newHref ? 1 : 0;
           e.preventDefault = function() {
             if (ignorePreventDefaultCount-- <= 0)
               $timeout.cancel(transition);
@@ -223,7 +221,7 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
   return  {
     restrict: "A",
     controller: ['$scope', '$element', '$attrs', '$timeout', '$transition', function ($scope, $element, $attrs, $timeout, $transition) {
-      var states = [], activeClass, activeEqClass;
+      let states = [], activeClass, activeEqClass;
 
       // There probably isn't much point in $observing this
       // uiSrefActive and uiSrefActiveEq share the same directive object with some
@@ -233,7 +231,7 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
 
       // Allow uiSref to communicate with uiSrefActive[Equals]
       this.$$addStateInfo = function (newState, newParams) {
-        var state = $state.get(newState, stateContext($element));
+        let state = $state.get(newState, stateContext($element));
 
         states.push({
           state: state || { name: newState },
@@ -243,13 +241,13 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
         update();
       };
 
-      var updateAfterTransition = function ($transition$) { $transition$.promise.then(update); }
-      var deregisterFn = $transition.provider.onStart({}, updateAfterTransition);
+      let updateAfterTransition = function ($transition$) { $transition$.promise.then(update); };
+      let deregisterFn = $transition.onStart({}, updateAfterTransition);
       $scope.$on('$destroy', deregisterFn);
 
       // Update route state
       function update() {
-        for (var i = 0; i < states.length; i++) {
+        for (let i = 0; i < states.length; i++) {
           if (anyMatch(states[i].state, states[i].params)) {
             addClass($element, activeClass);
           } else {

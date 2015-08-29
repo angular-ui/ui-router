@@ -1,14 +1,9 @@
-import {abstractKey} from "../common/common"
-import {IState, IStateDeclaration, IStateOrName} from "./interface"
+import {IState, IStateDeclaration, IStateOrName} from "./interface";
 
-import {IRawParams, IParamsOrArray} from "../params/interface"
-import ParamValues from "../params/paramValues"
+import {IParamsOrArray} from "../params/interface";
 
-import {IParamsPath, IParamsNode} from "../path/interface"
-import Path from "../path/path"
-import PathFactory from "../path/pathFactory"
+import {ITransitionOptions} from "../transition/interface";
 
-import {ITransitionOptions} from "../transition/interface"
 /**
  * @ngdoc object
  * @name ui.router.state.type:TargetState

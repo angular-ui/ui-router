@@ -5,7 +5,7 @@ import Param from "../params/param";
 // Builds state properties from definition passed to StateQueueManager.register()
 export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 
-  var self = this, builders = {
+  let self = this, builders = {
 
     parent: function(state) {
       return matcher.find(self.parentName(state));
@@ -20,11 +20,11 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
 
     // Build a URLMatcher if necessary, either via a relative or absolute URL
     url: function(state) {
-      var url = state.url, config = { params: state.params || {} };
-      var parent = state.parent;
+      let url = state.url, config = { params: state.params || {} };
+      let parent = state.parent;
 
       if (isString(url)) {
-        if (url.charAt(0) == '^') return $urlMatcherFactoryProvider.compile(url.substring(1), config);
+        if (url.charAt(0) === '^') return $urlMatcherFactoryProvider.compile(url.substring(1), config);
         return ((parent && parent.navigable) || root()).url.concat(url, config);
       }
       if (!url || $urlMatcherFactoryProvider.isMatcher(url)) return url;
@@ -38,7 +38,7 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
 
     // Own parameters for this state. state.url.params is already built at this point. Create and add non-url params
     ownParams: function(state) {
-      var params = state.url && state.url.params.$$own() || new ParamSet();
+      let params = state.url && state.url.params.$$own() || new ParamSet();
       forEach(state.params || {}, function(config, id) {
         if (!params[id]) params[id] = new Param(id, null, config, "config");
       });
@@ -50,7 +50,7 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
 
     // Derive parameters for this state and ensure they're a super-set of parent's parameters
     params: function(state) {
-      var base = state.parent && state.parent.params ? state.parent.params.$$new() : new ParamSet();
+      let base = state.parent && state.parent.params ? state.parent.params.$$new() : new ParamSet();
       return extend(base, state.ownParams);
     },
 
@@ -60,10 +60,10 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
     // is also a good time to resolve view names to absolute names, so everything is a
     // straight lookup at link time.
     views: function(state) {
-      var views    = {},
+      let views    = {},
           tplKeys  = ['templateProvider', 'templateUrl', 'template', 'notify', 'async'],
           ctrlKeys = ['controller', 'controllerProvider', 'controllerAs'];
-      var allKeys = tplKeys.concat(ctrlKeys);
+      let allKeys = tplKeys.concat(ctrlKeys);
 
       forEach(state.views || { "$default": pick(state, allKeys) }, function (config, name) {
         name = name || "$default"; // Account for views: { "": { template... } }
@@ -84,16 +84,16 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
 
     // Speed up $state.includes() as it's used a lot
     includes: function(state) {
-      var includes = state.parent ? extend({}, state.parent.includes) : {};
+      let includes = state.parent ? extend({}, state.parent.includes) : {};
       includes[state.name] = true;
       return includes;
     }
   };
 
   extend(this, {
-    builder: function(name, func) {
-      if (isString(name) && !isDefined(func)) return builders[name];
-      if (!isFunction(func) || !isString(name)) return;
+    builder: function(_name, _func) {
+      if (isString(_name) && !isDefined(_func)) return builders[_name];
+      if (!isFunction(_func) || !isString(_name)) return;
 
       function remove(name, func) {
         if (!builders[name].length) {
@@ -120,33 +120,34 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
         return function() { remove(name, func); };
       }
 
-      return add(name, func);
+      return add(_name, _func);
     },
 
     build: function(state) {
-      var parent = this.parentName(state);
+      let parent = this.parentName(state);
       if (parent && !matcher.find(parent)) return null;
 
-      for (var key in builders) {
-        var steps = isArray(builders[key]) ? builders[key].reverse() : [builders[key]];
-        var chainFns = (memo, step) => step(state, memo);
+      for (let key in builders) {
+        if (!builders.hasOwnProperty(key)) continue;
+        let steps = isArray(builders[key]) ? builders[key].reverse() : [builders[key]];
+        let chainFns = (memo, step) => step(state, memo);
         state[key] = steps.reduce(chainFns, noop);
       }
       return state;
     },
 
     parentName: function(state) {
-      var name = state.name || "";
+      let name = state.name || "";
       if (name.indexOf('.') !== -1) return name.substring(0, name.lastIndexOf('.'));
       if (!state.parent) return "";
       return isString(state.parent) ? state.parent : state.parent.name;
     },
 
     name: function(state) {
-      var name = state.name;
+      let name = state.name;
       if (name.indexOf('.') !== -1 || !state.parent) return name;
 
-      var parentName = isString(state.parent) ? state.parent : state.parent.name;
+      let parentName = isString(state.parent) ? state.parent : state.parent.name;
       return parentName ? parentName + "." + name : name;
     }
   });

@@ -8,10 +8,10 @@ export default class Glob {
   }
 
   matches(name: string) {
-    var segments = name.split('.');
+    let segments = name.split('.');
 
     // match single stars
-    for (var i = 0, l = this.glob.length; i < l; i++) {
+    for (let i = 0, l = this.glob.length; i < l; i++) {
       if (this.glob[i] === '*') segments[i] = '*';
     }
 

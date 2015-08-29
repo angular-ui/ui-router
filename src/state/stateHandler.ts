@@ -1,14 +1,12 @@
-import {IQService} from "angular"
-import {copy, prop} from "../common/common"
-import Queue from "../common/queue"
+import {IQService} from "angular";
+import {copy, prop} from "../common/common";
+import Queue from "../common/queue";
 
-import {ITreeChanges} from "../transition/interface"
-import {Transition} from "../transition/transition"
-import {TransitionRejection, RejectType} from "../transition/rejectFactory"
+import {ITreeChanges} from "../transition/interface";
+import {Transition} from "../transition/transition";
+import {TransitionRejection, RejectType} from "../transition/rejectFactory";
 
-import {IStateService} from "../state/interface"
-
-import {IResolvePath} from "../path/interface"
+import {IStateService} from "../state/interface";
 
 export default class StateHandler {
   constructor(private $urlRouter,
@@ -74,7 +72,7 @@ export default class StateHandler {
 
   updateStateParams(transition: Transition) {
     let {$urlRouter, $state, $stateParams} = this;
-    var options = transition.options();
+    let options = transition.options();
     $state.params = transition.params();
     copy($state.params, $stateParams);
     $stateParams.$sync().$off();
