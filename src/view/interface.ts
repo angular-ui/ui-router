@@ -10,6 +10,7 @@ export interface IContextRef {
 export var foo = undefined;
 
 export interface IUiViewData {
+  id: number;
   name: string;
   fqn: string;
   config: any;

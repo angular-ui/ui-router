@@ -41,22 +41,21 @@ export interface ITreeChanges {
   exiting:  ITransPath;
 }
 
-export interface ITransitionService {
-  transition: Transition;
+export interface ITransitionService extends IHookRegistry {
   create: (fromPath: ITransPath, targetState: TargetState) => Transition;
-  isTransition: (Transition) => boolean;
-  provider: ITransitionProvider;
   $$hooks: (string) => IEventHook[];
 }
 
 
-export interface ITransitionProvider {
-  onBefore:   (matchObject: IMatchCriteria, callback: Function, options?) => Function;
-  onStart:    (matchObject: IMatchCriteria, callback: Function, options?) => Function;
-  onEnter:    (matchObject: IMatchCriteria, callback: Function, options?) => Function;
-  onExit:     (matchObject: IMatchCriteria, callback: Function, options?) => Function;
-  onSuccess:  (matchObject: IMatchCriteria, callback: Function, options?) => Function;
-  onError:    (matchObject: IMatchCriteria, callback: Function, options?) => Function;
+
+export type IHookRegistration = (matchObject: IMatchCriteria, callback: Function, options?) => Function;
+export interface IHookRegistry {
+  onBefore:   IHookRegistration;
+  onStart:    IHookRegistration;
+  onEnter:    IHookRegistration;
+  onExit:     IHookRegistration;
+  onSuccess:  IHookRegistration;
+  onError:    IHookRegistration;
 }
 
 export interface IStateMatch {

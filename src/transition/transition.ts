@@ -4,7 +4,8 @@ import {IPromise} from "angular";
 import trace from "../common/trace";
 
 import {ITransitionOptions, ITransitionHookOptions, ITreeChanges} from "./interface";
-import {$transition, matchState} from "./transitionService";
+import $transition from "./transitionService";
+import {matchState} from "./hookRegistry";
 import HookBuilder from "./hookBuilder";
 import {RejectFactory} from "./rejectFactory";
 
@@ -288,13 +289,10 @@ export class Transition {
 
     if (this.ignored()) {
       if (this._options.trace) trace.traceTransitionIgnored(this);
-      $transition.transition = null;
       let ignored = REJECT.ignored();
       forEach(this._deferreds, (def) => def.reject(ignored.reason));
       return ignored;
     }
-
-    $transition.transition = this;
 
     // Build a bunch of arrays of promises for each step of the transition
     let onBeforeHooks       = hookBuilder.getOnBeforeHooks();

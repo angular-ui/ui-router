@@ -7,8 +7,8 @@ import {IStateService, IStateProvider} from "./interface";
 import {StateParams} from "./state";
 import TargetState from "./targetState";
 
-import {ITransitionService} from "../transition/interface";
 import {Transition} from "../transition/transition";
+import $transition from "../transition/transitionService";
 import {RejectType} from "../transition/rejectFactory";
 
 stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$urlRouter'];
@@ -42,7 +42,7 @@ function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootSc
    * })
    * </pre>
    */
-  
+
   let toParams = $transition$.params("to");
   let fromParams = $transition$.params("from");
 
@@ -194,18 +194,18 @@ function $StateEventsProvider($stateProvider: IStateProvider) {
     return enabledStateEvents;
   };
 
-  this.$get = [ '$transition', function($transition: ITransitionService) {
+  this.$get = function() {
     runtime = true;
 
     if (enabledStateEvents.$stateNotFound)
       $stateProvider.onInvalid(stateNotFoundHandler);
     if (enabledStateEvents. $stateChangeStart)
-      $transition.provider.onBefore({}, stateChangeStartHandler, { priority: 1000 });
+      $transition.onBefore({}, stateChangeStartHandler, { priority: 1000 });
 
     return {
       provider: $StateEventsProvider.prototype.instance
     };
-  }];
+  };
 }
 
 
