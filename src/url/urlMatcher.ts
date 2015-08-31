@@ -138,12 +138,11 @@ export default class UrlMatcher {
       segment     = pattern.substring(last, m.index);
       regexp      = isSearch ? m[4] : m[4] || (m[1] == '*' ? '.*' : null);
       type        = paramTypes.type(regexp || "string") || inherit(paramTypes.type("string"), { pattern: new RegExp(regexp, config.caseInsensitive ? 'i' : undefined) });
-      return {
-        id: id, regexp: regexp, segment: segment, type: type, cfg: cfg
-      };
+      return {id, regexp, segment, type, cfg};
     }
 
     var p, param, segment;
+
     while ((m = placeholder.exec(pattern))) {
       p = matchDetails(m, false);
       if (p.segment.indexOf('?') >= 0) break; // we're into the search part
@@ -339,49 +338,47 @@ export default class UrlMatcher {
    * @param {Object} values  the values to substitute for the parameters in this pattern.
    * @returns {string}  the formatted URL (path and optionally search part).
    */
-  format(values) {
-    values = values || {};
-    var segments = this.segments, params = this.parameters(), paramset = this.params;
+  format(values = {}) {
+    const url = {
+      params:   this.parameters(),
+      paramSet: this.params,
+      nPath:    this.segments.length - 1
+    };
+    var i, search = false, result = this.segments[0];
+
     if (!this.validates(values)) return null;
 
-    var i, search = false, nPath = segments.length - 1, nTotal = params.length, result = segments[0];
-
     function encodeDashes(str) { // Replace dashes with encoded "\-"
-      return encodeURIComponent(str).replace(/-/g, function(c) { return `%5C%${c.charCodeAt(0).toString(16).toUpperCase()}`; });
+      return encodeURIComponent(str).replace(/-/g, c => `%5C%${c.charCodeAt(0).toString(16).toUpperCase()}`);
     }
 
-    for (i = 0; i < nTotal; i++) {
-      var isPathParam = i < nPath;
-      var name = params[i], param: Param = paramset[name], value = param.value(values[name]);
-      var isDefaultValue = param.isOptional && param.type.equals(param.value(), value);
+    url.params.map((name, i) => {
+      var isPathParam = i < url.nPath;
+      var param: Param = url.paramSet[name], value = param.value(values[name]);
+      var isDefaultValue = param.isDefaultValue(value);
       var squash = isDefaultValue ? param.squash : false;
       var encoded = param.type.encode(value);
 
-      if (isPathParam) {
-        var nextSegment = segments[i + 1];
-        if (squash === false) {
-          if (encoded != null) {
-            if (isArray(encoded)) {
-              result += map(<string[]> encoded, encodeDashes).join("-");
-            } else {
-              result += encodeURIComponent(<string>encoded);
-            }
-          }
-          result += nextSegment;
-        } else if (squash === true) {
-          var capture = result.match(/\/$/) ? /\/?(.*)/ : /(.*)/;
-          result += nextSegment.match(capture)[1];
-        } else if (isString(squash)) {
-          result += squash + nextSegment;
-        }
-      } else {
-        if (encoded == null || (isDefaultValue && squash !== false)) continue;
-        if (!isArray(encoded)) encoded = [ <string> encoded ];
-        encoded = map(<string[]>encoded, encodeURIComponent).join(`&${name}=`);
+      if (!isPathParam) {
+        if (encoded == null || (isDefaultValue && squash !== false)) return;
+        if (!isArray(encoded)) encoded = [<string> encoded];
+
+        encoded = map(<string[]> encoded, encodeURIComponent).join(`&${name}=`);
         result += (search ? '&' : '?') + (`${name}=${encoded}`);
         search = true;
+        return;
       }
-    }
+
+      result += ((segment, result) => {
+        if (squash === true) return segment.match(result.match(/\/$/) ? /\/?(.*)/ : /(.*)/)[1];
+        if (isString(squash)) return squash + segment;
+        if (squash !== false) return "";
+        if (encoded == null) return segment;
+        if (isArray(encoded)) return map(<string[]> encoded, encodeDashes).join("-") + segment;
+        if (param.type.raw) return encoded + segment;
+        return encodeURIComponent(<string> encoded) + segment;
+      })(this.segments[i + 1], result);
+    });
 
     if (values["#"]) result += "#" + values["#"];
 

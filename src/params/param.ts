@@ -1,4 +1,4 @@
-import {isInjectable, extend, isDefined, isString, isArray, filter, map, prop} from "../common/common";
+import {isInjectable, extend, isDefined, isString, isArray, filter, map, prop, curry} from "../common/common";
 import {runtime} from "../common/angular1";
 import matcherConfig from "../url/urlMatcherConfig";
 import paramTypes from "./paramTypes";
@@ -76,6 +76,10 @@ export default class Param {
     extend(this, {id, type, location, squash, replace, isOptional, dynamic, config, array: arrayMode});
   }
 
+  isDefaultValue(value: any) {
+    return this.isOptional && this.type.equals(this.value(), value);
+  }
+
   /**
    * [Internal] Gets the decoded representation of a value if the value is defined, otherwise, returns the
    * default value, which may be the result of an injectable function.
@@ -92,15 +96,19 @@ export default class Param {
       return defaultValue;
     };
 
-    function hasReplaceVal(val) { return function(obj) { return obj.from === val; }; }
+    const hasReplaceVal = curry((val, obj) => obj.from === val);
+
     const $replace = (value) => {
       var replacement: any = map(filter(this.replace, hasReplaceVal(value)), prop("to"));
       return replacement.length ? replacement[0] : value;
     };
+
     value = $replace(value);
     return !isDefined(value) ? $$getDefaultValue() : this.type.$normalize(value);
   }
 
-  toString() { return `{Param:${this.id} ${this.type} squash: '${this.squash}' optional: ${this.isOptional}}`; }
+  toString() {
+    return `{Param:${this.id} ${this.type} squash: '${this.squash}' optional: ${this.isOptional}}`;
+  }
 
 }

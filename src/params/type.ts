@@ -33,6 +33,7 @@ import {extend, isArray, isDefined, filter, map} from "../common/common";
 export default class Type {
   pattern: RegExp;
   name: string;
+  raw: boolean;
 
   constructor(config) {
     extend(this, config);
