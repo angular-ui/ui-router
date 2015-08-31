@@ -1,4 +1,4 @@
-import {isInjectable, extend, isDefined, isString, isArray, filter, map, prop, indexOf} from "../common/common";
+import {isInjectable, extend, isDefined, isString, isArray, filter, map, prop} from "../common/common";
 import {runtime} from "../common/angular1";
 import matcherConfig from "../url/urlMatcherConfig";
 import paramTypes from "./paramTypes";
@@ -68,25 +68,12 @@ export default class Param {
         {from: null, to: (isOptional || arrayMode ? undefined : "")}
       ];
       replace = isArray(config.replace) ? config.replace : [];
-      if (isString(squash))
-        replace.push({from: squash, to: undefined});
+      if (isString(squash)) replace.push({from: squash, to: undefined});
       configuredKeys = map(replace, prop("from"));
-      return filter(defaultPolicy, function (item) {
-        return indexOf(configuredKeys, item.from) === -1;
-      }).concat(replace);
+      return filter(defaultPolicy, item => configuredKeys.indexOf(item.from) === -1).concat(replace);
     }
 
-    extend(this, {
-      id: id,
-      type: type,
-      location: location,
-      array: arrayMode,
-      squash: squash,
-      replace: replace,
-      isOptional: isOptional,
-      dynamic: dynamic,
-      config: config
-    });
+    extend(this, {id, type, location, squash, replace, isOptional, dynamic, config, array: arrayMode});
   }
 
   /**

@@ -1,5 +1,5 @@
-import {isNull, isPromise, is, invoke, not, val, pattern, parse, objectKeys,
-    isDefined, isFunction, identity} from "../common/common";
+import {isNull, isPromise, is, invoke, not, val, pattern, parse, isDefined,
+  isFunction, identity} from "../common/common";
 import Resolvable  from "../resolve/resolvable";
 import {Transition}  from "../transition/transition";
 import {TransitionRejection}  from "../transition/rejectFactory";
@@ -87,7 +87,7 @@ class Trace {
   traceResolvePathElement(pathElement, resolvablePromises, options) {
     let tid = parse("transition.$id")(options),
       digest = this.approximateDigests,
-      resolvablePromisesStr = objectKeys(resolvablePromises).join(", "),
+      resolvablePromisesStr = Object.keys(resolvablePromises).join(", "),
       pathElementStr = pathElement && pathElement.toString(),
       policyStr = options && options.resolvePolicy;
     this._trace(`Transition #${tid} Digest #${digest}:         Resolve ${pathElementStr} resolvables: [${resolvablePromisesStr}] (${policyStr})`);

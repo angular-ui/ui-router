@@ -1,4 +1,4 @@
-import {map, extend, pairs, prop, pick, omit, not, objectKeys, curry} from "../common/common";
+import {map, extend, pairs, prop, pick, omit, not, curry} from "../common/common";
 
 import {runtime} from "../common/angular1";
 
@@ -60,7 +60,7 @@ export default class PathFactory {
     const toParamsNodeFn: (IState) => IParamsNode = PathFactory.makeParamsNode(toParams);
     let toPath: IParamsPath = new Path(targetState.$state().path.map(toParamsNodeFn));
     if (targetState.options().inherit)
-      toPath = PathFactory.inheritParams(fromPath, toPath, objectKeys(toParams));
+      toPath = PathFactory.inheritParams(fromPath, toPath, Object.keys(toParams));
     return toPath;
   }
 

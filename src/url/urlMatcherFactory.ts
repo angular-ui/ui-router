@@ -1,9 +1,8 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IServiceProviderFactory} from "angular";
 import {runtime} from "../common/angular1";
-import {forEach, extend, inherit, map, filter, indexOf, objectKeys,
-    isObject, isDefined, isArray, isString, isInjectable, isFunction,
-    toJson, fromJson, identity, equals} from "../common/common";
+import {forEach, extend, inherit, map, filter, isObject, isDefined, isArray, isString,
+    isInjectable, isFunction, toJson, fromJson, identity, equals} from "../common/common";
 import matcherConfig from "./urlMatcherConfig";
 import UrlMatcher from "./urlMatcher";
 import Param from "../params/param";

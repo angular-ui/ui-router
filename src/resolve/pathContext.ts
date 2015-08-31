@@ -1,6 +1,6 @@
 import ResolveContext from "../resolve/resolveContext";
 import {IState} from "../state/interface";
-import {objectKeys, zipObject, pick} from "../common/common";
+import {zipObject, pick} from "../common/common";
 
 // TODO: Refactor!
 // TODO: this is better named ViewContext?
@@ -24,7 +24,7 @@ export default class PathContext {
       var args = Array.prototype.slice.call(arguments);
       return zipObject(injectMe.$inject, args);
     };
-    injectMe.$inject = objectKeys(pick(this._resolveContext.getResolvables(this._state), this._injector.annotate(fn)));
+    injectMe.$inject = Object.keys(pick(this._resolveContext.getResolvables(this._state), this._injector.annotate(fn)));
     return this._resolveContext.invokeLater(this._state, injectMe, {}, this._options);
   }
 }

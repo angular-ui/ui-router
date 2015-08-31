@@ -1,4 +1,4 @@
-import {extend, defaults, copy, equalForKeys, forEach, objectKeys, ancestors, arraySearch, 
+import {extend, defaults, copy, equalForKeys, forEach, ancestors,
     identity, isDefined, isObject, isString} from "../common/common";
 import Queue from "../common/queue";
 import {IServiceProviderFactory, IPromise} from "angular";
@@ -838,7 +838,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
       if (!isDefined(state)) return undefined;
       if (!isDefined(include[state.name])) return false;
-      return params ? equalForKeys(state.params.$$values(params), $stateParams, objectKeys(params)) : true;
+      return params ? equalForKeys(state.params.$$values(params), $stateParams, Object.keys(params)) : true;
     };
 
 
@@ -907,7 +907,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {Object|Array} State configuration object or array of all objects.
      */
     $state.get = function (stateOrName: IStateOrName, base: IStateOrName): (IStateDeclaration|IStateDeclaration[]) {
-      if (arguments.length === 0) return objectKeys(states).map(function(name) { return states[name].self; });
+      if (arguments.length === 0) return Object.keys(states).map(function(name) { return states[name].self; });
       let found = matcher.find(stateOrName, base || $state.$current);
       return found && found.self || null;
     };
@@ -963,11 +963,11 @@ function $StateParamsProvider() {
 
       for (let i in parents) {
         if (!parents[i].params) continue;
-        parentParams = objectKeys(parents[i].params);
+        parentParams = Object.keys(parents[i].params);
         if (!parentParams.length) continue;
 
         for (let j in parentParams) {
-          if (arraySearch(inheritList, parentParams[j]) >= 0) continue;
+          if (inheritList.indexOf(parentParams[j]) >= 0) continue;
           inheritList.push(parentParams[j]);
           inherited[parentParams[j]] = this[parentParams[j]];
         }
