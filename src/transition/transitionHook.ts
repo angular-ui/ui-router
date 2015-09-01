@@ -1,4 +1,4 @@
-import {defaults, noop, filter, not, isFunction, isDefined, objectKeys, map, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse} from "../common/common";
+import {defaults, noop, filter, not, isFunction, isDefined, map, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse} from "../common/common";
 import trace from "../common/trace";
 import {RejectFactory} from "./rejectFactory";
 import {Transition} from "./transition";
@@ -74,7 +74,7 @@ export default class TransitionHook {
    * Creates Resolvable objects from the result object and adds them to the target object
    */
   mapNewResolves(resolves: IResolveDeclarations) {
-    let invalid = filter(resolves, not(isFunction)), keys = objectKeys(invalid);
+    let invalid = filter(resolves, not(isFunction)), keys = Object.keys(invalid);
     if (keys.length)
       throw new Error(`Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}`);
 

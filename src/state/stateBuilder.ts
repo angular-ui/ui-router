@@ -1,4 +1,4 @@
-import {noop, extend, pick, isArray, isDefined, isFunction, isString, objectKeys, forEach} from "../common/common";
+import {noop, extend, pick, isArray, isDefined, isFunction, isString, forEach} from "../common/common";
 import ParamSet from "../params/paramSet";
 import Param from "../params/param";
 
@@ -72,7 +72,7 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
           if (state[key] && !config[key]) config[key] = state[key];
         });
 
-        if (objectKeys(config).length > 0) views[name] = config;
+        if (Object.keys(config).length > 0) views[name] = config;
       });
       return views;
     },

@@ -1,4 +1,4 @@
-import {extend, inherit, forEach, objectKeys, indexOf, isString} from "../common/common";
+import {extend, inherit, forEach, isString} from "../common/common";
 
 import {IRawParams} from "../params/interface"
 
@@ -16,13 +16,12 @@ export default class ParamSet {
   }
 
   $$keys() {
-    var keys = [], chain = [], parent = this,
-        ignore = objectKeys(ParamSet.prototype);
+    var keys = [], chain = [], parent = this, ignore = Object.keys(ParamSet.prototype);
     while (parent) { chain.push(parent); parent = parent.$$parent(); }
     chain.reverse();
     forEach(chain, function(paramset) {
-      forEach(objectKeys(paramset), function(key) {
-        if (indexOf(keys, key) === -1 && indexOf(ignore, key) === -1) keys.push(key);
+      forEach(Object.keys(paramset), function(key) {
+        if (keys.indexOf(key) === -1 && ignore.indexOf(key) === -1) keys.push(key);
       });
     });
     return keys;

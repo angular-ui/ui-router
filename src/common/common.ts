@@ -25,7 +25,7 @@ export function inherit(parent, extra) {
  */
 export function defaults(opts = {}, ...defaultsList) {
   var defaults = merge.apply(null, [{}].concat(defaultsList));
-  return extend({}, defaults, pick(opts || {}, objectKeys(defaults)));
+  return extend({}, defaults, pick(opts || {}, Object.keys(defaults)));
 }
 
 /**
@@ -58,47 +58,6 @@ export function ancestors(first, second) {
   return path;
 }
 
-/**
- * IE8-safe wrapper for `Object.keys()`.
- *
- * @param {Object} object A JavaScript object.
- * @return {Array} Returns the keys of the object as an array.
- */
-export function objectKeys(object): string[] {
-  if (Object.keys) {
-    return Object.keys(object);
-  }
-  var result = [];
-
-  forEach(object, function(val, key) {
-    result.push(key);
-  });
-  return result;
-}
-
-/**
- * IE8-safe wrapper for `Array.prototype.indexOf()`.
- *
- * @param {Array} array A JavaScript array.
- * @param {*} value A value to search the array for.
- * @return {Number} Returns the array index value of `value`, or `-1` if not present.
- */
-export var arraySearch = indexOf;
-export function indexOf(array, value) {
-  if (Array.prototype.indexOf) {
-    return array.indexOf(value, Number(arguments[2]) || 0);
-  }
-  var len = array.length >>> 0, from = Number(arguments[2]) || 0;
-  from = (from < 0) ? Math.ceil(from) : Math.floor(from);
-
-  if (from < 0) from += len;
-
-  for (; from < len; from++) {
-    if (from in array && array[from] === value) return from;
-  }
-  return -1;
-}
-
 export const removeFrom = (array: any[]) => (obj) => {
   var idx = array.indexOf(obj);
   if (idx >= 0) array.splice(idx, 1);
@@ -119,11 +78,11 @@ export function inheritParams(currentParams, newParams, $current, $to) {
 
   for (var i in parents) {
     if (!parents[i].params) continue;
-    parentParams = objectKeys(parents[i].params);
+    parentParams = Object.keys(parents[i].params);
     if (!parentParams.length) continue;
 
     for (var j in parentParams) {
-      if (indexOf(inheritList, parentParams[j]) >= 0) continue;
+      if (inheritList.indexOf(parentParams[j]) >= 0) continue;
       inheritList.push(parentParams[j]);
       inherited[parentParams[j]] = currentParams[parentParams[j]];
     }
