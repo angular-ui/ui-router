@@ -412,7 +412,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
    * @requires ui.router.state.$view
    * @requires ui.router.state.$stateParams
    * @requires ui.router.router.$urlRouter
-   * @requires ui.router.state.$transition
+   * @requires ui.router.state.$transitions
    * @requires ui.router.util.$urlMatcherFactory
    *
    * @property {object} params A param object, e.g. {sectionId: section.id)}, that
@@ -428,7 +428,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
    * you're coming from.
    */
   this.$get = $get;
-  $get.$inject = ['$rootScope', '$q', '$injector', '$view', '$stateParams', '$urlRouter', '$transition', '$urlMatcherFactory'];
+  $get.$inject = ['$rootScope', '$q', '$injector', '$view', '$stateParams', '$urlRouter', '$transitions', '$urlMatcherFactory'];
   function $get(   $rootScope,   $q,   $injector,   $view,   $stateParams,   $urlRouter,   _$transition,   $urlMatcherFactory) {
 
     /**
@@ -469,7 +469,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       return invokeNextCallback();
     }
 
-    let $transition: ITransitionService = <any> _$transition;
+    let $transitions: ITransitionService = <any> _$transition;
     // Implicit root state that is always active
     let rootStateDef = {
       name: '',
@@ -688,7 +688,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (!ref.valid())
         return $q.reject(ref.error());
 
-      let transition = $transition.create(currentPath, ref);
+      let transition = $transitions.create(currentPath, ref);
       if (!transition.valid())
         return $q.reject(transition.error());
 

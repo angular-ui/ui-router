@@ -4,7 +4,7 @@ import {IPromise} from "angular";
 import trace from "../common/trace";
 
 import {ITransitionOptions, ITransitionHookOptions, ITreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";
-import $transition from "./transitionService";
+import $transitions from "./transitionService";
 import {HookRegistry, matchState} from "./hookRegistry";
 import HookBuilder from "./hookBuilder";
 import {RejectFactory} from "./rejectFactory";
@@ -236,7 +236,7 @@ export class Transition implements IHookRegistry {
    *
    * @description
    * Creates a new transition that is a redirection of the current one. This transition can
-   * be returned from a `$transitionProvider` hook, `$state` event, or other method, to
+   * be returned from a `$transitionsProvider` hook, `$state` event, or other method, to
    * redirect a transition to a new state and/or set of parameters.
    *
    * @returns {Transition} Returns a new `Transition` instance.
@@ -274,7 +274,7 @@ export class Transition implements IHookRegistry {
       current: this._options.current
     };
 
-    return new HookBuilder($transition, this._treeChanges, this, baseHookOptions);
+    return new HookBuilder($transitions, this._treeChanges, this, baseHookOptions);
   }
 
   run () {
@@ -328,7 +328,7 @@ export class Transition implements IHookRegistry {
   // This doesn't work, and should probably go away.
   // abort() {
   //   if (this.isActive()) {
-  //     $transition.transition = null; // TODO
+  //     $transitions.transition = null; // TODO
   //   }
   // }
 

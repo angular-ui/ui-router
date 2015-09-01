@@ -90,7 +90,7 @@ function getResolvedData(pathContext: ResolveContext) {
 
 
 describe('Resolvables system:', function () {
-  beforeEach(inject(function ($transition, $injector) {
+  beforeEach(inject(function ($transitions, $injector) {
     uiRouter.common.angular1.runtime.setRuntimeInjector($injector);
     emptyPath = new Path([]);
     asyncCount = 0;
@@ -536,10 +536,10 @@ describe("State transitions with resolves", function() {
     });
   }));
 
-  var $state, $transition, $q, $compile, $rootScope, $scope, $timeout;
-  beforeEach(inject(function (_$transition_, _$state_, _$q_, _$compile_, _$rootScope_, _$timeout_, $injector) {
+  var $state, $transitions, $q, $compile, $rootScope, $scope, $timeout;
+  beforeEach(inject(function (_$transitions_, _$state_, _$q_, _$compile_, _$rootScope_, _$timeout_, $injector) {
     $state = _$state_;
-    $transition = _$transition_;
+    $transitions = _$transitions_;
     $q = _$q_;
     $compile = _$compile_;
     $rootScope = _$rootScope_;

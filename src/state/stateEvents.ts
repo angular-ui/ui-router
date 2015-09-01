@@ -8,7 +8,7 @@ import {StateParams} from "./state";
 import TargetState from "./targetState";
 
 import {Transition} from "../transition/transition";
-import $transition from "../transition/transitionService";
+import $transitions from "../transition/transitionService";
 import {RejectType} from "../transition/rejectFactory";
 
 stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$urlRouter'];
@@ -200,7 +200,7 @@ function $StateEventsProvider($stateProvider: IStateProvider) {
     if (enabledStateEvents.$stateNotFound)
       $stateProvider.onInvalid(stateNotFoundHandler);
     if (enabledStateEvents. $stateChangeStart)
-      $transition.onBefore({}, stateChangeStartHandler, { priority: 1000 });
+      $transitions.onBefore({}, stateChangeStartHandler, { priority: 1000 });
 
     return {
       provider: $StateEventsProvider.prototype.instance

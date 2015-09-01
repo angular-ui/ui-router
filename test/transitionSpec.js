@@ -26,8 +26,8 @@ describe('transition', function () {
     return new TargetState(identifier, stateDefinition, params, options);
   };
 
-  beforeEach(module('ui.router', function ($transitionProvider, $urlMatcherFactoryProvider) {
-    transitionProvider = $transitionProvider;
+  beforeEach(module('ui.router', function ($transitionsProvider, $urlMatcherFactoryProvider) {
+    transitionProvider = $transitionsProvider;
     var stateTree = {
       first: {},
       second: {},
@@ -75,13 +75,13 @@ describe('transition', function () {
 
   var makeTransition;
 
-  beforeEach(inject(function ($transition, $state) {
+  beforeEach(inject(function ($transitions, $state) {
     matcher = new StateMatcher(statesMap);
     queue.flush($state);
     makeTransition = function makeTransition(from, to, options) {
       var paramsPath = PathFactory.makeParamsPath(targetState(from));
       var fromPath = PathFactory.bindTransNodesToPath(paramsPath);
-      return $transition.create(fromPath, targetState(to, null, options));
+      return $transitions.create(fromPath, targetState(to, null, options));
     };
   }));
 
@@ -105,7 +105,7 @@ describe('transition', function () {
         if (promise) this.setPromise(promise);
       }
 
-      it('$transition$.promise should resolve on success', inject(function($transition, $q) {
+      it('$transition$.promise should resolve on success', inject(function($transitions, $q) {
         var result = new PromiseResult();
         transitionProvider.onStart({ from: "*", to: "second" }, function($transition$) {
           result.setPromise($transition$.promise);
@@ -115,7 +115,7 @@ describe('transition', function () {
         expect(result.called()).toEqual({ resolve: true, reject: false, complete: true });
       }));
 
-      it('$transition$.promise should reject on error', inject(function($transition, $q) {
+      it('$transition$.promise should reject on error', inject(function($transitions, $q) {
         var result = new PromiseResult();
 
         transitionProvider.onStart({ from: "*", to: "third" }, function($transition$) {
@@ -128,7 +128,7 @@ describe('transition', function () {
         expect(result.get().reject.message).toEqual("transition failed");
       }));
 
-      it('should inject $transition$', inject(function($transition, $q) {
+      it('should inject $transition$', inject(function($transitions, $q) {
         var t = null;
 
         transitionProvider.onStart({ from: "*", to: "second" }, function($transition$) {
@@ -141,7 +141,7 @@ describe('transition', function () {
       }));
 
       describe('.on()', function() {
-        it('should fire matching events when transition starts', inject(function($transition, $q) {
+        it('should fire matching events when transition starts', inject(function($transitions, $q) {
           var t = null;
           transitionProvider.onStart({ from: "first", to: "second" }, function($transition$) {
             t = $transition$;
@@ -154,7 +154,7 @@ describe('transition', function () {
           expect(t).not.toBeNull();
         }));
 
-        it('should not inject $state$', inject(function($transition, $q) {
+        it('should not inject $state$', inject(function($transitions, $q) {
           transitionProvider.onStart({ from: "*", to: "third" }, function($state$) {
             var foo = $state$;
           });
@@ -169,7 +169,7 @@ describe('transition', function () {
       });
 
       describe('.onEnter()', function() {
-        it('should inject $state$', inject(function($transition, $q) {
+        it('should inject $state$', inject(function($transitions, $q) {
           var states = [];
           transitionProvider.onEnter({ from: "*", to: "*" }, function($state$) {
             states.push($state$);
@@ -179,7 +179,7 @@ describe('transition', function () {
           expect(pluck(states, 'name')).toEqual(['A', 'B', 'C', 'D']);
         }));
 
-        it('should be called on only states being entered', inject(function($transition, $q) {
+        it('should be called on only states being entered', inject(function($transitions, $q) {
           transitionProvider.onEnter({ from: "*", to: "*" }, function($state$) { states.push($state$); });
 
           var states = [];
@@ -191,7 +191,7 @@ describe('transition', function () {
           expect(pluck(states, 'name')).toEqual([ 'B', 'C', 'D' ]);
         }));
 
-        it('should be called only when from state matches and the state being enter matches to', inject(function($transition, $q) {
+        it('should be called only when from state matches and the state being enter matches to', inject(function($transitions, $q) {
           transitionProvider.onEnter({ from: "*", to: "C" }, function($state$) { states.push($state$); });
           transitionProvider.onEnter({ from: "B", to: "C" }, function($state$) { states2.push($state$); });
 
@@ -208,7 +208,7 @@ describe('transition', function () {
       });
 
       describe('.onExit()', function() {
-        it('should inject the state being exited as $state$', inject(function($transition, $q) {
+        it('should inject the state being exited as $state$', inject(function($transitions, $q) {
           transitionProvider.onExit({ from: "*", to: "*" }, function($state$) { states.push($state$); });
 
           var states = [];
@@ -217,7 +217,7 @@ describe('transition', function () {
           expect(pluck(states, 'name')).toEqual([ 'D', 'C', 'B' ]);
         }));
 
-        it('should be called on only states being exited', inject(function($transition, $q) {
+        it('should be called on only states being exited', inject(function($transitions, $q) {
           transitionProvider.onExit({ from: "*", to: "*" }, function($state$) { states.push($state$); });
 
           var states = [];
@@ -229,7 +229,7 @@ describe('transition', function () {
           expect(pluck(states, 'name')).toEqual([ 'H', 'G' ]);
         }));
 
-        it('should be called only when the to state matches and the state being exited matches the from state', inject(function($transition, $q) {
+        it('should be called only when the to state matches and the state being exited matches the from state', inject(function($transitions, $q) {
           transitionProvider.onExit({ from: "D", to: "*" }, function($state$) { states.push($state$); });
           transitionProvider.onExit({ from: "D", to: "C" }, function($state$) { states2.push($state$); });
 
@@ -246,7 +246,7 @@ describe('transition', function () {
       });
 
       describe('.onSuccess()', function() {
-        it('should only be called if the transition succeeds', inject(function($transition, $q) {
+        it('should only be called if the transition succeeds', inject(function($transitions, $q) {
           transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to().name); });
           transitionProvider.onEnter({ from: "A", to: "C" }, function() { return false; });
 
@@ -259,7 +259,7 @@ describe('transition', function () {
           expect(states).toEqual([ 'C' ]);
         }));
 
-        it('should be called even if other .onSuccess() callbacks fail (throw errors, etc)', inject(function($transition, $q) {
+        it('should be called even if other .onSuccess() callbacks fail (throw errors, etc)', inject(function($transitions, $q) {
           transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { throw new Error("oops!"); });
           transitionProvider.onSuccess({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to().name); });
 
@@ -270,7 +270,7 @@ describe('transition', function () {
       });
 
       describe('.onError()', function() {
-        it('should be called if the transition aborts.', inject(function($transition, $q) {
+        it('should be called if the transition aborts.', inject(function($transitions, $q) {
           transitionProvider.onEnter({ from: "A", to: "C" }, function($transition$) { return false;  });
           transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to().name); });
 
@@ -279,7 +279,7 @@ describe('transition', function () {
           expect(states).toEqual([ 'D' ]);
         }));
 
-        it('should be called if any part of the transition fails.', inject(function($transition, $q) {
+        it('should be called if any part of the transition fails.', inject(function($transitions, $q) {
           transitionProvider.onEnter({ from: "A", to: "C" }, function($transition$) { throw new Erorr("oops!");  });
           transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to().name); });
 
@@ -288,7 +288,7 @@ describe('transition', function () {
           expect(states).toEqual([ 'D' ]);
         }));
 
-        it('should be called for only handlers matching the transition.', inject(function($transition, $q) {
+        it('should be called for only handlers matching the transition.', inject(function($transitions, $q) {
           transitionProvider.onEnter({ from: "A", to: "C" }, function($transition$) { throw new Erorr("oops!");  });
           transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { hooks.push("splatsplat"); });
           transitionProvider.onError({ from: "A", to: "C" }, function($transition$) { hooks.push("AC"); });
@@ -300,7 +300,7 @@ describe('transition', function () {
         }));
       });
 
-      it("return value of 'false' should reject the transition with ABORT status", inject(function($transition, $q) {
+      it("return value of 'false' should reject the transition with ABORT status", inject(function($transitions, $q) {
         var states = [], rejection, transition = makeTransition("", "D");
         transitionProvider.onEnter({ from: "*", to: "*" }, function($state$) { states.push($state$); });
         transitionProvider.onEnter({ from: "*", to: "C" }, function() { return false; });
@@ -311,7 +311,7 @@ describe('transition', function () {
         expect(rejection.type).toEqual(RejectType.ABORTED);
       }));
 
-      it("return value of type Transition should abort the transition with SUPERSEDED status", inject(function($transition, $q) {
+      it("return value of type Transition should abort the transition with SUPERSEDED status", inject(function($transitions, $q) {
         var states = [], rejection, transition = makeTransition("A", "D");
         transitionProvider.onEnter({ from: "*", to: "*" }, function($state$) { states.push($state$); });
         transitionProvider.onEnter({ from: "*", to: "C" }, function($state, $transition$) { 
@@ -328,7 +328,7 @@ describe('transition', function () {
         expect(rejection.redirected).toEqual(true);
       }));
 
-      it("hooks which start a new transition should cause the old transition to be rejected.", inject(function($transition, $q) {
+      it("hooks which start a new transition should cause the old transition to be rejected.", inject(function($transitions, $q) {
         var current = null;
         function currenTransition() {
           return current;
@@ -362,7 +362,7 @@ describe('transition', function () {
         expect(transition2success).toBe(true);
       }));
 
-      it("hooks which return a promise should resolve the promise before continuing", inject(function($transition, $q, $timeout) {
+      it("hooks which return a promise should resolve the promise before continuing", inject(function($transitions, $q, $timeout) {
         var log = [], transition = makeTransition("A", "D");
         transitionProvider.onEnter({ from: "*", to: "*" }, function($state$) {
           log.push("#"+$state$.name);
@@ -376,7 +376,7 @@ describe('transition', function () {
         expect(log.join('')).toBe("#B^B#C^C#D^D");
       }));
 
-      it("hooks which return a promise should resolve the promise before continuing", inject(function($transition, $q, $timeout) {
+      it("hooks which return a promise should resolve the promise before continuing", inject(function($transitions, $q, $timeout) {
         var log = [], transition = makeTransition("A", "D");
         var defers = { B: $q.defer(), C: $q.defer(), D: $q.defer() };
         function resolveDeferredFor(name) {
@@ -400,7 +400,7 @@ describe('transition', function () {
         resolveDeferredFor("D"); expect(log.join(';')).toBe("#B;^B;#C;^C;#D;^D;DONE");
       }));
 
-      it("resolve-like objects returned from hooks should be added to the transition as Resolvables", inject(function($transition, $q, $timeout) {
+      it("resolve-like objects returned from hooks should be added to the transition as Resolvables", inject(function($transitions, $q, $timeout) {
         var log = [], transition = makeTransition("A", "D");
         var defer = $q.defer();
 
@@ -428,7 +428,7 @@ describe('transition', function () {
 
   describe('Transition() instance', function() {
     describe('.entering', function() {
-      it('should return the path elements being entered', inject(function($transition) {
+      it('should return the path elements being entered', inject(function($transitions) {
         var t = makeTransition("", "A");
         expect(pluck(t.entering(), 'name')).toEqual([ "A" ]);
 
@@ -436,14 +436,14 @@ describe('transition', function () {
         expect(pluck(t.entering(), 'name')).toEqual([ "A", "B", "C", "D" ]);
       }));
 
-      it('should not include already entered elements', inject(function($transition) {
+      it('should not include already entered elements', inject(function($transitions) {
         t = makeTransition("B", "D");
         expect(pluck(t.entering(), 'name')).toEqual([ "C", "D" ]);
       }));
     });
 
     describe('.exiting', function() {
-      it('should return the path elements being exited', inject(function($transition) {
+      it('should return the path elements being exited', inject(function($transitions) {
         var t = makeTransition("D", "C");
         expect(pluck(t.exiting(), 'name')).toEqual([ 'D' ]);
 
@@ -453,7 +453,7 @@ describe('transition', function () {
     });
 
     describe('.is', function() {
-      it('should match globs', inject(function($transition) {
+      it('should match globs', inject(function($transitions) {
         var t = makeTransition("", "first");
 
         expect(t.is({ to: "first" })).toBe(true);
@@ -472,7 +472,7 @@ describe('transition', function () {
         expect(t.is({ to: "**", from: "first" })).toBe(false);
       }));
 
-      it('should match using functions', inject(function($transition) {
+      it('should match using functions', inject(function($transitions) {
         var t = makeTransition("", "first");
 
         expect(t.is({ to: function(state) { return state.name === "first"; } })).toBe(true);

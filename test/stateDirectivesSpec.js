@@ -585,7 +585,7 @@ describe('uiSrefActive', function() {
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
   }));
 
-  it('should match exactly on lazy loaded states', inject(function($transition, $rootScope, $q, $compile, $state) {
+  it('should match exactly on lazy loaded states', inject(function($transitions, $rootScope, $q, $compile, $state) {
     el = angular.element('<div><a ui-sref="contacts.lazy" ui-sref-active-eq="active">Lazy Contact</a></div>');
     template = $compile(el)($rootScope);
     $q.flush();

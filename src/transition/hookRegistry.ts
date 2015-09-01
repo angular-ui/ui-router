@@ -83,8 +83,8 @@ export class HookRegistry implements IHookRegistry {
 
   /**
    * @ngdoc function
-   * @name ui.router.state.$transitionProvider#onBefore
-   * @methodOf ui.router.state.$transitionProvider
+   * @name ui.router.state.$transitionsProvider#onBefore
+   * @methodOf ui.router.state.$transitionsProvider
    *
    * @description
    * Registers a function to be injected and invoked before a Transition begins.
@@ -116,8 +116,8 @@ export class HookRegistry implements IHookRegistry {
 
   /**
    * @ngdoc function
-   * @name ui.router.state.$transitionProvider#onStart
-   * @methodOf ui.router.state.$transitionProvider
+   * @name ui.router.state.$transitionsProvider#onStart
+   * @methodOf ui.router.state.$transitionsProvider
    *
    * @description
    * Registers a function to be injected and invoked when a transition has begun.  The function is injected in the
@@ -147,8 +147,8 @@ export class HookRegistry implements IHookRegistry {
 
   /**
    * @ngdoc function
-   * @name ui.router.state.$transitionProvider#onEnter
-   * @methodOf ui.router.state.$transitionProvider
+   * @name ui.router.state.$transitionsProvider#onEnter
+   * @methodOf ui.router.state.$transitionsProvider
    *
    * @description
    * Registers a function to be injected and invoked during a transition between the matched 'to' and 'from' states,
@@ -158,15 +158,15 @@ export class HookRegistry implements IHookRegistry {
    * - **`$transition$`**: The current transition
    * - **`$state$`**: The state being entered
    *
-   * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
-   * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.
+   * @param {function} callback See callback in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.
    */
   onEnter = makeHookRegistrationFn(this._transitionEvents, "onEnter");
 
   /**
    * @ngdoc function
-   * @name ui.router.state.$transitionProvider#onExit
-   * @methodOf ui.router.state.$transitionProvider
+   * @name ui.router.state.$transitionsProvider#onExit
+   * @methodOf ui.router.state.$transitionsProvider
    *
    * @description
    * Registers a function to be injected and invoked during a transition between the matched 'to' and 'from states,
@@ -176,15 +176,15 @@ export class HookRegistry implements IHookRegistry {
    * - **`$transition$`**: The current transition
    * - **`$state$`**: The state being entered
    *
-   * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
-   * @param {function} callback See callback in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.
+   * @param {function} callback See callback in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.
    */
   onExit = makeHookRegistrationFn(this._transitionEvents, "onExit");
 
   /**
    * @ngdoc function
-   * @name ui.router.state.$transitionProvider#onSuccess
-   * @methodOf ui.router.state.$transitionProvider
+   * @name ui.router.state.$transitionsProvider#onSuccess
+   * @methodOf ui.router.state.$transitionsProvider
    *
    * @description
    * Registers a function to be injected and invoked when a transition has successfully completed between the matched
@@ -194,7 +194,7 @@ export class HookRegistry implements IHookRegistry {
    * This function can be injected with two additional special value:
    * - **`$transition$`**: The current transition
    *
-   * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.
    * @param {function} callback The function which will be injected and invoked, when a matching transition is started.
    *   The function's return value is ignored.
    */
@@ -202,14 +202,14 @@ export class HookRegistry implements IHookRegistry {
 
   /**
    * @ngdoc function
-   * @name ui.router.state.$transitionProvider#onError
-   * @methodOf ui.router.state.$transitionProvider
+   * @name ui.router.state.$transitionsProvider#onError
+   * @methodOf ui.router.state.$transitionsProvider
    *
    * @description
    * Registers a function to be injected and invoked when a transition has failed for any reason between the matched
    * 'to' and 'from' state. The transition rejection reason is injected as `$error$`.
    *
-   * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionProvider#on $transitionProvider.on}.
+   * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.
    * @param {function} callback The function which will be injected and invoked, when a matching transition is started.
    *   The function's return value is ignored.
    */

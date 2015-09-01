@@ -34,7 +34,7 @@ export default class HookBuilder {
 
   transitionLocals: {[key: string]: any};
 
-  constructor(private $transition: ITransitionService, private treeChanges: ITreeChanges, private transition: Transition, private baseHookOptions: ITransitionHookOptions) {
+  constructor(private $transitions: ITransitionService, private treeChanges: ITreeChanges, private transition: Transition, private baseHookOptions: ITransitionHookOptions) {
     this.toState = treeChanges.to.last().state;
     this.fromState = treeChanges.from.last().state;
     this.transitionOptions = transition.options();
@@ -142,7 +142,7 @@ export default class HookBuilder {
   /**
    * returns an array of the transition hooks from:
    * 1) The Transition object instance hook registry
-   * 2) The TransitionService ($transition) global hook registry
+   * 2) The TransitionService ($transitions) global hook registry
    * which matched:
    * 1) the eventType
    * 2) the to state
@@ -153,7 +153,7 @@ export default class HookBuilder {
     const prioritySort  = (l, r) => l.priority - r.priority;
 
     let instanceHooks = this.transition.getHooks(eventName);
-    let globalHooks   = this.$transition.getHooks(eventName);
+    let globalHooks   = this.$transitions.getHooks(eventName);
     return instanceHooks.concat(globalHooks).filter(matchFilter).sort(prioritySort);
   }
 

@@ -389,13 +389,13 @@ describe('state', function () {
 
   describe('.transitionTo()', function () {
 
-    var $rootScope, $state, $stateParams, $transition, $q, $location;
+    var $rootScope, $state, $stateParams, $transitions, $q, $location;
 
-    beforeEach(inject(function (_$rootScope_, _$state_, _$stateParams_, _$transition_, _$q_, _$location_) {
+    beforeEach(inject(function (_$rootScope_, _$state_, _$stateParams_, _$transitions_, _$q_, _$location_) {
       $rootScope = _$rootScope_;
       $state = _$state_;
       $stateParams = _$stateParams_;
-      $transition = _$transition_;
+      $transitions = _$transitions_;
       $q = _$q_;
       $location = _$location_;
     }));
@@ -418,8 +418,8 @@ describe('state', function () {
     describe("(dynamic params)", function () {
       var stateChanged;
 
-      beforeEach(inject(function (_$rootScope_, _$state_, _$stateParams_, _$transition_, _$q_, _$location_) {
-        $transition.onStart({}, function () {
+      beforeEach(inject(function (_$rootScope_, _$state_, _$stateParams_, _$transitions_, _$q_, _$location_) {
+        $transitions.onStart({}, function () {
           stateChanged = true;
         });
 
@@ -542,7 +542,7 @@ describe('state', function () {
         var called;
         beforeEach(function() {
           initStateTo(RS);
-          $transition.onEnter({to: 'RS'}, function () {
+          $transitions.onEnter({to: 'RS'}, function () {
             called = true
           });
         });
@@ -572,7 +572,7 @@ describe('state', function () {
           initStateTo(RS);
           $location.search({term: 'hello'});
           var called;
-          $transition.onEnter({to: 'RS'}, function () {
+          $transitions.onEnter({to: 'RS'}, function () {
             called = true
           });
           $rootScope.$broadcast("$locationChangeSuccess");
@@ -585,7 +585,7 @@ describe('state', function () {
           initStateTo(RS);
           $state.go(".", {term: 'goodbye'});
           var called;
-          $transition.onEnter({to: 'RS'}, function () {
+          $transitions.onEnter({to: 'RS'}, function () {
             called = true
           });
           $q.flush();
@@ -1762,7 +1762,7 @@ describe('.onInvalid()', function() {
     $stateProvider.state("second", { template: "foo"} );
   }));
 
-  it('should fire when the to-state reference is invalid', inject(function($state, $transition, $q) {
+  it('should fire when the to-state reference is invalid', inject(function($state, $transitions, $q) {
     var ref = null;
     $stateProvider.onInvalid(function($to$) {
       ref = $to$;
@@ -1776,7 +1776,7 @@ describe('.onInvalid()', function() {
   }));
 
 
-  it('should allow redirection if an ITargetState is returned', inject(function($state, $transition, $q) {
+  it('should allow redirection if an ITargetState is returned', inject(function($state, $transitions, $q) {
     $stateProvider.onInvalid(function($to$) {
       return $state.targetState("second", $to$.params(), $to$.options());
     });

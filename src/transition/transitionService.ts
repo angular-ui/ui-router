@@ -52,25 +52,25 @@ class TransitionService implements IHookRegistry {
 }
 
 
-let $transition: ITransitionService = new TransitionService();
+let $transitions: ITransitionService = new TransitionService();
 
-$TransitionProvider.prototype = $transition;
+$TransitionProvider.prototype = $transitions;
 function $TransitionProvider() {
-  this._reinit.bind($transition)();
+  this._reinit.bind($transitions)();
 
   /**
    * @ngdoc service
-   * @name ui.router.state.$transition
+   * @name ui.router.state.$transitions
    *
    * @description
-   * The `$transition` service is a registry for global transition hooks, and is a factory for Transition objects.
+   * The `$transitions` service is a registry for global transition hooks, and is a factory for Transition objects.
    */
   this.$get = function $get() {
-    return $transition;
+    return $transitions;
   };
 }
 
-export default $transition;
-export let $transitionProvider = $TransitionProvider;
+export default $transitions;
+export let $transitionsProvider = $TransitionProvider;
 angular.module('ui.router.state')
-  .provider('$transition', <IServiceProviderFactory> $transitionProvider);
+  .provider('$transitions', <IServiceProviderFactory> $transitionsProvider);
