@@ -33,7 +33,7 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
 
     // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
     navigable: function(state) {
-      return !state.abstract && state.url ? state : (state.parent ? state.parent.navigable : null);
+      return (state !== root()) &&  state.url ? state : (state.parent ? state.parent.navigable : null);
     },
 
     // Own parameters for this state. state.url.params is already built at this point. Create and add non-url params
