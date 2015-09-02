@@ -1,21 +1,20 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {filter, map, noop, defaults, extend, prop, pick, omit, isString, isObject} from "../common/common"
-import trace from "../common/trace"
-import {runtime} from "../common/angular1"
-import {IPromise} from "angular"
+import {filter, map, noop, defaults, extend, prop, pick, omit, isString, isObject} from "../common/common";
+import trace from "../common/trace";
+import {runtime} from "../common/angular1";
+import {IPromise} from "angular";
 
-import {IResolvePath, IResolveNode} from "../path/interface"
-import Path from "./../path/path"
+import {IResolvePath, IResolveNode} from "../path/interface";
 
-import {IPromises, IResolvables, ResolvePolicy, IOptions1} from "./interface"
-import Resolvable from "./resolvable"
-import {IState} from "../state/interface"
+import {IPromises, IResolvables, ResolvePolicy, IOptions1} from "./interface";
+import Resolvable from "./resolvable";
+import {IState} from "../state/interface";
 
 // TODO: make this configurable
-var defaultResolvePolicy = ResolvePolicy[ResolvePolicy.JIT];
+let defaultResolvePolicy = ResolvePolicy[ResolvePolicy.JIT];
 
-interface IOrdinals { [key: string]: number }
-interface IPolicies { [key: string]: string }
+interface IOrdinals { [key: string]: number; }
+interface IPolicies { [key: string]: string; }
 
 export default class ResolveContext {
   constructor(private _path: IResolvePath) { }
@@ -44,17 +43,17 @@ export default class ResolveContext {
   getResolvables(state?: IState, options?: any): IResolvables {
     options = defaults(options, { omitOwnLocals: [] });
     let path: IResolvePath = (state ? this._path.pathFromRootTo(state) : this._path);
-    var last = path.last();
+    let last = path.last();
     
     return path.nodes().reduce((memo, node) => {
-      var omitProps = (node === last) ? options.omitOwnLocals : [];
-      var filteredResolvables = omit(node.ownResolvables, omitProps);
+      let omitProps = (node === last) ? options.omitOwnLocals : [];
+      let filteredResolvables = omit(node.ownResolvables, omitProps);
       return extend(memo, filteredResolvables);
     }, {});
   }
 
   isolateRootTo(state: IState): ResolveContext {
-    return new ResolveContext(this._path.pathFromRootTo(state))
+    return new ResolveContext(this._path.pathFromRootTo(state));
   }
   
   addResolvables(resolvables: IResolvables, state: IState) {
@@ -142,9 +141,9 @@ export default class ResolveContext {
   // Injects a function at this PathElement level with available Resolvables
   // Does not wait until all Resolvables have been resolved; you must call PathElement.resolve() (or manually resolve each dep) first
   invokeNow(state: IState, fn: Function, locals: any, options: any = {}) {
-    var resolvables = resolvablesForFn(fn, this, options, "Now  ");
-    var resolvedLocals = map(resolvables, prop("data"));
-    var combinedLocals = extend({}, locals, resolvedLocals);
+    let resolvables = resolvablesForFn(fn, this, options, "Now  ");
+    let resolvedLocals = map(resolvables, prop("data"));
+    let combinedLocals = extend({}, locals, resolvedLocals);
     return runtime.$injector.invoke(fn, state, combinedLocals);
   }
 }
@@ -167,9 +166,9 @@ function getPolicy(stateResolvePolicyConf, resolvable: Resolvable): number {
 
 
 /** Inspects a function `fn` for its dependencies.  Returns an object containing matching Resolvables */
-function resolvablesForFn(fn: Function, resolveContext: ResolveContext, options, when: string): {[key:string]: Resolvable} {
-  var deps = runtime.$injector.annotate(fn);
-  var resolvables = <any> pick(resolveContext.getResolvables(), deps);
+function resolvablesForFn(fn: Function, resolveContext: ResolveContext, options, when: string): {[key: string]: Resolvable} {
+  let deps = runtime.$injector.annotate(fn);
+  let resolvables = <any> pick(resolveContext.getResolvables(), deps);
   if (options.trace) trace.tracePathElementInvoke(this, fn, deps, extend({when: when}, options));
   return resolvables;
 }
