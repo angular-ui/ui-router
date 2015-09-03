@@ -246,9 +246,9 @@ describe("UrlRouter", function () {
       it('should return URLs with #fragments when html5Mode is true & browser does not support pushState', inject(function($urlRouter) {
         $lp.html5Mode(true);
         $s.history = false;
-        expect($lp.html5Mode()).toBe(true);
+        expect(html5Compat($lp.html5Mode())).toBe(true);
         expect($urlRouter.href(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('#/hello/world#frag');
-      });
+      }));
     });
   });
 
