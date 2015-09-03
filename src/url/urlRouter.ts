@@ -268,8 +268,8 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
    *
    */
   this.$get = $get;
-  $get.$inject = ['$location', '$rootScope', '$injector', '$browser'];
-  function $get(   $location,   $rootScope,   $injector,   $browser) {
+  $get.$inject = ['$location', '$rootScope', '$injector', '$browser', '$sniffer'];
+  function $get(   $location,   $rootScope,   $injector,   $browser,   $sniffer) {
 
     var location = $location.url();
 
@@ -391,7 +391,9 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
         if (isObject(isHtml5)) {
           isHtml5 = isHtml5.enabled;
         }
-        
+
+        isHtml5 = isHtml5 && $sniffer.history;
+
         var url = urlMatcher.format(params);
         options = options || {};
 
