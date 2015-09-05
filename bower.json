@@ -19,5 +19,6 @@
     "ngdoc_assets",
     "Gruntfile.js",
     "files.js"
-  ]
+  ],
+  "main": "release/angular-ui-router.js"
 }
