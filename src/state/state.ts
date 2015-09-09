@@ -95,7 +95,9 @@ State.prototype.root = function() {
   return result;
 };
 
-State.prototype.toString = () => this.fqn();
+State.prototype.toString = function() {
+  return this.fqn();
+};
 
 
 /**
