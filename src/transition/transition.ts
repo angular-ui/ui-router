@@ -19,7 +19,7 @@ import ParamValues from "../params/paramValues";
 
 import {ViewConfig} from "../view/view";
 
-import {extend, flatten, forEach, identity, isEq, isObject, not, prop, toJson, val, abstractKey} from "../common/common";
+import {extend, flatten, forEach, identity, omit, isEq, isObject, not, prop, toJson, val, abstractKey} from "../common/common";
 
 let transitionCount = 0, REJECT = new RejectFactory();
 const stateSelf: (_state: IState) => IStateDeclaration = prop("self");
@@ -348,13 +348,16 @@ export class Transition implements IHookRegistry {
     let fromStateOrName = this.from();
     let toStateOrName = this.to();
 
+    const avoidEmptyHash = (params) =>
+      (params["#"] !== null && params["#"] !== undefined) ? params : omit(params, "#");
+
     // (X) means the to state is invalid.
     let id = this.$id,
         from = isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
-        fromParams = toJson(this._treeChanges.from.last().paramValues),
+        fromParams = toJson(avoidEmptyHash(this._treeChanges.from.last().paramValues)),
         toValid = this.valid() ? "" : "(X) ",
         to = isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
-        toParams = toJson(this.params());
+        toParams = toJson(avoidEmptyHash(this.params()));
 
     return `Transition#${id}( '${from}'${fromParams} -> ${toValid}'${to}'${toParams} )`;
   }
