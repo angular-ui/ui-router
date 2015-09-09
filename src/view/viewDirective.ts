@@ -1,18 +1,11 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
 import {extend, isDefined, isString} from "../common/common";
+import trace from "../common/trace";
 import {annotateController} from "../common/angular1";
 import {ViewConfig} from "./view";
 import {IUiViewData} from "./interface";
 
-//const debug = noop;
-const _debug = false;
-function debug(...any);
-function debug() {
-  if (_debug) { console.log.apply(console, arguments); }
-}
-
-const uiViewString = (viewData) => `ui-view named '${viewData.name}@${viewData.creationContext}'`;
 /**
  * @ngdoc directive
  * @name ui.router.state.directive:ui-view
@@ -176,12 +169,12 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
           get creationContext() { return inherited.context; }      // The context in which this ui-view "tag" was created
         };
 
-        debug(`uiView tag: Linking '${viewData.fqn}#${viewData.id}'`);
+        trace.traceUiViewEvent("Linking", viewData);
 
         function configUpdatedCallback(config?: ViewConfig) {
           if (configsEqual(viewConfig, config)) return;
-          let context = config && config.context;
-          debug(`uiView tag: Updating '${viewData.fqn}#${viewData.id}': (${uiViewString(viewData)}) with ViewConfig from context='${context}'`);
+          trace.traceUiViewConfigUpdated(viewData, config && config.context);
+
           viewConfig = config;
           updateView(config);
         }
@@ -192,25 +185,25 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
 
         unregister = $view.registerUiView(viewData);
         scope.$on("$destroy", function() {
-          debug(`uiView tag: Destroying/Unregistering '${viewData.fqn}#${viewData.id}' (${uiViewString(viewData)})`);
+          trace.traceUiViewEvent("Destroying/Unregistering", viewData);
           unregister();
         });
 
         function cleanupLastView() {
           if (previousEl) {
-            debug(`uiView tag: Removing    (previous) el '${viewData.fqn}#${viewData.id}'`);
+            trace.traceUiViewEvent("Removing    (previous) el", viewData);
             previousEl.remove();
             previousEl = null;
           }
 
           if (currentScope) {
-            debug(`uiView tag: Destroying  (previous) scope #${currentScope.$id} '${viewData.fqn}#${viewData.id}'`);
+            trace.traceUiViewEvent("Destroying  (previous) scope", viewData);
             currentScope.$destroy();
             currentScope = null;
           }
 
           if (currentEl) {
-            debug(`uiView tag: Animate out (previous) '${viewData.fqn}#${viewData.id}'`);
+            trace.traceUiViewEvent("Animate out (previous)", viewData);
             renderer.leave(currentEl, function() {
               previousEl = null;
             });
@@ -223,7 +216,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
         function updateView(config?: ViewConfig) {
           config = config || <any> {};
           let newScope = scope.$new();
-          debug(`uiView tag: Created scope #${newScope.$id} for '${viewData.fqn}#${viewData.id}'`);
+          trace.traceUiViewScopeCreated(viewData, newScope);
 
           extend(viewData, {
             context: config.context,
@@ -281,8 +274,8 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
         if (!data) return;
 
         $element.html(data.$template || initial);
+        trace.traceUiViewFill(data, $element.html());
 
-        debug(`uiView tag: Fill '${data.fqn}' with '${$element.html()}'`);
         let link = $compile($element.contents());
         let controller = data.$controller;
         let controllerAs = data.$controllerAs;

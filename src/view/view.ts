@@ -2,17 +2,9 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IPromise} from "angular";
 import {isInjectable, isString, defaults, extend, curry, addPairToObj, prop, pick, removeFrom, isEq, val, TypedMap} from "../common/common";
+import trace from "../common/trace";
 import {IStateViewConfig, IViewDeclaration} from "../state/interface";
 import {IUiViewData, IContextRef} from "./interface";
-
-let _debug = false;
-function debug(...any);
-function debug() {
-  if (_debug) { console.log.apply(console, arguments); }
-}
-
-const viewConfigString = (viewConfig: ViewConfig) =>
-    `(ViewConfig targeting ui-view: '${viewConfig.uiViewName}@${viewConfig.uiViewContextAnchor}', context: '${viewConfig.context.name}')`;
 
 /**
  * Given a raw view name from a views: config, returns a normalized target viewName and contextAnchor
@@ -195,7 +187,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
     };
 
     return $q.all(viewConfig.promises).then((results) => {
-      debug(`$view.ViewConfig: Loaded ${viewConfigString(viewConfig)}`);
+      trace.traceViewServiceEvent("Loaded", viewConfig);
       extend(viewConfig, results);
     });
   };
@@ -207,12 +199,12 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
    * @return {Boolean} Returns `true` if the view exists, otherwise `false`.
    */
   this.reset = function reset (viewConfig) {
-    debug(`$view.ViewConfig: <- Removing ${viewConfigString(viewConfig)}`);
+    trace.traceViewServiceEvent("<- Removing", viewConfig);
     viewConfigs.filter(match(viewConfig, "uiViewName", "context")).forEach(removeFrom(viewConfigs));
   };
 
   this.registerStateViewConfig = function(viewConfig: ViewConfig) {
-    debug(`$view.ViewConfig: -> Registering ${viewConfigString(viewConfig)}`);
+    trace.traceViewServiceEvent("-> Registering", viewConfig);
     viewConfigs.push(viewConfig);
   };
 
@@ -333,10 +325,10 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
    * @return {Function} Returns a de-registration function used when the view is destroyed.
    */
   this.registerUiView = function register(uiView: IUiViewData) {
-    debug(`$view.ui-view: -> Registering '${uiView.fqn}' ('${uiView.name}@${uiView.creationContext}')`);
+    trace.traceViewServiceUiViewEvent("-> Registering", uiView);
     let fqnMatches = isEq(prop("fqn"), val(uiView.fqn));
     if (uiViews.filter(fqnMatches).length)
-      debug(`!!!! duplicate uiView named: '${uiView.fqn}' ('${uiView.name}@${uiView.creationContext}')`);
+      trace.traceViewServiceUiViewEvent("!!!! duplicate uiView named:", uiView);
 
     uiViews.push(uiView);
     this.sync();
@@ -344,11 +336,11 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
     return () => {
       let idx = uiViews.indexOf(uiView);
       if (idx <= 0) {
-        debug("Tried removing non-registered uiView");
+        trace.traceViewServiceUiViewEvent("Tried removing non-registered uiView", uiView);
         return;
       }
+      trace.traceViewServiceUiViewEvent("<- Deregistering", uiView);
       removeFrom(uiViews)(uiView);
-      debug(`$view.ui-view: <- Remove '${uiView.fqn}' from uiViews (new length: ${uiViews.length})`);
     };
   };
 

@@ -53,7 +53,7 @@ export default class Resolvable {
   resolveResolvable(resolveContext: ResolveContext, options: IOptions1 = {}) {
     let {state, name, deps, resolveFn} = this;
     
-    if (options.trace) trace.traceResolveResolvable(this, options);
+    trace.traceResolveResolvable(this, options);
     // First, set up an overall deferred/promise for this Resolvable
     var deferred = runtime.$q.defer();
     this.promise = deferred.promise;
@@ -81,7 +81,7 @@ export default class Resolvable {
       return this.promise;
     }).then(data => {
       this.data = data;
-      if (options.trace) trace.traceResolvableResolved(this, options);
+      trace.traceResolvableResolved(this, options);
       return this.promise;
     });
   }

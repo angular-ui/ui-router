@@ -68,7 +68,7 @@ export default class ResolveContext {
    
   // Returns a promise for an array of resolved Path Element promises
   resolvePath(options: IOptions1 = {}): IPromise<any> {
-    if (options.trace) trace.traceResolvePath(this, options);
+    trace.traceResolvePath(this._path, options);
     const promiseForNode = (node: IResolveNode) => this.resolvePathElement(node.state, options);
     return runtime.$q.all(<any> map(this._path.nodes(), promiseForNode)).then(noop);
   }
@@ -90,7 +90,7 @@ export default class ResolveContext {
     const getResolvePromise = (resolvable: Resolvable) => resolvable.get(this.isolateRootTo(state), options);
     let resolvablePromises: IPromises = <any> map(matchingResolves, getResolvePromise);
 
-    if (options.trace) trace.traceResolvePathElement(this, matchingResolves, options);
+    trace.traceResolvePathElement(this, matchingResolves, options);
 
     return runtime.$q.all(resolvablePromises).then(noop);
   } 
@@ -112,7 +112,8 @@ export default class ResolveContext {
    */
   invokeLater(state: IState, fn: Function, locals: any, options: IOptions1 = {}): IPromise<any> {
     let isolateCtx = this.isolateRootTo(state);
-    let resolvables = resolvablesForFn(fn, isolateCtx, options, "Later");
+    let resolvables = resolvablesForFn(fn, isolateCtx);
+    trace.tracePathElementInvoke(state, fn, Object.keys(resolvables), extend({when: "Later"}, options));
     const getPromise = (resolvable: Resolvable) => resolvable.get(isolateCtx, options);
     let promises: IPromises = <any> map(resolvables, getPromise);
     
@@ -141,7 +142,8 @@ export default class ResolveContext {
   // Injects a function at this PathElement level with available Resolvables
   // Does not wait until all Resolvables have been resolved; you must call PathElement.resolve() (or manually resolve each dep) first
   invokeNow(state: IState, fn: Function, locals: any, options: any = {}) {
-    let resolvables = resolvablesForFn(fn, this, options, "Now  ");
+    let resolvables = resolvablesForFn(fn, this);
+    trace.tracePathElementInvoke(state, fn, Object.keys(resolvables), extend({when: "Now  "}, options));
     let resolvedLocals = map(resolvables, prop("data"));
     let combinedLocals = extend({}, locals, resolvedLocals);
     return runtime.$injector.invoke(fn, state, combinedLocals);
@@ -166,9 +168,7 @@ function getPolicy(stateResolvePolicyConf, resolvable: Resolvable): number {
 
 
 /** Inspects a function `fn` for its dependencies.  Returns an object containing matching Resolvables */
-function resolvablesForFn(fn: Function, resolveContext: ResolveContext, options, when: string): {[key: string]: Resolvable} {
+function resolvablesForFn(fn: Function, resolveContext: ResolveContext): {[key: string]: Resolvable} {
   let deps = runtime.$injector.annotate(fn);
-  let resolvables = <any> pick(resolveContext.getResolvables(), deps);
-  if (options.trace) trace.tracePathElementInvoke(this, fn, deps, extend({when: when}, options));
-  return resolvables;
+  return <any> pick(resolveContext.getResolvables(), deps);
 }

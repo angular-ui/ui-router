@@ -55,7 +55,7 @@ export default class TransitionHook {
 
   invokeStep = () => {
     let { options, fn, locals, resolveContext, state } = this;
-    if (options.trace) trace.traceHookInvocation(this, options);
+    trace.traceHookInvocation(this, options);
     if (options.rejectIfSuperseded && /* !this.isActive() */ options.transition !== options.current()) {
       return REJECT.superseded(options.current());
     }
@@ -94,11 +94,12 @@ export default class TransitionHook {
   }
 
   toString() {
-    let { options, fn, resolveContext } = this;
-    let event = parse("data.eventType")(options) || "internal",
+    let { options, fn } = this;
+    let event = options.hookType || "internal",
+        target = parse("data.target.state.name")(options) || parse("data.target")(options) || "unknown",
         name = (<any> fn).name || "(anonymous)",
         from = parse("data.from.name")(options),
         to = parse("data.to.name")(options);
-    return `Step ${event} (fn: '${name}', match:{from: '${from}', to: '${to}'}, ${resolveContext.toString()})`;
+    return `Step ${event} (fn: '${name}', match:{from: '${from}', to: '${to}'}, target: ${target})`;
   }
 }

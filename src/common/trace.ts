@@ -1,74 +1,111 @@
-import {isNull, isPromise, is, invoke, not, val, pattern, parse, isDefined,
-  isFunction, identity} from "../common/common";
+import {isNull, isPromise, isNumber, fnToString, isInjectable, is, invoke, not, val, pattern, parse, isDefined, identity} from "../common/common";
 import Resolvable  from "../resolve/resolvable";
 import {Transition}  from "../transition/transition";
 import {TransitionRejection}  from "../transition/rejectFactory";
+import {IUiViewData}  from "../view/interface";
+import {ViewConfig}  from "../view/view";
 
 function promiseToString(p) {
   if (is(TransitionRejection)(p.reason)) return p.reason.toString();
   return `Promise(${JSON.stringify(p)})`;
 }
 
-function fnToString(fn) {
-  let name = fn.name ? fn.name : "(anonymous)";
-  return `function ${name}(...)`;
+const uiViewString = (viewData) =>
+    `ui-view id#${viewData.id}, contextual name '${viewData.name}@${viewData.creationContext}', fqn: '${viewData.fqn}'`;
+
+const viewConfigString = (viewConfig: ViewConfig) =>
+    `ViewConfig targeting ui-view: '${viewConfig.uiViewName}@${viewConfig.uiViewContextAnchor}', context: '${viewConfig.context.name}'`;
+
+function normalizedCat(input: Category): string {
+  return isNumber(input) ? Category[input] : Category[Category[input]];
+}
+
+function padString(length: number, str: string) {
+  while (str.length < length) str += " ";
+  return str;
+}
+
+function maxLength(max: number, str: string) {
+  if (str.length <= max) return str;
+  return str.substr(0, max - 3) + "...";
+
+}
+
+enum Category {
+  RESOLVE, TRANSITION, HOOK, INVOKE, UIVIEW, VIEWCONFIG
 }
 
 class Trace {
   approximateDigests: number;
-  format: Function;
+  format = pattern([
+    [not(isDefined),            val("undefined")],
+    [isNull,                    val("null")],
+    [isPromise,                 promiseToString],
+    [is(Transition),            invoke("toString")],
+    [is(Resolvable),            invoke("toString")],
+    [isInjectable,              fnToString],
+    [val(true),                 identity]
+  ]);
 
   constructor() {
     this.approximateDigests = 0;
   }
 
-  _trace(string) {
-    console.log(string);
+  private _enabled: { [key: string]: boolean } = {};
+
+  private _set(enabled: boolean, categories: Category[]) {
+    if (!categories.length) {
+      categories = Object.keys(Category)
+          .filter(k => isNaN(parseInt(k, 10)))
+          .map(key => Category[key]);
+    }
+    categories.map(normalizedCat).forEach(category => this._enabled[category] = enabled);
+  }
+
+  enable = (...categories: Category[]) => this._set(true, categories);
+  disable = (...categories: Category[]) => this._set(false, categories);
+
+  enabled(category: Category) {
+    return !!this._enabled[normalizedCat(category)];
   }
 
   _replacer(key, val) {
     return this.format(val);
   }
 
-  _toJson(o) {
-    return JSON.stringify(o, (key, val) => this._replacer(key, val));
+  _stringify(o) {
+    return JSON.stringify(o, (key, val) => this._replacer(key, val)).replace(/\\"/g, '"');
   }
 
-  _stringify(o) {
-    this.format = pattern([
-      [not(isDefined),            val("undefined")],
-      [isNull,                    val("null")],
-      [isPromise,                 promiseToString],
-      [is(Transition),            invoke("toString")],
-      [is(Resolvable),            invoke("toString")],
-      [isFunction,                fnToString],
-      [val(true),                 identity]
-    ]);
-
-    return this._toJson(o);
+  _trace(string) {
+    console.log(string);
   }
 
   traceTransitionStart(transition: Transition) {
+    if (!this.enabled(Category.TRANSITION)) return;
     let tid = transition.$id,
       digest = this.approximateDigests,
       transitionStr = this._stringify(transition);
-    this._trace(`Transition #${tid} Digest #${digest}: Started ${transitionStr}`);
+    this._trace(`Transition #${tid} Digest #${digest}: Started  -> ${transitionStr}`);
   }
 
   traceTransitionIgnored(transition: Transition) {
+    if (!this.enabled(Category.TRANSITION)) return;
     let tid = transition.$id,
       digest = this.approximateDigests,
       transitionStr = this._stringify(transition);
-    this._trace(`Transition #${tid} Digest #${digest}: Ignored ${transitionStr}`);
+    this._trace(`Transition #${tid} Digest #${digest}: Ignored  <> ${transitionStr}`);
   }
 
   traceHookInvocation(step, options) {
+    if (!this.enabled(Category.HOOK)) return;
     let tid = parse("transition.$id")(options),
       digest = this.approximateDigests;
     this._trace(`Transition #${tid} Digest #${digest}:   Hook -> ${step.toString()}`);
   }
 
   traceHookResult(hookResult, transitionResult, transitionOptions) {
+    if (!this.enabled(Category.HOOK)) return;
     let tid = parse("transition.$id")(transitionOptions),
       digest = this.approximateDigests,
       hookResultStr = this._stringify(hookResult),
@@ -77,6 +114,7 @@ class Trace {
   }
 
   traceResolvePath(path, options) {
+    if (!this.enabled(Category.RESOLVE)) return;
     let tid = parse("transition.$id")(options),
       digest = this.approximateDigests,
       pathStr = path && path.toString(),
@@ -85,6 +123,8 @@ class Trace {
   }
 
   traceResolvePathElement(pathElement, resolvablePromises, options) {
+    if (!this.enabled(Category.RESOLVE)) return;
+    if (!resolvablePromises.length) return;
     let tid = parse("transition.$id")(options),
       digest = this.approximateDigests,
       resolvablePromisesStr = Object.keys(resolvablePromises).join(", "),
@@ -94,6 +134,7 @@ class Trace {
   }
 
   traceResolveResolvable(resolvable, options) {
+    if (!this.enabled(Category.RESOLVE)) return;
     let tid = parse("transition.$id")(options),
       digest = this.approximateDigests,
       resolvableStr = resolvable && resolvable.toString();
@@ -101,6 +142,7 @@ class Trace {
   }
 
   traceResolvableResolved(resolvable, options) {
+    if (!this.enabled(Category.RESOLVE)) return;
     let tid = parse("transition.$id")(options),
       digest = this.approximateDigests,
       resolvableStr = resolvable && resolvable.toString();
@@ -108,25 +150,59 @@ class Trace {
   }
 
   tracePathElementInvoke(pathElement, fn, deps, options) {
-    let title = `Invoke ${options.when}`,
-      tid = parse("transition.$id")(options),
+    if (!this.enabled(Category.INVOKE)) return;
+    let tid = parse("transition.$id")(options),
       digest = this.approximateDigests,
       pathElementStr = pathElement && pathElement.toString(),
-      fnName = fn.name || "(anonymous)";
-    this._trace(`Transition #${tid} Digest #${digest}:         ${title}: ${fnName} ${pathElementStr} requires: [${deps}]`);
+      fnName = fnToString(fn);
+    this._trace(`Transition #${tid} Digest #${digest}:         Invoke ${options.when}: context: ${pathElementStr} ${fnName}`);
   }
 
   traceError(error, transition: Transition) {
+    if (!this.enabled(Category.TRANSITION)) return;
     let tid = transition.$id,
-      digest = this.approximateDigests;
-    this._trace(`Transition #${tid} Digest #${digest}: Transition Rejected, reason: ${error}`);
+      digest = this.approximateDigests,
+      transitionStr = this._stringify(transition);
+    this._trace(`Transition #${tid} Digest #${digest}: Rejected <- ${transitionStr}, reason: ${error}`);
   }
 
   traceSuccess(finalState, transition: Transition) {
+    if (!this.enabled(Category.TRANSITION)) return;
     let tid = transition.$id,
       digest = this.approximateDigests,
-      state = finalState.name;
-    this._trace(`Transition #${tid} Digest #${digest}: Transition Success, state: ${state}`);
+      state = finalState.name,
+      transitionStr = this._stringify(transition);
+    this._trace(`Transition #${tid} Digest #${digest}: Success  <- ${transitionStr}, final state: ${state}`);
+  }
+
+  traceUiViewEvent(event: string, viewData: IUiViewData, extra = "") {
+    if (!this.enabled(Category.UIVIEW)) return;
+    this._trace(`ui-view: ${padString(30, event)} ${uiViewString(viewData)}${extra}`);
+  }
+
+  traceUiViewConfigUpdated(viewData: IUiViewData, context) {
+    if (!this.enabled(Category.UIVIEW)) return;
+    this.traceUiViewEvent("Updating", viewData, ` with ViewConfig from context='${context}'`);
+  }
+
+  traceUiViewScopeCreated(viewData: IUiViewData, newScope) {
+    if (!this.enabled(Category.UIVIEW)) return;
+    this.traceUiViewEvent("Created scope for", viewData, `, scope #${newScope.$id}`);
+  }
+
+  traceUiViewFill(viewData: IUiViewData, html) {
+    if (!this.enabled(Category.UIVIEW)) return;
+    this.traceUiViewEvent("Fill", viewData, ` with: ${maxLength(60, html)}`);
+  }
+
+  traceViewServiceEvent(event: string, viewConfig: ViewConfig) {
+    if (!this.enabled(Category.VIEWCONFIG)) return;
+    this._trace(`$view.ViewConfig: ${event} ${viewConfigString(viewConfig)}`);
+  }
+
+  traceViewServiceUiViewEvent(event: string, viewData: IUiViewData) {
+    if (!this.enabled(Category.VIEWCONFIG)) return;
+    this._trace(`$view.ViewConfig: ${event} ${uiViewString(viewData)}`);
   }
 }
 
@@ -135,4 +211,5 @@ export default trace;
 
 angular.module("ui.router").run(function($rootScope) {
   $rootScope.$watch(function() { trace.approximateDigests++; });
+  //trace.enable(Category.RESOLVE, Category.TRANSITION, Category.HOOK, Category.UIVIEW, Category.VIEWCONFIG);
 });

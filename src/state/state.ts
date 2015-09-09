@@ -700,20 +700,22 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       const activateView = (viewConfig: ViewConfig) => $view.registerStateViewConfig(viewConfig);
       const deactivateView = (viewConfig: ViewConfig) => $view.reset(viewConfig);
 
-      const loadAllEnteringViews = () => $q.all(enteringViews.map(loadView)).then(() => undefined);
-      const deactivateAllExitedViews = () => exitingViews.forEach(deactivateView);
-      const activateEnteringViews = ($state$: IState) => transition.views("entering", $state$).forEach(activateView);
+      function $loadAllEnteringViews() { $q.all(enteringViews.map(loadView)).then(() => undefined); }
+      function $deactivateAllExitedViews() { exitingViews.forEach(deactivateView); }
+      function $activateEnteringViews($state$: IState) { transition.views("entering", $state$).forEach(activateView); }
 
       // Add hooks
       // TODO: Move this to its own fn
       let hookBuilder = transition.hookBuilder();
 
-      transition.onStart({}, loadAllEnteringViews, { priority: 100 });
-      transition.onStart({}, deactivateAllExitedViews, { priority: 50 });
+      transition.onStart({}, $loadAllEnteringViews, { priority: 100 });
+      transition.onStart({}, $deactivateAllExitedViews, { priority: 50 });
       transition.onStart({}, hookBuilder.getEagerResolvePathFn(), { priority: 100 });
 
-      transition.onEnter({}, activateEnteringViews, { priority: 101 });
+      transition.onEnter({}, $activateEnteringViews, { priority: 101 });
       transition.onEnter({}, hookBuilder.getLazyResolveStateFn(), { priority: 100 });
+
+      transition.onError({}, $transitions.defaultErrorHandler());
 
       let onEnterRegistration = (state) => transition.onEnter({to: state.name}, state.onEnter, { priority: -100 });
       transition.entering().filter(state => !!state.onEnter).forEach(onEnterRegistration);
