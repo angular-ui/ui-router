@@ -30,6 +30,8 @@ export interface ITransitionHookOptions {
   current             ?: () => Transition;  //path?
   transition          ?: Transition;
   trace               ?: boolean;
+  hookType            ?: string;
+  target              ?: any;
   data                ?: any;
 }
 
@@ -42,8 +44,11 @@ export interface ITreeChanges {
   exiting:  ITransPath;
 }
 
+export type IErrorHandler = (error: Error) => void;
+
 export interface ITransitionService extends IHookRegistry {
   create: (fromPath: ITransPath, targetState: TargetState) => Transition;
+  defaultErrorHandler: (handler?: IErrorHandler) => IErrorHandler;
 }
 
 

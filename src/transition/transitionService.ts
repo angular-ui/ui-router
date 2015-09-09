@@ -24,7 +24,7 @@ export let defaultTransOpts: ITransitionOptions = {
   inherit     : false,
   notify      : true,
   reload      : false,
-  trace       : false,
+  trace       : true,
   custom      : {},
   current     : () => null
 };
@@ -40,8 +40,19 @@ class TransitionService implements IHookRegistry {
   onExit    : IHookRegistration;
   onSuccess : IHookRegistration;
   onError   : IHookRegistration;
+
   getHooks  : IHookGetter;
-  
+
+  private _defaultErrorHandler: ((_error) => void) = function $defaultErrorHandler($error$) {
+    if ($error$ instanceof Error) console.log($error$);
+  };
+
+  defaultErrorHandler(handler: (error) => void) {
+    if (arguments.length)
+      this._defaultErrorHandler = handler;
+    return this._defaultErrorHandler;
+  }
+
   private _reinit() {
     HookRegistry.mixin(new HookRegistry(), this);
   }
