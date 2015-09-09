@@ -13,6 +13,8 @@ export interface HOF { (fn1: F, fn2: F): F }
 export interface ObjMapFn<X, T> { (x:X, key?: string): T }
 export interface ArrMapFn<X, T> { (x:X, key?: number): T }
 
+export type IInjectable = (Function|any[]);
+
 export var abstractKey = 'abstract';
 export function inherit(parent, extra) {
   return extend(new (extend(function() {}, { prototype: parent }))(), extra);
@@ -288,8 +290,13 @@ export function addPairToObj(obj: TypedMap<any>, [key, val]) {
 }
 
 // Checks if a value is injectable
-export function isInjectable(value) {
-  return (isFunction(value) || (isArray(value) && isFunction(value[value.length - 1])));
+export function isInjectable(val) {
+  if (isArray(val) && val.length) {
+    let head = val.slice(0, -1), tail = val.slice(-1);
+    if (head.filter(not(isString)).length || tail.filter(not(isFunction)).length)
+      return false;
+  }
+  return isFunction(val);
 }
 
 export function isNull(o) { return o === null; }
@@ -384,6 +391,22 @@ export function curry(fn: F): F {
     }
     return curried(initial_args);
 }
+
+export function fnToString(fn) {
+  let _fn = pattern([
+    [isArray, val => val.slice(-1)[0]],
+    [val(true), identity]
+  ])(fn);
+
+  //let name = _fn && _fn.name ? _fn.name : "(anonymous)";
+  let name = _fn && _fn.toString() || "undefined";
+  let namedFunctionMatch = name.match(/^(function [^ ]+\([^)]*\))/);
+  if (namedFunctionMatch)
+    return namedFunctionMatch[1];
+  // anonymous function... return the first 50 chars instead of the fn name
+  return name.slice(0, 50).replace(/\n/g, " ");
+}
+
 /**
  * @ngdoc overview
  * @name ui.router.util

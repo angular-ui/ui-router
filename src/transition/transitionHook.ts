@@ -1,4 +1,4 @@
-import {defaults, noop, filter, not, isFunction, isDefined, map, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse} from "../common/common";
+import {IInjectable, defaults, noop, filter, not, isFunction, isDefined, map, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse, fnToString} from "../common/common";
 import trace from "../common/trace";
 import {RejectFactory} from "./rejectFactory";
 import {Transition} from "./transition";
@@ -16,7 +16,7 @@ export default class TransitionHook {
   data: any;
 
   constructor(private state: IState,
-              private fn: Function,
+              private fn: IInjectable,
               private locals: any,
               private resolveContext: ResolveContext,
               private options: ITransitionHookOptions) {
@@ -95,11 +95,9 @@ export default class TransitionHook {
 
   toString() {
     let { options, fn } = this;
-    let event = options.hookType || "internal",
-        target = parse("data.target.state.name")(options) || parse("data.target")(options) || "unknown",
-        name = (<any> fn).name || "(anonymous)",
-        from = parse("data.from.name")(options),
-        to = parse("data.to.name")(options);
-    return `Step ${event} (fn: '${name}', match:{from: '${from}', to: '${to}'}, target: ${target})`;
+    let event = parse("data.hookType")(options) || "internal",
+        context = parse("data.context.state.name")(options) || parse("data.context")(options) || "unknown",
+        name = fnToString(fn);
+    return `${event} context: ${context}, ${name}`;
   }
 }

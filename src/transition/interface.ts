@@ -3,6 +3,8 @@ import TargetState from "../state/targetState";
 
 import {ITransPath} from "../path/interface";
 
+import {IInjectable} from "../common/common";
+
 import {Transition} from "./transition";
 
 export interface ITransitionDestination {
@@ -51,10 +53,8 @@ export interface ITransitionService extends IHookRegistry {
   defaultErrorHandler: (handler?: IErrorHandler) => IErrorHandler;
 }
 
-
-
 export type IHookGetter = (hookName: string) => IEventHook[];
-export type IHookRegistration = (matchObject: IMatchCriteria, callback: Function, options?) => Function;
+export type IHookRegistration = (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
 export interface IHookRegistry {
   onBefore:   IHookRegistration;
   onStart:    IHookRegistration;
@@ -75,7 +75,7 @@ export interface IMatchCriteria {
 }
 
 export interface IEventHook {
-  callback: Function;
+  callback: IInjectable;
   priority: number;
   matches:  (a: IState, b: IState) => boolean;
 }

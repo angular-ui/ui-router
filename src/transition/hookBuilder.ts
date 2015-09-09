@@ -1,6 +1,6 @@
 
 import {IPromise} from "angular";
-import {extend, isPromise} from "../common/common";
+import {IInjectable, extend, isPromise} from "../common/common";
 import {runtime} from "../common/angular1";
 import trace from "../common/trace";
 
@@ -24,6 +24,20 @@ let successErrorOptions: ITransitionHookOptions = {
   rejectIfSuperseded: false
 };
 
+/**
+ * This class returns applicable TransitionHooks for a specific Transition instance.
+ *
+ * Hooks (IEventHook) may be registered globally, e.g., $transitions.onEnter(...), or locally, e.g.
+ * myTransition.onEnter(...).  The HookBuilder finds matching IEventHooks (where the match criteria is
+ * determined by the type of hook)
+ *
+ * The HookBuilder also converts IEventHooks objects to TransitionHook objects, which are used to run a Transition.
+ *
+ * The HookBuilder constructor is given the $transitions service and a Transition instance.  Thus, a HookBuilder
+ * instance may only be used for one specific Transition object. (side note: the _treeChanges accessor is private
+ * in the Transition class, so we must also provide the Transition's _treeChanges)
+ *
+ */
 export default class HookBuilder {
 
   transitionOptions: ITransitionOptions;
@@ -35,51 +49,31 @@ export default class HookBuilder {
   transitionLocals: {[key: string]: any};
 
   constructor(private $transitions: ITransitionService, private treeChanges: ITreeChanges, private transition: Transition, private baseHookOptions: ITransitionHookOptions) {
-    this.toState = treeChanges.to.last().state;
-    this.fromState = treeChanges.from.last().state;
-    this.transitionOptions = transition.options();
+    this.toState            = treeChanges.to.last().state;
+    this.fromState          = treeChanges.from.last().state;
+    this.transitionOptions  = transition.options();
     this.baseResolveOptions = { trace: baseHookOptions.trace };
-    this.transitionLocals = { $transition$: transition };
+    this.transitionLocals   = { $transition$: transition };
   }
 
-  getOnBeforeHooks() {
-    const buildHook = hook => this.buildPathHook(this.treeChanges.from, hook.callback, {}, { async: false });
-    let toFrom = { to: this.toState, from: this.fromState };
-    return this._matchingHooks("onBefore", toFrom).map(buildHook);
-  }
+  // TODO: These get* methods are returning different cardinalities of hooks
+  // onBefore/onStart returns an array of hooks
+  // onExit/onKept/onEnter returns an array of arrays of hooks
+  // getSuccessHooks and getErrorHooks returns a single callback, like a .then(fn) function
 
-  getOnStartHooks() {
-    const buildHook = hook => this.buildPathHook(this.treeChanges.to, hook.callback);
-    let toFrom = { to: this.toState, from: this.fromState };
-    return this._matchingHooks("onStart", toFrom).map(buildHook);
-  }
+  getOnBeforeHooks  = () => this._getTransitionHooks("onBefore", this._toFrom(), this.treeChanges.from);
+  getOnStartHooks   = () => this._getTransitionHooks("onStart",  this._toFrom(), this.treeChanges.to);
+  getOnExitHooks    = () => this._getNodeHooks("onExit",   this.treeChanges.exiting.reverse(), (node) => this._toFrom({ from: node.state }));
+  getOnKeptHooks    = () => this._getNodeHooks("onKeep",   this.treeChanges.retained, (node) => this._toFrom());
+  getOnEnterHooks   = () => this._getNodeHooks("onEnter",  this.treeChanges.entering, (node) => this._toFrom({ to: node.state }));
 
-  getOnEnterHooks() {
-    const enterHooksForNode = (node: ITransNode) => {
-      let toFrom: IToFrom = {to: node.state, from: this.fromState};
-      return this._matchingHooks("onEnter", toFrom).map(hook => this.buildNodeHook(node, hook.callback));
-    };
-    return this.treeChanges.entering.nodes().map(node => enterHooksForNode(node));
-  }
-
-  getOnExitHooks() {
-    const exitHooksForNode = (node: ITransNode) => {
-      let toFrom: IToFrom = {to: this.toState, from: node.state};
-      return this._matchingHooks("onExit", toFrom).map(hook => this.buildNodeHook(node, hook.callback));
-    };
-    return this.treeChanges.exiting.reverse().nodes().map(node => exitHooksForNode(node));
-  }
-
-  // TODO: refactor these success/error hooks
+  // TODO: refactor _deferred out of these callbacks (using high priority Transition instance hooks in $state)
   getSuccessHooks(_deferreds) {
-    let toFrom = { to: this.toState, from: this.fromState };
-
     return () => {
       if (this.transitionOptions.trace) trace.traceSuccess(this.toState, this.transition);
       _deferreds.prehooks.resolve(this.treeChanges);
 
-      const buildHook = hook => this.buildPathHook(this.treeChanges.to, hook.callback, {}, successErrorOptions);
-      let onSuccessHooks = this._matchingHooks("onSuccess", toFrom).map(buildHook);
+      let onSuccessHooks = this._getTransitionHooks("onSuccess", this._toFrom(), this.treeChanges.to, {}, successErrorOptions);
       this.runSynchronousHooks(onSuccessHooks, true);
 
       _deferreds.posthooks.resolve(this.treeChanges);
@@ -87,20 +81,59 @@ export default class HookBuilder {
   }
 
   getErrorHooks(_deferreds) {
-    let toFrom = { to: this.toState, from: this.fromState };
-
     return (error) => {
       if (this.transitionOptions.trace) trace.traceError(error, this.transition);
       _deferreds.prehooks.reject(error);
 
-      const buildHook = hook => this.buildPathHook(this.treeChanges.to, hook.callback, {$error$: error}, successErrorOptions);
-      let onErrorHooks = this._matchingHooks("onError", toFrom).map(buildHook);
+      let onErrorHooks = this._getTransitionHooks("onError", this._toFrom(), this.treeChanges.to, {$error$: error}, successErrorOptions);
       this.runSynchronousHooks(onErrorHooks, true);
 
       _deferreds.posthooks.reject(error);
     };
   }
 
+  private _toFrom(toFromOverride?): IToFrom {
+    return extend({ to: this.toState, from: this.fromState }, toFromOverride);
+  }
+
+  /**
+   * Returns an array of newly built TransitionHook objects.
+   *
+   * Builds a TransitionHook which cares about the entire Transition, for instance, onActivate
+   * Finds all registered IEventHooks which matched the hookType and toFrom criteria.
+   * A TransitionHook is then built from each IEventHook with the context, locals, and options provided.
+   */
+  private _getTransitionHooks(hookType: string, toFrom: IToFrom, context: (ITransPath|IState), locals = {}, options?: ITransitionHookOptions) {
+    let data = {toFrom, context, hookType };
+    const transitionHook = eventHook =>
+        this.buildHook(this.treeChanges.to.last(), eventHook.callback, locals, extend({ data }, options));
+    return this._matchingHooks(hookType, toFrom).map(transitionHook);
+  }
+
+  /**
+   * Returns an 2 dimensional array of newly built TransitionHook objects.
+   * Each inner array contains the hooks for a node in the Path.
+   *
+   * For each Node in the Path:
+   * Builds the toFrom criteria
+   * Finds all registered IEventHooks which matched the hookType and toFrom criteria.
+   * A TransitionHook is then built from each IEventHook with the context, locals, and options provided.
+   */
+  private _getNodeHooks(hookType: string, path: ITransPath, toFromFn: (node: ITransNode) => IToFrom) {
+    const hooksForNode = (node: ITransNode) => {
+      let toFrom = toFromFn(node),  locals = { $state$: node.state }, data = { toFrom, hookType, context: node };
+      const transitionHook = eventHook =>
+          this.buildHook(node, eventHook.callback, locals, { data, context: node });
+      return this._matchingHooks(hookType, toFrom).map(transitionHook);
+    };
+    return path.nodes().map(hooksForNode);
+  }
+
+  /**
+   * Given an array of TransitionHooks, runs each one synchronously and sequentially.
+   *
+   * Returns a promise chain composed of any promises returned from each hook.invokeStep() call
+   */
   runSynchronousHooks(hooks: TransitionHook[], swallowExceptions: boolean = false): IPromise<any> {
     let promises = [];
     for (let i = 0; i < hooks.length; i++) {
@@ -119,18 +152,13 @@ export default class HookBuilder {
     return promises.reduce((memo, val) => memo.then(() => val), resolvedPromise);
   }
 
-  /** Builds a TransitionHook which cares around a specific state, for instance, onEnter */
-  buildNodeHook(node: ITransNode, fn: Function, locals?, options: ITransitionHookOptions = {}): TransitionHook {
-    return this.buildHook(node, fn, extend({ $state$: node.state }, locals), options);
+  /** Builds a TransitionHook which cares about a specific state, for instance, onEnter */
+  buildNodeHook(node: ITransNode, fn: IInjectable, locals?, options: ITransitionHookOptions = {}): TransitionHook {
+    return this.buildHook(node, fn, extend({ $state$: node.state }, locals), extend({ context: node }, options));
   }
 
-  /** Builds a TransitionHook which cares about the entire Transition, for instance, onActivate */
-  buildPathHook(path: ITransPath, fn: Function, locals?, options: ITransitionHookOptions = {}): TransitionHook {
-    return this.buildHook(path.last(), fn, locals, options);
-  }
-
-  /** Builds a Hook for a Node */
-  buildHook(node: ITransNode, fn: Function, moreLocals?, options: ITransitionHookOptions = {}): TransitionHook {
+  /** Given a node and a callback function, builds a TransitionHook */
+  buildHook(node: ITransNode, fn: IInjectable, moreLocals?, options: ITransitionHookOptions = {}): TransitionHook {
     let nodeLocals = { $stateParams: node.paramValues };
     let locals = extend({}, this.transitionLocals, nodeLocals, moreLocals);
     let _options = extend({}, this.baseHookOptions, options);
@@ -158,22 +186,25 @@ export default class HookBuilder {
   }
 
   /** Returns a function which resolves the LAZY Resolvables for a Node in a Path */
-  getLazyResolveStateFn(): (IState) => IPromise<any> {
+  getLazyResolveStateFn() {
     let options = extend({resolvePolicy: ResolvePolicy[ResolvePolicy.LAZY]}, this.baseResolveOptions);
     let treeChanges = this.treeChanges;
-
-    return function $lazyResolveEnteringState($state$) {
+    $lazyResolveEnteringState.$inject = ['$state$'];
+    function $lazyResolveEnteringState($state$) {
       let node = treeChanges.entering.nodeForState($state$);
       return node.resolveContext.resolvePathElement(node.state, options);
-    };
+    }
+    return $lazyResolveEnteringState;
   }
 
   /** Returns a function which resolves the EAGER Resolvables for a Path */
-  getEagerResolvePathFn(): () => IPromise<any> {
+  getEagerResolvePathFn() {
     let options: IOptions1 = extend({resolvePolicy: ResolvePolicy[ResolvePolicy.EAGER]}, this.baseResolveOptions);
     let path = this.treeChanges.to;
-    return function $eagerResolvePath() {
-      return path.last().resolveContext.resolvePath(options);
-    };
+    $eagerResolvePath.$inject = ['$transition$'];
+    function $eagerResolvePath($transition$) {
+      return path.last().resolveContext.resolvePath(extend({transition: $transition$}, options));
+    }
+    return $eagerResolvePath;
   }
 }

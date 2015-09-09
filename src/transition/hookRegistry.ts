@@ -1,4 +1,4 @@
-import {extend, val, isString, isFunction} from "../common/common";
+import {IInjectable, extend, val, isString, isFunction} from "../common/common";
 
 import {IState} from "../state/interface";
 import Glob from "../state/glob";
@@ -35,11 +35,11 @@ export function matchState(state: IState, matchCriteria: (string|IStateMatch)) {
 
 
 export class EventHook implements IEventHook{
-  callback: Function;
+  callback: IInjectable;
   matchCriteria: IMatchCriteria;
   priority: number;
 
-  constructor(matchCriteria: IMatchCriteria, callback: Function, options: { priority: number } = <any>{}) {
+  constructor(matchCriteria: IMatchCriteria, callback: IInjectable, options: { priority: number } = <any>{}) {
     this.callback = callback;
     this.matchCriteria = extend({to: val(true), from: val(true)}, matchCriteria);
     this.priority = options.priority || 0;

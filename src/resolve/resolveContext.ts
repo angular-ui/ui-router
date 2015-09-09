@@ -1,5 +1,5 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {filter, map, noop, defaults, extend, prop, pick, omit, isString, isObject} from "../common/common";
+import {IInjectable, filter, map, noop, defaults, extend, prop, pick, omit, isString, isObject} from "../common/common";
 import trace from "../common/trace";
 import {runtime} from "../common/angular1";
 import {IPromise} from "angular";
@@ -110,7 +110,7 @@ export default class ResolveContext {
    * @param locals: are the angular $injector-style locals to inject
    * @param options: options (TODO: document)
    */
-  invokeLater(state: IState, fn: Function, locals: any, options: IOptions1 = {}): IPromise<any> {
+  invokeLater(state: IState, fn: IInjectable, locals: any, options: IOptions1 = {}): IPromise<any> {
     let isolateCtx = this.isolateRootTo(state);
     let resolvables = resolvablesForFn(fn, isolateCtx);
     trace.tracePathElementInvoke(state, fn, Object.keys(resolvables), extend({when: "Later"}, options));
@@ -141,12 +141,12 @@ export default class ResolveContext {
    */
   // Injects a function at this PathElement level with available Resolvables
   // Does not wait until all Resolvables have been resolved; you must call PathElement.resolve() (or manually resolve each dep) first
-  invokeNow(state: IState, fn: Function, locals: any, options: any = {}) {
+  invokeNow(state: IState, fn: IInjectable, locals: any, options: any = {}) {
     let resolvables = resolvablesForFn(fn, this);
     trace.tracePathElementInvoke(state, fn, Object.keys(resolvables), extend({when: "Now  "}, options));
     let resolvedLocals = map(resolvables, prop("data"));
     let combinedLocals = extend({}, locals, resolvedLocals);
-    return runtime.$injector.invoke(fn, state, combinedLocals);
+    return runtime.$injector.invoke(<Function> fn, state, combinedLocals);
   }
 }
 
@@ -168,7 +168,7 @@ function getPolicy(stateResolvePolicyConf, resolvable: Resolvable): number {
 
 
 /** Inspects a function `fn` for its dependencies.  Returns an object containing matching Resolvables */
-function resolvablesForFn(fn: Function, resolveContext: ResolveContext): {[key: string]: Resolvable} {
-  let deps = runtime.$injector.annotate(fn);
+function resolvablesForFn(fn: IInjectable, resolveContext: ResolveContext): {[key: string]: Resolvable} {
+  let deps = runtime.$injector.annotate(<Function> fn);
   return <any> pick(resolveContext.getResolvables(), deps);
 }
