@@ -270,7 +270,6 @@ export class Transition implements IHookRegistry {
 
   hookBuilder(): HookBuilder {
     let baseHookOptions: ITransitionHookOptions = {
-      trace: this._options.trace,
       transition: this,
       current: this._options.current
     };
@@ -280,10 +279,10 @@ export class Transition implements IHookRegistry {
 
   run () {
     if (this.error()) throw new Error(this.error());
-    if (this._options.trace) trace.traceTransitionStart(this);
+    trace.traceTransitionStart(this);
 
     if (this.ignored()) {
-      if (this._options.trace) trace.traceTransitionIgnored(this);
+      trace.traceTransitionIgnored(this);
       let ignored = REJECT.ignored();
       forEach(this._deferreds, (def) => def.reject(ignored.reason));
       return ignored;

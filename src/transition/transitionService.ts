@@ -24,7 +24,6 @@ export let defaultTransOpts: ITransitionOptions = {
   inherit     : false,
   notify      : true,
   reload      : false,
-  trace       : true,
   custom      : {},
   current     : () => null
 };

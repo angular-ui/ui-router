@@ -41,7 +41,6 @@ let successErrorOptions: ITransitionHookOptions = {
 export default class HookBuilder {
 
   transitionOptions: ITransitionOptions;
-  baseResolveOptions: IOptions1;
 
   toState: IState;
   fromState: IState;
@@ -52,7 +51,6 @@ export default class HookBuilder {
     this.toState            = treeChanges.to.last().state;
     this.fromState          = treeChanges.from.last().state;
     this.transitionOptions  = transition.options();
-    this.baseResolveOptions = { trace: baseHookOptions.trace };
     this.transitionLocals   = { $transition$: transition };
   }
 
@@ -70,7 +68,7 @@ export default class HookBuilder {
   // TODO: refactor _deferred out of these callbacks (using high priority Transition instance hooks in $state)
   getSuccessHooks(_deferreds) {
     return () => {
-      if (this.transitionOptions.trace) trace.traceSuccess(this.toState, this.transition);
+      trace.traceSuccess(this.toState, this.transition);
       _deferreds.prehooks.resolve(this.treeChanges);
 
       let onSuccessHooks = this._getTransitionHooks("onSuccess", this._toFrom(), this.treeChanges.to, {}, successErrorOptions);
@@ -82,7 +80,7 @@ export default class HookBuilder {
 
   getErrorHooks(_deferreds) {
     return (error) => {
-      if (this.transitionOptions.trace) trace.traceError(error, this.transition);
+      trace.traceError(error, this.transition);
       _deferreds.prehooks.reject(error);
 
       let onErrorHooks = this._getTransitionHooks("onError", this._toFrom(), this.treeChanges.to, {$error$: error}, successErrorOptions);
@@ -188,19 +186,19 @@ export default class HookBuilder {
 
   /** Returns a function which resolves the LAZY Resolvables for a Node in a Path */
   getLazyResolveStateFn() {
-    let options = extend({resolvePolicy: ResolvePolicy[ResolvePolicy.LAZY]}, this.baseResolveOptions);
+    let options = { resolvePolicy: ResolvePolicy[ResolvePolicy.LAZY] };
     let treeChanges = this.treeChanges;
-    $lazyResolveEnteringState.$inject = ['$state$'];
-    function $lazyResolveEnteringState($state$) {
+    $lazyResolveEnteringState.$inject = ['$state$', '$transition$'];
+    function $lazyResolveEnteringState($state$, $transition$) {
       let node = treeChanges.entering.nodeForState($state$);
-      return node.resolveContext.resolvePathElement(node.state, options);
+      return node.resolveContext.resolvePathElement(node.state, extend({transition: $transition$}, options));
     }
     return $lazyResolveEnteringState;
   }
 
   /** Returns a function which resolves the EAGER Resolvables for a Path */
   getEagerResolvePathFn() {
-    let options: IOptions1 = extend({resolvePolicy: ResolvePolicy[ResolvePolicy.EAGER]}, this.baseResolveOptions);
+    let options: IOptions1 = { resolvePolicy: ResolvePolicy[ResolvePolicy.EAGER] };
     let path = this.treeChanges.to;
     $eagerResolvePath.$inject = ['$transition$'];
     function $eagerResolvePath($transition$) {

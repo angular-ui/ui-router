@@ -19,7 +19,6 @@ export interface ITransitionOptions {
   notify      ?: boolean;
   reload      ?: (boolean|string|IStateDeclaration|IState);
   reloadState ?: (IState);
-  trace       ?: boolean;
   custom      ?: any;
   previous    ?: Transition;
   current     ?: () => Transition;
@@ -31,7 +30,6 @@ export interface ITransitionHookOptions {
   rejectIfSuperseded  ?: boolean;
   current             ?: () => Transition;  //path?
   transition          ?: Transition;
-  trace               ?: boolean;
   hookType            ?: string;
   target              ?: any;
   data                ?: any;

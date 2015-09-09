@@ -25,7 +25,6 @@ export default class TransitionHook {
       rejectIfSuperseded: true,
       current: noop,
       transition: null,
-      trace: false,
       data: {}
     });
 
@@ -85,10 +84,10 @@ export default class TransitionHook {
 
   handleHookResult(hookResult) {
     if (!isDefined(hookResult)) return undefined;
-    if (this.options.trace) trace.traceHookResult(hookResult, undefined, this.options);
+    trace.traceHookResult(hookResult, undefined, this.options);
 
     let transitionResult = this.mapHookResult(hookResult);
-    if (transitionResult && this.options.trace) trace.traceHookResult(hookResult, transitionResult, this.options);
+    if (transitionResult) trace.traceHookResult(hookResult, transitionResult, this.options);
 
     return transitionResult;
   }

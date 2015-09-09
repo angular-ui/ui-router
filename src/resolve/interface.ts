@@ -12,7 +12,6 @@ export interface IPromises {
 export interface IOptions1 {
   omitOwnLocals ?: string[];
   resolvePolicy ?: string;
-  trace         ?: boolean;
 }
 
 interface IOrdinals { [key: string]: number; }
