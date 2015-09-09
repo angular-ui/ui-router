@@ -1,15 +1,15 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {IPromise, IQService} from "angular";
+import {IQService} from "angular";
 
-var app = angular.module("ui.router.angular1", []);
+let app = angular.module("ui.router.angular1", []);
 
 interface IRuntime {
-  setRuntimeInjector($injector: ng.auto.IInjectorService),
-  $injector: ng.auto.IInjectorService,
-  $q: IQService
+  setRuntimeInjector($injector: ng.auto.IInjectorService);
+  $injector: ng.auto.IInjectorService;
+  $q: IQService;
 }
 
-export var runtime: IRuntime = {
+export let runtime: IRuntime = {
   setRuntimeInjector: function($injector: ng.auto.IInjectorService) {
     runtime.$injector = $injector;
     runtime.$q = $injector.get("$q");
@@ -27,11 +27,11 @@ export var runtime: IRuntime = {
  *   - Calls $injector.instantiate with controller constructor
  * - Annotate constructor
  * - Undecorate $injector
- * */
+ */
 export function annotateController($controller: Function, $injector: ng.auto.IInjectorService, controllerExpression) {
-  var oldInstantiate = $injector.instantiate;
+  let oldInstantiate = $injector.instantiate;
   try {
-    var deps;
+    let deps;
 
     $injector.instantiate = function fakeInstantiate(constructorFunction) {
       $injector.instantiate = oldInstantiate; // Un-decorate ASAP
