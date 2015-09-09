@@ -37,6 +37,7 @@ class TransitionService implements IHookRegistry {
   onBefore  : IHookRegistration;
   onStart   : IHookRegistration;
   onEnter   : IHookRegistration;
+  onRetain  : IHookRegistration;
   onExit    : IHookRegistration;
   onSuccess : IHookRegistration;
   onError   : IHookRegistration;

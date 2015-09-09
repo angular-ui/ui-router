@@ -60,6 +60,7 @@ export interface IStateDeclaration extends IViewDeclaration {
   views: IViewDeclarations;
   data: any;
   onEnter: Function;
+  onRetain: Function;
   onExit: Function;
   // TODO: finish defining state definition API.  Maybe start with what's on Definitely Typed.
 }

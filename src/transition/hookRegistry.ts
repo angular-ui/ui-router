@@ -76,7 +76,7 @@ export class HookRegistry implements IHookRegistry {
   }
 
   private _transitionEvents: ITransitionEvents = {
-    onBefore: [], onStart: [], onEnter: [], onExit: [], onSuccess: [], onError: []
+    onBefore: [], onStart: [], onEnter: [], onRetain: [], onExit: [], onSuccess: [], onError: []
   };
 
   getHooks = (name: string) => this._transitionEvents[name];
@@ -162,6 +162,24 @@ export class HookRegistry implements IHookRegistry {
    * @param {function} callback See callback in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.
    */
   onEnter = makeHookRegistrationFn(this._transitionEvents, "onEnter");
+
+  /**
+   * @ngdoc function
+   * @name ui.router.state.$transitionsProvider#onRetain
+   * @methodOf ui.router.state.$transitionsProvider
+   *
+   * @description
+   * Registers a function to be injected and invoked during a transition between the matched 'to' and 'from states,
+   * when the matched 'from' state is already active and is not being exited nor entered.
+   *
+   * This function can be injected with two additional special value:
+   * - **`$transition$`**: The current transition
+   * - **`$state$`**: The state that is retained
+   *
+   * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.
+   * @param {function} callback See callback in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.
+   */
+  onRetain = makeHookRegistrationFn(this._transitionEvents, "onRetain");
 
   /**
    * @ngdoc function

@@ -58,13 +58,13 @@ export default class HookBuilder {
 
   // TODO: These get* methods are returning different cardinalities of hooks
   // onBefore/onStart returns an array of hooks
-  // onExit/onKept/onEnter returns an array of arrays of hooks
+  // onExit/onRetain/onEnter returns an array of arrays of hooks
   // getSuccessHooks and getErrorHooks returns a single callback, like a .then(fn) function
 
   getOnBeforeHooks  = () => this._getTransitionHooks("onBefore", this._toFrom(), this.treeChanges.from);
   getOnStartHooks   = () => this._getTransitionHooks("onStart",  this._toFrom(), this.treeChanges.to);
   getOnExitHooks    = () => this._getNodeHooks("onExit",   this.treeChanges.exiting.reverse(), (node) => this._toFrom({ from: node.state }));
-  getOnKeptHooks    = () => this._getNodeHooks("onKeep",   this.treeChanges.retained, (node) => this._toFrom());
+  getonRetainHooks  = () => this._getNodeHooks("onRetain", this.treeChanges.retained, (node) => this._toFrom());
   getOnEnterHooks   = () => this._getNodeHooks("onEnter",  this.treeChanges.entering, (node) => this._toFrom({ to: node.state }));
 
   // TODO: refactor _deferred out of these callbacks (using high priority Transition instance hooks in $state)
@@ -182,6 +182,7 @@ export default class HookBuilder {
 
     let instanceHooks = this.transition.getHooks(eventName);
     let globalHooks   = this.$transitions.getHooks(eventName);
+    if (!instanceHooks || !globalHooks) throw new Error(`broken event named: ${eventName}`);
     return instanceHooks.concat(globalHooks).filter(matchFilter).sort(prioritySort);
   }
 

@@ -53,6 +53,7 @@ export class Transition implements IHookRegistry {
   onBefore:   IHookRegistration;
   onStart:    IHookRegistration;
   onEnter:    IHookRegistration;
+  onRetain:   IHookRegistration;
   onExit:     IHookRegistration;
   onSuccess:  IHookRegistration;
   onError:    IHookRegistration;
@@ -303,7 +304,7 @@ export class Transition implements IHookRegistry {
     // The synchronous onBefore hooks may register additional async hooks on-the-fly.
     let onStartHooks        = hookBuilder.getOnStartHooks();
     let exitingStateHooks   = hookBuilder.getOnExitHooks();
-    let retainedStateHooks  = hookBuilder.getOnKeptHooks();
+    let retainedStateHooks  = hookBuilder.getonRetainHooks();
     let enteringStateHooks  = hookBuilder.getOnEnterHooks();
 
     // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
