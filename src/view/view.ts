@@ -1,3 +1,4 @@
+"use strict";
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IPromise} from "angular";
 import {isInjectable, isString, defaults, extend, curry, addPairToObj, prop, pick, removeFrom, isEq, val, TypedMap} from "../common/common";
@@ -160,7 +161,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
     });
 
     if (!viewConfig.hasTemplate())
-      throw new Error('No template configuration specified for ' + name);
+      throw new Error(`No template configuration specified for '${viewConfig.uiViewName}@${viewConfig.uiViewContextAnchor}'`);
 
     if (options.notify) {
       /**

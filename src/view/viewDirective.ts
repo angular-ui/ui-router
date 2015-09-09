@@ -12,7 +12,7 @@ function debug() {
   if (_debug) { console.log.apply(console, arguments); }
 }
 
-const uiViewString = (viewData) => `ui-view named '${viewData.name}@${viewData.creationContext}', filled with ViewConfig from context='${viewData.fillContext}'`;
+const uiViewString = (viewData) => `ui-view named '${viewData.name}@${viewData.creationContext}'`;
 /**
  * @ngdoc directive
  * @name ui.router.state.directive:ui-view
@@ -146,6 +146,10 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
     return config1 === config2;
   }
 
+  let rootData = {
+    context: $view.rootContext()
+  };
+
   let directive = {
     count: 0,
     restrict: 'ECA',
@@ -160,17 +164,16 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
             autoScrollExp = attrs.autoscroll,
             renderer      = getRenderer(attrs, scope),
             viewConfig    = undefined,
-            inherited     = $element.inheritedData('$uiView') || { context: $view.rootContext() },
+            inherited     = $element.inheritedData('$uiView') || rootData,
             name          = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default';
 
         let viewData: IUiViewData = {
-          id: directive.count++,
-          name: name,
-          fqn: inherited.name ? inherited.fqn + "." + name : name,
-          config: null,
-          fillContext: null,
-          configUpdated: configUpdatedCallback,
-          get creationContext() { return inherited.context; }
+          id: directive.count++,                                   // Global sequential ID for ui-view tags added to DOM
+          name: name,                                              // ui-view name (<div ui-view="name"></div>
+          fqn: inherited.name ? inherited.fqn + "." + name : name, // fully qualified name, describes location in DOM
+          config: null,                                            // The ViewConfig loaded (from a state.views definition)
+          configUpdated: configUpdatedCallback,                    // Called when the matching ViewConfig changes
+          get creationContext() { return inherited.context; }      // The context in which this ui-view "tag" was created
         };
 
         debug(`uiView tag: Linking '${viewData.fqn}#${viewData.id}'`);

@@ -16,7 +16,5 @@ export interface IUiViewData {
   config: any;
   // The context in which the ui-view tag was created.
   creationContext: IContextRef;
-  // The context of the ViewConfig which has been targeted the ui-view.
-  fillContext: IContextRef;
   configUpdated: (config: ViewConfig) => void;
 }
