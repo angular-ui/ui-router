@@ -39,7 +39,7 @@ export default class TransitionHook {
    * to the pathContext for the current pathElement.  If the transition is rejected, then a rejected
    * promise is returned here, otherwise undefined is returned.
    */
-  mapHookResult = (hookResult) => pattern([
+  mapHookResult = pattern([
     // Transition is no longer current
     [not(isEq(this.options.current, val(this.options.transition))), pipe(this.options.current, REJECT.superseded.bind(REJECT))],
     // If the hook returns false, abort the current Transition
@@ -50,7 +50,7 @@ export default class TransitionHook {
     [isPromise, (result) => result.then(this.handleHookResult.bind(this))],
     // If the hook returns any new resolves, add them to the pathContext via the PathElement
     [isObject, (result) => this.resolveContext.addResolvables(this.mapNewResolves(result), this.state)]
-  ])(hookResult);
+  ]);
 
   invokeStep = () => {
     let { options, fn, locals, resolveContext, state } = this;
