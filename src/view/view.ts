@@ -188,7 +188,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
 
     return $q.all(viewConfig.promises).then((results) => {
       trace.traceViewServiceEvent("Loaded", viewConfig);
-      extend(viewConfig, results);
+      return extend(viewConfig, results);
     });
   };
 
