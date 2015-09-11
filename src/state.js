@@ -1332,7 +1332,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * - **`relative`** - {object=$state.$current}, When transitioning with relative path (e.g '^'), 
      *    defines which state to be relative from.
      * - **`absolute`** - {boolean=false},  If true will generate an absolute url, e.g. "http://www.example.com/fullurl".
-     * 
+     * - **`prependBasePath`** - {boolean=true}, If false will not prepend base path (`<base href="/path/">`) to path. Will always prepend
+     *    base path if `absolute` is true.
+     *
      * @returns {string} compiled state url
      */
     $state.href = function href(stateOrName, params, options) {
@@ -1340,7 +1342,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         lossy:    true,
         inherit:  true,
         absolute: false,
-        relative: $state.$current
+        relative: $state.$current,
+        prependBasePath: true
       }, options || {});
 
       var state = findState(stateOrName, options.relative);
@@ -1354,7 +1357,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         return null;
       }
       return $urlRouter.href(nav.url, filterByKeys(state.params.$$keys().concat('#'), params || {}), {
-        absolute: options.absolute
+        absolute: options.absolute,
+        prependBasePath: options.prependBasePath
       });
     };
 
