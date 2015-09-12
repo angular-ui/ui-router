@@ -132,11 +132,11 @@ export default class HookBuilder {
    *
    * Returns a promise chain composed of any promises returned from each hook.invokeStep() call
    */
-  runSynchronousHooks(hooks: TransitionHook[], swallowExceptions: boolean = false): IPromise<any> {
+  runSynchronousHooks(hooks: TransitionHook[], locals = {}, swallowExceptions: boolean = false): IPromise<any> {
     let promises = [];
     for (let i = 0; i < hooks.length; i++) {
       try {
-        let hookResult = hooks[i].invokeStep();
+        let hookResult = hooks[i].invokeStep(locals);
         // If a hook returns a promise, that promise is added to an array to be resolved asynchronously.
         if (hookResult && isPromise(hookResult))
           promises.push(hookResult);

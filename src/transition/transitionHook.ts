@@ -45,8 +45,9 @@ export default class TransitionHook {
     [isObject, (result) => this.resolveContext.addResolvables(this.mapNewResolves(result), this.state)]
   ]);
 
-  invokeStep = () => {
-    let { options, fn, locals, resolveContext, state } = this;
+  invokeStep = (moreLocals) => {
+    let { options, fn, resolveContext, state } = this;
+    let locals = extend({}, this.locals, moreLocals);
     trace.traceHookInvocation(this, options);
     if (options.rejectIfSuperseded && /* !this.isActive() */ options.transition !== options.current()) {
       return REJECT.superseded(options.current());
