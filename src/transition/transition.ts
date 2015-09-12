@@ -55,6 +55,7 @@ export class Transition implements IHookRegistry {
   onEnter:    IHookRegistration;
   onRetain:   IHookRegistration;
   onExit:     IHookRegistration;
+  onFinish:   IHookRegistration;
   onSuccess:  IHookRegistration;
   onError:    IHookRegistration;
   getHooks:   IHookGetter;
@@ -301,13 +302,16 @@ export class Transition implements IHookRegistry {
 
     // Build the async hooks *after* running onBefore hooks.
     // The synchronous onBefore hooks may register additional async hooks on-the-fly.
-    let onStartHooks        = hookBuilder.getOnStartHooks();
-    let exitingStateHooks   = hookBuilder.getOnExitHooks();
-    let retainedStateHooks  = hookBuilder.getonRetainHooks();
-    let enteringStateHooks  = hookBuilder.getOnEnterHooks();
+    let onStartHooks    = hookBuilder.getOnStartHooks();
+    let onExitHooks     = hookBuilder.getOnExitHooks();
+    let onRetainHooks   = hookBuilder.getOnRetainHooks();
+    let onEnterHooks    = hookBuilder.getOnEnterHooks();
+    let onFinishHooks   = hookBuilder.getOnFinishHooks();
+    let onSuccessHooks  = hookBuilder.getOnSuccessHooks();
+    let onErrorHooks    = hookBuilder.getOnErrorHooks();
 
     // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
-    let asyncSteps = flatten([onStartHooks, exitingStateHooks, retainedStateHooks, enteringStateHooks]).filter(identity);
+    let asyncSteps = flatten([onStartHooks, onExitHooks, onRetainHooks, onEnterHooks, onFinishHooks]).filter(identity);
 
     // ---- Asynchronous section ----
     // The results of the sync hooks is a promise chain (rejected or otherwise) that begins the async portion of the transition.

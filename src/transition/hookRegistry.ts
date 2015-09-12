@@ -76,7 +76,7 @@ export class HookRegistry implements IHookRegistry {
   }
 
   private _transitionEvents: ITransitionEvents = {
-    onBefore: [], onStart: [], onEnter: [], onRetain: [], onExit: [], onSuccess: [], onError: []
+    onBefore: [], onStart: [], onEnter: [], onRetain: [], onExit: [], onFinish: [], onSuccess: [], onError: []
   };
 
   getHooks = (name: string) => this._transitionEvents[name];
@@ -198,6 +198,22 @@ export class HookRegistry implements IHookRegistry {
    * @param {function} callback See callback in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.
    */
   onExit = makeHookRegistrationFn(this._transitionEvents, "onExit");
+
+  /**
+   * @ngdoc function
+   * @name ui.router.state.$transitionsProvider#onFinish
+   * @methodOf ui.router.state.$transitionsProvider
+   *
+   * @description
+   * Registers a function to be injected and invoked when a transition is finished entering/exiting all states.
+   *
+   * This function can be injected with:
+   * - **`$transition$`**: The current transition
+   *
+   * @param {object} matchObject See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.
+   * @param {function} callback See callback in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.
+   */
+  onFinish = makeHookRegistrationFn(this._transitionEvents, "onFinish");
 
   /**
    * @ngdoc function
