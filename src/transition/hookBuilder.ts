@@ -154,7 +154,7 @@ export default class HookBuilder {
    */
   private _matchingHooks(eventName: string, matchCriteria: IToFrom): IEventHook[] {
     const matchFilter   = hook => hook.matches(matchCriteria.to, matchCriteria.from);
-    const prioritySort  = (l, r) => l.priority - r.priority;
+    const prioritySort  = (l, r) => r.priority - l.priority;
 
     let instanceHooks = this.transition.getHooks(eventName);
     let globalHooks   = this.$transitions.getHooks(eventName);
