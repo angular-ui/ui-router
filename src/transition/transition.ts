@@ -42,13 +42,11 @@ const stateSelf: (_state: IState) => IStateDeclaration = prop("self");
 export class Transition implements IHookRegistry {
   $id: number;
 
-  promise: IPromise<any>;
-  prepromise: IPromise<any>;
-  redirects: IPromise<any>;
+  private _deferred = runtime.$q.defer();
+  promise: IPromise<any> = this._deferred.promise;
 
   private _options: ITransitionOptions;
   private _treeChanges: ITreeChanges;
-  private _deferreds: any;
 
   onBefore:   IHookRegistration;
   onStart:    IHookRegistration;
@@ -68,17 +66,6 @@ export class Transition implements IHookRegistry {
     this.$id = transitionCount++;
     let toPath = PathFactory.buildToPath(fromPath, targetState);
     this._treeChanges = PathFactory.treeChanges(fromPath, toPath, this._options.reloadState);
-
-    this._deferreds = {
-      prehooks: runtime.$q.defer(), // Resolved when the transition is complete, but success callback not run yet
-      posthooks: runtime.$q.defer(), // Resolved when the transition is complete, after success callbacks
-      redirects: runtime.$q.defer() // Resolved when any transition redirects are complete
-    };
-
-    // Expose three promises to users of Transition
-    this.prepromise = this._deferreds.prehooks.promise;
-    this.promise = this._deferreds.posthooks.promise;
-    this.redirects = this._deferreds.redirects.promise;
   }
 
   $from() {
@@ -231,6 +218,8 @@ export class Transition implements IHookRegistry {
     return state ? path.nodeForState(state).views : flatten(path.nodes().map(prop("views")));
   }
 
+  treeChanges = () => this._treeChanges;
+
   /**
    * @ngdoc function
    * @name ui.router.state.type:Transition#redirect
@@ -285,8 +274,8 @@ export class Transition implements IHookRegistry {
     if (this.ignored()) {
       trace.traceTransitionIgnored(this);
       let ignored = REJECT.ignored();
-      forEach(this._deferreds, (def) => def.reject(ignored.reason));
-      return ignored;
+      this._deferred.reject(ignored.reason);
+      return this.promise;
     }
 
     // -----------------------------------------------------------------------
@@ -320,11 +309,26 @@ export class Transition implements IHookRegistry {
       chain = chain.then(step.invokeStep);
     });
 
-    // When the last step of the chain has resolved or any step has rejected (i.e., the transition is completed),
-    // invoke the registered success or error hooks when the transition is completed.
-    chain = chain.then(hookBuilder.getSuccessHooks(this._deferreds)).catch(hookBuilder.getErrorHooks(this._deferreds));
 
-    // Return the overall transition promise, which is resolved/rejected in successHooks/errorHooks
+    // When the chain is complete, then resolve or reject the deferred
+    const resolve = () => {
+      this._deferred.resolve(this);
+      trace.traceSuccess(this.$to(), this);
+    };
+
+    const reject = (error) => {
+      this._deferred.reject(error);
+      trace.traceError(error, this);
+      return runtime.$q.reject(error);
+    };
+
+    chain = chain.then(resolve, reject);
+
+    // When the promise has settled (i.e., the transition is complete), then invoke the registered success or error hooks
+    const runSuccessHooks = () => hookBuilder.runSynchronousHooks(onSuccessHooks, {}, true);
+    const runErrorHooks = ($error$) => hookBuilder.runSynchronousHooks(onErrorHooks, { $error$ }, true);
+    this.promise.then(runSuccessHooks).catch(runErrorHooks);
+
     return this.promise;
   }
 

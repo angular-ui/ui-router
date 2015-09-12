@@ -702,19 +702,24 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       const activateView = (viewConfig: ViewConfig) => $view.registerStateViewConfig(viewConfig);
       const deactivateView = (viewConfig: ViewConfig) => $view.reset(viewConfig);
 
-      function $loadAllEnteringViews() { $q.all(enteringViews.map(loadView)).then(() => undefined); }
+      function $loadAllEnteringViews() { return $q.all(enteringViews.map(loadView)).then(() => undefined); }
       function $deactivateAllExitedViews() { exitingViews.forEach(deactivateView); }
       function $activateEnteringViews($state$: IState) { transition.views("entering", $state$).forEach(activateView); }
 
+      let stateHandler = new StateHandler($urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
       // Add hooks
       // TODO: Move this to its own fn
       let hookBuilder = transition.hookBuilder();
 
-      transition.onStart({}, $loadAllEnteringViews, { priority: 100 });
-      transition.onStart({}, $deactivateAllExitedViews, { priority: 50 });
-      transition.onStart({}, hookBuilder.getEagerResolvePathFn(), { priority: 100 });
+      if (enteringViews.length) {
+        transition.onStart({}, $loadAllEnteringViews, { priority: 100 });
+        transition.onEnter({}, $activateEnteringViews, { priority: 101 });
+      }
 
-      transition.onEnter({}, $activateEnteringViews, { priority: 101 });
+      if (exitingViews.length)
+        transition.onStart({}, $deactivateAllExitedViews, { priority: 50 });
+
+      transition.onStart({}, hookBuilder.getEagerResolvePathFn(), { priority: 100 });
       transition.onEnter({}, hookBuilder.getLazyResolveStateFn(), { priority: 100 });
 
       transition.onError({}, $transitions.defaultErrorHandler());
@@ -725,16 +730,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       let onExitRegistration = (state) => transition.onExit({from: state.name}, state.onExit, { priority: -100 });
       transition.exiting().filter(state => !!state.onExit).forEach(onExitRegistration);
 
+      // Commit global state data as the last hook in the transition (using a very low priority onFinish hook)
+      function $commitGlobalData() { stateHandler.transitionSuccess(transition.treeChanges(), transition); }
+      transition.onFinish({}, $commitGlobalData, {priority: -10000});
 
-
-      let stateHandler = new StateHandler($urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
-      let result = stateHandler.runTransition(transition);
+      function $handleError($error$) { return stateHandler.transitionFailure(transition, $error$); }
+      let result = stateHandler.runTransition(transition).catch($handleError);
       result.finally(() => transQueue.remove(transition));
 
       // Return a promise for the transition, which also has the transition object on it.
-      // Allows, for instance:
-      // $state.go("foo").transition.redirects.then(function() { alert("Ive been redirected to state " + $state.current.name); }
-      return extend(result.then(identity), { transition: transition });
+      return extend(result, { transition });
     };
 
     /**

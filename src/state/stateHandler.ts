@@ -1,4 +1,4 @@
-import {IQService} from "angular";
+import {IPromise, IQService} from "angular";
 import {copy, prop} from "../common/common";
 import Queue from "../common/queue";
 
@@ -6,7 +6,7 @@ import {ITreeChanges} from "../transition/interface";
 import {Transition} from "../transition/transition";
 import {TransitionRejection, RejectType} from "../transition/rejectFactory";
 
-import {IStateService} from "../state/interface";
+import {IStateService, IStateDeclaration} from "../state/interface";
 
 export default class StateHandler {
   constructor(private $urlRouter,
@@ -19,13 +19,9 @@ export default class StateHandler {
   ) { }
   
   runTransition(transition: Transition) {
-    // When the transition promise (prepromise; before callbacks) is resolved/rejected, update the $state service
-    const handleSuccess = (treeChanges: ITreeChanges) => this.transitionSuccess(treeChanges, transition);
-    const handleFailure = (error) => this.transitionFailure(transition, error);
     this.activeTransQ.clear();
     this.activeTransQ.enqueue(transition);
-    transition.run();
-    return transition.prepromise.then(handleSuccess, handleFailure);
+    return transition.run();
   }
 
   transitionSuccess(treeChanges: ITreeChanges, transition: Transition) {
@@ -42,7 +38,7 @@ export default class StateHandler {
     return transition;
   }
 
-  transitionFailure(transition: Transition, error) {
+  transitionFailure(transition: Transition, error): (IStateDeclaration|IPromise<any>) {
     let {$state, $stateParams, $q, activeTransQ} = this;
     activeTransQ.remove(transition);
     // Handle redirect and abort
@@ -56,7 +52,6 @@ export default class StateHandler {
       }
 
       if (error.type === RejectType.SUPERSEDED) {
-        //if (error.redirected && error.detail instanceof Transition) { // TODO: expose Transition class for instanceof
         if (error.redirected && error.detail instanceof Transition) {
           activeTransQ.enqueue(error.detail);
           return this.runTransition(error.detail);
