@@ -1,5 +1,4 @@
-import {extend, defaults, copy, equalForKeys, forEach, ancestors,
-    identity, isDefined, isObject, isString} from "../common/common";
+import {extend, defaults, copy, equalForKeys, forEach, ancestors, noop, isDefined, isObject, isString} from "../common/common";
 import Queue from "../common/queue";
 import {IServiceProviderFactory, IPromise} from "angular";
 
@@ -698,37 +697,40 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       // TODO: Move the Transition instance hook registration to its own function
       let enteringViews = transition.views("entering");
       let exitingViews = transition.views("exiting");
-      const loadView = (viewConfig: ViewConfig) => $view.load(viewConfig);
-      const activateView = (viewConfig: ViewConfig) => $view.registerStateViewConfig(viewConfig);
-      const deactivateView = (viewConfig: ViewConfig) => $view.reset(viewConfig);
 
-      function $loadAllEnteringViews() { return $q.all(enteringViews.map(loadView)).then(() => undefined); }
-      function $deactivateAllExitedViews() { exitingViews.forEach(deactivateView); }
-      function $activateEnteringViews($state$: IState) { transition.views("entering", $state$).forEach(activateView); }
+      function $updateViews() {
+        exitingViews.forEach((viewConfig: ViewConfig) => $view.reset(viewConfig));
+        enteringViews.forEach((viewConfig: ViewConfig) => $view.registerStateViewConfig(viewConfig));
+      }
+
+      function $loadAllEnteringViews() {
+        const loadView = (viewConfig: ViewConfig) => $view.load(viewConfig);
+        return $q.all(enteringViews.map(loadView)).then(noop);
+      }
 
       let stateHandler = new StateHandler($urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
       // Add hooks
       // TODO: Move this to its own fn
       let hookBuilder = transition.hookBuilder();
 
-      if (enteringViews.length) {
-        transition.onStart({}, $loadAllEnteringViews, { priority: 100 });
-        transition.onEnter({}, $activateEnteringViews, { priority: 101 });
-      }
-
-      if (exitingViews.length)
-        transition.onStart({}, $deactivateAllExitedViews, { priority: 50 });
-
-      transition.onStart({}, hookBuilder.getEagerResolvePathFn(), { priority: 100 });
-      transition.onEnter({}, hookBuilder.getLazyResolveStateFn(), { priority: 100 });
+      transition.onStart({}, hookBuilder.getEagerResolvePathFn(), { priority: 1000 });
+      transition.onEnter({}, hookBuilder.getLazyResolveStateFn(), { priority: 1000 });
 
       transition.onError({}, $transitions.defaultErrorHandler());
 
-      let onEnterRegistration = (state) => transition.onEnter({to: state.name}, state.onEnter, { priority: -100 });
+      let onEnterRegistration = (state) => transition.onEnter({to: state.name}, state.onEnter);
       transition.entering().filter(state => !!state.onEnter).forEach(onEnterRegistration);
 
-      let onExitRegistration = (state) => transition.onExit({from: state.name}, state.onExit, { priority: -100 });
+      let onRetainRegistration = (state) => transition.onRetain({}, state.onRetain);
+      transition.entering().filter(state => !!state.onRetain).forEach(onRetainRegistration);
+
+      let onExitRegistration = (state) => transition.onExit({from: state.name}, state.onExit);
       transition.exiting().filter(state => !!state.onExit).forEach(onExitRegistration);
+
+      if (enteringViews.length)
+        transition.onStart({}, $loadAllEnteringViews);
+      if (exitingViews.length || enteringViews.length)
+        transition.onFinish({}, $updateViews);
 
       // Commit global state data as the last hook in the transition (using a very low priority onFinish hook)
       function $commitGlobalData() { stateHandler.transitionSuccess(transition.treeChanges(), transition); }
