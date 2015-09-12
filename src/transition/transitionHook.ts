@@ -1,4 +1,5 @@
-import {IInjectable, defaults, noop, filter, not, isFunction, isDefined, map, pattern, isEq, val, pipe, eq, is, isPromise, isObject, parse, fnToString} from "../common/common";
+import {IInjectable, defaults, extend, noop, filter, not, isFunction, isDefined, map, pattern, isEq, val,
+    pipe, eq, is, isPromise, isObject, parse, fnToString} from "../common/common";
 import trace from "../common/trace";
 import {RejectFactory} from "./rejectFactory";
 import {Transition} from "./transition";
@@ -9,29 +10,21 @@ import {ITransitionHookOptions} from "./interface";
 
 let REJECT = new RejectFactory();
 
-export default class TransitionHook {
-  // TODO these are redundant, check why we're doubling up on them.
-  async: boolean;
-  rejectIfSuperseded: boolean;
-  data: any;
+let defaultOptions = {
+  async: true,
+  rejectIfSuperseded: true,
+  current: noop,
+  transition: null,
+  traceData: {}
+};
 
+export default class TransitionHook {
   constructor(private state: IState,
               private fn: IInjectable,
               private locals: any,
               private resolveContext: ResolveContext,
               private options: ITransitionHookOptions) {
-    this.options = defaults(options, {
-      async: true,
-      rejectIfSuperseded: true,
-      current: noop,
-      transition: null,
-      data: {}
-    });
-
-    // TODO this is redundant, check why we're doubling up on these.
-    this.async = options.async;
-    this.rejectIfSuperseded = options.rejectIfSuperseded;
-    this.data = options.data;
+    this.options = defaults(options, defaultOptions);
   }
 
   /**
@@ -67,7 +60,6 @@ export default class TransitionHook {
     return resolveContext.invokeLater(state, fn, locals, options).then(this.handleHookResult.bind(this));
   };
 
-
   /**
    * Validates the result map as a "resolve:" style object.
    * Creates Resolvable objects from the result object and adds them to the target object
@@ -94,8 +86,8 @@ export default class TransitionHook {
 
   toString() {
     let { options, fn } = this;
-    let event = parse("data.hookType")(options) || "internal",
-        context = parse("data.context.state.name")(options) || parse("data.context")(options) || "unknown",
+    let event = parse("traceData.hookType")(options) || "internal",
+        context = parse("traceData.context.state.name")(options) || parse("traceData.context")(options) || "unknown",
         name = fnToString(fn);
     return `${event} context: ${context}, ${name}`;
   }

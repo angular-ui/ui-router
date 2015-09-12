@@ -32,7 +32,7 @@ export interface ITransitionHookOptions {
   transition          ?: Transition;
   hookType            ?: string;
   target              ?: any;
-  data                ?: any;
+  traceData           ?: any;
 }
 
 export interface ITreeChanges {
