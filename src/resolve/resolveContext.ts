@@ -13,7 +13,6 @@ import {IState} from "../state/interface";
 // TODO: make this configurable
 let defaultResolvePolicy = ResolvePolicy[ResolvePolicy.JIT];
 
-interface IOrdinals { [key: string]: number; }
 interface IPolicies { [key: string]: string; }
 
 export default class ResolveContext {
@@ -50,6 +49,12 @@ export default class ResolveContext {
       let filteredResolvables = omit(node.ownResolvables, omitProps);
       return extend(memo, filteredResolvables);
     }, {});
+  }
+
+  /** Inspects a function `fn` for its dependencies.  Returns an object containing any matching Resolvables */
+  getResolvablesForFn(fn: IInjectable, resolveContext: ResolveContext = this): {[key: string]: Resolvable} {
+    let deps = runtime.$injector.annotate(<Function> fn);
+    return <any> pick(resolveContext.getResolvables(), deps);
   }
 
   isolateRootTo(state: IState): ResolveContext {
@@ -112,7 +117,7 @@ export default class ResolveContext {
    */
   invokeLater(state: IState, fn: IInjectable, locals: any, options: IOptions1 = {}): IPromise<any> {
     let isolateCtx = this.isolateRootTo(state);
-    let resolvables = resolvablesForFn(fn, isolateCtx);
+    let resolvables = this.getResolvablesForFn(fn, isolateCtx);
     trace.tracePathElementInvoke(state, fn, Object.keys(resolvables), extend({when: "Later"}, options));
     const getPromise = (resolvable: Resolvable) => resolvable.get(isolateCtx, options);
     let promises: IPromises = <any> map(resolvables, getPromise);
@@ -142,7 +147,8 @@ export default class ResolveContext {
   // Injects a function at this PathElement level with available Resolvables
   // Does not wait until all Resolvables have been resolved; you must call PathElement.resolve() (or manually resolve each dep) first
   invokeNow(state: IState, fn: IInjectable, locals: any, options: any = {}) {
-    let resolvables = resolvablesForFn(fn, this);
+    let isolateCtx = this.isolateRootTo(state);
+    let resolvables = this.getResolvablesForFn(fn, isolateCtx);
     trace.tracePathElementInvoke(state, fn, Object.keys(resolvables), extend({when: "Now  "}, options));
     let resolvedLocals = map(resolvables, prop("data"));
     let combinedLocals = extend({}, locals, resolvedLocals);
@@ -164,11 +170,4 @@ function getPolicy(stateResolvePolicyConf, resolvable: Resolvable): number {
   let resolveLevelPolicies: IPolicies = <any> (isObject(stateResolvePolicyConf) ? stateResolvePolicyConf : {});
   let policyName = resolveLevelPolicies[resolvable.name] || stateLevelPolicy || defaultResolvePolicy;
   return ResolvePolicy[policyName];  
-}
-
-
-/** Inspects a function `fn` for its dependencies.  Returns an object containing matching Resolvables */
-function resolvablesForFn(fn: IInjectable, resolveContext: ResolveContext): {[key: string]: Resolvable} {
-  let deps = runtime.$injector.annotate(<Function> fn);
-  return <any> pick(resolveContext.getResolvables(), deps);
 }
