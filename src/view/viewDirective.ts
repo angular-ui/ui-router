@@ -290,7 +290,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
           let viewLocals = data.$locals, annotatedFn = controller;
           if (isString(controller)) {
             annotatedFn = function() {};
-            annotatedFn.$inject = annotateController($controller, $injector, controller);
+            annotatedFn.$inject = annotateController(controller);
           }
 
           viewLocals.getLocalsFor(annotatedFn).then(function(locals) {

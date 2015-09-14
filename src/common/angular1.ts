@@ -28,7 +28,10 @@ export let runtime: IRuntime = {
  * - Annotate constructor
  * - Undecorate $injector
  */
-export function annotateController($controller: Function, $injector: ng.auto.IInjectorService, controllerExpression) {
+
+export function annotateController(controllerExpression) {
+  let $injector = runtime.$injector;
+  let $controller = $injector.get("$controller");
   let oldInstantiate = $injector.instantiate;
   try {
     let deps;
