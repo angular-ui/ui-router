@@ -115,7 +115,7 @@ export default class ResolveContext {
    * @param locals: are the angular $injector-style locals to inject
    * @param options: options (TODO: document)
    */
-  invokeLater(state: IState, fn: IInjectable, locals: any, options: IOptions1 = {}): IPromise<any> {
+  invokeLater(state: IState, fn: IInjectable, locals: any = {}, options: IOptions1 = {}): IPromise<any> {
     let isolateCtx = this.isolateRootTo(state);
     let resolvables = this.getResolvablesForFn(fn, isolateCtx);
     trace.tracePathElementInvoke(state, fn, Object.keys(resolvables), extend({when: "Later"}, options));

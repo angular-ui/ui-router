@@ -110,13 +110,10 @@ export default class PathFactory {
     let transPath = <ITransPath> resolvePath;
 
     // TODO: this doesn't belong here.
-    // TODO: pass options to PathContext
-    // TODO: rename PathContext
     function makeViews(node: ITransNode) {
       let context = node.state, params = node.paramValues;
-      let locals = new PathContext(node.resolveContext, node.state, runtime.$injector, {});
       const makeViewConfig = ([rawViewName, viewDeclarationObj]) =>
-          new ViewConfig({rawViewName, viewDeclarationObj, context, locals, params});
+          new ViewConfig({rawViewName, viewDeclarationObj, context, params});
       return pairs(node.state.views || {}).map(makeViewConfig);
     }
 

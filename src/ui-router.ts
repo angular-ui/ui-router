@@ -13,10 +13,10 @@ import Path from "./path/path"
 import PathFactory from "./path/pathFactory"
 var path = { Path, PathFactory }
 
-import PathContext from "./resolve/pathContext"
+import ResolveInjector from "./resolve/resolveInjector"
 import Resolvable from "./resolve/resolvable"
 import ResolveContext from "./resolve/resolveContext"
-var resolve = { Path, PathContext, Resolvable, ResolveContext };
+var resolve = { Path, ResolveInjector, Resolvable, ResolveContext };
 
 import Glob from "./state/glob";
 import * as stateInterface from "./state/interface";

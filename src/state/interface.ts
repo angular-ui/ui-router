@@ -6,7 +6,6 @@ import {IRawParams, IParamsOrArray} from "../params/interface";
 import ParamSet from "../params/paramSet";
 
 import {IContextRef} from "../view/interface";
-import PathContext from "../resolve/pathContext";
 
 import TargetState from "./targetState";
 
@@ -18,10 +17,9 @@ export type IStateOrName = (string|IStateDeclaration|IState);
 /** Context obj, State-view definition, transition params */
 export interface IStateViewConfig {
   viewDeclarationObj:   IViewDeclaration; // A view block from a state config
-  rawViewName:          string; // The name of the view block
-  params:               any; // State params?
-  context:              IContextRef; // The context object reference this ViewConfig belongs to
-  locals:               PathContext; // The Resolve context (rename class!)
+  rawViewName:          string;           // The name of the view block
+  params:               any;              // State params?
+  context:              IContextRef;      // The context object reference this ViewConfig belongs to
 }
 
 /** View declaration inside state declaration */

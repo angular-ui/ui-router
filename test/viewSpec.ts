@@ -7,7 +7,6 @@ var module = angular.mock.module;
 import {inherit, extend, curry} from "../src/common/common";
 import Path from "../src/path/path";
 import ResolveContext from "../src/resolve/resolveContext";
-import PathContext from "../src/resolve/pathContext";
 import PathFactory from "../src/path/pathFactory";
 import {ViewConfig} from "../src/view/view";
 import StateBuilder from "../src/state/stateBuilder";
@@ -77,9 +76,13 @@ describe('view', function() {
         rawViewName: '$default',
         context: { name: "blarg", parent: rootcontext },
         params: {type: "Acme"},
-        locals: new PathContext(ctx, state, $injector)
+        locals: {}
       };
-      $view.load(new ViewConfig(viewConfig));
+      var injector = {
+        invokeNow: (fn, locals) => $injector.invoke(fn, null, locals),
+        invokeLater: (fn, locals) => $injector.invoke(fn, null, locals)
+      };
+      $view.load(new ViewConfig(viewConfig), injector);
       $q.flush();
       expect(ctrlExpression).toEqual("FooController as foo");
     }));

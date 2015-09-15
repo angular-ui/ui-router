@@ -1,8 +1,7 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
-import {extend, isDefined, isString} from "../common/common";
+import {extend, isDefined} from "../common/common";
 import trace from "../common/trace";
-import {annotateController} from "../common/angular1";
 import {ViewConfig} from "./view";
 import {IUiViewData} from "./interface";
 
@@ -287,19 +286,11 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
         let controllerAs = data.$controllerAs;
 
         if (controller) {
-          let viewLocals = data.$locals, annotatedFn = controller;
-          if (isString(controller)) {
-            annotatedFn = function() {};
-            annotatedFn.$inject = annotateController(controller);
-          }
-
-          viewLocals.getLocalsFor(annotatedFn).then(function(locals) {
-            let controllerInstance = $controller(controller, extend(locals, { $scope: scope })); // $stateParams?
-            if (controllerAs) scope[controllerAs] = controllerInstance;
-
-            $element.data('$ngControllerController', controllerInstance);
-            $element.children().data('$ngControllerController', controllerInstance);
-          }).catch(error => console.log(error));
+          let locals = data.$locals;
+          let controllerInstance = $controller(controller, extend(locals, { $scope: scope })); // $stateParams?
+          if (controllerAs) scope[controllerAs] = controllerInstance;
+          $element.data('$ngControllerController', controllerInstance);
+          $element.children().data('$ngControllerController', controllerInstance);
         }
 
         link(scope);

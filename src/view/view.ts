@@ -1,10 +1,10 @@
 "use strict";
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {IPromise} from "angular";
-import {isInjectable, isString, defaults, extend, curry, addPairToObj, prop, pick, removeFrom, isEq, val, TypedMap} from "../common/common";
+import {isInjectable, isString, extend, curry, addPairToObj, prop, pick, removeFrom, isEq, val, TypedMap} from "../common/common";
 import trace from "../common/trace";
 import {IStateViewConfig, IViewDeclaration} from "../state/interface";
 import {IUiViewData, IContextRef} from "./interface";
+import ResolveInjector from "../resolve/resolveInjector";
 
 /**
  * Given a raw view name from a views: config, returns a normalized target viewName and contextAnchor
@@ -43,10 +43,6 @@ function normalizeUiViewTarget(rawViewName = "") {
  */
 export class ViewConfig {
   viewDeclarationObj: IViewDeclaration;
-  promises: {
-    template: IPromise<string>,
-    controller: IPromise<Function>
-  };
 
   template: string;
   controller: Function;
@@ -86,9 +82,8 @@ export class ViewConfig {
     return !!(viewDef.template || viewDef.templateUrl || viewDef.templateProvider);
   }
 
-  getTemplate($factory) {
-    let locals = this.locals, viewDef = this.viewDeclarationObj;
-    return $factory.fromConfig(viewDef, this.params, locals.invoke.bind(locals));
+  getTemplate($factory, injector: ResolveInjector) {
+    return $factory.fromConfig(this.viewDeclarationObj, this.params, injector.invokeLater.bind(injector));
   }
 
   /**
@@ -97,10 +92,10 @@ export class ViewConfig {
    *
    * @returns {Function|Promise.<Function>} Returns a controller, or a promise that resolves to a controller.
    */
-  getController() {
+  getController(injector: ResolveInjector) {
     //* @param {Object} locals A context object from transition.context() to invoke a function in the correct context
     let provider = this.viewDeclarationObj.controllerProvider;
-    return isInjectable(provider) ? this.locals.invoke(provider) : this.viewDeclarationObj.controller;
+    return isInjectable(provider) ? injector.invokeLater(provider, {}) : this.viewDeclarationObj.controller;
   }
 }
 
@@ -143,50 +138,16 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
    *    `$templateFactory.fromConfig()`, including `params` and `locals`.
    * @return {Promise.<string>} Returns a promise that resolves to the value of the template loaded.
    */
-  this.load = function load (viewConfig: ViewConfig, options) {
-    options = defaults(options, {
-      context:            null,
-      parent:             null,
-      notify:             true,
-      async:              true,
-      params:             {}
-    });
-
+  this.load = function load (viewConfig: ViewConfig, injector: ResolveInjector) {
     if (!viewConfig.hasTemplate())
       throw new Error(`No template configuration specified for '${viewConfig.uiViewName}@${viewConfig.uiViewContextAnchor}'`);
 
-    if (options.notify) {
-      /**
-       * @ngdoc event
-       * @name ui.router.state.$state#$viewContentLoading
-       * @eventOf ui.router.state.$view
-       * @eventType broadcast on root scope
-       * @description
-       *
-       * Fired once the view **begins loading**, *before* the DOM is rendered.
-       *
-       * @param {Object} event Event object.
-       * @param {Object} viewConfig The view config properties (template, controller, etc).
-       *
-       * @example
-       *
-       * <pre>
-       * $scope.$on('$viewContentLoading', function(event, viewConfig) {
-       *   // Access to all the view config properties.
-       *   // and one special property 'targetView'
-       *   // viewConfig.targetView
-       * });
-       * </pre>
-       */
-      $rootScope.$broadcast('$viewContentLoading', extend({ targetView: name }, options));
-    }
-
-    viewConfig.promises = {
-      template: $q.when(viewConfig.getTemplate($templateFactory)),
-      controller: $q.when(viewConfig.getController())
+    let promises = {
+      template: $q.when(viewConfig.getTemplate($templateFactory, injector)),
+      controller: $q.when(viewConfig.getController(injector))
     };
 
-    return $q.all(viewConfig.promises).then((results) => {
+    return $q.all(promises).then((results) => {
       trace.traceViewServiceEvent("Loaded", viewConfig);
       return extend(viewConfig, results);
     });

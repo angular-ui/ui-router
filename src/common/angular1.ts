@@ -27,9 +27,11 @@ export let runtime: IRuntime = {
  *   - Calls $injector.instantiate with controller constructor
  * - Annotate constructor
  * - Undecorate $injector
+ *
+ * returns an array of strings, which are the arguments of the controller expression
  */
 
-export function annotateController(controllerExpression) {
+export function annotateController(controllerExpression): string[] {
   let $injector = runtime.$injector;
   let $controller = $injector.get("$controller");
   let oldInstantiate = $injector.instantiate;

@@ -1,5 +1,5 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {isDefined, isFunction} from "../common/common";
+import {isDefined, isFunction, prop} from "../common/common";
 
 /**
  * @ngdoc object
@@ -34,17 +34,17 @@ function $TemplateFactory(  $http,   $templateCache) {
    * @param {Function} config.templateProvider function to invoke via 
    * {@link ui.router.util.$templateFactory#fromProvider fromProvider}.
    * @param {object} params  Parameters to pass to the template function.
-   * @param {Function} locals Function to which an injectable function may be passed.
-   * via a `templateProvider`. Defaults to `{ params: params }`.
+   * @param {Function} injectFn Function to which an injectable function may be passed.
+   *        If templateProvider is defined, this injectFn will be used to invoke it.
    *
    * @return {string|object}  The template html as a string, or a promise for 
    * that string,or `null` if no template is configured.
    */
-  this.fromConfig = function (config, params, locals) {
+  this.fromConfig = function (config, params, injectFn) {
     return (
       isDefined(config.template) ? this.fromString(config.template, params) :
       isDefined(config.templateUrl) ? this.fromUrl(config.templateUrl, params) :
-      isDefined(config.templateProvider) ? this.fromProvider(config.templateProvider, params, locals) :
+      isDefined(config.templateProvider) ? this.fromProvider(config.templateProvider, params, injectFn) :
       null
     );
   };
@@ -85,9 +85,7 @@ function $TemplateFactory(  $http,   $templateCache) {
   this.fromUrl = function (url, params) {
     if (isFunction(url)) url = url(params);
     if (url == null) return null;
-    else return $http
-        .get(url, { cache: $templateCache, headers: { Accept: 'text/html' }})
-        .then(function(response) { return response.data; });
+    return $http.get(url, { cache: $templateCache, headers: { Accept: 'text/html' }}).then(prop("data"));
   };
 
   /**
@@ -100,13 +98,12 @@ function $TemplateFactory(  $http,   $templateCache) {
    *
    * @param {Function} provider Function to invoke via `locals`
    * @param {Object} params Parameters for the template.
-   * @param {Object} locals Locals to pass to `invoke`. Defaults to 
-   * `{ params: params }`.
+   * @param {Function} injectFn a function used to invoke the template provider
    * @return {string|Promise.<string>} The template html as a string, or a promise 
    * for that string.
    */
-  this.fromProvider = function (provider, params, locals) {
-    return locals(provider, { $stateParams: params });
+  this.fromProvider = function (provider, params, injectFn) {
+    return injectFn(provider, { $stateParams: params });
   };
 }
 
