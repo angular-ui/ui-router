@@ -10,7 +10,7 @@ import ParamValues from "../params/paramValues";
 
 import {IResolvables} from "../resolve/interface";
 import ResolveContext from "../resolve/resolveContext";
-
+import ResolveInjector from "../resolve/resolveInjector";
 
 /** Base data (contains a state) for a node in a Path */
 export interface INode {
@@ -38,6 +38,7 @@ export interface IResolvePath extends Path<IResolveNode> {}
 /** Contains IResolveNode data, plus a ResolveContext and ParamsValues (bound to a full path) for the node,  */
 export interface ITransNode extends IResolveNode {
   resolveContext: ResolveContext;
+  resolveInjector: ResolveInjector;
   views: ViewConfig[];
   paramValues: ParamValues;
 }

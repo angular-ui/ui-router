@@ -1,7 +1,5 @@
 import {map, extend, pairs, prop, pick, omit, not, curry} from "../common/common";
 
-import {runtime} from "../common/angular1";
-
 import {IRawParams} from "../params/interface";
 import ParamValues from "../params/paramValues";
 
@@ -15,9 +13,9 @@ import Path from "../path/path";
 
 import Resolvable from "../resolve/resolvable";
 import ResolveContext from "../resolve/resolveContext";
-import PathContext from "../resolve/pathContext";
 
 import {ViewConfig} from "../view/view";
+import ResolveInjector from "../resolve/resolveInjector";
 
 /**
  * This class contains functions which convert TargetStates, Nodes and Paths from one type to another.
@@ -126,6 +124,7 @@ export default class PathFactory {
     // Attach views to each node
     transPath.nodes().forEach((node: ITransNode) => {
           node.resolveContext = resolveContext.isolateRootTo(node.state);
+          node.resolveInjector = new ResolveInjector(node.resolveContext, node.state);
           node.paramValues = paramValues.$isolateRootTo(node.state.name);
           node.views = makeViews(node);
         }
