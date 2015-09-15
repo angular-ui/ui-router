@@ -1,18 +1,9 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
-import {extend, isArray, isString, identity, noop, Predicate,
-    defaults, map, omit, pluck, find, pipe, prop, eq}  from "../common/common";
-import trace  from "../common/trace";
-import {runtime} from "../common/angular1"
-import {IPromise} from "angular";
-
-import {INode, IParamsNode, IParamsPath} from "./interface";
+import {extend, isString, find, pipe, parse, prop, eq}  from "../common/common";
+import {INode} from "./interface";
 
 import {IState, IStateDeclaration, IStateOrName} from "../state/interface";
-import TargetState from "../state/targetState"
-
-import {IResolvables} from "../resolve/interface";
-import Resolvable from "../resolve/resolvable";
 
 const stateMatches = (state: IState|IStateDeclaration) => (node) => node.state === state || node.state.self === state;
 const stateNameMatches = (stateName: string) => (node) => node.state.name === stateName;
@@ -39,9 +30,9 @@ export default class Path<NODE extends INode> {
    */
   pathFromRootTo(toState: IStateOrName): Path<NODE> {
     let predicate = isString(toState) ? stateNameMatches(<string> toState) : stateMatches(<IState> toState);
-    var node = find(this._nodes, predicate);
-    var elementIdx = this._nodes.indexOf(node);
-    if (elementIdx == -1) throw new Error("This Path does not contain the toPathElement");
+    let node = find(this._nodes, predicate);
+    let elementIdx = this._nodes.indexOf(node);
+    if (elementIdx === -1) throw new Error("This Path does not contain the toPathElement");
     return this.slice(0, elementIdx + 1);
   }
 
@@ -77,8 +68,9 @@ export default class Path<NODE extends INode> {
   }
 
   /** Gets the first node that exactly matches the given state */
-  nodeForState(state: IState): NODE {
-    return find(this._nodes, pipe(prop('state'), eq(state)));
+  nodeForState(state: IStateOrName): NODE {
+    let propName = (isString(state) ? "state.name" : "state");
+    return find(this._nodes, pipe(parse(propName), eq(state)));
   }
 
   /** Returns the Path's nodes wrapped in a new array */
