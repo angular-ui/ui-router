@@ -209,7 +209,10 @@ class Trace {
 let trace = new Trace();
 export default trace;
 
-angular.module("ui.router").run(function($rootScope) {
+watchDigests.$inject = ['$rootScope'];
+function watchDigests($rootScope) {
   $rootScope.$watch(function() { trace.approximateDigests++; });
-  //trace.enable(Category.RESOLVE, Category.TRANSITION, Category.HOOK, Category.UIVIEW, Category.VIEWCONFIG);
-});
+}
+
+angular.module("ui.router").run(watchDigests);
+angular.module("ui.router").service("$trace", () => trace);
