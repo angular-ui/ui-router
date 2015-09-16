@@ -11,7 +11,7 @@ import Resolvable from "./resolvable";
 import {IState} from "../state/interface";
 
 // TODO: make this configurable
-let defaultResolvePolicy = ResolvePolicy[ResolvePolicy.JIT];
+let defaultResolvePolicy = ResolvePolicy[ResolvePolicy.LAZY];
 
 interface IPolicies { [key: string]: string; }
 

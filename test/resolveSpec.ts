@@ -40,10 +40,10 @@ beforeEach(function () {
       },
       I: { resolve: { _I: function(_I) { return "I"; } } }
     },
-    J: { resolve: { _J: function() { counts['_J']++; return "J"; }, _J2: function(_J) { counts['_J2']++; return _J + "J2"; } },
-      K: { resolve: { _K: function(_J2) { counts['_K']++; return _J2 + "K"; }},
-        L: { resolve: { _L: function(_K) { counts['_L']++; return _K + "L"; }},
-          M: { resolve: { _M: function(_L) { counts['_M']++; return _L + "M"; }} }
+    J: { resolvePolicy: "JIT", resolve: { _J: function() { counts['_J']++; return "J"; }, _J2: function(_J) { counts['_J2']++; return _J + "J2"; } },
+      K: { resolvePolicy: "JIT", resolve: { _K: function(_J2) { counts['_K']++; return _J2 + "K"; }},
+        L: { resolvePolicy: "JIT", resolve: { _L: function(_K) { counts['_L']++; return _K + "L"; }},
+          M: { resolvePolicy: "JIT", resolve: { _M: function(_L) { counts['_M']++; return _L + "M"; }} }
         }
       },
       N: {
@@ -454,7 +454,7 @@ describe('Resolvables system:', function () {
       expect(counts["_J"]).toBe(0);
       expect(counts["_J2"]).toBe(0);
 
-      ctx1.resolvePath().then(function () {
+      ctx1.resolvePath({ resolvePolicy: "JIT"}).then(function () {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);
         expect(counts["_K"]).toBe(1);
@@ -465,7 +465,7 @@ describe('Resolvables system:', function () {
 
       let path2 = path.concat(makePath([ "L", "M" ]));
       let ctx2 = new ResolveContext(path2);
-      ctx2.resolvePath().then(function () {
+      ctx2.resolvePath({ resolvePolicy: "JIT"}).then(function () {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);
         expect(counts["_K"]).toBe(1);
@@ -482,7 +482,7 @@ describe('Resolvables system:', function () {
     it('should create a partial path from an original path', inject(function ($q) {
       let path = makePath([ "J", "K", "L" ]);
       let ctx1 = new ResolveContext(path);
-      ctx1.resolvePath().then(function () {
+      ctx1.resolvePath({resolvePolicy: "JIT"}).then(function () {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);
         expect(counts["_K"]).toBe(1);
@@ -498,7 +498,7 @@ describe('Resolvables system:', function () {
       expect(slicedPath.nodes()[1].state).toBe(path.nodes()[1].state);
       let path2 = path.concat(makePath([ "L", "M" ]));
       let ctx2 = new ResolveContext(path2);
-      ctx2.resolvePath().then(function () {
+      ctx2.resolvePath({resolvePolicy: "JIT"}).then(function () {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);
         expect(counts["_K"]).toBe(1);
