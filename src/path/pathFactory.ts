@@ -48,8 +48,8 @@ export default class PathFactory {
   /** Given an IParamsNode, make an IResolveNode by creating resolvables for resolves on the state's declaration */
   static makeResolveNode(node: IParamsNode): IResolveNode {
     const makeResolvable = (_node: INode) => (resolveFn: Function, name: string) => new Resolvable(name, resolveFn, _node.state);
-    let resolvables = {ownResolvables:  map(node.state.resolve || {}, makeResolvable(node)) };
-    return extend({}, node, resolvables);
+    let ownResolvables = map(node.state.resolve || {}, makeResolvable(node));
+    return extend({}, node, {ownResolvables});
   }
 
   /** Given a fromPath: ITransPath and a TargetState, builds a toPath: IParamsPath */
@@ -120,11 +120,12 @@ export default class PathFactory {
     // Attach bound resolveContext and paramValues to each node
     // Attach views to each node
     transPath.nodes().forEach((node: ITransNode) => {
-          node.resolveContext = resolveContext.isolateRootTo(node.state);
-          node.resolveInjector = new ResolveInjector(node.resolveContext, node.state);
-          node.paramValues = paramValues.$isolateRootTo(node.state.name);
-          node.views = makeViews(node);
-        }
+        node.resolveContext = resolveContext.isolateRootTo(node.state);
+        node.resolveInjector = new ResolveInjector(node.resolveContext, node.state);
+        node.paramValues = paramValues.$isolateRootTo(node.state.name);
+        node.ownResolvables["$stateParams"] = new Resolvable("$stateParams", () => node.paramValues, node.state);
+        node.views = makeViews(node);
+      }
     );
 
     return transPath;

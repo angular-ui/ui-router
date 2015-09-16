@@ -80,7 +80,7 @@ describe('transition', function () {
     queue.flush($state);
     makeTransition = function makeTransition(from, to, options) {
       var paramsPath = PathFactory.makeParamsPath(targetState(from));
-      var fromPath = PathFactory.bindTransNodesToPath(paramsPath);
+      var fromPath = PathFactory.bindTransNodesToPath(paramsPath.adapt(PathFactory.makeResolveNode));
       return $transitions.create(fromPath, targetState(to, null, options));
     };
   }));

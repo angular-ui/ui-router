@@ -159,7 +159,7 @@ describe('Resolvables system:', function () {
       let ctx = new ResolveContext(path);
       let resolvableLocals = ctx.getResolvables(statesMap["C"]);
       let keys = Object.keys(resolvableLocals).sort();
-      expect(keys).toEqual( ["_A", "_A2", "_B", "_B2", "_C", "_C2" ] );
+      expect(keys).toEqual( ["$stateParams", "_A", "_A2", "_B", "_B2", "_C", "_C2" ] );
     }));
   });
 

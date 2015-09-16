@@ -135,8 +135,7 @@ export default class HookBuilder {
 
   /** Given a node and a callback function, builds a TransitionHook */
   buildHook(node: ITransNode, fn: IInjectable, moreLocals?, options: ITransitionHookOptions = {}): TransitionHook {
-    let nodeLocals = { $stateParams: node.paramValues };
-    let locals = extend({}, this.transitionLocals, nodeLocals, moreLocals);
+    let locals = extend({}, this.transitionLocals, moreLocals);
     let _options = extend({}, this.baseHookOptions, options);
 
     return new TransitionHook(node.state, fn, locals, node.resolveContext, _options);

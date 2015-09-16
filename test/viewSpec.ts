@@ -55,7 +55,7 @@ describe('view', function() {
     beforeEach(() => {
       state = register({ name: "foo" });
       var nodes = [root, state].map(_state => ({ state: _state, ownParams: {}}));
-      var path = PathFactory.bindTransNodesToPath(<any> new Path(nodes));
+      var path = PathFactory.bindTransNodesToPath(<any> new Path(nodes).adapt(PathFactory.makeResolveNode));
       ctx = new ResolveContext(path);
     });
 

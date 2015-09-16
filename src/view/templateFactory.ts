@@ -97,13 +97,12 @@ function $TemplateFactory(  $http,   $templateCache) {
    * Creates a template by invoking an injectable provider function.
    *
    * @param {Function} provider Function to invoke via `locals`
-   * @param {Object} params Parameters for the template.
    * @param {Function} injectFn a function used to invoke the template provider
    * @return {string|Promise.<string>} The template html as a string, or a promise 
    * for that string.
    */
   this.fromProvider = function (provider, params, injectFn) {
-    return injectFn(provider, { $stateParams: params });
+    return injectFn(provider);
   };
 }
 
