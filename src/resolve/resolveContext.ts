@@ -48,7 +48,7 @@ export default class ResolveContext {
       let omitProps = (node === last) ? options.omitOwnLocals : [];
       let filteredResolvables = omit(node.ownResolvables, omitProps);
       return extend(memo, filteredResolvables);
-    }, {});
+    }, <IResolvables> {});
   }
 
   /** Inspects a function `fn` for its dependencies.  Returns an object containing any matching Resolvables */

@@ -72,7 +72,7 @@ module.exports = function (grunt) {
     },
     watch: {
       files: ['src/**/*.ts', 'src/**/*.js', 'test/**/*.js'],
-      tasks: ['build', 'karma']
+      tasks: ['ts:es5', 'webpack', 'karma:ng14']
     },
     connect: {
       server: {},
