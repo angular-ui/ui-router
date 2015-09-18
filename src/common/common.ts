@@ -140,8 +140,8 @@ export function pluck(collection, propName): any {
 // Given an array or object, return a new array or object with:
 // - array: only the elements which passed the callback predicate
 // - object: only the properties that passed the callback predicate
-export function filter<T>(collection: T[], callback: Predicate<T>): T[]
-export function filter<T>(collection: TypedMap<T>, callback: Predicate<T>): TypedMap<T>
+export function filter<T>(collection: T[], callback: Predicate<T>): T[];
+export function filter<T>(collection: TypedMap<T>, callback: Predicate<T>): TypedMap<T>;
 export function filter<T>(collection: T, callback: Function): T {
   let arr = isArray(collection), result: any = arr ? [] : {};
   let accept = arr ? (val) => result.push(val) : (val, key) => result[key] = val;
@@ -343,20 +343,25 @@ export function curry(fn: Function): Function {
     return curried(initial_args);
 }
 
-export function fnToString(fn) {
+export function fnToString(fn: IInjectable) {
   let _fn = pattern([
     [isArray, val => val.slice(-1)[0]],
     [val(true), identity]
   ])(fn);
 
-  //let name = _fn && _fn.name ? _fn.name : "(anonymous)";
-  let name = _fn && _fn.toString() || "undefined";
-  let namedFunctionMatch = name.match(/^(function [^ ]+\([^)]*\))/);
-  if (namedFunctionMatch)
-    return namedFunctionMatch[1];
-  // anonymous function... return the first 50 chars instead of the fn name
-  return name.slice(0, 50).replace(/\n/g, " ");
+  return _fn && _fn.toString() || "undefined";
 }
+
+export function maxLength(max: number, str: string) {
+  if (str.length <= max) return str;
+  return str.substr(0, max - 3) + "...";
+}
+
+export function padString(length: number, str: string) {
+  while (str.length < length) str += " ";
+  return str;
+}
+
 
 /**
  * @ngdoc overview

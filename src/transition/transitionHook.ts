@@ -1,5 +1,5 @@
 import {IInjectable, defaults, extend, noop, filter, not, isFunction, isDefined, map, pattern, isEq, val,
-    pipe, eq, is, isPromise, isObject, parse, fnToString} from "../common/common";
+    pipe, eq, is, isPromise, isObject, parse, fnToString, maxLength} from "../common/common";
 import trace from "../common/trace";
 import {RejectFactory} from "./rejectFactory";
 import {Transition} from "./transition";
@@ -90,6 +90,6 @@ export default class TransitionHook {
     let event = parse("traceData.hookType")(options) || "internal",
         context = parse("traceData.context.state.name")(options) || parse("traceData.context")(options) || "unknown",
         name = fnToString(fn);
-    return `${event} context: ${context}, ${name}`;
+    return `${event} context: ${context}, ${maxLength(200, name)}`;
   }
 }

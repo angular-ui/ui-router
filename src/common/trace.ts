@@ -1,4 +1,4 @@
-import {isNull, isPromise, isNumber, fnToString, isInjectable, is, invoke, not, val, pattern, parse, isDefined, identity} from "../common/common";
+import {isNull, isPromise, isNumber, fnToString, maxLength, padString, isInjectable, is, invoke, not, val, pattern, parse, isDefined, identity} from "../common/common";
 import Resolvable  from "../resolve/resolvable";
 import {Transition}  from "../transition/transition";
 import {TransitionRejection}  from "../transition/rejectFactory";
@@ -10,6 +10,12 @@ function promiseToString(p) {
   return `Promise(${JSON.stringify(p)})`;
 }
 
+function functionToString(fn) {
+  let fnStr = fnToString(fn);
+  let namedFunctionMatch = fnStr.match(/^(function [^ ]+\([^)]*\))/);
+  return namedFunctionMatch ? namedFunctionMatch[1] : fnStr;
+}
+
 const uiViewString = (viewData) =>
     `ui-view id#${viewData.id}, contextual name '${viewData.name}@${viewData.creationContext}', fqn: '${viewData.fqn}'`;
 
@@ -18,17 +24,6 @@ const viewConfigString = (viewConfig: ViewConfig) =>
 
 function normalizedCat(input: Category): string {
   return isNumber(input) ? Category[input] : Category[Category[input]];
-}
-
-function padString(length: number, str: string) {
-  while (str.length < length) str += " ";
-  return str;
-}
-
-function maxLength(max: number, str: string) {
-  if (str.length <= max) return str;
-  return str.substr(0, max - 3) + "...";
-
 }
 
 enum Category {
@@ -43,7 +38,7 @@ class Trace {
     [isPromise,                 promiseToString],
     [is(Transition),            invoke("toString")],
     [is(Resolvable),            invoke("toString")],
-    [isInjectable,              fnToString],
+    [isInjectable,              functionToString],
     [val(true),                 identity]
   ]);
 
@@ -87,41 +82,44 @@ class Trace {
   traceTransitionStart(transition: Transition) {
     if (!this.enabled(Category.TRANSITION)) return;
     let tid = transition.$id,
-      digest = this.approximateDigests,
-      transitionStr = this._stringify(transition);
+        digest = this.approximateDigests,
+        transitionStr = this._stringify(transition);
     this._trace(`Transition #${tid} Digest #${digest}: Started  -> ${transitionStr}`);
   }
 
   traceTransitionIgnored(transition: Transition) {
     if (!this.enabled(Category.TRANSITION)) return;
     let tid = transition.$id,
-      digest = this.approximateDigests,
-      transitionStr = this._stringify(transition);
+        digest = this.approximateDigests,
+        transitionStr = this._stringify(transition);
     this._trace(`Transition #${tid} Digest #${digest}: Ignored  <> ${transitionStr}`);
   }
 
   traceHookInvocation(step, options) {
     if (!this.enabled(Category.HOOK)) return;
     let tid = parse("transition.$id")(options),
-      digest = this.approximateDigests;
-    this._trace(`Transition #${tid} Digest #${digest}:   Hook -> ${step.toString()}`);
+        digest = this.approximateDigests,
+        event = parse("traceData.hookType")(options) || "internal",
+        context = parse("traceData.context.state.name")(options) || parse("traceData.context")(options) || "unknown",
+        name = functionToString(step.fn);
+    this._trace(`Transition #${tid} Digest #${digest}:   Hook -> ${event} context: ${context}, ${maxLength(200, name)}`);
   }
 
   traceHookResult(hookResult, transitionResult, transitionOptions) {
     if (!this.enabled(Category.HOOK)) return;
     let tid = parse("transition.$id")(transitionOptions),
-      digest = this.approximateDigests,
-      hookResultStr = this._stringify(hookResult),
-      transitionResultStr = this._stringify(transitionResult);
-    this._trace(`Transition #${tid} Digest #${digest}:   Hook <- returned: ${hookResultStr}, transition result: ${transitionResultStr}`);
+        digest = this.approximateDigests,
+        hookResultStr = this._stringify(hookResult),
+        transitionResultStr = this._stringify(transitionResult);
+    this._trace(`Transition #${tid} Digest #${digest}:   <- Hook returned: ${maxLength(200, hookResultStr)}, transition result: ${maxLength(200, transitionResultStr)}`);
   }
 
   traceResolvePath(path, options) {
     if (!this.enabled(Category.RESOLVE)) return;
     let tid = parse("transition.$id")(options),
-      digest = this.approximateDigests,
-      pathStr = path && path.toString(),
-      policyStr = options && options.resolvePolicy;
+        digest = this.approximateDigests,
+        pathStr = path && path.toString(),
+        policyStr = options && options.resolvePolicy;
     this._trace(`Transition #${tid} Digest #${digest}:         Resolving ${pathStr} (${policyStr})`);
   }
 
@@ -129,53 +127,54 @@ class Trace {
     if (!this.enabled(Category.RESOLVE)) return;
     if (!resolvablePromises.length) return;
     let tid = parse("transition.$id")(options),
-      digest = this.approximateDigests,
-      resolvablePromisesStr = Object.keys(resolvablePromises).join(", "),
-      pathElementStr = pathElement && pathElement.toString(),
-      policyStr = options && options.resolvePolicy;
+        digest = this.approximateDigests,
+        resolvablePromisesStr = Object.keys(resolvablePromises).join(", "),
+        pathElementStr = pathElement && pathElement.toString(),
+        policyStr = options && options.resolvePolicy;
     this._trace(`Transition #${tid} Digest #${digest}:         Resolve ${pathElementStr} resolvables: [${resolvablePromisesStr}] (${policyStr})`);
   }
 
   traceResolveResolvable(resolvable, options) {
     if (!this.enabled(Category.RESOLVE)) return;
     let tid = parse("transition.$id")(options),
-      digest = this.approximateDigests,
-      resolvableStr = resolvable && resolvable.toString();
+        digest = this.approximateDigests,
+        resolvableStr = resolvable && resolvable.toString();
     this._trace(`Transition #${tid} Digest #${digest}:               Resolving -> ${resolvableStr}`);
   }
 
   traceResolvableResolved(resolvable, options) {
     if (!this.enabled(Category.RESOLVE)) return;
     let tid = parse("transition.$id")(options),
-      digest = this.approximateDigests,
-      resolvableStr = resolvable && resolvable.toString();
-    this._trace(`Transition #${tid} Digest #${digest}:               Resolved  <- ${resolvableStr} to: ${resolvable.data}`);
+        digest = this.approximateDigests,
+        resolvableStr = resolvable && resolvable.toString(),
+        result = this._stringify(resolvable.data);
+    this._trace(`Transition #${tid} Digest #${digest}:               <- Resolved  ${resolvableStr} to: ${maxLength(200, result)}`);
   }
 
-  tracePathElementInvoke(pathElement, fn, deps, options) {
+  tracePathElementInvoke(state, fn, deps, options) {
     if (!this.enabled(Category.INVOKE)) return;
     let tid = parse("transition.$id")(options),
-      digest = this.approximateDigests,
-      pathElementStr = pathElement && pathElement.toString(),
-      fnName = fnToString(fn);
-    this._trace(`Transition #${tid} Digest #${digest}:         Invoke ${options.when}: context: ${pathElementStr} ${fnName}`);
+        digest = this.approximateDigests,
+        stateName = state && state.toString(),
+        fnName = functionToString(fn);
+    this._trace(`Transition #${tid} Digest #${digest}:         Invoke ${options.when}: context: ${stateName} ${maxLength(200, fnName)}`);
   }
 
   traceError(error, transition: Transition) {
     if (!this.enabled(Category.TRANSITION)) return;
     let tid = transition.$id,
-      digest = this.approximateDigests,
-      transitionStr = this._stringify(transition);
-    this._trace(`Transition #${tid} Digest #${digest}: Rejected <- ${transitionStr}, reason: ${error}`);
+        digest = this.approximateDigests,
+        transitionStr = this._stringify(transition);
+    this._trace(`Transition #${tid} Digest #${digest}: <- Rejected ${transitionStr}, reason: ${error}`);
   }
 
   traceSuccess(finalState, transition: Transition) {
     if (!this.enabled(Category.TRANSITION)) return;
     let tid = transition.$id,
-      digest = this.approximateDigests,
-      state = finalState.name,
-      transitionStr = this._stringify(transition);
-    this._trace(`Transition #${tid} Digest #${digest}: Success  <- ${transitionStr}, final state: ${state}`);
+        digest = this.approximateDigests,
+        state = finalState.name,
+        transitionStr = this._stringify(transition);
+    this._trace(`Transition #${tid} Digest #${digest}: <- Success  ${transitionStr}, final state: ${state}`);
   }
 
   traceUiViewEvent(event: string, viewData: IUiViewData, extra = "") {
@@ -195,7 +194,7 @@ class Trace {
 
   traceUiViewFill(viewData: IUiViewData, html) {
     if (!this.enabled(Category.UIVIEW)) return;
-    this.traceUiViewEvent("Fill", viewData, ` with: ${maxLength(60, html)}`);
+    this.traceUiViewEvent("Fill", viewData, ` with: ${maxLength(200, html)}`);
   }
 
   traceViewServiceEvent(event: string, viewConfig: ViewConfig) {
