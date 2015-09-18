@@ -175,8 +175,8 @@ export function pluck(collection, propName): any {
 // Given an array or object, return a new array or object with:
 // - array: only the elements which passed the callback predicate
 // - object: only the properties that passed the callback predicate
-export function filter<T>(collection: TypedMap<T>, callback: Predicate<T>): TypedMap<T>
 export function filter<T>(collection: T[], callback: Predicate<T>): T[]
+export function filter<T>(collection: TypedMap<T>, callback: Predicate<T>): TypedMap<T>
 export function filter<T>(collection: T, callback: Function): T {
   var arr = isArray(collection), resultarray = [], resultobj = {};
   forEach(collection, function(val, i) {
