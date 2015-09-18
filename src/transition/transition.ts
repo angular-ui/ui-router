@@ -306,7 +306,8 @@ export class Transition implements IHookRegistry {
     // The results of the sync hooks is a promise chain (rejected or otherwise) that begins the async portion of the transition.
     // Build the rest of the chain off the sync promise chain out of all the asynchronous steps
     forEach(asyncSteps, function (step) {
-      chain = chain.then(step.invokeStep);
+      // Don't pass prev as locals to invokeStep()
+      chain = chain.then((prev) => step.invokeStep());
     });
 
 

@@ -129,7 +129,7 @@ export default class HookBuilder {
       }
     }
 
-    let resolvedPromise = runtime.$q.when(true);
+    let resolvedPromise = runtime.$q.when(undefined);
     return promises.reduce((memo, val) => memo.then(() => val), resolvedPromise);
   }
 
