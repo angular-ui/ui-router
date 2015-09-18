@@ -209,16 +209,34 @@ export function zipObject(array1: any[], array2?: any[]) {
 export const pairs = (object) => Object.keys(object).map(key => [ key, object[key]] );
 
 /**
- * Sets a key/val pair on an object, and returns the object.
+ * Sets a key/val pair on an object, then returns the object.
+ *
  * Use as a reduce function for an array of key/val pairs
  *
  * Given:
+ * var keys = [ "fookey", "barkey" ]
+ * var pairsToObj = keys.reduce((memo, key) => addPairToObj(memo, key, true), {})
+ * Then:
+ * true === angular.equals(pairsToObj, { fookey: true, barkey: true })
+ */
+export function addPairToObj(obj: TypedMap<any>, arrayOrKey: string, val: any);
+/**
+ * Sets a key/val pair on an object, then returns the object.
+ *
+ * Use as a reduce function for an array of key/val pairs
+
+ * Given:
  * var pairs = [ ["fookey", "fooval"], ["barkey","barval"] ]
- * var pairsToObj = pairs.reduce(addPairToObj, {})
+ * var pairsToObj = pairs.reduce((memo, pair) => addPairToObj(memo, pair), {}) // or: pairs.reduce(addPairToObj, {})
  * Then:
  * true === angular.equals(pairsToObj, { fookey: "fooval", barkey: "barval" })
  */
-export function addPairToObj(obj: TypedMap<any>, [key, val]) {
+export function addPairToObj(obj: TypedMap<any>, arrayOrKey: any[]);
+export function addPairToObj(obj: TypedMap<any>, arrayOrKey: (string|any[]), val?: any) {
+  let key;
+  if (isDefined(val)) key = arrayOrKey;
+  if (isArray(arrayOrKey)) [key, val] = <any[]> arrayOrKey;
+  if (!isString(key)) throw new Error("invalid parameters to addPairToObj");
   obj[key] = val;
   return obj;
 }

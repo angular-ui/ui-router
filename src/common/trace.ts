@@ -62,9 +62,12 @@ class Trace {
     categories.map(normalizedCat).forEach(category => this._enabled[category] = enabled);
   }
 
+  // TODO: Document enable(categories)
   enable = (...categories: Category[]) => this._set(true, categories);
+  // TODO: Document disable(categories)
   disable = (...categories: Category[]) => this._set(false, categories);
 
+  // TODO: Document enabled(category)
   enabled(category: Category) {
     return !!this._enabled[normalizedCat(category)];
   }

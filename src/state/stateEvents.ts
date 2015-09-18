@@ -1,7 +1,7 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
 import {IServiceProviderFactory} from "angular";
-import {extend, forEach, isFunction} from "../common/common";
+import {extend, addPairToObj, isFunction} from "../common/common";
 
 import {IStateService, IStateProvider} from "./interface";
 import {StateParams} from "./state";
@@ -16,7 +16,7 @@ function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootSc
   if (!$transition$.options().notify)
     return;
 
-  let enabledEvents = $stateEvents.provider.enabledEvents();
+  let enabledEvents = $stateEvents.provider.enabled();
 
   /**
    * @ngdoc event
@@ -166,40 +166,53 @@ export function stateNotFoundHandler($to$: TargetState, $from$: TargetState, $st
   }
 }
 
-
 $StateEventsProvider.$inject = ['$stateProvider'];
 function $StateEventsProvider($stateProvider: IStateProvider) {
   $StateEventsProvider.prototype.instance = this;
 
+  interface IEventsToggle {
+    $stateChangeStart: boolean;
+    $stateNotFound: boolean;
+    $stateChangeSuccess: boolean;
+    $stateChangeError: boolean;
+  }
+
   let runtime = false;
-  let enabledStateEvents = { $stateNotFound: false, $stateChangeStart: false};
+  let allEvents = [ '$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError' ];
+  let enabledStateEvents: IEventsToggle = allEvents.reduce((memo, key) => addPairToObj(memo, key, false), <IEventsToggle> {});
+
+  function assertNotRuntime() {
+    if (runtime) throw new Error("Cannot enable events at runtime (use $stateEventsProvider");
+  }
 
   /**
-   * Enables a set of State Events by name.
-   * @param eventNameArray An array of UI-Router 0.2.x State Event Names, e.g.,
-   *    [ '$stateChangeStart', '$stateChangeSuccess', '$stateChangeError' ]
-   *    or, the literal string "*" to enable all 0.2.x events
+   * Enables the deprecated UI-Router 0.2.x State Events
+   * [ '$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError' ]
    */
-  this.enabledEvents = function(eventNameArray) {
-    if (eventNameArray && runtime)
-      throw new Error("Cannot enable events at runtime (use $stateEventsProvider");
-
-    if (eventNameArray === "*")
-      eventNameArray = [ '$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError' ];
-
-    forEach(eventNameArray || [], function(name) {
-      enabledStateEvents[name] = true;
-    });
-
-    return enabledStateEvents;
+  this.enable = function(...events: string[]) {
+    assertNotRuntime();
+    if (!events || !events.length) events = allEvents;
+    events.forEach(event => enabledStateEvents[event] = true);
   };
+
+  /**
+   * Disables the deprecated UI-Router 0.2.x State Events
+   * [ '$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError' ]
+   */
+  this.disable = function(...events: string[]) {
+    assertNotRuntime();
+    if (!events || !events.length) events = allEvents;
+    events.forEach(event => delete enabledStateEvents[event]);
+  };
+
+  this.enabled = () => enabledStateEvents;
 
   this.$get = function() {
     runtime = true;
 
-    if (enabledStateEvents.$stateNotFound)
+    if (enabledStateEvents["$stateNotFound"])
       $stateProvider.onInvalid(stateNotFoundHandler);
-    if (enabledStateEvents. $stateChangeStart)
+    if (enabledStateEvents.$stateChangeStart)
       $transitions.onBefore({}, stateChangeStartHandler, { priority: 1000 });
 
     return {

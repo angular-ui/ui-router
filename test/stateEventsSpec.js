@@ -5,7 +5,7 @@ describe('UI-Router v0.2.x $state events', function () {
   var $injector, stateProvider;
 
   beforeEach(module('ui.router.state.events', function($stateEventsProvider) {
-    $stateEventsProvider.enabledEvents("*");
+    $stateEventsProvider.enable();
   }));
 
   var log, logEvents, logEnterExit;
