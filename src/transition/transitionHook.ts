@@ -1,5 +1,5 @@
-import {IInjectable, defaults, extend, noop, filter, not, isFunction, isDefined, map, pattern, isEq, val,
-    pipe, eq, is, isPromise, isObject, parse, fnToString, maxLength} from "../common/common";
+import {IInjectable, defaults, extend, noop, filter, not, isFunction, isDefined, map, pattern, val,
+    eq, is, isPromise, isObject, parse, fnToString, maxLength} from "../common/common";
 import trace from "../common/trace";
 import {RejectFactory} from "./rejectFactory";
 import {Transition} from "./transition";
@@ -27,6 +27,8 @@ export default class TransitionHook {
     this.options = defaults(options, defaultOptions);
   }
 
+  private isSuperseded = () => this.options.current() !== this.options.transition;
+
   /**
    * Handles transition abort and transition redirect. Also adds any returned resolvables
    * to the pathContext for the current pathElement.  If the transition is rejected, then a rejected
@@ -34,22 +36,22 @@ export default class TransitionHook {
    */
   mapHookResult = pattern([
     // Transition is no longer current
-    [not(isEq(this.options.current, val(this.options.transition))), pipe(this.options.current, REJECT.superseded.bind(REJECT))],
+    [this.isSuperseded, () => REJECT.superseded(this.options.current())],
     // If the hook returns false, abort the current Transition
-    [eq(false), val(REJECT.aborted("Hook aborted transition"))],
+    [eq(false),         val(REJECT.aborted("Hook aborted transition"))],
     // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
-    [is(Transition), REJECT.redirected.bind(REJECT)],
+    [is(Transition),    (transition) => REJECT.redirected(transition)],
     // A promise was returned, wait for the promise and then chain another hookHandler
-    [isPromise, (result) => result.then(this.handleHookResult.bind(this))],
+    [isPromise,         (promise) => promise.then(this.handleHookResult.bind(this))],
     // If the hook returns any new resolves, add them to the pathContext via the PathElement
-    [isObject, (result) => this.resolveContext.addResolvables(this.mapNewResolves(result), this.state)]
+    [isObject,          (obj) => this.resolveContext.addResolvables(this.mapNewResolves(obj), this.state)]
   ]);
 
   invokeStep = (moreLocals) => {
     let { options, fn, resolveContext, state } = this;
     let locals = extend({}, this.locals, moreLocals);
     trace.traceHookInvocation(this, options);
-    if (options.rejectIfSuperseded && /* !this.isActive() */ options.transition !== options.current()) {
+    if (options.rejectIfSuperseded && this.isSuperseded()) {
       return REJECT.superseded(options.current());
     }
 
@@ -66,11 +68,11 @@ export default class TransitionHook {
    * Creates Resolvable objects from the result object and adds them to the target object
    */
   mapNewResolves(resolves: IResolveDeclarations) {
+    // If a hook result is an object, it should be a map of strings to functions.
     let invalid = filter(resolves, not(isFunction)), keys = Object.keys(invalid);
     if (keys.length)
       throw new Error(`Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}`);
 
-    // If result is an object, it should be a map of strings to functions.
     const makeResolvable = (fn, name) => new Resolvable(name, fn, this.state);
     return map(resolves, makeResolvable);
   }

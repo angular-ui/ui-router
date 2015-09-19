@@ -3,14 +3,9 @@ import TargetState from "../state/targetState";
 
 import {ITransPath} from "../path/interface";
 
-import {IInjectable} from "../common/common";
+import {IInjectable, Predicate} from "../common/common";
 
 import {Transition} from "./transition";
-
-export interface ITransitionDestination {
-  ref: TargetState;
-  options: ITransitionOptions;
-}
 
 export interface ITransitionOptions {
   location    ?: (boolean|string);
@@ -23,7 +18,6 @@ export interface ITransitionOptions {
   previous    ?: Transition;
   current     ?: () => Transition;
 }
-
 
 export interface ITransitionHookOptions {
   async               ?: boolean;
@@ -66,9 +60,7 @@ export interface IHookRegistry {
   getHooks:   IHookGetter;
 }
 
-export interface IStateMatch {
-  (IState): boolean;
-}
+export type IStateMatch = Predicate<IState>
 export interface IMatchCriteria {
   to?: (string|IStateMatch);
   from?: (string|IStateMatch);

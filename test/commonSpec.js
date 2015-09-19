@@ -6,7 +6,6 @@ var common = uiRouter.common.common,
   filter = common.filter,
   is = common.is,
   eq = common.eq,
-  isEq = common.isEq,
   not = common.not,
   pattern = common.pattern,
   val = common.val;
@@ -81,23 +80,13 @@ describe('common', function() {
     });
   });
 
-  describe('isEq', function() {
-    it('should compare function results', function() {
-      expect(isEq(val(true), val(true))()).toBe(true);
-      expect(isEq(val(false), val(false))()).toBe(true);
-
-      var foo = {};
-      expect(isEq(val(foo), function() { return foo; })()).toBe(true);
-    });
-  });
-
   describe('pattern', function() {
     it('should return the result of a paired function when a condition function returns true', function() {
       var typeChecker = pattern([
-        [is(Number), val("number!")],
-        [is(String), val("string!")],
+        [is(Number),  val("number!")],
+        [is(String),  val("string!")],
         [is(Boolean), val("boolean!")],
-        [eq(null), val("null!")]
+        [eq(null),    val("null!")]
       ]);
 
       expect(typeChecker(1)).toBe("number!");

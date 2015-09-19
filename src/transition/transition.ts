@@ -19,7 +19,7 @@ import ParamValues from "../params/paramValues";
 
 import {ViewConfig} from "../view/view";
 
-import {extend, flatten, forEach, identity, omit, isEq, isObject, not, prop, toJson, val, abstractKey} from "../common/common";
+import {extend, flatten, unnest, forEach, identity, omit, isObject, not, prop, toJson, val, abstractKey} from "../common/common";
 
 let transitionCount = 0, REJECT = new RejectFactory();
 const stateSelf: (_state: IState) => IStateDeclaration = prop("self");
@@ -60,8 +60,10 @@ export class Transition implements IHookRegistry {
 
   constructor(fromPath: ITransPath, targetState: TargetState) {
     if (targetState.error()) throw new Error(targetState.error());
+    // Makes the Transition instance a hook registry (onStart, etc)
     HookRegistry.mixin(new HookRegistry(), this);
 
+    // current() is assumed to come from targetState.options, but provide a naive implemention otherwise.
     this._options = extend({ current: val(this) }, targetState.options());
     this.$id = transitionCount++;
     let toPath = PathFactory.buildToPath(fromPath, targetState);
@@ -189,9 +191,7 @@ export class Transition implements IHookRegistry {
    * @returns {Array} Returns an array of states that will be exited in this transition.
    */
   exiting(): IStateDeclaration[] {
-    let exitingStates = this._treeChanges.exiting.states().map(stateSelf);
-    exitingStates.reverse();
-    return exitingStates;
+    return this._treeChanges.exiting.states().map(stateSelf).reverse();
   }
 
   /**
@@ -215,7 +215,7 @@ export class Transition implements IHookRegistry {
    */
   views(pathname: string = "entering", state?: IState): ViewConfig[] {
     let path = this._treeChanges[pathname];
-    return state ? path.nodeForState(state).views : flatten(path.nodes().map(prop("views")));
+    return state ? path.nodeForState(state).views : unnest(path.nodes().map(prop("views")));
   }
 
   treeChanges = () => this._treeChanges;
@@ -333,16 +333,7 @@ export class Transition implements IHookRegistry {
     return this.promise;
   }
 
-  isActive() {
-    return isEq(this._options.current, val(this))();
-  }
-
-  // This doesn't work, and should probably go away.
-  // abort() {
-  //   if (this.isActive()) {
-  //     $transitions.transition = null; // TODO
-  //   }
-  // }
+  isActive = () => this === this._options.current();
 
   valid() {
     return !this.error();

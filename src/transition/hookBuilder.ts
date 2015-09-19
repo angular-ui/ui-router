@@ -1,8 +1,7 @@
 
 import {IPromise} from "angular";
-import {IInjectable, extend, isPromise} from "../common/common";
+import {IInjectable, extend, isPromise, isArray, assertPredicate, unnestR} from "../common/common";
 import {runtime} from "../common/angular1";
-import trace from "../common/trace";
 
 import {ITransitionOptions, ITransitionHookOptions, ITreeChanges, IEventHook, ITransitionService} from "./interface";
 import TransitionHook from "./transitionHook";
@@ -13,6 +12,7 @@ import {IState} from "../state/interface";
 import {ITransPath, ITransNode} from "../path/interface";
 
 import {ResolvePolicy, IOptions1} from "../resolve/interface";
+import {IHookRegistry} from "./interface";
 
 interface IToFrom {
   to: IState;
@@ -55,9 +55,8 @@ export default class HookBuilder {
   }
 
   // TODO: These get* methods are returning different cardinalities of hooks
-  // onBefore/onStart returns an array of hooks
+  // onBefore/onStart/onFinish/onSuccess/onError returns an array of hooks
   // onExit/onRetain/onEnter returns an array of arrays of hooks
-  // getSuccessHooks and getErrorHooks returns a single callback, like a .then(fn) function
 
   getOnBeforeHooks  = () => this._getTransitionHooks("onBefore",  this.treeChanges.from);
   getOnStartHooks   = () => this._getTransitionHooks("onStart",   this.treeChanges.to);
@@ -143,22 +142,24 @@ export default class HookBuilder {
 
 
   /**
-   * returns an array of the transition hooks from:
-   * 1) The Transition object instance hook registry
-   * 2) The TransitionService ($transitions) global hook registry
+   * returns an array of the IEventHooks from:
+   * - The Transition object instance hook registry
+   * - The TransitionService ($transitions) global hook registry
    * which matched:
-   * 1) the eventType
-   * 2) the to state
-   * 3) the from state
+   * - the eventType
+   * - the matchCriteria to state
+   * - the matchCriteria from state
    */
-  private _matchingHooks(eventName: string, matchCriteria: IToFrom): IEventHook[] {
+  private _matchingHooks(hookName: string, matchCriteria: IToFrom): IEventHook[] {
     const matchFilter   = hook => hook.matches(matchCriteria.to, matchCriteria.from);
     const prioritySort  = (l, r) => r.priority - l.priority;
 
-    let instanceHooks = this.transition.getHooks(eventName);
-    let globalHooks   = this.$transitions.getHooks(eventName);
-    if (!instanceHooks || !globalHooks) throw new Error(`broken event named: ${eventName}`);
-    return instanceHooks.concat(globalHooks).filter(matchFilter).sort(prioritySort);
+    return [ this.transition, this.$transitions ]                             // Instance and Global hook registries
+        .map((reg: IHookRegistry) => reg.getHooks(hookName))                  // Get named hooks from registries
+        .filter(assertPredicate(isArray, `broken event named: ${hookName}`))  // Sanity check
+        .reduce(unnestR)                                                      // Un-nest IEventHook[][] to IEventHook[] array
+        .filter(matchFilter)                                                  // Only those satisfying matchCriteria
+        .sort(prioritySort);                                                  // Order them by .priority field
   }
 
   /** Returns a function which resolves the LAZY Resolvables for a Node in a Path */

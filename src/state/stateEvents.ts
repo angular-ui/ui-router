@@ -1,7 +1,7 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
 import {IServiceProviderFactory} from "angular";
-import {extend, addPairToObj, isFunction} from "../common/common";
+import {extend, applyPairs, isFunction} from "../common/common";
 
 import {IStateService, IStateProvider} from "./interface";
 import {StateParams} from "./state";
@@ -179,7 +179,7 @@ function $StateEventsProvider($stateProvider: IStateProvider) {
 
   let runtime = false;
   let allEvents = [ '$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError' ];
-  let enabledStateEvents: IEventsToggle = allEvents.reduce((memo, key) => addPairToObj(memo, key, false), <IEventsToggle> {});
+  let enabledStateEvents: IEventsToggle = allEvents.reduce((memo, key) => applyPairs(memo, key, false), <IEventsToggle> {});
 
   function assertNotRuntime() {
     if (runtime) throw new Error("Cannot enable events at runtime (use $stateEventsProvider");

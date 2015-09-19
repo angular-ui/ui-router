@@ -34,7 +34,7 @@ export function matchState(state: IState, matchCriteria: (string|IStateMatch)) {
 }
 
 
-export class EventHook implements IEventHook{
+export class EventHook implements IEventHook {
   callback: IInjectable;
   matchCriteria: IMatchCriteria;
   priority: number;
@@ -54,14 +54,10 @@ interface ITransitionEvents { [key: string]: IEventHook[]; }
 
 // Return a registration function of the requested type.
 function makeHookRegistrationFn(transitionEvents: ITransitionEvents, eventType: string): IHookRegistration {
-  return function (matchObject, callback, options) {
-    let hooks = transitionEvents[eventType];
-    options = options || {};
+  return function (matchObject, callback, options = {}) {
     let eventHook = new EventHook(matchObject, callback, options);
+    let hooks = transitionEvents[eventType];
     hooks.push(eventHook);
-    hooks.sort(function (a, b) {
-      return a.priority - b.priority;
-    });
 
     return function deregisterEventHook() {
       let idx = hooks.indexOf(eventHook);

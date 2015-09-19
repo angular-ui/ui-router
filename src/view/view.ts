@@ -1,6 +1,6 @@
 "use strict";
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {isInjectable, isString, extend, curry, addPairToObj, prop, pick, removeFrom, isEq, val, TypedMap} from "../common/common";
+import {isInjectable, isString, extend, curry, applyPairs, prop, pick, removeFrom, TypedMap} from "../common/common";
 import trace from "../common/trace";
 import {IStateViewConfig, IViewDeclaration} from "../state/interface";
 import {IUiViewData, IContextRef} from "./interface";
@@ -171,7 +171,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
 
   this.sync = () => {
     let uiViewsByFqn: TypedMap<IUiViewData> =
-        uiViews.map(uiv => [uiv.fqn, uiv]).reduce(addPairToObj, <any> {});
+        uiViews.map(uiv => [uiv.fqn, uiv]).reduce(applyPairs, <any> {});
 
     /**
      * Given a ui-view and a ViewConfig, determines if they "match".
@@ -287,7 +287,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
    */
   this.registerUiView = function register(uiView: IUiViewData) {
     trace.traceViewServiceUiViewEvent("-> Registering", uiView);
-    let fqnMatches = isEq(prop("fqn"), val(uiView.fqn));
+    const fqnMatches = uiv => uiv.fqn === uiView.fqn;
     if (uiViews.filter(fqnMatches).length)
       trace.traceViewServiceUiViewEvent("!!!! duplicate uiView named:", uiView);
 
