@@ -1,6 +1,6 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {pick, map}  from "../common/common";
-import trace  from "../common/trace";
+import trace from "../common/trace";
 import {runtime} from "../common/angular1"
 import {IPromise} from "angular";
 

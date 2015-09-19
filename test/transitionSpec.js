@@ -8,13 +8,13 @@ var extend = common.extend,
   omit = common.omit,
   pick = common.pick,
   pluck = common.pluck;
-var PathFactory = uiRouter.path.PathFactory;
+var PathFactory = uiRouter.path.pathFactory.default;
 var state = uiRouter.state;
-var StateMatcher = state.StateMatcher;
-var StateBuilder = state.StateBuilder;
-var TargetState = state.TargetState;
-var StateQueueManager = state.StateQueueManager;
-var TransitionRejection = uiRouter.transition.TransitionRejection;
+var StateMatcher = state.stateMatcher.default;
+var StateBuilder = state.stateBuilder.default;
+var TargetState = state.targetState.default;
+var StateQueueManager = state.stateQueueManager.default;
+var TransitionRejection = uiRouter.transition.rejectFactory.TransitionRejection;
 
 describe('transition', function () {
 

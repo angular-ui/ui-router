@@ -1,7 +1,6 @@
 var module = angular.mock.module;
 var uiRouter = require("ui-router");
-
-var Glob = uiRouter.state.Glob;
+var Glob = uiRouter.state.glob.default;
 var common = uiRouter.common.common,
   defaults = common.defaults,
   filter = common.filter,
@@ -12,79 +11,7 @@ var common = uiRouter.common.common,
   pattern = common.pattern,
   val = common.val;
 
-/**
- * Because PhantomJS sucks...
- */
-if (!Function.prototype.bind) {
-  var Empty = function(){};
-  Function.prototype.bind = function bind(that) { // .length is 1
-    var target = this;
-    if (typeof target != "function") {
-      throw new TypeError("Function.prototype.bind called on incompatible " + target);
-    }
-    var args = Array.prototype.slice.call(arguments, 1); // for normal call
-    var binder = function () {
-      if (this instanceof bound) {
-        var result = target.apply(
-          this,
-          args.concat(Array.prototype.slice.call(arguments))
-        );
-        if (Object(result) === result) {
-          return result;
-        }
-        return this;
-      } else {
-        return target.apply(
-          that,
-          args.concat(Array.prototype.slice.call(arguments))
-        );
-      }
-    };
-    var boundLength = Math.max(0, target.length - args.length);
-    var boundArgs = [];
-    for (var i = 0; i < boundLength; i++) {
-      boundArgs.push("$" + i);
-    }
-    var bound = Function("binder", "return function(" + boundArgs.join(",") + "){return binder.apply(this,arguments)}")(binder);
-
-    if (target.prototype) {
-      Empty.prototype = target.prototype;
-      bound.prototype = new Empty();
-      // Clean up dangling references.
-      Empty.prototype = null;
-    }
-    return bound;
-  };
-}
-
-
 describe('common', function() {
-
-  //describe('FunctionIterator', function() {
-  //  it('should allow recursive function calling', function() {
-  //
-  //    var it = new FunctionIterator([
-  //      function wrap(initial, next)    { return "[" + next() + "]"; },
-  //      function exclaim(initial, next) { return next() + "!"; },
-  //      function greet(initial, next)   { return "Hello " + next(); },
-  //      function name(initial)          { return initial.name; }
-  //    ]);
-  //
-  //    expect(it({ name: "Foo" })).toBe('[Hello Foo!]');
-  //  });
-  //
-  //  it('should allow short-circuiting the chain', function() {
-  //
-  //    var it = new FunctionIterator([
-  //      function top(initial, next) { return next().concat(["Baz"]); },
-  //      function mid(initial, next) { return initial.concat(["Bar"]); },
-  //      function bottom(initial) { throw new Error("This shouldn't happen"); }
-  //    ]);
-  //
-  //    expect(it(["Foo"])).toEqual(["Foo", "Bar", "Baz"]);
-  //  });
-  //});
-
   describe('filter', function() {
     it("should filter arrays", function() {
       var input = [ 1, 2, 3, 4, 5 ];

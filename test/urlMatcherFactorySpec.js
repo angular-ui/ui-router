@@ -1,7 +1,7 @@
 var module    = angular.mock.module;
 var uiRouter  = require("ui-router");
-var ParamSet = uiRouter.params.ParamSet;
-var Param = uiRouter.params.Param;
+var ParamSet = uiRouter.params.paramSet.default;
+var Param = uiRouter.params.param.default;
 var provide, UrlMatcher;
 
 beforeEach(function() {
