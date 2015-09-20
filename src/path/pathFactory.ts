@@ -41,7 +41,7 @@ export default class PathFactory {
   static makeParamsNode = curry(function(params: IRawParams, state: IState) {
     return {
       state,
-      ownParams: state.ownParams.$$values(params)
+      ownParamValues: state.ownParams.$$values(params)
     };
   });
 
@@ -76,7 +76,7 @@ export default class PathFactory {
   static inheritParams(fromPath: IParamsPath, toPath: IParamsPath, toKeys: string[] = []): IParamsPath {
     function nodeParamVals(path: IParamsPath, state: IState): IRawParams {
       let node = path.nodeForState(state);
-      return extend({}, node && node.ownParams);
+      return extend({}, node && node.ownParamValues);
     }
     
     /** 
@@ -85,14 +85,14 @@ export default class PathFactory {
      */
     let makeInheritedParamsNode = curry(function(_fromPath: IParamsPath, _toKeys: string[], toNode: IParamsNode): IParamsNode {
       // All param values for the node (may include default key/vals, when key was not found in toParams)
-      let toParamVals = extend({}, toNode && toNode.ownParams);
+      let toParamVals = extend({}, toNode && toNode.ownParamValues);
       // limited to only those keys found in toParams
       let incomingParamVals = pick(toParamVals, _toKeys);
       toParamVals = omit(toParamVals, _toKeys);
       let fromParamVals = nodeParamVals(_fromPath, toNode.state) || {};
       // extend toParamVals with any fromParamVals, then override any of those those with incomingParamVals
-      let ownParamVals: IRawParams = extend(toParamVals, fromParamVals, incomingParamVals);
-      return { state: toNode.state, ownParams: ownParamVals };
+      let ownParamValues: IRawParams = extend(toParamVals, fromParamVals, incomingParamVals);
+      return { state: toNode.state, ownParamValues };
     });
     
     // The param keys specified by the incoming toParams
@@ -144,7 +144,7 @@ export default class PathFactory {
     let keep = 0, max = Math.min(fromNodes.length, toNodes.length);
 
     const nodesMatch = (node1: IParamsNode, node2: IParamsNode) =>
-        node1.state === node2.state && nonDynamicParams(node1.state).$$equals(node1.ownParams, node2.ownParams);
+        node1.state === node2.state && nonDynamicParams(node1.state).$$equals(node1.ownParamValues, node2.ownParamValues);
 
     while (keep < max && fromNodes[keep].state !== reloadState && nodesMatch(fromNodes[keep], toNodes[keep])) {
       keep++;
@@ -152,8 +152,8 @@ export default class PathFactory {
 
     /** Given a retained node, return a new node which uses the to node's param values */
     function applyToParams(retainedNode: ITransNode, idx: number): ITransNode {
-      let toNodeParams = toPath.nodes()[idx].ownParams;
-      return extend({}, retainedNode, { ownParams: toNodeParams });
+      let toNodeParams = toPath.nodes()[idx].ownParamValues;
+      return extend({}, retainedNode, { ownParamValues: toNodeParams });
     }
 
     let from: ITransPath, retained: ITransPath, exiting: ITransPath, entering: ITransPath, to: ITransPath;
