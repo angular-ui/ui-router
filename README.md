@@ -30,24 +30,24 @@ When registering a hook, you can provide criteria (a state name, a glob, or a fu
 
 This enables lots of fun stuff!  Here are a couple of possibilities to get your imagination started:
 ```
-$transitionProvider.onBefore({ to: 'my.state', from: '*' }, function(AsyncService) {
+$transitionsProvider.onBefore({ to: 'my.state', from: '*' }, function(AsyncService) {
   return AsyncService.doSomeAsyncThing();
 });
 
-$transitionProvider.onBefore({ to: 'other.state', from: '*' }, function(AsyncService) {
+$transitionsProvider.onBefore({ to: 'other.state', from: '*' }, function(AsyncService) {
   // someAsyncResult added as resolve to transition. It is injectable into other resolves or controllers.
   return { someAsyncResult: AsyncService.doSomeAsyncThing }; 
 });
 
-$transitionProvider.onStart({ to: function(state) { return state.requiresAuth; } }, function($transition$, $state, AuthService) {
+$transitionsProvider.onStart({ to: function(state) { return state.requiresAuth; } }, function($transition$, $state, AuthService) {
   return AuthService.ensureAuthenticated().catch(function() { return $state.redirect("login"); });
 });
 
-$transitionProvider.onStart({ to: function(state) { return state.requiresAuth; } }, function($transition$, $state, AuthService) {
+$transitionsProvider.onStart({ to: function(state) { return state.requiresAuth; } }, function($transition$, $state, AuthService) {
   return AuthService.ensureAuthenticated().catch(function() { return $state.redirect("login"); });
 });
 
-$transitionProvider.onStart({ to: function(state) { return state.redirectTo; } }, function($transition$, $state) {
+$transitionsProvider.onStart({ to: function(state) { return state.redirectTo; } }, function($transition$, $state) {
   return $state.redirect($transition$.to.redirectTo); });
 });
 ```
