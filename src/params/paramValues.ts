@@ -15,13 +15,13 @@ export default class ParamValues implements IRawParams {
 
   constructor($$path: IParamsPath) {
     Object.defineProperty(this, "$$path", { value: $$path });
-    $$path.nodes().reduce((memo, node) => extend(memo, node.ownParams), this);
+    $$path.nodes().reduce((memo, node) => extend(memo, node.ownParamValues), this);
   }
 
   /** Gets the param values for a given state (by state name) */
   $byState(stateName: string) {
     let found = find(this.$$path.nodes(), stateNameMatches(stateName));
-    return found && found.ownParams;
+    return found && found.ownParamValues;
   }
 
   /** Returns a new ParamValues object which closes over a subpath of this ParamValue's Path. */

@@ -79,7 +79,7 @@ beforeEach(function () {
 });
 
 function makePath(names: string[]): IResolvePath {
-  let nodes = map(names, name => ({ state: statesMap[name], ownParams: <any> {} }));
+  let nodes = map(names, name => ({ state: statesMap[name], ownParamValues: <any> {} }));
   let pPath = new Path(nodes).adapt(PathFactory.makeResolveNode);
   return PathFactory.bindTransNodesToPath(pPath);
 }

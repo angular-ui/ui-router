@@ -22,7 +22,7 @@ export interface IPath extends Path<INode> {}
 
 /** Contains INode base data plus raw params values for the node */
 export interface IParamsNode extends INode {
-  ownParams: IRawParams;
+  ownParamValues: IRawParams;
 }
 /** A Path of IParamsNode(s) */
 export interface IParamsPath extends Path<IParamsNode> {}
