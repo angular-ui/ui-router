@@ -691,18 +691,17 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (!transition.valid())
         return $q.reject(transition.error());
 
-      let stateHooks = new StateHooks($urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
-      stateHooks.registerTransitionHooks(transition);
+      let stateHooks = new StateHooks(transition, $urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
+      stateHooks.registerTransitionHooks();
 
       transition.onError({}, $transitions.defaultErrorHandler());
 
       // Commit global state data as the last hook in the transition (using a very low priority onFinish hook)
-      function $commitGlobalData() { stateHooks.transitionSuccess(transition); }
+      function $commitGlobalData() { stateHooks.transitionSuccess(); }
       transition.onFinish({}, $commitGlobalData, {priority: -10000});
 
-      function $handleError($error$) { return stateHooks.transitionFailure(transition, $error$); }
-
-      let result =  stateHooks.runTransition(transition).catch($handleError);
+      function $handleError($error$) { return stateHooks.transitionFailure($error$); }
+      let result =  stateHooks.runTransition().catch($handleError);
       result.finally(() => transQueue.remove(transition));
 
       // Return a promise for the transition, which also has the transition object on it.

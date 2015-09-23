@@ -12,6 +12,7 @@ import {ViewConfig} from "../view/view";
 
 export default class StateHooks {
   constructor(
+      private transition: Transition,
       private $urlRouter,
       private $view, // service
       private $state: IStateService,
@@ -21,44 +22,45 @@ export default class StateHooks {
       private changeHistory: Queue<ITreeChanges>
   ) { }
   
-  runTransition(transition: Transition) {
+  runTransition() {
     this.activeTransQ.clear();
-    this.activeTransQ.enqueue(transition);
-    return transition.run();
+    this.activeTransQ.enqueue(this.transition);
+    return this.transition.run();
   }
 
-  transitionSuccess(transition: Transition) {
-    let {$view, $state, activeTransQ, changeHistory} = this;
+  transitionSuccess() {
+    let {transition, $view, $state, activeTransQ, changeHistory} = this;
     let treeChanges = transition.treeChanges();
     $view.sync();
 
     // Update globals in $state
     $state.$current = transition.$to();
     $state.current = $state.$current.self;
-    this.updateStateParams(transition);
+    this.updateStateParams();
     activeTransQ.remove(transition);
     changeHistory.enqueue(treeChanges);
 
     return transition;
   }
 
-  transitionFailure(transition: Transition, error): (IStateDeclaration|IPromise<any>) {
-    let {$state, $stateParams, $q, activeTransQ} = this;
+  transitionFailure(error): (IStateDeclaration|IPromise<any>) {
+    let {transition, $urlRouter, $view, $state, $stateParams, $q, activeTransQ, changeHistory} = this;
     activeTransQ.remove(transition);
     // Handle redirect and abort
     if (error instanceof TransitionRejection) {
       if (error.type === RejectType.IGNORED) {
         // Update $stateParmas/$state.params/$location.url if transition ignored, but dynamic params have changed.
         if (!$state.$current.params.$$filter(prop('dynamic')).$$equals($stateParams, transition.params())) {
-          this.updateStateParams(transition);
+          this.updateStateParams();
         }
         return $state.current;
       }
 
       if (error.type === RejectType.SUPERSEDED) {
         if (error.redirected && error.detail instanceof Transition) {
-          activeTransQ.enqueue(error.detail);
-          return this.runTransition(error.detail);
+          let stateHooks = new StateHooks(error.detail, $urlRouter, $view, $state, $stateParams, $q, activeTransQ, changeHistory);
+          stateHooks.registerTransitionHooks();
+          return stateHooks.runTransition();
         }
       }
     }
@@ -66,8 +68,8 @@ export default class StateHooks {
     return $q.reject(error);
   }
 
-  updateStateParams(transition: Transition) {
-    let {$urlRouter, $state, $stateParams} = this;
+  updateStateParams() {
+    let {transition, $urlRouter, $state, $stateParams} = this;
     let options = transition.options();
     $state.params = transition.params();
     copy($state.params, $stateParams);
@@ -81,8 +83,8 @@ export default class StateHooks {
   }
 
 
-  registerTransitionHooks(transition: Transition) {
-    let { $view, $q } = this;
+  registerTransitionHooks() {
+    let { transition, $view, $q } = this;
 
     let hookBuilder = transition.hookBuilder();
 
