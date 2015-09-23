@@ -59,11 +59,14 @@ export class Transition implements IHookRegistry {
   getHooks:   IHookGetter;
 
   constructor(fromPath: ITransPath, targetState: TargetState) {
-    if (targetState.error()) throw new Error(targetState.error());
+    if (!targetState.valid()) {
+      throw new Error(targetState.error());
+    }
+
     // Makes the Transition instance a hook registry (onStart, etc)
     HookRegistry.mixin(new HookRegistry(), this);
 
-    // current() is assumed to come from targetState.options, but provide a naive implemention otherwise.
+    // current() is assumed to come from targetState.options, but provide a naive implementation otherwise.
     this._options = extend({ current: val(this) }, targetState.options());
     this.$id = transitionCount++;
     let toPath = PathFactory.buildToPath(fromPath, targetState);
@@ -268,7 +271,12 @@ export class Transition implements IHookRegistry {
   }
 
   run () {
-    if (this.error()) throw new Error(this.error());
+    if (!this.valid()) {
+      let error = new Error(this.error());
+      this._deferred.reject(error);
+      throw error;
+    }
+
     trace.traceTransitionStart(this);
 
     if (this.ignored()) {
