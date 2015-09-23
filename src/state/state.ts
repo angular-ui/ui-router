@@ -1,14 +1,13 @@
 import {extend, defaults, copy, equalForKeys, forEach, ancestors, noop, isDefined, isObject, isString} from "../common/common";
 import Queue from "../common/queue";
 import {IServiceProviderFactory, IPromise} from "angular";
-import {annotateController} from "../common/angular1";
 
 import {IStateService, IState, IStateDeclaration, IStateOrName, IHrefOptions} from "./interface";
 import Glob from "./glob";
 import StateQueueManager from "./stateQueueManager";
 import StateBuilder from "./stateBuilder";
 import StateMatcher from "./stateMatcher";
-import StateHandler from "./stateHandler";
+import StateHooks from "./stateHooks";
 import TargetState from "./targetState";
 
 import {ITransitionService, ITransitionOptions, ITreeChanges} from "../transition/interface";
@@ -21,8 +20,6 @@ import Path from "../path/path";
 import PathFactory from "../path/pathFactory";
 
 import {IRawParams, IParamsOrArray} from "../params/interface";
-
-import {ViewConfig} from "../view/view";
 
 /**
  * @ngdoc object
@@ -694,69 +691,18 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (!transition.valid())
         return $q.reject(transition.error());
 
-      let stateHandler = new StateHandler($urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
-      let hookBuilder = transition.hookBuilder();
+      let stateHooks = new StateHooks($urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
+      stateHooks.registerTransitionHooks(transition);
 
-      // TODO: Move the Transition instance hook registration to its own function
-      // Add hooks
-      let enteringViews = transition.views("entering");
-      let exitingViews = transition.views("exiting");
-      let treeChanges = transition.treeChanges();
-
-      function $updateViews() {
-        exitingViews.forEach((viewConfig: ViewConfig) => $view.reset(viewConfig));
-        enteringViews.forEach((viewConfig: ViewConfig) => $view.registerStateViewConfig(viewConfig));
-        $view.sync();
-      }
-
-      function $loadAllEnteringViews() {
-        const loadView = (vc: ViewConfig) => {
-          let resolveInjector = treeChanges.to.nodeForState(vc.context.name).resolveInjector;
-          return $view.load(vc, resolveInjector);
-        };
-        return $q.all(enteringViews.map(loadView)).then(noop);
-      }
-
-      function $loadAllControllerLocals() {
-        const loadLocals = (vc: ViewConfig) => {
-          let deps = annotateController(vc.controller);
-          let resolveInjector = treeChanges.to.nodeForState(vc.context.name).resolveInjector;
-          function $loadControllerLocals() { }
-          $loadControllerLocals.$inject = deps;
-          return $q.all(resolveInjector.getLocals($loadControllerLocals)).then((locals) => vc.locals = locals);
-        };
-
-        let loadAllLocals = enteringViews.filter(vc => !!vc.controller).map(loadLocals);
-        return $q.all(loadAllLocals).then(noop);
-      }
-
-      transition.onStart({}, hookBuilder.getEagerResolvePathFn(), { priority: 1000 });
-      transition.onEnter({}, hookBuilder.getLazyResolveStateFn(), { priority: 1000 });
-
-
-      let onEnterRegistration = (state) => transition.onEnter({to: state.name}, state.onEnter);
-      transition.entering().filter(state => !!state.onEnter).forEach(onEnterRegistration);
-
-      let onRetainRegistration = (state) => transition.onRetain({}, state.onRetain);
-      transition.entering().filter(state => !!state.onRetain).forEach(onRetainRegistration);
-
-      let onExitRegistration = (state) => transition.onExit({from: state.name}, state.onExit);
-      transition.exiting().filter(state => !!state.onExit).forEach(onExitRegistration);
-
-      if (enteringViews.length) {
-        transition.onStart({}, $loadAllEnteringViews);
-        transition.onFinish({}, $loadAllControllerLocals);
-      }
-      if (exitingViews.length || enteringViews.length)
-        transition.onSuccess({}, $updateViews);
       transition.onError({}, $transitions.defaultErrorHandler());
 
       // Commit global state data as the last hook in the transition (using a very low priority onFinish hook)
-      function $commitGlobalData() { stateHandler.transitionSuccess(transition.treeChanges(), transition); }
+      function $commitGlobalData() { stateHooks.transitionSuccess(transition); }
       transition.onFinish({}, $commitGlobalData, {priority: -10000});
 
-      function $handleError($error$) { return stateHandler.transitionFailure(transition, $error$); }
-      let result = stateHandler.runTransition(transition).catch($handleError);
+      function $handleError($error$) { return stateHooks.transitionFailure(transition, $error$); }
+
+      let result =  stateHooks.runTransition(transition).catch($handleError);
       result.finally(() => transQueue.remove(transition));
 
       // Return a promise for the transition, which also has the transition object on it.
