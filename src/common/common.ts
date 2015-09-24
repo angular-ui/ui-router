@@ -59,6 +59,15 @@ export function pipe(...funcs: Function[]): (obj: any) => any {
 export const prop = (name: string) => (obj: any) => obj && obj[name];
 
 /**
+ * Given a property name and a value, returns a function that returns a boolean based on whether
+ * the passed object has a property that matches the value
+ * let obj = { foo: 1, name: "blarg" };
+ * let getName = propEq("name", "blarg");
+ * getName(obj) === true
+ */
+export const propEq = curry((name: string, val: any, obj: any) => obj && obj[name] === val);
+
+/**
  * Given a dotted property name, returns a function that returns a nested property from an object, or undefined
  * let obj = { id: 1, nestedObj: { foo: 1, name: "blarg" }, };
  * let getName = prop("nestedObj.name");
@@ -72,16 +81,14 @@ export const parse = (name: string) => pipe.apply(null, name.split(".").map(prop
  * Given a function that returns a truthy or falsey value, returns a
  * function that returns the opposite (falsey or truthy) value given the same inputs
  */
-export const not = (fn) => (function() { return !fn.apply(null, [].slice.call(arguments)); });
+export const not = (fn) => (...args) => !fn.apply(null, args);
 
 /**
  * Given two functions that return truthy or falsey values, returns a function that returns truthy
  * if both functions return truthy for the given arguments
  */
 export function and(fn1, fn2): Function {
-  return function() {
-    return fn1.apply(null, [].slice.call(arguments)) && fn2.apply(null, [].slice.call(arguments));
-  };
+  return (...args) => fn1.apply(null, args) && fn2.apply(null, args);
 }
 
 /**
@@ -89,9 +96,7 @@ export function and(fn1, fn2): Function {
  * if at least one of the functions returns truthy for the given arguments
  */
 export function or(fn1, fn2): Function {
-  return function() {
-    return fn1.apply(null, [].slice.call(arguments)) || fn2.apply(null, [].slice.call(arguments));
-  };
+  return (...args) => fn1.apply(null, args) || fn2.apply(null, args);
 }
 
 /** Given a class, returns a Predicate function that returns true if the object is of that class */

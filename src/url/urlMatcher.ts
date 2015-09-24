@@ -8,6 +8,18 @@ interface params {
   $$validates: (params: string) => Array<string>;
 }
 
+function quoteRegExp(string, pattern?: any, squash?: any, optional?: any) {
+  var surroundPattern = ['',''], result = string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
+  if (!pattern) return result;
+
+  switch (squash) {
+    case false: surroundPattern = ['(', ')' + (optional ? "?" : "")]; break;
+    case true:  surroundPattern = ['?(', ')?']; break;
+    default:    surroundPattern = [`(${squash}|`, ')?']; break;
+  }
+  return result + surroundPattern[0] + pattern + surroundPattern[1];
+}
+
 /**
  * @ngdoc object
  * @name ui.router.util.type:UrlMatcher
@@ -114,17 +126,6 @@ export default class UrlMatcher {
       if (params[id]) throw new Error(`Duplicate parameter name '${id}' in pattern '${pattern}'`);
       params[id] = new Param(id, type, config, location);
       return params[id];
-    }
-
-    function quoteRegExp(string, pattern?: any, squash?: any, optional?: any) {
-      var surroundPattern = ['',''], result = string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
-      if (!pattern) return result;
-      switch(squash) {
-        case false: surroundPattern = ['(', ')' + (optional ? "?" : "")]; break;
-        case true:  surroundPattern = ['?(', ')?']; break;
-        default:    surroundPattern = [`(${squash}|`, ')?']; break;
-      }
-      return result + surroundPattern[0] + pattern + surroundPattern[1];
     }
 
     this.source = pattern;
@@ -258,8 +259,8 @@ export default class UrlMatcher {
     if (nPath !== m.length - 1) throw new Error(`Unbalanced capture group in route '${this.source}'`);
 
     function decodePathArray(string: string) {
-      function reverseString(str: string) { return str.split("").reverse().join(""); }
-      function unquoteDashes(str: string) { return str.replace(/\\-/g, "-"); }
+      const reverseString = (str: string) => str.split("").reverse().join("");
+      const unquoteDashes = (str: string) => str.replace(/\\-/g, "-");
 
       var split = reverseString(string).split(/-(?!\\)/);
       var allReversed = map(split, reverseString);

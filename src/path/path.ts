@@ -70,9 +70,7 @@ export default class Path<NODE extends INode> {
    * Each node in the reversed path is a shallow copy of the original Path's node.
    */
   reverse(): Path<NODE> {
-    let copy = [].concat(this._nodes).map(shallowNodeCopy);
-    copy.reverse();
-    return new Path(copy);
+    return new Path(this.nodes().map(shallowNodeCopy).reverse());
   }
 
   /** Returns the "state" property of each node in this Path */
@@ -98,12 +96,11 @@ export default class Path<NODE extends INode> {
 
   /** Returns a new path where each path element is mapped using the nodeMapper function */
   adapt<T extends INode>(nodeMapper: (NODE, idx?) => T): Path<T> {
-    var adaptedNodes = this._nodes.map(nodeMapper);
-    return new Path(adaptedNodes);
+    return new Path(this._nodes.map(nodeMapper));
   }
 
   toString() {
-    var elements = this._nodes.map(e => e.state.name).join(", ");
+    var elements = this._nodes.map(parse('state.name')).join(', ');
     return `Path([${elements}])`;
   }
 }

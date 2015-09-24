@@ -38,7 +38,7 @@ export default class PathFactory {
   }
 
   /* Given params and a state, creates an IParamsNode */
-  static makeParamsNode = curry(function(params: IRawParams, state: IState) {
+  static makeParamsNode = curry((params: IRawParams, state: IState) => {
     return {
       state,
       ownParamValues: state.ownParams.$$values(params)
@@ -135,16 +135,13 @@ export default class PathFactory {
    * Computes the tree changes (entering, exiting) between a fromPath and toPath.
    */
   static treeChanges(fromPath: ITransPath, toPath: IParamsPath, reloadState: IState): ITreeChanges {
-    function nonDynamicParams(state) {
-      return state.params.$$filter(not(prop('dynamic')));
-    }
-
     let fromNodes = fromPath.nodes();
     let toNodes = toPath.nodes();
     let keep = 0, max = Math.min(fromNodes.length, toNodes.length);
 
+    const staticParams = (state) => state.params.$$filter(not(prop('dynamic')));
     const nodesMatch = (node1: IParamsNode, node2: IParamsNode) =>
-        node1.state === node2.state && nonDynamicParams(node1.state).$$equals(node1.ownParamValues, node2.ownParamValues);
+        node1.state === node2.state && staticParams(node1.state).$$equals(node1.ownParams, node2.ownParams);
 
     while (keep < max && fromNodes[keep].state !== reloadState && nodesMatch(fromNodes[keep], toNodes[keep])) {
       keep++;

@@ -1,4 +1,4 @@
-import {isInjectable, extend, isDefined, isString, isArray, filter, map, prop, curry} from "../common/common";
+import {isInjectable, extend, isDefined, isString, isArray, filter, map, pick, prop, propEq, curry} from "../common/common";
 import {runtime} from "../common/angular1";
 import matcherConfig from "../url/urlMatcherConfig";
 import paramTypes from "./paramTypes";
@@ -97,10 +97,8 @@ export default class Param {
       return defaultValue;
     };
 
-    const hasReplaceVal = curry((val, obj) => obj.from === val);
-
     const $replace = (value) => {
-      var replacement: any = map(filter(this.replace, hasReplaceVal(value)), prop("to"));
+      var replacement: any = map(filter(this.replace, propEq('from', value)), prop("to"));
       return replacement.length ? replacement[0] : value;
     };
 
