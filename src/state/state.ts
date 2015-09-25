@@ -1,4 +1,4 @@
-import {extend, defaults, copy, equalForKeys, forEach, ancestors, noop, isDefined, isObject, isString} from "../common/common";
+import {extend, defaults, copy, equalForKeys, forEach, ancestors, isDefined, isObject, isString} from "../common/common";
 import Queue from "../common/queue";
 import {IServiceProviderFactory, IPromise} from "angular";
 
@@ -7,7 +7,6 @@ import Glob from "./glob";
 import StateQueueManager from "./stateQueueManager";
 import StateBuilder from "./stateBuilder";
 import StateMatcher from "./stateMatcher";
-import StateHooks from "./stateHooks";
 import TargetState from "./targetState";
 
 import {ITransitionService, ITransitionOptions, ITreeChanges} from "../transition/interface";
@@ -20,6 +19,7 @@ import Path from "../path/path";
 import PathFactory from "../path/pathFactory";
 
 import {IRawParams, IParamsOrArray} from "../params/interface";
+import TransitionManager from "./hooks/transitionManager";
 
 /**
  * @ngdoc object
@@ -691,21 +691,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (!transition.valid())
         return $q.reject(transition.error());
 
-      let stateHooks = new StateHooks(transition, $urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
-      stateHooks.registerTransitionHooks();
-
-      transition.onError({}, $transitions.defaultErrorHandler());
-
-      // Commit global state data as the last hook in the transition (using a very low priority onFinish hook)
-      function $commitGlobalData() { stateHooks.transitionSuccess(); }
-      transition.onFinish({}, $commitGlobalData, {priority: -10000});
-
-      function $handleError($error$) { return stateHooks.transitionFailure($error$); }
-      let result =  stateHooks.runTransition().catch($handleError);
-      result.finally(() => transQueue.remove(transition));
-
+      let tMgr = new TransitionManager(transition, $transitions, $urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
+      tMgr.registerHooks();
       // Return a promise for the transition, which also has the transition object on it.
-      return extend(result, { transition });
+      return extend(tMgr.runTransition(), { transition });
     };
 
     /**

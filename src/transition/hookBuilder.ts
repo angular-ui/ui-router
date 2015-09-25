@@ -3,16 +3,13 @@ import {IPromise} from "angular";
 import {IInjectable, extend, isPromise, isArray, assertPredicate, unnestR} from "../common/common";
 import {runtime} from "../common/angular1";
 
-import {ITransitionOptions, ITransitionHookOptions, ITreeChanges, IEventHook, ITransitionService} from "./interface";
+import {ITransitionOptions, ITransitionHookOptions, IHookRegistry, ITreeChanges, IEventHook, ITransitionService} from "./interface";
 import TransitionHook from "./transitionHook";
 import {Transition} from "./transition";
 
 import {IState} from "../state/interface";
 
 import {ITransPath, ITransNode} from "../path/interface";
-
-import {ResolvePolicy, IOptions1} from "../resolve/interface";
-import {IHookRegistry} from "./interface";
 
 interface IToFrom {
   to: IState;
@@ -40,6 +37,7 @@ let successErrorOptions: ITransitionHookOptions = {
  */
 export default class HookBuilder {
 
+  treeChanges: ITreeChanges;
   transitionOptions: ITransitionOptions;
 
   toState: IState;
@@ -47,9 +45,10 @@ export default class HookBuilder {
 
   transitionLocals: {[key: string]: any};
 
-  constructor(private $transitions: ITransitionService, private treeChanges: ITreeChanges, private transition: Transition, private baseHookOptions: ITransitionHookOptions) {
-    this.toState            = treeChanges.to.last().state;
-    this.fromState          = treeChanges.from.last().state;
+  constructor(private $transitions: ITransitionService, private transition: Transition, private baseHookOptions: ITransitionHookOptions) {
+    this.treeChanges        = transition.treeChanges();
+    this.toState            = this.treeChanges.to.last().state;
+    this.fromState          = this.treeChanges.from.last().state;
     this.transitionOptions  = transition.options();
     this.transitionLocals   = { $transition$: transition };
   }
@@ -160,28 +159,5 @@ export default class HookBuilder {
         .reduce(unnestR)                                                      // Un-nest IEventHook[][] to IEventHook[] array
         .filter(matchFilter)                                                  // Only those satisfying matchCriteria
         .sort(prioritySort);                                                  // Order them by .priority field
-  }
-
-  /** Returns a function which resolves the LAZY Resolvables for a Node in a Path */
-  getLazyResolveStateFn() {
-    let options = { resolvePolicy: ResolvePolicy[ResolvePolicy.LAZY] };
-    let treeChanges = this.treeChanges;
-    $lazyResolveEnteringState.$inject = ['$state$', '$transition$'];
-    function $lazyResolveEnteringState($state$, $transition$) {
-      let node = treeChanges.entering.nodeForState($state$);
-      return node.resolveContext.resolvePathElement(node.state, extend({transition: $transition$}, options));
-    }
-    return $lazyResolveEnteringState;
-  }
-
-  /** Returns a function which resolves the EAGER Resolvables for a Path */
-  getEagerResolvePathFn() {
-    let options: IOptions1 = { resolvePolicy: ResolvePolicy[ResolvePolicy.EAGER] };
-    let path = this.treeChanges.to;
-    $eagerResolvePath.$inject = ['$transition$'];
-    function $eagerResolvePath($transition$) {
-      return path.last().resolveContext.resolvePath(extend({transition: $transition$}, options));
-    }
-    return $eagerResolvePath;
   }
 }
