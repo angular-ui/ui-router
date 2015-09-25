@@ -86,33 +86,18 @@ module.exports = function (grunt) {
     karma: {
       options: {
         configFile: 'config/karma.js',
-        singleRun: true,
-        exclude: [],
-        frameworks: ['systemjs', 'jasmine'],
-        reporters: 'dots', // 'dots' || 'progress'
-        port: 8080,
-        colors: true,
-        autoWatch: false,
-        autoWatchInterval: 0,
         // Serve and load angular files using regular Karma mode
-        files: files.karmaServedFiles('1.4.1'),
-        systemjs: {
-          configFile: 'config/system.config.js',
-          // These files are served by Karma, but loaded using SystemJS
-          files: ['src/**/*.ts'].concat(files.testUtils, files.test),
-          // This is turned into a regexp and used to load specs into Karma
-          testFileSuffix: "/test/\\S+.[tj]s"
-        },
         browsers: [ grunt.option('browser') || 'PhantomJS' ]
       },
       // Same as karma:base
       unit: {
-        browsers: [ grunt.option('browser') || 'PhantomJS' ]
       },
       // Launch Karma in Chrome, click debug button, debug tests
       debug: {
         singleRun: false,
         background: false,
+        autoWatch: true,
+        autoWatchInterval: 1,
         browsers: [ grunt.option('browser') || 'Chrome' ]
       },
       // Test with angular 1.2
@@ -128,12 +113,10 @@ module.exports = function (grunt) {
         options: { files: files.karmaServedFiles('1.4.1') }
       },
       background: {
-          background: true,
-          browsers: [ grunt.option('browser') || 'PhantomJS' ]
+          background: true
       },
       // PhantomJS in the console; watch for changes to tests/src
       watch: {
-        configFile: 'config/karma.js',
         singleRun: false,
         autoWatch: true,
         autoWatchInterval: 1
