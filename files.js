@@ -41,12 +41,13 @@ routerFiles = {
   // This returns a Karma 'files configuration' for the files served by the Karma web server
   // http://karma-runner.github.io/0.8/config/files.html
   karmaServedFiles: function(version) {
-    return [
-      routerFiles.angular(version),
+    return routerFiles.angular(version).map(function (pattern) {
+      return { watched: false, included: true, nocache: true, pattern: pattern };
+    }).concat([
       { watched: true, included: false, nocache: true, pattern: 'src/**/*.ts' },
       { watched: true, included: false, nocache: true, pattern: 'test/**/*.ts' },
       { watched: true, included: false, nocache: true, pattern: 'test/**/*.js' }
-    ]
+    ]);
   }
 };
 
