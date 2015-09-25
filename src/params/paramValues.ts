@@ -4,7 +4,7 @@ import {IRawParams} from "../params/interface";
 import {extend, find, curry} from "../common/common";
 /**
  * This class closes over a Path and encapsulates the parameter values from the Path's Nodes.
- * The param values for the path are flattened and copied to the resulting ParamValues object.  
+ * The param values for the path are flattened and copied to the resulting ParamValues object.
  * Param values for a specific state are exposed with the $byState(stateName) function.
  */
 const stateNameMatches = curry((stateName: string, node) => node.state.name === stateName);

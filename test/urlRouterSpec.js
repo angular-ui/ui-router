@@ -223,7 +223,7 @@ describe("UrlRouter", function () {
       }));
 
       it('should handle the new html5Mode object config from Angular 1.3', inject(function($urlRouter) {
-        
+
         $lp.html5Mode({
           enabled: false
         });

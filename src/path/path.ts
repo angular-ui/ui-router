@@ -10,18 +10,18 @@ const stateNameMatches = (stateName: string) => (node) => node.state.name === st
 const shallowNodeCopy = node => extend({}, node);
 
 /**
- * A Path Object represents a Path of nested States within the State Hierarchy. 
+ * A Path Object represents a Path of nested States within the State Hierarchy.
  * Each node of the path holds the IState object, and additional data, according
- * to the use case.   
+ * to the use case.
  *
- * A Path can be used to construct new Paths based on the current Path via the concat 
+ * A Path can be used to construct new Paths based on the current Path via the concat
  * and slice helper methods.
  *
  * @param _nodes [array]: an array of INode data
  */
 export default class Path<NODE extends INode> {
   constructor(private _nodes: NODE[]) { }
-  
+
   /**
    * returns a subpath of this path from the root path element up to and including the toState parameter.
    * Each node of the subpath is a shallow copy of the original node.

@@ -267,9 +267,9 @@ describe("UrlMatcher", function () {
 
       expect(m.exec("/foo")).toEqual({ param1: undefined });
       expect(m.exec("/foo", {})).toEqual({ param1: undefined });
-      expect(m.exec("/foo", {param1: ""})).toEqual({ param1: undefined });
-      expect(m.exec("/foo", {param1: "1"})).toEqual({ param1: "1" }); // auto unwrap single values
-      expect(m.exec("/foo", {param1: [ "1", "2" ]})).toEqual({ param1: [ "1", "2" ] });
+      expect(m.exec("/foo", { param1: "" })).toEqual({ param1: undefined });
+      expect(m.exec("/foo", { param1: "1" })).toEqual({ param1: "1" }); // auto unwrap single values
+      expect(m.exec("/foo", { param1: ["1", "2"]})).toEqual({ param1: ["1", "2"] });
 
       $location.url("/foo");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: undefined } );
@@ -948,7 +948,7 @@ describe("urlMatcherFactory", function () {
 
     describe(".$$filter", function() {
       it("should return a new ParamSet which is a subset of the current param set", function() {
-        var gpa = new ParamSet({grandparent: params.grandparent});
+        var gpa = new ParamSet({ grandparent: params.grandparent });
         var pa = gpa.$$new({ parent: params.parent });
         var child = pa.$$new({ child: params.child });
 

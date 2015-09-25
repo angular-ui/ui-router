@@ -47,8 +47,8 @@ export default class Param {
 
     // array config: param name (param[]) overrides default settings.  explicit config overrides param name.
     function getArrayMode() {
-      var arrayDefaults = {array: (location === "search" ? "auto" : false)};
-      var arrayParamNomenclature = id.match(/\[\]$/) ? {array: true} : {};
+      var arrayDefaults = { array: (location === "search" ? "auto" : false) };
+      var arrayParamNomenclature = id.match(/\[\]$/) ? { array: true } : {};
       return extend(arrayDefaults, arrayParamNomenclature, config).array;
     }
 

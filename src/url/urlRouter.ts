@@ -10,9 +10,9 @@ import {IServiceProviderFactory} from "angular";
  * @requires $locationProvider
  *
  * @description
- * `$urlRouterProvider` has the responsibility of watching `$location`. 
- * When `$location` changes it runs through a list of rules one by one until a 
- * match is found. `$urlRouterProvider` is used behind the scenes anytime you specify 
+ * `$urlRouterProvider` has the responsibility of watching `$location`.
+ * When `$location` changes it runs through a list of rules one by one until a
+ * match is found. `$urlRouterProvider` is used behind the scenes anytime you specify
  * a url in a state configuration. All urls are compiled into a UrlMatcher object.
  *
  * There are several methods on `$urlRouterProvider` that make it useful to use directly
@@ -97,8 +97,8 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
    * });
    * </pre>
    *
-   * @param {string|function} rule The url path you want to redirect to or a function 
-   * rule that returns the url path. The function version is passed two params: 
+   * @param {string|function} rule The url path you want to redirect to or a function
+   * rule that returns the url path. The function version is passed two params:
    * `$injector` and `$location` services, and must return a url string.
    *
    * @return {object} `$urlRouterProvider` - `$urlRouterProvider` instance
@@ -195,7 +195,10 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
       }
     };
 
-    var check = { matcher: $urlMatcherFactory.isMatcher(what), regex: what instanceof RegExp };
+    var check = {
+      matcher: $urlMatcherFactory.isMatcher(what),
+      regex: what instanceof RegExp
+    };
 
     for (var n in check) {
       if (check[n]) return this.rule(strategies[n](what, handler));

@@ -901,7 +901,7 @@ describe('state', function () {
 
     it('should work for relative states', inject(function ($state, $q) {
       var options = { relative: $state.get('about') };
-      
+
       $state.transitionTo('about.person', { person: 'jane' }); $q.flush();
       expect($state.is('.person', undefined, options)).toBe(true);
 

@@ -138,7 +138,9 @@ export default class UrlMatcher {
       cfg         = config.params[id];
       segment     = pattern.substring(last, m.index);
       regexp      = isSearch ? m[4] : m[4] || (m[1] == '*' ? '.*' : null);
-      type        = paramTypes.type(regexp || "string") || inherit(paramTypes.type("string"), { pattern: new RegExp(regexp, config.caseInsensitive ? 'i' : undefined) });
+      type        = paramTypes.type(regexp || "string") || inherit(paramTypes.type("string"), {
+        pattern: new RegExp(regexp, config.caseInsensitive ? 'i' : undefined)
+      });
       return {id, regexp, segment, type, cfg};
     }
 
@@ -238,8 +240,8 @@ export default class UrlMatcher {
    * @example
    * <pre>
    * new UrlMatcher('/user/{id}?q&r').exec('/user/bob', {
- *   x: '1', q: 'hello'
- * });
+   *   x: '1', q: 'hello'
+   * });
    * // returns { id: 'bob', q: 'hello', r: null }
    * </pre>
    *
@@ -270,7 +272,7 @@ export default class UrlMatcher {
     for (i = 0; i < nPath; i++) {
       paramName = paramNames[i];
       var param = this.params[paramName];
-      var paramVal: (any|any[]) = m[i+1];
+      var paramVal: (any|any[]) = m[i + 1];
       // if the param value matches a pre-replace pair, replace the value before decoding.
       for (j = 0; j < param.replace; j++) {
         if (param.replace[j].from === paramVal) paramVal = param.replace[j].to;

@@ -162,7 +162,7 @@ describe('uiStateRef', function() {
 
       timeoutFlush();
       $q.flush();
-      
+
       expect($state.current.name).toEqual('top');
       expect(obj($stateParams)).toEqualData({ });
     }));

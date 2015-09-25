@@ -377,16 +377,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
   let invalidCallbacks: Function[] = [];
   this.onInvalid = onInvalid;
-  
+
   /**
    * @ngdoc function
    * @name ui.router.state.$stateProvider#onInvalid
    * @methodOf ui.router.state.$stateProvider
    *
    * @description
-   * Registers a function to be injected and invoked when transitionTo has been called with an invalid 
+   * Registers a function to be injected and invoked when transitionTo has been called with an invalid
    * state reference parameter
-   *  
+   *
    * This function can be injected with one some special values:
    * - **`$to$`**: TargetState
    * - **`$from$`**: TargetState
@@ -396,7 +396,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
    *   The function may optionally return a {TargetState} or a Promise for a TargetState.  If one
    *   is returned, it is treated as a redirect.
    */
-  
+
   function onInvalid(callback: Function) {
     invalidCallbacks.push(callback);
   }
@@ -495,7 +495,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
     stateQueue.flush($state);
     stateQueue.autoFlush = true; // Autoflush once we are in runtime
-    
+
     /**
      * @ngdoc function
      * @name ui.router.state.$state#reload
@@ -621,7 +621,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       let transOpts = defaults(options, defautGoOpts, defaultTransOpts);
       return $state.transitionTo(to, params, transOpts);
     };
-  
+
     /** Factory method for creating a TargetState */
     $state.targetState = function targetState(identifier: IStateOrName, params: IParamsOrArray, options: ITransitionOptions = {}): TargetState {
       let stateDefinition = matcher.find(identifier, options.relative);
@@ -827,7 +827,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *    first parameter, then the constructed href url will be built from the first navigable ancestor (aka
      *    ancestor with a valid url).
      * - **`inherit`** - {boolean=true}, If `true` will inherit url parameters from current url.
-     * - **`relative`** - {object=$state.$current}, When transitioning with relative path (e.g '^'), 
+     * - **`relative`** - {object=$state.$current}, When transitioning with relative path (e.g '^'),
      *    defines which state to be relative from.
      * - **`absolute`** - {boolean=false},  If true will generate an absolute url, e.g. "http://www.example.com/fullurl".
      *

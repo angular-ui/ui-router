@@ -314,7 +314,7 @@ describe('transition', function () {
       it("return value of type Transition should abort the transition with SUPERSEDED status", inject(function($transitions, $q) {
         var states = [], rejection, transition = makeTransition("A", "D");
         transitionProvider.onEnter({ from: "*", to: "*" }, function($state$) { states.push($state$); });
-        transitionProvider.onEnter({ from: "*", to: "C" }, function($state, $transition$) { 
+        transitionProvider.onEnter({ from: "*", to: "C" }, function($state, $transition$) {
           return $transition$.redirect(targetState("B"));
         });
         transition.promise.catch(function(err) { rejection = err; });

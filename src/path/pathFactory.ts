@@ -78,8 +78,8 @@ export default class PathFactory {
       let node = path.nodeForState(state);
       return extend({}, node && node.ownParamValues);
     }
-    
-    /** 
+
+    /**
      * Given an IParamsNode "toNode", return a new IParamsNode with param values inherited from the
      * matching node in fromPath.  Only inherit keys that aren't found in "toKeys" from the node in "fromPath""
      */
@@ -94,7 +94,7 @@ export default class PathFactory {
       let ownParamValues: IRawParams = extend(toParamVals, fromParamVals, incomingParamVals);
       return { state: toNode.state, ownParamValues };
     });
-    
+
     // The param keys specified by the incoming toParams
     return new Path(<IParamsNode[]> toPath.nodes().map(makeInheritedParamsNode(fromPath, toKeys)));
   }
@@ -120,13 +120,12 @@ export default class PathFactory {
     // Attach bound resolveContext and paramValues to each node
     // Attach views to each node
     transPath.nodes().forEach((node: ITransNode) => {
-        node.resolveContext = resolveContext.isolateRootTo(node.state);
-        node.resolveInjector = new ResolveInjector(node.resolveContext, node.state);
-        node.paramValues = paramValues.$isolateRootTo(node.state.name);
-        node.ownResolvables["$stateParams"] = new Resolvable("$stateParams", () => node.paramValues, node.state);
-        node.views = makeViews(node);
-      }
-    );
+      node.resolveContext = resolveContext.isolateRootTo(node.state);
+      node.resolveInjector = new ResolveInjector(node.resolveContext, node.state);
+      node.paramValues = paramValues.$isolateRootTo(node.state.name);
+      node.ownResolvables["$stateParams"] = new Resolvable("$stateParams", () => node.paramValues, node.state);
+      node.views = makeViews(node);
+    });
 
     return transPath;
   }
