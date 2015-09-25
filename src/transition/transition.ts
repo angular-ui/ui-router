@@ -267,7 +267,7 @@ export class Transition implements IHookRegistry {
       current: this._options.current
     };
 
-    return new HookBuilder($transitions, this._treeChanges, this, baseHookOptions);
+    return new HookBuilder($transitions, this, baseHookOptions);
   }
 
   run () {
