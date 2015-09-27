@@ -12,11 +12,15 @@ import EnterExitHooks from "./enterExitHooks";
 import ResolveHooks from "./resolveHooks";
 
 /**
- * This class takes a blank transition object and adds all the hooks necessary for it to behave like a state transition
+ * This class:
  *
- * * Chains to the transition promise, adding state lifecycle hooks:
- *   * on promise resolve: update global state such as "active transitions" and "current state/params"
- *   * on promise rejection: handles ignored transition (as dynamic), and transition redirect (starts new transition)
+ * * Takes a blank transition object and adds all the hooks necessary for it to behave like a state transition.
+ *
+ * * Runs the transition, returning a chained promise which:
+ *   * transforms the resolved Transition.promise to the final destination state.
+ *   * manages the rejected Transition.promise, checking for Dynamic or Redirected transitions
+ *
+ * * Registers a handler to update global $state data such as "active transitions" and "current state/params"
  *
  * * Registers view hooks, which maintain the list of active view configs and sync with/update the ui-views
  *
@@ -48,32 +52,38 @@ export default class TransitionManager {
     this.treeChanges = transition.treeChanges();
   }
 
-  runTransition(): IPromise<any> {
-    let stateHooks = this;
-    this.activeTransQ.clear();  // TODO: nuke this
-    this.activeTransQ.enqueue(this.transition);
-    const $removeFromActiveQ = () => this.activeTransQ.remove(this.transition);
-    function $handleError($error$) { return stateHooks.transitionFailure($error$); }
+  registerHooks() {
+    this.registerUpdateGlobalState();
 
-    return this.transition.run().catch($handleError).finally($removeFromActiveQ);
+    this.viewHooks.registerHooks();
+    this.enterExitHooks.registerHooks();
+    this.resolveHooks.registerHooks();
   }
 
-  transitionSuccess() {
-    let {treeChanges, transition, $state, activeTransQ, changeHistory} = this;
+  runTransition(): IPromise<any> {
+    this.activeTransQ.clear();  // TODO: nuke this
+    this.activeTransQ.enqueue(this.transition);
+    return this.transition.run()
+        .then((trans: Transition) => trans.to()) // resolve to the final state (TODO: good? bad?)
+        .catch(error => this.transRejected(error)) // if rejected, handle dynamic and redirect
+        .finally(() => this.activeTransQ.remove(this.transition));
+  }
 
+  registerUpdateGlobalState() {
+    this.transition.onFinish({}, this.updateGlobalState.bind(this), {priority: -10000});
+  }
+
+  updateGlobalState() {
+    let {treeChanges, transition, $state, changeHistory} = this;
     // Update globals in $state
     $state.$current = transition.$to();
     $state.current = $state.$current.self;
-    this.updateStateParams();
-    activeTransQ.remove(transition);
     changeHistory.enqueue(treeChanges);
-
-    return transition;
+    this.updateStateParams();
   }
 
-  transitionFailure(error): (IStateDeclaration|IPromise<any>) {
-    let {transition, $transitions, $urlRouter, $view, $state, $stateParams, $q, activeTransQ, changeHistory} = this;
-    activeTransQ.remove(transition);
+  transRejected(error): (IStateDeclaration|IPromise<any>) {
+    let {transition, $state, $stateParams, $q} = this;
     // Handle redirect and abort
     if (error instanceof TransitionRejection) {
       if (error.type === RejectType.IGNORED) {
@@ -86,14 +96,14 @@ export default class TransitionManager {
 
       if (error.type === RejectType.SUPERSEDED) {
         if (error.redirected && error.detail instanceof Transition) {
-          let redirect = error.detail;
-
-          let tMgr = new TransitionManager(redirect, $transitions, $urlRouter, $view, $state, $stateParams, $q, activeTransQ, changeHistory);
+          let tMgr = this._redirectMgr(error.detail);
           tMgr.registerHooks();
           return tMgr.runTransition();
         }
       }
     }
+
+    this.$transitions.defaultErrorHandler()(error);
 
     return $q.reject(error);
   }
@@ -112,23 +122,8 @@ export default class TransitionManager {
     $urlRouter.update(true);
   }
 
-  registerHooks() {
-    this.registerDefaultErrorHandler();
-    this.registerTransitionSuccess();
-
-    this.viewHooks.registerHooks();
-    this.enterExitHooks.registerHooks();
-    this.resolveHooks.registerHooks();
-  }
-
-  registerDefaultErrorHandler() {
-    this.transition.onError({}, this.$transitions.defaultErrorHandler());
-  }
-
-  registerTransitionSuccess() {
-    let self = this;
-    // Commit global state data as the last hook in the transition (using a very low priority onFinish hook)
-    function $commitGlobalData() { self.transitionSuccess(); }
-    this.transition.onFinish({}, $commitGlobalData, {priority: -10000});
+  private _redirectMgr(redirect: Transition): TransitionManager {
+    let {$transitions, $urlRouter, $view, $state, $stateParams, $q, activeTransQ, changeHistory} = this;
+    return new TransitionManager(redirect, $transitions, $urlRouter, $view, $state, $stateParams, $q, activeTransQ, changeHistory);
   }
 }
