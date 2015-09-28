@@ -6,7 +6,8 @@ describe('isState filter', function() {
   beforeEach(module(function($stateProvider) {
     $stateProvider
       .state('a', { url: '/' })
-      .state('a.b', { url: '/b' });
+      .state('a.b', { url: '/b' })
+      .state('with-param', { url: '/with/:param' });
   }));
 
   it('should return true if the current state exactly matches the input state', inject(function($parse, $state, $q, $rootScope) {
@@ -19,6 +20,18 @@ describe('isState filter', function() {
     $state.go('a.b');
     $q.flush();
     expect($parse('"a" | isState')($rootScope)).toBe(false);
+  }));
+  
+  it('should return true if the current state and param matches the input state', inject(function($parse, $state, $q, $rootScope) {
+    $state.go('with-param', {param: 'a'});
+    $q.flush();
+    expect($parse('"with-param" | isState: {param: "a"}')($rootScope)).toBe(true);
+  }));
+
+  it('should return false if the current state and param does not match the input state', inject(function($parse, $state, $q, $rootScope) {
+    $state.go('with-param', {param: 'b'});
+    $q.flush();
+    expect($parse('"with-param" | isState: {param: "a"}')($rootScope)).toBe(false);
   }));
 });
 

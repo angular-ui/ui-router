@@ -12,8 +12,8 @@
  */
 $IsStateFilter.$inject = ['$state'];
 export function $IsStateFilter($state) {
-  return function(state) {
-    return $state.is(state);
+  return function(state, params, options) {
+    return $state.is(state, params, options);
   };
 }
 
