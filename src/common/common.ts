@@ -307,6 +307,19 @@ export function assertPredicate<T>(fn: Predicate<T>, errMsg: string = "assert fa
 export const pairs = (object) => Object.keys(object).map(key => [ key, object[key]] );
 
 /**
+ * Given two parallel arrays, returns an array of tuples, where each tuple is composed of [ left[i], right[i] ]
+ * Optionally, a map function can be provided.  It will be applied to each left and right element before adding it to the tuple.
+ *
+ * let foo = [ 0, 2, 4, 6 ];
+ * let bar = [ 1, 3, 5, 7 ];
+ * paired(foo, bar);              // [ [0, 1], [2, 3], [4, 5], [6, 7] ]
+ * paired(foo, bar, x => x * 2);  // [ [0, 2], [4, 6], [8, 10], [12, 14] ]
+ *
+ */
+export const paired = (left: any[], right: any[], mapFn: Function = identity) =>
+    left.map((lval, idx) => [ mapFn(lval), mapFn(right[idx]) ]);
+
+/**
  * Sets a key/val pair on an object, then returns the object.
  *
  * Use as a reduce function for an array of key/val pairs
