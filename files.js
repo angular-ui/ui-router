@@ -11,24 +11,6 @@ routerFiles = {
     'test/compat/matchers.js'
   ],
 
-  // Tests to load
-  test: [
-    'test/commonSpec.js',
-    'test/globSpec.js',
-    'test/resolveSpec.js',
-    'test/stateDirectivesSpec.js',
-    'test/stateEventsSpec.js',
-    'test/stateFiltersSpec.js',
-    'test/stateSpec.js',
-    'test/templateFactorySpec.js',
-    'test/transitionSpec.js',
-    'test/urlMatcherFactorySpec.js',
-    'test/urlRouterSpec.js',
-    'test/viewDirectiveSpec.js',
-    'test/viewScrollSpec.js',
-    'test/compat/matchers.js'
-  ],
-
   // Returns necessary files for a specific version of angular
   angular: function(version) {
     return [

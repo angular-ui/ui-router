@@ -40,7 +40,7 @@ module.exports = function (karma) {
       // Set up systemjs paths
       configFile: 'config/system.config.js',
       // These files are served by Karma, but loaded using SystemJS
-      files: ['src/**/*.ts'].concat(files.testUtils, files.test),
+      files: ['src/**/*.ts'].concat(files.testUtils),
       // karma-systemjs kludge: This is turned into a regexp and used to load specs into Karma
       testFileSuffix: "/test/\\S+.[tj]s"
     },
