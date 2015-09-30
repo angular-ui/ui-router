@@ -11,7 +11,7 @@ import {IParamsPath, IResolvePath} from "../src/path/interface"
 import Path from "../src/path/path"
 import PathFactory from "../src/path/pathFactory"
 
-import {omit, map, pick, prop} from "../src/common/common"
+import {omit, map, pick, prop, extend, forEach} from "../src/common/common"
 
 let module = angular.mock.module;
 ///////////////////////////////////////////////
@@ -610,4 +610,40 @@ describe("State transitions with resolves", function() {
     expectCounts._J++;
     expect(counts).toEqualData(expectCounts);
   }));
+});
+
+
+
+// Integration tests
+describe("Integration: Resolvables system", () => {
+  beforeEach(module(function ($stateProvider) {
+    let copy = {};
+    forEach(statesMap, (stateDef, name) => {
+      copy[name] = extend({}, stateDef);
+    });
+
+    angular.forEach(copy, stateDef => {
+      if (stateDef.name) $stateProvider.state(stateDef);
+    });
+  }));
+
+  let $state, $rootScope, $transitions, $trace;
+  beforeEach(inject((_$state_, _$rootScope_, _$transitions_, _$trace_) => {
+    $state = _$state_;
+    $rootScope = _$rootScope_;
+    $transitions = _$transitions_;
+    $trace = _$trace_;
+  }));
+
+
+  it("should not re-resolve data, when redirecting to a child", () => {
+    $transitions.onStart({to: "J"}, ($transition$, _J) => {
+      expect(counts._J).toEqualData(1);
+      return $transition$.redirect($state.targetState("K"));
+    });
+    $state.go("J");
+    $rootScope.$digest();
+    expect($state.current.name).toBe("K");
+    expect(counts._J).toEqualData(1);
+  });
 });

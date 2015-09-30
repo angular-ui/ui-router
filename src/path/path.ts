@@ -53,6 +53,19 @@ export default class Path<NODE extends INode> {
   }
 
   /**
+   * Returns a new Path which is a subpath of this Path.  The new Path starts from root and contains any nodes
+   * that match the nodes in the otherPath. Nodes are compared using their state properties.
+   * @param otherPath {Path<NODE>}
+   * @returns {Path<NODE>}
+   */
+  matching(otherPath: Path<NODE>): Path<NODE> {
+    let otherNodes = otherPath._nodes;
+    let matchedCount = this._nodes.reduce((prev, node, i) =>
+        prev === i && i < otherNodes.length && node.state === otherNodes[i].state ? i + 1 : prev, 0);
+    return this.slice(matchedCount);
+  }
+
+  /**
    * Returns a new Path which is a copy of this Path, but with nodes in reverse order.
    * Each node in the reversed path is a shallow copy of the original Path's node.
    */
