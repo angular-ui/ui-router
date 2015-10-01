@@ -1,7 +1,6 @@
 describe("UrlRouter", function () {
 
-  var $urp, $lp, $ur, location, match, scope;
-
+  var $urp, $lp, $s, $ur, location, match, scope;
   describe("provider", function () {
 
     beforeEach(function() {
@@ -56,6 +55,8 @@ describe("UrlRouter", function () {
           return path.replace('baz', 'b4z');
         }).when('/foo/:param', function($match) {
           match = ['/foo/:param', $match];
+        }).when('/foo/bar', function($match) {
+          match = ['/foo/bar', $match];
         }).when('/bar', function($match) {
           match = ['/bar', $match];
         });
@@ -67,7 +68,21 @@ describe("UrlRouter", function () {
         scope = $rootScope.$new();
         location = $location;
         $ur = $injector.invoke($urp.$get);
+        $s = $injector.get('$sniffer');
+        $s.history = true;
       });
+    });
+
+    it("should handle more specified url first", function() {
+      location.path("/foo/bar");
+      scope.$emit("$locationChangeSuccess");
+      expect(match[0]).toBe("/foo/bar");
+      expect(match[1]).toEqual({});
+
+      location.path("/foo/baz");
+      scope.$emit("$locationChangeSuccess");
+      expect(match[0]).toBe("/foo/:param");
+      expect(match[1]).toEqual({param: 'baz'});
     });
 
     it("should execute rewrite rules", function () {
@@ -235,6 +250,13 @@ describe("UrlRouter", function () {
         $lp.html5Mode(true);
         expect($lp.html5Mode()).toBe(true);
         expect($urlRouter.href(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('/hello/world#frag');
+      }));
+
+      it('should return URLs with #fragments when html5Mode is true & browser does not support pushState', inject(function($urlRouter) {
+        $lp.html5Mode(true);
+        $s.history = false;
+        expect($lp.html5Mode()).toBe(true);
+        expect($urlRouter.href(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('#/hello/world#frag');
       }));
     });
   });

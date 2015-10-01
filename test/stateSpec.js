@@ -32,6 +32,7 @@ describe('state', function () {
       RSP = { url: '^/:doReload/search?term', reloadOnSearch: false },
       OPT = { url: '/opt/:param', params: { param: "100" } },
       OPT2 = { url: '/opt2/:param2/:param3', params: { param3: "300", param4: "400" } },
+      ISS2101 = { params: { bar: { squash: false, value: 'qux'}}, url: '/2101/{bar:string}' };
       AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -55,6 +56,7 @@ describe('state', function () {
       .state('HHH', HHH)
       .state('OPT', OPT)
       .state('OPT.OPT2', OPT2)
+      .state('ISS2101', ISS2101)
       .state('RS', RS)
       .state('RSP', RSP)
 
@@ -174,9 +176,9 @@ describe('state', function () {
     return jasmine.getEnv().currentSpec.$injector.get(what);
   }
 
-  function initStateTo(state, optionalParams) {
+  function initStateTo(state, optionalParams, optionalOptions) {
     var $state = $get('$state'), $q = $get('$q');
-    $state.transitionTo(state, optionalParams || {});
+    $state.transitionTo(state, optionalParams || {}, optionalOptions || {});
     $q.flush();
     expect($state.current).toBe(state);
   }
@@ -209,7 +211,7 @@ describe('state', function () {
       initStateTo(RS);
       $location.search({term: 'hello'});
       var called;
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, options) {
         called = true
       });
       $q.flush();
@@ -221,7 +223,7 @@ describe('state', function () {
       initStateTo(RS);
       $location.search({term: 'hello'});
       var called;
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, options) {
         called = true
       });
       $q.flush();
@@ -233,7 +235,7 @@ describe('state', function () {
       initStateTo(RS);
       var called;
       $state.go(".", { term: 'goodbye' });
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, options) {
         called = true
       });
       $q.flush();
@@ -246,7 +248,7 @@ describe('state', function () {
       initStateTo(RSP, { doReload: 'foo' });
       expect($state.params.doReload).toEqual('foo');
       var called;
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, options) {
         called = true
       });
       $state.transitionTo(RSP, { doReload: 'bar' });
@@ -262,19 +264,20 @@ describe('state', function () {
     }));
 
     it('triggers $stateChangeStart', inject(function ($state, $q, $rootScope) {
-      initStateTo(E, { i: 'iii' });
+      initStateTo(E, { i: 'iii' }, { anOption: true });
       var called;
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, options) {
         expect(from).toBe(E);
         expect(fromParams).toEqual({ i: 'iii' });
         expect(to).toBe(D);
         expect(toParams).toEqual({ x: '1', y: '2' });
+        expect(options.anOption).toBe(false);
 
         expect($state.current).toBe(from); // $state not updated yet
         expect($state.params).toEqual(fromParams);
         called = true;
       });
-      $state.transitionTo(D, { x: '1', y: '2' });
+      $state.transitionTo(D, { x: '1', y: '2' }, { anOption: false });
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(D);
@@ -540,7 +543,7 @@ describe('state', function () {
       $state.transitionTo('dynamicController', { type: "Acme" });
       $q.flush();
       expect(ctrlName).toEqual("AcmeFooController");
-    }));+
+    }));
 
     it('uses the templateProvider to get template dynamically', inject(function ($state, $q) {
       $state.transitionTo('dynamicTemplate', { type: "Acme" });
@@ -931,6 +934,10 @@ describe('state', function () {
       expect($state.href("home")).toEqual("#!/");
     }));
 
+    it('generates urls with unsquashable default params', inject(function($state) {
+      expect($state.href("ISS2101")).toEqual("#/2101/qux");
+    }));
+
     describe('when $browser.baseHref() exists', function() {
       beforeEach(inject(function($browser) {
         spyOn($browser, 'baseHref').andCallFake(function() {
@@ -977,6 +984,7 @@ describe('state', function () {
         'H',
         'HH',
         'HHH',
+        'ISS2101',
         'OPT',
         'OPT.OPT2',
         'RS',
@@ -1482,4 +1490,19 @@ describe('state queue', function(){
       expect(list.map(function(state) { return state.name; })).toEqual(expectedStates);
     });
   });
+});
+
+describe('$stateParams', function () {
+  beforeEach(module('ui.router.state'));
+
+  it('should start empty', inject(function ($stateParams) {
+    expect($stateParams.foo).toBeUndefined();
+  }));
+  it('should allow setting values on it', inject(function ($stateParams) {
+    $stateParams.foo = 'bar';
+    expect($stateParams.foo).toBeDefined();
+  }));
+  it('should be cleared between tests', inject(function ($stateParams) {
+    expect($stateParams.foo).toBeUndefined();
+  }));
 });
