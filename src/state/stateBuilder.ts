@@ -1,5 +1,5 @@
 /** @module state */ /** for typedoc */
-import {map, noop, extend, pick, omit, values, applyPairs, forEach} from "../common/common";
+import {map, noop, extend, inherit, pick, omit, values, applyPairs, forEach} from "../common/common";
 import {isDefined, isFunction, isString} from "../common/predicates";
 import {prop} from "../common/hof";
 import {StateDeclaration} from "./interface";
@@ -60,7 +60,7 @@ export class StateBuilder {
 
       data: [function (state: State) {
         if (state.parent && state.parent.data) {
-          state.data = state.self.data = extend({}, state.parent.data, state.data);
+          state.data = state.self.data = inherit(state.parent.data, state.data);
         }
         return state.data;
       }],

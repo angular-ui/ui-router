@@ -125,10 +125,10 @@ describe('state helpers', function() {
 
       it('should inherit parent data', function() {
         var state = angular.extend(states['home.withData.child'], { self: {} });
-        expect(builder.builder('data')(state)).toEqual({ val1: "foo", val2: "baz" });
+        expect(builder.builder('data')(state)).toEqualData({ val1: "foo", val2: "baz" });
 
-        var state = angular.extend(states['home.withData'], { self: {} });
-        expect(builder.builder('data')(state)).toEqual({ val1: "foo", val2: "bar" });
+        state = angular.extend(states['home.withData'], { self: {} });
+        expect(builder.builder('data')(state)).toEqualData({ val1: "foo", val2: "bar" });
       });
 
       it('should compile a UrlMatcher for ^ URLs', function() {
@@ -1478,6 +1478,7 @@ describe('state', function () {
       expect($state.current.name).toEqual('HHH');
       expect($state.current.data.propA).toEqual(HHH.data.propA);
       expect($state.current.data.propB).toEqual(H.data.propB);
+      expect($state.current.data.hasOwnProperty('propB')).toBe(false);
       expect($state.current.data.propB).toEqual(HH.data.propB);
       expect($state.current.data.propC).toEqual(HHH.data.propC);
     }));
