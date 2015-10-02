@@ -108,29 +108,6 @@ export default class HookBuilder {
     return path.nodes().map(hooksForNode);
   }
 
-  /**
-   * Given an array of TransitionHooks, runs each one synchronously and sequentially.
-   *
-   * Returns a promise chain composed of any promises returned from each hook.invokeStep() call
-   */
-  runSynchronousHooks(hooks: TransitionHook[], locals = {}, swallowExceptions: boolean = false): IPromise<any> {
-    let promises = [];
-    for (let i = 0; i < hooks.length; i++) {
-      try {
-        let hookResult = hooks[i].invokeStep(locals);
-        // If a hook returns a promise, that promise is added to an array to be resolved asynchronously.
-        if (hookResult && isPromise(hookResult))
-          promises.push(hookResult);
-      } catch (ex) {
-        if (!swallowExceptions) throw ex;
-        console.log("Swallowed exception during synchronous hook handler: " + ex); // TODO: What to do here?
-      }
-    }
-
-    let resolvedPromise = runtime.$q.when(undefined);
-    return promises.reduce((memo, val) => memo.then(() => val), resolvedPromise);
-  }
-
   /** Given a node and a callback function, builds a TransitionHook */
   buildHook(node: ITransNode, fn: IInjectable, moreLocals?, options: ITransitionHookOptions = {}): TransitionHook {
     let locals = extend({}, this.transitionLocals, moreLocals);
