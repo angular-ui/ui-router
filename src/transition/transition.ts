@@ -7,6 +7,7 @@ import {ITransitionOptions, ITransitionHookOptions, ITreeChanges, IHookRegistry,
 import $transitions from "./transitionService";
 import {HookRegistry, matchState} from "./hookRegistry";
 import HookBuilder from "./hookBuilder";
+import TransitionRunner from "./transitionRunner";
 import {RejectFactory} from "./rejectFactory";
 
 import {ITransPath} from "../path/interface";
@@ -19,7 +20,7 @@ import ParamValues from "../params/paramValues";
 
 import {ViewConfig} from "../view/view";
 
-import {extend, flatten, unnest, forEach, identity, omit, isObject, not, prop, toJson, val, abstractKey} from "../common/common";
+import {extend, unnest, omit, isObject, not, prop, toJson, val, abstractKey} from "../common/common";
 
 let transitionCount = 0, REJECT = new RejectFactory();
 const stateSelf: (_state: IState) => IStateDeclaration = prop("self");
@@ -296,39 +297,6 @@ export class Transition implements IHookRegistry {
       return this.promise;
     }
 
-    // -----------------------------------------------------------------------
-    // Transition Steps
-    // -----------------------------------------------------------------------
-
-    let hookBuilder = this.hookBuilder();
-
-    let onBeforeHooks       = hookBuilder.getOnBeforeHooks();
-    // ---- Synchronous hooks ----
-    // Run the "onBefore" hooks and save their promises
-    let chain = hookBuilder.runSynchronousHooks(onBeforeHooks);
-
-    // Build the async hooks *after* running onBefore hooks.
-    // The synchronous onBefore hooks may register additional async hooks on-the-fly.
-    let onStartHooks    = hookBuilder.getOnStartHooks();
-    let onExitHooks     = hookBuilder.getOnExitHooks();
-    let onRetainHooks   = hookBuilder.getOnRetainHooks();
-    let onEnterHooks    = hookBuilder.getOnEnterHooks();
-    let onFinishHooks   = hookBuilder.getOnFinishHooks();
-    let onSuccessHooks  = hookBuilder.getOnSuccessHooks();
-    let onErrorHooks    = hookBuilder.getOnErrorHooks();
-
-    // Set up a promise chain. Add the steps' promises in appropriate order to the promise chain.
-    let asyncSteps = flatten([onStartHooks, onExitHooks, onRetainHooks, onEnterHooks, onFinishHooks]).filter(identity);
-
-    // ---- Asynchronous section ----
-    // The results of the sync hooks is a promise chain (rejected or otherwise) that begins the async portion of the transition.
-    // Build the rest of the chain off the sync promise chain out of all the asynchronous steps
-    forEach(asyncSteps, function (step) {
-      // Don't pass prev as locals to invokeStep()
-      chain = chain.then((prev) => step.invokeStep());
-    });
-
-
     // When the chain is complete, then resolve or reject the deferred
     const resolve = () => {
       this._deferred.resolve(this);
@@ -341,12 +309,7 @@ export class Transition implements IHookRegistry {
       return runtime.$q.reject(error);
     };
 
-    chain = chain.then(resolve, reject);
-
-    // When the promise has settled (i.e., the transition is complete), then invoke the registered success or error hooks
-    const runSuccessHooks = () => hookBuilder.runSynchronousHooks(onSuccessHooks, {}, true);
-    const runErrorHooks = ($error$) => hookBuilder.runSynchronousHooks(onErrorHooks, { $error$ }, true);
-    this.promise.then(runSuccessHooks).catch(runErrorHooks);
+    new TransitionRunner(this, resolve, reject).run();
 
     return this.promise;
   }
