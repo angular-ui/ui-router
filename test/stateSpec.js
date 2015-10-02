@@ -1338,6 +1338,7 @@ describe('state', function () {
       expect($state.current.name).toEqual('HHH');
       expect($state.current.data.propA).toEqual(HHH.data.propA);
       expect($state.current.data.propB).toEqual(H.data.propB);
+      expect($state.current.data.hasOwnProperty('propB')).toBe(false);
       expect($state.current.data.propB).toEqual(HH.data.propB);
       expect($state.current.data.propC).toEqual(HHH.data.propC);
     }));
