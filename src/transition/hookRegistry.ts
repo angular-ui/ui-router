@@ -1,4 +1,4 @@
-import {IInjectable, extend, val, isString, isFunction} from "../common/common";
+import {IInjectable, extend, val, isString, isFunction, removeFrom} from "../common/common";
 
 import {IState} from "../state/interface";
 import Glob from "../state/glob";
@@ -53,15 +53,13 @@ export class EventHook implements IEventHook {
 interface ITransitionEvents { [key: string]: IEventHook[]; }
 
 // Return a registration function of the requested type.
-function makeHookRegistrationFn(transitionEvents: ITransitionEvents, eventType: string): IHookRegistration {
+function makeHookRegistrationFn(hooks: ITransitionEvents, name: string): IHookRegistration {
   return function (matchObject, callback, options = {}) {
     let eventHook = new EventHook(matchObject, callback, options);
-    let hooks = transitionEvents[eventType];
-    hooks.push(eventHook);
+    hooks[name].push(eventHook);
 
     return function deregisterEventHook() {
-      let idx = hooks.indexOf(eventHook);
-      if (idx !== -1) hooks.splice(idx, 1);
+      removeFrom(hooks[name])(eventHook);
     };
   };
 }
