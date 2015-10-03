@@ -391,6 +391,10 @@ export function padString(length: number, str: string) {
   return str;
 }
 
+export function tail(array: any[]) {
+  return array.length && array[array.length - 1] || undefined;
+}
+
 
 /**
  * @ngdoc overview

@@ -106,9 +106,11 @@ describe("UrlRouter", function () {
       var custom = {
         url: {
           exec:       function() {},
+          isRoot:     function() {},
           format:     function() {},
-          concat:     function() {},
+          append:     function() {},
           validates:  function() {},
+          parameter:  function() {},
           parameters: function() {}
         },
         handler: function() {}

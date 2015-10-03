@@ -2,6 +2,12 @@ import {noop, extend, pick, isArray, isDefined, isFunction, isString, forEach} f
 import ParamSet from "../params/paramSet";
 import Param from "../params/param";
 
+const parseUrl = (url: string): any => {
+  if (!isString(url)) return false;
+  var root = url.charAt(0) === '^';
+  return { val: root ? url.substring(1) : url, root };
+};
+
 // Builds state properties from definition passed to StateQueueManager.register()
 export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 
@@ -20,15 +26,12 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
 
     // Build a URLMatcher if necessary, either via a relative or absolute URL
     url: function(state) {
-      let url = state.url, config = { params: state.params || {} };
-      let parent = state.parent;
+      const parsed = parseUrl(state.url), parent = state.parent, config = { params: state.params || {} };
+      const url = parsed ? $urlMatcherFactoryProvider.compile(parsed.val, config) : state.url;
 
-      if (isString(url)) {
-        if (url.charAt(0) === '^') return $urlMatcherFactoryProvider.compile(url.substring(1), config);
-        return ((parent && parent.navigable) || root()).url.concat(url, config);
-      }
-      if (!url || $urlMatcherFactoryProvider.isMatcher(url)) return url;
-      throw new Error(`Invalid url '${url}' in state '${state}'`);
+      if (!url) return;
+      if (!$urlMatcherFactoryProvider.isMatcher(url)) throw new Error(`Invalid url '${url}' in state '${state}'`);
+      return (parsed && parsed.root) ? url : ((parent && parent.navigable) || root()).url.append(url);
     },
 
     // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
@@ -40,10 +43,11 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
     ownParams: function(state) {
       let params = state.url && state.url.params.$$own() || new ParamSet();
       forEach(state.params || {}, function(config, id) {
-        if (!params[id]) params[id] = new Param(id, null, config, "config");
+        if (!params[id]) params[id] = Param.fromConfig(id, null, config);
       });
       if (state.reloadOnSearch === false) {
-        forEach(params, function(param) { if (param && param.location === 'search') param.dynamic = true; });
+        // @TODO: Fix me
+        forEach(params, function(param) { if (param && param.isSearch()) param.dynamic = true; });
       }
       return params;
     },
