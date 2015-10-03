@@ -1,6 +1,7 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {isFunction, isString, isDefined, isArray, isObject, extend} from "../common/common";
 import {IServiceProviderFactory} from "angular";
+import UrlMatcher from "./urlMatcher";
 
 /**
  * @ngdoc object
@@ -104,12 +105,8 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
    * @return {object} `$urlRouterProvider` - `$urlRouterProvider` instance
    */
   this.otherwise = function (rule) {
-    if (isString(rule)) {
-      var redirect = rule;
-      rule = function () { return redirect; };
-    }
-    else if (!isFunction(rule)) throw new Error("'rule' must be a function");
-    otherwise = rule;
+    if (!isFunction(rule) && !isString(rule)) throw new Error("'rule' must be a string or function");
+    otherwise = isString(rule) ? () => rule : rule;
     return this;
   };
 
@@ -172,7 +169,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
       matcher: function (what, handler) {
         if (handlerIsString) {
           redirect = $urlMatcherFactory.compile(handler);
-          handler = ['$match', function ($match) { return redirect.format($match); }];
+          handler = ['$match', redirect.format.bind(redirect)];
         }
         return extend(function ($injector, $location) {
           return handleIfMatch($injector, handler, what.exec($location.path(), $location.search(), $location.hash()));
@@ -185,7 +182,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
 
         if (handlerIsString) {
           redirect = handler;
-          handler = ['$match', function ($match) { return interpolate(redirect, $match); }];
+          handler = ['$match', ($match) => interpolate(redirect, $match)];
         }
         return extend(function ($injector, $location) {
           return handleIfMatch($injector, handler, what.exec($location.path()));
@@ -340,15 +337,15 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
        * });
        * </pre>
        */
-      sync: function() {
+      sync() {
         update();
       },
 
-      listen: function() {
+      listen() {
         return listen();
       },
 
-      update: function(read) {
+      update(read) {
         if (read) {
           location = $location.url();
           return;
@@ -359,7 +356,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
         $location.replace();
       },
 
-      push: function(urlMatcher, params, options) {
+      push(urlMatcher, params, options) {
         $location.url(urlMatcher.format(params || {}));
         if (options && options.replace) $location.replace();
       },
@@ -389,7 +386,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
        *
        * @returns {string} Returns the fully compiled URL, or `null` if `params` fail validation against `urlMatcher`
        */
-      href: function(urlMatcher, params, options) {
+      href(urlMatcher: UrlMatcher, params: any, options: any): string {
         if (!urlMatcher.validates(params)) return null;
 
         var isHtml5 = $locationProvider.html5Mode();

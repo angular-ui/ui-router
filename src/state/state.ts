@@ -33,69 +33,70 @@ import TransitionManager from "./hooks/transitionManager";
  *
  * @returns {Object}  Returns a new `State` object.
  */
-export function State(config?: IStateDeclaration) {
-  extend(this, config);
+export class State {
+
+  public self: IStateDeclaration;
+  public parent: State;
+  public name: string;
+
+  constructor(config?: IStateDeclaration) {
+    extend(this, config);
+  }
+
+  /**
+   * @ngdoc function
+   * @name ui.router.state.type:State#is
+   * @methodOf ui.router.state.type:State
+   *
+   * @description
+   * Compares the identity of the state against the passed value, which is either an object
+   * reference to the actual `State` instance, the original definition object passed to
+   * `$stateProvider.state()`, or the fully-qualified name.
+   *
+   * @param {Object} ref Can be one of (a) a `State` instance, (b) an object that was passed
+   *        into `$stateProvider.state()`, (c) the fully-qualified name of a state as a string.
+   * @returns {boolean} Returns `true` if `ref` matches the current `State` instance.
+   */
+  is(ref: State|IStateDeclaration|string): boolean {
+    return this === ref || this.self === ref || this.fqn() === ref;
+  }
+
+  /**
+   * @ngdoc function
+   * @name ui.router.state.type:State#fqn
+   * @methodOf ui.router.state.type:State
+   *
+   * @description
+   * Returns the fully-qualified name of the state, based on its current position in the tree.
+   *
+   * @returns {string} Returns a dot-separated name of the state.
+   */
+  fqn(): string {
+    if (!this.parent || !(this.parent instanceof this.constructor)) {
+      return this.name;
+    }
+    let name = this.parent.fqn();
+    return name ? name + "." + this.name : this.name;
+  }
+
+  /**
+   * @ngdoc function
+   * @name ui.router.state.type:State#root
+   * @methodOf ui.router.state.type:State
+   *
+   * @description
+   * Returns the root node of this state's tree.
+   *
+   * @returns {State} The root of this state's tree.
+   */
+  root(): State {
+    return this.parent && this.parent.root() || this;
+  }
+
+  toString() {
+    return this.fqn();
+  }
 }
-
-/**
- * @ngdoc function
- * @name ui.router.state.type:State#is
- * @methodOf ui.router.state.type:State
- *
- * @description
- * Compares the identity of the state against the passed value, which is either an object
- * reference to the actual `State` instance, the original definition object passed to
- * `$stateProvider.state()`, or the fully-qualified name.
- *
- * @param {Object} ref Can be one of (a) a `State` instance, (b) an object that was passed
- *        into `$stateProvider.state()`, (c) the fully-qualified name of a state as a string.
- * @returns {boolean} Returns `true` if `ref` matches the current `State` instance.
- */
-State.prototype.is = function(ref) {
-  return this === ref || this.self === ref || this.fqn() === ref;
-};
-
-/**
- * @ngdoc function
- * @name ui.router.state.type:State#fqn
- * @methodOf ui.router.state.type:State
- *
- * @description
- * Returns the fully-qualified name of the state, based on its current position in the tree.
- *
- * @returns {string} Returns a dot-separated name of the state.
- */
-State.prototype.fqn = function() {
-  if (!this.parent || !(this.parent instanceof this.constructor)) {
-    return this.name;
-  }
-  let name = this.parent.fqn();
-  return name ? name + "." + this.name : this.name;
-};
-
-/**
- * @ngdoc function
- * @name ui.router.state.type:State#root
- * @methodOf ui.router.state.type:State
- *
- * @description
- * Returns the root node of this state's tree.
- *
- * @returns {State} The root of this state's tree.
- */
-State.prototype.root = function() {
-  let result = this;
-
-  while (result.parent) {
-    result = result.parent;
-  }
-  return result;
-};
-
-State.prototype.toString = function() {
-  return this.fqn();
-};
-
 
 /**
  * @ngdoc object

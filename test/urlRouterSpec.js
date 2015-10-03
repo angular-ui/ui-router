@@ -25,7 +25,7 @@ describe("UrlRouter", function () {
 
     it("should throw on non-function rules", function () {
       expect(function() { $urp.rule(null); }).toThrowError("'rule' must be a function");
-      expect(function() { $urp.otherwise(null); }).toThrowError("'rule' must be a function");
+      expect(function() { $urp.otherwise(null); }).toThrowError("'rule' must be a string or function");
     });
 
     it("should allow location changes to be deferred", inject(function ($urlRouter, $location, $rootScope) {
