@@ -38,7 +38,8 @@ export default class Param {
     }
 
     function getType(config, urlType, location) {
-      if (config.type && urlType) throw new Error(`Param '${id}' has two type configurations.`);
+      if (config.type && urlType && urlType.name !== 'string') throw new Error(`Param '${id}' has two type configurations.`);
+      if (config.type && urlType && urlType.name === 'string' && paramTypes.type(config.type)) return paramTypes.type(config.type);
       if (urlType) return urlType;
       if (!config.type) return (location === "config" ? paramTypes.type("any") : paramTypes.type("string"));
       return config.type instanceof Type ? config.type : paramTypes.type(config.type);
