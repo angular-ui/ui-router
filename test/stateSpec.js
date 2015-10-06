@@ -32,6 +32,7 @@ describe('state', function () {
       RSP = { url: '^/:doReload/search?term', reloadOnSearch: false },
       OPT = { url: '/opt/:param', params: { param: "100" } },
       OPT2 = { url: '/opt2/:param2/:param3', params: { param3: "300", param4: "400" } },
+      URLLESS = { url: '/urllessparams', params: { myparam: { type: 'int' } } },
       ISS2101 = { params: { bar: { squash: false, value: 'qux'}}, url: '/2101/{bar:string}' };
       AppInjectable = {};
 
@@ -56,6 +57,7 @@ describe('state', function () {
       .state('HHH', HHH)
       .state('OPT', OPT)
       .state('OPT.OPT2', OPT2)
+      .state('URLLESS', URLLESS)
       .state('ISS2101', ISS2101)
       .state('RS', RS)
       .state('RSP', RSP)
@@ -989,6 +991,7 @@ describe('state', function () {
         'OPT.OPT2',
         'RS',
         'RSP',
+        'URLLESS',
         'about',
         'about.person',
         'about.person.item',
@@ -1254,6 +1257,34 @@ describe('state', function () {
 
         extend(params, { p5: true });
         check('types.substate', "/types/foo/2014-11-15/sub/10/%7B%22baz%22:%22qux%22%7D?p5=1", params, defaults, nonurl);
+      }));
+
+      it('should support non-url parameters', inject(function($state, $q, $stateParams) {
+        $state.transitionTo(A); $q.flush();
+        expect($state.is(A)).toBe(true);
+
+        $state.go('URLLESS', { myparam: "0"}); $q.flush(); // string "0" decodes to 0
+        expect($state.current.name).toBe("URLLESS");
+        expect($stateParams.myparam).toBe(0);
+
+        $state.go('URLLESS', { myparam: "1"}); $q.flush(); // string "1" decodes to 1
+        expect($stateParams.myparam).toBe(1);
+      }));
+
+      it('should not transition if a required non-url parameter is missing', inject(function($state, $q, $stateParams) {
+        $state.transitionTo(A); $q.flush();
+        expect($state.current.name).toBe("A");
+
+        $state.go('URLLESS');  $q.flush(); // Missing required parameter; transition fails
+        expect($state.current.name).toBe("A");
+      }));
+
+      it('should not transition if a required non-url parameter is invalid', inject(function($state, $q, $stateParams) {
+        $state.transitionTo(A); $q.flush();
+        expect($state.current.name).toBe("A");
+
+        $state.go('URLLESS', { myparam: "somestring"}); $q.flush(); // string "somestring" is not an int
+        expect($state.current.name).toBe("A");
       }));
     });
 
