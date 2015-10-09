@@ -520,6 +520,27 @@ describe("urlMatcherFactory", function () {
       expect(m.format({ foo: 5, flag: true })).toBe("/5/1");
     });
 
+    it("should match types named only in params", function () {
+      var m = new UrlMatcher("/{foo}/{flag}", {
+        params: {
+          foo: { type: 'int'},
+          flag: { type: 'bool'}
+        }
+      });
+      expect(m.exec("/1138/1")).toEqual({foo: 1138, flag: true});
+      expect(m.format({foo: 5, flag: true})).toBe("/5/1");
+    });
+
+    it("should throw an error if a param type is declared twice", function () {
+      expect(function() {
+        new UrlMatcher("/{foo:int}", {
+          params: {
+            foo: {type: 'int'}
+          }
+        });
+      }).toThrow("Param 'foo' has two type configurations.");
+    });
+
     it("should encode/decode dates", function () {
       var m = new UrlMatcher("/calendar/{date:date}"),
           result = m.exec("/calendar/2014-03-26");
