@@ -224,13 +224,14 @@ myApp.config(function($stateProvider) {
 
 ## Resources
 
+* [Code of Conduct](https://github.com/angular-ui/ui-router/CODE_OF_CONDUCT.md)
 * [In-Depth Guide](https://github.com/angular-ui/ui-router/wiki)
 * [API Reference](http://angular-ui.github.io/ui-router/site)
 * [Sample App](http://angular-ui.github.com/ui-router/sample/) ([Source](https://github.com/angular-ui/ui-router/tree/gh-pages/sample))
 * [FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions)
 * [Slides comparing ngRoute to ui-router](http://slid.es/timkindberg/ui-router#/)
 * [UI-Router Extras / Addons](http://christopherthielen.github.io/ui-router-extras/#/home) (@christopherthielen)
- 
+
 ### Videos
 
 * [Introduction Video](https://egghead.io/lessons/angularjs-introduction-ui-router) (egghead.io)
