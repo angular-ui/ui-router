@@ -1,7 +1,9 @@
-import {map, prop, propEq, defaults, extend, inherit, isDefined, isObject, isArray, isString, invoke, unnest, tail, forEach, find, curry} from "../common/common";
-import paramTypes from "../params/paramTypes"
-import ParamSet from "../params/paramSet"
-import Param from "../params/param"
+import {
+  map, prop, propEq, defaults, extend, inherit, identity, isDefined, isObject, isArray, isString,
+  invoke, unnest, tail, forEach, find, curry, omit
+} from "../common/common";
+import paramTypes from "../params/paramTypes";
+import Param from "../params/param";
 
 interface params {
   $$validates: (params: string) => Array<string>;
@@ -81,10 +83,10 @@ export default class UrlMatcher {
   static nameValidator: RegExp = /^\w+(-+\w+)*(?:\[\])?$/;
 
   private _cache: { path: UrlMatcher[], pattern?: RegExp } = { path: [], pattern: null };
-  private _children: UrlMatcher[]  = [];
-  private _params:   Array<Param>  = [];
-  private _segments: Array<string> = [];
-  private _compiled: Array<string> = [];
+  private _children: UrlMatcher[] = [];
+  private _params:   Param[]      = [];
+  private _segments: string[]     = [];
+  private _compiled: string[]     = [];
 
   public prefix: string;
 
@@ -92,7 +94,8 @@ export default class UrlMatcher {
     this.config = defaults(this.config, {
       params: {},
       strict: false,
-      caseInsensitive: false
+      caseInsensitive: false,
+      paramMap: identity
     });
 
     // Find all placeholders and create a compiled pattern, using either classic or curly syntax:
@@ -141,7 +144,7 @@ export default class UrlMatcher {
       if (p.segment.indexOf('?') >= 0) break; // we're into the search part
 
       checkParamErrors(p.id);
-      this._params.push(Param.fromPath(p.id, p.type, p.cfg));
+      this._params.push(Param.fromPath(p.id, p.type, this.config.paramMap(p.cfg, false)));
       this._segments.push(p.segment);
       patterns.push([p.segment, tail(this._params)]);
       last = placeholder.lastIndex;
@@ -161,7 +164,7 @@ export default class UrlMatcher {
         while ((m = searchPlaceholder.exec(search))) {
           p = matchDetails(m, true);
           checkParamErrors(p.id);
-          this._params.push(Param.fromSearch(p.id, p.type, p.cfg));
+          this._params.push(Param.fromSearch(p.id, p.type, this.config.paramMap(p.cfg, true)));
           last = placeholder.lastIndex;
           // check if ?&
         }
@@ -247,7 +250,7 @@ export default class UrlMatcher {
     const hash: string = search['#'] ? search['#'] : undefined;
     delete search['#'];
 
-    var allParams:    Param[] = this.parameters().map(name => this.parameter(name)),
+    var allParams:    Param[] = this.parameters(),
         pathParams:   Param[] = allParams.filter(param => !param.isSearch()),
         searchParams: Param[] = allParams.filter(param => param.isSearch()),
         nPath = this._segments.length - 1,
@@ -292,16 +295,22 @@ export default class UrlMatcher {
    * @description
    * Returns the names of all path and search parameters of this pattern in order of appearance.
    *
-   * @returns {Array.<string>}  An array of parameter names. Must be treated as read-only. If the
+   * @returns {Array.<Param>}  An array of parameter names. Must be treated as read-only. If the
    *    pattern has no parameters, an empty array is returned.
    */
-  parameters(): Array<string> {
-    return unnest(this._cache.path.concat(this).map(prop('_params'))).map(prop('id'))
+  parameters(opts: any = {}): Param[] {
+    if (opts.inherit === false) return this._params;
+    return unnest(this._cache.path.concat(this).map(prop('_params')));
   }
 
-  parameter(id: string): Param {
-    var parent = tail(this._cache.path);
-    return find(this._params, propEq('id', id)) || (parent && parent.parameter(id)) || null;
+  parameter(id: string, opts: any = {}): Param {
+    const parent = tail(this._cache.path);
+
+    return (
+      find(this._params, propEq('id', id)) ||
+      (opts.inherit !== false && parent && parent.parameter(id)) ||
+      null
+    );
   }
 
   /**
@@ -346,7 +355,11 @@ export default class UrlMatcher {
    * @returns {string}  the formatted URL (path and optionally search part).
    */
   format(values = {}) {
-    var i, search = false, result = this._segments[0];
+    var segments: string[] = this._segments,
+        result: string = segments[0],
+        search: boolean = false,
+        params: Param[] = this.parameters(),
+        parent: UrlMatcher = tail(this._cache.path);
 
     if (!this.validates(values)) return null;
 
@@ -354,9 +367,10 @@ export default class UrlMatcher {
       return encodeURIComponent(str).replace(/-/g, c => `%5C%${c.charCodeAt(0).toString(16).toUpperCase()}`);
     }
 
-    this.parameters().map((name, i) => {
-      var isPathParam = i < this._segments.length - 1;
-      var param: Param = this.parameter(name), value = param.value(values[name]);
+    // TODO: rewrite as reduce over params with result as initial
+    params.map((param: Param, i) => {
+      var isPathParam = i < segments.length - 1;
+      var value = param.value(values[param.id]);
       var isDefaultValue = param.isDefaultValue(value);
       var squash = isDefaultValue ? param.squash : false;
       var encoded = param.type.encode(value);
@@ -365,8 +379,8 @@ export default class UrlMatcher {
         if (encoded == null || (isDefaultValue && squash !== false)) return;
         if (!isArray(encoded)) encoded = [<string> encoded];
 
-        encoded = map(<string[]> encoded, encodeURIComponent).join(`&${name}=`);
-        result += (search ? '&' : '?') + (`${name}=${encoded}`);
+        encoded = map(<string[]> encoded, encodeURIComponent).join(`&${param.id}=`);
+        result += (search ? '&' : '?') + (`${param.id}=${encoded}`);
         search = true;
         return;
       }
@@ -379,11 +393,11 @@ export default class UrlMatcher {
         if (isArray(encoded)) return map(<string[]> encoded, encodeDashes).join("-") + segment;
         if (param.type.raw) return encoded + segment;
         return encodeURIComponent(<string> encoded) + segment;
-      })(this._segments[i + 1], result);
+      })(segments[i + 1], result);
     });
 
     if (values["#"]) result += "#" + values["#"];
 
-    return result;
+    return (parent && parent.format(omit(values, params.map(prop('id')))) || '') + result;
   }
 }

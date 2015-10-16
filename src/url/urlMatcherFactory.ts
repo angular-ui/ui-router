@@ -6,7 +6,6 @@ import {forEach, extend, inherit, map, filter, isObject, isDefined, isArray, isS
 import matcherConfig from "./urlMatcherConfig";
 import UrlMatcher from "./urlMatcher";
 import Param from "../params/param";
-import ParamSet from "../params/paramSet";
 import paramTypes from "../params/paramTypes";
 import Type from "../params/type";
 
@@ -81,7 +80,7 @@ function $UrlMatcherFactory() {
    * @param {Object} config  The config object hash.
    * @returns {UrlMatcher}  The UrlMatcher.
    */
-  this.compile = (pattern, config) => new UrlMatcher(pattern, extend(getDefaultConfig(), config));
+  this.compile = (pattern: string, config: { [key: string]: any }) => new UrlMatcher(pattern, extend(getDefaultConfig(), config));
 
   /**
    * @ngdoc function
@@ -224,7 +223,7 @@ function $UrlMatcherFactory() {
     return this;
   };
 
-  extend(this, { UrlMatcher, Param, ParamSet });
+  extend(this, { UrlMatcher, Param });
 }
 
 // Register as a provider so it's available to other providers

@@ -3,16 +3,17 @@ import {IPromise} from "angular";
 import UrlMatcher from "../url/urlMatcher";
 
 import {IRawParams, IParamsOrArray} from "../params/interface";
-import ParamSet from "../params/paramSet";
+import Param from "../params/param";
 
 import {IContextRef} from "../view/interface";
 
 import TargetState from "./targetState";
+import {State} from "./state";
 
 import {ITransitionOptions} from "../transition/interface";
 import {Transition} from "../transition/transition";
 
-export type IStateOrName = (string|IStateDeclaration|IState);
+export type IStateOrName = (string|IStateDeclaration|State);
 
 /** Context obj, State-view definition, transition params */
 export interface IStateViewConfig {
@@ -34,7 +35,7 @@ export interface IViewDeclaration {
 }
 
 /** hash of strings->views */
-interface IViewDeclarations     { [key: string]: IViewDeclaration; }
+export interface IViewDeclarations     { [key: string]: IViewDeclaration; }
 /** hash of strings->resolve fns */
 export interface IResolveDeclarations  { [key: string]: Function; }
 /** hash of strings->param declarations */
@@ -63,28 +64,9 @@ export interface IStateDeclaration extends IViewDeclaration {
   // TODO: finish defining state definition API.  Maybe start with what's on Definitely Typed.
 }
 
-/** internal state API */
-export interface IState {
-  name: string;
-  abstract: boolean;
-  parent: IState;
-  resolve: IResolveDeclarations; // name->Function
-  resolvePolicy: (string|Object);
-  url: UrlMatcher;
-  params: ParamSet;
-  ownParams: ParamSet;
-  views: IViewDeclarations;
-  self: IStateDeclaration;
-  root: () => IState;
-  navigable: IState;
-  path: IState[];
-  data: any;
-  includes: (name: string) => boolean;
-}
-
 export interface IStateParams {
   $digest: () => void;
-  $inherit: (newParams, $current: IState, $to: IState) => IStateParams;
+  $inherit: (newParams, $current: State, $to: State) => IStateParams;
   $set: (params, url) => boolean;
   $sync: () => IStateParams;
   $off: () => IStateParams;
@@ -110,12 +92,12 @@ export interface IStateProvider {
 export interface IStateService {
   params:       any; // TODO: StateParams
   current:      IStateDeclaration;
-  $current:     IState;
+  $current:     State;
   transition:   Transition;
-  reload        (stateOrName: IStateOrName): IPromise<IState>;
+  reload        (stateOrName: IStateOrName): IPromise<State>;
   targetState   (identifier: IStateOrName, params: IParamsOrArray, options: ITransitionOptions): TargetState;
-  go            (to: IStateOrName, params: IRawParams, options: ITransitionOptions): IPromise<IState>;
-  transitionTo  (to: IStateOrName, toParams: IParamsOrArray, options: ITransitionOptions): IPromise<IState>;
+  go            (to: IStateOrName, params: IRawParams, options: ITransitionOptions): IPromise<State>;
+  transitionTo  (to: IStateOrName, toParams: IParamsOrArray, options: ITransitionOptions): IPromise<State>;
   is            (stateOrName: IStateOrName, params?: IRawParams, options?: ITransitionOptions): boolean;
   includes      (stateOrName: IStateOrName, params?: IRawParams, options?: ITransitionOptions): boolean;
   href          (stateOrName: IStateOrName, params?: IRawParams, options?: IHrefOptions): string;

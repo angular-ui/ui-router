@@ -1,6 +1,6 @@
 import {IInjectable, extend, val, isString, isFunction, removeFrom} from "../common/common";
 
-import {IState} from "../state/interface";
+import {State} from "../state/state";
 import Glob from "../state/glob";
 
 import {IMatchCriteria, IStateMatch, IEventHook, IHookRegistry, IHookRegistration} from "./interface";
@@ -15,7 +15,7 @@ import {IMatchCriteria, IStateMatch, IEventHook, IHookRegistry, IHookRegistratio
  * - If a function, matchState calls the function with the state and returns true if the function's result is truthy.
  * @returns {boolean}
  */
-export function matchState(state: IState, matchCriteria: (string|IStateMatch)) {
+export function matchState(state: State, matchCriteria: (string|IStateMatch)) {
   let toMatch = isString(matchCriteria) ? [matchCriteria] : matchCriteria;
 
   function matchGlobs(_state) {
@@ -45,7 +45,7 @@ export class EventHook implements IEventHook {
     this.priority = options.priority || 0;
   }
 
-  matches(to: IState, from: IState) {
+  matches(to: State, from: State) {
     return <boolean> matchState(to, this.matchCriteria.to) && matchState(from, this.matchCriteria.from);
   }
 }

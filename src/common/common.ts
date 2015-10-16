@@ -391,8 +391,9 @@ export function padString(length: number, str: string) {
   return str;
 }
 
-export function tail(array: any[]) {
-  return array.length && array[array.length - 1] || undefined;
+export function tail<T>(collection: T[]): T;
+export function tail(collection: any[]): any {
+  return collection.length && collection[collection.length - 1] || undefined;
 }
 
 

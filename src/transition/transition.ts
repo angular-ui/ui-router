@@ -10,20 +10,24 @@ import HookBuilder from "./hookBuilder";
 import TransitionRunner from "./transitionRunner";
 import {RejectFactory} from "./rejectFactory";
 
-import {ITransPath} from "../path/interface";
+import Node from "../path/node";
 import PathFactory from "../path/pathFactory";
 
+import {State} from "../state/state";
 import TargetState from "../state/targetState";
-import {IState, IStateDeclaration} from "../state/interface";
+import {IStateDeclaration} from "../state/interface";
 
-import ParamValues from "../params/paramValues";
+import Param from "../params/param";
 
 import {ViewConfig} from "../view/view";
 
-import {extend, unnest, omit, isObject, not, prop, toJson, val, abstractKey} from "../common/common";
+import {
+  map, find, extend, flatten, unnest, tail, forEach, identity,
+  omit, isObject, not, prop, propEq, toJson, val, abstractKey
+} from "../common/common";
 
 let transitionCount = 0, REJECT = new RejectFactory();
-const stateSelf: (_state: IState) => IStateDeclaration = prop("self");
+const stateSelf: (_state: State) => IStateDeclaration = prop("self");
 
 /**
  * @ngdoc object
@@ -59,7 +63,7 @@ export class Transition implements IHookRegistry {
   onError:    IHookRegistration;
   getHooks:   IHookGetter;
 
-  constructor(fromPath: ITransPath, targetState: TargetState) {
+  constructor(fromPath: Node[], targetState: TargetState) {
     if (!targetState.valid()) {
       throw new Error(targetState.error());
     }
@@ -75,11 +79,11 @@ export class Transition implements IHookRegistry {
   }
 
   $from() {
-    return  this._treeChanges.from.last().state;
+    return  tail(this._treeChanges.from).state;
   }
 
   $to() {
-    return this._treeChanges.to.last().state;
+    return tail(this._treeChanges.to).state;
   }
 
   /**
@@ -140,8 +144,8 @@ export class Transition implements IHookRegistry {
    * @returns {StateParams} the StateParams object for the transition.
    */
   // TODO
-  params(pathname: string = "to"): ParamValues {
-    return this._treeChanges[pathname].last().paramValues;
+  params(pathname: string = "to"): { [key: string]: any } {
+    return tail(this._treeChanges[pathname]).values;
   }
 
   /**
@@ -181,7 +185,7 @@ export class Transition implements IHookRegistry {
    * @returns {Array} Returns an array of states that will be entered in this transition.
    */
   entering(): IStateDeclaration[] {
-    return this._treeChanges.entering.states().map(stateSelf);
+    return map(this._treeChanges.entering, prop('state')).map(stateSelf);
   }
 
   /**
@@ -195,7 +199,7 @@ export class Transition implements IHookRegistry {
    * @returns {Array} Returns an array of states that will be exited in this transition.
    */
   exiting(): IStateDeclaration[] {
-    return this._treeChanges.exiting.states().map(stateSelf).reverse();
+    return map(this._treeChanges.exiting, prop('state')).map(stateSelf).reverse();
   }
 
   /**
@@ -210,16 +214,16 @@ export class Transition implements IHookRegistry {
    *           will not be exited.
    */
   retained(): IStateDeclaration[] {
-    return this._treeChanges.retained.states().map(stateSelf);
+    return map(this._treeChanges.retained, prop('state')).map(stateSelf);
   }
 
   /**
    * Returns a list of ViewConfig objects for a given path. Returns one ViewConfig for each view in
    * each state in a named path of the transition's tree changes. Optionally limited to a given state in that path.
    */
-  views(pathname: string = "entering", state?: IState): ViewConfig[] {
+  views(pathname: string = "entering", state?: State): ViewConfig[] {
     let path = this._treeChanges[pathname];
-    return state ? path.nodeForState(state).views : unnest(path.nodes().map(prop("views")));
+    return state ? find(path, propEq('state', state)).views : unnest(path.map(prop("views")));
   }
 
   treeChanges = () => this._treeChanges;
@@ -246,8 +250,8 @@ export class Transition implements IHookRegistry {
     // add those resolvables to the redirected transition.  Allows you to define a resolve at a parent level, wait for
     // the resolve, then redirect to a child state based on the result, and not have to re-fetch the resolve.
     let redirectedPath = this.treeChanges().to;
-    let matching = redirectTo.treeChanges().to.matching(redirectedPath);
-    matching.nodes().forEach((node, idx) => node.ownResolvables = redirectedPath.nodes()[idx].ownResolvables);
+    let matching = Node.matching(redirectTo.treeChanges().to, redirectedPath);
+    matching.forEach((node, idx) => node.resolves = redirectedPath[idx].resolves);
 
     return redirectTo;
   }
@@ -265,20 +269,21 @@ export class Transition implements IHookRegistry {
    */
   ignored() {
     let {to, from} = this._treeChanges;
-    let [toState, fromState]  = [to, from].map((path) => path.last().state);
-    let [toParams, fromParams]  = [to, from].map((path) => path.last().paramValues);
-    return !this._options.reload &&
-        toState === fromState &&
-        toState.params.$$filter(not(prop('dynamic'))).$$equals(toParams, fromParams);
+    let [toState, fromState]  = [to, from].map(path => tail(path).state);
+    let [toParams, fromParams]  = [to, from].map(path => tail(path).values);
+
+    return (
+      !this._options.reload &&
+      toState === fromState &&
+      Param.equals(toState.parameters().filter(not(prop('dynamic'))), toParams, fromParams)
+    );
   }
 
   hookBuilder(): HookBuilder {
-    let baseHookOptions: ITransitionHookOptions = {
+    return new HookBuilder($transitions, this, <ITransitionHookOptions> {
       transition: this,
       current: this._options.current
-    };
-
-    return new HookBuilder($transitions, this, baseHookOptions);
+    });
   }
 
   run () {
@@ -321,10 +326,11 @@ export class Transition implements IHookRegistry {
   }
 
   error() {
-    let state = this._treeChanges.to.last().state;
+    let state = this.$to();
+
     if (state.self[abstractKey])
       return `Cannot transition to abstract state '${state.name}'`;
-    if (!state.params.$$validates(this.params()))
+    if (!Param.validates(state.parameters(), this.params()))
       return `Param values not valid for state '${state.name}'`;
   }
 
@@ -338,7 +344,7 @@ export class Transition implements IHookRegistry {
     // (X) means the to state is invalid.
     let id = this.$id,
         from = isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
-        fromParams = toJson(avoidEmptyHash(this._treeChanges.from.last().paramValues)),
+        fromParams = toJson(avoidEmptyHash(tail(this._treeChanges.from).values)),
         toValid = this.valid() ? "" : "(X) ",
         to = isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
         toParams = toJson(avoidEmptyHash(this.params()));

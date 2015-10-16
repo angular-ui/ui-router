@@ -5,19 +5,18 @@
 var module = angular.mock.module;
 
 import {inherit, extend, curry} from "../src/common/common";
-import Path from "../src/path/path";
+import Node from "../src/path/node";
 import ResolveContext from "../src/resolve/resolveContext";
 import PathFactory from "../src/path/pathFactory";
 import {ViewConfig} from "../src/view/view";
 import StateBuilder from "../src/state/stateBuilder";
 import StateMatcher from "../src/state/stateMatcher";
 
-import {IState} from "../src/state/interface";
 import {State} from "../src/state/state";
 
 describe('view', function() {
   var scope, $compile, $injector, elem, $controllerProvider, $urlMatcherFactoryProvider;
-  let root: IState, states: {[key: string]: IState};
+  let root: State, states: {[key: string]: State};
 
   beforeEach(module('ui.router', function(_$provide_, _$controllerProvider_, _$urlMatcherFactoryProvider_) {
     _$provide_.factory('foo', function() {
@@ -33,7 +32,7 @@ describe('view', function() {
       self: config,
       resolve: config.resolve || {}
     }));
-    let built: IState  = stateBuilder.build(state);
+    let built: State  = stateBuilder.build(state);
     return _states[built.name] = built;
   });
 
@@ -54,8 +53,7 @@ describe('view', function() {
     let ctx, state;
     beforeEach(() => {
       state = register({ name: "foo" });
-      var nodes = [root, state].map(_state => ({ state: _state, ownParamValues: {}}));
-      var path = PathFactory.bindTransNodesToPath(<any> new Path(nodes).adapt(PathFactory.makeResolveNode));
+      var path = PathFactory.bindTransNodesToPath([root, state].map(_state => new Node(_state, {})));
       ctx = new ResolveContext(path);
     });
 

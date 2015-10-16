@@ -6,7 +6,7 @@ import {Transition} from "./transition";
 
 import TargetState from "../state/targetState";
 
-import {ITransPath} from "../path/interface";
+import Node from "../path/node";
 
 import {IHookRegistry, ITransitionService, ITransitionOptions, IHookRegistration, IHookGetter} from "./interface";
 
@@ -58,7 +58,7 @@ class TransitionService implements ITransitionService, IHookRegistry {
     HookRegistry.mixin(new HookRegistry(), this);
   }
 
-  create(fromPath: ITransPath, targetState: TargetState) {
+  create(fromPath: Node[], targetState: TargetState) {
     return new Transition(fromPath, targetState);
   }
 }

@@ -1,4 +1,4 @@
-import {extend} from "../../common/common";
+import {extend, find, propEq, tail} from "../../common/common";
 
 import {ResolvePolicy} from "../../resolve/interface";
 
@@ -23,13 +23,13 @@ export default class ResolveHooks {
     /** a function which resolves any EAGER Resolvables for a Path */
     $eagerResolvePath.$inject = ['$transition$'];
     function $eagerResolvePath($transition$) {
-      return treeChanges.to.last().resolveContext.resolvePath(extend({transition: $transition$}, { resolvePolicy: EAGER }));
+      return tail(<any[]> treeChanges.to).resolveContext.resolvePath(extend({ transition: $transition$ }, { resolvePolicy: EAGER }));
     }
 
     /** Returns a function which pre-resolves any LAZY Resolvables for a Node in a Path */
     $lazyResolveEnteringState.$inject = ['$state$', '$transition$'];
     function $lazyResolveEnteringState($state$, $transition$) {
-      let node = treeChanges.entering.nodeForState($state$);
+      let node = find(<any[]> treeChanges.entering, propEq('state', $state$));
       return node.resolveContext.resolvePathElement(node.state, extend({transition: $transition$}, { resolvePolicy: LAZY }));
     }
 

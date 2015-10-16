@@ -4,12 +4,10 @@ import trace from "../common/trace";
 import {runtime} from "../common/angular1"
 import {IPromise} from "angular";
 
-import {IState} from "../state/interface";
+import {State} from "../state/state";
 
 import {IResolvables, IOptions1} from "./interface"
 import ResolveContext from "./resolveContext"
-
-import {IResolvePath} from "../path/interface"
 
 /**
  * The basic building block for the resolve system.
@@ -20,11 +18,11 @@ import {IResolvePath} from "../path/interface"
  * Resolvable.get() either retrieves the Resolvable's existing promise, or else invokes resolve() (which invokes the
  * resolveFn) and returns the resulting promise.
  *
- * Resolvable.get() and Resolvable.resolve() both execute within a context Path, which is passed as the first
+ * Resolvable.get() and Resolvable.resolve() both execute within a context path, which is passed as the first
  * parameter to those fns.
  */
 export default class Resolvable {
-  constructor(name: string, resolveFn: Function, state: IState) {
+  constructor(name: string, resolveFn: Function, state: State) {
     this.name = name;
     this.resolveFn = resolveFn;
     this.state = state;
@@ -33,7 +31,7 @@ export default class Resolvable {
 
   name: string;
   resolveFn: Function;
-  state: IState;
+  state: State;
   deps: string[];
 
   promise: IPromise<any> = undefined;

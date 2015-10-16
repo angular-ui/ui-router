@@ -6,17 +6,16 @@ import * as uiRouter from "../src/ui-router";
 import ResolveContext from "../src/resolve/resolveContext"
 import Resolvable from "../src/resolve/resolvable"
 
-import {IState} from "../src/state/interface"
-import {IParamsPath, IResolvePath} from "../src/path/interface"
-import Path from "../src/path/path"
-import PathFactory from "../src/path/pathFactory"
+import {State} from "../src/state/state";
+import Node from "../src/path/node";
+import PathFactory from "../src/path/pathFactory";
 
 import {omit, map, pick, prop, extend, forEach} from "../src/common/common"
 
 let module = angular.mock.module;
 ///////////////////////////////////////////////
 
-var states, statesTree, statesMap: {[key:string]: IState} = {};
+var states, statesTree, statesMap: { [key:string]: State } = {};
 var emptyPath;
 var vals, counts, expectCounts;
 var asyncCount;
@@ -72,16 +71,15 @@ beforeEach(function () {
     angular.forEach(substates, function (value, key) {
       thisState.data.children.push(loadStates(thisState, value, key));
     });
+    thisState = new State(thisState);
     statesMap[name] = thisState;
     return thisState;
   }
-//    console.log(map(makePath([ "A", "B", "C" ]), function(s) { return s.name; }));
 });
 
-function makePath(names: string[]): IResolvePath {
-  let nodes = map(names, name => ({ state: statesMap[name], ownParamValues: <any> {} }));
-  let pPath = new Path(nodes).adapt(PathFactory.makeResolveNode);
-  return PathFactory.bindTransNodesToPath(pPath);
+function makePath(names: string[]): Node[] {
+  let nodes = <Node[]> map(names, name => new Node(statesMap[name], {}));
+  return PathFactory.bindTransNodesToPath(nodes);
 }
 
 function getResolvedData(pathContext: ResolveContext) {
@@ -92,7 +90,7 @@ function getResolvedData(pathContext: ResolveContext) {
 describe('Resolvables system:', function () {
   beforeEach(inject(function ($transitions, $injector) {
     uiRouter.common.angular1.runtime.setRuntimeInjector($injector);
-    emptyPath = new Path([]);
+    emptyPath = [];
     asyncCount = 0;
   }));
 
@@ -493,9 +491,9 @@ describe('Resolvables system:', function () {
       expect(asyncCount).toBe(1);
 
       let slicedPath = path.slice(0, 2);
-      expect(slicedPath.nodes().length).toBe(2);
-      expect(slicedPath.nodes()[0].state).toBe(path.nodes()[0].state);
-      expect(slicedPath.nodes()[1].state).toBe(path.nodes()[1].state);
+      expect(slicedPath.length).toBe(2);
+      expect(slicedPath[0].state).toBe(path[0].state);
+      expect(slicedPath[1].state).toBe(path[1].state);
       let path2 = path.concat(makePath([ "L", "M" ]));
       let ctx2 = new ResolveContext(path2);
       ctx2.resolvePath({resolvePolicy: "JIT"}).then(function () {
@@ -546,7 +544,7 @@ describe("State transitions with resolves", function() {
     $timeout = _$timeout_;
     $scope = $rootScope.$new();
     uiRouter.common.angular1.runtime.setRuntimeInjector($injector);
-    emptyPath = new Path([]);
+    emptyPath = [];
     asyncCount = 0;
     $compile(angular.element("<div ui-view></div>"))($scope);
   }));

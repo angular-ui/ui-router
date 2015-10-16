@@ -1,4 +1,5 @@
-import {isInjectable, extend, isDefined, isString, isArray, filter, map, pick, prop, propEq, curry} from "../common/common";
+import {isInjectable, extend, isDefined, isString, isArray, filter, map, pick, prop, propEq, curry, applyPairs} from "../common/common";
+import {IRawParams} from "../params/interface";
 import {runtime} from "../common/angular1";
 import matcherConfig from "../url/urlMatcherConfig";
 import paramTypes from "./paramTypes";
@@ -142,5 +143,21 @@ export default class Param {
 
   static fromSearch(id: string, type: Type, config: any): Param {
     return new Param(id, type, config, DefType.SEARCH);
+  }
+
+  static values(params: Param[], values): IRawParams {
+    values = values || {};
+    return <IRawParams> params.map(param => [param.id, param.value(values[param.id])]).reduce(applyPairs, {});
+  }
+
+  static equals(params: Param[], values1, values2): boolean {
+    values1 = values1 || {};
+    values2 = values2 || {};
+    return params.map(param => param.type.equals(values1[param.id], values2[param.id])).indexOf(false) === -1;
+  }
+
+  static validates(params: Param[], values): boolean {
+    values = values || {};
+    return params.map(param => param.validates(values[param.id])).indexOf(false) === -1;
   }
 }

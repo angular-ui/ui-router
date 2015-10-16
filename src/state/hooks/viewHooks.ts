@@ -1,5 +1,5 @@
 import {IPromise} from "angular";
-import {noop} from "../../common/common";
+import {find, propEq, noop} from "../../common/common";
 import {annotateController, runtime} from "../../common/angular1";
 
 import {ITreeChanges} from "../../transition/interface";
@@ -25,7 +25,7 @@ export default class ViewHooks {
 
   loadAllEnteringViews() {
     const loadView = (vc: ViewConfig) => {
-      let resolveInjector = this.treeChanges.to.nodeForState(vc.context.name).resolveInjector;
+      let resolveInjector = find(this.treeChanges.to, propEq('state', vc.context)).resolveInjector;
       return <IPromise<ViewConfig>> this.$view.load(vc, resolveInjector);
     };
     return runtime.$q.all(this.enteringViews.map(loadView)).then(noop);
@@ -34,7 +34,7 @@ export default class ViewHooks {
   loadAllControllerLocals() {
     const loadLocals = (vc: ViewConfig) => {
       let deps = annotateController(vc.controller);
-      let resolveInjector = this.treeChanges.to.nodeForState(vc.context.name).resolveInjector;
+      let resolveInjector = find(this.treeChanges.to, propEq('state', vc.context)).resolveInjector;
       function $loadControllerLocals() { }
       $loadControllerLocals.$inject = deps;
       return runtime.$q.all(resolveInjector.getLocals($loadControllerLocals)).then((locals) => vc.locals = locals);

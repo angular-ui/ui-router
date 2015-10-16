@@ -1,8 +1,14 @@
-import {extend, defaults, copy, equalForKeys, forEach, ancestors, isDefined, isObject, isString} from "../common/common";
+import {
+  extend, defaults, copy, equalForKeys, forEach, find, prop,
+  propEq, ancestors, noop, isDefined, isObject, isString
+} from "../common/common";
 import Queue from "../common/queue";
 import {IServiceProviderFactory, IPromise} from "angular";
 
-import {IStateService, IState, IStateDeclaration, IStateOrName, IHrefOptions} from "./interface";
+import {
+  IStateService, IStateDeclaration, IStateOrName, IHrefOptions,
+  IViewDeclarations, IResolveDeclarations
+} from "./interface";
 import Glob from "./glob";
 import StateQueueManager from "./stateQueueManager";
 import StateBuilder from "./stateBuilder";
@@ -14,12 +20,18 @@ import {Transition} from "../transition/transition";
 import {RejectFactory} from "../transition/rejectFactory";
 import {defaultTransOpts} from "../transition/transitionService";
 
-import {IParamsPath, ITransPath} from "../path/interface";
-import Path from "../path/path";
+import Node from "../path/node";
 import PathFactory from "../path/pathFactory";
 
 import {IRawParams, IParamsOrArray} from "../params/interface";
 import TransitionManager from "./hooks/transitionManager";
+
+import paramTypes from "../params/paramTypes";
+import Param from "../params/param";
+import Type from "../params/type";
+
+import UrlMatcher from "../url/urlMatcher";
+import {ViewConfig} from "../view/view";
 
 /**
  * @ngdoc object
@@ -35,12 +47,24 @@ import TransitionManager from "./hooks/transitionManager";
  */
 export class State {
 
-  public self: IStateDeclaration;
   public parent: State;
   public name: string;
+  public abstract: boolean;
+  public resolve: IResolveDeclarations;
+  public resolvePolicy: any;
+  public url: UrlMatcher;
+  public views: IViewDeclarations;
+  public self: IStateDeclaration;
+  public navigable: State;
+  public path: State[];
+  public data: any;
+  public includes: (name: string) => boolean;
+
+  private _params: Param[] = [];
 
   constructor(config?: IStateDeclaration) {
     extend(this, config);
+    // Object.freeze(this);
   }
 
   /**
@@ -72,9 +96,7 @@ export class State {
    * @returns {string} Returns a dot-separated name of the state.
    */
   fqn(): string {
-    if (!this.parent || !(this.parent instanceof this.constructor)) {
-      return this.name;
-    }
+    if (!this.parent || !(this.parent instanceof this.constructor)) return this.name;
     let name = this.parent.fqn();
     return name ? name + "." + this.name : this.name;
   }
@@ -91,6 +113,22 @@ export class State {
    */
   root(): State {
     return this.parent && this.parent.root() || this;
+  }
+
+  parameters(opts: any = {}): Param[] {
+    opts = defaults(opts, { inherit: true });
+
+    return (this.parent && opts.inherit && this.parent.parameters() || [])
+      .concat(this.url && this.url.parameters({ inherit: false }) || [])
+      .concat(this._params);
+  }
+
+  parameter(id: string, opts: any = {}): Param {
+    return (
+      this.url && this.url.parameter(id, opts) ||
+      find(this._params, propEq('id', id)) ||
+      opts.inherit && this.parent && this.parent.parameter(id)
+    );
   }
 
   toString() {
@@ -122,7 +160,7 @@ export class State {
 $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
-  let root: IState, states: {[key: string]: IState} = {};
+  let root: State, states: { [key: string]: State } = {};
   let $state: IStateService = <any> function $state() {};
 
   let matcher       = new StateMatcher(states);
@@ -439,25 +477,26 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * If a callback returns an ITargetState, then it is used as arguments to $state.transitionTo() and
      * the result returned.
      */
-    function handleInvalidTargetState(fromPath: IParamsPath, $to$: TargetState) {
+    function handleInvalidTargetState(fromPath: Node[], $to$: TargetState) {
       const latestThing = () => transQueue.peekTail() || treeChangesQueue.peekTail();
       let latest = latestThing();
       let $from$ = PathFactory.makeTargetState(fromPath);
       let callbackQueue = new Queue<Function>([].concat(invalidCallbacks));
 
-      const invokeCallback = (callback: Function) =>
-          $q.when($injector.invoke(callback, null, { $to$, $from$ }));
+      const invokeCallback = (callback: Function) => $q.when($injector.invoke(callback, null, { $to$, $from$ }));
 
       function checkForRedirect(result) {
-        if (result instanceof TargetState) {
-          let target = <TargetState> result;
-          // Recreate the TargetState, in case the state is now defined.
-          target = $state.targetState(target.identifier(), target.params(), target.options());
-          if (!target.valid()) return rejectFactory.invalid(target.error());
-          if (latestThing() !== latest) return rejectFactory.superseded();
-
-          return $state.transitionTo(target.identifier(), target.params(), target.options());
+        if (!(result instanceof TargetState)) {
+          return;
         }
+        let target = <TargetState> result;
+        // Recreate the TargetState, in case the state is now defined.
+        target = $state.targetState(target.identifier(), target.params(), target.options());
+
+        if (!target.valid()) return rejectFactory.invalid(target.error());
+        if (latestThing() !== latest) return rejectFactory.superseded();
+
+        return $state.transitionTo(target.identifier(), target.params(), target.options());
       }
 
       function invokeNextCallback() {
@@ -476,14 +515,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       url: '^',
       views: null,
       params: {
-        '#': { value: null, type: 'hash'} // Param to hold the "hash" at the end of the URL
+        '#': { value: null, type: 'hash' }
       },
+      // params: [Param.fromPath('#', <Type> paramTypes.types.hash, { value: null })],
+      path: [],
       'abstract': true
     };
     root = stateQueue.register(rootStateDef, true);
 
     root.navigable = null;
-    const rootPath = () => PathFactory.bindTransNodesToPath(new Path([PathFactory.makeResolveNode(PathFactory.makeParamsNode({}, root))]));
+    const rootPath = () => PathFactory.bindTransNodesToPath([new Node(root, {})]);
 
     $view.rootContext(root);
 
@@ -542,10 +583,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
-    $state.reload = function reload(reloadState: IStateOrName): IPromise<IState> {
-      let reloadOpt = isDefined(reloadState) ? reloadState : true;
+    $state.reload = function reload(reloadState: IStateOrName): IPromise<State> {
       return $state.transitionTo($state.current, $stateParams, {
-        reload: reloadOpt,
+        reload: isDefined(reloadState) ? reloadState : true,
         inherit: false,
         notify: false
       });
@@ -617,7 +657,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * - *resolve error* - when an error has occurred with a `resolve`
      *
      */
-    $state.go = function go(to: IStateOrName, params: IRawParams, options: ITransitionOptions): IPromise<IState> {
+    $state.go = function go(to: IStateOrName, params: IRawParams, options: ITransitionOptions): IPromise<State> {
       let defautGoOpts = { relative: $state.$current, inherit: true };
       let transOpts = defaults(options, defautGoOpts, defaultTransOpts);
       return $state.transitionTo(to, params, transOpts);
@@ -667,8 +707,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
-    $state.transitionTo = function transitionTo(to: IStateOrName, toParams: IRawParams, options: ITransitionOptions = {}): IPromise<IState> {
-      toParams = toParams || {};
+    $state.transitionTo = function transitionTo(to: IStateOrName, toParams: IRawParams = {}, options: ITransitionOptions = {}): IPromise<State> {
       options = defaults(options, defaultTransOpts);
       options = extend(options, { current: transQueue.peekTail.bind(transQueue)});
 
@@ -681,7 +720,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
       let ref: TargetState = $state.targetState(to, toParams, options);
       let latestTreeChanges: ITreeChanges = treeChangesQueue.peekTail();
-      let currentPath: ITransPath = latestTreeChanges ? latestTreeChanges.to : rootPath();
+      let currentPath: Node[] = latestTreeChanges ? latestTreeChanges.to : rootPath();
 
       if (!ref.exists())
         return handleInvalidTargetState(currentPath, ref);
@@ -737,7 +776,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       let state = matcher.find(stateOrName, options.relative);
       if (!isDefined(state)) return undefined;
       if ($state.$current !== state) return false;
-      return isDefined(params) && params !== null ? state.params.$$equals($stateParams, params) : true;
+      return isDefined(params) && params !== null ? Param.equals(state.parameters(), $stateParams, params) : true;
     };
 
     /**
@@ -803,7 +842,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
       if (!isDefined(state)) return undefined;
       if (!isDefined(include[state.name])) return false;
-      return params ? equalForKeys(state.params.$$values(params), $stateParams, Object.keys(params)) : true;
+      // @TODO Replace with Param.equals() ?
+      return params ? equalForKeys(Param.values(state.parameters(), params), $stateParams, Object.keys(params)) : true;
     };
 
 
@@ -853,7 +893,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (!nav || nav.url === undefined || nav.url === null) {
         return null;
       }
-      return $urlRouter.href(nav.url, state.params.$$values(params), {
+      return $urlRouter.href(nav.url, Param.values(state.parameters(), params), {
         absolute: options.absolute
       });
     };
@@ -945,7 +985,7 @@ function $StateParamsProvider() {
 
       if (url) {
         forEach(params, function(val, key) {
-          if ((url.parameters(key) || {}).dynamic !== true) abort = true;
+          if ((url.parameter(key) || {}).dynamic !== true) abort = true;
         });
       }
       if (abort) return false;

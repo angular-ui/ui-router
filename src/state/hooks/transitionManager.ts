@@ -1,6 +1,7 @@
 import {IPromise, IQService} from "angular";
 import {copy, prop} from "../../common/common";
 import Queue from "../../common/queue";
+import Param from "../../params/param";
 
 import {ITreeChanges} from "../../transition/interface";
 import {Transition} from "../../transition/transition";
@@ -88,7 +89,7 @@ export default class TransitionManager {
     if (error instanceof TransitionRejection) {
       if (error.type === RejectType.IGNORED) {
         // Update $stateParmas/$state.params/$location.url if transition ignored, but dynamic params have changed.
-        if (!$state.$current.params.$$filter(prop('dynamic')).$$equals($stateParams, transition.params())) {
+        if (!Param.equals($state.$current.parameters().filter(prop('dynamic')), $stateParams, transition.params())) {
           this.updateStateParams();
         }
         return $state.current;

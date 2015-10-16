@@ -8,6 +8,7 @@ export default function StateQueueManager(states, builder, $urlRouterProvider, $
   let queueManager = extend(this, {
     register: function(config: IStateDeclaration, pre?: boolean) {
       // Wrap a new object around the state so we can store our private details easily.
+      // @TODO: state = new State(extend({}, config, { ... }))
       let state = inherit(new State(), extend({}, config, {
         self: config,
         resolve: config.resolve || {},
@@ -19,6 +20,7 @@ export default function StateQueueManager(states, builder, $urlRouterProvider, $
         throw new Error(`State '${state.name}' is already defined`);
 
       queue[pre ? "unshift" : "push"](state);
+
       if (queueManager.autoFlush) {
         queueManager.flush($state);
       }

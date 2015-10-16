@@ -3,7 +3,8 @@ import {IInjectable, defaults, extend, noop, filter, not, isFunction, isDefined,
 import trace from "../common/trace";
 import {RejectFactory} from "./rejectFactory";
 import {Transition} from "./transition";
-import {IState, IResolveDeclarations} from "../state/interface";
+import {State} from "../state/state";
+import {IResolveDeclarations} from "../state/interface";
 import Resolvable from "../resolve/resolvable";
 import ResolveContext from "../resolve/resolveContext";
 import {ITransitionHookOptions} from "./interface";
@@ -19,7 +20,7 @@ let defaultOptions = {
 };
 
 export default class TransitionHook {
-  constructor(private state: IState,
+  constructor(private state: State,
               private fn: IInjectable,
               private locals: any,
               private resolveContext: ResolveContext,
