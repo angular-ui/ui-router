@@ -111,6 +111,7 @@ function $Resolve(  $q,    $injector) {
       function fail(reason) {
         result.$$failure = reason;
         resolution.reject(reason);
+        throw reason;
       }
 
       // Short-circuit if parent has already failed
