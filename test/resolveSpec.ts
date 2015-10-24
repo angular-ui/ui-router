@@ -11,6 +11,7 @@ import Node from "../src/path/node";
 import PathFactory from "../src/path/pathFactory";
 
 import {omit, map, pick, prop, extend, forEach} from "../src/common/common"
+import {IStateDeclaration} from "../src/state/interface";
 
 let module = angular.mock.module;
 ///////////////////////////////////////////////
@@ -66,6 +67,7 @@ beforeEach(function () {
     thisState.template = thisState.template || "empty";
     thisState.name = name;
     thisState.parent = parent.name;
+    thisState.params = {};
     thisState.data = { children: [] };
 
     angular.forEach(substates, function (value, key) {
@@ -78,7 +80,7 @@ beforeEach(function () {
 });
 
 function makePath(names: string[]): Node[] {
-  let nodes = <Node[]> map(names, name => new Node(statesMap[name], {}));
+  let nodes = map(names, name => new Node(statesMap[name]));
   return PathFactory.bindTransNodesToPath(nodes);
 }
 
@@ -526,7 +528,7 @@ describe("State transitions with resolves", function() {
       }
     }
 
-    angular.forEach(stateDefs, function(state, key) {
+    angular.forEach(stateDefs, function(state: IStateDeclaration, key) {
       if (!key) return;
       state.template = "<div ui-view></div> state"+key;
       state.controllerProvider = controllerProvider(state);
