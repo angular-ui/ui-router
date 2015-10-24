@@ -1,5 +1,5 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {extend, pick, prop, propEq, pairs, map, find} from "../common/common";
+import {extend, pick, prop, propEq, pairs, map, find, allTrueR} from "../common/common";
 import {State} from "../state/state";
 import Param from "../params/param";
 import Type from "../params/type";
@@ -41,13 +41,12 @@ export default class Node {
   }
 
   parameter(name: string): Param {
-    return find(this.schema, prop('id'));
+    return find(this.schema, propEq("id", name));
   }
 
-  equals(node: Node, keys?: string[]): boolean {
-    return this.state === node.state && (keys || Object.keys(this.values)).map(key => {
-      return this.parameter(key).type.equals(this.values[key], node.values[key]);
-    }).reduce((previous, current) => previous && current, true);
+  equals(node: Node, keys = this.schema.map(prop('id'))): boolean {
+    const paramValsEq = key => this.parameter(key).type.equals(this.values[key], node.values[key]);
+    return this.state === node.state && keys.map(paramValsEq).reduce(allTrueR, true);
   }
 
   static clone(node: Node, update: any = {}) {

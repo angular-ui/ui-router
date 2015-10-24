@@ -28,7 +28,7 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
     url: function(state) {
       const parsed = parseUrl(state.url), parent = state.parent;
       const url = !parsed ? state.url : $urlMatcherFactoryProvider.compile(parsed.val, {
-        params: state.params,
+        params: state.params || {},
         paramMap: function(paramConfig, isSearch) {
           if (state.reloadOnSearch === false && isSearch) paramConfig = extend(paramConfig || {}, { dynamic: true });
           return paramConfig;

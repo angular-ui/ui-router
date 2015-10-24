@@ -287,6 +287,14 @@ export function map(collection: any, callback: any): any {
   return result;
 }
 
+/** Given an object, return its enumerable property values */
+export const values: (<T> (obj: TypedMap<T>) => T[]) = (obj) => Object.keys(obj).map(key => obj[key]);
+
+ /** Reduce function that returns true if all of the values are truthy. */
+export const allTrueR  = (memo: boolean, elem) => memo && elem;
+/** Reduce function that returns true if any of the values are truthy. */
+export const anyTrueR  = (memo: boolean, elem) => memo || elem;
+
 /** Push an object to an array, return the array */
 export const push      = (arr: any[], obj) => { arr.push(obj); return arr; };
 /** Reduce function which un-nests a single level of arrays */

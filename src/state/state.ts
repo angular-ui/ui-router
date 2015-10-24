@@ -1,6 +1,6 @@
 import {
   extend, defaults, copy, equalForKeys, forEach, find, prop,
-  propEq, ancestors, noop, isDefined, isObject, isString
+  propEq, ancestors, noop, isDefined, isObject, isString, values
 } from "../common/common";
 import Queue from "../common/queue";
 import {IServiceProviderFactory, IPromise} from "angular";
@@ -53,14 +53,13 @@ export class State {
   public resolve: IResolveDeclarations;
   public resolvePolicy: any;
   public url: UrlMatcher;
+  public params: { [key: string]: Param };
   public views: IViewDeclarations;
   public self: IStateDeclaration;
   public navigable: State;
   public path: State[];
   public data: any;
   public includes: (name: string) => boolean;
-
-  private _params: Param[] = [];
 
   constructor(config?: IStateDeclaration) {
     extend(this, config);
@@ -120,13 +119,13 @@ export class State {
 
     return (this.parent && opts.inherit && this.parent.parameters() || [])
       .concat(this.url && this.url.parameters({ inherit: false }) || [])
-      .concat(this._params);
+      .concat(values(this.params));
   }
 
   parameter(id: string, opts: any = {}): Param {
     return (
       this.url && this.url.parameter(id, opts) ||
-      find(this._params, propEq('id', id)) ||
+      find(values(this.params), propEq('id', id)) ||
       opts.inherit && this.parent && this.parent.parameter(id)
     );
   }
