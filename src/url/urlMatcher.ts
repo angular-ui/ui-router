@@ -231,10 +231,11 @@ export default class UrlMatcher {
    *
    * @param {string} path  The URL path to match, e.g. `$location.path()`.
    * @param {Object} search  URL search parameters, e.g. `$location.search()`.
+   * @param {string} hash  URL hash e.g. `$location.hash()`.
    * @param {Object} options
    * @returns {Object}  The captured parameter values.
    */
-  exec(path: string, search: any = {}, options: any = {}) {
+  exec(path: string, search: any = {}, hash?: string, options: any = {}) {
     var match = memoizeTo(this._cache, 'pattern', () => {
       return new RegExp([
         '^',
@@ -246,9 +247,7 @@ export default class UrlMatcher {
 
     if (!match) return null;
 
-    options = defaults(options, { isolate: false });
-    const hash: string = search['#'] ? search['#'] : undefined;
-    delete search['#'];
+    //options = defaults(options, { isolate: false });
 
     var allParams:    Param[] = this.parameters(),
         pathParams:   Param[] = allParams.filter(param => !param.isSearch()),
@@ -394,6 +393,7 @@ export default class UrlMatcher {
 
     if (values["#"]) result += "#" + values["#"];
 
-    return (parent && parent.format(omit(values, params.map(prop('id')))) || '') + result;
+    var processedParams = ['#'].concat(params.map(prop('id')));
+    return (parent && parent.format(omit(values, processedParams)) || '') + result;
   }
 }
