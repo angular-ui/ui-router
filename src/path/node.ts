@@ -23,8 +23,8 @@ export default class Node {
     // Object.freeze(extend(this, { ... }))
     this.schema = state.parameters({ inherit: false });
 
-    const normalizeParamVal = (paramCfg: Param) => [ paramCfg.id, paramCfg.type.$normalize(params[paramCfg.id]) ];
-    this.values = this.schema.reduce((memo, pCfg) => applyPairs(memo, normalizeParamVal(pCfg)), {});
+    const getParamVal = (paramDef: Param) => [ paramDef.id, paramDef.value(params[paramDef.id]) ];
+    this.values = this.schema.reduce((memo, pDef) => applyPairs(memo, getParamVal(pDef)), {});
 
     let resolveCfg = extend({}, state.resolve, resolves);
     this.resolves = map(resolveCfg, (fn: Function, name: string) => new Resolvable(name, fn, state));
