@@ -1,6 +1,6 @@
 import {
   map, prop, propEq, defaults, extend, inherit, identity, isDefined, isObject, isArray, isString,
-  invoke, unnest, tail, forEach, find, curry, omit
+  invoke, unnest, tail, forEach, find, curry, omit, pairs, allTrueR
 } from "../common/common";
 import paramTypes from "../params/paramTypes";
 import Param from "../params/param";
@@ -253,10 +253,11 @@ export default class UrlMatcher {
     var allParams:    Param[] = this.parameters(),
         pathParams:   Param[] = allParams.filter(param => !param.isSearch()),
         searchParams: Param[] = allParams.filter(param => param.isSearch()),
-        nPath = this._segments.length - 1,
+        nPathSegments  = this._cache.path.concat(this).map(urlm => urlm._segments.length - 1).reduce((a, x) => a + x),
         values = {};
 
-    if (nPath !== match.length - 1) throw new Error(`Unbalanced capture group in route '${this.pattern}'`);
+    if (nPathSegments !== match.length - 1)
+      throw new Error(`Unbalanced capture group in route '${this.pattern}'`);
 
     function decodePathArray(string: string) {
       const reverseString = (str: string) => str.split("").reverse().join("");
@@ -267,7 +268,7 @@ export default class UrlMatcher {
       return map(allReversed, unquoteDashes).reverse();
     }
 
-    for (var i = 0; i < nPath; i++) {
+    for (var i = 0; i < nPathSegments; i++) {
       var param: Param = pathParams[i];
       var value: (any|any[]) = match[i + 1];
 
@@ -326,13 +327,8 @@ export default class UrlMatcher {
    * @returns {boolean} Returns `true` if `params` validates, otherwise `false`.
    */
   validates(params): boolean {
-    var result = true;
-
-    map(params, (val, key) => {
-      var param = this.parameter(<string> key);
-      if (param) result = result && param.validates(val);
-    });
-    return result;
+    const validParamVal = (param: Param, val) => !param || param.validates(val);
+    return pairs(params).map(([key, val]) => validParamVal(this.parameter(key), val)).reduce(allTrueR, true);
   }
 
   /**
@@ -358,7 +354,7 @@ export default class UrlMatcher {
     var segments: string[] = this._segments,
         result: string = segments[0],
         search: boolean = false,
-        params: Param[] = this.parameters(),
+        params: Param[] = this.parameters({inherit: false}),
         parent: UrlMatcher = tail(this._cache.path);
 
     if (!this.validates(values)) return null;

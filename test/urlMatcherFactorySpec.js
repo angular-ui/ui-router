@@ -1,6 +1,8 @@
 var module    = angular.mock.module;
 var uiRouter  = require("ui-router");
 var Param = uiRouter.params.param.default;
+var common = uiRouter.common.common;
+var prop = common.prop;
 var provide, UrlMatcher;
 
 beforeEach(function() {
@@ -69,7 +71,7 @@ describe("UrlMatcher", function () {
 
   it("should parse parameter placeholders", function () {
     var matcher = new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?from&to');
-    expect(matcher.parameters()).toEqual(['id', 'type', 'repeat', 'from', 'to']);
+    expect(matcher.parameters().map(prop('id'))).toEqual(['id', 'type', 'repeat', 'from', 'to']);
   });
 
   it("should encode and decode duplicate query string values as array", function () {
@@ -87,7 +89,7 @@ describe("UrlMatcher", function () {
   describe("snake-case parameters", function() {
     it("should match if properly formatted", function() {
       var matcher = new UrlMatcher('/users/?from&to&snake-case&snake-case-triple');
-      expect(matcher.parameters()).toEqual(['from', 'to', 'snake-case', 'snake-case-triple']);
+      expect(matcher.parameters().map(prop('id'))).toEqual(['from', 'to', 'snake-case', 'snake-case-triple']);
     });
 
     it("should not match if invalid", function() {
@@ -179,7 +181,7 @@ describe("UrlMatcher", function () {
     it("should append matchers", function () {
       var matcher = new UrlMatcher('/users/:id/details/{type}?from').append(new UrlMatcher('/{repeat:[0-9]+}?to'));
       var params = matcher.parameters();
-      expect(params).toEqual(['id', 'type', 'from', 'repeat', 'to']);
+      expect(params.map(prop('id'))).toEqual(['id', 'type', 'from', 'repeat', 'to']);
     });
 
     it("should return a new matcher", function () {
