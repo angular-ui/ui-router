@@ -336,21 +336,10 @@ export const paired = (left: any[], right: any[], mapFn: Function = identity) =>
     left.map((lval, idx) => [ mapFn(lval), mapFn(right[idx]) ]);
 
 /**
- * Sets a key/val pair on an object, then returns the object.
+ * Reduce function which builds an object from an array of [key, value] pairs.
+ * Each iteration sets the key/val pair on the memo object, then returns the memo for the next iteration.
  *
- * Use as a reduce function for an array of key/val pairs
- *
- * Given:
- * var keys = [ "fookey", "barkey" ]
- * var pairsToObj = keys.reduce((memo, key) => applyPairs(memo, key, true), {})
- * Then:
- * true === angular.equals(pairsToObj, { fookey: true, barkey: true })
- */
-export function applyPairs(obj: TypedMap<any>, arrayOrKey: string, val: any);
-/**
- * Sets a key/val pair on an object, then returns the object.
- *
- * Use as a reduce function for an array of key/val pairs
+ * Each keyValueTuple should be an array with values [ key: string, value: any ]
  *
  * Given:
  * var pairs = [ ["fookey", "fooval"], ["barkey","barval"] ]
@@ -359,14 +348,12 @@ export function applyPairs(obj: TypedMap<any>, arrayOrKey: string, val: any);
  * Then:
  * true === angular.equals(pairsToObj, { fookey: "fooval", barkey: "barval" })
  */
-export function applyPairs(obj: TypedMap<any>, arrayOrKey: any[]);
-export function applyPairs(obj: TypedMap<any>, arrayOrKey: (string|any[]), val?: any) {
-  let key;
-  if (isDefined(val)) key = arrayOrKey;
-  if (isArray(arrayOrKey)) [key, val] = <any[]> arrayOrKey;
+export function applyPairs(memo: TypedMap<any>, keyValTuple: any[]) {
+  let key, value;
+  if (isArray(keyValTuple)) [key, value] = keyValTuple;
   if (!isString(key)) throw new Error("invalid parameters to applyPairs");
-  obj[key] = val;
-  return obj;
+  memo[key] = value;
+  return memo;
 }
 
 // Checks if a value is injectable

@@ -179,7 +179,7 @@ function $StateEventsProvider($stateProvider: IStateProvider) {
 
   let runtime = false;
   let allEvents = [ '$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError' ];
-  let enabledStateEvents: IEventsToggle = allEvents.reduce((memo, key) => applyPairs(memo, key, false), <IEventsToggle> {});
+  let enabledStateEvents: IEventsToggle = <IEventsToggle> allEvents.map(e => [e, false]).reduce(applyPairs, {});
 
   function assertNotRuntime() {
     if (runtime) throw new Error("Cannot enable events at runtime (use $stateEventsProvider");

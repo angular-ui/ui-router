@@ -1,4 +1,4 @@
-import {map, noop, extend, pick, prop, omit, isArray, isDefined, isFunction, isString, forEach} from "../common/common";
+import {map, noop, extend, pick, omit, values, applyPairs, prop,  isArray, isDefined, isFunction, isString, forEach} from "../common/common";
 import Param from "../params/param";
 
 const parseUrl = (url: string): any => {
@@ -45,9 +45,11 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
       return (state !== root()) && state.url ? state : (state.parent ? state.parent.navigable : null);
     },
 
-    params: function(state) {
-      const keys = state.url && state.url.parameters({ inherit: false }).map(prop('id')) || [];
-      return map(omit(state.params || {}, keys), (config: any, id: string) => Param.fromConfig(id, null, config));
+    params: function(state): { [key: string]: Param } {
+      const makeConfigParam = (config: any, id: string) => Param.fromConfig(id, null, config);
+      let urlParams: Param[] = (state.url && state.url.parameters({ inherit: false })) || [];
+      let nonUrlParams: Param[] = values(map(omit(state.params || {}, urlParams.map(prop('id'))), makeConfigParam));
+      return urlParams.concat(nonUrlParams).map(p => [p.id, p]).reduce(applyPairs, {});
     },
 
     // If there is no explicit multi-view configuration, make one up so we don't have
