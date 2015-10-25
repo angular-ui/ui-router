@@ -26,8 +26,7 @@ export default class Node {
     const getParamVal = (paramDef: Param) => [ paramDef.id, paramDef.value(params[paramDef.id]) ];
     this.values = this.schema.reduce((memo, pDef) => applyPairs(memo, getParamVal(pDef)), {});
 
-    let resolveCfg = extend({}, state.resolve, resolves);
-    this.resolves = map(resolveCfg, (fn: Function, name: string) => new Resolvable(name, fn, state));
+    this.resolves = extend(map(state.resolve, (fn: Function, name: string) => new Resolvable(name, fn, state)), resolves);
 
     const makeViewConfig = (viewDeclarationObj, rawViewName) =>
         new ViewConfig({ rawViewName, viewDeclarationObj, context: state, params});
@@ -44,7 +43,7 @@ export default class Node {
   }
 
   static clone(node: Node, update: any = {}) {
-    return new Node(node.state, update.params || node.values, update.resolves || map(node.resolves, prop('resolveFn')));
+    return new Node(node.state, (update.values || node.values), (update.resolves || node.resolves));
   }
 
   /**

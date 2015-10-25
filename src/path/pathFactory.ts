@@ -113,7 +113,7 @@ export default class PathFactory {
 
     /** Given a retained node, return a new node which uses the to node's param values */
     function applyToParams(retainedNode: Node, idx: number): Node {
-      return Node.clone(retainedNode, { params: toPath[idx].values });
+      return Node.clone(retainedNode, { values: toPath[idx].values });
     }
 
     let from: Node[], retained: Node[], exiting: Node[], entering: Node[], to: Node[];
