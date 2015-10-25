@@ -1,4 +1,4 @@
-import {map, extend, find, pairs, prop, propEq, pick, omit, not, curry, tail, applyPairs} from "../common/common";
+import {map, extend, find, pairs, prop, propEq, pick, omit, not, curry, tail, applyPairs, mergeR} from "../common/common";
 
 import {IRawParams} from "../params/interface";
 
@@ -22,18 +22,10 @@ export default class PathFactory {
 
   constructor() { }
 
-  /** Given a TargetState, create a Node[] */
-  static makeParamsPath(ref: TargetState): Node[] {
-    let states = ref ? ref.$state().path : [];
-    let params = ref ? ref.params() : {};
-    const toParamsNodeFn: (State) => Node = PathFactory.makeParamsNode(params);
-    return states.map(toParamsNodeFn);
-  }
-
   /** Given a Node[], create an TargetState */
   static makeTargetState(path: Node[]): TargetState {
     let state = tail(path).state;
-    return new TargetState(state, state, /*new ParamValues(*/[path]/*)*/);
+    return new TargetState(state, state, path.map(prop("values")).reduce(mergeR, {}));
   }
 
   /* Given params and a state, creates an Node */

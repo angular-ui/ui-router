@@ -1,5 +1,5 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {extend, pick, prop, propEq, pairs, map, find, allTrueR} from "../common/common";
+import {extend, pick, prop, propEq, pairs, applyPairs, map, find, allTrueR, values} from "../common/common";
 import {State} from "../state/state";
 import Param from "../params/param";
 import Type from "../params/type";
@@ -20,24 +20,18 @@ export default class Node {
 
   // Possibly extract this logic into an intermediary object that maps states to nodes
   constructor(public state: State, params: IRawParams, resolves: any = {}) {
-    const schema: Param[] = state.parameters({ inherit: false });
-    // schema = keys.map(key => [key, state.parameter(key)]).reduce(applyPairs, {});
-
     // Object.freeze(extend(this, { ... }))
-    extend(this, {
-      state,
-      schema,
-      values: pick(params, schema.map(prop('id'))),
-      resolves: map(
-        extend(state.resolve || {}, resolves),
-        (fn: Function, name: string) => new Resolvable(name, fn, state)
-      ),
-      views: pairs(state.views || {}).map(([rawViewName, viewDeclarationObj]): ViewConfig => {
-        return new ViewConfig({
-          rawViewName, viewDeclarationObj, context: state, params
-        });
-      })
-    });
+    this.schema = state.parameters({ inherit: false });
+
+    const normalizeParamVal = (paramCfg: Param) => [ paramCfg.id, paramCfg.type.$normalize(params[paramCfg.id]) ];
+    this.values = this.schema.reduce((memo, pCfg) => applyPairs(memo, normalizeParamVal(pCfg)), {});
+
+    let resolveCfg = extend({}, state.resolve, resolves);
+    this.resolves = map(resolveCfg, (fn: Function, name: string) => new Resolvable(name, fn, state));
+
+    const makeViewConfig = (viewDeclarationObj, rawViewName) =>
+        new ViewConfig({ rawViewName, viewDeclarationObj, context: state, params});
+    this.views = values(map(state.views, makeViewConfig));
   }
 
   parameter(name: string): Param {

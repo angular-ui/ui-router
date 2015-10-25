@@ -21,11 +21,15 @@ import {ITransitionOptions} from "../transition/interface";
  * @param {ITransitionOptions} _options Transition options.
  */
 export default class TargetState {
+  private _params: IParamsOrArray;
+
   constructor(
     private _identifier: IStateOrName, 
     private _definition?: State,
-    private _params: IParamsOrArray = {},
-    private _options: ITransitionOptions = {}) {
+    _params: IParamsOrArray = {},
+    private _options: ITransitionOptions = {}
+  ) {
+    this._params = _params || {};
   }
 
   name() {
