@@ -74,7 +74,7 @@ describe('transition', function () {
     queue.flush($state);
     makeTransition = function makeTransition(from, to, options) {
       let fromState = targetState(from).$state();
-      let fromPath = fromState.path.map(state => new Node(state));
+      let fromPath = PathFactory.bindTransNodesToPath(fromState.path.map(state => new Node(state)));
       return $transitions.create(fromPath, targetState(to, null, options));
     };
   }));
