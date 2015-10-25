@@ -327,7 +327,7 @@ export default class UrlMatcher {
    */
   validates(params): boolean {
     const validParamVal = (param: Param, val) => !param || param.validates(val);
-    return pairs(params).map(([key, val]) => validParamVal(this.parameter(key), val)).reduce(allTrueR, true);
+    return pairs(params || {}).map(([key, val]) => validParamVal(this.parameter(key), val)).reduce(allTrueR, true);
   }
 
   /**
