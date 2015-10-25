@@ -170,7 +170,7 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate)
 
     return statics();
   }
-
+	
   var directive = {
     restrict: 'ECA',
     terminal: true,
@@ -188,37 +188,82 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate)
         });
 
         updateView(true);
-
+        
         function cleanupLastView() {
+          var persistent = currentScope && currentScope.$persistent;
           if (previousEl) {
             previousEl.remove();
             previousEl = null;
           }
-
-          if (currentScope) {
+          
+          if (currentScope && !persistent) {
             currentScope.$destroy();
             currentScope = null;
           }
 
           if (currentEl) {
-            renderer.leave(currentEl, function() {
-              previousEl = null;
-            });
-
+            if (persistent) {
+              // This is not very pretty but there is no way to prevent ngAnimate from removing element in the end (after invoking `leave`). 
+              // Standard `remove` clears out all relavant element data, approach below only removes element so that it could be safely attached to DOM again. 
+              var el = currentEl;
+              // only unlink element, do not remove data
+              el.remove = function(){
+                var parent = el[0].parentNode;
+                if (parent) parent.removeChild(el[0]);
+              };
+              renderer.leave(el, function(){
+                previousEl = null;
+                // restore remove functionality 
+                delete el.remove;
+              });
+            } else {
+              renderer.leave(currentEl, function() {
+                previousEl = null;
+              });
+            }
             previousEl = currentEl;
             currentEl = null;
           }
         }
-
+        
+        function restoreFromCache(name, cached){
+          
+          renderer.enter(cached.element, $element);
+          /**
+           * @ngdoc event
+           * @name ui.router.state.directive:ui-view#$viewRestored
+           * @eventOf ui.router.state.directive:ui-view
+           * @eventType emits on ui-view directive scope
+           * @description
+           * Fired once view is restored (only when persistent flag is set to true)
+           * @param {Object} event Event object.
+           * @param {Object} data, object with view name.
+           */
+          //TODO: Potentialy proper $stateParams could be forwarded aswell.
+          cached.scope.$emit('$viewRestored', {name:name});
+          
+          currentEl = cached.element;
+          currentScope = cached.scope;
+        }
+        
         function updateView(firstTime) {
           var newScope,
               name            = getUiViewName(scope, attrs, $element, $interpolate),
               previousLocals  = name && $state.$current && $state.$current.locals[name];
 
           if (!firstTime && previousLocals === latestLocals) return; // nothing to do
-          newScope = scope.$new();
+          
           latestLocals = $state.$current.locals[name];
 
+          var cached = $state.$current.persistent && $state.$current.viewCache && $state.$current.viewCache[name];
+          if (cached) {
+              cleanupLastView();
+              restoreFromCache(name, cached);
+              return;
+          }
+						
+          newScope = scope.$new();
+          
           /**
            * @ngdoc event
            * @name ui.router.state.directive:ui-view#$viewContentLoading
@@ -234,15 +279,49 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate)
           newScope.$emit('$viewContentLoading', name);
 
           var clone = $transclude(newScope, function(clone) {
+            var cached;
             renderer.enter(clone, $element, function onUiViewEnter() {
-              if(currentScope) {
+              if (currentScope) {
                 currentScope.$emit('$viewContentAnimationEnded');
               }
 
               if (angular.isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
                 $uiViewScroll(clone);
               }
+              // when controller is compiled
+              if (cached) {
+                /**
+                 * @ngdoc event
+                 * @name ui.router.state.directive:ui-view#$viewCached
+                 * @eventOf ui.router.state.directive:ui-view
+                 * @eventType emits on ui-view directive scope
+                 * @description
+                 * Fired once view is cached (only when persistent flag is set to true)
+                 * @param {Object} event Event object.
+                 * @param {Object} data, object with view name and reset function (clears cache for this view)
+                 */
+                var tmp = $state.$current;
+                cached.scope.$emit('$viewCached', {
+                  name : name,
+                  reset: function() {
+                    delete tmp.viewCache[name];
+                  }
+                });
+              }
             });
+            // caching of persistent states
+            // TODO: figure out what to do with nested views, behavior is undefined now
+            if ($state.$current.persistent) {
+              if (!$state.$current.viewCache) {
+                $state.$current.viewCache = {};		
+              }
+              cached = {
+                element: clone,
+                scope: newScope
+              };
+              cached.scope.$persistent = true;
+              $state.$current.viewCache[name] = cached;
+            }
             cleanupLastView();
           });
 
