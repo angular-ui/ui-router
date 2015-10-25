@@ -22,7 +22,7 @@ import Param from "../params/param";
 import {ViewConfig} from "../view/view";
 
 import {
-  map, find, extend, flatten, unnest, tail, forEach, identity,
+  map, find, extend, mergeR, flatten, unnest, tail, forEach, identity,
   omit, isObject, not, prop, propEq, toJson, val, abstractKey
 } from "../common/common";
 
@@ -145,7 +145,7 @@ export class Transition implements IHookRegistry {
    */
   // TODO
   params(pathname: string = "to"): { [key: string]: any } {
-    return tail(this._treeChanges[pathname]).values;
+    return this._treeChanges[pathname].map(prop("values")).reduce(mergeR, {});
   }
 
   /**

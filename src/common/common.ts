@@ -187,6 +187,9 @@ export function merge(dst, ...objs: Object[]) {
   return dst;
 }
 
+/** Reduce function that merges each element of the list into a single object, using angular.extend */
+export const mergeR = (memo, item) => extend(memo, item);
+
 /**
  * Finds the common ancestor path between two states.
  *

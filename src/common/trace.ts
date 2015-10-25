@@ -26,17 +26,17 @@ function normalizedCat(input: Category): string {
   return isNumber(input) ? Category[input] : Category[Category[input]];
 }
 
-let format = pattern([
-  [not(isDefined),            val("undefined")],
-  [isNull,                    val("null")],
-  [isPromise,                 promiseToString],
-  [is(Transition),            invoke("toString")],
-  [is(Resolvable),            invoke("toString")],
-  [isInjectable,              functionToString],
-  [val(true),                 identity]
-]);
-
 function stringify(o) {
+  let format = pattern([
+    [not(isDefined),            val("undefined")],
+    [isNull,                    val("null")],
+    [isPromise,                 promiseToString],
+    [is(Transition),            invoke("toString")],
+    [is(Resolvable),            invoke("toString")],
+    [isInjectable,              functionToString],
+    [val(true),                 identity]
+  ]);
+
   return JSON.stringify(o, (key, val) => format(val)).replace(/\\"/g, '"');
 }
 
