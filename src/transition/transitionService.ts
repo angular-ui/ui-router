@@ -6,7 +6,7 @@ import {Transition} from "./transition";
 
 import TargetState from "../state/targetState";
 
-import {ITransPath} from "../path/interface";
+import Node from "../path/node";
 
 import {IHookRegistry, ITransitionService, ITransitionOptions, IHookRegistration, IHookGetter} from "./interface";
 
@@ -28,7 +28,7 @@ export let defaultTransOpts: ITransitionOptions = {
   current     : () => null
 };
 
-class TransitionService implements IHookRegistry {
+class TransitionService implements ITransitionService, IHookRegistry {
   constructor() {
     this._reinit();
   }
@@ -58,13 +58,13 @@ class TransitionService implements IHookRegistry {
     HookRegistry.mixin(new HookRegistry(), this);
   }
 
-  create(fromPath: ITransPath, targetState: TargetState) {
+  create(fromPath: Node[], targetState: TargetState) {
     return new Transition(fromPath, targetState);
   }
 }
 
 
-let $transitions: ITransitionService = new TransitionService();
+let $transitions = new TransitionService();
 
 $TransitionProvider.prototype = $transitions;
 function $TransitionProvider() {

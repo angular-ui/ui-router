@@ -1,10 +1,10 @@
 import {map} from "../common/common";
 import ResolveContext from "../resolve/resolveContext";
-import {IState} from "../state/interface";
+import {State} from "../state/state";
 import Resolvable from "./resolvable";
 
 export default class ResolveInjector {
-  constructor(private _resolveContext: ResolveContext, private _state: IState) { }
+  constructor(private _resolveContext: ResolveContext, private _state: State) { }
 
   /** Returns a promise to invoke an annotated function in the resolve context */
   invokeLater(injectedFn, locals) {

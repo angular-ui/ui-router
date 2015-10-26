@@ -1,14 +1,18 @@
-import {extend, defaults, copy, equalForKeys, forEach, ancestors, noop, isDefined, isObject, isString} from "../common/common";
+import {
+  extend, defaults, copy, equalForKeys, forEach, find, prop,
+  propEq, ancestors, noop, isDefined, isObject, isString, values
+} from "../common/common";
 import Queue from "../common/queue";
 import {IServiceProviderFactory, IPromise} from "angular";
-import {annotateController} from "../common/angular1";
 
-import {IStateService, IState, IStateDeclaration, IStateOrName, IHrefOptions} from "./interface";
+import {
+  IStateService, IStateDeclaration, IStateOrName, IHrefOptions,
+  IViewDeclarations, IResolveDeclarations
+} from "./interface";
 import Glob from "./glob";
 import StateQueueManager from "./stateQueueManager";
 import StateBuilder from "./stateBuilder";
 import StateMatcher from "./stateMatcher";
-import StateHandler from "./stateHandler";
 import TargetState from "./targetState";
 
 import {ITransitionService, ITransitionOptions, ITreeChanges} from "../transition/interface";
@@ -16,12 +20,17 @@ import {Transition} from "../transition/transition";
 import {RejectFactory} from "../transition/rejectFactory";
 import {defaultTransOpts} from "../transition/transitionService";
 
-import {IParamsPath, ITransPath} from "../path/interface";
-import Path from "../path/path";
+import Node from "../path/node";
 import PathFactory from "../path/pathFactory";
 
 import {IRawParams, IParamsOrArray} from "../params/interface";
+import TransitionManager from "./hooks/transitionManager";
 
+import paramTypes from "../params/paramTypes";
+import Param from "../params/param";
+import Type from "../params/type";
+
+import UrlMatcher from "../url/urlMatcher";
 import {ViewConfig} from "../view/view";
 
 /**
@@ -36,69 +45,93 @@ import {ViewConfig} from "../view/view";
  *
  * @returns {Object}  Returns a new `State` object.
  */
-export function State(config?: IStateDeclaration) {
-  extend(this, config);
+export class State {
+
+  public parent: State;
+  public name: string;
+  public abstract: boolean;
+  public resolve: IResolveDeclarations;
+  public resolvePolicy: any;
+  public url: UrlMatcher;
+  public params: { [key: string]: Param };
+  public views: IViewDeclarations;
+  public self: IStateDeclaration;
+  public navigable: State;
+  public path: State[];
+  public data: any;
+  public includes: (name: string) => boolean;
+
+  constructor(config?: IStateDeclaration) {
+    extend(this, config);
+    // Object.freeze(this);
+  }
+
+  /**
+   * @ngdoc function
+   * @name ui.router.state.type:State#is
+   * @methodOf ui.router.state.type:State
+   *
+   * @description
+   * Compares the identity of the state against the passed value, which is either an object
+   * reference to the actual `State` instance, the original definition object passed to
+   * `$stateProvider.state()`, or the fully-qualified name.
+   *
+   * @param {Object} ref Can be one of (a) a `State` instance, (b) an object that was passed
+   *        into `$stateProvider.state()`, (c) the fully-qualified name of a state as a string.
+   * @returns {boolean} Returns `true` if `ref` matches the current `State` instance.
+   */
+  is(ref: State|IStateDeclaration|string): boolean {
+    return this === ref || this.self === ref || this.fqn() === ref;
+  }
+
+  /**
+   * @ngdoc function
+   * @name ui.router.state.type:State#fqn
+   * @methodOf ui.router.state.type:State
+   *
+   * @description
+   * Returns the fully-qualified name of the state, based on its current position in the tree.
+   *
+   * @returns {string} Returns a dot-separated name of the state.
+   */
+  fqn(): string {
+    if (!this.parent || !(this.parent instanceof this.constructor)) return this.name;
+    let name = this.parent.fqn();
+    return name ? name + "." + this.name : this.name;
+  }
+
+  /**
+   * @ngdoc function
+   * @name ui.router.state.type:State#root
+   * @methodOf ui.router.state.type:State
+   *
+   * @description
+   * Returns the root node of this state's tree.
+   *
+   * @returns {State} The root of this state's tree.
+   */
+  root(): State {
+    return this.parent && this.parent.root() || this;
+  }
+
+  parameters(opts?): Param[] {
+    opts = defaults(opts, { inherit: true });
+    var inherited = opts.inherit && this.parent && this.parent.parameters() || [];
+    return inherited.concat(values(this.params));
+  }
+
+  parameter(id: string, opts: any = {}): Param {
+    return (
+      this.url && this.url.parameter(id, opts) ||
+      find(values(this.params), propEq('id', id)) ||
+      opts.inherit && this.parent && this.parent.parameter(id)
+    );
+  }
+
+  toString() {
+    return this.fqn();
+  }
 }
-
-/**
- * @ngdoc function
- * @name ui.router.state.type:State#is
- * @methodOf ui.router.state.type:State
- *
- * @description
- * Compares the identity of the state against the passed value, which is either an object
- * reference to the actual `State` instance, the original definition object passed to
- * `$stateProvider.state()`, or the fully-qualified name.
- *
- * @param {Object} ref Can be one of (a) a `State` instance, (b) an object that was passed
- *        into `$stateProvider.state()`, (c) the fully-qualified name of a state as a string.
- * @returns {boolean} Returns `true` if `ref` matches the current `State` instance.
- */
-State.prototype.is = function(ref) {
-  return this === ref || this.self === ref || this.fqn() === ref;
-};
-
-/**
- * @ngdoc function
- * @name ui.router.state.type:State#fqn
- * @methodOf ui.router.state.type:State
- *
- * @description
- * Returns the fully-qualified name of the state, based on its current position in the tree.
- *
- * @returns {string} Returns a dot-separated name of the state.
- */
-State.prototype.fqn = function() {
-  if (!this.parent || !(this.parent instanceof this.constructor)) {
-    return this.name;
-  }
-  let name = this.parent.fqn();
-  return name ? name + "." + this.name : this.name;
-};
-
-/**
- * @ngdoc function
- * @name ui.router.state.type:State#root
- * @methodOf ui.router.state.type:State
- *
- * @description
- * Returns the root node of this state's tree.
- *
- * @returns {State} The root of this state's tree.
- */
-State.prototype.root = function() {
-  let result = this;
-
-  while (result.parent) {
-    result = result.parent;
-  }
-  return result;
-};
-
-State.prototype.toString = function() {
-  return this.fqn();
-};
-
 
 /**
  * @ngdoc object
@@ -124,7 +157,7 @@ State.prototype.toString = function() {
 $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
-  let root: IState, states: {[key: string]: IState} = {};
+  let root: State, states: { [key: string]: State } = {};
   let $state: IStateService = <any> function $state() {};
 
   let matcher       = new StateMatcher(states);
@@ -380,16 +413,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
   let invalidCallbacks: Function[] = [];
   this.onInvalid = onInvalid;
-  
+
   /**
    * @ngdoc function
    * @name ui.router.state.$stateProvider#onInvalid
    * @methodOf ui.router.state.$stateProvider
    *
    * @description
-   * Registers a function to be injected and invoked when transitionTo has been called with an invalid 
+   * Registers a function to be injected and invoked when transitionTo has been called with an invalid
    * state reference parameter
-   *  
+   *
    * This function can be injected with one some special values:
    * - **`$to$`**: TargetState
    * - **`$from$`**: TargetState
@@ -399,7 +432,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
    *   The function may optionally return a {TargetState} or a Promise for a TargetState.  If one
    *   is returned, it is treated as a redirect.
    */
-  
+
   function onInvalid(callback: Function) {
     invalidCallbacks.push(callback);
   }
@@ -441,25 +474,26 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * If a callback returns an ITargetState, then it is used as arguments to $state.transitionTo() and
      * the result returned.
      */
-    function handleInvalidTargetState(fromPath: IParamsPath, $to$: TargetState) {
+    function handleInvalidTargetState(fromPath: Node[], $to$: TargetState) {
       const latestThing = () => transQueue.peekTail() || treeChangesQueue.peekTail();
       let latest = latestThing();
       let $from$ = PathFactory.makeTargetState(fromPath);
       let callbackQueue = new Queue<Function>([].concat(invalidCallbacks));
 
-      const invokeCallback = (callback: Function) =>
-          $q.when($injector.invoke(callback, null, { $to$, $from$ }));
+      const invokeCallback = (callback: Function) => $q.when($injector.invoke(callback, null, { $to$, $from$ }));
 
       function checkForRedirect(result) {
-        if (result instanceof TargetState) {
-          let target = <TargetState> result;
-          // Recreate the TargetState, in case the state is now defined.
-          target = $state.targetState(target.identifier(), target.params(), target.options());
-          if (!target.valid()) return rejectFactory.invalid(target.error());
-          if (latestThing() !== latest) return rejectFactory.superseded();
-
-          return $state.transitionTo(target.identifier(), target.params(), target.options());
+        if (!(result instanceof TargetState)) {
+          return;
         }
+        let target = <TargetState> result;
+        // Recreate the TargetState, in case the state is now defined.
+        target = $state.targetState(target.identifier(), target.params(), target.options());
+
+        if (!target.valid()) return rejectFactory.invalid(target.error());
+        if (latestThing() !== latest) return rejectFactory.superseded();
+
+        return $state.transitionTo(target.identifier(), target.params(), target.options());
       }
 
       function invokeNextCallback() {
@@ -478,14 +512,16 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       url: '^',
       views: null,
       params: {
-        '#': { value: null, type: 'hash'} // Param to hold the "hash" at the end of the URL
+        '#': { value: null, type: 'hash' }
       },
+      // params: [Param.fromPath('#', <Type> paramTypes.types.hash, { value: null })],
+      path: [],
       'abstract': true
     };
     root = stateQueue.register(rootStateDef, true);
 
     root.navigable = null;
-    const rootPath = () => PathFactory.bindTransNodesToPath(new Path([PathFactory.makeResolveNode(PathFactory.makeParamsNode({}, root))]));
+    const rootPath = () => PathFactory.bindTransNodesToPath([new Node(root, {})]);
 
     $view.rootContext(root);
 
@@ -498,7 +534,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
     stateQueue.flush($state);
     stateQueue.autoFlush = true; // Autoflush once we are in runtime
-    
+
     /**
      * @ngdoc function
      * @name ui.router.state.$state#reload
@@ -544,10 +580,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
-    $state.reload = function reload(reloadState: IStateOrName): IPromise<IState> {
-      let reloadOpt = isDefined(reloadState) ? reloadState : true;
+    $state.reload = function reload(reloadState: IStateOrName): IPromise<State> {
       return $state.transitionTo($state.current, $stateParams, {
-        reload: reloadOpt,
+        reload: isDefined(reloadState) ? reloadState : true,
         inherit: false,
         notify: false
       });
@@ -619,12 +654,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * - *resolve error* - when an error has occurred with a `resolve`
      *
      */
-    $state.go = function go(to: IStateOrName, params: IRawParams, options: ITransitionOptions): IPromise<IState> {
+    $state.go = function go(to: IStateOrName, params: IRawParams, options: ITransitionOptions): IPromise<State> {
       let defautGoOpts = { relative: $state.$current, inherit: true };
       let transOpts = defaults(options, defautGoOpts, defaultTransOpts);
       return $state.transitionTo(to, params, transOpts);
     };
-  
+
     /** Factory method for creating a TargetState */
     $state.targetState = function targetState(identifier: IStateOrName, params: IParamsOrArray, options: ITransitionOptions = {}): TargetState {
       let stateDefinition = matcher.find(identifier, options.relative);
@@ -669,8 +704,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
-    $state.transitionTo = function transitionTo(to: IStateOrName, toParams: IRawParams, options: ITransitionOptions = {}): IPromise<IState> {
-      toParams = toParams || {};
+    $state.transitionTo = function transitionTo(to: IStateOrName, toParams: IRawParams = {}, options: ITransitionOptions = {}): IPromise<State> {
       options = defaults(options, defaultTransOpts);
       options = extend(options, { current: transQueue.peekTail.bind(transQueue)});
 
@@ -683,7 +717,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
       let ref: TargetState = $state.targetState(to, toParams, options);
       let latestTreeChanges: ITreeChanges = treeChangesQueue.peekTail();
-      let currentPath: ITransPath = latestTreeChanges ? latestTreeChanges.to : rootPath();
+      let currentPath: Node[] = latestTreeChanges ? latestTreeChanges.to : rootPath();
 
       if (!ref.exists())
         return handleInvalidTargetState(currentPath, ref);
@@ -694,73 +728,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (!transition.valid())
         return $q.reject(transition.error());
 
-      let stateHandler = new StateHandler($urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
-      let hookBuilder = transition.hookBuilder();
-
-      // TODO: Move the Transition instance hook registration to its own function
-      // Add hooks
-      let enteringViews = transition.views("entering");
-      let exitingViews = transition.views("exiting");
-      let treeChanges = transition.treeChanges();
-
-      function $updateViews() {
-        exitingViews.forEach((viewConfig: ViewConfig) => $view.reset(viewConfig));
-        enteringViews.forEach((viewConfig: ViewConfig) => $view.registerStateViewConfig(viewConfig));
-        $view.sync();
-      }
-
-      function $loadAllEnteringViews() {
-        const loadView = (vc: ViewConfig) => {
-          let resolveInjector = treeChanges.to.nodeForState(vc.context.name).resolveInjector;
-          return $view.load(vc, resolveInjector);
-        };
-        return $q.all(enteringViews.map(loadView)).then(noop);
-      }
-
-      function $loadAllControllerLocals() {
-        const loadLocals = (vc: ViewConfig) => {
-          let deps = annotateController(vc.controller);
-          let resolveInjector = treeChanges.to.nodeForState(vc.context.name).resolveInjector;
-          function $loadControllerLocals() { }
-          $loadControllerLocals.$inject = deps;
-          return $q.all(resolveInjector.getLocals($loadControllerLocals)).then((locals) => vc.locals = locals);
-        };
-
-        let loadAllLocals = enteringViews.filter(vc => !!vc.controller).map(loadLocals);
-        return $q.all(loadAllLocals).then(noop);
-      }
-
-      transition.onStart({}, hookBuilder.getEagerResolvePathFn(), { priority: 1000 });
-      transition.onEnter({}, hookBuilder.getLazyResolveStateFn(), { priority: 1000 });
-
-
-      let onEnterRegistration = (state) => transition.onEnter({to: state.name}, state.onEnter);
-      transition.entering().filter(state => !!state.onEnter).forEach(onEnterRegistration);
-
-      let onRetainRegistration = (state) => transition.onRetain({}, state.onRetain);
-      transition.entering().filter(state => !!state.onRetain).forEach(onRetainRegistration);
-
-      let onExitRegistration = (state) => transition.onExit({from: state.name}, state.onExit);
-      transition.exiting().filter(state => !!state.onExit).forEach(onExitRegistration);
-
-      if (enteringViews.length) {
-        transition.onStart({}, $loadAllEnteringViews);
-        transition.onFinish({}, $loadAllControllerLocals);
-      }
-      if (exitingViews.length || enteringViews.length)
-        transition.onSuccess({}, $updateViews);
-      transition.onError({}, $transitions.defaultErrorHandler());
-
-      // Commit global state data as the last hook in the transition (using a very low priority onFinish hook)
-      function $commitGlobalData() { stateHandler.transitionSuccess(transition.treeChanges(), transition); }
-      transition.onFinish({}, $commitGlobalData, {priority: -10000});
-
-      function $handleError($error$) { return stateHandler.transitionFailure(transition, $error$); }
-      let result = stateHandler.runTransition(transition).catch($handleError);
-      result.finally(() => transQueue.remove(transition));
-
+      let tMgr = new TransitionManager(transition, $transitions, $urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
+      tMgr.registerHooks();
       // Return a promise for the transition, which also has the transition object on it.
-      return extend(result, { transition });
+      return extend(tMgr.runTransition(), { transition });
     };
 
     /**
@@ -802,7 +773,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       let state = matcher.find(stateOrName, options.relative);
       if (!isDefined(state)) return undefined;
       if ($state.$current !== state) return false;
-      return isDefined(params) && params !== null ? state.params.$$equals($stateParams, params) : true;
+      return isDefined(params) && params !== null ? Param.equals(state.parameters(), $stateParams, params) : true;
     };
 
     /**
@@ -868,7 +839,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
       if (!isDefined(state)) return undefined;
       if (!isDefined(include[state.name])) return false;
-      return params ? equalForKeys(state.params.$$values(params), $stateParams, Object.keys(params)) : true;
+      // @TODO Replace with Param.equals() ?
+      return params ? equalForKeys(Param.values(state.parameters(), params), $stateParams, Object.keys(params)) : true;
     };
 
 
@@ -893,7 +865,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *    first parameter, then the constructed href url will be built from the first navigable ancestor (aka
      *    ancestor with a valid url).
      * - **`inherit`** - {boolean=true}, If `true` will inherit url parameters from current url.
-     * - **`relative`** - {object=$state.$current}, When transitioning with relative path (e.g '^'), 
+     * - **`relative`** - {object=$state.$current}, When transitioning with relative path (e.g '^'),
      *    defines which state to be relative from.
      * - **`absolute`** - {boolean=false},  If true will generate an absolute url, e.g. "http://www.example.com/fullurl".
      *
@@ -918,7 +890,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
       if (!nav || nav.url === undefined || nav.url === null) {
         return null;
       }
-      return $urlRouter.href(nav.url, state.params.$$values(params), {
+      return $urlRouter.href(nav.url, Param.values(state.parameters(), params), {
         absolute: options.absolute
       });
     };
@@ -1010,7 +982,7 @@ function $StateParamsProvider() {
 
       if (url) {
         forEach(params, function(val, key) {
-          if ((url.parameters(key) || {}).dynamic !== true) abort = true;
+          if ((url.parameter(key) || {}).dynamic !== true) abort = true;
         });
       }
       if (abort) return false;

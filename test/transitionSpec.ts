@@ -1,26 +1,20 @@
+import Node from "../src/path/node";
 var module = angular.mock.module;
-var uiRouter = require("ui-router");
-var common = uiRouter.common.common;
-var RejectType = uiRouter.transition.rejectFactory.RejectType;
-var extend = common.extend,
-  forEach = common.forEach,
-  map = common.map,
-  omit = common.omit,
-  pick = common.pick,
-  pluck = common.pluck;
-var PathFactory = uiRouter.path.pathFactory.default;
-var state = uiRouter.state;
-var StateMatcher = state.stateMatcher.default;
-var StateBuilder = state.stateBuilder.default;
-var TargetState = state.targetState.default;
-var StateQueueManager = state.stateQueueManager.default;
-var TransitionRejection = uiRouter.transition.rejectFactory.TransitionRejection;
+import uiRouter from "../src/ui-router";
+import { RejectType } from "../src/transition/rejectFactory";
+import { extend, forEach, map, omit, pick, pluck } from "../src/common/common";
+import PathFactory from "../src/path/pathFactory";
+import StateMatcher from "../src/state/stateMatcher";
+import StateBuilder from "../src/state/stateBuilder";
+import TargetState from "../src/state/targetState";
+import StateQueueManager from "../src/state/stateQueueManager";
+import {TransitionRejection} from "../src/transition/rejectFactory";
 
 describe('transition', function () {
 
   var transitionProvider, matcher, pathFactory, statesMap, queue;
 
-  var targetState = function(identifier, params, options) {
+  var targetState = function(identifier, params = {}, options?) {
     options = options || {};
     var stateDefinition = matcher.find(identifier, options.relative);
     return new TargetState(identifier, stateDefinition, params, options);
@@ -52,7 +46,7 @@ describe('transition', function () {
     matcher = new StateMatcher(statesMap = {});
     pathFactory = new PathFactory(function() { return root; });
     var builder = new StateBuilder(function() { return root; }, matcher, $urlMatcherFactoryProvider);
-    queue = new StateQueueManager(statesMap, builder, { when: function() {} });
+    queue = new StateQueueManager(statesMap, builder, { when: function() {} }, null);
     var root = queue.register({ name: '', url: '^', views: null, 'abstract': true});
     root.navigable = null;
 
@@ -79,15 +73,15 @@ describe('transition', function () {
     matcher = new StateMatcher(statesMap);
     queue.flush($state);
     makeTransition = function makeTransition(from, to, options) {
-      var paramsPath = PathFactory.makeParamsPath(targetState(from));
-      var fromPath = PathFactory.bindTransNodesToPath(paramsPath.adapt(PathFactory.makeResolveNode));
+      let fromState = targetState(from).$state();
+      let fromPath = PathFactory.bindTransNodesToPath(fromState.path.map(state => new Node(state)));
       return $transitions.create(fromPath, targetState(to, null, options));
     };
   }));
 
   describe('provider', function() {
     describe('async event hooks:', function() {
-      function PromiseResult(promise) {
+      function PromiseResult(promise?) {
         var self = this, _promise;
         var resolve, reject, complete;
 
@@ -280,7 +274,7 @@ describe('transition', function () {
         }));
 
         it('should be called if any part of the transition fails.', inject(function($transitions, $q) {
-          transitionProvider.onEnter({ from: "A", to: "C" }, function($transition$) { throw new Erorr("oops!");  });
+          transitionProvider.onEnter({ from: "A", to: "C" }, function($transition$) { throw new Error("oops!");  });
           transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { states.push($transition$.to().name); });
 
           var states = [];
@@ -289,7 +283,7 @@ describe('transition', function () {
         }));
 
         it('should be called for only handlers matching the transition.', inject(function($transitions, $q) {
-          transitionProvider.onEnter({ from: "A", to: "C" }, function($transition$) { throw new Erorr("oops!");  });
+          transitionProvider.onEnter({ from: "A", to: "C" }, function($transition$) { throw new Error("oops!");  });
           transitionProvider.onError({ from: "*", to: "*" }, function($transition$) { hooks.push("splatsplat"); });
           transitionProvider.onError({ from: "A", to: "C" }, function($transition$) { hooks.push("AC"); });
           transitionProvider.onError({ from: "A", to: "D" }, function($transition$) { hooks.push("AD"); });
@@ -314,7 +308,7 @@ describe('transition', function () {
       it("return value of type Transition should abort the transition with SUPERSEDED status", inject(function($transitions, $q) {
         var states = [], rejection, transition = makeTransition("A", "D");
         transitionProvider.onEnter({ from: "*", to: "*" }, function($state$) { states.push($state$); });
-        transitionProvider.onEnter({ from: "*", to: "C" }, function($state, $transition$) { 
+        transitionProvider.onEnter({ from: "*", to: "C" }, function($state, $transition$) {
           return $transition$.redirect(targetState("B"));
         });
         transition.promise.catch(function(err) { rejection = err; });
@@ -440,7 +434,7 @@ describe('transition', function () {
       }));
 
       it('should not include already entered elements', inject(function($transitions) {
-        t = makeTransition("B", "D");
+        let t = makeTransition("B", "D");
         expect(pluck(t.entering(), 'name')).toEqual([ "C", "D" ]);
       }));
     });

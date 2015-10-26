@@ -16,8 +16,8 @@ export {stateEvents};
 import * as stateFilters from "./stateFilters";
 export {stateFilters};
 
-import * as stateHandler from "./stateHandler";
-export {stateHandler};
+import * as transitionManager from "./hooks/transitionManager";
+export {transitionManager};
 
 import * as stateMatcher from "./stateMatcher";
 export {stateMatcher};

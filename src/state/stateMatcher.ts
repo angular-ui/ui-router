@@ -1,8 +1,9 @@
 import {isString} from "../common/common";
-import {IState, IStateOrName} from "./interface";
+import {IStateOrName} from "./interface";
+import {State} from "./state";
 
 export default class StateMatcher {
-  constructor (private _states: {[key: string]: IState}) { }
+  constructor (private _states: { [key: string]: State }) { }
   
   isRelative(stateName: string) {
     stateName = stateName || "";
@@ -10,7 +11,7 @@ export default class StateMatcher {
   }
 
 
-  find(stateOrName: IStateOrName, base?: IStateOrName): IState {
+  find(stateOrName: IStateOrName, base?: IStateOrName): State {
     if (!stateOrName && stateOrName !== "") return undefined;
     let isStr = isString(stateOrName);
     let name: string = isStr ? stateOrName : (<any>stateOrName).name;
@@ -27,7 +28,7 @@ export default class StateMatcher {
   resolvePath(name: string, base: IStateOrName) {
     if (!base) throw new Error(`No reference point given for path '${name}'`);
     
-    let baseState: IState = this.find(base);
+    let baseState: State = this.find(base);
 
     let splitName = name.split("."), i = 0, pathLength = splitName.length, current = baseState;
 

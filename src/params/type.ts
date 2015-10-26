@@ -1,6 +1,55 @@
 import {extend, isArray, isDefined, filter, map} from "../common/common";
 
 /**
+ * Wraps up a `Type` object to handle array values.
+ */
+function ArrayType(type, mode) {
+  // Wrap non-array value as array
+  function arrayWrap(val): any[] { return isArray(val) ? val : (isDefined(val) ? [ val ] : []); }
+
+  // Unwrap array value for "auto" mode. Return undefined for empty array.
+  function arrayUnwrap(val) {
+    switch(val.length) {
+      case 0: return undefined;
+      case 1: return mode === "auto" ? val[0] : val;
+      default: return val;
+    }
+  }
+
+  // Wraps type (.is/.encode/.decode) functions to operate on each value of an array
+  function arrayHandler(callback, allTruthyMode?: boolean) {
+    return function handleArray(val) {
+      let arr = arrayWrap(val);
+      var result = map(arr, callback);
+      return (allTruthyMode === true) ? filter(result, val => !val).length === 0 : arrayUnwrap(result);
+    };
+  }
+
+  // Wraps type (.equals) functions to operate on each value of an array
+  function arrayEqualsHandler(callback) {
+    return function handleArray(val1, val2) {
+      var left = arrayWrap(val1), right = arrayWrap(val2);
+      if (left.length !== right.length) return false;
+      for (var i = 0; i < left.length; i++) {
+        if (!callback(left[i], right[i])) return false;
+      }
+      return true;
+    };
+  }
+
+  ['encode', 'decode', 'equals', '$normalize'].map(name => {
+    this[name] = (name === 'equals' ? arrayEqualsHandler : arrayHandler)(type[name].bind(type));
+  });
+
+  extend(this, {
+    name: type.name,
+    pattern: type.pattern,
+    is: arrayHandler(type.is.bind(type), true),
+    $arrayMode: mode
+  });
+}
+
+/**
  * @ngdoc object
  * @name ui.router.util.type:Type
  *
@@ -31,7 +80,7 @@ import {extend, isArray, isDefined, filter, map} from "../common/common";
  * @returns {Object}  Returns a new `Type` object.
  */
 export default class Type {
-  pattern: RegExp;
+  pattern: RegExp = /.*/;
   name: string;
   raw: boolean;
 
@@ -116,7 +165,7 @@ export default class Type {
   }
 
   toString() {
-    return "{Type:" + this.name + "}";
+    return `{Type:${this.name}}`;
   }
 
   /** Given an encoded string, or a decoded object, returns a decoded object */
@@ -137,61 +186,6 @@ export default class Type {
   $asArray(mode, isSearch) {
     if (!mode) return this;
     if (mode === "auto" && !isSearch) throw new Error("'auto' array mode is for query parameters only");
-
-    function ArrayType(type, mode) {
-      function bindTo(type, callbackName) {
-        return function() {
-          return type[callbackName].apply(type, arguments);
-        };
-      }
-
-      // Wrap non-array value as array
-      function arrayWrap(val): any[] { return isArray(val) ? val : (isDefined(val) ? [ val ] : []); }
-      // Unwrap array value for "auto" mode. Return undefined for empty array.
-      function arrayUnwrap(val) {
-        switch(val.length) {
-          case 0: return undefined;
-          case 1: return mode === "auto" ? val[0] : val;
-          default: return val;
-        }
-      }
-      function falsey(val) { return !val; }
-
-      // Wraps type (.is/.encode/.decode) functions to operate on each value of an array
-      function arrayHandler(callback, allTruthyMode?: boolean) {
-        return function handleArray(val) {
-          let arr = arrayWrap(val);
-          var result = map(arr, callback);
-          if (allTruthyMode === true)
-            return filter(result, falsey).length === 0;
-          return arrayUnwrap(result);
-        };
-      }
-
-      // Wraps type (.equals) functions to operate on each value of an array
-      function arrayEqualsHandler(callback) {
-        return function handleArray(val1, val2) {
-          var left = arrayWrap(val1), right = arrayWrap(val2);
-          if (left.length !== right.length) return false;
-          for (var i = 0; i < left.length; i++) {
-            if (!callback(left[i], right[i])) return false;
-          }
-          return true;
-        };
-      }
-
-      this.encode = arrayHandler(bindTo(type, 'encode'));
-      this.decode = arrayHandler(bindTo(type, 'decode'));
-      this.is     = arrayHandler(bindTo(type, 'is'), true);
-      this.equals = arrayEqualsHandler(bindTo(type, 'equals'));
-      this.pattern = type.pattern;
-      this.$normalize = arrayHandler(bindTo(type, '$normalize'));
-      this.name = type.name;
-      this.$arrayMode = mode;
-    }
-
     return new ArrayType(this, mode);
   }
 }
-
-Type.prototype.pattern = /.*/;

@@ -1,13 +1,21 @@
-import {isInjectable, extend, isDefined, isString, isArray, filter, map, prop, curry} from "../common/common";
+import {isInjectable, extend, isDefined, isString, isArray, filter, map, pick, prop, propEq, curry, applyPairs} from "../common/common";
+import {IRawParams} from "../params/interface";
 import {runtime} from "../common/angular1";
 import matcherConfig from "../url/urlMatcherConfig";
 import paramTypes from "./paramTypes";
 import Type from "./type";
 
+let hasOwn = Object.prototype.hasOwnProperty;
+let isShorthand = cfg => ["value", "type", "squash", "array", "dynamic"].filter(hasOwn.bind(cfg || {})).length === 0;
+
+enum DefType {
+  PATH, SEARCH, CONFIG
+}
+
 export default class Param {
   id: string;
   type: Type;
-  location: string;
+  location: DefType;
   array: boolean;
   squash: (boolean|string);
   replace: any;
@@ -15,40 +23,36 @@ export default class Param {
   dynamic: boolean;
   config: any;
 
-  constructor(id, type, config, location) {
+  constructor(id: string, type: Type, config: any, location: DefType) {
     config = unwrapShorthand(config);
     type = getType(config, type, location);
     var arrayMode = getArrayMode();
-    type = arrayMode ? type.$asArray(arrayMode, location === "search") : type;
+    type = arrayMode ? type.$asArray(arrayMode, location === DefType.SEARCH) : type;
     var isOptional = config.value !== undefined;
     var dynamic = config.dynamic === true;
     var squash = getSquashPolicy(config, isOptional);
     var replace = getReplace(config, arrayMode, isOptional, squash);
 
     function unwrapShorthand(config) {
-      var configKeys = ["value", "type", "squash", "array", "dynamic"].filter(function (key) {
-        return (config || {}).hasOwnProperty(key);
+      config = isShorthand(config) && { value: config } || config;
+
+      return extend(config, {
+        $$fn: isInjectable(config.value) ? config.value : () => config.value
       });
-      var isShorthand = configKeys.length === 0;
-      if (isShorthand) config = {value: config};
-      config.$$fn = isInjectable(config.value) ? config.value : function () {
-        return config.value;
-      };
-      return config;
     }
 
     function getType(config, urlType, location) {
       if (config.type && urlType && urlType.name !== 'string') throw new Error(`Param '${id}' has two type configurations.`);
       if (config.type && urlType && urlType.name === 'string' && paramTypes.type(config.type)) return paramTypes.type(config.type);
       if (urlType) return urlType;
-      if (!config.type) return (location === "config" ? paramTypes.type("any") : paramTypes.type("string"));
+      if (!config.type) return (location === DefType.CONFIG ? paramTypes.type("any") : paramTypes.type("string"));
       return config.type instanceof Type ? config.type : paramTypes.type(config.type);
     }
 
     // array config: param name (param[]) overrides default settings.  explicit config overrides param name.
     function getArrayMode() {
-      var arrayDefaults = {array: (location === "search" ? "auto" : false)};
-      var arrayParamNomenclature = id.match(/\[\]$/) ? {array: true} : {};
+      var arrayDefaults = { array: (location === DefType.SEARCH ? "auto" : false) };
+      var arrayParamNomenclature = id.match(/\[\]$/) ? { array: true } : {};
       return extend(arrayDefaults, arrayParamNomenclature, config).array;
     }
 
@@ -60,7 +64,7 @@ export default class Param {
       if (!isOptional || squash === false) return false;
       if (!isDefined(squash) || squash == null) return matcherConfig.defaultSquashPolicy();
       if (squash === true || isString(squash)) return squash;
-      throw new Error("Invalid squash policy: '" + squash + "'. Valid policies: false, true, or arbitrary string");
+      throw new Error(`Invalid squash policy: '${squash}'. Valid policies: false, true, or arbitrary string`);
     }
 
     function getReplace(config, arrayMode, isOptional, squash) {
@@ -69,7 +73,7 @@ export default class Param {
         {from: null, to: (isOptional || arrayMode ? undefined : "")}
       ];
       replace = isArray(config.replace) ? config.replace : [];
-      if (isString(squash)) replace.push({from: squash, to: undefined});
+      if (isString(squash)) replace.push({ from: squash, to: undefined });
       configuredKeys = map(replace, prop("from"));
       return filter(defaultPolicy, item => configuredKeys.indexOf(item.from) === -1).concat(replace);
     }
@@ -77,7 +81,7 @@ export default class Param {
     extend(this, {id, type, location, squash, replace, isOptional, dynamic, config, array: arrayMode});
   }
 
-  isDefaultValue(value: any) {
+  isDefaultValue(value: any): boolean {
     return this.isOptional && this.type.equals(this.value(), value);
   }
 
@@ -85,7 +89,7 @@ export default class Param {
    * [Internal] Gets the decoded representation of a value if the value is defined, otherwise, returns the
    * default value, which may be the result of an injectable function.
    */
-  value(value?: any) {
+  value(value?: any): any {
     /**
      * [Internal] Get the default value of a parameter, which may be an injectable function.
      */
@@ -97,10 +101,8 @@ export default class Param {
       return defaultValue;
     };
 
-    const hasReplaceVal = curry((val, obj) => obj.from === val);
-
     const $replace = (value) => {
-      var replacement: any = map(filter(this.replace, hasReplaceVal(value)), prop("to"));
+      var replacement: any = map(filter(this.replace, propEq('from', value)), prop("to"));
       return replacement.length ? replacement[0] : value;
     };
 
@@ -108,8 +110,54 @@ export default class Param {
     return !isDefined(value) ? $$getDefaultValue() : this.type.$normalize(value);
   }
 
+  isSearch(): boolean {
+    return this.location === DefType.SEARCH;
+  }
+
+  validates(value: any): boolean {
+    // There was no parameter value, but the param is optional
+    if ((!isDefined(value) || value === null) && this.isOptional) return true;
+
+    // The value was not of the correct Type, and could not be decoded to the correct Type
+    const normalized = this.type.$normalize(value);
+    if (!this.type.is(normalized)) return false;
+
+    // The value was of the correct type, but when encoded, did not match the Type's regexp
+    const encoded = this.type.encode(normalized);
+    if (isString(encoded) && !this.type.pattern.exec(<string> encoded)) return false;
+
+    return true;
+  }
+
   toString() {
     return `{Param:${this.id} ${this.type} squash: '${this.squash}' optional: ${this.isOptional}}`;
   }
 
+  static fromConfig(id: string, type: Type, config: any): Param {
+    return new Param(id, type, config, DefType.CONFIG);
+  }
+
+  static fromPath(id: string, type: Type, config: any): Param {
+    return new Param(id, type, config, DefType.PATH);
+  }
+
+  static fromSearch(id: string, type: Type, config: any): Param {
+    return new Param(id, type, config, DefType.SEARCH);
+  }
+
+  static values(params: Param[], values): IRawParams {
+    values = values || {};
+    return <IRawParams> params.map(param => [param.id, param.value(values[param.id])]).reduce(applyPairs, {});
+  }
+
+  static equals(params: Param[], values1, values2): boolean {
+    values1 = values1 || {};
+    values2 = values2 || {};
+    return params.map(param => param.type.equals(values1[param.id], values2[param.id])).indexOf(false) === -1;
+  }
+
+  static validates(params: Param[], values): boolean {
+    values = values || {};
+    return params.map(param => param.validates(values[param.id])).indexOf(false) === -1;
+  }
 }

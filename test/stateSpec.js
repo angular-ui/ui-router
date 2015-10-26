@@ -131,19 +131,26 @@ describe('state helpers', function() {
       });
 
       it('should compile a UrlMatcher for ^ URLs', function() {
-        var url = {};
+        var url = new UrlMatcher('/');
         spyOn(urlMatcherFactoryProvider, 'compile').and.returnValue(url);
+        spyOn(urlMatcherFactoryProvider, 'isMatcher').and.returnValue(true);
 
         expect(builder.builder('url')({ url: "^/foo" })).toBe(url);
-        expect(urlMatcherFactoryProvider.compile).toHaveBeenCalledWith("/foo", { params: {} });
+        expect(urlMatcherFactoryProvider.compile).toHaveBeenCalledWith("/foo", {
+          params: {},
+          paramMap: jasmine.any(Function)
+        });
+        expect(urlMatcherFactoryProvider.isMatcher).toHaveBeenCalledWith(url);
       });
 
       it('should concatenate URLs from root', function() {
-        root = { url: { concat: function() {} } }, url = {};
-        spyOn(root.url, 'concat').and.returnValue(url);
+        root = { url: { append: function() {} } }, url = {};
+        spyOn(root.url, 'append').and.returnValue(url);
+        spyOn(urlMatcherFactoryProvider, 'isMatcher').and.returnValue(true);
+        spyOn(urlMatcherFactoryProvider, 'compile').and.returnValue(url);
 
         expect(builder.builder('url')({ url: "/foo" })).toBe(url);
-        expect(root.url.concat).toHaveBeenCalledWith("/foo", { params: {} });
+        expect(root.url.append).toHaveBeenCalledWith(url);
       });
 
       it('should pass through empty URLs', function() {
@@ -151,10 +158,12 @@ describe('state helpers', function() {
       });
 
       it('should pass through custom UrlMatchers', function() {
-        var url = ["!"];
+        var url = new UrlMatcher("/");
         spyOn(urlMatcherFactoryProvider, 'isMatcher').and.returnValue(true);
+        spyOn(root.url, 'append').and.returnValue(url);
         expect(builder.builder('url')({ url: url })).toBe(url);
         expect(urlMatcherFactoryProvider.isMatcher).toHaveBeenCalledWith(url);
+        expect(root.url.append).toHaveBeenCalledWith(url);
       });
 
       it('should throw on invalid UrlMatchers', function() {
@@ -901,7 +910,7 @@ describe('state', function () {
 
     it('should work for relative states', inject(function ($state, $q) {
       var options = { relative: $state.get('about') };
-      
+
       $state.transitionTo('about.person', { person: 'jane' }); $q.flush();
       expect($state.is('.person', undefined, options)).toBe(true);
 

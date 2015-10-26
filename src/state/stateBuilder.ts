@@ -1,6 +1,11 @@
-import {noop, extend, pick, isArray, isDefined, isFunction, isString, forEach} from "../common/common";
-import ParamSet from "../params/paramSet";
+import {map, noop, extend, pick, omit, values, applyPairs, prop,  isArray, isDefined, isFunction, isString, forEach} from "../common/common";
 import Param from "../params/param";
+
+const parseUrl = (url: string): any => {
+  if (!isString(url)) return false;
+  var root = url.charAt(0) === '^';
+  return { val: root ? url.substring(1) : url, root };
+};
 
 // Builds state properties from definition passed to StateQueueManager.register()
 export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
@@ -8,7 +13,8 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
   let self = this, builders = {
 
     parent: function(state) {
-      return matcher.find(self.parentName(state));
+      if (state === root()) return null;
+      return matcher.find(self.parentName(state)) || root();
     },
 
     data: function(state) {
@@ -20,38 +26,30 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
 
     // Build a URLMatcher if necessary, either via a relative or absolute URL
     url: function(state) {
-      let url = state.url, config = { params: state.params || {} };
-      let parent = state.parent;
+      const parsed = parseUrl(state.url), parent = state.parent;
+      const url = !parsed ? state.url : $urlMatcherFactoryProvider.compile(parsed.val, {
+        params: state.params || {},
+        paramMap: function(paramConfig, isSearch) {
+          if (state.reloadOnSearch === false && isSearch) paramConfig = extend(paramConfig || {}, { dynamic: true });
+          return paramConfig;
+        }
+      });
 
-      if (isString(url)) {
-        if (url.charAt(0) === '^') return $urlMatcherFactoryProvider.compile(url.substring(1), config);
-        return ((parent && parent.navigable) || root()).url.concat(url, config);
-      }
-      if (!url || $urlMatcherFactoryProvider.isMatcher(url)) return url;
-      throw new Error(`Invalid url '${url}' in state '${state}'`);
+      if (!url) return null;
+      if (!$urlMatcherFactoryProvider.isMatcher(url)) throw new Error(`Invalid url '${url}' in state '${state}'`);
+      return (parsed && parsed.root) ? url : ((parent && parent.navigable) || root()).url.append(url);
     },
 
     // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
     navigable: function(state) {
-      return (state !== root()) &&  state.url ? state : (state.parent ? state.parent.navigable : null);
+      return (state !== root()) && state.url ? state : (state.parent ? state.parent.navigable : null);
     },
 
-    // Own parameters for this state. state.url.params is already built at this point. Create and add non-url params
-    ownParams: function(state) {
-      let params = state.url && state.url.params.$$own() || new ParamSet();
-      forEach(state.params || {}, function(config, id) {
-        if (!params[id]) params[id] = new Param(id, null, config, "config");
-      });
-      if (state.reloadOnSearch === false) {
-        forEach(params, function(param) { if (param && param.location === 'search') param.dynamic = true; });
-      }
-      return params;
-    },
-
-    // Derive parameters for this state and ensure they're a super-set of parent's parameters
-    params: function(state) {
-      let base = state.parent && state.parent.params ? state.parent.params.$$new() : new ParamSet();
-      return extend(base, state.ownParams);
+    params: function(state): { [key: string]: Param } {
+      const makeConfigParam = (config: any, id: string) => Param.fromConfig(id, null, config);
+      let urlParams: Param[] = (state.url && state.url.parameters({ inherit: false })) || [];
+      let nonUrlParams: Param[] = values(map(omit(state.params || {}, urlParams.map(prop('id'))), makeConfigParam));
+      return urlParams.concat(nonUrlParams).map(p => [p.id, p]).reduce(applyPairs, {});
     },
 
     // If there is no explicit multi-view configuration, make one up so we don't have
@@ -68,10 +66,9 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
       forEach(state.views || { "$default": pick(state, allKeys) }, function (config, name) {
         name = name || "$default"; // Account for views: { "": { template... } }
         // Allow controller settings to be defined at the state level for all views
-        forEach(ctrlKeys, function(key) {
+        forEach(ctrlKeys, (key) => {
           if (state[key] && !config[key]) config[key] = state[key];
         });
-
         if (Object.keys(config).length > 0) views[name] = config;
       });
       return views;

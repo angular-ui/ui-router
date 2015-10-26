@@ -59,6 +59,15 @@ export function pipe(...funcs: Function[]): (obj: any) => any {
 export const prop = (name: string) => (obj: any) => obj && obj[name];
 
 /**
+ * Given a property name and a value, returns a function that returns a boolean based on whether
+ * the passed object has a property that matches the value
+ * let obj = { foo: 1, name: "blarg" };
+ * let getName = propEq("name", "blarg");
+ * getName(obj) === true
+ */
+export const propEq = curry((name: string, val: any, obj: any) => obj && obj[name] === val);
+
+/**
  * Given a dotted property name, returns a function that returns a nested property from an object, or undefined
  * let obj = { id: 1, nestedObj: { foo: 1, name: "blarg" }, };
  * let getName = prop("nestedObj.name");
@@ -72,16 +81,14 @@ export const parse = (name: string) => pipe.apply(null, name.split(".").map(prop
  * Given a function that returns a truthy or falsey value, returns a
  * function that returns the opposite (falsey or truthy) value given the same inputs
  */
-export const not = (fn) => (function() { return !fn.apply(null, [].slice.call(arguments)); });
+export const not = (fn) => (...args) => !fn.apply(null, args);
 
 /**
  * Given two functions that return truthy or falsey values, returns a function that returns truthy
  * if both functions return truthy for the given arguments
  */
 export function and(fn1, fn2): Function {
-  return function() {
-    return fn1.apply(null, [].slice.call(arguments)) && fn2.apply(null, [].slice.call(arguments));
-  };
+  return (...args) => fn1.apply(null, args) && fn2.apply(null, args);
 }
 
 /**
@@ -89,9 +96,7 @@ export function and(fn1, fn2): Function {
  * if at least one of the functions returns truthy for the given arguments
  */
 export function or(fn1, fn2): Function {
-  return function() {
-    return fn1.apply(null, [].slice.call(arguments)) || fn2.apply(null, [].slice.call(arguments));
-  };
+  return (...args) => fn1.apply(null, args) || fn2.apply(null, args);
 }
 
 /** Given a class, returns a Predicate function that returns true if the object is of that class */
@@ -181,6 +186,9 @@ export function merge(dst, ...objs: Object[]) {
   });
   return dst;
 }
+
+/** Reduce function that merges each element of the list into a single object, using angular.extend */
+export const mergeR = (memo, item) => extend(memo, item);
 
 /**
  * Finds the common ancestor path between two states.
@@ -282,12 +290,20 @@ export function map(collection: any, callback: any): any {
   return result;
 }
 
-/** Push an object to an array, return the array */
-export const push      = (arr: any[], obj) => { arr.push(obj); return arr; };
+/** Given an object, return its enumerable property values */
+export const values: (<T> (obj: TypedMap<T>) => T[]) = (obj) => Object.keys(obj).map(key => obj[key]);
+
+ /** Reduce function that returns true if all of the values are truthy. */
+export const allTrueR  = (memo: boolean, elem) => memo && elem;
+/** Reduce function that returns true if any of the values are truthy. */
+export const anyTrueR  = (memo: boolean, elem) => memo || elem;
+
+/** Reduce function that pushes an object to an array, then returns the array */
+export const pushR     = (arr: any[], obj) => { arr.push(obj); return arr; };
 /** Reduce function which un-nests a single level of arrays */
 export const unnestR   = (memo: any[], elem) => memo.concat(elem);
 /** Reduce function which recursively un-nests all arrays */
-export const flattenR  = (memo: any[], elem) => isArray(elem) ? memo.concat(elem.reduce(flattenR, [])) : push(memo, elem);
+export const flattenR  = (memo: any[], elem) => isArray(elem) ? memo.concat(elem.reduce(flattenR, [])) : pushR(memo, elem);
 /** Return a new array with a single level of arrays unnested. */
 export const unnest    = (arr: any[]) => arr.reduce(unnestR, []);
 /** Return a completely flattened version of an array. */
@@ -307,21 +323,27 @@ export function assertPredicate<T>(fn: Predicate<T>, errMsg: string = "assert fa
 export const pairs = (object) => Object.keys(object).map(key => [ key, object[key]] );
 
 /**
- * Sets a key/val pair on an object, then returns the object.
+ * Given two or more parallel arrays, returns an array of tuples where
+ * each tuple is composed of [ a[i], b[i], ... z[i] ]
  *
- * Use as a reduce function for an array of key/val pairs
+ * let foo = [ 0, 2, 4, 6 ];
+ * let bar = [ 1, 3, 5, 7 ];
+ * let baz = [ 10, 30, 50, 70 ];
+ * tuples(foo, bar);       // [ [0, 1], [2, 3], [4, 5], [6, 7] ]
+ * tuples(foo, bar, baz);  // [ [0, 1, 10], [2, 3, 30], [4, 5, 50], [6, 7, 70] ]
  *
- * Given:
- * var keys = [ "fookey", "barkey" ]
- * var pairsToObj = keys.reduce((memo, key) => applyPairs(memo, key, true), {})
- * Then:
- * true === angular.equals(pairsToObj, { fookey: true, barkey: true })
  */
-export function applyPairs(obj: TypedMap<any>, arrayOrKey: string, val: any);
+export function arrayTuples(...arrayArgs: any[]): any[] {
+  if (arrayArgs.length === 0) return [];
+  let length = arrayArgs.reduce((min, arr) => Math.min(arr.length, min), 9007199254740991); // aka 2^53 − 1 aka Number.MAX_SAFE_INTEGER
+  return Array.apply(null, Array(length)).map((ignored, idx) => arrayArgs.map(arr => arr[idx]).reduce(pushR, []));
+}
+
 /**
- * Sets a key/val pair on an object, then returns the object.
+ * Reduce function which builds an object from an array of [key, value] pairs.
+ * Each iteration sets the key/val pair on the memo object, then returns the memo for the next iteration.
  *
- * Use as a reduce function for an array of key/val pairs
+ * Each keyValueTuple should be an array with values [ key: string, value: any ]
  *
  * Given:
  * var pairs = [ ["fookey", "fooval"], ["barkey","barval"] ]
@@ -330,14 +352,12 @@ export function applyPairs(obj: TypedMap<any>, arrayOrKey: string, val: any);
  * Then:
  * true === angular.equals(pairsToObj, { fookey: "fooval", barkey: "barval" })
  */
-export function applyPairs(obj: TypedMap<any>, arrayOrKey: any[]);
-export function applyPairs(obj: TypedMap<any>, arrayOrKey: (string|any[]), val?: any) {
-  let key;
-  if (isDefined(val)) key = arrayOrKey;
-  if (isArray(arrayOrKey)) [key, val] = <any[]> arrayOrKey;
+export function applyPairs(memo: TypedMap<any>, keyValTuple: any[]) {
+  let key, value;
+  if (isArray(keyValTuple)) [key, value] = keyValTuple;
   if (!isString(key)) throw new Error("invalid parameters to applyPairs");
-  obj[key] = val;
-  return obj;
+  memo[key] = value;
+  return memo;
 }
 
 // Checks if a value is injectable
@@ -371,6 +391,11 @@ export function maxLength(max: number, str: string) {
 export function padString(length: number, str: string) {
   while (str.length < length) str += " ";
   return str;
+}
+
+export function tail<T>(collection: T[]): T;
+export function tail(collection: any[]): any {
+  return collection.length && collection[collection.length - 1] || undefined;
 }
 
 

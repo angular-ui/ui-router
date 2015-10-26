@@ -1,4 +1,6 @@
-import {IState, IStateDeclaration, IStateOrName} from "./interface";
+import {State} from "./state";
+
+import {IStateDeclaration, IStateOrName} from "./interface";
 
 import {IParamsOrArray} from "../params/interface";
 
@@ -19,11 +21,15 @@ import {ITransitionOptions} from "../transition/interface";
  * @param {ITransitionOptions} _options Transition options.
  */
 export default class TargetState {
+  private _params: IParamsOrArray;
+
   constructor(
     private _identifier: IStateOrName, 
-    private _definition?: IState,
-    private _params: IParamsOrArray = {},
-    private _options: ITransitionOptions = {}) {
+    private _definition?: State,
+    _params: IParamsOrArray = {},
+    private _options: ITransitionOptions = {}
+  ) {
+    this._params = _params || {};
   }
 
   name() {
@@ -38,7 +44,7 @@ export default class TargetState {
     return this._params;
   }
 
-  $state(): IState {
+  $state(): State {
     return this._definition;
   }
 

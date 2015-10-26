@@ -162,7 +162,7 @@ describe('uiStateRef', function() {
 
       timeoutFlush();
       $q.flush();
-      
+
       expect($state.current.name).toEqual('top');
       expect(obj($stateParams)).toEqualData({ });
     }));
@@ -481,11 +481,13 @@ describe('uiSrefActive', function() {
     $state.transitionTo('contacts.item.edit', { id: 1 });
     $q.flush();
     timeoutFlush();
+    expect($state.params.id).toBe('1');
     expect(a.attr('class')).toMatch(/active/);
 
     $state.transitionTo('contacts.item.edit', { id: 4 });
     $q.flush();
     timeoutFlush();
+    expect($state.params.id).toBe('4');
     expect(a.attr('class')).not.toMatch(/active/);
   }));
 

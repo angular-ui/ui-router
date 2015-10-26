@@ -1,14 +1,14 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {IInjectable, filter, map, noop, defaults, extend, prop, pick, omit, isString, isObject} from "../common/common";
+import {IInjectable, find, filter, map, noop, tail, defaults, extend, prop, propEq, pick, omit, isString, isObject} from "../common/common";
 import trace from "../common/trace";
 import {runtime} from "../common/angular1";
 import {IPromise} from "angular";
 
-import {IResolvePath, IResolveNode} from "../path/interface";
+import Node from "../path/node";
 
 import {IPromises, IResolvables, ResolvePolicy, IOptions1} from "./interface";
 import Resolvable from "./resolvable";
-import {IState} from "../state/interface";
+import {State} from "../state/state";
 
 // TODO: make this configurable
 let defaultResolvePolicy = ResolvePolicy[ResolvePolicy.LAZY];
@@ -16,8 +16,24 @@ let defaultResolvePolicy = ResolvePolicy[ResolvePolicy.LAZY];
 interface IPolicies { [key: string]: string; }
 
 export default class ResolveContext {
-  constructor(private _path: IResolvePath) { }
- 
+
+  private _nodeFor: Function;
+  private _pathTo: Function;
+
+  constructor(private _path: Node[]) {
+    extend(this, {
+      _nodeFor(state: State): Node {
+        return <Node> find(this._path, propEq('state', state));
+      },
+      _pathTo(state: State): Node[] {
+        let node = this._nodeFor(state);
+        let elementIdx = this._path.indexOf(node);
+        if (elementIdx === -1) throw new Error("This path does not contain the state");
+        return this._path.slice(0, elementIdx + 1);
+      }
+    });
+  }
+
   /**
    * Gets the available Resolvables for the last element of this path.
    *
@@ -39,50 +55,51 @@ export default class ResolveContext {
    *   state({ name: 'G.G2', resolve: { _G: function(_G) { return _G + "G2"; } } });
    *   where injecting _G into a controller will yield "GG2"
    */
-  getResolvables(state?: IState, options?: any): IResolvables {
+  getResolvables(state?: State, options?: any): IResolvables {
     options = defaults(options, { omitOwnLocals: [] });
-    let path: IResolvePath = (state ? this._path.pathFromRootTo(state) : this._path);
-    let last = path.last();
-    
-    return path.nodes().reduce((memo, node) => {
+
+    const offset = find(this._path, propEq(''));
+    const path = (state ?  this._pathTo(state) : this._path);
+    const last = tail(path);
+
+    return path.reduce((memo, node) => {
       let omitProps = (node === last) ? options.omitOwnLocals : [];
-      let filteredResolvables = omit(node.ownResolvables, omitProps);
+      let filteredResolvables = omit(node.resolves, omitProps);
       return extend(memo, filteredResolvables);
     }, <IResolvables> {});
   }
 
   /** Inspects a function `fn` for its dependencies.  Returns an object containing any matching Resolvables */
-  getResolvablesForFn(fn: IInjectable, resolveContext: ResolveContext = this): {[key: string]: Resolvable} {
+  getResolvablesForFn(fn: IInjectable, resolveContext: ResolveContext = this): { [key: string]: Resolvable } {
     let deps = runtime.$injector.annotate(<Function> fn);
     return <any> pick(resolveContext.getResolvables(), deps);
   }
 
-  isolateRootTo(state: IState): ResolveContext {
-    return new ResolveContext(this._path.pathFromRootTo(state));
+  isolateRootTo(state: State): ResolveContext {
+    return new ResolveContext(this._pathTo(state));
   }
   
-  addResolvables(resolvables: IResolvables, state: IState) {
-    let node = this._path.nodeForState(state);
-    extend(node.ownResolvables, resolvables);
+  addResolvables(resolvables: IResolvables, state: State) {
+    extend(this._nodeFor(state).resolves, resolvables);
   }
   
   /** Gets the resolvables declared on a particular state */
-  getOwnResolvables(state: IState): IResolvables {
-    return extend({}, this._path.nodeForState(state).ownResolvables);
+  getOwnResolvables(state: State): IResolvables {
+    return extend({}, this._nodeFor(state).resolves);
   }
    
-  // Returns a promise for an array of resolved Path Element promises
+  // Returns a promise for an array of resolved path Element promises
   resolvePath(options: IOptions1 = {}): IPromise<any> {
     trace.traceResolvePath(this._path, options);
-    const promiseForNode = (node: IResolveNode) => this.resolvePathElement(node.state, options);
-    return runtime.$q.all(<any> map(this._path.nodes(), promiseForNode)).then(noop);
+    const promiseForNode = (node: Node) => this.resolvePathElement(node.state, options);
+    return runtime.$q.all(<any> map(this._path, promiseForNode)).then(noop);
   }
 
   // returns a promise for all the resolvables on this PathElement
   // options.resolvePolicy: only return promises for those Resolvables which are at 
   // the specified policy, or above.  i.e., options.resolvePolicy === 'lazy' will
   // resolve both 'lazy' and 'eager' resolves.
-  resolvePathElement(state: IState, options: IOptions1 = {}): IPromise<any> {
+  resolvePathElement(state: State, options: IOptions1 = {}): IPromise<any> {
     // The caller can request the path be resolved for a given policy and "below" 
     let policy: string = options && options.resolvePolicy;
     let policyOrdinal: number = ResolvePolicy[policy || defaultResolvePolicy];
@@ -102,7 +119,7 @@ export default class ResolveContext {
   
   
   /**
-   * Injects a function given the Resolvables available in the IResolvePath, from the first node
+   * Injects a function given the Resolvables available in the path, from the first node
    * up to the node for the given state.
    *
    * First it resolves all the resolvable depencies.  When they are done resolving, it invokes
@@ -110,12 +127,12 @@ export default class ResolveContext {
    *
    * @return a promise for the return value of the function.
    *
-   * @param state: The state context object (within the Path)
+   * @param state: The state context object (within the path)
    * @param fn: the function to inject (i.e., onEnter, onExit, controller)
    * @param locals: are the angular $injector-style locals to inject
    * @param options: options (TODO: document)
    */
-  invokeLater(state: IState, fn: IInjectable, locals: any = {}, options: IOptions1 = {}): IPromise<any> {
+  invokeLater(state: State, fn: IInjectable, locals: any = {}, options: IOptions1 = {}): IPromise<any> {
     let isolateCtx = this.isolateRootTo(state);
     let resolvables = this.getResolvablesForFn(fn, isolateCtx);
     trace.tracePathElementInvoke(state, fn, Object.keys(resolvables), extend({when: "Later"}, options));
@@ -132,21 +149,21 @@ export default class ResolveContext {
   }
 
   /**
-   * Immediately injects a function with the dependent Resolvables available in the IResolvePath, from
+   * Immediately injects a function with the dependent Resolvables available in the path, from
    * the first node up to the node for the given state.
    *
    * If a Resolvable is not yet resolved, then null is injected in place of the resolvable.
    *
    * @return the return value of the function.
    *
-   * @param state: The state context object (within the Path)
+   * @param state: The state context object (within the path)
    * @param fn: the function to inject (i.e., onEnter, onExit, controller)
    * @param locals: are the angular $injector-style locals to inject
    * @param options: options (TODO: document)
    */
   // Injects a function at this PathElement level with available Resolvables
   // Does not wait until all Resolvables have been resolved; you must call PathElement.resolve() (or manually resolve each dep) first
-  invokeNow(state: IState, fn: IInjectable, locals: any, options: any = {}) {
+  invokeNow(state: State, fn: IInjectable, locals: any, options: any = {}) {
     let isolateCtx = this.isolateRootTo(state);
     let resolvables = this.getResolvablesForFn(fn, isolateCtx);
     trace.tracePathElementInvoke(state, fn, Object.keys(resolvables), extend({when: "Now  "}, options));

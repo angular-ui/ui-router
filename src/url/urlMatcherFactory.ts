@@ -6,7 +6,6 @@ import {forEach, extend, inherit, map, filter, isObject, isDefined, isArray, isS
 import matcherConfig from "./urlMatcherConfig";
 import UrlMatcher from "./urlMatcher";
 import Param from "../params/param";
-import ParamSet from "../params/paramSet";
 import paramTypes from "../params/paramTypes";
 import Type from "../params/type";
 
@@ -37,9 +36,7 @@ function $UrlMatcherFactory() {
    * @param {boolean} value `false` to match URL in a case sensitive manner; otherwise `true`;
    * @returns {boolean} the current value of caseInsensitive
    */
-  this.caseInsensitive = function(value) {
-    return matcherConfig.caseInsensitive(value);
-  };
+  this.caseInsensitive = matcherConfig.caseInsensitive.bind(matcherConfig);
 
   /**
    * @ngdoc function
@@ -52,9 +49,7 @@ function $UrlMatcherFactory() {
    * @param {boolean=} value `false` to match trailing slashes in URLs, otherwise `true`.
    * @returns {boolean} the current value of strictMode
    */
-  this.strictMode = function(value) {
-    return matcherConfig.strictMode(value);
-  };
+  this.strictMode = matcherConfig.strictMode.bind(matcherConfig);
 
   /**
    * @ngdoc function
@@ -71,9 +66,7 @@ function $UrlMatcherFactory() {
    *    any other string, e.g. "~": When generating an href with a default parameter value, squash (remove)
    *             the parameter value from the URL and replace it with this string.
    */
-  this.defaultSquashPolicy = function(value) {
-    return matcherConfig.defaultSquashPolicy(value);
-  };
+  this.defaultSquashPolicy = matcherConfig.defaultSquashPolicy.bind(matcherConfig);
 
   /**
    * @ngdoc function
@@ -87,9 +80,7 @@ function $UrlMatcherFactory() {
    * @param {Object} config  The config object hash.
    * @returns {UrlMatcher}  The UrlMatcher.
    */
-  this.compile = function (pattern, config) {
-    return new UrlMatcher(pattern, extend(getDefaultConfig(), config));
-  };
+  this.compile = (pattern: string, config: { [key: string]: any }) => new UrlMatcher(pattern, extend(getDefaultConfig(), config));
 
   /**
    * @ngdoc function
@@ -103,14 +94,12 @@ function $UrlMatcherFactory() {
    * @returns {Boolean}  Returns `true` if the object matches the `UrlMatcher` interface, by
    *          implementing all the same methods.
    */
-  this.isMatcher = function (o) {
+  this.isMatcher = o => {
     if (!isObject(o)) return false;
     var result = true;
 
-    forEach(UrlMatcher.prototype, function(val, name) {
-      if (isFunction(val)) {
-        result = result && (isDefined(o[name]) && isFunction(o[name]));
-      }
+    forEach(UrlMatcher.prototype, (val, name) => {
+      if (isFunction(val)) result = result && (isDefined(o[name]) && isFunction(o[name]));
     });
     return result;
   };
@@ -234,10 +223,7 @@ function $UrlMatcherFactory() {
     return this;
   };
 
-
-  this.UrlMatcher = UrlMatcher;
-  this.Param = Param;
-  this.ParamSet = ParamSet;
+  extend(this, { UrlMatcher, Param });
 }
 
 // Register as a provider so it's available to other providers
