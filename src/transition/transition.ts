@@ -23,7 +23,7 @@ import {ViewConfig} from "../view/view";
 
 import {
   map, find, extend, mergeR, flatten, unnest, tail, forEach, identity,
-  omit, isObject, not, prop, propEq, toJson, val, abstractKey
+  omit, isObject, not, prop, propEq, toJson, val, abstractKey, arrayTuples, allTrueR
 } from "../common/common";
 
 let transitionCount = 0, REJECT = new RejectFactory();
@@ -269,14 +269,13 @@ export class Transition implements IHookRegistry {
    */
   ignored() {
     let {to, from} = this._treeChanges;
-    let [toState, fromState]  = [to, from].map(path => tail(path).state);
-    let [toParams, fromParams]  = [to, from].map(path => tail(path).values);
+    if (this._options.reload || tail(to).state !== tail(from).state) return false;
 
-    return (
-      !this._options.reload &&
-      toState === fromState &&
-      Param.equals(toState.parameters().filter(not(prop('dynamic'))), toParams, fromParams)
-    );
+    let nodeSchemas: Param[][] = to.map(node => node.schema.filter(not(prop('dynamic'))));
+    let [toValues, fromValues] = [to, from].map(path => path.map(prop('values')));
+    let tuples = arrayTuples(nodeSchemas, toValues, fromValues);
+
+    return tuples.map(([schema, toVals, fromVals]) => Param.equals(schema, toVals, fromVals)).reduce(allTrueR, true);
   }
 
   hookBuilder(): HookBuilder {
@@ -344,7 +343,7 @@ export class Transition implements IHookRegistry {
     // (X) means the to state is invalid.
     let id = this.$id,
         from = isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
-        fromParams = toJson(avoidEmptyHash(tail(this._treeChanges.from).values)),
+        fromParams = toJson(avoidEmptyHash(this._treeChanges.from.map(prop('values')).reduce(mergeR, {}))),
         toValid = this.valid() ? "" : "(X) ",
         to = isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
         toParams = toJson(avoidEmptyHash(this.params()));

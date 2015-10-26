@@ -298,12 +298,12 @@ export const allTrueR  = (memo: boolean, elem) => memo && elem;
 /** Reduce function that returns true if any of the values are truthy. */
 export const anyTrueR  = (memo: boolean, elem) => memo || elem;
 
-/** Push an object to an array, return the array */
-export const push      = (arr: any[], obj) => { arr.push(obj); return arr; };
+/** Reduce function that pushes an object to an array, then returns the array */
+export const pushR     = (arr: any[], obj) => { arr.push(obj); return arr; };
 /** Reduce function which un-nests a single level of arrays */
 export const unnestR   = (memo: any[], elem) => memo.concat(elem);
 /** Reduce function which recursively un-nests all arrays */
-export const flattenR  = (memo: any[], elem) => isArray(elem) ? memo.concat(elem.reduce(flattenR, [])) : push(memo, elem);
+export const flattenR  = (memo: any[], elem) => isArray(elem) ? memo.concat(elem.reduce(flattenR, [])) : pushR(memo, elem);
 /** Return a new array with a single level of arrays unnested. */
 export const unnest    = (arr: any[]) => arr.reduce(unnestR, []);
 /** Return a completely flattened version of an array. */
@@ -323,17 +323,21 @@ export function assertPredicate<T>(fn: Predicate<T>, errMsg: string = "assert fa
 export const pairs = (object) => Object.keys(object).map(key => [ key, object[key]] );
 
 /**
- * Given two parallel arrays, returns an array of tuples, where each tuple is composed of [ left[i], right[i] ]
- * Optionally, a map function can be provided.  It will be applied to each left and right element before adding it to the tuple.
+ * Given two or more parallel arrays, returns an array of tuples where
+ * each tuple is composed of [ a[i], b[i], ... z[i] ]
  *
  * let foo = [ 0, 2, 4, 6 ];
  * let bar = [ 1, 3, 5, 7 ];
- * paired(foo, bar);              // [ [0, 1], [2, 3], [4, 5], [6, 7] ]
- * paired(foo, bar, x => x * 2);  // [ [0, 2], [4, 6], [8, 10], [12, 14] ]
+ * let baz = [ 10, 30, 50, 70 ];
+ * tuples(foo, bar);       // [ [0, 1], [2, 3], [4, 5], [6, 7] ]
+ * tuples(foo, bar, baz);  // [ [0, 1, 10], [2, 3, 30], [4, 5, 50], [6, 7, 70] ]
  *
  */
-export const paired = (left: any[], right: any[], mapFn: Function = identity) =>
-    left.map((lval, idx) => [ mapFn(lval), mapFn(right[idx]) ]);
+export function arrayTuples(...arrayArgs: any[]): any[] {
+  if (arrayArgs.length === 0) return [];
+  let length = arrayArgs.reduce((min, arr) => Math.min(arr.length, min), 9007199254740991); // aka 2^53 − 1 aka Number.MAX_SAFE_INTEGER
+  return Array.apply(null, Array(length)).map((ignored, idx) => arrayArgs.map(arr => arr[idx]).reduce(pushR, []));
+}
 
 /**
  * Reduce function which builds an object from an array of [key, value] pairs.
