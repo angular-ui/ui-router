@@ -114,12 +114,10 @@ export class State {
     return this.parent && this.parent.root() || this;
   }
 
-  parameters(opts: any = {}): Param[] {
+  parameters(opts?): Param[] {
     opts = defaults(opts, { inherit: true });
-
-    return (this.parent && opts.inherit && this.parent.parameters() || [])
-      .concat(this.url && this.url.parameters({ inherit: false }) || [])
-      .concat(values(this.params));
+    var inherited = opts.inherit && this.parent && this.parent.parameters() || [];
+    return inherited.concat(values(this.params));
   }
 
   parameter(id: string, opts: any = {}): Param {

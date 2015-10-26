@@ -89,7 +89,8 @@ export default class TransitionManager {
     if (error instanceof TransitionRejection) {
       if (error.type === RejectType.IGNORED) {
         // Update $stateParmas/$state.params/$location.url if transition ignored, but dynamic params have changed.
-        if (!Param.equals($state.$current.parameters().filter(prop('dynamic')), $stateParams, transition.params())) {
+        let dynamic = $state.$current.parameters().filter(prop('dynamic'));
+        if (!Param.equals(dynamic, $stateParams, transition.params())) {
           this.updateStateParams();
         }
         return $state.current;
