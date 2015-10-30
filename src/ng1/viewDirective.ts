@@ -179,7 +179,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
         trace.traceUiViewEvent("Linking", viewData);
 
         function configUpdatedCallback(config?: ViewConfig) {
-          if (configsEqual(viewConfig, config)) return;
+          if (configsEqual(viewConfig, config) || scope._willBeDestroyed) return;
           trace.traceUiViewConfigUpdated(viewData, config && config.context);
 
           viewConfig = config;
@@ -197,27 +197,42 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
         });
 
         function cleanupLastView() {
-          if (previousEl) {
-            trace.traceUiViewEvent("Removing    (previous) el", viewData);
-            previousEl.remove();
-            previousEl = null;
+          var _previousEl = previousEl;
+          var _currentScope = currentScope;
+
+          if (_currentScope) {
+            _currentScope._willBeDestroyed = true;
           }
 
-          if (currentScope) {
-            trace.traceUiViewEvent("Destroying  (previous) scope", viewData);
-            currentScope.$destroy();
-            currentScope = null;
+          function cleanOld() {
+            if (_previousEl) {
+              trace.traceUiViewEvent("Removing    (previous) el", viewData);
+              _previousEl.remove();
+              _previousEl = null;
+            }
+
+            if (_currentScope) {
+              trace.traceUiViewEvent("Destroying  (previous) scope", viewData);
+              _currentScope.$destroy();
+              _currentScope = null;
+            }
           }
 
           if (currentEl) {
             trace.traceUiViewEvent("Animate out (previous)", viewData);
             renderer.leave(currentEl, function() {
+              cleanOld();
               previousEl = null;
             });
 
             previousEl = currentEl;
-            currentEl = null;
+          } else {
+            cleanOld();
+            previousEl = null;
           }
+
+          currentEl = null;
+          currentScope = null;
         }
 
         function updateView(config?: ViewConfig) {

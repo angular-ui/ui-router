@@ -4,7 +4,7 @@ var uiRouter = require("angular-ui-router");
 describe('uiView', function () {
   'use strict';
 
-  var scope, $compile, elem;
+  var log, scope, $compile, elem;
 
   beforeEach(function() {
     var depends = ['ui.router'];
@@ -26,6 +26,10 @@ describe('uiView', function () {
       return jasmine.createSpy('$uiViewScroll');
     });
   }));
+
+  beforeEach(function() {
+    log = '';
+  });
 
   var aState = {
     template: 'aState template'
@@ -98,8 +102,9 @@ describe('uiView', function () {
       }
     }
   },
-  mState = {
-    template: 'mState',
+
+  oState = {
+    template: 'oState',
     controller: function ($scope, $element) {
       $scope.elementId = $element.attr('id');
     }
@@ -119,7 +124,22 @@ describe('uiView', function () {
       .state('j', jState)
       .state('k', kState)
       .state('l', lState)
-      .state('m', mState)
+      .state('m', {
+        template: 'mState',
+        controller: function($scope) {
+          log += 'm;';
+          $scope.$on('$destroy', function() {
+            log += '$destroy(m);';
+          });
+        },
+      })
+      .state('n', {
+        template: 'nState',
+        controller: function($scope) {
+          log += 'n;';
+        },
+      })
+      .state('o', oState)
   }));
 
   beforeEach(inject(function ($rootScope, _$compile_) {
@@ -129,6 +149,23 @@ describe('uiView', function () {
   }));
 
   describe('linking ui-directive', function () {
+
+    it('$destroy event is triggered after animation ends', inject(function($state, $q, $animate) {
+      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+
+      $state.transitionTo('m');
+      $q.flush();
+      expect(log).toBe('m;');
+      $state.transitionTo('n');
+      $q.flush();
+      if ($animate) {
+        expect(log).toBe('m;n;');
+        $animate.triggerCallbacks();
+        expect(log).toBe('m;n;$destroy(m);');
+      } else {
+        expect(log).toBe('m;$destroy(m);n;');
+      }
+    }));
 
     it('anonymous ui-view should be replaced with the template of the current $state', inject(function ($state, $q) {
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
@@ -315,11 +352,11 @@ describe('uiView', function () {
   }));
 
   it('should instantiate a controller with both $scope and $element injections', inject(function ($state, $q) {
-    elem.append($compile('<div><ui-view id="mState">{{elementId}}</ui-view></div>')(scope));
-    $state.transitionTo(mState);
+    elem.append($compile('<div><ui-view id="oState">{{elementId}}</ui-view></div>')(scope));
+    $state.transitionTo(oState);
     $q.flush();
 
-    expect(elem.text()).toBe('mState');
+    expect(elem.text()).toBe('oState');
   }));
 
   describe('play nicely with other directives', function() {
