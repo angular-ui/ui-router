@@ -291,7 +291,7 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
         update();
       };
 
-      $scope.$on('$stateChangeSuccess', update);
+      $scope.$on('$locationChangeSuccess', update);
 
       // Update route state
       function update() {
