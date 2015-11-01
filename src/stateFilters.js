@@ -31,9 +31,28 @@ function $IncludedByStateFilter($state) {
     return $state.includes(state);
   };
   includesFilter.$stateful = true;
-  return  includesFilter;
+  return includesFilter;
+}
+
+/**
+ * @ngdoc filter
+ * @name ui.router.state.filter:includedByStateWithParams
+ *
+ * @requires ui.router.state.$state
+ *
+ * @description
+ * Translates to {@link ui.router.state.$state#methods_includes $state.includes('fullOrPartialStateName', {})}.
+ */
+$IncludedByStateWithParamsFilter.$inject = ['$state'];
+function $IncludedByStateWithParamsFilter($state) {
+  var includesFilter = function (state, params) {
+    return $state.includes(state, params);
+  };
+  includesFilter.$stateful = true;
+  return includesFilter;
 }
 
 angular.module('ui.router.state')
   .filter('isState', $IsStateFilter)
-  .filter('includedByState', $IncludedByStateFilter);
+  .filter('includedByState', $IncludedByStateFilter)
+  .filter('includedByStateWithParams', $IncludedByStateWithParamsFilter);
