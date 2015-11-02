@@ -38,7 +38,8 @@ describe('includedByState filter', function() {
     $stateProvider
       .state('a', { url: '/' })
       .state('a.b', { url: '/b' })
-      .state('c', { url: '/c' });
+      .state('c', { url: '/c' })
+      .state('with-param', { url: '/with/:param' });
   }));
 
   it('should return true if the current state exactly matches the input state', inject(function($parse, $state, $q, $rootScope) {
@@ -57,5 +58,17 @@ describe('includedByState filter', function() {
     $state.go('c');
     $q.flush();
     expect($parse('"a" | includedByState')($rootScope)).toBe(false);
+  }));
+
+  it('should return true if the current state and param includes the input state', inject(function($parse, $state, $q, $rootScope) {
+    $state.go('with-param', {param: 'a'});
+    $q.flush();
+    expect($parse('"with-param" | includedByState: {param: "a"}')($rootScope)).toBe(true);
+  }));
+
+  it('should return false if the current state and param does not include input state', inject(function($parse, $state, $q, $rootScope) {
+    $state.go('with-param', {param: 'b'});
+    $q.flush();
+    expect($parse('"with-param" | includedByState: {param: "a"}')($rootScope)).toBe(false);
   }));
 });

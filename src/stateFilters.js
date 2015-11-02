@@ -27,8 +27,8 @@ function $IsStateFilter($state) {
  */
 $IncludedByStateFilter.$inject = ['$state'];
 function $IncludedByStateFilter($state) {
-  var includesFilter = function (state) {
-    return $state.includes(state);
+  var includesFilter = function (state, params) {
+    return $state.includes(state, params);
   };
   includesFilter.$stateful = true;
   return  includesFilter;
