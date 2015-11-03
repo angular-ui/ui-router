@@ -126,9 +126,9 @@ export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) 
 
       for (let key in builders) {
         if (!builders.hasOwnProperty(key)) continue;
-        let steps = isArray(builders[key]) ? builders[key].reverse() : [builders[key]];
-        let chainFns = (memo, step) => step(state, memo);
-        state[key] = steps.reduce(chainFns, noop);
+        let steps = isArray(builders[key]) ? builders[key] : [builders[key]];
+        let chain = steps.reduce((parentFn, step) => (state) => step(state, parentFn), noop);
+        state[key] = chain(state);
       }
       return state;
     },
