@@ -1541,6 +1541,57 @@ describe('state', function () {
       expect($state.$current.views['viewB@'].templateProvider()).toBe('Template for viewB@');
     }));
 
+    it('should invoke multiple decorators, if exist', inject(function ($state, $q, $httpBackend) {
+      var d = { d1: false, d2: false };
+      function decorator1(state, parent) { d.d1 = true; return parent(state); }
+      function decorator2(state, parent) { d.d2 = true; return parent(state); }
+
+      stateProvider.decorator('parent', decorator1);
+      stateProvider.decorator('parent', decorator2);
+
+      stateProvider.state({ name: "test", parent: A });
+      $state.go("test"); $q.flush();
+
+      expect($state.$current.name).toBe("test");
+      expect($state.$current.parent.name).toBe("A");
+      expect(d.d1).toBe(true);
+      expect(d.d2).toBe(true);
+    }));
+
+    it('should allow any decorator to short circuit the chain', inject(function ($state, $q, $httpBackend) {
+      var d = { d1: false, d2: false };
+      function decorator1(state, parent) { d.d1 = true; return parent(state); }
+      function decorator2(state, parent) { d.d2 = true; return {}; }
+
+      stateProvider.decorator('data', decorator1);
+      stateProvider.decorator('data', decorator2);
+
+      stateProvider.state({ name: "test", data: { x: 1 } });
+      $state.go("test"); $q.flush();
+
+      expect($state.$current.name).toBe("test");
+      expect($state.$current.data.x).toBeUndefined();
+      expect(d.d1).toBe(false);
+      expect(d.d2).toBe(true);
+    }));
+
+    it('should allow any decorator to modify the return value of the parent', inject(function ($state, $q, $httpBackend) {
+      var d = { d1: false, d2: false };
+      function decorator1(state, parent) { d.d1 = true; return angular.extend(parent(state), { y: 2 }); }
+      function decorator2(state, parent) { d.d2 = true; return angular.extend(parent(state), { z: 3 }); }
+
+      stateProvider.decorator('data', decorator1);
+      stateProvider.decorator('data', decorator2);
+
+      stateProvider.state({ name: "test", data: { x: 1 } });
+      $state.go("test"); $q.flush();
+
+      expect($state.$current.name).toBe("test");
+      expect($state.$current.data).toEqualData({ x: 1, y: 2, z: 3 });
+      expect(d.d1).toBe(true);
+      expect(d.d2).toBe(true);
+    }));
+
   });
 });
 
