@@ -696,9 +696,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
    * @requires $injector
    * @requires ui.router.util.$resolve
    * @requires ui.router.state.$stateParams
+   * @requires ui.router.state.$stateSearch
    * @requires ui.router.router.$urlRouter
    *
-   * @property {object} params A param object, e.g. {sectionId: section.id)}, that 
+   * @property {object} params A param object, e.g. {sectionId: section.id}, that 
+   * you'd like to test against the current active state.
+   * @property {object} search A $location.search copy, e.g. {myarg: 123}, that 
    * you'd like to test against the current active state.
    * @property {object} current A reference to the state's config object. However 
    * you passed it in. Useful for accessing custom data.
@@ -711,8 +714,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
    * you're coming from.
    */
   this.$get = $get;
-  $get.$inject = ['$rootScope', '$q', '$view', '$injector', '$resolve', '$stateParams', '$urlRouter', '$location', '$urlMatcherFactory'];
-  function $get(   $rootScope,   $q,   $view,   $injector,   $resolve,   $stateParams,   $urlRouter,   $location,   $urlMatcherFactory) {
+  $get.$inject = ['$rootScope', '$q', '$view', '$injector', '$resolve', '$stateParams', '$stateSearch', '$urlRouter', '$location', '$urlMatcherFactory'];
+  function $get(   $rootScope,   $q,   $view,   $injector,   $resolve,   $stateParams,   $stateSearch,   $urlRouter,   $location,   $urlMatcherFactory) {
 
     var TransitionSuperseded = $q.reject(new Error('transition superseded'));
     var TransitionPrevented = $q.reject(new Error('transition prevented'));
@@ -788,6 +791,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
     $state = {
       params: {},
+      search: {},
       current: root.self,
       $current: root,
       transition: null
@@ -1042,6 +1046,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
           });
           $urlRouter.update(true);
         }
+        var toSearch = angular.extend({}, $location.search());
+        $state.search = toSearch;
+        copy($state.search, $stateSearch);
+
         $state.transition = null;
         return $q.when($state.current);
       }
@@ -1144,6 +1152,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
             $$avoidResync: true, replace: options.location === 'replace'
           });
         }
+
+        var toSearch = angular.extend({}, $location.search());
+        $state.search = toSearch;
+        copy($state.search, $stateSearch);
 
         if (options.notify) {
         /**
@@ -1463,4 +1475,5 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
 angular.module('ui.router.state')
   .factory('$stateParams', function () { return {}; })
+  .factory('$stateSearch', function () { return {}; })
   .provider('$state', $StateProvider);

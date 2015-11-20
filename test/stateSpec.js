@@ -233,7 +233,21 @@ describe('state', function () {
       expect(called).toBeFalsy();
     }));
 
-    it('updates URL when changing only query params via $state.go() when reloadOnSearch=false', inject(function ($state, $stateParams, $q, $location, $rootScope){
+    it('updates $stateSearch when state.reloadOnSearch=false', inject(function ($state, $stateParams, $stateSearch, $q, $location, $rootScope){
+      initStateTo(RS);
+      $location.search({term: 'hello', myarg: 'search'});
+      var called;
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, options) {
+        called = true
+      });
+      $q.flush();
+      expect($stateParams).toEqual({term: 'hello'});
+      expect($state.search).toEqual({term: 'hello', myarg: 'search'});
+      expect($stateSearch).toEqual({term: 'hello', myarg: 'search'});
+      expect(called).toBeFalsy();
+    }));
+
+    it('updates URL when changing only query params via $state.go() when reloadOnSearch=false', inject(function ($state, $stateParams, $stateSearch, $q, $location, $rootScope){
       initStateTo(RS);
       var called;
       $state.go(".", { term: 'goodbye' });
@@ -242,6 +256,8 @@ describe('state', function () {
       });
       $q.flush();
       expect($stateParams).toEqual({term: 'goodbye'});
+      expect($state.search).toEqual({term: 'goodbye'});
+      expect($stateSearch).toEqual({term: 'goodbye'});
       expect($location.url()).toEqual("/search?term=goodbye");
       expect(called).toBeFalsy();
     }));
@@ -605,7 +621,7 @@ describe('state', function () {
       expect($state.$current.name).toBe('about.sidebar');
     }));
 
-    it('keeps parameters from common ancestor states', inject(function ($state, $stateParams, $q) {
+    it('keeps parameters from common ancestor states', inject(function ($state, $stateParams, $stateSearch, $q) {
       $state.transitionTo('about.person', { person: 'bob' });
       $q.flush();
 
@@ -614,6 +630,7 @@ describe('state', function () {
 
       expect($state.$current.name).toBe('about.person.item');
       expect($stateParams).toEqual({ person: 'bob', id: "5" });
+      expect($stateSearch).toEqual({});
 
       $state.go('^.^.sidebar');
       $q.flush();
