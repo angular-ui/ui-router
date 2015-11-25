@@ -424,6 +424,12 @@ describe('uiSrefActive', function() {
       url: '/detail/:foo'
     }).state('contacts.item.edit', {
       url: '/edit'
+    }).state('admin', {
+      url: '/admin',
+      abstract: true,
+      template: '<ui-view/>'
+    }).state('admin.roles', {
+      url: '/roles?page'
     });
   }));
 
@@ -609,4 +615,51 @@ describe('uiSrefActive', function() {
     timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
   }));
+
+  describe('ng-{class,style} interface', function() {
+    it('should match on abstract states that are included by the current state', inject(function($rootScope, $compile, $state, $q) {
+      el = $compile('<div ui-sref-active="{active: \'admin.*\'}"><a ui-sref-active="active" ui-sref="admin.roles">Roles</a></div>')($rootScope);
+      $state.transitionTo('admin.roles');
+      $q.flush();
+      timeoutFlush();
+      var abstractParent = el[0];
+      expect(abstractParent.className).toMatch(/active/);
+      var child = el[0].querySelector('a');
+      expect(child.className).toMatch(/active/);
+    }));
+
+    it('should match on state parameters', inject(function($compile, $rootScope, $state, $q) {
+      el = $compile('<div ui-sref-active="{active: \'admin.roles({page: 1})\'}"></div>')($rootScope);
+      $state.transitionTo('admin.roles', {page: 1});
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).toMatch(/active/);
+    }));
+
+    it('should shadow the state provided by ui-sref', inject(function($compile, $rootScope, $state, $q) {
+      el = $compile('<div ui-sref-active="{active: \'admin.roles({page: 1})\'}"><a ui-sref="admin.roles"></a></div>')($rootScope);
+      $state.transitionTo('admin.roles');
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).not.toMatch(/active/);
+      $state.transitionTo('admin.roles', {page: 1});
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).toMatch(/active/);
+    }));
+
+    it('should support multiple <className, stateOrName> pairs', inject(function($compile, $rootScope, $state, $q) {
+      el = $compile('<div ui-sref-active="{contacts: \'contacts.*\', admin: \'admin.roles({page: 1})\'}"></div>')($rootScope);
+      $state.transitionTo('contacts');
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).toMatch(/contacts/);
+      expect(el[0].className).not.toMatch(/admin/);
+      $state.transitionTo('admin.roles', {page: 1});
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).toMatch(/admin/);
+      expect(el[0].className).not.toMatch(/contacts/);
+    }));
+  });
 });
