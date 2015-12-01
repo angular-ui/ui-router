@@ -520,6 +520,12 @@ describe("urlMatcherFactory", function () {
       expect(m.format({ foo: 5, flag: true })).toBe("/5/1");
     });
 
+    it("should match built-in types with spaces", function () {
+      var m = new UrlMatcher("/{foo: int}/{flag:  bool}");
+      expect(m.exec("/1138/1")).toEqual({ foo: 1138, flag: true });
+      expect(m.format({ foo: 5, flag: true })).toBe("/5/1");
+    });
+
     it("should match types named only in params", function () {
       var m = new UrlMatcher("/{foo}/{flag}", {
         params: {
