@@ -56,6 +56,6 @@ export default class Node {
   static matching(first: Node[], second: Node[]): Node[] {
     let matchedCount = first.reduce((prev, node, i) =>
       prev === i && i < second.length && node.state === second[i].state ? i + 1 : prev, 0);
-    return first.slice(matchedCount);
+    return first.slice(0, matchedCount);
   }
 }
