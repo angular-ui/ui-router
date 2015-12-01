@@ -14,6 +14,7 @@ import ResolveContext from "../resolve/resolveContext";
 
 import {ViewConfig} from "../view/view";
 import ResolveInjector from "../resolve/resolveInjector";
+import {Transition} from "../transition/transition";
 
 /**
  * This class contains functions which convert TargetStates, Nodes and paths from one type to another.
@@ -92,8 +93,7 @@ export default class PathFactory {
     resolvePath.forEach((node: Node) => {
       node.resolveContext = resolveContext.isolateRootTo(node.state);
       node.resolveInjector = new ResolveInjector(node.resolveContext, node.state);
-      // node.paramValues = paramValues.$isolateRootTo(node.state.name);
-      node.resolves["$stateParams"] = new Resolvable("$stateParams", () => node.values, node.state);
+      node.resolves.$stateParams = new Resolvable("$stateParams", () => node.values, node.state, node.values);
     });
 
     return resolvePath;
@@ -137,5 +137,10 @@ export default class PathFactory {
     entering              = to.slice(keep);
 
     return { from, to, retained, exiting, entering };
+  }
+
+  static bindTransitionResolve(treeChanges: ITreeChanges, transition: Transition) {
+    let rootNode = treeChanges.to[0];
+    rootNode.resolves.$transition$ = new Resolvable('$transition$', () => transition, rootNode.state, transition);
   }
 }

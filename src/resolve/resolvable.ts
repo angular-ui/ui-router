@@ -22,11 +22,12 @@ import ResolveContext from "./resolveContext"
  * parameter to those fns.
  */
 export default class Resolvable {
-  constructor(name: string, resolveFn: Function, state: State) {
+  constructor(name: string, resolveFn: Function, state: State, preResolvedData?: any) {
     this.name = name;
     this.resolveFn = resolveFn;
     this.state = state;
     this.deps = runtime.$injector.annotate(resolveFn);
+    this.data = preResolvedData;
   }
 
   name: string;

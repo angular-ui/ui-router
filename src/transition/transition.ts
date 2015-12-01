@@ -76,6 +76,7 @@ export class Transition implements IHookRegistry {
     this.$id = transitionCount++;
     let toPath = PathFactory.buildToPath(fromPath, targetState);
     this._treeChanges = PathFactory.treeChanges(fromPath, toPath, this._options.reloadState);
+    PathFactory.bindTransitionResolve(this._treeChanges, this);
   }
 
   $from() {

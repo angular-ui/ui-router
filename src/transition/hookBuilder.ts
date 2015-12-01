@@ -43,14 +43,12 @@ export default class HookBuilder {
   toState: State;
   fromState: State;
 
-  transitionLocals: { [key: string]: any };
 
   constructor(private $transitions: ITransitionService, private transition: Transition, private baseHookOptions: ITransitionHookOptions) {
     this.treeChanges        = transition.treeChanges();
     this.toState            = tail(this.treeChanges.to).state;
     this.fromState          = tail(this.treeChanges.from).state;
     this.transitionOptions  = transition.options();
-    this.transitionLocals   = { $transition$: transition };
   }
 
   // TODO: These get* methods are returning different cardinalities of hooks
@@ -109,11 +107,9 @@ export default class HookBuilder {
   }
 
   /** Given a node and a callback function, builds a TransitionHook */
-  buildHook(node: Node, fn: IInjectable, moreLocals?, options: ITransitionHookOptions = {}): TransitionHook {
-    let locals = extend({}, this.transitionLocals, moreLocals);
+  buildHook(node: Node, fn: IInjectable, locals?, options: ITransitionHookOptions = {}): TransitionHook {
     let _options = extend({}, this.baseHookOptions, options);
-
-    return new TransitionHook(node.state, fn, locals, node.resolveContext, _options);
+    return new TransitionHook(node.state, fn, extend({}, locals), node.resolveContext, _options);
   }
 
 
