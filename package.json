@@ -75,7 +75,7 @@
     "shelljs": "~0.2.6",
     "systemjs": "^0.18.4",
     "tslint": "=2.5.0",
-    "typescript": "=1.6.2"
+    "typescript": "=1.7.3"
   },
   "main": "release/angular-ui-router"
 }
