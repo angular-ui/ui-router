@@ -47,8 +47,8 @@ export default class Node {
   }
 
   /**
-   * Returns a new path which is a subpath of this path. The new path starts from root and contains any nodes
-   * that match the nodes in the second path. Nodes are compared using their state properties.
+   * Returns a new path which is a subpath of the first path. The new path starts from root and contains any nodes
+   * that match the nodes in the second path. Nodes are compared using their state property.
    * @param first {Node[]}
    * @param second {Node[]}
    * @returns {Node[]}

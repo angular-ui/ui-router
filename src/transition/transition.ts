@@ -22,7 +22,7 @@ import Param from "../params/param";
 import {ViewConfig} from "../view/view";
 
 import {
-  map, find, extend, mergeR, flatten, unnest, tail, forEach, identity,
+  map, find, extend, filter, mergeR, flatten, unnest, tail, forEach, identity,
   omit, isObject, not, prop, propEq, toJson, val, abstractKey, arrayTuples, allTrueR
 } from "../common/common";
 
@@ -251,8 +251,9 @@ export class Transition implements IHookRegistry {
     // add those resolvables to the redirected transition.  Allows you to define a resolve at a parent level, wait for
     // the resolve, then redirect to a child state based on the result, and not have to re-fetch the resolve.
     let redirectedPath = this.treeChanges().to;
-    let matching = Node.matching(redirectTo.treeChanges().to, redirectedPath);
-    matching.forEach((node, idx) => node.resolves = redirectedPath[idx].resolves);
+    let matching: Node[] = Node.matching(redirectTo.treeChanges().to, redirectedPath);
+    const includeResolve = (resolve, key) => ['$stateParams', '$transition$'].indexOf(key) === -1;
+    matching.forEach((node, idx) => extend(node.resolves, filter(redirectedPath[idx].resolves, includeResolve)));
 
     return redirectTo;
   }

@@ -253,8 +253,8 @@ export function pluck(collection, propName): any {
  * - array: only the elements which passed the callback predicate
  * - object: only the properties that passed the callback predicate
  */
-export function filter<T>(collection: T[], callback: Predicate<T>): T[];
-export function filter<T>(collection: TypedMap<T>, callback: Predicate<T>): TypedMap<T>;
+export function filter<T>(collection: T[], callback: (T, key?) => boolean): T[];
+export function filter<T>(collection: TypedMap<T>, callback: (T, key?) => boolean): TypedMap<T>;
 export function filter<T>(collection: T, callback: Function): T {
   let arr = isArray(collection), result: any = arr ? [] : {};
   let accept = arr ? x => result.push(x) : (x, key) => result[key] = x;
