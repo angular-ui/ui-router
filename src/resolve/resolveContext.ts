@@ -70,9 +70,9 @@ export default class ResolveContext {
   }
 
   /** Inspects a function `fn` for its dependencies.  Returns an object containing any matching Resolvables */
-  getResolvablesForFn(fn: IInjectable, resolveContext: ResolveContext = this): { [key: string]: Resolvable } {
+  getResolvablesForFn(fn: IInjectable): { [key: string]: Resolvable } {
     let deps = runtime.$injector.annotate(<Function> fn);
-    return <any> pick(resolveContext.getResolvables(), deps);
+    return <any> pick(this.getResolvables(), deps);
   }
 
   isolateRootTo(state: State): ResolveContext {
@@ -133,7 +133,7 @@ export default class ResolveContext {
    * @param options: options (TODO: document)
    */
   invokeLater(fn: IInjectable, locals: any = {}, options: IOptions1 = {}): IPromise<any> {
-    let resolvables = this.getResolvablesForFn(fn, this);
+    let resolvables = this.getResolvablesForFn(fn);
     trace.tracePathElementInvoke(tail(this._path), fn, Object.keys(resolvables), extend({when: "Later"}, options));
     const getPromise = (resolvable: Resolvable) => resolvable.get(this, options);
     let promises: IPromises = <any> map(resolvables, getPromise);
@@ -163,7 +163,7 @@ export default class ResolveContext {
   // Injects a function at this PathElement level with available Resolvables
   // Does not wait until all Resolvables have been resolved; you must call PathElement.resolve() (or manually resolve each dep) first
   invokeNow(fn: IInjectable, locals: any, options: any = {}) {
-    let resolvables = this.getResolvablesForFn(fn, this);
+    let resolvables = this.getResolvablesForFn(fn);
     trace.tracePathElementInvoke(tail(this._path), fn, Object.keys(resolvables), extend({when: "Now  "}, options));
     let resolvedLocals = map(resolvables, prop("data"));
     return runtime.$injector.invoke(<Function> fn, null, extend({}, locals, resolvedLocals));

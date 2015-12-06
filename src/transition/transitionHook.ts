@@ -49,7 +49,7 @@ export default class TransitionHook {
   ]);
 
   invokeStep = (moreLocals) => {
-    let { options, fn, resolveContext, state } = this;
+    let { options, fn, resolveContext } = this;
     let locals = extend({}, this.locals, moreLocals);
     trace.traceHookInvocation(this, options);
     if (options.rejectIfSuperseded && this.isSuperseded()) {
