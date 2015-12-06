@@ -132,16 +132,15 @@ export default class ResolveContext {
    * @param locals: are the angular $injector-style locals to inject
    * @param options: options (TODO: document)
    */
-  invokeLater(state: State, fn: IInjectable, locals: any = {}, options: IOptions1 = {}): IPromise<any> {
-    let isolateCtx = this.isolateRootTo(state);
-    let resolvables = this.getResolvablesForFn(fn, isolateCtx);
-    trace.tracePathElementInvoke(state, fn, Object.keys(resolvables), extend({when: "Later"}, options));
-    const getPromise = (resolvable: Resolvable) => resolvable.get(isolateCtx, options);
+  invokeLater(fn: IInjectable, locals: any = {}, options: IOptions1 = {}): IPromise<any> {
+    let resolvables = this.getResolvablesForFn(fn, this);
+    trace.tracePathElementInvoke(tail(this._path), fn, Object.keys(resolvables), extend({when: "Later"}, options));
+    const getPromise = (resolvable: Resolvable) => resolvable.get(this, options);
     let promises: IPromises = <any> map(resolvables, getPromise);
     
     return runtime.$q.all(promises).then(() => {
       try {
-        return isolateCtx.invokeNow(state, fn, locals, options);
+        return this.invokeNow(fn, locals, options);
       } catch (error) {
         return runtime.$q.reject(error);
       }
@@ -163,13 +162,11 @@ export default class ResolveContext {
    */
   // Injects a function at this PathElement level with available Resolvables
   // Does not wait until all Resolvables have been resolved; you must call PathElement.resolve() (or manually resolve each dep) first
-  invokeNow(state: State, fn: IInjectable, locals: any, options: any = {}) {
-    let isolateCtx = this.isolateRootTo(state);
-    let resolvables = this.getResolvablesForFn(fn, isolateCtx);
-    trace.tracePathElementInvoke(state, fn, Object.keys(resolvables), extend({when: "Now  "}, options));
+  invokeNow(fn: IInjectable, locals: any, options: any = {}) {
+    let resolvables = this.getResolvablesForFn(fn, this);
+    trace.tracePathElementInvoke(tail(this._path), fn, Object.keys(resolvables), extend({when: "Now  "}, options));
     let resolvedLocals = map(resolvables, prop("data"));
-    let combinedLocals = extend({}, locals, resolvedLocals);
-    return runtime.$injector.invoke(<Function> fn, state, combinedLocals);
+    return runtime.$injector.invoke(<Function> fn, null, extend({}, locals, resolvedLocals));
   }
 }
 

@@ -8,12 +8,12 @@ export default class ResolveInjector {
 
   /** Returns a promise to invoke an annotated function in the resolve context */
   invokeLater(injectedFn, locals) {
-    return this._resolveContext.invokeLater(this._state, injectedFn, locals);
+    return this._resolveContext.invokeLater(injectedFn, locals);
   }
 
   /** Invokes an annotated function in the resolve context */
   invokeNow(injectedFn, locals) {
-    return this._resolveContext.invokeNow(this._state, injectedFn, locals);
+    return this._resolveContext.invokeNow(null, injectedFn, locals);
   }
 
   /** Returns the a promise for locals (realized Resolvables) that a function wants */

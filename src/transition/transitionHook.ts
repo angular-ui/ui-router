@@ -58,10 +58,10 @@ export default class TransitionHook {
 
     // TODO: Need better integration of returned promises in synchronous code.
     if (!options.async) {
-      let hookResult = resolveContext.invokeNow(state, fn, locals, options);
+      let hookResult = resolveContext.invokeNow(fn, locals, options);
       return this.handleHookResult(hookResult);
     }
-    return resolveContext.invokeLater(state, fn, locals, options).then(this.handleHookResult.bind(this));
+    return resolveContext.invokeLater(fn, locals, options).then(this.handleHookResult.bind(this));
   };
 
   /**

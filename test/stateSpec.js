@@ -224,9 +224,9 @@ describe('state', function () {
   }));
 
   var log, logEvents, logEnterExit;
-  function callbackLogger(what) {
+  function callbackLogger(state, what) {
     return function () {
-      if (logEnterExit) log += this.name + '.' + what + ';';
+      if (logEnterExit) log += state.name + '.' + what + ';';
     };
   }
 
@@ -254,8 +254,8 @@ describe('state', function () {
 
   beforeEach(module(function ($stateProvider, $provide) {
     angular.forEach([ A, B, C, D, DD, E, H, HH, HHH ], function (state) {
-      state.onEnter = callbackLogger('onEnter');
-      state.onExit = callbackLogger('onExit');
+      state.onEnter = callbackLogger(state, 'onEnter');
+      state.onExit = callbackLogger(state, 'onExit');
     });
     stateProvider = $stateProvider;
 

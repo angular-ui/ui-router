@@ -144,11 +144,11 @@ class Trace {
     console.log(`Transition #${tid} Digest #${digest}:               <- Resolved  ${resolvableStr} to: ${maxLength(200, result)}`);
   }
 
-  tracePathElementInvoke(state, fn, deps, options) {
+  tracePathElementInvoke(node, fn, deps, options) {
     if (!this.enabled(Category.INVOKE)) return;
     let tid = parse("transition.$id")(options),
         digest = this.approximateDigests,
-        stateName = state && state.toString(),
+        stateName = node && node.state && node.state.toString(),
         fnName = functionToString(fn);
     console.log(`Transition #${tid} Digest #${digest}:         Invoke ${options.when}: context: ${stateName} ${maxLength(200, fnName)}`);
   }

@@ -242,7 +242,7 @@ describe('Resolvables system:', function () {
       let result;
 
       let onEnter1 = function (_C2) { result = _C2; };
-      let promise = ctx.invokeLater(statesMap["C"], onEnter1, {});
+      let promise = ctx.invokeLater(onEnter1, {});
       promise.then(function (data) {
         expect(result).toBe("C2");
         expect(getResolvedData(ctx)).toEqualData({_C2: "C2"});
@@ -260,7 +260,7 @@ describe('Resolvables system:', function () {
 
       let result;
       let cOnEnter1 = function (_C2) { result = _C2; };
-      let promise = ctx.invokeLater(statesMap["C"], cOnEnter1, {});
+      let promise = ctx.invokeLater(cOnEnter1, {});
       promise.then(function (data) {
         expect(result).toBe("C2");
         expect(getResolvedData(ctx)).toEqualData({_C2: "C2"})
@@ -270,7 +270,7 @@ describe('Resolvables system:', function () {
       expect(asyncCount).toBe(1);
 
       let cOnEnter2 = function (_C) { result = _C; };
-      promise = ctx.invokeLater(statesMap["C"], cOnEnter2, {});
+      promise = ctx.invokeLater(cOnEnter2, {});
       promise.then(function (data) {
         expect(result).toBe("ABC");
         expect(getResolvedData(ctx)).toEqualData({_A: "A", _B: "B", _C: "ABC", _C2: "C2"})
@@ -283,12 +283,12 @@ describe('Resolvables system:', function () {
 
   describe('invokeLater', function () {
     it('should Error if the onEnter dependency cannot be injected', inject(function ($q) {
-      let path = makePath([ "A", "B", "C", "D" ]);
+      let path = makePath([ "A", "B", "C" ]);
       let ctx = new ResolveContext(path);
 
       let cOnEnter = function (_D) {  };
       let caught;
-      let promise = ctx.invokeLater(statesMap["C"], cOnEnter, {});
+      let promise = ctx.invokeLater(cOnEnter, {});
       promise.catch(function (err) {
         caught = err;
         asyncCount++;
@@ -311,7 +311,7 @@ describe('Resolvables system:', function () {
         result = _D;
       };
 
-      let promise = ctx.invokeLater(statesMap["D"], dOnEnter, {});
+      let promise = ctx.invokeLater(dOnEnter, {});
       promise.then(function () {
         expect(result).toBe("D1D2");
         expect(getResolvedData(ctx)).toEqualData({_D: "D1D2", _D2: "D2"})
@@ -333,7 +333,7 @@ describe('Resolvables system:', function () {
         result = _F;
       };
 
-      let promise = ctx.invokeLater(statesMap["F"], fOnEnter, {});
+      let promise = ctx.invokeLater(fOnEnter, {});
       promise.then(function () {
         expect(result).toBe("_EF");
         asyncCount++;
@@ -365,7 +365,7 @@ describe('Resolvables system:', function () {
         result = _H;
       };
 
-      promise = ctx.invokeLater(statesMap["H"], hOnEnter, {});
+      promise = ctx.invokeLater(hOnEnter, {});
       promise.then(function (data) {
         expect(result).toBe("G_GH");
         asyncCount++;
@@ -384,7 +384,7 @@ describe('Resolvables system:', function () {
       // let iPathElement = path.elements[1];
       let iOnEnter = function (_I) {  };
       let caught;
-      let promise = ctx.invokeLater(statesMap["I"], iOnEnter, {});
+      let promise = ctx.invokeLater(iOnEnter, {});
       promise.catch(function (err) {
         caught = err;
         asyncCount++;
@@ -432,13 +432,13 @@ describe('Resolvables system:', function () {
         result = _K;
         onEnterCount++;
       };
-      let promise = ctx.invokeLater(statesMap["K"], kOnEnter, {});
+      let promise = ctx.invokeLater(kOnEnter, {});
       promise.then(checkCounts);
       $q.flush();
       expect(onEnterCount).toBe(1);
 
       // invoke again
-      promise = ctx.invokeLater(statesMap["K"], kOnEnter, {});
+      promise = ctx.invokeLater(kOnEnter, {});
       promise.then(checkCounts);
       $q.flush();
       expect(onEnterCount).toBe(2);
