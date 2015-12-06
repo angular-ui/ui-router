@@ -74,7 +74,7 @@ export default class TransitionHook {
     if (keys.length)
       throw new Error(`Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}`);
 
-    const makeResolvable = (fn, name) => new Resolvable(name, fn, this.state);
+    const makeResolvable = (fn, name) => new Resolvable(name, fn);
     return map(resolves, makeResolvable);
   }
 

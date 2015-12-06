@@ -26,7 +26,7 @@ export default class Node {
     const getParamVal = (paramDef: Param) => [ paramDef.id, paramDef.value(params[paramDef.id]) ];
     this.values = this.schema.reduce((memo, pDef) => applyPairs(memo, getParamVal(pDef)), {});
 
-    this.resolves = extend(map(state.resolve, (fn: Function, name: string) => new Resolvable(name, fn, state)), resolves);
+    this.resolves = extend(map(state.resolve, (fn: Function, name: string) => new Resolvable(name, fn)), resolves);
 
     const makeViewConfig = (viewDeclarationObj, rawViewName) =>
         new ViewConfig({ rawViewName, viewDeclarationObj, context: state, params});

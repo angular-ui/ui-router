@@ -22,17 +22,15 @@ import ResolveContext from "./resolveContext"
  * parameter to those fns.
  */
 export default class Resolvable {
-  constructor(name: string, resolveFn: Function, state: State, preResolvedData?: any) {
+  constructor(name: string, resolveFn: Function, preResolvedData?: any) {
     this.name = name;
     this.resolveFn = resolveFn;
-    this.state = state;
     this.deps = runtime.$injector.annotate(resolveFn);
     this.data = preResolvedData;
   }
 
   name: string;
   resolveFn: Function;
-  state: State;
   deps: string[];
 
   promise: IPromise<any> = undefined;
@@ -50,7 +48,7 @@ export default class Resolvable {
   // - store unwrapped data
   // - resolve the Resolvable's promise
   resolveResolvable(resolveContext: ResolveContext, options: IOptions1 = {}) {
-    let {state, name, deps, resolveFn} = this;
+    let {name, deps, resolveFn} = this;
     
     trace.traceResolveResolvable(this, options);
     // First, set up an overall deferred/promise for this Resolvable
@@ -72,7 +70,7 @@ export default class Resolvable {
     // dependencies as locals, then unwraps the resulting promise's data.
     return runtime.$q.all(depPromises).then(locals => {
       try {
-        var result = runtime.$injector.invoke(resolveFn, state, locals);
+        var result = runtime.$injector.invoke(resolveFn, null, locals);
         deferred.resolve(result);
       } catch (error) {
         deferred.reject(error);

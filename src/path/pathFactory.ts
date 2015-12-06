@@ -93,7 +93,7 @@ export default class PathFactory {
     resolvePath.forEach((node: Node) => {
       node.resolveContext = resolveContext.isolateRootTo(node.state);
       node.resolveInjector = new ResolveInjector(node.resolveContext, node.state);
-      node.resolves.$stateParams = new Resolvable("$stateParams", () => node.values, node.state, node.values);
+      node.resolves.$stateParams = new Resolvable("$stateParams", () => node.values, node.values);
     });
 
     return resolvePath;
@@ -141,6 +141,6 @@ export default class PathFactory {
 
   static bindTransitionResolve(treeChanges: ITreeChanges, transition: Transition) {
     let rootNode = treeChanges.to[0];
-    rootNode.resolves.$transition$ = new Resolvable('$transition$', () => transition, rootNode.state, transition);
+    rootNode.resolves.$transition$ = new Resolvable('$transition$', () => transition, transition);
   }
 }
