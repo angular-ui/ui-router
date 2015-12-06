@@ -1,9 +1,10 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {pick, map}  from "../common/common";
+import {pick, map, filter, not, isFunction}  from "../common/common";
 import trace from "../common/trace";
 import {runtime} from "../common/angular1"
 import {IPromise} from "angular";
 
+import {IResolveDeclarations} from "../state/interface";
 import {State} from "../state/state";
 
 import {IResolvables, IOptions1} from "./interface"
@@ -89,5 +90,16 @@ export default class Resolvable {
 
   toString() {
     return `Resolvable(name: ${this.name}, state: ${this.state.name}, requires: [${this.deps}])`;
+  }
+
+  /**
+   * Validates the result map as a "resolve:" style object, then transforms the resolves into Resolvables
+   */
+  static makeResolvables(resolves: IResolveDeclarations): IResolvables {
+    // If a hook result is an object, it should be a map of strings to functions.
+    let invalid = filter(resolves, not(isFunction)), keys = Object.keys(invalid);
+    if (keys.length)
+      throw new Error(`Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}`);
+    return map(resolves, (fn, name) => new Resolvable(name, fn));
   }
 }

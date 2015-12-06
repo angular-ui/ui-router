@@ -77,11 +77,10 @@ export default class HookBuilder {
    */
   private _getTransitionHooks(hookType: string, context: (Node[]|State), locals = {}, options: ITransitionHookOptions = {}) {
     let node = tail(this.treeChanges.to);
-    let toFrom: IToFrom = this._toFrom();
     options.traceData = { hookType, context };
 
     const transitionHook = eventHook => this.buildHook(node, eventHook.callback, locals, options);
-    return this._matchingHooks(hookType, toFrom).map(transitionHook);
+    return this._matchingHooks(hookType, this._toFrom()).map(transitionHook);
   }
 
   /**

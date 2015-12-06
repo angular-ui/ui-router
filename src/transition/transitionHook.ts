@@ -43,9 +43,7 @@ export default class TransitionHook {
     // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
     [is(Transition),    (transition) => REJECT.redirected(transition)],
     // A promise was returned, wait for the promise and then chain another hookHandler
-    [isPromise,         (promise) => promise.then(this.handleHookResult.bind(this))],
-    // If the hook returns any new resolves, add them to the pathContext via the PathElement
-    [isObject,          (obj) => this.resolveContext.addResolvables(this.mapNewResolves(obj), this.state)]
+    [isPromise,         (promise) => promise.then(this.handleHookResult.bind(this))]
   ]);
 
   invokeStep = (moreLocals) => {
@@ -63,20 +61,6 @@ export default class TransitionHook {
     }
     return resolveContext.invokeLater(fn, locals, options).then(this.handleHookResult.bind(this));
   };
-
-  /**
-   * Validates the result map as a "resolve:" style object.
-   * Creates Resolvable objects from the result object and adds them to the target object
-   */
-  mapNewResolves(resolves: IResolveDeclarations) {
-    // If a hook result is an object, it should be a map of strings to functions.
-    let invalid = filter(resolves, not(isFunction)), keys = Object.keys(invalid);
-    if (keys.length)
-      throw new Error(`Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}`);
-
-    const makeResolvable = (fn, name) => new Resolvable(name, fn);
-    return map(resolves, makeResolvable);
-  }
 
   handleHookResult(hookResult) {
     if (!isDefined(hookResult)) return undefined;

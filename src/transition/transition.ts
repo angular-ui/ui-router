@@ -15,9 +15,13 @@ import PathFactory from "../path/pathFactory";
 
 import {State} from "../state/state";
 import TargetState from "../state/targetState";
-import {IStateDeclaration} from "../state/interface";
+import {IStateDeclaration, IStateOrName} from "../state/interface";
 
 import Param from "../params/param";
+
+import Resolvable from "../resolve/resolvable";
+
+import {IResolveDeclarations} from "../state/interface";
 
 import {ViewConfig} from "../view/view";
 
@@ -147,6 +151,23 @@ export class Transition implements IHookRegistry {
   // TODO
   params(pathname: string = "to"): { [key: string]: any } {
     return this._treeChanges[pathname].map(prop("values")).reduce(mergeR, {});
+  }
+
+  /**
+   * Returns an object with any settled resolve data
+   */
+  resolves = () => map(tail(this._treeChanges.to).resolveContext.getResolvables(), res => res.data);
+
+  /**
+   * Adds new resolves to this transition.
+   * @param resolves a IResolveDeclarations object which describes the new resolves
+   * @param state (optional) the state in the topath which should receive the new resolves (otherwise, the root state)
+   */
+  addResolves(resolves: IResolveDeclarations, state: IStateOrName = "") {
+    let stateName = state.name ? state.name : state;
+    let topath = this._treeChanges.to;
+    let targetNode = find(topath, node => node.state.name === stateName);
+    tail(topath).resolveContext.addResolvables(Resolvable.makeResolvables(resolves), targetNode.state);
   }
 
   /**

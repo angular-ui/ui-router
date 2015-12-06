@@ -394,17 +394,17 @@ describe('transition', function () {
         resolveDeferredFor("D"); expect(log.join(';')).toBe("#B;^B;#C;^C;#D;^D;DONE");
       }));
 
-      it("resolve-like objects returned from hooks should be added to the transition as Resolvables", inject(function($transitions, $q, $timeout) {
+      it("hooks can add resolves to a $transition$ and they will be available to be injected elsewhere", inject(function($transitions, $q, $timeout) {
         var log = [], transition = makeTransition("A", "D");
         var defer = $q.defer();
 
         transitionProvider.onEnter({}, function logEnter($state$) { log.push("Entered#"+$state$.name); }, {priority: -1});
 
-        transitionProvider.onEnter({ to: "B" }, function addResolves() {
+        transitionProvider.onEnter({ to: "B" }, function addResolves($transition$) {
           log.push("adding resolve");
-          return {
-            newResolve: function() { log.push("resolving"); return defer.promise; }
-          }
+          $transition$.addResolves({
+            newResolve: function () { log.push("resolving"); return defer.promise; }
+          })
         });
 
         transitionProvider.onEnter({ to: "C" }, function useTheNewResolve(newResolve) {
