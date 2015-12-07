@@ -1,6 +1,6 @@
 
 import {IPromise} from "angular";
-import {IInjectable, extend, tail, isPromise, isArray, assertPredicate, unnestR} from "../common/common";
+import {IInjectable, extend, tail, isPromise, isArray, assertPredicate, unnestR, flatten, identity} from "../common/common";
 import {runtime} from "../common/angular1";
 
 import {ITransitionOptions, ITransitionHookOptions, IHookRegistry, ITreeChanges, IEventHook, ITransitionService} from "./interface";
@@ -55,14 +55,25 @@ export default class HookBuilder {
   // onBefore/onStart/onFinish/onSuccess/onError returns an array of hooks
   // onExit/onRetain/onEnter returns an array of arrays of hooks
 
-  getOnBeforeHooks  = () => this._getTransitionHooks("onBefore",  this.treeChanges.from);
-  getOnStartHooks   = () => this._getTransitionHooks("onStart",   this.treeChanges.to);
-  getOnExitHooks    = () => this._getNodeHooks("onExit",          this.treeChanges.exiting.reverse(), (node) => this._toFrom({ from: node.state }));
-  getOnRetainHooks  = () => this._getNodeHooks("onRetain",        this.treeChanges.retained,          (node) => this._toFrom());
-  getOnEnterHooks   = () => this._getNodeHooks("onEnter",         this.treeChanges.entering,          (node) => this._toFrom({ to: node.state }));
-  getOnFinishHooks  = () => this._getTransitionHooks("onFinish",  this.treeChanges.to, { $treeChanges$: this.treeChanges });
-  getOnSuccessHooks = () => this._getTransitionHooks("onSuccess", this.treeChanges.to, {}, successErrorOptions);
-  getOnErrorHooks   = () => this._getTransitionHooks("onError",   this.treeChanges.to, {}, successErrorOptions);
+  getOnBeforeHooks  = () => this._buildTransitionHooks("onBefore");
+  getOnStartHooks   = () => this._buildTransitionHooks("onStart");
+  getOnExitHooks    = () => this._buildNodeHooks("onExit",          this.treeChanges.exiting.reverse(), (node) => this._toFrom({ from: node.state }));
+  getOnRetainHooks  = () => this._buildNodeHooks("onRetain",        this.treeChanges.retained,          (node) => this._toFrom());
+  getOnEnterHooks   = () => this._buildNodeHooks("onEnter",         this.treeChanges.entering,          (node) => this._toFrom({ to: node.state }));
+  getOnFinishHooks  = () => this._buildTransitionHooks("onFinish", { $treeChanges$: this.treeChanges });
+  getOnSuccessHooks = () => this._buildTransitionHooks("onSuccess", {}, {async: false, rejectIfSuperseded: false});
+  getOnErrorHooks   = () => this._buildTransitionHooks("onError", {}, {async: false, rejectIfSuperseded: false});
+
+
+  asyncHooks() {
+    let onStartHooks    = this.getOnStartHooks();
+    let onExitHooks     = this.getOnExitHooks();
+    let onRetainHooks   = this.getOnRetainHooks();
+    let onEnterHooks    = this.getOnEnterHooks();
+    let onFinishHooks   = this.getOnFinishHooks();
+
+    return flatten([onStartHooks, onExitHooks, onRetainHooks, onEnterHooks, onFinishHooks]).filter(identity);
+  }
 
   private _toFrom(toFromOverride?): IToFrom {
     return extend({ to: this.toState, from: this.fromState }, toFromOverride);
@@ -75,8 +86,8 @@ export default class HookBuilder {
    * Finds all registered IEventHooks which matched the hookType and toFrom criteria.
    * A TransitionHook is then built from each IEventHook with the context, locals, and options provided.
    */
-  private _getTransitionHooks(hookType: string, context: (Node[]|State), locals = {}, options: ITransitionHookOptions = {}) {
-    let node = tail(this.treeChanges.to);
+  private _buildTransitionHooks(hookType: string, locals = {}, options: ITransitionHookOptions = {}) {
+    let context = this.treeChanges.to, node = tail(context);
     options.traceData = { hookType, context };
 
     const transitionHook = eventHook => this.buildHook(node, eventHook.callback, locals, options);
@@ -92,7 +103,7 @@ export default class HookBuilder {
    * Finds all registered IEventHooks which matched the hookType and toFrom criteria.
    * A TransitionHook is then built from each IEventHook with the context, locals, and options provided.
    */
-  private _getNodeHooks(hookType: string, path: Node[], toFromFn: (node: Node) => IToFrom, locals: any = {}, options: ITransitionHookOptions = {}) {
+  private _buildNodeHooks(hookType: string, path: Node[], toFromFn: (node: Node) => IToFrom, locals: any = {}, options: ITransitionHookOptions = {}) {
     const hooksForNode = (node: Node) => {
       let toFrom = toFromFn(node);
       options.traceData = { hookType, context: node };
@@ -108,7 +119,7 @@ export default class HookBuilder {
   /** Given a node and a callback function, builds a TransitionHook */
   buildHook(node: Node, fn: IInjectable, locals?, options: ITransitionHookOptions = {}): TransitionHook {
     let _options = extend({}, this.baseHookOptions, options);
-    return new TransitionHook(node.state, fn, extend({}, locals), node.resolveContext, _options);
+    return new TransitionHook(fn, extend({}, locals), node.resolveContext, _options);
   }
 
 

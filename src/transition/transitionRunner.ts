@@ -13,47 +13,25 @@ export default class TransitionRunner {
   }
 
   run(): IPromise<any> {
-    const runSuccessHooks = () => runSynchronousHooks(this.success(), {}, true);
-    const runErrorHooks = ($error$) => runSynchronousHooks(this.error(), { $error$ }, true);
+    let hookBuilder = this.hookBuilder;
+    const runSuccessHooks = () => runSynchronousHooks(hookBuilder.getOnSuccessHooks(), {}, true);
+    const runErrorHooks = ($error$) => runSynchronousHooks(hookBuilder.getOnErrorHooks(), { $error$ }, true);
     // Run the success/error hooks *after* the Transition promise is settled.
     this.transition.promise.then(runSuccessHooks, runErrorHooks);
 
     // ---- Synchronous hooks ----
     // Run the "onBefore" sync hooks
     // The results of the sync hooks is an async promise chain (which gets rejected or resolved)
-    let chain = runSynchronousHooks(this.before());
+    let chain = runSynchronousHooks(hookBuilder.getOnBeforeHooks());
 
     // ---- Asynchronous section ----
     // Chain off the promise, build the remainder of the chain using each async step.
-    chain = this.async().reduce((_chain, step) => _chain.then(step.invokeStep), chain);
+    // Build the async hooks *after* running onBefore hooks.
+    // The synchronous onBefore hooks may register additional async hooks on-the-fly.
+    chain = hookBuilder.asyncHooks().reduce((_chain, step) => _chain.then(step.invokeStep), chain);
 
     // Make sure to settle the Transition promise, using the supplied callbacks and return the full chain.
     return chain.then(this._resolve, this._reject);
-  }
-
-  before() {
-    return this.hookBuilder.getOnBeforeHooks();
-  }
-
-  async() {
-    let hookBuilder = this.hookBuilder;
-    // Build the async hooks *after* running onBefore hooks.
-    // The synchronous onBefore hooks may register additional async hooks on-the-fly.
-    let onStartHooks    = hookBuilder.getOnStartHooks();
-    let onExitHooks     = hookBuilder.getOnExitHooks();
-    let onRetainHooks   = hookBuilder.getOnRetainHooks();
-    let onEnterHooks    = hookBuilder.getOnEnterHooks();
-    let onFinishHooks   = hookBuilder.getOnFinishHooks();
-
-    return flatten([onStartHooks, onExitHooks, onRetainHooks, onEnterHooks, onFinishHooks]).filter(identity);
-  }
-
-  success() {
-    return this.hookBuilder.getOnSuccessHooks();
-  }
-
-  error() {
-    return this.hookBuilder.getOnErrorHooks();
   }
 }
 

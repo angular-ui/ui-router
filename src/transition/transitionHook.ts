@@ -20,8 +20,7 @@ let defaultOptions = {
 };
 
 export default class TransitionHook {
-  constructor(private state: State,
-              private fn: IInjectable,
+  constructor(private fn:IInjectable,
               private locals: any,
               private resolveContext: ResolveContext,
               private options: ITransitionHookOptions) {
