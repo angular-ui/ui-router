@@ -312,15 +312,18 @@ export class Transition implements IHookRegistry {
   run () {
     let hookBuilder = this.hookBuilder();
     let runSynchronousHooks = TransitionHook.runSynchronousHooks;
+    // TODO: nuke these in favor of chaining off the promise, i.e.,
+    // $transitions.onBefore({}, $transition$ => {$transition$.promise.then()}
     const runSuccessHooks = () => runSynchronousHooks(hookBuilder.getOnSuccessHooks(), {}, true);
     const runErrorHooks = ($error$) => runSynchronousHooks(hookBuilder.getOnErrorHooks(), { $error$ }, true);
     // Run the success/error hooks *after* the Transition promise is settled.
     this.promise.then(runSuccessHooks, runErrorHooks);
 
-    let promiseChain = runSynchronousHooks(hookBuilder.getOnBeforeHooks());
+    let syncResult = runSynchronousHooks(hookBuilder.getOnBeforeHooks());
 
-    if (TransitionHook.isRejection(promiseChain)) {
-      this._deferred.reject(promiseChain);
+    if (TransitionHook.isRejection(syncResult)) {
+      let rejectReason = (<any> syncResult).reason;
+      this._deferred.reject(rejectReason);
       return this.promise;
     }
 
@@ -351,8 +354,8 @@ export class Transition implements IHookRegistry {
 
     trace.traceTransitionStart(this);
 
-    promiseChain = hookBuilder.asyncHooks().reduce((_chain, step) => _chain.then(step.invokeStep), promiseChain);
-    promiseChain.then(resolve, reject);
+    let chain = hookBuilder.asyncHooks().reduce((_chain, step) => _chain.then(step.invokeStep), syncResult);
+    chain.then(resolve, reject);
 
     return this.promise;
   }
