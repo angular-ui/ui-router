@@ -165,7 +165,7 @@ export class Transition implements IHookRegistry {
    * @param state (optional) the state in the topath which should receive the new resolves (otherwise, the root state)
    */
   addResolves(resolves: IResolveDeclarations, state: IStateOrName = "") {
-    let stateName = <string> (<any> state).name ? (<any> state).name : state;
+    let stateName: string = (typeof state === "string") ? state : state.name;
     let topath = this._treeChanges.to;
     let targetNode = find(topath, node => node.state.name === stateName);
     tail(topath).resolveContext.addResolvables(Resolvable.makeResolvables(resolves), targetNode.state);

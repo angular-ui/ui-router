@@ -91,17 +91,20 @@ export default class TransitionHook {
     let results = [];
     for (let i = 0; i < hooks.length; i++) {
       try {
-        let hookResult = hooks[i].invokeStep(locals);
-        let rejection = TransitionHook.isRejection(hookResult);
-        if (rejection) return rejection;
-        results.push(hookResult);
+        results.push(hooks[i].invokeStep(locals));
       } catch (exception) {
         if (!swallowExceptions) throw exception;
         console.log("Swallowed exception during synchronous hook handler: " + exception); // TODO: What to do here?
       }
     }
 
-    return results.filter(<Predicate<any>> isPromise).reduce((chain, promise) => chain.then(val(promise)), runtime.$q.when());
+    let rejections = results.filter(TransitionHook.isRejection);
+    if (rejections.length) return rejections[0];
+
+    return results
+        .filter(not(TransitionHook.isRejection))
+        .filter(<Predicate<any>> isPromise)
+        .reduce((chain, promise) => chain.then(val(promise)), runtime.$q.when());
   }
 
 
