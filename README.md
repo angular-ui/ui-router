@@ -72,7 +72,7 @@ The majority of UI-Router's power is in its ability to nest states & views.
 
 **(1)** First, follow the [setup](#get-started) instructions detailed above.
 
-**(2)** Then, add a [`ui-view` directive](https://github.com/angular-ui/ui-router/wiki/Quick-Reference#ui-view) to the `<body />` of your app.
+**(2)** Then, add a [`ui-view` directive](https://github.com/angular-ui/ui-router/wiki/Quick-Reference#ui-view) to a relevant area of your app (or the `<body />`).
 
 >
 ```html
