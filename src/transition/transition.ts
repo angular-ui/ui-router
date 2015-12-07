@@ -5,10 +5,10 @@ import trace from "../common/trace";
 
 import {ITransitionOptions, ITransitionHookOptions, ITreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";
 import $transitions from "./transitionService";
+import TransitionHook from "./transitionHook";
 import {HookRegistry, matchState} from "./hookRegistry";
 import HookBuilder from "./hookBuilder";
-import TransitionRunner from "./transitionRunner";
-import {RejectFactory} from "./rejectFactory";
+import {RejectFactory, TransitionRejection} from "./rejectFactory";
 
 import Node from "../path/node";
 import PathFactory from "../path/pathFactory";
@@ -27,7 +27,8 @@ import {ViewConfig} from "../view/view";
 
 import {
   map, find, extend, filter, mergeR, flatten, unnest, tail, forEach, identity,
-  omit, isObject, not, prop, propEq, toJson, val, abstractKey, arrayTuples, allTrueR
+  omit, isObject, isPromise, not, prop, propEq, toJson, val, abstractKey,
+  arrayTuples, allTrueR, Predicate
 } from "../common/common";
 
 let transitionCount = 0, REJECT = new RejectFactory();
@@ -164,7 +165,7 @@ export class Transition implements IHookRegistry {
    * @param state (optional) the state in the topath which should receive the new resolves (otherwise, the root state)
    */
   addResolves(resolves: IResolveDeclarations, state: IStateOrName = "") {
-    let stateName = state.name ? state.name : state;
+    let stateName = <string> (<any> state).name ? (<any> state).name : state;
     let topath = this._treeChanges.to;
     let targetNode = find(topath, node => node.state.name === stateName);
     tail(topath).resolveContext.addResolvables(Resolvable.makeResolvables(resolves), targetNode.state);
@@ -309,13 +310,25 @@ export class Transition implements IHookRegistry {
   }
 
   run () {
+    let hookBuilder = this.hookBuilder();
+    let runSynchronousHooks = TransitionHook.runSynchronousHooks;
+    const runSuccessHooks = () => runSynchronousHooks(hookBuilder.getOnSuccessHooks(), {}, true);
+    const runErrorHooks = ($error$) => runSynchronousHooks(hookBuilder.getOnErrorHooks(), { $error$ }, true);
+    // Run the success/error hooks *after* the Transition promise is settled.
+    this.promise.then(runSuccessHooks, runErrorHooks);
+
+    let promiseChain = runSynchronousHooks(hookBuilder.getOnBeforeHooks());
+
+    if (TransitionHook.isRejection(promiseChain)) {
+      this._deferred.reject(promiseChain);
+      return this.promise;
+    }
+
     if (!this.valid()) {
       let error = new Error(this.error());
       this._deferred.reject(error);
-      throw error;
+      return this.promise;
     }
-
-    trace.traceTransitionStart(this);
 
     if (this.ignored()) {
       trace.traceTransitionIgnored(this);
@@ -336,7 +349,10 @@ export class Transition implements IHookRegistry {
       return runtime.$q.reject(error);
     };
 
-    new TransitionRunner(this, resolve, reject).run();
+    trace.traceTransitionStart(this);
+
+    promiseChain = hookBuilder.asyncHooks().reduce((_chain, step) => _chain.then(step.invokeStep), promiseChain);
+    promiseChain.then(resolve, reject);
 
     return this.promise;
   }

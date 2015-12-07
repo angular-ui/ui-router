@@ -725,13 +725,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         return $q.reject(ref.error());
 
       let transition = $transitions.create(currentPath, ref);
-      if (!transition.valid())
-        return $q.reject(transition.error());
-
       let tMgr = new TransitionManager(transition, $transitions, $urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
-      tMgr.registerHooks();
+      let transitionPromise = tMgr.runTransition();
       // Return a promise for the transition, which also has the transition object on it.
-      return extend(tMgr.runTransition(), { transition });
+      return extend(transitionPromise, { transition });
     };
 
     /**

@@ -51,11 +51,8 @@ export default class TransitionManager {
     this.resolveHooks = new ResolveHooks(transition);
 
     this.treeChanges = transition.treeChanges();
-  }
 
-  registerHooks() {
     this.registerUpdateGlobalState();
-
     this.viewHooks.registerHooks();
     this.enterExitHooks.registerHooks();
     this.resolveHooks.registerHooks();
@@ -98,9 +95,7 @@ export default class TransitionManager {
 
       if (error.type === RejectType.SUPERSEDED) {
         if (error.redirected && error.detail instanceof Transition) {
-          let tMgr = this._redirectMgr(error.detail);
-          tMgr.registerHooks();
-          return tMgr.runTransition();
+          return this._redirectMgr(error.detail).runTransition();
         }
       }
     }

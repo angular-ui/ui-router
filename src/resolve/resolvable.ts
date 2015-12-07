@@ -89,7 +89,7 @@ export default class Resolvable {
   }
 
   toString() {
-    return `Resolvable(name: ${this.name}, state: ${this.state.name}, requires: [${this.deps}])`;
+    return `Resolvable(name: ${this.name}, requires: [${this.deps}])`;
   }
 
   /**
@@ -100,6 +100,6 @@ export default class Resolvable {
     let invalid = filter(resolves, not(isFunction)), keys = Object.keys(invalid);
     if (keys.length)
       throw new Error(`Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}`);
-    return map(resolves, (fn, name) => new Resolvable(name, fn));
+    return map(resolves, (fn, name: string) => new Resolvable(name, fn));
   }
 }

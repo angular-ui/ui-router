@@ -55,7 +55,7 @@ export default class HookBuilder {
   // onBefore/onStart/onFinish/onSuccess/onError returns an array of hooks
   // onExit/onRetain/onEnter returns an array of arrays of hooks
 
-  getOnBeforeHooks  = () => this._buildTransitionHooks("onBefore");
+  getOnBeforeHooks  = () => this._buildTransitionHooks("onBefore", {}, { async: false });
   getOnStartHooks   = () => this._buildTransitionHooks("onStart");
   getOnExitHooks    = () => this._buildNodeHooks("onExit",          this.treeChanges.exiting.reverse(), (node) => this._toFrom({ from: node.state }));
   getOnRetainHooks  = () => this._buildNodeHooks("onRetain",        this.treeChanges.retained,          (node) => this._toFrom());

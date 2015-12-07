@@ -13,7 +13,7 @@ import {RejectType} from "../transition/rejectFactory";
 
 stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$urlRouter'];
 function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootScope, $urlRouter) {
-  if (!$transition$.options().notify)
+  if (!$transition$.options().notify || !$transition$.valid() || $transition$.ignored())
     return;
 
   let enabledEvents = $stateEvents.provider.enabled();
@@ -46,15 +46,17 @@ function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootSc
   let toParams = $transition$.params("to");
   let fromParams = $transition$.params("from");
 
-  if (enabledEvents.$stateChangeStart && $rootScope.$broadcast('$stateChangeStart', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$).defaultPrevented) {
-    if (enabledEvents.$stateChangeCancel) {
-      $rootScope.$broadcast('$stateChangeCancel', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$);
-    }
-    $urlRouter.update();
-    return false;
-  }
-
   if (enabledEvents.$stateChangeSuccess) {
+    var startEvent = $rootScope.$broadcast('$stateChangeStart', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$);
+
+    if (startEvent.defaultPrevented) {
+      if (enabledEvents.$stateChangeCancel) {
+        $rootScope.$broadcast('$stateChangeCancel', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$);
+      }
+      $urlRouter.update();
+      return false;
+    }
+
     $transition$.promise.then(function () {
       /**
        * @ngdoc event

@@ -1,7 +1,9 @@
+import {IPromise} from "angular";
 import {IInjectable, defaults, extend, noop, filter, not, isFunction, isDefined, map, pattern, val,
-    eq, is, isPromise, isObject, parse, fnToString, maxLength} from "../common/common";
+    eq, is, isPromise, isObject, parse, fnToString, maxLength, Predicate} from "../common/common";
+import {runtime} from "../common/angular1";
 import trace from "../common/trace";
-import {RejectFactory} from "./rejectFactory";
+import {RejectFactory, TransitionRejection} from "./rejectFactory";
 import {Transition} from "./transition";
 import {State} from "../state/state";
 import {IResolveDeclarations} from "../state/interface";
@@ -77,5 +79,33 @@ export default class TransitionHook {
         context = parse("traceData.context.state.name")(options) || parse("traceData.context")(options) || "unknown",
         name = fnToString(fn);
     return `${event} context: ${context}, ${maxLength(200, name)}`;
+  }
+
+
+  /**
+   * Given an array of TransitionHooks, runs each one synchronously and sequentially.
+   *
+   * Returns a promise chain composed of any promises returned from each hook.invokeStep() call
+   */
+  static runSynchronousHooks(hooks: TransitionHook[], locals = {}, swallowExceptions: boolean = false): IPromise<any> {
+    let results = [];
+    for (let i = 0; i < hooks.length; i++) {
+      try {
+        let hookResult = hooks[i].invokeStep(locals);
+        let rejection = TransitionHook.isRejection(hookResult);
+        if (rejection) return rejection;
+        results.push(hookResult);
+      } catch (exception) {
+        if (!swallowExceptions) throw exception;
+        console.log("Swallowed exception during synchronous hook handler: " + exception); // TODO: What to do here?
+      }
+    }
+
+    return results.filter(<Predicate<any>> isPromise).reduce((chain, promise) => chain.then(val(promise)), runtime.$q.when());
+  }
+
+
+  static isRejection(hookResult) {
+    return hookResult && hookResult.reason instanceof TransitionRejection && hookResult;
   }
 }
