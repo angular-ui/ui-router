@@ -4,7 +4,7 @@
 describe('uiView', function () {
   'use strict';
 
-  var scope, $compile, elem;
+  var log, scope, $compile, elem;
 
   beforeEach(function() {
     var depends = ['ui.router'];
@@ -26,6 +26,10 @@ describe('uiView', function () {
       return jasmine.createSpy('$uiViewScroll');
     });
   }));
+
+  beforeEach(function() {
+    log = '';
+  });
 
   var aState = {
     template: 'aState template'
@@ -112,6 +116,19 @@ describe('uiView', function () {
       .state('j', jState)
       .state('k', kState)
       .state('l', lState)
+      .state('m', {
+        controller: function($scope) {
+          log += 'm;';
+          $scope.$on('$destroy', function() {
+            log += '$destroy(m);';
+          });
+        },
+      })
+      .state('n', {
+        controller: function($scope) {
+          log += 'n;';
+        },
+      });
   }));
 
   beforeEach(inject(function ($rootScope, _$compile_) {
@@ -121,6 +138,23 @@ describe('uiView', function () {
   }));
 
   describe('linking ui-directive', function () {
+
+    it('$destroy event is triggered after animation ends', inject(function($state, $q, $animate) {
+      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+
+      $state.transitionTo('m');
+      $q.flush();
+      expect(log).toBe('m;');
+      $state.transitionTo('n');
+      $q.flush();
+      if ($animate) {
+        expect(log).toBe('m;n;');
+        $animate.triggerCallbacks();
+        expect(log).toBe('m;n;$destroy(m);');
+      } else {
+        expect(log).toBe('m;$destroy(m);n;');
+      }
+    }));
 
     it('anonymous ui-view should be replaced with the template of the current $state', inject(function ($state, $q) {
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));

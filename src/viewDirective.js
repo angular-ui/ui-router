@@ -191,17 +191,26 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate)
         
         function cleanupLastView() {
           var persistent = currentScope && currentScope.$persistent;
-          if (previousEl) {
-            previousEl.remove();
-            previousEl = null;
-          }
-          
+          var _previousEl = previousEl;
+          var _currentScope = currentScope;
+
           if (currentScope && !persistent) {
-            currentScope.$destroy();
-            currentScope = null;
+            _currentScope._willBeDestroyed = true;
+          }
+					
+          function cleanOld() {
+            if (_previousEl) {
+              _previousEl.remove();
+              previousEl = null;
+          
+            }
+            if (_currentScope) {
+              _currentScope.$destroy();
+              _currentScope = null;
+            }
           }
 
-          if (currentEl) {
+           if (currentEl) {
             if (persistent) {
               // This is not very pretty but there is no way to prevent ngAnimate from removing element in the end (after invoking `leave`). 
               // Standard `remove` clears out all relavant element data, approach below only removes element so that it could be safely attached to DOM again. 
@@ -218,6 +227,7 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate)
               });
             } else {
               renderer.leave(currentEl, function() {
+                cleanOld();
                 previousEl = null;
               });
             }
@@ -251,7 +261,7 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate)
               name            = getUiViewName(scope, attrs, $element, $interpolate),
               previousLocals  = name && $state.$current && $state.$current.locals[name];
 
-          if (!firstTime && previousLocals === latestLocals) return; // nothing to do
+          if (!firstTime && previousLocals === latestLocals || scope._willBeDestroyed) return; // nothing to do
           
           latestLocals = $state.$current.locals[name];
 
