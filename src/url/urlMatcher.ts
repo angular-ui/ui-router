@@ -87,7 +87,7 @@ const memoizeTo = (obj, prop, fn) => obj[prop] = obj[prop] || fn();
  */
 export class UrlMatcher {
 
-  static nameValidator: RegExp = /^\w+(-+\w+)*(?:\[\])?$/;
+  static nameValidator: RegExp = /^\w+([-.]+\w+)*(?:\[\])?$/;
 
   private _cache: { path: UrlMatcher[], pattern?: RegExp } = { path: [], pattern: null };
   private _children: UrlMatcher[] = [];
@@ -119,7 +119,7 @@ export class UrlMatcher {
     //    \\.                            - a backslash escape
     //    \{(?:[^{}\\]+|\\.)*\}          - a matched set of curly braces containing other atoms
     let placeholder = /([:*])([\w\[\]]+)|\{([\w\[\]]+)(?:\:\s*((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
-        searchPlaceholder = /([:]?)([\w\[\]-]+)|\{([\w\[\]-]+)(?:\:\s*((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
+        searchPlaceholder = /([:]?)([\w\[\].-]+)|\{([\w\[\].-]+)(?:\:\s*((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
         last = 0, m, patterns = [];
 
     const checkParamErrors = (id) => {
@@ -302,7 +302,7 @@ export class UrlMatcher {
    * @description
    * Returns the names of all path and search parameters of this pattern in order of appearance.
    *
-   * @returns {Array.<Param>}  An array of parameter names. Must be treated as read-only. If the
+   * @returns {Array.<Param>}  An array of [[Param]] objects. Must be treated as read-only. If the
    *    pattern has no parameters, an empty array is returned.
    */
   parameters(opts: any = {}): Param[] {

@@ -99,6 +99,28 @@ describe("UrlMatcher", function () {
     });
   });
 
+  describe("parameters containing periods", function() {
+    it("should match if properly formatted", function() {
+      var matcher = new UrlMatcher('/users/?from&to&with.periods&with.periods.also');
+      var params = matcher.parameters().map(function(p) { return p.id; });
+
+      expect(params.length).toBe(4);
+      expect(params).toContain('from');
+      expect(params).toContain('to');
+      expect(params).toContain('with.periods');
+      expect(params).toContain('with.periods.also');
+      expect(params).toEqual(['from','to','with.periods','with.periods.also']);
+    });
+
+    it("should not match if invalid", function() {
+      var err = new Error("Invalid parameter name '.periods' in pattern '/users/?from&to&.periods'");
+      expect(function() { new UrlMatcher('/users/?from&to&.periods'); }).toThrow(err);
+
+      err = new Error("Invalid parameter name 'periods.' in pattern '/users/?from&to&periods.'");
+      expect(function() { new UrlMatcher('/users/?from&to&periods.'); }).toThrow(err);
+    });
+  });  
+
   describe(".exec()", function() {
     it("should capture parameter values", function () {
       var m = new UrlMatcher('/users/:id/details/{type}/{repeat:[0-9]+}?from&to', { strict: false });
