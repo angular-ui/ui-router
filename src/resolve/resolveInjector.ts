@@ -1,9 +1,9 @@
 import {map} from "../common/common";
-import ResolveContext from "../resolve/resolveContext";
+import {ResolveContext} from "../resolve/resolveContext";
 import {State} from "../state/state";
-import Resolvable from "./resolvable";
+import {Resolvable} from "./resolvable";
 
-export default class ResolveInjector {
+export class ResolveInjector {
   constructor(private _resolveContext: ResolveContext, private _state: State) { }
 
   /** Returns a promise to invoke an annotated function in the resolve context */

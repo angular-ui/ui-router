@@ -1,9 +1,9 @@
 import {isInjectable, extend, isDefined, isString, isArray, filter, map, pick, prop, propEq, curry, applyPairs} from "../common/common";
 import {IRawParams} from "../params/interface";
 import {runtime} from "../common/angular1";
-import matcherConfig from "../url/urlMatcherConfig";
-import paramTypes from "./paramTypes";
-import Type from "./type";
+import {matcherConfig} from "../url/urlMatcherConfig";
+import {paramTypes} from "./paramTypes";
+import {Type} from "./type";
 
 let hasOwn = Object.prototype.hasOwnProperty;
 let isShorthand = cfg => ["value", "type", "squash", "array", "dynamic"].filter(hasOwn.bind(cfg || {})).length === 0;
@@ -12,7 +12,7 @@ enum DefType {
   PATH, SEARCH, CONFIG
 }
 
-export default class Param {
+export class Param {
   id: string;
   type: Type;
   location: DefType;

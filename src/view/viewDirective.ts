@@ -1,7 +1,7 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
 import {extend, isDefined} from "../common/common";
-import trace from "../common/trace";
+import {trace} from "../common/trace";
 import {ViewConfig} from "./view";
 import {IUiViewData} from "./interface";
 

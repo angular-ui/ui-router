@@ -1,25 +1,25 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {runtime} from "../common/angular1";
 import {IPromise} from "angular";
-import trace from "../common/trace";
+import {trace} from "../common/trace";
 
 import {ITransitionOptions, ITransitionHookOptions, ITreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";
-import $transitions from "./transitionService";
-import TransitionHook from "./transitionHook";
+import {$transitions} from "./transitionService";
+import {TransitionHook} from "./transitionHook";
 import {HookRegistry, matchState} from "./hookRegistry";
-import HookBuilder from "./hookBuilder";
+import {HookBuilder} from "./hookBuilder";
 import {RejectFactory, TransitionRejection} from "./rejectFactory";
 
-import Node from "../path/node";
-import PathFactory from "../path/pathFactory";
+import {Node} from "../path/node";
+import {PathFactory} from "../path/pathFactory";
 
 import {State} from "../state/state";
-import TargetState from "../state/targetState";
+import {TargetState} from "../state/targetState";
 import {IStateDeclaration, IStateOrName} from "../state/interface";
 
-import Param from "../params/param";
+import {Param} from "../params/param";
 
-import Resolvable from "../resolve/resolvable";
+import {Resolvable} from "../resolve/resolvable";
 
 import {IResolveDeclarations} from "../state/interface";
 

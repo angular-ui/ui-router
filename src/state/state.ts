@@ -2,35 +2,35 @@ import {
   extend, defaults, copy, equalForKeys, forEach, find, prop,
   propEq, ancestors, noop, isDefined, isObject, isString, values
 } from "../common/common";
-import Queue from "../common/queue";
+import {Queue} from "../common/queue";
 import {IServiceProviderFactory, IPromise} from "angular";
 
 import {
   IStateService, IStateDeclaration, IStateOrName, IHrefOptions,
   IViewDeclarations, IResolveDeclarations
 } from "./interface";
-import Glob from "./glob";
-import StateQueueManager from "./stateQueueManager";
-import StateBuilder from "./stateBuilder";
-import StateMatcher from "./stateMatcher";
-import TargetState from "./targetState";
+import {Glob} from "./glob";
+import {StateQueueManager} from "./stateQueueManager";
+import {StateBuilder} from "./stateBuilder";
+import {StateMatcher} from "./stateMatcher";
+import {TargetState} from "./targetState";
 
 import {ITransitionService, ITransitionOptions, ITreeChanges} from "../transition/interface";
 import {Transition} from "../transition/transition";
 import {RejectFactory} from "../transition/rejectFactory";
 import {defaultTransOpts} from "../transition/transitionService";
 
-import Node from "../path/node";
-import PathFactory from "../path/pathFactory";
+import {Node} from "../path/node";
+import {PathFactory} from "../path/pathFactory";
 
 import {IRawParams, IParamsOrArray} from "../params/interface";
-import TransitionManager from "./hooks/transitionManager";
+import {TransitionManager} from "./hooks/transitionManager";
 
-import paramTypes from "../params/paramTypes";
-import Param from "../params/param";
-import Type from "../params/type";
+import {paramTypes} from "../params/paramTypes";
+import {Param} from "../params/param";
+import {Type} from "../params/type";
 
-import UrlMatcher from "../url/urlMatcher";
+import {UrlMatcher} from "../url/urlMatcher";
 import {ViewConfig} from "../view/view";
 
 /**

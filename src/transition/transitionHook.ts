@@ -2,13 +2,13 @@ import {IPromise} from "angular";
 import {IInjectable, defaults, extend, noop, filter, not, isFunction, isDefined, map, pattern, val,
     eq, is, isPromise, isObject, parse, fnToString, maxLength, Predicate} from "../common/common";
 import {runtime} from "../common/angular1";
-import trace from "../common/trace";
+import {trace} from "../common/trace";
 import {RejectFactory, TransitionRejection} from "./rejectFactory";
 import {Transition} from "./transition";
 import {State} from "../state/state";
 import {IResolveDeclarations} from "../state/interface";
-import Resolvable from "../resolve/resolvable";
-import ResolveContext from "../resolve/resolveContext";
+import {Resolvable} from "../resolve/resolvable";
+import {ResolveContext} from "../resolve/resolveContext";
 import {ITransitionHookOptions} from "./interface";
 
 let REJECT = new RejectFactory();
@@ -21,7 +21,7 @@ let defaultOptions = {
   traceData: {}
 };
 
-export default class TransitionHook {
+export class TransitionHook {
   constructor(private fn:IInjectable,
               private locals: any,
               private resolveContext: ResolveContext,

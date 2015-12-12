@@ -1,7 +1,7 @@
 import {IInjectable, extend, val, isString, isFunction, removeFrom} from "../common/common";
 
 import {State} from "../state/state";
-import Glob from "../state/glob";
+import {Glob} from "../state/glob";
 
 import {IMatchCriteria, IStateMatch, IEventHook, IHookRegistry, IHookRegistration} from "./interface";
 

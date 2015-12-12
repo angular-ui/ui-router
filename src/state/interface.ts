@@ -1,13 +1,13 @@
 import {IPromise} from "angular";
 
-import UrlMatcher from "../url/urlMatcher";
+import {UrlMatcher} from "../url/urlMatcher";
 
 import {IRawParams, IParamsOrArray} from "../params/interface";
-import Param from "../params/param";
+import {Param} from "../params/param";
 
 import {IContextRef} from "../view/interface";
 
-import TargetState from "./targetState";
+import {TargetState} from "./targetState";
 import {State} from "./state";
 
 import {ITransitionOptions} from "../transition/interface";

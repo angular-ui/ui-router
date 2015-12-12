@@ -3,11 +3,11 @@ import {IServiceProviderFactory} from "angular";
 import {runtime} from "../common/angular1";
 import {forEach, extend, inherit, map, filter, isObject, isDefined, isArray, isString,
     isInjectable, isFunction, toJson, fromJson, identity, equals} from "../common/common";
-import matcherConfig from "./urlMatcherConfig";
-import UrlMatcher from "./urlMatcher";
-import Param from "../params/param";
-import paramTypes from "../params/paramTypes";
-import Type from "../params/type";
+import {matcherConfig} from "./urlMatcherConfig";
+import {UrlMatcher} from "./urlMatcher";
+import {Param} from "../params/param";
+import {paramTypes} from "../params/paramTypes";
+import {Type} from "../params/type";
 
 /**
  * @ngdoc object

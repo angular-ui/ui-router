@@ -5,10 +5,10 @@ import {extend, applyPairs, isFunction} from "../common/common";
 
 import {IStateService, IStateProvider} from "./interface";
 import {StateParams} from "./state";
-import TargetState from "./targetState";
+import {TargetState} from "./targetState";
 
 import {Transition} from "../transition/transition";
-import $transitions from "../transition/transitionService";
+import {$transitions} from "../transition/transitionService";
 import {RejectType} from "../transition/rejectFactory";
 
 stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$urlRouter'];

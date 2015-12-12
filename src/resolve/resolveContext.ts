@@ -1,13 +1,13 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IInjectable, find, filter, map, noop, tail, defaults, extend, prop, propEq, pick, omit, isString, isObject} from "../common/common";
-import trace from "../common/trace";
+import {trace} from "../common/trace";
 import {runtime} from "../common/angular1";
 import {IPromise} from "angular";
 
-import Node from "../path/node";
+import {Node} from "../path/node";
 
 import {IPromises, IResolvables, ResolvePolicy, IOptions1} from "./interface";
-import Resolvable from "./resolvable";
+import {Resolvable} from "./resolvable";
 import {State} from "../state/state";
 
 // TODO: make this configurable
@@ -15,7 +15,7 @@ let defaultResolvePolicy = ResolvePolicy[ResolvePolicy.LAZY];
 
 interface IPolicies { [key: string]: string; }
 
-export default class ResolveContext {
+export class ResolveContext {
 
   private _nodeFor: Function;
   private _pathTo: Function;

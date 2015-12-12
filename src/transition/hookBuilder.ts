@@ -4,12 +4,12 @@ import {IInjectable, extend, tail, isPromise, isArray, assertPredicate, unnestR,
 import {runtime} from "../common/angular1";
 
 import {ITransitionOptions, ITransitionHookOptions, IHookRegistry, ITreeChanges, IEventHook, ITransitionService} from "./interface";
-import TransitionHook from "./transitionHook";
+import {TransitionHook} from "./transitionHook";
 import {Transition} from "./transition";
 
 import {State} from "../state/state";
 
-import Node from "../path/node";
+import {Node} from "../path/node";
 
 interface IToFrom {
   to:   State;
@@ -35,7 +35,7 @@ let successErrorOptions: ITransitionHookOptions = {
  * in the Transition class, so we must also provide the Transition's _treeChanges)
  *
  */
-export default class HookBuilder {
+export class HookBuilder {
 
   treeChanges: ITreeChanges;
   transitionOptions: ITransitionOptions;

@@ -4,9 +4,9 @@ import {IServiceProviderFactory} from "angular";
 
 import {Transition} from "./transition";
 
-import TargetState from "../state/targetState";
+import {TargetState} from "../state/targetState";
 
-import Node from "../path/node";
+import {Node} from "../path/node";
 
 import {IHookRegistry, ITransitionService, ITransitionOptions, IHookRegistration, IHookGetter} from "./interface";
 
@@ -64,7 +64,7 @@ class TransitionService implements ITransitionService, IHookRegistry {
 }
 
 
-let $transitions = new TransitionService();
+export let $transitions = new TransitionService();
 
 $TransitionProvider.prototype = $transitions;
 function $TransitionProvider() {
@@ -82,7 +82,6 @@ function $TransitionProvider() {
   };
 }
 
-export default $transitions;
 export let $transitionsProvider = $TransitionProvider;
 angular.module('ui.router.state')
   .provider('$transitions', <IServiceProviderFactory> $transitionsProvider);

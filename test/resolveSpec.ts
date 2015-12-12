@@ -3,12 +3,12 @@
 /// <reference path='../typings/jasmine/jasmine.d.ts' />
 
 import * as uiRouter from "../src/ui-router";
-import ResolveContext from "../src/resolve/resolveContext"
-import Resolvable from "../src/resolve/resolvable"
+import {ResolveContext} from "../src/resolve/resolveContext"
+import {Resolvable} from "../src/resolve/resolvable"
 
 import {State} from "../src/state/state";
-import Node from "../src/path/node";
-import PathFactory from "../src/path/pathFactory";
+import {Node} from "../src/path/node";
+import {PathFactory} from "../src/path/pathFactory";
 
 import {omit, map, pick, prop, extend, forEach} from "../src/common/common"
 import {IStateDeclaration} from "../src/state/interface";
@@ -91,7 +91,7 @@ function getResolvedData(pathContext: ResolveContext) {
 
 describe('Resolvables system:', function () {
   beforeEach(inject(function ($transitions, $injector) {
-    uiRouter.common.angular1.runtime.setRuntimeInjector($injector);
+    uiRouter.common.runtime.setRuntimeInjector($injector);
     emptyPath = [];
     asyncCount = 0;
   }));
@@ -545,7 +545,7 @@ describe("State transitions with resolves", function() {
     $rootScope = _$rootScope_;
     $timeout = _$timeout_;
     $scope = $rootScope.$new();
-    uiRouter.common.angular1.runtime.setRuntimeInjector($injector);
+    uiRouter.common.runtime.setRuntimeInjector($injector);
     emptyPath = [];
     asyncCount = 0;
     $compile(angular.element("<div ui-view></div>"))($scope);

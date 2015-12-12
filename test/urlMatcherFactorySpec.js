@@ -1,7 +1,7 @@
 var module    = angular.mock.module;
 var uiRouter  = require("ui-router");
-var Param = uiRouter.params.param.default;
-var common = uiRouter.common.common;
+var Param = uiRouter.params.Param;
+var common = uiRouter.common;
 var prop = common.prop;
 var provide, UrlMatcher;
 
@@ -19,7 +19,7 @@ describe("UrlMatcher", function () {
     module('ui.router.router', 'ui.router.router.test');
 
     inject(function($injector) {
-      uiRouter.common.angular1.runtime.setRuntimeInjector($injector);
+      uiRouter.common.runtime.setRuntimeInjector($injector);
       $injector.invoke(provider.$get);
     });
   });

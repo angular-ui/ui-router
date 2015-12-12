@@ -1,5 +1,5 @@
 import {isDefined, fromJson, toJson, is, identity, equals, inherit, map, extend, val} from "../common/common";
-import Type from "./type";
+import {Type} from "./type";
 import {runtime} from "../common/angular1";
 
 const swapString = (search, replace) => val => val != null ? val.toString().replace(search, replace) : val;
@@ -98,4 +98,4 @@ class ParamTypes {
   }
 }
 
-export default new ParamTypes();
+export let paramTypes = new ParamTypes();

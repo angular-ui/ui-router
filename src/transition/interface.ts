@@ -1,7 +1,7 @@
 import {State} from "../state/state";
 import {IStateDeclaration} from "../state/interface";
-import TargetState from "../state/targetState";
-import Node from "../path/node";
+import {TargetState} from "../state/targetState";
+import {Node} from "../path/node";
 
 import {IInjectable, Predicate} from "../common/common";
 

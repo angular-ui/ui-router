@@ -79,7 +79,7 @@ function ArrayType(type, mode) {
  *
  * @returns {Object}  Returns a new `Type` object.
  */
-export default class Type {
+export class Type {
   pattern: RegExp = /.*/;
   name: string;
   raw: boolean;

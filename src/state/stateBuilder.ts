@@ -1,5 +1,5 @@
 import {map, noop, extend, pick, omit, values, applyPairs, prop,  isArray, isDefined, isFunction, isString, forEach} from "../common/common";
-import Param from "../params/param";
+import {Param} from "../params/param";
 
 const parseUrl = (url: string): any => {
   if (!isString(url)) return false;
@@ -8,7 +8,7 @@ const parseUrl = (url: string): any => {
 };
 
 // Builds state properties from definition passed to StateQueueManager.register()
-export default function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
+export function StateBuilder(root, matcher, $urlMatcherFactoryProvider) {
 
   let self = this, builders = {
 

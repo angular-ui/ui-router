@@ -1,15 +1,15 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {extend, pick, prop, propEq, pairs, applyPairs, map, find, allTrueR, values} from "../common/common";
 import {State} from "../state/state";
-import Param from "../params/param";
-import Type from "../params/type";
+import {Param} from "../params/param";
+import {Type} from "../params/type";
 import {IRawParams} from "../params/interface";
-import Resolvable from "../resolve/resolvable";
-import ResolveContext from "../resolve/resolveContext";
-import ResolveInjector from "../resolve/resolveInjector";
+import {Resolvable} from "../resolve/resolvable";
+import {ResolveContext} from "../resolve/resolveContext";
+import {ResolveInjector} from "../resolve/resolveInjector";
 import {ViewConfig} from "../view/view";
 
-export default class Node {
+export class Node {
 
   public schema:   Param[];
   public values:   { [key: string]: any };

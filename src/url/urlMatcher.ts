@@ -2,8 +2,8 @@ import {
   map, prop, propEq, defaults, extend, inherit, identity, isDefined, isObject, isArray, isString,
   invoke, unnest, tail, forEach, find, curry, omit, pairs, allTrueR
 } from "../common/common";
-import paramTypes from "../params/paramTypes";
-import Param from "../params/param";
+import {paramTypes} from "../params/paramTypes";
+import {Param} from "../params/param";
 
 interface params {
   $$validates: (params: string) => Array<string>;
@@ -78,7 +78,7 @@ const memoizeTo = (obj, prop, fn) => obj[prop] = obj[prop] || fn();
  *
  * @returns {Object}  New `UrlMatcher` object
  */
-export default class UrlMatcher {
+export class UrlMatcher {
 
   static nameValidator: RegExp = /^\w+(-+\w+)*(?:\[\])?$/;
 

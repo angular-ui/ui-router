@@ -1,16 +1,16 @@
 import {IPromise, IQService} from "angular";
 import {copy, prop} from "../../common/common";
-import Queue from "../../common/queue";
-import Param from "../../params/param";
+import {Queue} from "../../common/queue";
+import {Param} from "../../params/param";
 
 import {ITreeChanges} from "../../transition/interface";
 import {Transition} from "../../transition/transition";
 import {TransitionRejection, RejectType} from "../../transition/rejectFactory";
 
 import {IStateService, IStateDeclaration} from "../interface";
-import ViewHooks from "./viewHooks";
-import EnterExitHooks from "./enterExitHooks";
-import ResolveHooks from "./resolveHooks";
+import {ViewHooks} from "./viewHooks";
+import {EnterExitHooks} from "./enterExitHooks";
+import {ResolveHooks} from "./resolveHooks";
 
 /**
  * This class:
@@ -29,7 +29,7 @@ import ResolveHooks from "./resolveHooks";
  *
  * * Registers eager and lazy resolve hooks
  */
-export default class TransitionManager {
+export class TransitionManager {
   private treeChanges: ITreeChanges;
   private enterExitHooks: EnterExitHooks;
   private viewHooks: ViewHooks;

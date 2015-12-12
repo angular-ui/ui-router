@@ -1,6 +1,6 @@
 import {map} from "./common"
 
-export default class Queue<T> {
+export class Queue<T> {
   constructor(private _items: T[] = []) { }
 
   enqueue(item: T) {

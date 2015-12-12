@@ -1,11 +1,4 @@
-import * as urlMatcher from "./urlMatcher";
-export {urlMatcher};
-
-import * as urlMatcherConfig from "./urlMatcherConfig";
-export {urlMatcherConfig};
-
-import * as urlMatcherFactory from "./urlMatcherFactory";
-export {urlMatcherFactory};
-
-import * as urlRouter from "./urlRouter";
-export {urlRouter};
+export * from "./urlMatcher";
+export * from "./urlMatcherConfig";
+export * from "./urlMatcherFactory";
+export * from "./urlRouter";

@@ -1,5 +1,5 @@
 import {IPromise} from "angular";
-import Resolvable from "./resolvable";
+import {Resolvable} from "./resolvable";
 
 export interface IResolvables {
   [key: string]: Resolvable;

@@ -1,13 +1,13 @@
-import Node from "../src/path/node";
+import {Node} from "../src/path/node";
 var module = angular.mock.module;
 import uiRouter from "../src/ui-router";
 import { RejectType } from "../src/transition/rejectFactory";
 import { extend, forEach, map, omit, pick, pluck } from "../src/common/common";
-import PathFactory from "../src/path/pathFactory";
-import StateMatcher from "../src/state/stateMatcher";
-import StateBuilder from "../src/state/stateBuilder";
-import TargetState from "../src/state/targetState";
-import StateQueueManager from "../src/state/stateQueueManager";
+import {PathFactory} from "../src/path/pathFactory";
+import {StateMatcher} from "../src/state/stateMatcher";
+import {StateBuilder} from "../src/state/stateBuilder";
+import {TargetState} from "../src/state/targetState";
+import {StateQueueManager} from "../src/state/stateQueueManager";
 import {TransitionRejection} from "../src/transition/rejectFactory";
 
 describe('transition', function () {

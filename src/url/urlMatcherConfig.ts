@@ -30,5 +30,4 @@ class MatcherConfig {
   }
 }
 
-var matcherConfig = new MatcherConfig();
-export default matcherConfig;
+export let matcherConfig = new MatcherConfig();

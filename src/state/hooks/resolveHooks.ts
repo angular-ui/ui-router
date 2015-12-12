@@ -14,7 +14,7 @@ let EAGER = ResolvePolicy[ResolvePolicy.EAGER];
  * * registers a hook that resolves EAGER resolves, for the To Path, onStart of the transition
  * * registers a hook that resolves LAZY resolves, for each state, before it is entered
  */
-export default class ResolveHooks {
+export class ResolveHooks {
   constructor(private transition: Transition) { }
 
   registerHooks() {

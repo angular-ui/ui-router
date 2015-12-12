@@ -1,6 +1,6 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {pick, map, filter, not, isFunction}  from "../common/common";
-import trace from "../common/trace";
+import {trace} from "../common/trace";
 import {runtime} from "../common/angular1"
 import {IPromise} from "angular";
 
@@ -8,7 +8,7 @@ import {IResolveDeclarations} from "../state/interface";
 import {State} from "../state/state";
 
 import {IResolvables, IOptions1} from "./interface"
-import ResolveContext from "./resolveContext"
+import {ResolveContext} from "./resolveContext"
 
 /**
  * The basic building block for the resolve system.
@@ -22,7 +22,7 @@ import ResolveContext from "./resolveContext"
  * Resolvable.get() and Resolvable.resolve() both execute within a context path, which is passed as the first
  * parameter to those fns.
  */
-export default class Resolvable {
+export class Resolvable {
   constructor(name: string, resolveFn: Function, preResolvedData?: any) {
     this.name = name;
     this.resolveFn = resolveFn;

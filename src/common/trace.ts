@@ -1,5 +1,5 @@
 import {isNull, isPromise, isNumber, fnToString, maxLength, padString, isInjectable, is, invoke, not, val, pattern, parse, isDefined, identity} from "../common/common";
-import Resolvable  from "../resolve/resolvable";
+import {Resolvable}  from "../resolve/resolvable";
 import {Transition}  from "../transition/transition";
 import {TransitionRejection}  from "../transition/rejectFactory";
 import {IUiViewData}  from "../view/interface";
@@ -202,7 +202,7 @@ class Trace {
 }
 
 let trace = new Trace();
-export default trace;
+export {trace};
 
 watchDigests.$inject = ['$rootScope'];
 function watchDigests($rootScope) {

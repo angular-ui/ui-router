@@ -3,7 +3,7 @@
 /// <reference path='../typings/jasmine/jasmine.d.ts' />
 
 import * as MPath from "../src/path/interface"
-import PathFactory from "../src/path/pathFactory"
+import {PathFactory} from "../src/path/pathFactory"
 
 xdescribe("", () => {
     describe("Path", () => {

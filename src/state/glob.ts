@@ -1,4 +1,4 @@
-export default class Glob {
+export class Glob {
   text: string;
   glob: Array<string>;
 

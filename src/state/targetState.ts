@@ -20,7 +20,7 @@ import {ITransitionOptions} from "../transition/interface";
  * @param {IParamsOrArray} _params Parameters for the target state
  * @param {ITransitionOptions} _options Transition options.
  */
-export default class TargetState {
+export class TargetState {
   private _params: IParamsOrArray;
 
   constructor(

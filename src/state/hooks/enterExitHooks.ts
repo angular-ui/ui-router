@@ -1,6 +1,6 @@
 import {Transition} from "../../transition/transition";
 
-export default class EnterExitHooks {
+export class EnterExitHooks {
   private transition: Transition;
 
   constructor(transition: Transition) {

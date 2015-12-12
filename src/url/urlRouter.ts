@@ -1,7 +1,7 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {isFunction, isString, isDefined, isArray, isObject, extend} from "../common/common";
 import {IServiceProviderFactory} from "angular";
-import UrlMatcher from "./urlMatcher";
+import {UrlMatcher} from "./urlMatcher";
 
 /**
  * @ngdoc object

@@ -2,7 +2,7 @@ import {extend, inherit, isString, pluck, equalForKeys, abstractKey} from "../co
 import {IStateDeclaration} from "./interface";
 import {State} from "./state";
 
-export default function StateQueueManager(states, builder, $urlRouterProvider, $state) {
+export function StateQueueManager(states, builder, $urlRouterProvider, $state) {
   let queue = [];
 
   let queueManager = extend(this, {

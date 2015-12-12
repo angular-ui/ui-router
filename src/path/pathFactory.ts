@@ -5,21 +5,21 @@ import {IRawParams} from "../params/interface";
 import {ITreeChanges} from "../transition/interface";
 
 import {State} from "../state/state";
-import TargetState from "../state/targetState";
+import {TargetState} from "../state/targetState";
 
-import Node from "../path/node";
+import {Node} from "../path/node";
 
-import Resolvable from "../resolve/resolvable";
-import ResolveContext from "../resolve/resolveContext";
+import {Resolvable} from "../resolve/resolvable";
+import {ResolveContext} from "../resolve/resolveContext";
 
 import {ViewConfig} from "../view/view";
-import ResolveInjector from "../resolve/resolveInjector";
+import {ResolveInjector} from "../resolve/resolveInjector";
 import {Transition} from "../transition/transition";
 
 /**
  * This class contains functions which convert TargetStates, Nodes and paths from one type to another.
  */
-export default class PathFactory {
+export class PathFactory {
 
   constructor() { }
 

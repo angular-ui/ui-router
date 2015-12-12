@@ -7,7 +7,7 @@ import {Transition} from "../../transition/transition";
 
 import {ViewConfig} from "../../view/view";
 
-export default class ViewHooks {
+export class ViewHooks {
   private treeChanges: ITreeChanges;
   private enteringViews: ViewConfig[];
   private exitingViews: ViewConfig[];

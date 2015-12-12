@@ -1,13 +1,13 @@
 import {State} from "../state/state";
-import Node from "../path/node";
+import {Node} from "../path/node";
 
 import {ViewConfig} from "../view/view";
 
 import {IRawParams} from "../params/interface";
 
 import {IResolvables} from "../resolve/interface";
-import ResolveContext from "../resolve/resolveContext";
-import ResolveInjector from "../resolve/resolveInjector";
+import {ResolveContext} from "../resolve/resolveContext";
+import {ResolveInjector} from "../resolve/resolveInjector";
 
 
 /** Contains Node base data plus raw params values for the node */

@@ -2,7 +2,7 @@ import {isString} from "../common/common";
 import {IStateOrName} from "./interface";
 import {State} from "./state";
 
-export default class StateMatcher {
+export class StateMatcher {
   constructor (private _states: { [key: string]: State }) { }
   
   isRelative(stateName: string) {
