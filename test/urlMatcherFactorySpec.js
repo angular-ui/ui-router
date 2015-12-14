@@ -98,6 +98,7 @@ describe("UrlMatcher", function () {
       expect(params).toContain('to');
       expect(params).toContain('with.periods');
       expect(params).toContain('with.periods.also');
+      expect(matcher.parameters()).toEqual(['from','to','with.periods','with.periods.also']);
     });
 
     it("should not match if invalid", function() {
