@@ -13,3 +13,6 @@ bower_components
 # webstorm files
 .idea
 idea-out
+
+# generate doc to _doc; copy to proper gh-pages dir
+_doc
