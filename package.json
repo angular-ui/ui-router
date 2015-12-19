@@ -72,7 +72,10 @@
     "shelljs": "~0.2.6",
     "systemjs": "^0.18.4",
     "tslint": "=2.5.0",
-    "typescript": "=1.7.3"
+    "typedoc": "git://github.com/christopherthielen/typedoc.git#v0.3-uirouter",
+    "typescript": "=1.7.3",
+    "webpack": "1.x",
+    "webpack-dev-server": "1.x"
   },
   "main": "release/angular-ui-router"
 }

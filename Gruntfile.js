@@ -143,12 +143,18 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('integrate', ['clean', 'build', 'karma:ng12', 'karma:ng13', 'karma:ng14']);
-  grunt.registerTask('default', ['build', 'karma:unit']);
+  grunt.registerTask('default', ['build', 'karma:unit', 'docs']);
   grunt.registerTask('build', 'Perform a normal build', ['clean', 'ts', 'webpack', 'uglify']);
   grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['build', 'ngdocs']);
   grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'build', 'perform-release']);
   grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect:server', 'karma:background', 'watch']);
   grunt.registerTask('sample', 'Run connect server with keepalive:true for sample app development', ['connect:sample']);
+
+  grunt.registerTask('docs', 'Generate documentation to _doc', function() { 
+    promising(this, 
+      system('./node_modules/typedoc/bin/typedoc --readme ./README.md --name "UI-Router" --theme default --mode modules --module commonjs --target es5 --out _doc  src/params src/path src/resolve src/state src/transition src/url src/view')
+    );
+  });
 
   grunt.registerTask('publish-pages', 'Publish a clean build, docs, and sample to github.io', function () {
     promising(this,
