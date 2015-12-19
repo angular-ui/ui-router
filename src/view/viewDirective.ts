@@ -1,9 +1,10 @@
+/** @module view */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
 import {extend, isDefined} from "../common/common";
 import {trace} from "../common/trace";
 import {ViewConfig} from "./view";
-import {IUiViewData} from "./interface";
+import {UIViewData} from "./interface";
 
 /**
  * @ngdoc directive
@@ -165,7 +166,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
             inherited     = $element.inheritedData('$uiView') || rootData,
             name          = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default';
 
-        let viewData: IUiViewData = {
+        let viewData: UIViewData = {
           id: directive.count++,                                   // Global sequential ID for ui-view tags added to DOM
           name: name,                                              // ui-view name (<div ui-view="name"></div>
           fqn: inherited.name ? inherited.fqn + "." + name : name, // fully qualified name, describes location in DOM

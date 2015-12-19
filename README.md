@@ -29,7 +29,7 @@ The transition lifecycle hooks are currently:
 When registering a hook, you can provide criteria (a state name, a glob, or a function), and you can modify the transition by returning something from the hook (an abort, a redirect, a promise, or some new resolves to add to the transition).
 
 This enables lots of fun stuff!  Here are a couple of possibilities to get your imagination started:
-```
+```javascript
 $transitionsProvider.onBefore({ to: 'my.state', from: '*' }, function(AsyncService) {
   return AsyncService.doSomeAsyncThing();
 });

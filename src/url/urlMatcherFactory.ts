@@ -1,3 +1,4 @@
+/** @module url */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IServiceProviderFactory} from "angular";
 import {runtime} from "../common/angular1";

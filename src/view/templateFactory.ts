@@ -1,3 +1,4 @@
+/** @module view */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {isDefined, isFunction, prop} from "../common/common";
 

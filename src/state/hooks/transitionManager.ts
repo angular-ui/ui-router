@@ -1,13 +1,14 @@
+/** @module state */ /** for typedoc */
 import {IPromise, IQService} from "angular";
 import {copy, prop} from "../../common/common";
 import {Queue} from "../../common/queue";
 import {Param} from "../../params/param";
 
-import {ITreeChanges} from "../../transition/interface";
+import {TreeChanges} from "../../transition/interface";
 import {Transition} from "../../transition/transition";
 import {TransitionRejection, RejectType} from "../../transition/rejectFactory";
 
-import {IStateService, IStateDeclaration} from "../interface";
+import {StateService, StateDeclaration} from "../interface";
 import {ViewHooks} from "./viewHooks";
 import {EnterExitHooks} from "./enterExitHooks";
 import {ResolveHooks} from "./resolveHooks";
@@ -30,7 +31,7 @@ import {ResolveHooks} from "./resolveHooks";
  * * Registers eager and lazy resolve hooks
  */
 export class TransitionManager {
-  private treeChanges: ITreeChanges;
+  private treeChanges: TreeChanges;
   private enterExitHooks: EnterExitHooks;
   private viewHooks: ViewHooks;
   private resolveHooks: ResolveHooks;
@@ -40,11 +41,11 @@ export class TransitionManager {
       private $transitions,
       private $urlRouter,
       private $view, // service
-      private $state: IStateService,
+      private $state: StateService,
       private $stateParams, // service/obj
       private $q: IQService, // TODO: get from runtime.$q
       private activeTransQ: Queue<Transition>,
-      private changeHistory: Queue<ITreeChanges>
+      private changeHistory: Queue<TreeChanges>
   ) {
     this.viewHooks = new ViewHooks(transition, $view);
     this.enterExitHooks = new EnterExitHooks(transition);
@@ -80,7 +81,7 @@ export class TransitionManager {
     this.updateStateParams();
   }
 
-  transRejected(error): (IStateDeclaration|IPromise<any>) {
+  transRejected(error): (StateDeclaration|IPromise<any>) {
     let {transition, $state, $stateParams, $q} = this;
     // Handle redirect and abort
     if (error instanceof TransitionRejection) {

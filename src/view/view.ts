@@ -1,9 +1,10 @@
+/** @module view */ /** for typedoc */
 "use strict";
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {isInjectable, isString, extend, curry, applyPairs, prop, pick, removeFrom, TypedMap} from "../common/common";
 import {trace} from "../common/trace";
-import {IStateViewConfig, IViewDeclaration} from "../state/interface";
-import {IUiViewData, IContextRef} from "./interface";
+import {StateViewConfig, ViewDeclaration} from "../state/interface";
+import {UIViewData, ViewContext} from "./interface";
 import {ResolveInjector} from "../resolve/resolveInjector";
 
 /**
@@ -42,13 +43,13 @@ function normalizeUiViewTarget(rawViewName = "") {
  * @returns {Object} New `ViewConfig` object
  */
 export class ViewConfig {
-  viewDeclarationObj: IViewDeclaration;
+  viewDeclarationObj: ViewDeclaration;
 
   template: string;
   controller: Function;
   controllerAs: string;
 
-  context: IContextRef;
+  context: ViewContext;
 
   uiViewName: string;
   uiViewContextAnchor: string;
@@ -56,7 +57,7 @@ export class ViewConfig {
   params: any;
   locals: any;
 
-  constructor(stateViewConfig: IStateViewConfig) {
+  constructor(stateViewConfig: StateViewConfig) {
     // viewName is something like "$default" or "foo.bar" or "$default.foo.bar.$default"
     // contextAnchor is something like "fully.qualified.context" or "^" (parent) or  "^.^.^" (parent.parent.parent)
     let {uiViewName, uiViewContextAnchor} = normalizeUiViewTarget(stateViewConfig.rawViewName);
@@ -112,7 +113,7 @@ export class ViewConfig {
 $View.$inject = ['$rootScope', '$templateFactory', '$q', '$timeout'];
 function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
 
-  let uiViews: IUiViewData[] = [];
+  let uiViews: UIViewData[] = [];
   let viewConfigs: ViewConfig[] = [];
 
   const match = (obj1, ...keys) =>
@@ -170,7 +171,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
   };
 
   this.sync = () => {
-    let uiViewsByFqn: TypedMap<IUiViewData> =
+    let uiViewsByFqn: TypedMap<UIViewData> =
         uiViews.map(uiv => [uiv.fqn, uiv]).reduce(applyPairs, <any> {});
 
     /**
@@ -226,7 +227,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
      * - And the remaining segments [ "$default", "bar" ].join("."_ of the ViewConfig's target name match
      *   the tail of the ui-view's fqn "default.bar"
      */
-    const matches = curry(function(uiView: IUiViewData, viewConfig: ViewConfig) {
+    const matches = curry(function(uiView: UIViewData, viewConfig: ViewConfig) {
       // Split names apart from both viewConfig and uiView into segments
       let vcSegments = viewConfig.uiViewName.split(".");
       let uivSegments = uiView.fqn.split(".");
@@ -245,13 +246,13 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
     });
 
     // Return the number of dots in the fully qualified name
-    function uiViewDepth(uiView: IUiViewData) {
+    function uiViewDepth(uiView: UIViewData) {
       return uiView.fqn.split(".").length;
     }
 
     // Return the ViewConfig's context's depth in the context tree.
     function viewConfigDepth(config: ViewConfig) {
-      let context: IContextRef = config.context, count = 0;
+      let context: ViewContext = config.context, count = 0;
       while (++count && context.parent) context = context.parent;
       return count;
     }
@@ -285,7 +286,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
    *                   of the view.
    * @return {Function} Returns a de-registration function used when the view is destroyed.
    */
-  this.registerUiView = function register(uiView: IUiViewData) {
+  this.registerUiView = function register(uiView: UIViewData) {
     trace.traceViewServiceUiViewEvent("-> Registering", uiView);
     const fqnMatches = uiv => uiv.fqn === uiView.fqn;
     if (uiViews.filter(fqnMatches).length)

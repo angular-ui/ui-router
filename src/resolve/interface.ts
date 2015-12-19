@@ -1,12 +1,9 @@
+/** @module resolve */ /** for typedoc */
 import {IPromise} from "angular";
 import {Resolvable} from "./resolvable";
 
-export interface IResolvables {
+export interface Resolvables {
   [key: string]: Resolvable;
-}
-
-export interface IPromises {
-  [key: string]: IPromise<any>;
 }
 
 export interface IOptions1 {

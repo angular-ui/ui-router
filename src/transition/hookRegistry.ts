@@ -1,3 +1,4 @@
+/** @module transition */ /** for typedoc */
 import {IInjectable, extend, val, isString, isFunction, removeFrom} from "../common/common";
 
 import {State} from "../state/state";

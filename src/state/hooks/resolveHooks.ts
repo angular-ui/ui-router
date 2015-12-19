@@ -1,3 +1,4 @@
+/** @module state */ /** for typedoc */
 import {extend, find, propEq, tail} from "../../common/common";
 
 import {ResolvePolicy} from "../../resolve/interface";

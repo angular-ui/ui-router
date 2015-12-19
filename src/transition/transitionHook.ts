@@ -1,3 +1,4 @@
+/** @module transition */ /** for typedoc */
 import {IPromise} from "angular";
 import {IInjectable, defaults, extend, noop, filter, not, isFunction, isDefined, map, pattern, val,
     eq, is, isPromise, isObject, parse, fnToString, maxLength, Predicate} from "../common/common";
@@ -6,10 +7,9 @@ import {trace} from "../common/trace";
 import {RejectFactory, TransitionRejection} from "./rejectFactory";
 import {Transition} from "./transition";
 import {State} from "../state/state";
-import {IResolveDeclarations} from "../state/interface";
 import {Resolvable} from "../resolve/resolvable";
 import {ResolveContext} from "../resolve/resolveContext";
-import {ITransitionHookOptions} from "./interface";
+import {TransitionHookOptions} from "./interface";
 
 let REJECT = new RejectFactory();
 
@@ -25,7 +25,7 @@ export class TransitionHook {
   constructor(private fn:IInjectable,
               private locals: any,
               private resolveContext: ResolveContext,
-              private options: ITransitionHookOptions) {
+              private options: TransitionHookOptions) {
     this.options = defaults(options, defaultOptions);
   }
 
@@ -36,7 +36,7 @@ export class TransitionHook {
    * to the pathContext for the current pathElement.  If the transition is rejected, then a rejected
    * promise is returned here, otherwise undefined is returned.
    */
-  mapHookResult = pattern([
+  mapHookResult: Function = pattern([
     // Transition is no longer current
     [this.isSuperseded, () => REJECT.superseded(this.options.current())],
     // If the hook returns false, abort the current Transition
@@ -47,7 +47,7 @@ export class TransitionHook {
     [isPromise,         (promise) => promise.then(this.handleHookResult.bind(this))]
   ]);
 
-  invokeStep = (moreLocals) => {
+  invokeStep = (moreLocals) => { // bind to this
     let { options, fn, resolveContext } = this;
     let locals = extend({}, this.locals, moreLocals);
     trace.traceHookInvocation(this, options);

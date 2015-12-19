@@ -1,3 +1,4 @@
+/** @module params */ /** for typedoc */
 import {isDefined, fromJson, toJson, is, identity, equals, inherit, map, extend, val} from "../common/common";
 import {Type} from "./type";
 import {runtime} from "../common/angular1";

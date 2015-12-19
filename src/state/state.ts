@@ -1,3 +1,4 @@
+/** @module state */ /** for typedoc */
 import {
   extend, defaults, copy, equalForKeys, forEach, find, prop,
   propEq, ancestors, noop, isDefined, isObject, isString, values
@@ -5,17 +6,14 @@ import {
 import {Queue} from "../common/queue";
 import {IServiceProviderFactory, IPromise} from "angular";
 
-import {
-  IStateService, IStateDeclaration, IStateOrName, IHrefOptions,
-  IViewDeclarations, IResolveDeclarations
-} from "./interface";
+import { StateService, StateDeclaration, StateOrName, HrefOptions, ViewDeclaration } from "./interface";
 import {Glob} from "./glob";
 import {StateQueueManager} from "./stateQueueManager";
 import {StateBuilder} from "./stateBuilder";
 import {StateMatcher} from "./stateMatcher";
 import {TargetState} from "./targetState";
 
-import {ITransitionService, ITransitionOptions, ITreeChanges} from "../transition/interface";
+import {ITransitionService, TransitionOptions, TreeChanges} from "../transition/interface";
 import {Transition} from "../transition/transition";
 import {RejectFactory} from "../transition/rejectFactory";
 import {defaultTransOpts} from "../transition/transitionService";
@@ -23,7 +21,7 @@ import {defaultTransOpts} from "../transition/transitionService";
 import {Node} from "../path/node";
 import {PathFactory} from "../path/pathFactory";
 
-import {IRawParams, IParamsOrArray} from "../params/interface";
+import {RawParams, ParamsOrArray} from "../params/interface";
 import {TransitionManager} from "./hooks/transitionManager";
 
 import {paramTypes} from "../params/paramTypes";
@@ -50,18 +48,18 @@ export class State {
   public parent: State;
   public name: string;
   public abstract: boolean;
-  public resolve: IResolveDeclarations;
+  public resolve: { [key: string]: Function; };
   public resolvePolicy: any;
   public url: UrlMatcher;
   public params: { [key: string]: Param };
-  public views: IViewDeclarations;
-  public self: IStateDeclaration;
+  public views: { [key: string]: ViewDeclaration; };
+  public self: StateDeclaration;
   public navigable: State;
   public path: State[];
   public data: any;
   public includes: (name: string) => boolean;
 
-  constructor(config?: IStateDeclaration) {
+  constructor(config?: StateDeclaration) {
     extend(this, config);
     // Object.freeze(this);
   }
@@ -80,7 +78,7 @@ export class State {
    *        into `$stateProvider.state()`, (c) the fully-qualified name of a state as a string.
    * @returns {boolean} Returns `true` if `ref` matches the current `State` instance.
    */
-  is(ref: State|IStateDeclaration|string): boolean {
+  is(ref: State|StateDeclaration|string): boolean {
     return this === ref || this.self === ref || this.fqn() === ref;
   }
 
@@ -158,13 +156,13 @@ $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
   let root: State, states: { [key: string]: State } = {};
-  let $state: IStateService = <any> function $state() {};
+  let $state: StateService = <any> function $state() {};
 
   let matcher       = new StateMatcher(states);
   let builder       = new StateBuilder(() => root, matcher, $urlMatcherFactoryProvider);
   let stateQueue    = new StateQueueManager(states, builder, $urlRouterProvider, $state);
   let transQueue    = new Queue<Transition>();
-  let treeChangesQueue = new Queue<ITreeChanges>();
+  let treeChangesQueue = new Queue<TreeChanges>();
   let rejectFactory = new RejectFactory();
 
   /**
@@ -580,7 +578,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
-    $state.reload = function reload(reloadState: IStateOrName): IPromise<State> {
+    $state.reload = function reload(reloadState: StateOrName): IPromise<State> {
       return $state.transitionTo($state.current, $stateParams, {
         reload: isDefined(reloadState) ? reloadState : true,
         inherit: false,
@@ -654,14 +652,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * - *resolve error* - when an error has occurred with a `resolve`
      *
      */
-    $state.go = function go(to: IStateOrName, params: IRawParams, options: ITransitionOptions): IPromise<State> {
+    $state.go = function go(to: StateOrName, params: RawParams, options: TransitionOptions): IPromise<State> {
       let defautGoOpts = { relative: $state.$current, inherit: true };
       let transOpts = defaults(options, defautGoOpts, defaultTransOpts);
       return $state.transitionTo(to, params, transOpts);
     };
 
     /** Factory method for creating a TargetState */
-    $state.targetState = function targetState(identifier: IStateOrName, params: IParamsOrArray, options: ITransitionOptions = {}): TargetState {
+    $state.targetState = function targetState(identifier: StateOrName, params: ParamsOrArray, options: TransitionOptions = {}): TargetState {
       let stateDefinition = matcher.find(identifier, options.relative);
       return new TargetState(identifier, stateDefinition, params, options);
     };
@@ -704,7 +702,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @returns {promise} A promise representing the state of the new transition. See
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
-    $state.transitionTo = function transitionTo(to: IStateOrName, toParams: IRawParams = {}, options: ITransitionOptions = {}): IPromise<State> {
+    $state.transitionTo = function transitionTo(to: StateOrName, toParams: RawParams = {}, options: TransitionOptions = {}): IPromise<State> {
       options = defaults(options, defaultTransOpts);
       options = extend(options, { current: transQueue.peekTail.bind(transQueue)});
 
@@ -716,7 +714,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
         throw new Error(`No such reload state '${(isString(options.reload) ? options.reload : (<any>options.reload).name)}'`);
 
       let ref: TargetState = $state.targetState(to, toParams, options);
-      let latestTreeChanges: ITreeChanges = treeChangesQueue.peekTail();
+      let latestTreeChanges: TreeChanges = treeChangesQueue.peekTail();
       let currentPath: Node[] = latestTreeChanges ? latestTreeChanges.to : rootPath();
 
       if (!ref.exists())
@@ -765,7 +763,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      * @returns {boolean} Returns true if it is the state.
      */
-    $state.is = function is(stateOrName: IStateOrName, params?: IRawParams, options?: ITransitionOptions): boolean {
+    $state.is = function is(stateOrName: StateOrName, params?: RawParams, options?: TransitionOptions): boolean {
       options = defaults(options, { relative: $state.$current });
       let state = matcher.find(stateOrName, options.relative);
       if (!isDefined(state)) return undefined;
@@ -824,7 +822,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      * @returns {boolean} Returns true if it does include the state
      */
-    $state.includes = function includes(stateOrName: IStateOrName, params?: IRawParams, options?: ITransitionOptions): boolean {
+    $state.includes = function includes(stateOrName: StateOrName, params?: RawParams, options?: TransitionOptions): boolean {
       options = defaults(options, { relative: $state.$current });
       let glob = isString(stateOrName) && Glob.fromString(<string> stateOrName);
 
@@ -868,7 +866,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      *
      * @returns {string} compiled state url
      */
-    $state.href = function href(stateOrName: IStateOrName, params?: IRawParams, options?: IHrefOptions): string {
+    $state.href = function href(stateOrName: StateOrName, params?: RawParams, options?: HrefOptions): string {
       let defaultHrefOpts = {
         lossy:    true,
         inherit:  true,
@@ -905,7 +903,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
      * @param {string|object=} base When stateOrName is a relative state reference, the state will be retrieved relative to context.
      * @returns {Object|Array} State configuration object or array of all objects.
      */
-    $state.get = function (stateOrName: IStateOrName, base: IStateOrName): (IStateDeclaration|IStateDeclaration[]) {
+    $state.get = function (stateOrName: StateOrName, base: StateOrName): (StateDeclaration|StateDeclaration[]) {
       if (arguments.length === 0) return Object.keys(states).map(function(name) { return states[name].self; });
       let found = matcher.find(stateOrName, base || $state.$current);
       return found && found.self || null;

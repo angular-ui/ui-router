@@ -1,3 +1,4 @@
+/** @module common */ /** for typedoc */
 import {map} from "./common"
 
 export class Queue<T> {

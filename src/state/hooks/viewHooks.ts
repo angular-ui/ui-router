@@ -1,14 +1,15 @@
+/** @module state */ /** for typedoc */
 import {IPromise} from "angular";
 import {find, propEq, noop} from "../../common/common";
 import {annotateController, runtime} from "../../common/angular1";
 
-import {ITreeChanges} from "../../transition/interface";
+import {TreeChanges} from "../../transition/interface";
 import {Transition} from "../../transition/transition";
 
 import {ViewConfig} from "../../view/view";
 
 export class ViewHooks {
-  private treeChanges: ITreeChanges;
+  private treeChanges: TreeChanges;
   private enteringViews: ViewConfig[];
   private exitingViews: ViewConfig[];
   private transition: Transition;

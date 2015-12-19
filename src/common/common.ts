@@ -1,3 +1,4 @@
+/** @module common */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 let { isDefined, isFunction, isNumber, isString, isObject, isArray, forEach, extend, copy, noop, toJson, fromJson, equals, identity } = angular;
 export { isDefined, isFunction, isNumber, isString, isObject, isArray, forEach, extend, copy, noop, toJson, fromJson, equals, identity };

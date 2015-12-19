@@ -1,3 +1,4 @@
+/** @module params */ /** for typedoc */
 import {extend, isArray, isDefined, filter, map} from "../common/common";
 
 /**

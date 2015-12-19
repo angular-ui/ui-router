@@ -1,10 +1,11 @@
+/** @module state */ /** for typedoc */
 import {State} from "./state";
 
-import {IStateDeclaration, IStateOrName} from "./interface";
+import {StateDeclaration, StateOrName} from "./interface";
 
-import {IParamsOrArray} from "../params/interface";
+import {ParamsOrArray} from "../params/interface";
 
-import {ITransitionOptions} from "../transition/interface";
+import {TransitionOptions} from "../transition/interface";
 
 /**
  * @ngdoc object
@@ -14,20 +15,20 @@ import {ITransitionOptions} from "../transition/interface";
  * Encapsulate the desired target of a transition.
  * Wraps an identifier for a state, a set of parameters, and transition options with the definition of the state.
  *
- * @param {IStateOrName} _identifier  An identifier for a state. Either a fully-qualified path, or the object
+ * @param {StateOrName} _identifier  An identifier for a state. Either a fully-qualified path, or the object
  *            used to define the state.
  * @param {IState} _definition The `State` object definition.
- * @param {IParamsOrArray} _params Parameters for the target state
- * @param {ITransitionOptions} _options Transition options.
+ * @param {ParamsOrArray} _params Parameters for the target state
+ * @param {TransitionOptions} _options Transition options.
  */
 export class TargetState {
-  private _params: IParamsOrArray;
+  private _params: ParamsOrArray;
 
   constructor(
-    private _identifier: IStateOrName, 
+    private _identifier: StateOrName,
     private _definition?: State,
-    _params: IParamsOrArray = {},
-    private _options: ITransitionOptions = {}
+    _params: ParamsOrArray = {},
+    private _options: TransitionOptions = {}
   ) {
     this._params = _params || {};
   }
@@ -36,11 +37,11 @@ export class TargetState {
     return this._definition && this._definition.name || this._identifier;
   }
 
-  identifier(): IStateOrName {
+  identifier(): StateOrName {
     return this._identifier;
   }
 
-  params(): IParamsOrArray {
+  params(): ParamsOrArray {
     return this._params;
   }
 
@@ -48,7 +49,7 @@ export class TargetState {
     return this._definition;
   }
 
-  state(): IStateDeclaration {
+  state(): StateDeclaration {
     return this._definition && this._definition.self;
   }
 

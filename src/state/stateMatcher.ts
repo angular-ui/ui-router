@@ -1,5 +1,6 @@
+/** @module state */ /** for typedoc */
 import {isString} from "../common/common";
-import {IStateOrName} from "./interface";
+import {StateOrName} from "./interface";
 import {State} from "./state";
 
 export class StateMatcher {
@@ -11,7 +12,7 @@ export class StateMatcher {
   }
 
 
-  find(stateOrName: IStateOrName, base?: IStateOrName): State {
+  find(stateOrName: StateOrName, base?: StateOrName): State {
     if (!stateOrName && stateOrName !== "") return undefined;
     let isStr = isString(stateOrName);
     let name: string = isStr ? stateOrName : (<any>stateOrName).name;
@@ -25,7 +26,7 @@ export class StateMatcher {
     return undefined;
   }
 
-  resolvePath(name: string, base: IStateOrName) {
+  resolvePath(name: string, base: StateOrName) {
     if (!base) throw new Error(`No reference point given for path '${name}'`);
     
     let baseState: State = this.find(base);

@@ -1,3 +1,4 @@
+/** @module transition */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
 import {IServiceProviderFactory} from "angular";
@@ -8,7 +9,7 @@ import {TargetState} from "../state/targetState";
 
 import {Node} from "../path/node";
 
-import {IHookRegistry, ITransitionService, ITransitionOptions, IHookRegistration, IHookGetter} from "./interface";
+import {IHookRegistry, ITransitionService, TransitionOptions, IHookRegistration, IHookGetter} from "./interface";
 
 import {HookRegistry} from "./hookRegistry";
 
@@ -18,7 +19,7 @@ import {HookRegistry} from "./hookRegistry";
  * let reloadOpts = { reload: true, notify: true }
  * let options = defaults(theirOpts, customDefaults, defaultOptions);
  */
-export let defaultTransOpts: ITransitionOptions = {
+export let defaultTransOpts: TransitionOptions = {
   location    : true,
   relative    : null,
   inherit     : false,

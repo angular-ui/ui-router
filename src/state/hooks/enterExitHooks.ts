@@ -1,3 +1,4 @@
+/** @module state */ /** for typedoc */
 import {Transition} from "../../transition/transition";
 
 export class EnterExitHooks {

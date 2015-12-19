@@ -1,3 +1,4 @@
+/** @module path */ /** for typedoc */
 import {map} from "../common/common";
 import {ResolveContext} from "../resolve/resolveContext";
 import {State} from "../state/state";

@@ -1,9 +1,10 @@
+/** @module state */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
 import {IServiceProviderFactory} from "angular";
 import {extend, applyPairs, isFunction} from "../common/common";
 
-import {IStateService, IStateProvider} from "./interface";
+import {StateService, StateProvider} from "./interface";
 import {StateParams} from "./state";
 import {TargetState} from "./targetState";
 
@@ -118,7 +119,7 @@ function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootSc
 }
 
 stateNotFoundHandler.$inject = ['$to$', '$from$', '$state', '$rootScope', '$urlRouter'];
-export function stateNotFoundHandler($to$: TargetState, $from$: TargetState, $state: IStateService, $rootScope, $urlRouter) {
+export function stateNotFoundHandler($to$: TargetState, $from$: TargetState, $state: StateService, $rootScope, $urlRouter) {
   /**
    * @ngdoc event
    * @name ui.router.state.$state#$stateNotFound
@@ -169,7 +170,7 @@ export function stateNotFoundHandler($to$: TargetState, $from$: TargetState, $st
 }
 
 $StateEventsProvider.$inject = ['$stateProvider'];
-function $StateEventsProvider($stateProvider: IStateProvider) {
+function $StateEventsProvider($stateProvider: StateProvider) {
   $StateEventsProvider.prototype.instance = this;
 
   interface IEventsToggle {

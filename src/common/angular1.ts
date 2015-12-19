@@ -1,3 +1,4 @@
+/** @module common */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IQService} from "angular";
 

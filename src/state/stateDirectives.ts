@@ -1,3 +1,4 @@
+/** @module state */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {copy, defaults, isString, isObject, forEach, toJson} from "../common/common";
 import {defaultTransOpts} from "../transition/transitionService";

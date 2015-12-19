@@ -1,3 +1,4 @@
+/** @module state */ /** for typedoc */
 export class Glob {
   text: string;
   glob: Array<string>;

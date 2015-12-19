@@ -1,3 +1,4 @@
+/** @module transition */ /** for typedoc */
 "use strict";
 import {extend} from "../common/common";
 import {runtime} from "../common/angular1";

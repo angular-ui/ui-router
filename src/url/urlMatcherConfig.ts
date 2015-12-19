@@ -1,3 +1,4 @@
+/** @module url */ /** for typedoc */
 import {isDefined, isString} from "../common/common";
 
 class MatcherConfig {

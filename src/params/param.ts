@@ -1,5 +1,6 @@
+/** @module params */ /** for typedoc */
 import {isInjectable, extend, isDefined, isString, isArray, filter, map, pick, prop, propEq, curry, applyPairs} from "../common/common";
-import {IRawParams} from "../params/interface";
+import {RawParams} from "../params/interface";
 import {runtime} from "../common/angular1";
 import {matcherConfig} from "../url/urlMatcherConfig";
 import {paramTypes} from "./paramTypes";
@@ -145,9 +146,9 @@ export class Param {
     return new Param(id, type, config, DefType.SEARCH);
   }
 
-  static values(params: Param[], values): IRawParams {
+  static values(params: Param[], values): RawParams {
     values = values || {};
-    return <IRawParams> params.map(param => [param.id, param.value(values[param.id])]).reduce(applyPairs, {});
+    return <RawParams> params.map(param => [param.id, param.value(values[param.id])]).reduce(applyPairs, {});
   }
 
   static equals(params: Param[], values1, values2): boolean {

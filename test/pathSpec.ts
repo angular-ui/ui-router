@@ -2,7 +2,6 @@
 /// <reference path='../typings/angularjs/angular-mocks.d.ts' />
 /// <reference path='../typings/jasmine/jasmine.d.ts' />
 
-import * as MPath from "../src/path/interface"
 import {PathFactory} from "../src/path/pathFactory"
 
 xdescribe("", () => {

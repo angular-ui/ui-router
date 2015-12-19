@@ -1,9 +1,10 @@
+/** @module transition */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {runtime} from "../common/angular1";
 import {IPromise} from "angular";
 import {trace} from "../common/trace";
 
-import {ITransitionOptions, ITransitionHookOptions, ITreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";
+import {TransitionOptions, TransitionHookOptions, TreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";
 import {$transitions} from "./transitionService";
 import {TransitionHook} from "./transitionHook";
 import {HookRegistry, matchState} from "./hookRegistry";
@@ -15,13 +16,11 @@ import {PathFactory} from "../path/pathFactory";
 
 import {State} from "../state/state";
 import {TargetState} from "../state/targetState";
-import {IStateDeclaration, IStateOrName} from "../state/interface";
+import {StateDeclaration, StateOrName} from "../state/interface";
 
 import {Param} from "../params/param";
 
 import {Resolvable} from "../resolve/resolvable";
-
-import {IResolveDeclarations} from "../state/interface";
 
 import {ViewConfig} from "../view/view";
 
@@ -32,7 +31,7 @@ import {
 } from "../common/common";
 
 let transitionCount = 0, REJECT = new RejectFactory();
-const stateSelf: (_state: State) => IStateDeclaration = prop("self");
+const stateSelf: (_state: State) => StateDeclaration = prop("self");
 
 /**
  * @ngdoc object
@@ -55,8 +54,8 @@ export class Transition implements IHookRegistry {
   private _deferred = runtime.$q.defer();
   promise: IPromise<any> = this._deferred.promise;
 
-  private _options: ITransitionOptions;
-  private _treeChanges: ITreeChanges;
+  private _options: TransitionOptions;
+  private _treeChanges: TreeChanges;
 
   onBefore:   IHookRegistration;
   onStart:    IHookRegistration;
@@ -161,10 +160,10 @@ export class Transition implements IHookRegistry {
 
   /**
    * Adds new resolves to this transition.
-   * @param resolves a IResolveDeclarations object which describes the new resolves
+   * @param resolves an ResolveDeclarations object which describes the new resolves
    * @param state (optional) the state in the topath which should receive the new resolves (otherwise, the root state)
    */
-  addResolves(resolves: IResolveDeclarations, state: IStateOrName = "") {
+  addResolves(resolves: { [key: string]: Function }, state: StateOrName = "") {
     let stateName: string = (typeof state === "string") ? state : state.name;
     let topath = this._treeChanges.to;
     let targetNode = find(topath, node => node.state.name === stateName);
@@ -207,7 +206,7 @@ export class Transition implements IHookRegistry {
    *
    * @returns {Array} Returns an array of states that will be entered in this transition.
    */
-  entering(): IStateDeclaration[] {
+  entering(): StateDeclaration[] {
     return map(this._treeChanges.entering, prop('state')).map(stateSelf);
   }
 
@@ -221,7 +220,7 @@ export class Transition implements IHookRegistry {
    *
    * @returns {Array} Returns an array of states that will be exited in this transition.
    */
-  exiting(): IStateDeclaration[] {
+  exiting(): StateDeclaration[] {
     return map(this._treeChanges.exiting, prop('state')).map(stateSelf).reverse();
   }
 
@@ -236,7 +235,7 @@ export class Transition implements IHookRegistry {
    * @returns {Array} Returns an array of states that were entered in a previous transition that
    *           will not be exited.
    */
-  retained(): IStateDeclaration[] {
+  retained(): StateDeclaration[] {
     return map(this._treeChanges.retained, prop('state')).map(stateSelf);
   }
 
@@ -303,7 +302,7 @@ export class Transition implements IHookRegistry {
   }
 
   hookBuilder(): HookBuilder {
-    return new HookBuilder($transitions, this, <ITransitionHookOptions> {
+    return new HookBuilder($transitions, this, <TransitionHookOptions> {
       transition: this,
       current: this._options.current
     });

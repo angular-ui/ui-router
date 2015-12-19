@@ -1,3 +1,4 @@
+/** @module url */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {isFunction, isString, isDefined, isArray, isObject, extend} from "../common/common";
 import {IServiceProviderFactory} from "angular";

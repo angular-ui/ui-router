@@ -1,3 +1,4 @@
+/** @module url */ /** for typedoc */
 import {
   map, prop, propEq, defaults, extend, inherit, identity, isDefined, isObject, isArray, isString,
   invoke, unnest, tail, forEach, find, curry, omit, pairs, allTrueR

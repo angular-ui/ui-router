@@ -1,13 +1,13 @@
+/** @module path */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {pick, map, filter, not, isFunction}  from "../common/common";
 import {trace} from "../common/trace";
 import {runtime} from "../common/angular1"
 import {IPromise} from "angular";
 
-import {IResolveDeclarations} from "../state/interface";
 import {State} from "../state/state";
 
-import {IResolvables, IOptions1} from "./interface"
+import {Resolvables, IOptions1} from "./interface"
 import {ResolveContext} from "./resolveContext"
 
 /**
@@ -57,10 +57,10 @@ export class Resolvable {
     this.promise = deferred.promise;
     // Load a map of all resolvables for this state from the context path
     // Omit the current Resolvable from the result, so we don't try to inject this into this
-    var ancestorsByName: IResolvables = resolveContext.getResolvables(null, {  omitOwnLocals: [ name ] });
+    var ancestorsByName: Resolvables = resolveContext.getResolvables(null, {  omitOwnLocals: [ name ] });
 
     // Limit the ancestors Resolvables map to only those that the current Resolvable fn's annotations depends on
-    var depResolvables: IResolvables = <any> pick(ancestorsByName, deps);
+    var depResolvables: Resolvables = <any> pick(ancestorsByName, deps);
 
     // Get promises (or synchronously invoke resolveFn) for deps
     var depPromises: any = map(depResolvables, function(resolvable: Resolvable) {
@@ -95,7 +95,7 @@ export class Resolvable {
   /**
    * Validates the result map as a "resolve:" style object, then transforms the resolves into Resolvables
    */
-  static makeResolvables(resolves: IResolveDeclarations): IResolvables {
+  static makeResolvables(resolves: { [key: string]: Function; }): Resolvables {
     // If a hook result is an object, it should be a map of strings to functions.
     let invalid = filter(resolves, not(isFunction)), keys = Object.keys(invalid);
     if (keys.length)

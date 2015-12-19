@@ -1,12 +1,13 @@
+/** @module state */ /** for typedoc */
 import {extend, inherit, isString, pluck, equalForKeys, abstractKey} from "../common/common";
-import {IStateDeclaration} from "./interface";
+import {StateDeclaration} from "./interface";
 import {State} from "./state";
 
 export function StateQueueManager(states, builder, $urlRouterProvider, $state) {
   let queue = [];
 
   let queueManager = extend(this, {
-    register: function(config: IStateDeclaration, pre?: boolean) {
+    register: function(config: StateDeclaration, pre?: boolean) {
       // Wrap a new object around the state so we can store our private details easily.
       // @TODO: state = new State(extend({}, config, { ... }))
       let state = inherit(new State(), extend({}, config, {

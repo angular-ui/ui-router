@@ -1,9 +1,10 @@
+/** @module transition */ /** for typedoc */
 
 import {IPromise} from "angular";
 import {IInjectable, extend, tail, isPromise, isArray, assertPredicate, unnestR, flatten, identity} from "../common/common";
 import {runtime} from "../common/angular1";
 
-import {ITransitionOptions, ITransitionHookOptions, IHookRegistry, ITreeChanges, IEventHook, ITransitionService} from "./interface";
+import {TransitionOptions, TransitionHookOptions, IHookRegistry, TreeChanges, IEventHook, ITransitionService} from "./interface";
 import {TransitionHook} from "./transitionHook";
 import {Transition} from "./transition";
 
@@ -16,7 +17,7 @@ interface IToFrom {
   from: State;
 }
 
-let successErrorOptions: ITransitionHookOptions = {
+let successErrorOptions: TransitionHookOptions = {
   async: false,
   rejectIfSuperseded: false
 };
@@ -37,14 +38,14 @@ let successErrorOptions: ITransitionHookOptions = {
  */
 export class HookBuilder {
 
-  treeChanges: ITreeChanges;
-  transitionOptions: ITransitionOptions;
+  treeChanges: TreeChanges;
+  transitionOptions: TransitionOptions;
 
   toState: State;
   fromState: State;
 
 
-  constructor(private $transitions: ITransitionService, private transition: Transition, private baseHookOptions: ITransitionHookOptions) {
+  constructor(private $transitions: ITransitionService, private transition: Transition, private baseHookOptions: TransitionHookOptions) {
     this.treeChanges        = transition.treeChanges();
     this.toState            = tail(this.treeChanges.to).state;
     this.fromState          = tail(this.treeChanges.from).state;
@@ -86,7 +87,7 @@ export class HookBuilder {
    * Finds all registered IEventHooks which matched the hookType and toFrom criteria.
    * A TransitionHook is then built from each IEventHook with the context, locals, and options provided.
    */
-  private _buildTransitionHooks(hookType: string, locals = {}, options: ITransitionHookOptions = {}) {
+  private _buildTransitionHooks(hookType: string, locals = {}, options: TransitionHookOptions = {}) {
     let context = this.treeChanges.to, node = tail(context);
     options.traceData = { hookType, context };
 
@@ -103,7 +104,7 @@ export class HookBuilder {
    * Finds all registered IEventHooks which matched the hookType and toFrom criteria.
    * A TransitionHook is then built from each IEventHook with the context, locals, and options provided.
    */
-  private _buildNodeHooks(hookType: string, path: Node[], toFromFn: (node: Node) => IToFrom, locals: any = {}, options: ITransitionHookOptions = {}) {
+  private _buildNodeHooks(hookType: string, path: Node[], toFromFn: (node: Node) => IToFrom, locals: any = {}, options: TransitionHookOptions = {}) {
     const hooksForNode = (node: Node) => {
       let toFrom = toFromFn(node);
       options.traceData = { hookType, context: node };
@@ -117,7 +118,7 @@ export class HookBuilder {
   }
 
   /** Given a node and a callback function, builds a TransitionHook */
-  buildHook(node: Node, fn: IInjectable, locals?, options: ITransitionHookOptions = {}): TransitionHook {
+  buildHook(node: Node, fn: IInjectable, locals?, options: TransitionHookOptions = {}): TransitionHook {
     let _options = extend({}, this.baseHookOptions, options);
     return new TransitionHook(fn, extend({}, locals), node.resolveContext, _options);
   }

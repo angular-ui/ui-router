@@ -1,9 +1,10 @@
+/** @module path */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {extend, pick, prop, propEq, pairs, applyPairs, map, find, allTrueR, values} from "../common/common";
 import {State} from "../state/state";
 import {Param} from "../params/param";
 import {Type} from "../params/type";
-import {IRawParams} from "../params/interface";
+import {RawParams} from "../params/interface";
 import {Resolvable} from "../resolve/resolvable";
 import {ResolveContext} from "../resolve/resolveContext";
 import {ResolveInjector} from "../resolve/resolveInjector";
@@ -19,7 +20,7 @@ export class Node {
   public resolveInjector: ResolveInjector;
 
   // Possibly extract this logic into an intermediary object that maps states to nodes
-  constructor(public state: State, params: IRawParams, resolves: any = {}) {
+  constructor(public state: State, params: RawParams, resolves: any = {}) {
     // Object.freeze(extend(this, { ... }))
     this.schema = state.parameters({ inherit: false });
 

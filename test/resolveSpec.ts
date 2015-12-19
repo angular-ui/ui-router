@@ -11,7 +11,7 @@ import {Node} from "../src/path/node";
 import {PathFactory} from "../src/path/pathFactory";
 
 import {omit, map, pick, prop, extend, forEach} from "../src/common/common"
-import {IStateDeclaration} from "../src/state/interface";
+import {StateDeclaration} from "../src/state/interface";
 
 let module = angular.mock.module;
 ///////////////////////////////////////////////
@@ -528,7 +528,7 @@ describe("State transitions with resolves", function() {
       }
     }
 
-    angular.forEach(stateDefs, function(state: IStateDeclaration, key) {
+    angular.forEach(stateDefs, function(state: StateDeclaration, key) {
       if (!key) return;
       state.template = "<div ui-view></div> state"+key;
       state.controllerProvider = controllerProvider(state);

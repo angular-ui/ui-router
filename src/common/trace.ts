@@ -1,8 +1,9 @@
+/** @module common */ /** for typedoc */
 import {isNull, isPromise, isNumber, fnToString, maxLength, padString, isInjectable, is, invoke, not, val, pattern, parse, isDefined, identity} from "../common/common";
 import {Resolvable}  from "../resolve/resolvable";
 import {Transition}  from "../transition/transition";
 import {TransitionRejection}  from "../transition/rejectFactory";
-import {IUiViewData}  from "../view/interface";
+import {UIViewData}  from "../view/interface";
 import {ViewConfig}  from "../view/view";
 
 function promiseToString(p) {
@@ -170,22 +171,22 @@ class Trace {
     console.log(`Transition #${tid} Digest #${digest}: <- Success  ${transitionStr}, final state: ${state}`);
   }
 
-  traceUiViewEvent(event: string, viewData: IUiViewData, extra = "") {
+  traceUiViewEvent(event: string, viewData: UIViewData, extra = "") {
     if (!this.enabled(Category.UIVIEW)) return;
     console.log(`ui-view: ${padString(30, event)} ${uiViewString(viewData)}${extra}`);
   }
 
-  traceUiViewConfigUpdated(viewData: IUiViewData, context) {
+  traceUiViewConfigUpdated(viewData: UIViewData, context) {
     if (!this.enabled(Category.UIVIEW)) return;
     this.traceUiViewEvent("Updating", viewData, ` with ViewConfig from context='${context}'`);
   }
 
-  traceUiViewScopeCreated(viewData: IUiViewData, newScope) {
+  traceUiViewScopeCreated(viewData: UIViewData, newScope) {
     if (!this.enabled(Category.UIVIEW)) return;
     this.traceUiViewEvent("Created scope for", viewData, `, scope #${newScope.$id}`);
   }
 
-  traceUiViewFill(viewData: IUiViewData, html) {
+  traceUiViewFill(viewData: UIViewData, html) {
     if (!this.enabled(Category.UIVIEW)) return;
     this.traceUiViewEvent("Fill", viewData, ` with: ${maxLength(200, html)}`);
   }
@@ -195,7 +196,7 @@ class Trace {
     console.log(`$view.ViewConfig: ${event} ${viewConfigString(viewConfig)}`);
   }
 
-  traceViewServiceUiViewEvent(event: string, viewData: IUiViewData) {
+  traceViewServiceUiViewEvent(event: string, viewData: UIViewData) {
     if (!this.enabled(Category.VIEWCONFIG)) return;
     console.log(`$view.ViewConfig: ${event} ${uiViewString(viewData)}`);
   }

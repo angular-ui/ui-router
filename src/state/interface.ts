@@ -1,106 +1,438 @@
+/** @module state */ /** for typedoc */
 import {IPromise} from "angular";
 
 import {UrlMatcher} from "../url/urlMatcher";
 
-import {IRawParams, IParamsOrArray} from "../params/interface";
+import {RawParams, ParamsOrArray} from "../params/interface";
 import {Param} from "../params/param";
 
-import {IContextRef} from "../view/interface";
+import {ViewContext} from "../view/interface";
 
 import {TargetState} from "./targetState";
 import {State} from "./state";
 
-import {ITransitionOptions} from "../transition/interface";
+import {TransitionOptions} from "../transition/interface";
 import {Transition} from "../transition/transition";
 
-export type IStateOrName = (string|IStateDeclaration|State);
+export type StateOrName = (string|StateDeclaration|State);
 
-/** Context obj, State-view definition, transition params */
-export interface IStateViewConfig {
-  viewDeclarationObj:   IViewDeclaration; // A view block from a state config
-  rawViewName:          string;           // The name of the view block
-  params:               any;              // State params?
-  context:              IContextRef;      // The context object reference this ViewConfig belongs to
+/**
+ * @internal
+ * Internal Context obj, State-view definition, transition params
+ */
+export interface StateViewConfig {
+  /** A view block from a state config */
+  viewDeclarationObj: ViewDeclaration;
+  /**  The name of the view block */
+  rawViewName: string;
+  /**  State params? */
+  params: any;
+  /**  The context object reference this ViewConfig belongs to */
+  context: ViewContext;
 }
 
 /** View declaration inside state declaration */
-export interface IViewDeclaration {
-  controllerProvider?:  Function;
+export interface ViewDeclaration {
+
+  /**
+   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   *
+   * A Controller function or the name of a registered controller.
+   * The controller function will be used to control the corresponding [[ui-view]] directive.
+   *
+   * If specified as a string, controllerAs can be specified here, i.e., "FooController as foo"
+   */
   controller?:          (Function|string);
+
+  /**
+   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   *
+   * A controller alias name. If present, the controller will be published to scope under the `controllerAs` name.
+   * See: https://docs.angularjs.org/api/ng/directive/ngController
+   */
   controllerAs?:         string;
 
+  /**
+   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   *
+   * Injectable provider function that returns the actual controller function or name of a registered controller.
+   *
+   * @example 
+   * ```javascript
+   * 
+   * controllerProvider: function(MyResolveData) {
+   *   if (MyResolveData.foo) {
+   *     return "FooCtrl"
+   *   } else if (MyResolveData.bar) {
+   *     return "BarCtrl";
+   *   } else {
+   *     return function($scope) {
+   *       $scope.baz = "Qux";
+   *     }
+   *   }
+   * }
+   * ```
+   */
+  controllerProvider?:  Function;
+
+  /**
+   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   *
+   * HTML template as a string or a function which returns an html template as a string.
+   * This template will be used to render the corresponding [[ui-view]] directive.
+   *
+   * This property takes precedence over templateUrl.
+   *
+   * If `template` is a function, it will be called with the State Parameters as the first argument.
+   *
+   * @example
+   * ```javascript
+   *
+   * template: "<h1>inline template definition</h1><div ui-view></div>"
+   * ```
+   *
+   * @example
+   * ```javascript
+   *
+   * template: function(params) {
+   *   return "<h1>generated template</h1>";
+   * }
+   * ```
+   */
   template?:            (Function|string);
-  templateUrl?:         string;
+
+  /**
+   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   *
+   * A path or a function that returns a path to an html template.
+   * The template will be fetched and used to render the corresponding [[ui-view]] directive.
+   *
+   * If `templateUrl` is a function, it will be called with the State Parameters as the first argument.
+   *
+   * @example
+   * ```javascript
+   *
+   * templateUrl: "/templates/home.html"
+   * ```
+   *
+   * @example
+   * ```javascript
+   *
+   * templateUrl: function(params) {
+   *   return myTemplates[params.pageId];
+   * }
+   * ```
+   */
+  templateUrl?:         (string|Function);
+  /**
+   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   *
+   * Injected function which returns the HTML template.
+   * The template will be used to render the corresponding [[ui-view]] directive.
+   *
+   * @example
+   * ```javascript
+   *
+   * templateProvider: function(MyTemplateService, params) {
+   *   return MyTemplateService.getTemplate(params.pageId);
+   * }
+   * ```
+   */
   templateProvider?:    Function;
 }
 
-/** hash of strings->views */
-export interface IViewDeclarations     { [key: string]: IViewDeclaration; }
-/** hash of strings->resolve fns */
-export interface IResolveDeclarations  { [key: string]: Function; }
-/** hash of strings->param declarations */
-// If the value is of type 'any', then it is syntax sugar for an IParamDeclaration { value: value }
-interface IParamsDeclaration    { [key: string]: (IParamDeclaration|any); }
-/** declaration of single state param */
-interface IParamDeclaration {
+/**
+ * Configuration for a single state parameter
+ */
+interface ParamDeclaration {
   value: any;
   squash: (boolean|string);
+  array: boolean;
 }
 
-/** state declaration */
-export interface IStateDeclaration extends IViewDeclaration {
-  name: string;
-  abstract: boolean;
-  parent: (string|IStateDeclaration);
-  resolve: IResolveDeclarations; // name->Function
-  resolvePolicy: (string|Object);
-  url: string;
-  params: IParamsDeclaration;
-  views: IViewDeclarations;
-  data: any;
-  onEnter: Function;
-  onRetain: Function;
-  onExit: Function;
-  // TODO: finish defining state definition API.  Maybe start with what's on Definitely Typed.
+/**
+ * The StateDeclaration object is used to define a state or nested state.
+ * It should be registered with the [[$stateProvider]].
+ *
+ * @example
+ * ```javascript
+ *
+ * // StateDeclaration object
+ * var foldersState = {
+ *   name: 'folders',
+ *   url: '/folders',
+ *   resolve: {
+ *     allfolders: function(FolderService) {
+ *       return FolderService.list();
+ *     }
+ *   },
+ *   template: "<ul><li ng-repeat='folder in allfolders'>{{folder.name}}</li></ul>",
+ *   controller: function(allfolders, $scope) {
+ *     $scope.allfolders = allfolders;
+ *   }
+ * }
+ * ```
+ */
+export interface StateDeclaration extends ViewDeclaration {
+  /**
+   * A unique state name, e.g. `"home"`, `"about"`, `"contacts"`.
+   * To create a parent/child state use a dot, e.g. `"about.sales"`, `"home.newest"`.
+   *
+   *
+   * Note: States require unique names.  If you omit this property, you must provide
+   * the state name when you register it with the [[$stateProvider]].
+   */
+  name?: string;
+
+  /**
+   * An abstract state can never be directly activated.  Use an abstract state to provide inherited
+   * properties (url, resolve, data, etc) to children states.
+   */
+  abstract?: boolean;
+
+  /**
+   * The parent state of this state can be specified using the [[name]] of the state, e.g., `"parentstate.childstate"`.
+   * Alternatively, you can explicitly set the parent state using this property.  This allows shorter state
+   * names, e.g., `<a ui-sref="childstate">Child</a>` instead of `<a ui-sref="parentstate.childstate">Child</a>
+   *
+   * @example
+   * ```javascript
+   *
+   * var parentstate = {
+   *   name: 'parentstate'
+   * }
+   * var childstate = {
+   *   name: 'childstate',
+   *   parent: 'parentstate'
+   *   // or use a JS var which is the parent StateDeclaration, i.e.:
+   *   // parent: parentstate
+   * }
+   * ```
+   */
+  parent?: (string|StateDeclaration);
+
+  /**
+   * A property of [[StateDeclaration]]:
+   *
+   * An object which defines dynamic dependencies/data that can then be injected into this state (or its children)
+   * during a Transition.
+   *
+   * Define a new dependency by adding a key/value to the `resolve` property of the [[StateDeclaration]].
+   * - The key (string) is the name of the dependency.
+   * - The value (function) is an injectable function which returns the dependency, or a promise for the dependency.
+   *
+   * @example
+   * ```javascript
+   *
+   * resolve: {
+   *   // If you inject `myStateDependency` into a controller, you'll get "abc"
+   *   myStateDependency: function() {
+   *     return "abc";
+   *   },
+   *   myAsyncData: function($http) {
+   *     // Return a promise (async) for the data
+   *     return $http.get("/api/v1/data");
+   *   }
+   * }
+   * ```
+   *
+   * ### Lifecycle
+   *
+   * Since a resolve function can return a promise, the router will delay entering the state until the  promises
+   * are ready.  If any of the promises are rejected, the Transition is aborted with an Error.
+   *
+   * By default, resolves for a state are fetched just before that state is entered. Note that only states
+   * which are being *entered* have their resolves fetched.  States that are "retained" do not have their resolves
+   * re-fetched.  If you are currently in a parent state `A` and are transitioning to a child state `A.B`, the
+   * previously resolved data for state `A` can be injected into `A.B` without delay.
+   *
+   * Any resolved data for `A.B` is retained until `A.B` is exited, e.g., by transitioning back to the parent state `A`.
+   *
+   * Because of this, resolves are a great place to fetch your application's primary data.
+   *
+   * ### Injecting resolves into other things
+   *
+   * During a transition, Resolve data can be injected into:
+   * - Transition Hooks, e.g., $transitions.onStart/onEnter
+   * - ui-view Controllers
+   * - TemplateProviders and ControllerProviders
+   * - Other resolves
+   *
+   * ### Injecting other things into resolves
+   *
+   * Since resolve functions are injected, a common pattern is to inject a custom service such as `UserService`
+   * and delegate to a custom service method, such as `UserService.list()`;
+   *
+   * A resolve function can inject some special values:
+   * - `$transition$`: The current [[Transition]] object; information and API about the current transition, such as
+   *    "to" and "from" State Parameters and transition options.
+   * - Other resolves: This resolve can depend on another resolve, either from the same state, or from any parent state.
+   * - `$stateParams`: (deprecated) The parameters for the current state (Note: these parameter values are
+   *
+   * @example
+   * ```javascript
+   *
+   * resolve: {
+   *   // Define a resolve 'allusers' which delegates to the UserService
+   *   allusers: function(UserService) {
+   *     return UserService.list(); // list() returns a promise (async) for all the users
+   *   },
+   *   // Define a resolve 'user' which depends on the allusers resolve.
+   *   // This resolve function is not called until 'allusers' is ready.
+   *   user: function(allusers, $transition$) {
+   *     return _.find(allusers, $transition$.params().userId);
+   *   }
+   * }
+   * ```
+   */
+  resolve?: { [key: string]: Function; };
+  /**
+   * @TODO document this ;)
+   */
+  resolvePolicy?: (string|Object);
+
+  /**
+   * A property of [[StateDeclaration]]:
+   *
+   * A URL fragment (with optional parameters) which is used to match the browser location with this state.
+   *
+   * This fragment will be appended to the parent state's URL in order to build up the overall URL for this state.
+   * See [[UrlMatcher]] for details on acceptable patterns.
+   *
+   * @examples
+   * ```javascript
+   *
+   * url: "/home"
+   * // Define a parameter named 'userid'
+   * url: "/users/:userid"
+   * // param 'bookid' has a custom regexp
+   * url: "/books/{bookid:[a-zA-Z_-]}"
+   * // param 'categoryid' is of type 'int'
+   * url: "/books/{categoryid:int}"
+   * // two parameters for this state
+   * url: "/books/{publishername:string}/{categoryid:int}"
+   * // Query parameters
+   * url: "/messages?before&after"
+   * // Query parameters of type 'date'
+   * url: "/messages?{before:date}&{after:date}"
+   * // Path and query parameters
+   * url: "/messages/:mailboxid?{before:date}&{after:date}"
+   * ```
+   */
+  url?: string;
+
+  /**
+   * A property of [[StateDeclaration]]:
+   *
+   * An object which optionally configures parameters declared in the url, or defines additional non-url
+   * parameters. For each parameter being configured, add a [[ParamDeclaration]] keyed to the name of the parameter.
+   *
+   * @example
+   * ```javascript
+   *
+   * params: {
+   *   param1: {
+   *    type: "int",
+   *    array: true,
+   *    value: []
+   *   },
+   *   param2: {
+   *     value: "index"
+   *   }
+   * }
+   * ```
+   */
+  params?: { [key: string]: (ParamDeclaration|any); };
+  /**
+   * A property of [[StateDeclaration]]:
+   *
+   * An optional object which defines multiple views, or explicitly targets specific ui-views.
+   *
+   * - What is a view config
+   * - What is a ui-view
+   * - Shorthand controller/template
+   * - Incompatible with ^
+   *
+   *  Examples:
+   *
+   *  Targets three named ui-views in the parent state's template
+   *
+   * @example
+   * ```javascript
+   *
+   * views: {
+   *   header: {
+   *     controller: "headerCtrl",
+   *     templateUrl: "header.html"
+   *   }, body: {
+   *     controller: "bodyCtrl",
+   *     templateUrl: "body.html"
+   *   }, footer: {
+   *     controller: "footCtrl",
+   *     templateUrl: "footer.html"
+   *   }
+   * }
+   * ```
+   *
+   * @example
+   * ```javascript
+   * // Targets named ui-view="header" from ancestor state 'top''s template, and
+   * // named `ui-view="body" from parent state's template.
+   * views: {
+   *   'header@top': {
+   *     controller: "msgHeaderCtrl",
+   *     templateUrl: "msgHeader.html"
+   *   }, 'body': {
+   *     controller: "messagesCtrl",
+   *     templateUrl: "messages.html"
+   *   }
+   * }
+   * ```
+   */
+  views?: { [key: string]: ViewDeclaration; };
+  data?: any;
+  onEnter?: Function;
+  onRetain?: Function;
+  onExit?: Function;
 }
 
-export interface IStateParams {
+export interface StateParams {
   $digest: () => void;
-  $inherit: (newParams, $current: State, $to: State) => IStateParams;
+  $inherit: (newParams, $current: State, $to: State) => StateParams;
   $set: (params, url) => boolean;
-  $sync: () => IStateParams;
-  $off: () => IStateParams;
+  $sync: () => StateParams;
+  $off: () => StateParams;
   $raw: () => any;
-  $localize: () => IStateParams;
+  $localize: () => StateParams;
   $observe: (key, fn) => () => void;
 }
 
-export interface IHrefOptions {
-  relative?:  IStateOrName;
+export interface HrefOptions {
+  relative?:  StateOrName;
   lossy?:     boolean;
   inherit?:   boolean;
   absolute?:  boolean;
 }
 
-export interface IStateProvider {
-  state(state: IStateDeclaration): IStateProvider;
-  state(name: string, state: IStateDeclaration): IStateProvider;
+export interface StateProvider {
+  state(state: StateDeclaration): StateProvider;
+  state(name: string, state: StateDeclaration): StateProvider;
   onInvalid(callback: Function): void;
   decorator(name: string, func: Function);
 }
 
-export interface IStateService {
+export interface StateService {
   params:       any; // TODO: StateParams
-  current:      IStateDeclaration;
+  current:      StateDeclaration;
   $current:     State;
   transition:   Transition;
-  reload        (stateOrName: IStateOrName): IPromise<State>;
-  targetState   (identifier: IStateOrName, params: IParamsOrArray, options: ITransitionOptions): TargetState;
-  go            (to: IStateOrName, params: IRawParams, options: ITransitionOptions): IPromise<State>;
-  transitionTo  (to: IStateOrName, toParams: IParamsOrArray, options: ITransitionOptions): IPromise<State>;
-  is            (stateOrName: IStateOrName, params?: IRawParams, options?: ITransitionOptions): boolean;
-  includes      (stateOrName: IStateOrName, params?: IRawParams, options?: ITransitionOptions): boolean;
-  href          (stateOrName: IStateOrName, params?: IRawParams, options?: IHrefOptions): string;
-  get           (stateOrName: IStateOrName, base?: IStateOrName): (IStateDeclaration|IStateDeclaration[]);
+  reload        (stateOrName: StateOrName): IPromise<State>;
+  targetState   (identifier: StateOrName, params: ParamsOrArray, options: TransitionOptions): TargetState;
+  go            (to: StateOrName, params: RawParams, options: TransitionOptions): IPromise<State>;
+  transitionTo  (to: StateOrName, toParams: ParamsOrArray, options: TransitionOptions): IPromise<State>;
+  is            (stateOrName: StateOrName, params?: RawParams, options?: TransitionOptions): boolean;
+  includes      (stateOrName: StateOrName, params?: RawParams, options?: TransitionOptions): boolean;
+  href          (stateOrName: StateOrName, params?: RawParams, options?: HrefOptions): string;
+  get           (stateOrName: StateOrName, base?: StateOrName): (StateDeclaration|StateDeclaration[]);
 }
 

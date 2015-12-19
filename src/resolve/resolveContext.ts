@@ -1,3 +1,4 @@
+/** @module path */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IInjectable, find, filter, map, noop, tail, defaults, extend, prop, propEq, pick, omit, isString, isObject} from "../common/common";
 import {trace} from "../common/trace";
@@ -6,7 +7,7 @@ import {IPromise} from "angular";
 
 import {Node} from "../path/node";
 
-import {IPromises, IResolvables, ResolvePolicy, IOptions1} from "./interface";
+import {Resolvables, ResolvePolicy, IOptions1} from "./interface";
 import {Resolvable} from "./resolvable";
 import {State} from "../state/state";
 
@@ -14,6 +15,7 @@ import {State} from "../state/state";
 let defaultResolvePolicy = ResolvePolicy[ResolvePolicy.LAZY];
 
 interface IPolicies { [key: string]: string; }
+interface IPromises { [key: string]: IPromise<any>; }
 
 export class ResolveContext {
 
@@ -55,7 +57,7 @@ export class ResolveContext {
    *   state({ name: 'G.G2', resolve: { _G: function(_G) { return _G + "G2"; } } });
    *   where injecting _G into a controller will yield "GG2"
    */
-  getResolvables(state?: State, options?: any): IResolvables {
+  getResolvables(state?: State, options?: any): Resolvables {
     options = defaults(options, { omitOwnLocals: [] });
 
     const offset = find(this._path, propEq(''));
@@ -66,7 +68,7 @@ export class ResolveContext {
       let omitProps = (node === last) ? options.omitOwnLocals : [];
       let filteredResolvables = omit(node.resolves, omitProps);
       return extend(memo, filteredResolvables);
-    }, <IResolvables> {});
+    }, <Resolvables> {});
   }
 
   /** Inspects a function `fn` for its dependencies.  Returns an object containing any matching Resolvables */
@@ -79,12 +81,12 @@ export class ResolveContext {
     return new ResolveContext(this._pathTo(state));
   }
   
-  addResolvables(resolvables: IResolvables, state: State) {
+  addResolvables(resolvables: Resolvables, state: State) {
     extend(this._nodeFor(state).resolves, resolvables);
   }
   
   /** Gets the resolvables declared on a particular state */
-  getOwnResolvables(state: State): IResolvables {
+  getOwnResolvables(state: State): Resolvables {
     return extend({}, this._nodeFor(state).resolves);
   }
    

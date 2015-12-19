@@ -1,8 +1,10 @@
+/** @module path */ /** for typedoc */
+
 import {map, extend, find, pairs, prop, propEq, pick, omit, not, curry, tail, applyPairs, mergeR} from "../common/common";
 
-import {IRawParams} from "../params/interface";
+import {RawParams} from "../params/interface";
 
-import {ITreeChanges} from "../transition/interface";
+import {TreeChanges} from "../transition/interface";
 
 import {State} from "../state/state";
 import {TargetState} from "../state/targetState";
@@ -30,7 +32,7 @@ export class PathFactory {
   }
 
   /* Given params and a state, creates an Node */
-  static makeParamsNode = curry((params: IRawParams, state: State) => new Node(state, params));
+  static makeParamsNode = curry((params: RawParams, state: State) => new Node(state, params));
 
   /** Given a fromPath: Node[] and a TargetState, builds a toPath: Node[] */
   static buildToPath(fromPath: Node[], targetState: TargetState): Node[] {
@@ -54,7 +56,7 @@ export class PathFactory {
    * it is not inherited from the fromPath.
    */
   static inheritParams(fromPath: Node[], toPath: Node[], toKeys: string[] = []): Node[] {
-    function nodeParamVals(path: Node[], state: State): IRawParams {
+    function nodeParamVals(path: Node[], state: State): RawParams {
       let node = find(path, propEq('state', state));
       return extend({}, node && node.values);
     }
@@ -71,7 +73,7 @@ export class PathFactory {
       toParamVals = omit(toParamVals, _toKeys);
       let fromParamVals = nodeParamVals(_fromPath, toNode.state) || {};
       // extend toParamVals with any fromParamVals, then override any of those those with incomingParamVals
-      let ownParamVals: IRawParams = extend(toParamVals, fromParamVals, incomingParamVals);
+      let ownParamVals: RawParams = extend(toParamVals, fromParamVals, incomingParamVals);
       return new Node(toNode.state, ownParamVals);
     });
 
@@ -102,7 +104,7 @@ export class PathFactory {
   /**
    * Computes the tree changes (entering, exiting) between a fromPath and toPath.
    */
-  static treeChanges(fromPath: Node[], toPath: Node[], reloadState: State): ITreeChanges {
+  static treeChanges(fromPath: Node[], toPath: Node[], reloadState: State): TreeChanges {
     let keep = 0, max = Math.min(fromPath.length, toPath.length);
     const staticParams = (state) => state.parameters({ inherit: false }).filter(not(prop('dynamic'))).map(prop('id'));
     const nodesMatch = (node1: Node, node2: Node) => node1.equals(node2, staticParams(node1.state));
@@ -139,7 +141,7 @@ export class PathFactory {
     return { from, to, retained, exiting, entering };
   }
 
-  static bindTransitionResolve(treeChanges: ITreeChanges, transition: Transition) {
+  static bindTransitionResolve(treeChanges: TreeChanges, transition: Transition) {
     let rootNode = treeChanges.to[0];
     rootNode.resolves.$transition$ = new Resolvable('$transition$', () => transition, transition);
   }
