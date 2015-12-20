@@ -3,7 +3,7 @@ import {IPromise} from "angular";
 
 import {UrlMatcher} from "../url/urlMatcher";
 
-import {RawParams, ParamsOrArray} from "../params/interface";
+import {ParamDeclaration, RawParams, ParamsOrArray} from "../params/interface";
 import {Param} from "../params/param";
 
 import {ViewContext} from "../view/interface";
@@ -17,7 +17,7 @@ import {Transition} from "../transition/transition";
 export type StateOrName = (string|StateDeclaration|State);
 
 /**
- * @internal
+ * @hidden
  * Internal Context obj, State-view definition, transition params
  */
 export interface StateViewConfig {
@@ -139,15 +139,6 @@ export interface ViewDeclaration {
    * ```
    */
   templateProvider?:    Function;
-}
-
-/**
- * Configuration for a single state parameter
- */
-interface ParamDeclaration {
-  value: any;
-  squash: (boolean|string);
-  array: boolean;
 }
 
 /**
