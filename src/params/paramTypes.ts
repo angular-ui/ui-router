@@ -30,7 +30,7 @@ class ParamTypes {
       encode: valToString,
       decode(val) { return parseInt(val, 10); },
       is(val) { return isDefined(val) && this.decode(val.toString()) === val; },
-      pattern: /\d+/
+      pattern: /-?\d+/
     },
     bool: {
       encode: val => val && 1 || 0,
