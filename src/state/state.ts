@@ -326,14 +326,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
    * @ngdoc object
    * @name ui.router.state.$state
    *
-   * @requires $rootScope
    * @requires $q
    * @requires $injector
    * @requires ui.router.state.$view
    * @requires ui.router.state.$stateParams
    * @requires ui.router.router.$urlRouter
    * @requires ui.router.state.$transitions
-   * @requires ui.router.util.$urlMatcherFactory
    *
    * @property {object} params A param object, e.g. {sectionId: section.id)}, that
    * you'd like to test against the current active state.
@@ -348,8 +346,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
    * you're coming from.
    */
   this.$get = $get;
-  $get.$inject = ['$rootScope', '$q', '$injector', '$view', '$stateParams', '$urlRouter', '$transitions', '$urlMatcherFactory'];
-  function $get(   $rootScope,   $q,   $injector,   $view,   $stateParams,   $urlRouter,   _$transition,   $urlMatcherFactory) {
+  $get.$inject = ['$q', '$injector', '$view', '$stateParams', '$urlRouter', '$transitions'];
+  function $get(   $q,   $injector,   $view,   $stateParams,   $urlRouter,   _$transition) {
 
     /**
      * Invokes the onInvalid callbacks, in natural order.  Each callback's return value is checked in sequence
