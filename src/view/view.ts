@@ -2,10 +2,12 @@
 "use strict";
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {isInjectable, isString, extend, curry, applyPairs, prop, pick, removeFrom, TypedMap} from "../common/common";
-import {trace} from "../common/trace";
+import {trace} from "../common/module";
+
 import {StateViewConfig, ViewDeclaration} from "../state/interface";
 import {UIViewData, ViewContext} from "./interface";
-import {ResolveInjector} from "../resolve/resolveInjector";
+
+import {ResolveInjector} from "../resolve/module";
 
 /**
  * Given a raw view name from a views: config, returns a normalized target viewName and contextAnchor

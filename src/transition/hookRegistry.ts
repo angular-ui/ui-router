@@ -1,10 +1,9 @@
 /** @module transition */ /** for typedoc */
 import {IInjectable, extend, val, isString, isFunction, removeFrom} from "../common/common";
 
-import {State} from "../state/state";
-import {Glob} from "../state/glob";
-
 import {IMatchCriteria, IStateMatch, IEventHook, IHookRegistry, IHookRegistration} from "./interface";
+
+import {Glob, State} from "../state/module";
 
 /**
  * Determines if the given state matches the matchCriteria

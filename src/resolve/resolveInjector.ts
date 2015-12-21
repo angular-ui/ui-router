@@ -1,8 +1,8 @@
 /** @module path */ /** for typedoc */
 import {map} from "../common/common";
-import {ResolveContext} from "../resolve/resolveContext";
-import {State} from "../state/state";
-import {Resolvable} from "./resolvable";
+
+import {Resolvable, ResolveContext} from "./module";
+import {State} from "../state/module";
 
 export class ResolveInjector {
   constructor(private _resolveContext: ResolveContext, private _state: State) { }

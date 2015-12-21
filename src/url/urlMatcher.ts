@@ -3,8 +3,7 @@ import {
   map, prop, propEq, defaults, extend, inherit, identity, isDefined, isObject, isArray, isString,
   invoke, unnest, tail, forEach, find, curry, omit, pairs, allTrueR
 } from "../common/common";
-import {paramTypes} from "../params/paramTypes";
-import {Param} from "../params/param";
+import {Param, paramTypes} from "../params/module";
 
 interface params {
   $$validates: (params: string) => Array<string>;

@@ -1,7 +1,7 @@
 /** @module state */ /** for typedoc */
 import {extend, inherit, isString, pluck, equalForKeys, abstractKey} from "../common/common";
 import {StateDeclaration} from "./interface";
-import {State} from "./state";
+import {State} from "./module";
 
 export function StateQueueManager(states, builder, $urlRouterProvider, $state) {
   let queue = [];

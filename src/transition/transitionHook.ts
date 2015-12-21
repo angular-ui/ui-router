@@ -1,15 +1,13 @@
 /** @module transition */ /** for typedoc */
 import {IPromise} from "angular";
+import {TransitionHookOptions} from "./interface";
 import {IInjectable, defaults, extend, noop, filter, not, isFunction, isDefined, map, pattern, val,
     eq, is, isPromise, isObject, parse, fnToString, maxLength, Predicate} from "../common/common";
-import {runtime} from "../common/angular1";
-import {trace} from "../common/trace";
-import {RejectFactory, TransitionRejection} from "./rejectFactory";
-import {Transition} from "./transition";
-import {State} from "../state/state";
-import {Resolvable} from "../resolve/resolvable";
-import {ResolveContext} from "../resolve/resolveContext";
-import {TransitionHookOptions} from "./interface";
+import {runtime, trace} from "../common/module";
+
+import {Transition, RejectFactory, TransitionRejection} from "./module";
+import {State} from "../state/module";
+import {Resolvable, ResolveContext} from "../resolve/module";
 
 let REJECT = new RejectFactory();
 

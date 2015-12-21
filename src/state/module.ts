@@ -6,6 +6,7 @@ export * from "./stateDirectives";
 export * from "./stateEvents";
 export * from "./stateFilters";
 export * from "./hooks/transitionManager";
+export * from "./stateObject";
 export * from "./stateMatcher";
 export * from "./stateQueueManager";
 //export * from "./stateService";

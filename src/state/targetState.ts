@@ -1,11 +1,10 @@
 /** @module state */ /** for typedoc */
-import {State} from "./state";
 
 import {StateDeclaration, StateOrName} from "./interface";
-
 import {ParamsOrArray} from "../params/interface";
-
 import {TransitionOptions} from "../transition/interface";
+
+import {State} from "./module";
 
 /**
  * @ngdoc object

@@ -5,14 +5,13 @@
 var module = angular.mock.module;
 
 import {inherit, extend, curry} from "../src/common/common";
-import {Node} from "../src/path/node";
-import {ResolveContext} from "../src/resolve/resolveContext";
-import {PathFactory} from "../src/path/pathFactory";
-import {ViewConfig} from "../src/view/view";
-import {StateBuilder} from "../src/state/stateBuilder";
-import {StateMatcher} from "../src/state/stateMatcher";
+import {Node} from "../src/path/module";
+import {ResolveContext} from "../src/resolve/module";
+import {PathFactory} from "../src/path/module";
+import {ViewConfig} from "../src/view/module";
+import {StateMatcher, StateBuilder} from "../src/state/module";
 
-import {State} from "../src/state/state";
+import {State} from "../src/state/module";
 
 describe('view', function() {
   var scope, $compile, $injector, elem, $controllerProvider, $urlMatcherFactoryProvider;

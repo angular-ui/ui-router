@@ -1,5 +1,5 @@
 /** @module view */ /** for typedoc */
-import {ViewConfig} from "./view";
+import {ViewConfig} from "./module";
 
 /** The context ref can be anything that has a `name` and a `parent` reference to another IContextRef */
 export interface ViewContext {

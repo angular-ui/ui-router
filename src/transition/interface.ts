@@ -1,12 +1,10 @@
 /** @module transition */ /** for typedoc */
-import {State} from "../state/state";
 import {StateDeclaration} from "../state/interface";
-import {TargetState} from "../state/targetState";
-import {Node} from "../path/node";
-
 import {IInjectable, Predicate} from "../common/common";
 
-import {Transition} from "./transition";
+import {Transition} from "./module";
+import {State, TargetState} from "../state/module";
+import {Node} from "../path/module";
 
 /**
  * The TransitionOptions object can be used to change the behavior of a transition.

@@ -5,12 +5,10 @@ import {IServiceProviderFactory} from "angular";
 import {extend, applyPairs, isFunction} from "../common/common";
 
 import {StateService, StateProvider} from "./interface";
-import {StateParams} from "../params/module";
-import {TargetState} from "./targetState";
 
-import {Transition} from "../transition/transition";
-import {$transitions} from "../transition/transitionService";
-import {RejectType} from "../transition/rejectFactory";
+import {TargetState} from "./module";
+import {StateParams} from "../params/module";
+import {Transition, $transitions, RejectType} from "../transition/module";
 
 stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$urlRouter'];
 function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootScope, $urlRouter) {

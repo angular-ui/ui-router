@@ -3,15 +3,11 @@
 
 import {IServiceProviderFactory} from "angular";
 
-import {Transition} from "./transition";
-
-import {TargetState} from "../state/targetState";
-
-import {Node} from "../path/node";
-
 import {IHookRegistry, ITransitionService, TransitionOptions, IHookRegistration, IHookGetter} from "./interface";
 
-import {HookRegistry} from "./hookRegistry";
+import {Transition, HookRegistry} from "./module";
+import {TargetState} from "../state/module";
+import {Node} from "../path/module";
 
 /**
  * The default transition options.

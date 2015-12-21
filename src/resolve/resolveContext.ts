@@ -1,15 +1,13 @@
 /** @module path */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IInjectable, find, filter, map, noop, tail, defaults, extend, prop, propEq, pick, omit, isString, isObject} from "../common/common";
-import {trace} from "../common/trace";
-import {runtime} from "../common/angular1";
+import {runtime, trace} from "../common/module";
 import {IPromise} from "angular";
-
-import {Node} from "../path/node";
-
 import {Resolvables, ResolvePolicy, IOptions1} from "./interface";
-import {Resolvable} from "./resolvable";
-import {State} from "../state/state";
+
+import {Node} from "../path/module";
+import {Resolvable} from "./module";
+import {State} from "../state/module";
 
 // TODO: make this configurable
 let defaultResolvePolicy = ResolvePolicy[ResolvePolicy.LAZY];

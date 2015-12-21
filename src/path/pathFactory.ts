@@ -3,20 +3,13 @@
 import {map, extend, find, pairs, prop, propEq, pick, omit, not, curry, tail, applyPairs, mergeR} from "../common/common";
 
 import {RawParams} from "../params/interface";
-
 import {TreeChanges} from "../transition/interface";
 
-import {State} from "../state/state";
-import {TargetState} from "../state/targetState";
-
-import {Node} from "../path/node";
-
-import {Resolvable} from "../resolve/resolvable";
-import {ResolveContext} from "../resolve/resolveContext";
-
-import {ViewConfig} from "../view/view";
-import {ResolveInjector} from "../resolve/resolveInjector";
-import {Transition} from "../transition/transition";
+import {State, TargetState} from "../state/module";
+import {Node} from "../path/module";
+import {ResolveContext, Resolvable, ResolveInjector} from "../resolve/module";
+import {ViewConfig} from "../view/module";
+import {Transition} from "../transition/module";
 
 /**
  * This class contains functions which convert TargetStates, Nodes and paths from one type to another.

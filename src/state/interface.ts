@@ -1,18 +1,14 @@
 /** @module state */ /** for typedoc */
 import {IPromise} from "angular";
 
-import {UrlMatcher} from "../url/urlMatcher";
-
-import {ParamDeclaration, RawParams, ParamsOrArray} from "../params/interface";
-import {Param} from "../params/param";
-
-import {ViewContext} from "../view/interface";
-
-import {TargetState} from "./targetState";
-import {State} from "./state";
-
 import {TransitionOptions} from "../transition/interface";
-import {Transition} from "../transition/transition";
+import {ParamDeclaration, RawParams, ParamsOrArray} from "../params/interface";
+
+import {State, TargetState} from "./module";
+import {UrlMatcher} from "../url/module";
+import {Param} from "../params/module";
+import {ViewContext} from "../view/interface";
+import {Transition} from "../transition/module";
 
 export type StateOrName = (string|StateDeclaration|State);
 

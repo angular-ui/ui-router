@@ -1,7 +1,7 @@
 /** @module state */ /** for typedoc */
 import {isString} from "../common/common";
 import {StateOrName} from "./interface";
-import {State} from "./state";
+import {State} from "./module";
 
 export class StateMatcher {
   constructor (private _states: { [key: string]: State }) { }

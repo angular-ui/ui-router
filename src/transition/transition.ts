@@ -1,34 +1,23 @@
 /** @module transition */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {runtime} from "../common/angular1";
 import {IPromise} from "angular";
-import {trace} from "../common/trace";
-
-import {TransitionOptions, TransitionHookOptions, TreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";
-import {$transitions} from "./transitionService";
-import {TransitionHook} from "./transitionHook";
-import {HookRegistry, matchState} from "./hookRegistry";
-import {HookBuilder} from "./hookBuilder";
-import {RejectFactory, TransitionRejection} from "./rejectFactory";
-
-import {Node} from "../path/node";
-import {PathFactory} from "../path/pathFactory";
-
-import {State} from "../state/state";
-import {TargetState} from "../state/targetState";
-import {StateDeclaration, StateOrName} from "../state/interface";
-
-import {Param} from "../params/param";
-
-import {Resolvable} from "../resolve/resolvable";
-
-import {ViewConfig} from "../view/view";
-
+import {runtime, trace} from "../common/module";
 import {
-  map, find, extend, filter, mergeR, flatten, unnest, tail, forEach, identity,
-  omit, isObject, isPromise, not, prop, propEq, toJson, val, abstractKey,
-  arrayTuples, allTrueR, Predicate
+    map, find, extend, filter, mergeR, flatten, unnest, tail, forEach, identity,
+    omit, isObject, isPromise, not, prop, propEq, toJson, val, abstractKey,
+    arrayTuples, allTrueR, Predicate
 } from "../common/common";
+
+import {StateDeclaration, StateOrName} from "../state/interface";
+import {TransitionOptions, TransitionHookOptions, TreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";
+
+import {$transitions, TransitionHook, HookRegistry, matchState, HookBuilder, RejectFactory, TransitionRejection} from "./module";
+import {Node, PathFactory} from "../path/module";
+import {State, TargetState} from "../state/module";
+import {Param} from "../params/module";
+import {Resolvable} from "../resolve/module";
+import {ViewConfig} from "../view/module";
+
 
 let transitionCount = 0, REJECT = new RejectFactory();
 const stateSelf: (_state: State) => StateDeclaration = prop("self");

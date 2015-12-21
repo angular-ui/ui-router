@@ -1,7 +1,7 @@
 /** @module state */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {copy, defaults, isString, isObject, forEach, toJson} from "../common/common";
-import {defaultTransOpts} from "../transition/transitionService";
+import {defaultTransOpts} from "../transition/module";
 
 function parseStateRef(ref, current) {
   let preparsed = ref.match(/^\s*({[^}]*})\s*$/), parsed;

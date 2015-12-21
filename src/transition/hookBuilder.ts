@@ -2,15 +2,13 @@
 
 import {IPromise} from "angular";
 import {IInjectable, extend, tail, isPromise, isArray, assertPredicate, unnestR, flatten, identity} from "../common/common";
-import {runtime} from "../common/angular1";
 
 import {TransitionOptions, TransitionHookOptions, IHookRegistry, TreeChanges, IEventHook, ITransitionService} from "./interface";
-import {TransitionHook} from "./transitionHook";
-import {Transition} from "./transition";
 
-import {State} from "../state/state";
-
-import {Node} from "../path/node";
+import {runtime} from "../common/module";
+import {Transition, TransitionHook} from "./module";
+import {State} from "../state/module";
+import {Node} from "../path/module";
 
 interface IToFrom {
   to:   State;

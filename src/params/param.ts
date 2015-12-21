@@ -2,9 +2,8 @@
 import {isInjectable, extend, isDefined, isString, isArray, filter, map, pick, prop, propEq, curry, applyPairs} from "../common/common";
 import {RawParams} from "../params/interface";
 import {runtime} from "../common/angular1";
-import {matcherConfig} from "../url/urlMatcherConfig";
-import {paramTypes} from "./paramTypes";
-import {Type} from "./type";
+import {matcherConfig} from "../url/module";
+import {Type, paramTypes} from "./module";
 
 let hasOwn = Object.prototype.hasOwnProperty;
 let isShorthand = cfg => ["value", "type", "squash", "array", "dynamic"].filter(hasOwn.bind(cfg || {})).length === 0;

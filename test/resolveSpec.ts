@@ -3,12 +3,10 @@
 /// <reference path='../typings/jasmine/jasmine.d.ts' />
 
 import * as uiRouter from "../src/ui-router";
-import {ResolveContext} from "../src/resolve/resolveContext"
-import {Resolvable} from "../src/resolve/resolvable"
+import {Resolvable, ResolveContext} from "../src/resolve/module"
 
-import {State} from "../src/state/state";
-import {Node} from "../src/path/node";
-import {PathFactory} from "../src/path/pathFactory";
+import {State} from "../src/state/module";
+import {Node, PathFactory} from "../src/path/module";
 
 import {omit, map, pick, prop, extend, forEach} from "../src/common/common"
 import {StateDeclaration} from "../src/state/interface";

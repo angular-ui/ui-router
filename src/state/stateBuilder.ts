@@ -1,6 +1,6 @@
 /** @module state */ /** for typedoc */
 import {map, noop, extend, pick, omit, values, applyPairs, prop,  isArray, isDefined, isFunction, isString, forEach} from "../common/common";
-import {Param} from "../params/param";
+import {Param} from "../params/module";
 
 const parseUrl = (url: string): any => {
   if (!isString(url)) return false;

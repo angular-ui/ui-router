@@ -1,7 +1,7 @@
 /** @module params */ /** for typedoc */
 import {isDefined, fromJson, toJson, is, identity, equals, inherit, map, extend, val} from "../common/common";
-import {Type} from "./type";
 import {runtime} from "../common/angular1";
+import {Type} from "./type";
 
 const swapString = (search, replace) => val => val != null ? val.toString().replace(search, replace) : val;
 const valToString   = swapString(/\//g, "%2F");

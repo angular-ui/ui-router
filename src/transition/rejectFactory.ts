@@ -1,7 +1,7 @@
 /** @module transition */ /** for typedoc */
 "use strict";
 import {extend} from "../common/common";
-import {runtime} from "../common/angular1";
+import {runtime} from "../common/module";
 
 export enum RejectType {
   SUPERSEDED = 2, ABORTED = 3, INVALID = 4, IGNORED = 5
