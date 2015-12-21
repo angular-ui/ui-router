@@ -5,7 +5,7 @@ import {IServiceProviderFactory} from "angular";
 import {extend, applyPairs, isFunction} from "../common/common";
 
 import {StateService, StateProvider} from "./interface";
-import {StateParams} from "./state";
+import {StateParams} from "../params/module";
 import {TargetState} from "./targetState";
 
 import {Transition} from "../transition/transition";
