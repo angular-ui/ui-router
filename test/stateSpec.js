@@ -276,7 +276,17 @@ describe('state', function () {
       .state('OPT.OPT2', OPT2)
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
-      .state('about', { url: "/about" })
+      .state('about', {
+        url: "/about",
+        resolve: {
+          stateInfo: function($transition$) {
+            return [$transition$.from().name, $transition$.to().name];
+          }
+        },
+        onEnter: function(stateInfo) {
+          log = stateInfo.join(' => ');
+        }
+      })
       .state('about.person', { url: "/:person" })
       .state('about.person.item', { url: "/:id" })
       .state('about.sidebar', {})
@@ -708,6 +718,12 @@ describe('state', function () {
       $q.flush();
       expect($location.url()).toBe('/front/world#frag');
       expect($location.hash()).toBe('frag');
+    }));
+
+    it('injects $transition$ into resolves', inject(function ($state, $q) {
+      $state.transitionTo('home'); $q.flush();
+      $state.transitionTo('about'); $q.flush();
+      expect(log).toBe('home => about');
     }));
   });
 
