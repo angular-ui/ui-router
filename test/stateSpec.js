@@ -250,6 +250,7 @@ describe('state', function () {
     },
     OPT = { url: '/opt/:param', params: { param: "100" }, template: "opt" },
     OPT2 = { url: '/opt2/:param2/:param3', params: { param3: "300", param4: "400" }, template: "opt2" },
+    URLLESS = { url: '/urllessparams', params: { myparam: { type: 'int' } } },
     AppInjectable = {};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -274,6 +275,7 @@ describe('state', function () {
       .state('dynamicstate', dynamicstate)
       .state('OPT', OPT)
       .state('OPT.OPT2', OPT2)
+      .state('URLLESS', URLLESS)
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
       .state('about', {
@@ -1110,7 +1112,7 @@ describe('state', function () {
 
     it("should return all of the state's config", inject(function ($state) {
       var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
-      var names = ['', 'A', 'B', 'C', 'D', 'DD', 'E', 'F', 'H', 'HH', 'HHH', 'OPT', 'OPT.OPT2', 'RS',
+      var names = ['', 'A', 'B', 'C', 'D', 'DD', 'E', 'F', 'H', 'HH', 'HHH', 'OPT', 'OPT.OPT2', 'RS', 'URLLESS',
         'about', 'about.person', 'about.person.item', 'about.sidebar', 'about.sidebar.item',
         'badParam', 'badParam2', 'dynamicTemplate', 'dynamicstate', 'first', 'home', 'home.item', 'home.redirect',
         'json', 'logA', 'logA.logB', 'logA.logB.logC', 'resolveFail', 'resolveTimeout',
@@ -1356,6 +1358,34 @@ describe('state', function () {
 
         extend(params, { p5: true });
         check('types.substate', "/types/foo/2014-11-15/sub/10/%7B%22baz%22:%22qux%22%7D?p5=1", params, defaults, nonurl);
+      }));
+
+      it('should support non-url parameters', inject(function($state, $q, $stateParams) {
+        $state.transitionTo(A); $q.flush();
+        expect($state.is(A)).toBe(true);
+
+        $state.go('URLLESS', { myparam: "0" }); $q.flush(); // string "0" decodes to 0
+        expect($state.current.name).toBe("URLLESS");
+        expect($stateParams.myparam).toBe(0);
+
+        $state.go('URLLESS', { myparam: "1" }); $q.flush(); // string "1" decodes to 1
+        expect($stateParams.myparam).toBe(1);
+      }));
+
+      it('should not transition if a required non-url parameter is missing', inject(function($state, $q, $stateParams) {
+        $state.transitionTo(A); $q.flush();
+        expect($state.current.name).toBe("A");
+
+        $state.go('URLLESS');  $q.flush(); // Missing required parameter; transition fails
+        expect($state.current.name).toBe("A");
+      }));
+
+      it('should not transition if a required non-url parameter is invalid', inject(function($state, $q, $stateParams) {
+        $state.transitionTo(A); $q.flush();
+        expect($state.current.name).toBe("A");
+
+        $state.go('URLLESS', { myparam: "somestring"}); $q.flush(); // string "somestring" is not an int
+        expect($state.current.name).toBe("A");
       }));
     });
 

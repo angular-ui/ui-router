@@ -131,7 +131,7 @@ export class UrlMatcher {
         regexp,
         cfg:     this.config.params[id],
         segment: pattern.substring(last, m.index),
-        type:    paramTypes.type(regexp || "string") || inherit(paramTypes.type("string"), {
+        type:    !regexp ? null : paramTypes.type(regexp || "string") || inherit(paramTypes.type("string"), {
           pattern: new RegExp(regexp, this.config.caseInsensitive ? 'i' : undefined)
         })
       };
