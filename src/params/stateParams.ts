@@ -1,3 +1,4 @@
+/** @module params */ /** for typedoc */
 import {IServiceProviderFactory} from "angular";
 import {forEach, ancestors, extend, copy} from "../common/common";
 

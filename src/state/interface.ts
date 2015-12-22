@@ -382,6 +382,11 @@ export interface StateDeclaration extends ViewDeclaration {
   onEnter?: Function;
   onRetain?: Function;
   onExit?: Function;
+
+  /**
+   * @deprecated define individual parameters as [[ParamDeclaration.dynamic]]
+   */
+  reloadOnSearch: boolean;
 }
 
 export interface StateParams {

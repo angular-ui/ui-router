@@ -10,7 +10,7 @@ import {StateService, StateDeclaration, StateOrName, HrefOptions, ViewDeclaratio
 import {ITransitionService, TransitionOptions, TreeChanges} from "../transition/interface";
 import {RawParams, ParamsOrArray} from "../params/interface";
 
-import {Glob, StateQueueManager, StateBuilder, StateMatcher, State, TargetState} from "./module";
+import {Glob, StateQueueManager, StateBuilder, StateMatcher, State, TargetState, BuilderFunction} from "./module";
 import {Transition, RejectFactory, defaultTransOpts} from "../transition/module";
 import {PathFactory, Node} from "../path/module";
 import {TransitionManager} from "./hooks/transitionManager";
@@ -144,7 +144,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
    * @return {object} $stateProvider - $stateProvider instance
    */
   this.decorator = decorator;
-  function decorator(name: string, func: Function) {
+  function decorator(name: string, func: BuilderFunction) {
     /*jshint validthis: true */
     return builder.builder(name, func) || this;
   }
