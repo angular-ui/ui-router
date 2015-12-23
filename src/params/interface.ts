@@ -219,3 +219,52 @@ interface Replace {
   from: string,
   to:string
 }
+
+
+/**
+ * Defines the behavior of a custom [[Type]].
+ * See: [[UrlMatcherFactory.type]]
+ */
+export interface TypeDefinition {
+  /**
+   * Detects whether a value is of a particular type. Accepts a native (decoded) value
+   * and determines whether it matches the current `Type` object.
+   *
+   * @param val The value to check.
+   * @param key If the type check is happening in the context of a specific [[UrlMatcher]]  object,
+   *        this is the name of the parameter in which `val` is stored. Can be used for
+   *        meta-programming of `Type` objects.
+   * @returns `true` if the value matches the type, otherwise `false`.
+   */
+  is(val: any, key?: string): boolean;
+
+  /**
+   * Encodes a custom/native type value to a string that can be embedded in a URL. Note that the
+   * return value does *not* need to be URL-safe (i.e. passed through `encodeURIComponent()`), it
+   * only needs to be a representation of `val` that has been coerced to a string.
+   *
+   * @param val The value to encode.
+   * @param key The name of the parameter in which `val` is stored. Can be used for meta-programming of `Type` objects.
+   * @returns a string representation of `val` that can be encoded in a URL.
+   */
+  encode(val: any, key?: string): (string|string[]);
+
+  /**
+   * Converts a parameter value (from URL string or transition param) to a custom/native value.
+   *
+   * @param val The URL parameter value to decode.
+   * @param key The name of the parameter in which `val` is stored. Can be used for meta-programming of `Type` objects.
+   * @returns a custom representation of the URL parameter value.
+   */
+  decode(val: string, key?: string): any;
+
+  /**
+   * Determines whether two decoded values are equivalent.
+   *
+   * @param a A value to compare against.
+   * @param b A value to compare against.
+   * @returns `true` if the values are equivalent/equal, otherwise `false`.
+   */
+  equals(a: any, b: any): boolean;
+}
+

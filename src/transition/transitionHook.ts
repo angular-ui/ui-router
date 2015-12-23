@@ -5,7 +5,8 @@ import {IInjectable, defaults, extend, noop, filter, not, isFunction, isDefined,
     eq, is, isPromise, isObject, parse, fnToString, maxLength, Predicate} from "../common/common";
 import {runtime, trace} from "../common/module";
 
-import {Transition, RejectFactory, TransitionRejection} from "./module";
+import {Transition} from "./transition";
+import {TransitionRejection, RejectFactory} from "./rejectFactory";
 import {State} from "../state/module";
 import {Resolvable, ResolveContext} from "../resolve/module";
 
