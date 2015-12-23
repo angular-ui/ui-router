@@ -6,7 +6,7 @@ import {IPromise} from "angular";
 import {Resolvables, IOptions1} from "./interface"
 
 import {State} from "../state/module";
-import {ResolveContext} from "./module"
+import {ResolveContext} from "./resolveContext";
 
 /**
  * The basic building block for the resolve system.

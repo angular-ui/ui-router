@@ -1,5 +1,5 @@
 /** @module params */ /** for typedoc */
-import {Type} from "./module";
+import {Type} from "./type";
 
 export interface RawParams {
   [key: string]: any

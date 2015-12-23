@@ -6,7 +6,7 @@ import {IPromise} from "angular";
 import {Resolvables, ResolvePolicy, IOptions1} from "./interface";
 
 import {Node} from "../path/module";
-import {Resolvable} from "./module";
+import {Resolvable} from "./resolvable";
 import {State} from "../state/module";
 
 // TODO: make this configurable

@@ -5,7 +5,8 @@ import {IServiceProviderFactory} from "angular";
 
 import {IHookRegistry, ITransitionService, TransitionOptions, IHookRegistration, IHookGetter} from "./interface";
 
-import {Transition, HookRegistry} from "./module";
+import {Transition} from "./transition";
+import {HookRegistry} from "./hookRegistry";
 import {TargetState} from "../state/module";
 import {Node} from "../path/module";
 

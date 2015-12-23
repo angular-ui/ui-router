@@ -4,7 +4,8 @@ import {IPromise} from "angular";
 import {TransitionOptions} from "../transition/interface";
 import {ParamDeclaration, RawParams, ParamsOrArray} from "../params/interface";
 
-import {State, TargetState} from "./module";
+import {State} from "./stateObject";
+import {TargetState} from "./targetState";
 import {UrlMatcher} from "../url/module";
 import {Param} from "../params/module";
 import {ViewContext} from "../view/interface";
