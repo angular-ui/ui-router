@@ -283,7 +283,8 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
         activeClasses[stateHash] = activeClass;
       }
 
-      let updateAfterTransition = function ($transition$) { $transition$.promise.then(update); };
+      updateAfterTransition.$inject = ['$transition$'];
+      function updateAfterTransition ($transition$) { $transition$.promise.then(update); };
       let deregisterFn = $transitions.onStart({}, updateAfterTransition);
       $scope.$on('$destroy', deregisterFn);
 
