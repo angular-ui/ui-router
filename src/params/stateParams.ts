@@ -1,8 +1,21 @@
 /** @module params */ /** for typedoc */
 import {IServiceProviderFactory} from "angular";
-import {forEach, ancestors, extend, copy} from "../common/common";
+import {forEach, ancestors, extend, copy, pick, omit} from "../common/common";
 
-export function StateParams() { }
+export class StateParams {
+  constructor(params: Object = {}) {
+    extend(this, params);
+  }
+
+  $digest() {}
+  $inherit(newParams, $current, $to) {}
+  $set(params, url) {}
+  $sync() {}
+  $off() {}
+  $raw() {}
+  $localize(state, params) {}
+  $observe(key: string, fn: Function) {}
+}
 
 $StateParamsProvider.$inject = [];
 function $StateParamsProvider() {
@@ -11,29 +24,23 @@ function $StateParamsProvider() {
     let observers = {}, current = {};
 
     function unhook(key, func) {
-      return function() {
-        forEach(key.split(" "), function(k) {
-          observers[k].splice(observers[k].indexOf(func), 1);
-        });
+      return () => {
+        forEach(key.split(" "), k => observers[k].splice(observers[k].indexOf(func), 1));
       };
     }
 
     function observeChange(key, val?: any) {
       if (!observers[key] || !observers[key].length) return;
-
-      forEach(observers[key], function(func) {
-        func(val);
-      });
+      forEach(observers[key], func => func(val));
     }
 
 
     StateParams.prototype.$digest = function() {
-      function updateValue(val, key) {
+      forEach(this, (val, key) => {
         if (val === current[key] || !this.hasOwnProperty(key)) return;
         current[key] = val;
         observeChange(key, val);
-      }
-      forEach(this, updateValue, this);
+      });
     };
 
     /**
@@ -71,14 +78,13 @@ function $StateParamsProvider() {
       }
       if (abort) return false;
 
-      function updateValue(val, key) {
+      forEach(params, (val, key) => {
         if (val !== this[key]) {
           this[key] = val;
           observeChange(key);
           hasChanged = true;
         }
-      }
-      forEach(params, updateValue, this);
+      });
 
       this.$sync();
       return hasChanged;
@@ -95,29 +101,19 @@ function $StateParamsProvider() {
     };
 
     StateParams.prototype.$raw = function() {
-      let raw = {};
-      for (let key in this) {
-        if (!StateParams.prototype.hasOwnProperty(key))
-          raw[key] = this[key];
-      }
-      return raw;
+      return omit(
+        this,
+        Object.keys(this).filter(StateParams.prototype.hasOwnProperty.bind(StateParams.prototype))
+      );
     };
 
     StateParams.prototype.$localize = function(state, params) {
-      let localized = new StateParams();
-      params = params || this;
-
-      forEach(state.params, function(val, key) {
-        localized[key] = params[key];
-      });
-      return localized;
+      return new StateParams(pick(params || this, Object.keys(state.params)));
     };
 
-    StateParams.prototype.$observe = function(key, func) {
-      forEach(key.split(" "), function(k) {
-        (observers[k] || (observers[k] = [])).push(func);
-      });
-      return unhook(key, func);
+    StateParams.prototype.$observe = function(key: string, fn: Function) {
+      forEach(key.split(" "), k => (observers[k] || (observers[k] = [])).push(fn));
+      return unhook(key, fn);
     };
 
     return new StateParams();

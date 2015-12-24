@@ -1,7 +1,7 @@
 /** @module path */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {pick, map, filter, not, isFunction} from "../common/common";
-import {trace, runtime, } from "../common/module";
+import {extend, pick, map, filter, not, isFunction} from "../common/common";
+import {trace, runtime} from "../common/module";
 import {IPromise} from "angular";
 import {Resolvables, IOptions1} from "./interface"
 
@@ -22,10 +22,7 @@ import {ResolveContext} from "./resolveContext";
  */
 export class Resolvable {
   constructor(name: string, resolveFn: Function, preResolvedData?: any) {
-    this.name = name;
-    this.resolveFn = resolveFn;
-    this.deps = runtime.$injector.annotate(resolveFn);
-    this.data = preResolvedData;
+    extend(this, { name, resolveFn, deps: runtime.$injector.annotate(resolveFn), data: preResolvedData });
   }
 
   name: string;
@@ -61,9 +58,7 @@ export class Resolvable {
     var depResolvables: Resolvables = <any> pick(ancestorsByName, deps);
 
     // Get promises (or synchronously invoke resolveFn) for deps
-    var depPromises: any = map(depResolvables, function(resolvable: Resolvable) {
-      return resolvable.get(resolveContext, options);
-    });
+    var depPromises: any = map(depResolvables, (resolvable: Resolvable) => resolvable.get(resolveContext, options));
 
     // Return a promise chain that waits for all the deps to resolve, then invokes the resolveFn passing in the
     // dependencies as locals, then unwraps the resulting promise's data.
