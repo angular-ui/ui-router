@@ -3,7 +3,7 @@ import {isDefined, isString} from "../common/common";
 
 class MatcherConfig {
   _isCaseInsensitive: boolean = false;
-  _isStrictMode: boolean = false;
+  _isStrictMode: boolean = true;
   _defaultSquashPolicy: (boolean|string) = false;
 
   caseInsensitive(value?: boolean): boolean {

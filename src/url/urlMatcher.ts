@@ -93,7 +93,7 @@ export class UrlMatcher {
   constructor(public pattern: string, public config: any) {
     this.config = defaults(this.config, {
       params: {},
-      strict: false,
+      strict: true,
       caseInsensitive: false,
       paramMap: identity
     });
