@@ -386,7 +386,7 @@ export interface StateDeclaration extends ViewDeclaration {
   /**
    * @deprecated define individual parameters as [[ParamDeclaration.dynamic]]
    */
-  reloadOnSearch: boolean;
+  reloadOnSearch?: boolean;
 }
 
 export interface StateParams {

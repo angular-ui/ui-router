@@ -390,16 +390,14 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
 
     let $transitions: ITransitionService = <any> _$transition;
     // Implicit root state that is always active
-    let rootStateDef = {
+    let rootStateDef: StateDeclaration = {
       name: '',
       url: '^',
       views: null,
       params: {
         '#': { value: null, type: 'hash' }
       },
-      // params: [Param.fromPath('#', <Type> paramTypes.types.hash, { value: null })],
-      path: [],
-      'abstract': true
+      abstract: true
     };
     root = stateQueue.register(rootStateDef, true);
 
