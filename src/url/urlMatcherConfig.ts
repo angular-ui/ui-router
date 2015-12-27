@@ -7,27 +7,17 @@ class MatcherConfig {
   _defaultSquashPolicy: (boolean|string) = false;
 
   caseInsensitive(value?: boolean): boolean {
-    if (!isDefined(value)) 
-      return this._isCaseInsensitive;
-
-    return this._isCaseInsensitive = value;
+    return this._isCaseInsensitive = isDefined(value) ? value : this._isCaseInsensitive;
   }
 
   strictMode(value?: boolean): boolean {
-    if (!isDefined(value))
-      return this._isStrictMode;
-
-    return this._isStrictMode = value;
+    return this._isStrictMode = isDefined(value) ? value : this._isStrictMode;
   }
 
   defaultSquashPolicy(value?: (boolean|string)): (boolean|string) {
-    if (!isDefined(value))
-      return this._defaultSquashPolicy;
-
-    if (value !== true && value !== false && !isString(value))
+    if (isDefined(value) && value !== true && value !== false && !isString(value))
       throw new Error(`Invalid squash policy: ${value}. Valid policies: false, true, arbitrary-string`);
-
-    return this._defaultSquashPolicy = value;
+    return this._defaultSquashPolicy = isDefined(value) ? value : this._defaultSquashPolicy;
   }
 }
 

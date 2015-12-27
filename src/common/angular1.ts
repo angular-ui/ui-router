@@ -1,6 +1,7 @@
 /** @module common */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IQService} from "angular";
+import {Router} from "../router";
 
 let app = angular.module("ui.router.angular1", []);
 
@@ -58,3 +59,12 @@ function runBlock($injector) {
 }
 
 app.run(runBlock);
+
+
+let router = new Router();
+
+// Register as a provider so it's available to other providers
+angular.module('ui.router.util').provider('$urlMatcherFactory', () => router.urlMatcherFactory);
+angular.module('ui.router.util').run(['$urlMatcherFactory', function($urlMatcherFactory) { }]);
+
+export { router };

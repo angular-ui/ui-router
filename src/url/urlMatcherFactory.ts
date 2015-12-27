@@ -151,7 +151,3 @@ export class UrlMatcherFactory {
     return this;
   };
 }
-
-// Register as a provider so it's available to other providers
-angular.module('ui.router.util').provider('$urlMatcherFactory', <any> UrlMatcherFactory);
-angular.module('ui.router.util').run(['$urlMatcherFactory', function($urlMatcherFactory) { }]);
