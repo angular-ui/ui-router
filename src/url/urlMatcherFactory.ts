@@ -66,7 +66,7 @@ export class UrlMatcherFactory {
    * @param config  The config object hash.
    * @returns The UrlMatcher.
    */
-  compile(pattern: string, config: { [key: string]: any }) {
+  compile(pattern: string, config?: { [key: string]: any }) {
     return new UrlMatcher(pattern, extend(getDefaultConfig(), config));
   }
 

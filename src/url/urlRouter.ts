@@ -3,6 +3,11 @@
 import {isFunction, isString, isDefined, isArray, isObject, extend} from "../common/common";
 import {IServiceProviderFactory} from "angular";
 import {UrlMatcher} from "./module";
+import {services} from "../common/coreservices";
+import {UrlMatcherFactory} from "./urlMatcherFactory";
+import {runtime} from "../common/angular1";
+
+let $location = services.location;
 
 /**
  * @ngdoc object
@@ -20,8 +25,7 @@ import {UrlMatcher} from "./module";
  * There are several methods on `$urlRouterProvider` that make it useful to use directly
  * in your module config.
  */
-$UrlRouterProvider.$inject = ['$locationProvider', '$urlMatcherFactoryProvider'];
-function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
+export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
   var rules = [], otherwise = null, interceptDeferred = false, listener;
 
   // Returns a string that is a prefix of all strings matching the RegExp
@@ -172,8 +176,8 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
           redirect = $urlMatcherFactory.compile(handler);
           handler = ['$match', redirect.format.bind(redirect)];
         }
-        return extend(function ($injector, $location) {
-          return handleIfMatch($injector, handler, what.exec($location.path(), $location.search(), $location.hash()));
+        return extend(function () {
+          return handleIfMatch(runtime.$injector, handler, what.exec($location.path(), $location.search(), $location.hash()));
         }, {
           prefix: isString(what.prefix) ? what.prefix : ''
         });
@@ -185,8 +189,8 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
           redirect = handler;
           handler = ['$match', ($match) => interpolate(redirect, $match)];
         }
-        return extend(function ($injector, $location) {
-          return handleIfMatch($injector, handler, what.exec($location.path()));
+        return extend(function () {
+          return handleIfMatch(runtime.$injector, handler, what.exec($location.path()));
         }, {
           prefix: regExpPrefix(what)
         });
@@ -262,22 +266,17 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
    * @ngdoc object
    * @name ui.router.router.$urlRouter
    *
-   * @requires $location
-   * @requires $rootScope
-   * @requires $injector
-   * @requires $browser
-   *
    * @description
    *
    */
   this.$get = $get;
-  $get.$inject = ['$location', '$rootScope', '$injector', '$browser', '$sniffer'];
-  function $get(   $location,   $rootScope,   $injector,   $browser,   $sniffer) {
+  $get.$inject = [ '$rootScope'];
+  function $get(    $rootScope) {
 
     var location = $location.url();
 
     function appendBasePath(url, isHtml5, absolute) {
-      var baseHref = $browser.baseHref();
+      var baseHref = $location.baseHref();
       if (baseHref === '/') return url;
       if (isHtml5) return baseHref.slice(0, -1) + url;
       if (absolute) return baseHref.slice(1) + url;
@@ -289,10 +288,13 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
       if (evt && evt.defaultPrevented) return;
 
       function check(rule) {
-        var handled = rule($injector, $location);
+        var handled = rule(runtime.$injector, $location);
 
         if (!handled) return false;
-        if (isString(handled)) $location.replace().url(handled);
+        if (isString(handled)) {
+          $location.replace();
+          $location.url(handled);
+        }
         return true;
       }
       var n = rules.length, i;
@@ -390,18 +392,12 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
       href(urlMatcher: UrlMatcher, params: any, options: any): string {
         if (!urlMatcher.validates(params)) return null;
 
-        var isHtml5 = $locationProvider.html5Mode();
-        if (isObject(isHtml5)) {
-          isHtml5 = isHtml5.enabled;
-        }
-
-        isHtml5 = isHtml5 && $sniffer.history;
-
         var url = urlMatcher.format(params);
         options = options || {};
 
+        var isHtml5 = services.location.html5Mode();
         if (!isHtml5 && url !== null) {
-          url = "#" + $locationProvider.hashPrefix() + url;
+          url = "#" + $location.hashPrefix() + url;
         }
         url = appendBasePath(url, isHtml5, options.absolute);
 
@@ -410,7 +406,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
         }
 
         var slash = (!isHtml5 && url ? '/' : ''), port = $location.port();
-        port = (port === 80 || port === 443 ? '' : ':' + port);
+        port = <any> (port === 80 || port === 443 ? '' : ':' + port);
 
         return [$location.protocol(), '://', $location.host(), port, slash, url].join('');
       }
@@ -418,4 +414,3 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
   }
 }
 
-angular.module('ui.router.router').provider('$urlRouter', <IServiceProviderFactory> $UrlRouterProvider);

@@ -3,7 +3,7 @@ import {
   extend, defaults, copy, equalForKeys, forEach, find, prop,
   propEq, ancestors, noop, isDefined, isObject, isString, values
 } from "../common/common";
-import {Queue} from "../common/module";
+import {Queue} from "../common/queue";
 
 import {IServiceProviderFactory, IPromise} from "angular";
 import {StateService, StateDeclaration, StateOrName, HrefOptions, ViewDeclaration } from "./interface";
@@ -17,6 +17,7 @@ import {TransitionManager} from "./hooks/transitionManager";
 import {paramTypes, Param, Type, StateParams} from "../params/module";
 import {UrlMatcher} from "../url/urlMatcher";
 import {ViewConfig} from "../view/view";
+import {UrlMatcherFactory} from "../url/urlMatcherFactory";
 
 /**
  * @ngdoc object
@@ -39,8 +40,7 @@ import {ViewConfig} from "../view/view";
  *
  * The `$stateProvider` provides interfaces to declare these states for your app.
  */
-$StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
-function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
+export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: UrlMatcherFactory) {
 
   let root: State, states: { [key: string]: State } = {};
   let $state: StateService = <any> function $state() {};
@@ -795,7 +795,3 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactoryProvider) {
     return $state;
   }
 }
-
-angular.module('ui.router.state')
-  .provider('$state', <IServiceProviderFactory> $StateProvider)
-  .run(['$state', function($state) { /* This effectively calls $get() to init when we enter runtime */ }]);

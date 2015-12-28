@@ -4,6 +4,8 @@ import {StateDeclaration} from "./interface";
 
 import {State, StateMatcher} from "./module";
 import {Param} from "../params/module";
+import {UrlMatcherFactory} from "../url/urlMatcherFactory";
+import {UrlMatcher} from "../url/urlMatcher";
 
 const parseUrl = (url: string): any => {
   if (!isString(url)) return false;
@@ -42,7 +44,7 @@ export class StateBuilder {
   /** An object that contains all the BuilderFunctions registered, key'd by the name of the State property they build */
   private builders: Builders;
 
-  constructor(root: () => State, private matcher: StateMatcher, $urlMatcherFactoryProvider) {
+  constructor(root: () => State, private matcher: StateMatcher, $urlMatcherFactoryProvider: UrlMatcherFactory) {
     let self = this;
 
     this.builders = {
@@ -72,7 +74,7 @@ export class StateBuilder {
 
         if (!url) return null;
         if (!$urlMatcherFactoryProvider.isMatcher(url)) throw new Error(`Invalid url '${url}' in state '${state}'`);
-        return (parsed && parsed.root) ? url : ((parent && parent.navigable) || root()).url.append(url);
+        return (parsed && parsed.root) ? url : ((parent && parent.navigable) || root()).url.append(<UrlMatcher> url);
       }],
 
       // Keep track of the closest ancestor state that has a URL (i.e. is navigable)

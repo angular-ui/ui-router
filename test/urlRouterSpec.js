@@ -1,6 +1,7 @@
 var module = angular.mock.module;
 var uiRouter = require("ui-router");
 var UrlMatcher = uiRouter.url.UrlMatcher;
+var services = uiRouter.common.services;
 
 describe("UrlRouter", function () {
 
@@ -156,29 +157,29 @@ describe("UrlRouter", function () {
     }));
 
     describe("location updates", function() {
-      it('can push location changes', inject(function($urlRouter, $location) {
-        spyOn($location, "url");
-        spyOn($location, "replace");
+      it('can push location changes', inject(function($urlRouter) {
+        spyOn(services.location, "url");
+        spyOn(services.location, "replace");
         $urlRouter.push(new UrlMatcher("/hello/:name"), { name: "world" });
 
-        expect($location.url).toHaveBeenCalledWith("/hello/world");
-        expect($location.replace).not.toHaveBeenCalled();
+        expect(services.location.url).toHaveBeenCalledWith("/hello/world");
+        expect(services.location.replace).not.toHaveBeenCalled();
       }));
 
       it('can push a replacement location', inject(function($urlRouter, $location) {
-        spyOn($location, "url");
-        spyOn($location, "replace");
+        spyOn(services.location, "url");
+        spyOn(services.location, "replace");
         $urlRouter.push(new UrlMatcher("/hello/:name"), { name: "world" }, { replace: true });
 
-        expect($location.url).toHaveBeenCalledWith("/hello/world");
-        expect($location.replace).toHaveBeenCalled();
+        expect(services.location.url).toHaveBeenCalledWith("/hello/world");
+        expect(services.location.replace).toHaveBeenCalled();
       }));
 
       it('can push location changes with no parameters', inject(function($urlRouter, $location) {
-        spyOn($location, "url");
+        spyOn(services.location, "url");
         $urlRouter.push(new UrlMatcher("/hello/:name", {params:{name: ""}}));
 
-        expect($location.url).toHaveBeenCalledWith("/hello/");
+        expect(services.location.url).toHaveBeenCalledWith("/hello/");
       }));
 
       it('can push location changes that include a #fragment', inject(function($urlRouter, $location) {
@@ -200,9 +201,9 @@ describe("UrlRouter", function () {
       it('can read and sync a copy of location URL', inject(function($urlRouter, $location) {
         $location.url('/old');
 
-        spyOn($location, 'url').and.callThrough();
+        spyOn(services.location, 'url').and.callThrough();
         $urlRouter.update(true);
-        expect($location.url).toHaveBeenCalled();
+        expect(services.location.url).toHaveBeenCalled();
 
         $location.url('/new');
         $urlRouter.update();

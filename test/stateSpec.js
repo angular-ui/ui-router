@@ -2,8 +2,9 @@ var module = angular.mock.module;
 var uiRouter = require("ui-router");
 var common = uiRouter.common;
 var RejectType = uiRouter.transition.RejectType;
-var extend = common.extend,
-  forEach = common.forEach;
+var extend = common.extend;
+var forEach = common.forEach;
+var services = common.services;
 var state = uiRouter.state;
 var StateMatcher = state.StateMatcher;
 var StateBuilder = uiRouter.state.StateBuilder;
@@ -1081,7 +1082,7 @@ describe('state', function () {
 
     describe('when $browser.baseHref() exists', function() {
       beforeEach(inject(function($browser) {
-        spyOn($browser, 'baseHref').and.callFake(function() {
+        spyOn(services.location, 'baseHref').and.callFake(function() {
           return '/base/';
         });
       }));
@@ -1417,22 +1418,22 @@ describe('state', function () {
 
     it('should replace browser history when "replace" enabled', inject(function ($state, $rootScope, $location, $q) {
 
-      spyOn($location, 'replace');
+      spyOn(services.location, 'replace');
 
       $state.transitionTo('about', {}, { location: 'replace' });
       $q.flush();
 
-      expect($location.replace).toHaveBeenCalled();
+      expect(services.location.replace).toHaveBeenCalled();
     }));
 
     it('should not replace history normally', inject(function ($state, $rootScope, $location, $q) {
 
-      spyOn($location, 'replace');
+      spyOn(services.location, 'replace');
 
       $state.transitionTo('about');
       $q.flush();
 
-      expect($location.replace).not.toHaveBeenCalled();
+      expect(services.location.replace).not.toHaveBeenCalled();
 
     }));
   });
