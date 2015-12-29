@@ -3,7 +3,10 @@ routerFiles = {
   es6Entrypoint:      ['./build/es6/ui-router.js'],
 
   buildDest:          ['build/angular-ui-router.js'], // The distribution file
-  src:                ['src/ui-router.ts'], // Main UI-Router module (imports everything else)
+  src:                [
+    'src/ui-router.ts', // Main UI-Router module (imports everything else)
+    'src/ng1/stateEvents.ts' // There might be a better approach to compiling this file
+  ],
 
   // Test helpers
   testUtils: [

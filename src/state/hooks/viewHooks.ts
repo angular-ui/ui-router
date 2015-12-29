@@ -1,7 +1,8 @@
 /** @module state */ /** for typedoc */
 import {IPromise} from "angular";
 import {find, propEq, noop} from "../../common/common";
-import {annotateController, runtime} from "../../common/angular1";
+import {services} from "../../common/coreservices";
+import {annotateController} from "../../ng1/angular1";
 
 import {TreeChanges} from "../../transition/interface";
 import {Transition} from "../../transition/transition";
@@ -29,7 +30,7 @@ export class ViewHooks {
       let resolveInjector = find(this.treeChanges.to, propEq('state', vc.context)).resolveInjector;
       return <IPromise<ViewConfig>> this.$view.load(vc, resolveInjector);
     };
-    return runtime.$q.all(this.enteringViews.map(loadView)).then(noop);
+    return services.$q.all(this.enteringViews.map(loadView)).then(noop);
   }
 
   loadAllControllerLocals() {
@@ -38,11 +39,11 @@ export class ViewHooks {
       let resolveInjector = find(this.treeChanges.to, propEq('state', vc.context)).resolveInjector;
       function $loadControllerLocals() { }
       $loadControllerLocals.$inject = deps;
-      return runtime.$q.all(resolveInjector.getLocals($loadControllerLocals)).then((locals) => vc.locals = locals);
+      return services.$q.all(resolveInjector.getLocals($loadControllerLocals)).then((locals) => vc.locals = locals);
     };
 
     let loadAllLocals = this.enteringViews.filter(vc => !!vc.controller).map(loadLocals);
-    return runtime.$q.all(loadAllLocals).then(noop);
+    return services.$q.all(loadAllLocals).then(noop);
   }
 
   updateViews() {

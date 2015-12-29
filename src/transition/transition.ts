@@ -1,7 +1,8 @@
 /** @module transition */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IPromise} from "angular";
-import {runtime, trace} from "../common/module";
+import {trace} from "../common/trace";
+import {services} from "../common/coreservices";
 import {
     map, find, extend, filter, mergeR, flatten, unnest, tail, forEach, identity,
     omit, isObject, isPromise, not, prop, propEq, toJson, val, abstractKey,
@@ -40,7 +41,7 @@ const stateSelf: (_state: State) => StateDeclaration = prop("self");
 export class Transition implements IHookRegistry {
   $id: number;
 
-  private _deferred = runtime.$q.defer();
+  private _deferred = services.$q.defer();
   promise: IPromise<any> = this._deferred.promise;
 
   private _options: TransitionOptions;
@@ -337,7 +338,7 @@ export class Transition implements IHookRegistry {
     const reject = (error) => {
       this._deferred.reject(error);
       trace.traceError(error, this);
-      return runtime.$q.reject(error);
+      return services.$q.reject(error);
     };
 
     trace.traceTransitionStart(this);

@@ -1,6 +1,6 @@
 /** @module params */ /** for typedoc */
 import {isDefined, fromJson, toJson, is, identity, equals, inherit, map, extend, val} from "../common/common";
-import {runtime} from "../common/angular1";
+import {services} from "../common/coreservices";
 import {Type} from "./type";
 
 const swapString = (search, replace) => val => val != null ? val.toString().replace(search, replace) : val;
@@ -94,7 +94,7 @@ class ParamTypes {
     while(this.typeQueue.length) {
       var type = this.typeQueue.shift();
       if (type.pattern) throw new Error("You cannot override a type's .pattern at runtime.");
-      extend(this.types[type.name], runtime.$injector.invoke(type.def));
+      extend(this.types[type.name], services.$injector.invoke(type.def));
     }
   }
 }

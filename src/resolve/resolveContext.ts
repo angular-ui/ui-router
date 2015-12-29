@@ -1,7 +1,8 @@
 /** @module path */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IInjectable, find, filter, map, noop, tail, defaults, extend, prop, propEq, pick, omit, isString, isObject} from "../common/common";
-import {runtime, trace} from "../common/module";
+import {trace} from "../common/trace";
+import {services} from "../common/coreservices";
 import {IPromise} from "angular";
 import {Resolvables, ResolvePolicy, IOptions1} from "./interface";
 
@@ -71,7 +72,7 @@ export class ResolveContext {
 
   /** Inspects a function `fn` for its dependencies.  Returns an object containing any matching Resolvables */
   getResolvablesForFn(fn: IInjectable): { [key: string]: Resolvable } {
-    let deps = runtime.$injector.annotate(<Function> fn);
+    let deps = services.$injector.annotate(<Function> fn);
     return <any> pick(this.getResolvables(), deps);
   }
 
@@ -92,7 +93,7 @@ export class ResolveContext {
   resolvePath(options: IOptions1 = {}): IPromise<any> {
     trace.traceResolvePath(this._path, options);
     const promiseForNode = (node: Node) => this.resolvePathElement(node.state, options);
-    return runtime.$q.all(<any> map(this._path, promiseForNode)).then(noop);
+    return services.$q.all(<any> map(this._path, promiseForNode)).then(noop);
   }
 
   // returns a promise for all the resolvables on this PathElement
@@ -114,7 +115,7 @@ export class ResolveContext {
 
     trace.traceResolvePathElement(this, matchingResolves, options);
 
-    return runtime.$q.all(resolvablePromises).then(noop);
+    return services.$q.all(resolvablePromises).then(noop);
   } 
   
   
@@ -138,11 +139,11 @@ export class ResolveContext {
     const getPromise = (resolvable: Resolvable) => resolvable.get(this, options);
     let promises: IPromises = <any> map(resolvables, getPromise);
     
-    return runtime.$q.all(promises).then(() => {
+    return services.$q.all(promises).then(() => {
       try {
         return this.invokeNow(fn, locals, options);
       } catch (error) {
-        return runtime.$q.reject(error);
+        return services.$q.reject(error);
       }
     });
   }
@@ -166,7 +167,7 @@ export class ResolveContext {
     let resolvables = this.getResolvablesForFn(fn);
     trace.tracePathElementInvoke(tail(this._path), fn, Object.keys(resolvables), extend({when: "Now  "}, options));
     let resolvedLocals = map(resolvables, prop("data"));
-    return runtime.$injector.invoke(<Function> fn, null, extend({}, locals, resolvedLocals));
+    return services.$injector.invoke(<Function> fn, null, extend({}, locals, resolvedLocals));
   }
 }
 

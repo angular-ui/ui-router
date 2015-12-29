@@ -1,7 +1,8 @@
 /** @module path */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {extend, pick, map, filter, not, isFunction} from "../common/common";
-import {trace, runtime} from "../common/module";
+import {services} from "../common/coreservices";
+import {trace} from "../common/trace";
 import {IPromise} from "angular";
 import {Resolvables, IOptions1} from "./interface"
 
@@ -22,7 +23,7 @@ import {ResolveContext} from "./resolveContext";
  */
 export class Resolvable {
   constructor(name: string, resolveFn: Function, preResolvedData?: any) {
-    extend(this, { name, resolveFn, deps: runtime.$injector.annotate(resolveFn), data: preResolvedData });
+    extend(this, { name, resolveFn, deps: services.$injector.annotate(resolveFn), data: preResolvedData });
   }
 
   name: string;
@@ -48,7 +49,7 @@ export class Resolvable {
     
     trace.traceResolveResolvable(this, options);
     // First, set up an overall deferred/promise for this Resolvable
-    var deferred = runtime.$q.defer();
+    var deferred = services.$q.defer();
     this.promise = deferred.promise;
     // Load a map of all resolvables for this state from the context path
     // Omit the current Resolvable from the result, so we don't try to inject this into this
@@ -62,9 +63,9 @@ export class Resolvable {
 
     // Return a promise chain that waits for all the deps to resolve, then invokes the resolveFn passing in the
     // dependencies as locals, then unwraps the resulting promise's data.
-    return runtime.$q.all(depPromises).then(locals => {
+    return services.$q.all(depPromises).then(locals => {
       try {
-        var result = runtime.$injector.invoke(resolveFn, null, locals);
+        var result = services.$injector.invoke(resolveFn, null, locals);
         deferred.resolve(result);
       } catch (error) {
         deferred.reject(error);

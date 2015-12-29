@@ -3,7 +3,8 @@ import {IPromise} from "angular";
 import {TransitionHookOptions} from "./interface";
 import {IInjectable, defaults, extend, noop, filter, not, isFunction, isDefined, map, pattern, val,
     eq, is, isPromise, isObject, parse, fnToString, maxLength, Predicate} from "../common/common";
-import {runtime, trace} from "../common/module";
+import {trace} from "../common/trace";
+import {services} from "../common/coreservices";
 
 import {Transition} from "./transition";
 import {TransitionRejection, RejectFactory} from "./rejectFactory";
@@ -103,7 +104,7 @@ export class TransitionHook {
     return results
         .filter(not(TransitionHook.isRejection))
         .filter(<Predicate<any>> isPromise)
-        .reduce((chain, promise) => chain.then(val(promise)), runtime.$q.when());
+        .reduce((chain, promise) => chain.then(val(promise)), services.$q.when());
   }
 
 

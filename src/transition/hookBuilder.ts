@@ -5,7 +5,6 @@ import {IInjectable, extend, tail, isPromise, isArray, assertPredicate, unnestR,
 
 import {TransitionOptions, TransitionHookOptions, IHookRegistry, TreeChanges, IEventHook, ITransitionService} from "./interface";
 
-import {runtime} from "../common/module";
 import {Transition, TransitionHook} from "./module";
 import {State} from "../state/module";
 import {Node} from "../path/module";

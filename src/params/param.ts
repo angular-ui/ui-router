@@ -1,7 +1,7 @@
 /** @module params */ /** for typedoc */
 import {isInjectable, extend, isDefined, isString, isArray, filter, map, pick, prop, propEq, curry, applyPairs} from "../common/common";
 import {RawParams} from "../params/interface";
-import {runtime} from "../common/angular1";
+import {services} from "../common/coreservices";
 import {matcherConfig} from "../url/urlMatcherConfig";
 import {Type} from "./type";
 import {paramTypes} from "./paramTypes";
@@ -95,8 +95,8 @@ export class Param {
      * [Internal] Get the default value of a parameter, which may be an injectable function.
      */
     const $$getDefaultValue = () => {
-      if (!runtime.$injector) throw new Error("Injectable functions cannot be called at configuration time");
-      var defaultValue = runtime.$injector.invoke(this.config.$$fn);
+      if (!services.$injector) throw new Error("Injectable functions cannot be called at configuration time");
+      var defaultValue = services.$injector.invoke(this.config.$$fn);
       if (defaultValue !== null && defaultValue !== undefined && !this.type.is(defaultValue))
         throw new Error(`Default value (${defaultValue}) for parameter '${this.id}' is not an instance of Type (${this.type.name})`);
       return defaultValue;

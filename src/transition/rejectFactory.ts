@@ -1,7 +1,7 @@
 /** @module transition */ /** for typedoc */
 "use strict";
 import {extend} from "../common/common";
-import {runtime} from "../common/module";
+import {services} from "../common/coreservices";
 
 export enum RejectType {
   SUPERSEDED = 2, ABORTED = 3, INVALID = 4, IGNORED = 5
@@ -39,7 +39,7 @@ export class RejectFactory {
     if (options && options.redirected) {
       reason.redirected = true;
     }
-    return extend(runtime.$q.reject(reason), {reason: reason});
+    return extend(services.$q.reject(reason), {reason: reason});
   }
 
   redirected(detail?: any) {
@@ -49,19 +49,19 @@ export class RejectFactory {
   invalid(detail?: any) {
     let message = "This transition is invalid (see detail)";
     let reason = new TransitionRejection(RejectType.INVALID, message, detail);
-    return extend(runtime.$q.reject(reason), {reason: reason});
+    return extend(services.$q.reject(reason), {reason: reason});
   }
 
   ignored(detail?: any) {
     let message = "The transition was ignored.";
     let reason = new TransitionRejection(RejectType.IGNORED, message, detail);
-    return extend(runtime.$q.reject(reason), {reason: reason});
+    return extend(services.$q.reject(reason), {reason: reason});
   }
 
   aborted(detail?: any) {
     // TODO think about how to encapsulate an Error() object
     let message = "The transition has been aborted.";
     let reason = new TransitionRejection(RejectType.ABORTED, message, detail);
-    return extend(runtime.$q.reject(reason), {reason: reason});
+    return extend(services.$q.reject(reason), {reason: reason});
   }
 }

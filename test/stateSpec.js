@@ -1082,7 +1082,7 @@ describe('state', function () {
 
     describe('when $browser.baseHref() exists', function() {
       beforeEach(inject(function($browser) {
-        spyOn(services.location, 'baseHref').and.callFake(function() {
+        spyOn(services.locationConfig, 'baseHref').and.callFake(function() {
           return '/base/';
         });
       }));

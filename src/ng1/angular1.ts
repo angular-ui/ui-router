@@ -1,32 +1,22 @@
-/** @module common */ /** for typedoc */
-
 /**
- * Provides the implementation for services defined in [[coreservices]], and registers some
- * with the angular 1 injector.
+ * Angular 1 plugin:
+ *
+ * - Provides an implementation for the [[CoreServices]] API, based on angular 1 services.
+ * - Also registers some services with the angular 1 injector.
+ * - Creates and bootstraps a new [[Router]] object, usiong the angular 1 lifecycle
+ *
+ * @module ng1
+ * @preferred
  */
 
+/** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IQService} from "angular";
 import {Router} from "../router";
-import {services} from "./coreservices";
-import {isObject} from "./common";
+import {services} from "../common/coreservices";
+import {isObject} from "../common/common";
 
 let app = angular.module("ui.router.angular1", []);
-
-interface IRuntime {
-  setRuntimeInjector($injector: ng.auto.IInjectorService);
-  $injector: ng.auto.IInjectorService;
-  $q: IQService;
-}
-
-export let runtime: IRuntime = {
-  setRuntimeInjector: function($injector: ng.auto.IInjectorService) {
-    runtime.$injector = $injector;
-    runtime.$q = $injector.get("$q");
-  },
-  $injector: undefined,
-  $q: undefined
-};
 
 /**
  * Annotates a controller expression (may be a controller function(), a "controllername",
@@ -42,7 +32,7 @@ export let runtime: IRuntime = {
  */
 
 export function annotateController(controllerExpression): string[] {
-  let $injector = runtime.$injector;
+  let $injector = services.$injector;
   let $controller = $injector.get("$controller");
   let oldInstantiate = $injector.instantiate;
   try {
@@ -61,9 +51,10 @@ export function annotateController(controllerExpression): string[] {
   }
 }
 
-runBlock.$inject = ["$injector"];
-function runBlock($injector) {
-  runtime.setRuntimeInjector($injector);
+runBlock.$inject = ['$injector', '$q'];
+function runBlock($injector, $q) {
+  services.$injector = $injector;
+  services.$q = $q;
 }
 
 app.run(runBlock);
@@ -76,34 +67,34 @@ let router = null;
 ng1UIRouter.$inject = ['$locationProvider'];
 function ng1UIRouter($locationProvider) {
   router = new Router();
-  bindFunctions(['hashPrefix'], $locationProvider, services.location);
+  bindFunctions(['hashPrefix'], $locationProvider, services.locationConfig);
 
   this.$get = $get;
   $get.$inject = ['$location', '$browser', '$sniffer'];
   function $get($location, $browser, $sniffer) {
 
-    services.location.html5Mode = function() {
+    services.locationConfig.html5Mode = function() {
       var html5Mode = $locationProvider.html5Mode();
       html5Mode = isObject(html5Mode) ? html5Mode.enabled : html5Mode;
       return html5Mode && $sniffer.history;
     };
 
-    var $locationFnNames = ['hash', 'path', 'replace', 'search', 'url', 'port', 'protocol', 'host'];
-    bindFunctions($locationFnNames, $location, services.location);
-    bindFunctions(['baseHref'], $browser, services.location);
+    bindFunctions(["replace", "url", "path", "search", "hash"], $location, services.location);
+    bindFunctions([ 'port', 'protocol', 'host'], $location, services.locationConfig);
+    bindFunctions(['baseHref'], $browser, services.locationConfig);
 
     return router;
   }
 }
 
-angular.module('ui.router.init', ['ng']).provider("ng1UIRouter", <any> ng1UIRouter);
+angular.module('ui.router.init', []).provider("ng1UIRouter", <any> ng1UIRouter);
 // Register as a provider so it's available to other providers
 angular.module('ui.router.util').provider('$urlMatcherFactory', ['ng1UIRouterProvider', () => router.urlMatcherFactory]);
 angular.module('ui.router.router').provider('$urlRouter', ['ng1UIRouterProvider', () => router.urlRouterProvider]);
 angular.module('ui.router.state').provider('$state', ['ng1UIRouterProvider', () => router.stateProvider]);
 
 /* This effectively calls $get() to init when we enter runtime */
-angular.module('ui.router.state').run(['ng1UIRouter', function(ng1UIRouter) { }]);
+angular.module('ui.router.init').run(['ng1UIRouter', function(ng1UIRouter) { }]);
 angular.module('ui.router.state').run(['$state', function($state) { }]);
 angular.module('ui.router.util').run(['$urlMatcherFactory', function($urlMatcherFactory) { }]);
 

@@ -34,11 +34,13 @@ module.exports = function (grunt) {
     },
     uglify: {
       options: {
-        banner: '<%= meta.banner %>\n'
+        banner: '<%= meta.banner %>\n',
+        mangle: true
       },
       build: {
         files: {
-          '<%= builddir %>/<%= pkg.name %>.min.js': ['<banner:meta.banner>', '<%= builddir %>/<%= pkg.name %>.js']
+          '<%= builddir %>/<%= pkg.name %>.min.js': ['<banner:meta.banner>', '<%= builddir %>/<%= pkg.name %>.js'],
+          '<%= builddir %>/ng1/stateEvents.min.js': ['<banner:meta.banner>', '<%= builddir %>/ng1/stateEvents.js']
         }
       }
     },
@@ -144,7 +146,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('integrate', ['clean', 'build', 'karma:ng12', 'karma:ng13', 'karma:ng14']);
   grunt.registerTask('default', ['build', 'karma:unit', 'docs']);
-  grunt.registerTask('build', 'Perform a normal build', ['clean', 'ts', 'webpack', 'uglify']);
+  grunt.registerTask('build', 'Perform a normal build', ['clean', 'ts', 'webpack', 'bundles', 'uglify']);
   grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['build', 'ngdocs']);
   grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'build', 'perform-release']);
   grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect:server', 'karma:background', 'watch']);
@@ -152,8 +154,18 @@ module.exports = function (grunt) {
 
   grunt.registerTask('docs', 'Generate documentation to _doc', function() { 
     promising(this, 
-      system('./node_modules/typedoc/bin/typedoc --readme ./README.md --name "UI-Router" --theme default --mode modules --module commonjs --target es5 --out _doc  src/params src/path src/resolve src/state src/transition src/url src/view')
+      system('./node_modules/typedoc/bin/typedoc --readme ./README.md --name "UI-Router" --theme default --mode modules --module commonjs --target es5 --out _doc  src/params src/path src/resolve src/state src/transition src/url src/view src/ng1')
     );
+  });
+
+  grunt.registerTask('bundles', 'Create the bundles and reorganize any additional dist files (addons, etc)', function() {
+    var builddir = grunt.config('builddir');
+    grunt.task.requires([ 'clean', 'ts' ]);
+    grunt.task.run(['webpack']);
+
+    ['stateEvents.js', 'stateEvents.js.map'].forEach(function(file) {
+      grunt.file.copy(builddir + "/es5/ng1/" + file, builddir + "/ng1/" + file);
+    })
   });
 
   grunt.registerTask('publish-pages', 'Publish a clean build, docs, and sample to github.io', function () {
@@ -207,9 +219,10 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('perform-release', function () {
-    grunt.task.requires([ 'prepare-release', 'build' ]);
-
     var version = grunt.config('pkg.version'), releasedir = grunt.config('builddir');
+    grunt.task.requires([ 'prepare-release', 'build' ]);
+    grunt.file.delete(releasedir + "/es5");
+    grunt.file.delete(releasedir + "/es6");
     promising(this,
       system('git add \'' + releasedir + '\'').then(function () {
         return system('git commit -m \'release ' + version + '\'');

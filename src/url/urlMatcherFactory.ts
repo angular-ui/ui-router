@@ -1,7 +1,6 @@
 /** @module url */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IServiceProviderFactory} from "angular";
-import {runtime} from "../common/module";
 import {forEach, extend, inherit, map, filter, isObject, isDefined, isArray, isString,
     isInjectable, isFunction, toJson, fromJson, identity, equals} from "../common/common";
 

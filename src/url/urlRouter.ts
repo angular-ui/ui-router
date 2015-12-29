@@ -5,7 +5,6 @@ import {IServiceProviderFactory} from "angular";
 import {UrlMatcher} from "./module";
 import {services} from "../common/coreservices";
 import {UrlMatcherFactory} from "./urlMatcherFactory";
-import {runtime} from "../common/angular1";
 
 let $location = services.location;
 
@@ -177,7 +176,7 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
           handler = ['$match', redirect.format.bind(redirect)];
         }
         return extend(function () {
-          return handleIfMatch(runtime.$injector, handler, what.exec($location.path(), $location.search(), $location.hash()));
+          return handleIfMatch(services.$injector, handler, what.exec($location.path(), $location.search(), $location.hash()));
         }, {
           prefix: isString(what.prefix) ? what.prefix : ''
         });
@@ -190,7 +189,7 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
           handler = ['$match', ($match) => interpolate(redirect, $match)];
         }
         return extend(function () {
-          return handleIfMatch(runtime.$injector, handler, what.exec($location.path()));
+          return handleIfMatch(services.$injector, handler, what.exec($location.path()));
         }, {
           prefix: regExpPrefix(what)
         });
@@ -276,7 +275,7 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
     var location = $location.url();
 
     function appendBasePath(url, isHtml5, absolute) {
-      var baseHref = $location.baseHref();
+      var baseHref = services.locationConfig.baseHref();
       if (baseHref === '/') return url;
       if (isHtml5) return baseHref.slice(0, -1) + url;
       if (absolute) return baseHref.slice(1) + url;
@@ -288,7 +287,7 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
       if (evt && evt.defaultPrevented) return;
 
       function check(rule) {
-        var handled = rule(runtime.$injector, $location);
+        var handled = rule(services.$injector, $location);
 
         if (!handled) return false;
         if (isString(handled)) {
@@ -395,9 +394,10 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
         var url = urlMatcher.format(params);
         options = options || {};
 
-        var isHtml5 = services.location.html5Mode();
+        let cfg = services.locationConfig;
+        var isHtml5 = cfg.html5Mode();
         if (!isHtml5 && url !== null) {
-          url = "#" + $location.hashPrefix() + url;
+          url = "#" + cfg.hashPrefix() + url;
         }
         url = appendBasePath(url, isHtml5, options.absolute);
 
@@ -405,10 +405,10 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
           return url;
         }
 
-        var slash = (!isHtml5 && url ? '/' : ''), port = $location.port();
+        var slash = (!isHtml5 && url ? '/' : ''), port = cfg.port();
         port = <any> (port === 80 || port === 443 ? '' : ':' + port);
 
-        return [$location.protocol(), '://', $location.host(), port, slash, url].join('');
+        return [cfg.protocol(), '://', cfg.host(), port, slash, url].join('');
       }
     };
   }
