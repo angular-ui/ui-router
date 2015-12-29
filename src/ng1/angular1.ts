@@ -14,7 +14,12 @@
 import {IQService} from "angular";
 import {Router} from "../router";
 import {services} from "../common/coreservices";
-import {isObject} from "../common/common";
+import {forEach, isObject} from "../common/common";
+import {RawParams} from "../params/interface";
+import {Node} from "../path/module";
+import {Resolvables} from "../resolve/interface";
+import {Resolvable, ResolveContext} from "../resolve/module";
+import {State} from "../state/module";
 
 let app = angular.module("ui.router.angular1", []);
 
@@ -80,11 +85,29 @@ function ng1UIRouter($locationProvider) {
     };
 
     bindFunctions(["replace", "url", "path", "search", "hash"], $location, services.location);
-    bindFunctions([ 'port', 'protocol', 'host'], $location, services.locationConfig);
+    bindFunctions(['port', 'protocol', 'host'], $location, services.locationConfig);
     bindFunctions(['baseHref'], $browser, services.locationConfig);
 
     return router;
   }
+}
+
+function resolveFactory() {
+  return {
+    resolve: (invocables, locals, parent, self) => {
+      let state = new State({ params: {} });
+      let node = new Node(state, <RawParams> {});
+      let context = new ResolveContext([node]);
+      let resolvables: Resolvables = {};
+      forEach(invocables, (invocable, key) => {
+        resolvables[key] = new Resolvable(`${key}`, invocable);
+      });
+
+      context.addResolvables(resolvables, node.state);
+
+      return context.resolvePath();
+    }
+  };
 }
 
 angular.module('ui.router.init', []).provider("ng1UIRouter", <any> ng1UIRouter);
@@ -92,9 +115,10 @@ angular.module('ui.router.init', []).provider("ng1UIRouter", <any> ng1UIRouter);
 angular.module('ui.router.util').provider('$urlMatcherFactory', ['ng1UIRouterProvider', () => router.urlMatcherFactory]);
 angular.module('ui.router.router').provider('$urlRouter', ['ng1UIRouterProvider', () => router.urlRouterProvider]);
 angular.module('ui.router.state').provider('$state', ['ng1UIRouterProvider', () => router.stateProvider]);
+angular.module('ui.router.resolve', []).factory('$resolve', <any> resolveFactory);
 
 /* This effectively calls $get() to init when we enter runtime */
 angular.module('ui.router.init').run(['ng1UIRouter', function(ng1UIRouter) { }]);
+angular.module('ui.router.resolve').run(['$resolve', function(resolve) { }]);
 angular.module('ui.router.state').run(['$state', function($state) { }]);
 angular.module('ui.router.util').run(['$urlMatcherFactory', function($urlMatcherFactory) { }]);
-

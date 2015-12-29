@@ -411,7 +411,7 @@ export function tail(collection: any[]): any {
  * in your angular app (use {@link ui.router} module instead).
  *
  */
-angular.module('ui.router.util', ['ng', 'ui.router.init']);
+angular.module('ui.router.util', ['ng', 'ui.router.init', 'ui.router.resolve']);
 
 /**
  * @ngdoc overview
