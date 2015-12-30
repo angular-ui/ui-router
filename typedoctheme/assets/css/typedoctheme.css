@@ -1,0 +1,24 @@
+a.tsd-anchor + h3 { display: none; }
+
+
+.tsd-panel.tsd-member {
+    padding-top: 0;
+}
+
+.tsd-panel .tsd-signature, .tsd-panel .tsd-signatures {
+    background-color: #eee;
+}
+
+.tsd-header {
+    list-style: none;
+    margin: 0 2em;
+    font-weight: bold;
+}
+
+.tsd-header p {
+    margin-top : 0;
+}
+
+.tsd-member .tsd-description .lead {
+    display: none;
+}

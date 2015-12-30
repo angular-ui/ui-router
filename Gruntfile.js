@@ -154,7 +154,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('docs', 'Generate documentation to _doc', function() { 
     promising(this, 
-      system('./node_modules/typedoc/bin/typedoc --readme ./README.md --name "UI-Router" --theme default --mode modules --module commonjs --target es5 --out _doc  src/params src/path src/resolve src/state src/transition src/url src/view src/ng1')
+      system('./node_modules/typedoc/bin/typedoc --readme ./README.md --name "UI-Router" --theme ./typedoctheme --mode modules --module commonjs --target es5 --out _doc  src/params src/path src/resolve src/state src/transition src/url src/view src/ng1')
     );
   });
 

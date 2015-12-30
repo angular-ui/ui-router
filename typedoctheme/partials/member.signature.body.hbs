@@ -1,7 +1,3 @@
-{{#unless hideSources}}
-    {{> member.sources}}
-{{/unless}}
-
 {{> comment}}
 
 {{#if typeParameters}}
@@ -54,3 +50,8 @@
         {{/with}}
     {{/if}}
 {{/if}}
+
+{{#unless hideSources}}
+    <hr>
+    {{> member.sources}}
+{{/unless}}
