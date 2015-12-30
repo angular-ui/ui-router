@@ -55,7 +55,7 @@ export interface ViewDeclaration {
    * Injectable provider function that returns the actual controller function or name of a registered controller.
    *
    * @example 
-   * ```javascript
+   * ```js
    * 
    * controllerProvider: function(MyResolveData) {
    *   if (MyResolveData.foo) {
@@ -83,13 +83,13 @@ export interface ViewDeclaration {
    * If `template` is a function, it will be called with the State Parameters as the first argument.
    *
    * @example
-   * ```javascript
+   * ```js
    *
    * template: "<h1>inline template definition</h1><div ui-view></div>"
    * ```
    *
    * @example
-   * ```javascript
+   * ```js
    *
    * template: function(params) {
    *   return "<h1>generated template</h1>";
@@ -107,13 +107,13 @@ export interface ViewDeclaration {
    * If `templateUrl` is a function, it will be called with the State Parameters as the first argument.
    *
    * @example
-   * ```javascript
+   * ```js
    *
    * templateUrl: "/templates/home.html"
    * ```
    *
    * @example
-   * ```javascript
+   * ```js
    *
    * templateUrl: function(params) {
    *   return myTemplates[params.pageId];
@@ -128,7 +128,7 @@ export interface ViewDeclaration {
    * The template will be used to render the corresponding [[ui-view]] directive.
    *
    * @example
-   * ```javascript
+   * ```js
    *
    * templateProvider: function(MyTemplateService, params) {
    *   return MyTemplateService.getTemplate(params.pageId);
@@ -143,7 +143,7 @@ export interface ViewDeclaration {
  * It should be registered with the [[$stateProvider]].
  *
  * @example
- * ```javascript
+ * ```js
  *
  * // StateDeclaration object
  * var foldersState = {
@@ -184,7 +184,7 @@ export interface StateDeclaration extends ViewDeclaration {
    * names, e.g., `<a ui-sref="childstate">Child</a>` instead of `<a ui-sref="parentstate.childstate">Child</a>
    *
    * @example
-   * ```javascript
+   * ```js
    *
    * var parentstate = {
    *   name: 'parentstate'
@@ -210,7 +210,7 @@ export interface StateDeclaration extends ViewDeclaration {
    * - The value (function) is an injectable function which returns the dependency, or a promise for the dependency.
    *
    * @example
-   * ```javascript
+   * ```js
    *
    * resolve: {
    *   // If you inject `myStateDependency` into a controller, you'll get "abc"
@@ -258,7 +258,7 @@ export interface StateDeclaration extends ViewDeclaration {
    * - `$stateParams`: (deprecated) The parameters for the current state (Note: these parameter values are
    *
    * @example
-   * ```javascript
+   * ```js
    *
    * resolve: {
    *   // Define a resolve 'allusers' which delegates to the UserService
@@ -288,7 +288,7 @@ export interface StateDeclaration extends ViewDeclaration {
    * See [[UrlMatcher]] for details on acceptable patterns.
    *
    * @examples
-   * ```javascript
+   * ```js
    *
    * url: "/home"
    * // Define a parameter named 'userid'
@@ -316,7 +316,7 @@ export interface StateDeclaration extends ViewDeclaration {
    * parameters. For each parameter being configured, add a [[ParamDeclaration]] keyed to the name of the parameter.
    *
    * @example
-   * ```javascript
+   * ```js
    *
    * params: {
    *   param1: {
@@ -346,7 +346,7 @@ export interface StateDeclaration extends ViewDeclaration {
    *  Targets three named ui-views in the parent state's template
    *
    * @example
-   * ```javascript
+   * ```js
    *
    * views: {
    *   header: {
@@ -363,7 +363,7 @@ export interface StateDeclaration extends ViewDeclaration {
    * ```
    *
    * @example
-   * ```javascript
+   * ```js
    * // Targets named ui-view="header" from ancestor state 'top''s template, and
    * // named `ui-view="body" from parent state's template.
    * views: {

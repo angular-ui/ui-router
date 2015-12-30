@@ -68,7 +68,7 @@ export interface TransitionOptions {
    */
   reload      ?: (boolean|string|StateDeclaration|State);
   /**
-   * You can define your own Transition Options inside this property and use them, e.g., from a [[TransitionHook]]
+   * You can define your own Transition Options inside this property and use them, e.g., from a Transition Hook
    */
   custom      ?: any;
   /** @internal */
@@ -153,22 +153,130 @@ export interface ITransitionService extends IHookRegistry {
 export type IHookGetter = (hookName: string) => IEventHook[];
 export type IHookRegistration = (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
 
+/**
+ * This interface has the registration functions for Transition Hook instances.  Both the
+ * [[TransitionService]] and also the [[Transition]] object itself implement this interface.
+ */
 export interface IHookRegistry {
-  onBefore:   IHookRegistration;
-  onStart:    IHookRegistration;
-  onEnter:    IHookRegistration;
-  onRetain:   IHookRegistration;
-  onExit:     IHookRegistration;
-  onFinish:   IHookRegistration;
-  onSuccess:  IHookRegistration;
-  onError:    IHookRegistration;
+  /**
+   * Registers a function as an `onBefore` Transition Hook.
+   *
+   * `onBefore` hooks are injected and invoked *before* a Transition starts.
+   *
+   * They are invoked synchronously, in priority order, and are typically within the same call stack as
+   * [[StateService.transitionTo]].
+   *
+   * The current [[Transition]] can be injected as `$transition$`
+   *
+   * The callback function may return one of three things
+   *     - `false` to abort the current transition
+   *     - A [[TargetState]] object from the $state.target() factory. This will redirect the current transition
+   *     to the target state.
+   *     - A promise
+   *
+   * @param matchObject An [[IMatchCriteria]] which defines which Transitions the Hook should be invoked for.
+   * @param callback The function which will be injected and invoked.
+   * @returns A function which deregisters the hook.
+   */
+  onBefore(matchObject: IMatchCriteria, callback: IInjectable, options?): Function;
 
-  getHooks:   IHookGetter;
+  /**
+   * Registers a function to be injected and invoked when a transition has started.
+   *
+   * The function is injected in the destination state's ResolveContext. This function can be injected
+   * with one additional special value:
+   *
+   *  -`$transition$`: The current [[Transition]]
+   *
+   * @param {object} matchObject An object that specifies which transitions to invoke the callback for
+   *
+   * - **`to`** - {string|function=} - A glob string that matches the 'to' state's name.
+   *    Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
+   * - **`from`** - {string|function=} - A glob string that matches the 'from' state's name.
+   *    Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
+   *
+   * @param {function} callback
+   *   The function which will be injected and invoked, when a matching transition is started.
+   *   The function may optionally return a {boolean|Transition|object} value which will affect the current transition:
+   *
+   *     - **`false`** to abort the current transition
+   *     - **{Transition}** A Transition object from the $transition$.redirect() factory. If returned, the
+   *        current transition will be aborted and the returned Transition will supersede it.
+   *     - **{object}** A map of resolve functions to be added to the current transition. These resolves will be made
+   *        available for injection to further steps in the transition.  The object should have {string}s for keys and
+   *        {function}s for values, like the `resolve` object in {@link ui.router.state.$stateProvider#state $stateProvider.state}.
+   */
+  onStart(matchObjectIMatchCriteria, callbackIInjectable, options?): Function;
+  onEnter(matchObjectIMatchCriteria, callbackIInjectable, options?): Function;
+  onRetain(matchObjectIMatchCriteria, callbackIInjectable, options?): Function;
+  onExit(matchObjectIMatchCriteria, callbackIInjectable, options?): Function;
+  onFinish(matchObjectIMatchCriteria, callbackIInjectable, options?): Function;
+  onSuccess(matchObjectIMatchCriteria, callbackIInjectable, options?): Function;
+  onError(matchObjectIMatchCriteria, callbackIInjectable, options?): Function;
+
+  getHooks(hookNamestring): IEventHook[];
 }
 
 export type IStateMatch = Predicate<State>
+/**
+ * This object is used to configure whether or not a Transition Hook is invoked for a particular transition,
+ * based on the Transition's "to state" and "from state".
+ *
+ * The `to` and `from` can be state globs, or a function that takes a state.
+ * Both `to` and `from` are optional.  If one of these is omitted, it is replaced with the
+ * function: `function() { return true; }`, which effectively matches any state.
+ *
+ * @example
+ * ```js
+ *
+ * // This matches a transition coming from the `parent` state and going to the `parent.child` state.
+ * var match = {
+ *   to: 'parent',
+ *   from: 'parent.child'
+ * }
+ * ```
+ *
+ * @example
+ * ```js
+ *
+ * // This matches a transition coming from any substate of `parent` and going directly to the `parent` state.
+ * var match = {
+ *   to: 'parent',
+ *   from: 'parent.**'
+ * }
+ * ```
+ *
+ * @example
+ * ```js
+ *
+ * // This matches a transition coming from any state and going to any substate of `mymodule`
+ * var match = {
+ *   to: 'mymodule.**'
+ * }
+ * ```
+ *
+ * @example
+ * ```js
+ *
+ * // This matches a transition coming from any state and going to any state that has `data.authRequired`
+ * // set to a truthy value.
+ * var match = {
+ *   to: function(state) { return !!state.data.authRequired; }
+ * }
+ * ```
+ */
 export interface IMatchCriteria {
+  /**
+   * A glob string that matches the 'to' state's name.
+   * Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
+   */
   to?: (string|IStateMatch);
+
+  /**
+   *  A glob string that matches the 'from' state's name.
+   *  Or, a function with the signature `function(State) { return boolean; }` which should return a boolean to
+   *  indicate if the state matches.
+   */
   from?: (string|IStateMatch);
 }
 

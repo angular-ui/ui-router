@@ -75,68 +75,7 @@ export class HookRegistry implements IHookRegistry {
 
   getHooks = (name: string) => this._transitionEvents[name];
 
-  /**
-   * @ngdoc function
-   * @name ui.router.state.$transitionsProvider#onBefore
-   * @methodOf ui.router.state.$transitionsProvider
-   *
-   * @description
-   * Registers a function to be injected and invoked before a Transition begins.
-   *
-   * This function can be injected with one additional special value:
-   * - **`$transition$`**: The current transition
-   *
-   * @param {object} matchObject An object that specifies which transitions to invoke the callback for (typically this
-   * value will be {} for this callback, to match all invalid transitions)
-   *
-   * - **`to`** - {string|function=} - A glob string that matches the 'to' state's name.
-   *    Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
-   * - **`from`** - {string|function=} - A glob string that matches the 'from' state's name.
-   *    Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
-   *
-   * @param {function} callback
-   *   The function which will be injected and invoked, before a matching transition is started.
-   *   The function may optionally return a {boolean|Transition|object} value which will affect the current transition:
-   *
-   * @return
-   *     - **`false`** to abort the current transition
-   *     - **{Transition}** A Transition object from the $transition$.redirect() factory. If returned, the
-   *        current transition will be aborted and the returned Transition will supersede it.
-   *     - **{object}** A map of resolve functions to be added to the current transition. These resolves will be made
-   *        available for injection to further steps in the transition.  The object should have {string}s for keys and
-   *        {function}s for values, like the `resolve` object in {@link ui.router.state.$stateProvider#state $stateProvider.state}.
-   */
   onBefore = makeHookRegistrationFn(this._transitionEvents, "onBefore");
-
-  /**
-   * @ngdoc function
-   * @name ui.router.state.$transitionsProvider#onStart
-   * @methodOf ui.router.state.$transitionsProvider
-   *
-   * @description
-   * Registers a function to be injected and invoked when a transition has begun.  The function is injected in the
-   * destination state's ResolveContext. This function can be injected with one additional special value:
-   *
-   *  - **`$transition$`**: The current transition
-   *
-   * @param {object} matchObject An object that specifies which transitions to invoke the callback for
-   *
-   * - **`to`** - {string|function=} - A glob string that matches the 'to' state's name.
-   *    Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
-   * - **`from`** - {string|function=} - A glob string that matches the 'from' state's name.
-   *    Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
-   *
-   * @param {function} callback
-   *   The function which will be injected and invoked, when a matching transition is started.
-   *   The function may optionally return a {boolean|Transition|object} value which will affect the current transition:
-   *
-   *     - **`false`** to abort the current transition
-   *     - **{Transition}** A Transition object from the $transition$.redirect() factory. If returned, the
-   *        current transition will be aborted and the returned Transition will supersede it.
-   *     - **{object}** A map of resolve functions to be added to the current transition. These resolves will be made
-   *        available for injection to further steps in the transition.  The object should have {string}s for keys and
-   *        {function}s for values, like the `resolve` object in {@link ui.router.state.$stateProvider#state $stateProvider.state}.
-   */
   onStart = makeHookRegistrationFn(this._transitionEvents, "onStart");
 
   /**

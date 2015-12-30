@@ -9,6 +9,9 @@ import {Transition} from "./transition";
 import {HookRegistry} from "./hookRegistry";
 import {TargetState} from "../state/module";
 import {Node} from "../path/module";
+import {IMatchCriteria} from "./interface";
+import {IInjectable} from "../common/common";
+import {IEventHook} from "./interface";
 
 /**
  * The default transition options.
@@ -31,16 +34,17 @@ class TransitionService implements ITransitionService, IHookRegistry {
     this._reinit();
   }
 
-  onBefore  : IHookRegistration;
-  onStart   : IHookRegistration;
-  onEnter   : IHookRegistration;
-  onRetain  : IHookRegistration;
-  onExit    : IHookRegistration;
-  onFinish  : IHookRegistration;
-  onSuccess : IHookRegistration;
-  onError   : IHookRegistration;
+  /** @inheritdoc */
+  onBefore  : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
+  onStart   : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
+  onEnter   : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
+  onRetain  : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
+  onExit    : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
+  onFinish  : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
+  onSuccess : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
+  onError   : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
 
-  getHooks  : IHookGetter;
+  getHooks  : (hookName: string) => IEventHook[];
 
   private _defaultErrorHandler: ((_error) => void) = function $defaultErrorHandler($error$) {
     if ($error$ instanceof Error) console.log($error$);
