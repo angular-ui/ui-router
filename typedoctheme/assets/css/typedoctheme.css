@@ -1,21 +1,17 @@
-.tsd-panel.tsd-member {
-    padding-top: 0;
-}
+/* Change the member layout to a grey box */
+.tsd-panel.tsd-member { padding-top: 0; }
+.tsd-panel .tsd-signature, .tsd-panel .tsd-signatures { background-color: #eee; }
 
-.tsd-panel .tsd-signature, .tsd-panel .tsd-signatures {
-    background-color: #eee;
-}
+/* The short text, one line description of a member */
+.tsd-header { list-style: none; margin: 0 2em; font-weight: bold; }
+.tsd-header p { margin-top : 0; }
 
-.tsd-header {
-    list-style: none;
-    margin: 0 2em;
-    font-weight: bold;
-}
+/* We added the short text in the .tsd-header, so don't display it in the main comment block */
+.tsd-member .tsd-description .lead { display: none; }
 
-.tsd-header p {
-    margin-top : 0;
-}
+ul.tsd-parameters li { margin-top: 1em; }
+ul.tsd-parameters li > * { display: inline; }
+ul.tsd-parameters li > * > p { display: inline; }
 
-.tsd-member .tsd-description .lead {
-    display: none;
-}
+.tsd-returns { margin-top: 1em; }
+.tsd-returns > * { display: inline; }

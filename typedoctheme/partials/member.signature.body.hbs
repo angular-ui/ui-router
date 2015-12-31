@@ -11,11 +11,10 @@
         {{#each parameters}}
             <li>
                 <h5>{{#compact}}
-                    {{#each flags}}
-                        <span class="tsd-flag ts-flag{{this}}">{{this}}</span>&nbsp;
-                    {{/each}}
                     {{#if flags.isRest}}<span class="tsd-signature-symbol">...</span>{{/if}}
-                    {{name}}:&nbsp;
+                    {{name}}{{#each flags}}
+                    &nbsp;<span class="tsd-flag ts-flag{{this}}">{{this}}</span>
+                    {{/each}}:&nbsp;
                     {{#with type}}{{>type}}{{/with}}
                     {{#if defaultValue}}
                         <span class="tsd-signature-symbol">
@@ -25,7 +24,9 @@
                     {{/if}}
                 {{/compact}}</h5>
 
-                {{> comment}}
+                {{#if comment}}
+                    : {{> comment}}
+                {{/if}}
 
                 {{#if type.declaration}}
                     {{#with type.declaration}}
@@ -38,10 +39,11 @@
 {{/if}}
 
 {{#if type}}
+    <div class="tsd-returns">
     <h4 class="tsd-returns-title">Returns {{#with type}}{{>type}}{{/with}}</h4>
 
     {{#if comment.returns}}
-        {{#markdown}}{{{comment.returns}}}{{/markdown}}
+        : {{#markdown}}{{{comment.returns}}}{{/markdown}}
     {{/if}}
 
     {{#if type.declaration}}
@@ -49,6 +51,7 @@
             {{> parameter}}
         {{/with}}
     {{/if}}
+    </div>
 {{/if}}
 
 {{#unless hideSources}}
