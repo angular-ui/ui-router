@@ -1,10 +1,18 @@
 <div class="tsd-signature tsd-kind-icon">{{#compact}}
     {{{wbr name}}}<span class="tsd-signature-symbol">{{#if isOptional}}?{{/if}}:</span>&nbsp;{{#with type}}{{>type}}{{/with}}
-{{/compact}}</div>
+{{/compact}}
+    {{#if comment.shortText}}
+        <div class="tsd-header">
+            {{#markdown}} {{{comment.shortText}}} {{/markdown}}
+        </div>
+    {{/if}}
+</div>
+
+<div class="tsd-declaration">
+    {{> comment}}
+</div>
 
 {{> member.sources}}
-
-{{> comment}}
 
 {{#if type.declaration}}
     <div class="tsd-type-declaration">
