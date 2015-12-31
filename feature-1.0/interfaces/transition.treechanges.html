@@ -7,6 +7,7 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
 	<script src="../assets/js/modernizr.js"></script>
 </head>
 <body>
@@ -142,85 +143,123 @@
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="entering" class="tsd-anchor"></a>
-					<h3>entering</h3>
-					<div class="tsd-signature tsd-kind-icon">entering<span class="tsd-signature-symbol">:</span> <a href="../classes/path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span></div>
+					<!---->
+					<!--<h3>entering</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">entering<span class="tsd-signature-symbol">:</span> <a href="../classes/path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span>        <div class="tsd-header">
+							<p> The path of nodes that the transition is entering. After the Transition is successful, these nodes will be active.
+								Because they are entering, they have their resolves fetched, onEnter hooks run, and their views
+							(controller+templates) refreshed. </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>The path of nodes that the transition is entering. After the Transition is successful, these nodes will be active.
+									Because they are entering, they have their resolves fetched, onEnter hooks run, and their views
+								(controller+templates) refreshed.</p>
+							</div>
+							<p>Note that a state that is reloaded (due to parameter values changing, or <code>reload: true</code>) may be in both the
+							<code>exiting</code> and <code>entering</code> paths.</p>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L145">transition/interface.ts:145</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L143">transition/interface.ts:143</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The path of nodes that the transition is entering. After the Transition is successful, these nodes will be active.
-								Because they are entering, they have their resolves fetched, onEnter hooks run, and their views
-							(controller+templates) refreshed.</p>
-						</div>
-						<p>Note that a state that is reloaded (due to parameter values changing, or <code>reload: true</code>) may be in both the
-						<code>exiting</code> and <code>entering</code> paths.</p>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="exiting" class="tsd-anchor"></a>
-					<h3>exiting</h3>
-					<div class="tsd-signature tsd-kind-icon">exiting<span class="tsd-signature-symbol">:</span> <a href="../classes/path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span></div>
+					<!---->
+					<!--<h3>exiting</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">exiting<span class="tsd-signature-symbol">:</span> <a href="../classes/path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span>        <div class="tsd-header">
+							<p> The path of nodes that the transition is exiting. After the Transition is successful, these nodes are no longer active. </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>The path of nodes that the transition is exiting. After the Transition is successful, these nodes are no longer active.</p>
+							</div>
+							<p>Note that a state that is being reloaded (due to parameter values changing, or <code>reload: true</code>) may be in both the
+							<code>exiting</code> and <code>entering</code> paths.</p>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L135">transition/interface.ts:135</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L133">transition/interface.ts:133</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The path of nodes that the transition is exiting. After the Transition is successful, these nodes are no longer active.</p>
-						</div>
-						<p>Note that a state that is being reloaded (due to parameter values changing, or <code>reload: true</code>) may be in both the
-						<code>exiting</code> and <code>entering</code> paths.</p>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="from" class="tsd-anchor"></a>
-					<h3>from</h3>
-					<div class="tsd-signature tsd-kind-icon">from<span class="tsd-signature-symbol">:</span> <a href="../classes/path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L118">transition/interface.ts:118</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The path of nodes in the state tree that the transition is coming <em>from</em></p>
+					<!---->
+					<!--<h3>from</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">from<span class="tsd-signature-symbol">:</span> <a href="../classes/path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span>        <div class="tsd-header">
+							<p> The path of nodes in the state tree that the transition is coming <em>from</em> </p>
 						</div>
 					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>The path of nodes in the state tree that the transition is coming <em>from</em></p>
+							</div>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L116">transition/interface.ts:116</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="retained" class="tsd-anchor"></a>
-					<h3>retained</h3>
-					<div class="tsd-signature tsd-kind-icon">retained<span class="tsd-signature-symbol">:</span> <a href="../classes/path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L127">transition/interface.ts:127</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The path of active nodes that the transition is retaining. These nodes are neither exited, nor entered.
-							Before and after the transition is successful, these nodes are active.</p>
+					<!---->
+					<!--<h3>retained</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">retained<span class="tsd-signature-symbol">:</span> <a href="../classes/path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span>        <div class="tsd-header">
+							<p> The path of active nodes that the transition is retaining. These nodes are neither exited, nor entered.
+							Before and after the transition is successful, these nodes are active. </p>
 						</div>
 					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>The path of active nodes that the transition is retaining. These nodes are neither exited, nor entered.
+								Before and after the transition is successful, these nodes are active.</p>
+							</div>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L125">transition/interface.ts:125</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="to" class="tsd-anchor"></a>
-					<h3>to</h3>
-					<div class="tsd-signature tsd-kind-icon">to<span class="tsd-signature-symbol">:</span> <a href="../classes/path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L121">transition/interface.ts:121</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The path of nodes in the state tree that the transition is going <em>to</em></p>
+					<!---->
+					<!--<h3>to</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">to<span class="tsd-signature-symbol">:</span> <a href="../classes/path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span>        <div class="tsd-header">
+							<p> The path of nodes in the state tree that the transition is going <em>to</em> </p>
 						</div>
 					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>The path of nodes in the state tree that the transition is going <em>to</em></p>
+							</div>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L119">transition/interface.ts:119</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 		</div>
@@ -232,6 +271,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Internals</span>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1.html">ng1</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/params.html">params</a>
@@ -256,6 +298,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Externals</span>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_router_.html">"router"</a>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="../modules/common.html">common</a>

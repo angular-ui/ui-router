@@ -3,10 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ParamDeclaration | UI-Router</title>
+	<title>StateRegistry | UI-Router</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
 	<script src="../assets/js/modernizr.js"></script>
 </head>
 <body>
@@ -60,28 +61,21 @@
 					<a href="../modules/state.html">state</a>
 				</li>
 				<li>
-					<a href="state.paramdeclaration.html">ParamDeclaration</a>
+					<a href="state.stateregistry.html">StateRegistry</a>
 				</li>
 			</ul>
-			<h1>Interface ParamDeclaration</h1>
+			<h1>Class StateRegistry</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-comment">
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>Configuration for a single state parameter</p>
-					</div>
-				</div>
-			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">ParamDeclaration</span>
+						<span class="target">StateRegistry</span>
 					</li>
 				</ul>
 			</section>
@@ -89,48 +83,140 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section tsd-is-not-exported">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="state.stateregistry.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="state.paramdeclaration.html#array" class="tsd-kind-icon">array</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="state.paramdeclaration.html#squash" class="tsd-kind-icon">squash</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="state.paramdeclaration.html#value" class="tsd-kind-icon">value</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="state.stateregistry.html#builder" class="tsd-kind-icon">builder</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="state.stateregistry.html#matcher" class="tsd-kind-icon">matcher</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="state.stateregistry.html#root" class="tsd-kind-icon">root</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="state.stateregistry.html#statequeue" class="tsd-kind-icon">state<wbr>Queue</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="state.stateregistry.html#states" class="tsd-kind-icon">states</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>constructor</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>State<wbr>Registry<span class="tsd-signature-symbol">(</span>urlMatcherFactory<span class="tsd-signature-symbol">: </span><a href="url.urlmatcherfactory.html" class="tsd-signature-type">UrlMatcherFactory</a>, urlRouterProvider<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, $state<span class="tsd-signature-symbol">: </span><a href="../interfaces/state.stateservice.html" class="tsd-signature-type">StateService</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="state.stateregistry.html" class="tsd-signature-type">StateRegistry</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>urlMatcherFactory: <a href="url.urlmatcherfactory.html" class="tsd-signature-type">UrlMatcherFactory</a></h5>
+								</li>
+								<li>
+									<h5>urlRouterProvider: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>$state: <a href="../interfaces/state.stateservice.html" class="tsd-signature-type">StateService</a></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="state.stateregistry.html" class="tsd-signature-type">StateRegistry</a></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateRegistry.ts#L16">state/stateRegistry.ts:16</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="array" class="tsd-anchor"></a>
-					<h3>array</h3>
-					<div class="tsd-signature tsd-kind-icon">array<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="builder" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>builder</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">builder<span class="tsd-signature-symbol">:</span> <a href="state.statebuilder.html" class="tsd-signature-type">StateBuilder</a></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/interface.ts#L150">state/interface.ts:150</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateRegistry.ts#L15">state/stateRegistry.ts:15</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="squash" class="tsd-anchor"></a>
-					<h3>squash</h3>
-					<div class="tsd-signature tsd-kind-icon">squash<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="matcher" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>matcher</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">matcher<span class="tsd-signature-symbol">:</span> <a href="state.statematcher.html" class="tsd-signature-type">StateMatcher</a></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/interface.ts#L149">state/interface.ts:149</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateRegistry.ts#L14">state/stateRegistry.ts:14</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="value" class="tsd-anchor"></a>
-					<h3>value</h3>
-					<div class="tsd-signature tsd-kind-icon">value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="root" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>root</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">root<span class="tsd-signature-symbol">:</span> <a href="state.state-1.html" class="tsd-signature-type">State</a></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/interface.ts#L148">state/interface.ts:148</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateRegistry.ts#L11">state/stateRegistry.ts:11</a></li>
 						</ul>
 					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="statequeue" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>state<wbr>Queue</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">state<wbr>Queue<span class="tsd-signature-symbol">:</span> <a href="state.statequeuemanager.html" class="tsd-signature-type">StateQueueManager</a></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateRegistry.ts#L16">state/stateRegistry.ts:16</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="states" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>states</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">states<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateRegistry.ts#L12">state/stateRegistry.ts:12</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="state.state-1.html" class="tsd-signature-type">State</a></h5>
+							</li>
+						</ul>
+					</div>
 				</section>
 			</section>
 		</div>
@@ -142,6 +228,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Internals</span>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1.html">ng1</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/params.html">params</a>
@@ -168,6 +257,9 @@
 						<span>Externals</span>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_router_.html">"router"</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="../modules/common.html">common</a>
 					</li>
 				</ul>
@@ -175,67 +267,85 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.enterexithooks.html" class="tsd-kind-icon">Enter<wbr>Exit<wbr>Hooks</a>
+						<a href="state.enterexithooks.html" class="tsd-kind-icon">Enter<wbr>Exit<wbr>Hooks</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.glob.html" class="tsd-kind-icon">Glob</a>
+						<a href="state.glob.html" class="tsd-kind-icon">Glob</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.resolvehooks.html" class="tsd-kind-icon">Resolve<wbr>Hooks</a>
+						<a href="state.resolvehooks.html" class="tsd-kind-icon">Resolve<wbr>Hooks</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.state-1.html" class="tsd-kind-icon">State</a>
+						<a href="state.state-1.html" class="tsd-kind-icon">State</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.statematcher.html" class="tsd-kind-icon">State<wbr>Matcher</a>
+						<a href="state.statebuilder.html" class="tsd-kind-icon">State<wbr>Builder</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.targetstate.html" class="tsd-kind-icon">Target<wbr>State</a>
+						<a href="state.statematcher.html" class="tsd-kind-icon">State<wbr>Matcher</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.transitionmanager.html" class="tsd-kind-icon">Transition<wbr>Manager</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.viewhooks.html" class="tsd-kind-icon">View<wbr>Hooks</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="state.hrefoptions.html" class="tsd-kind-icon">Href<wbr>Options</a>
+						<a href="state.statequeuemanager.html" class="tsd-kind-icon">State<wbr>Queue<wbr>Manager</a>
 					</li>
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="state.paramdeclaration.html" class="tsd-kind-icon">Param<wbr>Declaration</a>
+					<li class="current tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.stateregistry.html" class="tsd-kind-icon">State<wbr>Registry</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="state.paramdeclaration.html#array" class="tsd-kind-icon">array</a>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="state.stateregistry.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="state.paramdeclaration.html#squash" class="tsd-kind-icon">squash</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="state.stateregistry.html#builder" class="tsd-kind-icon">builder</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="state.paramdeclaration.html#value" class="tsd-kind-icon">value</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="state.stateregistry.html#matcher" class="tsd-kind-icon">matcher</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="state.stateregistry.html#root" class="tsd-kind-icon">root</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="state.stateregistry.html#statequeue" class="tsd-kind-icon">state<wbr>Queue</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="state.stateregistry.html#states" class="tsd-kind-icon">states</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="state.statedeclaration.html" class="tsd-kind-icon">State<wbr>Declaration</a>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.targetstate.html" class="tsd-kind-icon">Target<wbr>State</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.transitionmanager.html" class="tsd-kind-icon">Transition<wbr>Manager</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.viewhooks.html" class="tsd-kind-icon">View<wbr>Hooks</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../interfaces/state.builders.html" class="tsd-kind-icon">Builders</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="state.stateparams.html" class="tsd-kind-icon">State<wbr>Params</a>
+						<a href="../interfaces/state.hrefoptions.html" class="tsd-kind-icon">Href<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="state.stateprovider.html" class="tsd-kind-icon">State<wbr>Provider</a>
+						<a href="../interfaces/state.statedeclaration.html" class="tsd-kind-icon">State<wbr>Declaration</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="state.stateservice.html" class="tsd-kind-icon">State<wbr>Service</a>
+						<a href="../interfaces/state.stateparams.html" class="tsd-kind-icon">State<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="state.stateviewconfig.html" class="tsd-kind-icon">State<wbr>View<wbr>Config</a>
+						<a href="../interfaces/state.stateprovider.html" class="tsd-kind-icon">State<wbr>Provider</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="state.viewdeclaration.html" class="tsd-kind-icon">View<wbr>Declaration</a>
+						<a href="../interfaces/state.stateservice.html" class="tsd-kind-icon">State<wbr>Service</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="../interfaces/state.viewdeclaration.html" class="tsd-kind-icon">View<wbr>Declaration</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/state.html#builderfunction" class="tsd-kind-icon">Builder<wbr>Function</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
 						<a href="../modules/state.html#stateorname" class="tsd-kind-icon">State<wbr>OrName</a>
@@ -252,13 +362,7 @@
 					<li class=" tsd-kind-function tsd-parent-kind-external-module">
 						<a href="../modules/state.html#_isstatefilter" class="tsd-kind-icon">$<wbr>IsState<wbr>Filter</a>
 					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/state.html#_stateeventsprovider" class="tsd-kind-icon">$<wbr>State<wbr>Events<wbr>Provider</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/state.html#_stateparamsprovider" class="tsd-kind-icon">$<wbr>State<wbr>Params<wbr>Provider</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
 						<a href="../modules/state.html#_stateprovider" class="tsd-kind-icon">$<wbr>State<wbr>Provider</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
@@ -267,15 +371,6 @@
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/state.html#_staterefdirective" class="tsd-kind-icon">$<wbr>State<wbr>Ref<wbr>Directive</a>
 					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="../modules/state.html#statebuilder" class="tsd-kind-icon">State<wbr>Builder</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="../modules/state.html#stateparams-1" class="tsd-kind-icon">State<wbr>Params</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="../modules/state.html#statequeuemanager" class="tsd-kind-icon">State<wbr>Queue<wbr>Manager</a>
-					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/state.html#parsestateref" class="tsd-kind-icon">parse<wbr>State<wbr>Ref</a>
 					</li>
@@ -283,13 +378,7 @@
 						<a href="../modules/state.html#parseurl" class="tsd-kind-icon">parse<wbr>Url</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/state.html#statechangestarthandler" class="tsd-kind-icon">state<wbr>Change<wbr>Start<wbr>Handler</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/state.html#statecontext" class="tsd-kind-icon">state<wbr>Context</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="../modules/state.html#statenotfoundhandler" class="tsd-kind-icon">state<wbr>Not<wbr>Found<wbr>Handler</a>
 					</li>
 				</ul>
 			</nav>

@@ -7,6 +7,7 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
 	<script src="../assets/js/modernizr.js"></script>
 </head>
 <body>
@@ -111,11 +112,15 @@
 				<h2>Variables</h2>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="defaultresolvepolicy" class="tsd-anchor"></a>
-					<h3>default<wbr>Resolve<wbr>Policy</h3>
+					<!---->
+					<!--<h3>default<wbr>Resolve<wbr>Policy</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">default<wbr>Resolve<wbr>Policy<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/resolve/resolveContext.ts#L15">resolve/resolveContext.ts:15</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/resolve/resolveContext.ts#L14">resolve/resolveContext.ts:14</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -124,17 +129,19 @@
 				<h2>Functions</h2>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="getpolicy" class="tsd-anchor"></a>
-					<h3>get<wbr>Policy</h3>
+					<!---->
+					<!--<h3>get<wbr>Policy</h3>-->
+					<!---->
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Policy<span class="tsd-signature-symbol">(</span>stateResolvePolicyConf<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, resolvable<span class="tsd-signature-symbol">: </span><a href="../classes/path.resolvable.html" class="tsd-signature-type">Resolvable</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+						<li class="tsd-header">
+							<p> Given a state&#39;s resolvePolicy attribute and a resolvable from that state, returns the policy ordinal for the Resolvable
+								Use the policy declared for the Resolve. If undefined, use the policy declared for the State.  If
+							undefined, use the system defaultResolvePolicy. </p>
+						</li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/resolve/resolveContext.ts#L183">resolve/resolveContext.ts:183</a></li>
-								</ul>
-							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Given a state&#39;s resolvePolicy attribute and a resolvable from that state, returns the policy ordinal for the Resolvable
@@ -146,19 +153,26 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>stateResolvePolicyConf: <span class="tsd-signature-type">any</span></h5>
-									<div class="tsd-comment tsd-typography">
+									:         <div class="tsd-comment tsd-typography">
 										<p>The raw resolvePolicy declaration on the state object; may be a String or Object</p>
 									</div>
 								</li>
 								<li>
 									<h5>resolvable: <a href="../classes/path.resolvable.html" class="tsd-signature-type">Resolvable</a></h5>
-									<div class="tsd-comment tsd-typography">
+									:         <div class="tsd-comment tsd-typography">
 										<p>The resolvable to compute the policy for</p>
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/resolve/resolveContext.ts#L182">resolve/resolveContext.ts:182</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 			</section>
@@ -171,6 +185,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Internals</span>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="ng1.html">ng1</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="params.html">params</a>
@@ -195,6 +212,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Externals</span>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="_router_.html">"router"</a>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="common.html">common</a>

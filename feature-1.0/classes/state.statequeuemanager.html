@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ViewHooks | UI-Router</title>
+	<title>StateQueueManager | UI-Router</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -61,10 +61,10 @@
 					<a href="../modules/state.html">state</a>
 				</li>
 				<li>
-					<a href="state.viewhooks.html">ViewHooks</a>
+					<a href="state.statequeuemanager.html">StateQueueManager</a>
 				</li>
 			</ul>
-			<h1>Class ViewHooks</h1>
+			<h1>Class StateQueueManager</h1>
 		</div>
 	</div>
 </header>
@@ -75,7 +75,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">ViewHooks</span>
+						<span class="target">StateQueueManager</span>
 					</li>
 				</ul>
 			</section>
@@ -86,26 +86,26 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="state.viewhooks.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="state.statequeuemanager.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
+						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="state.viewhooks.html#_view" class="tsd-kind-icon">$view</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="state.viewhooks.html#enteringviews" class="tsd-kind-icon">entering<wbr>Views</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="state.viewhooks.html#exitingviews" class="tsd-kind-icon">exiting<wbr>Views</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="state.viewhooks.html#transition" class="tsd-kind-icon">transition</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="state.viewhooks.html#treechanges" class="tsd-kind-icon">tree<wbr>Changes</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="state.statequeuemanager.html#_state" class="tsd-kind-icon">$state</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="state.statequeuemanager.html#_urlrouterprovider" class="tsd-kind-icon">$url<wbr>Router<wbr>Provider</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="state.statequeuemanager.html#autoflush" class="tsd-kind-icon">auto<wbr>Flush</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="state.statequeuemanager.html#builder" class="tsd-kind-icon">builder</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="state.statequeuemanager.html#queue" class="tsd-kind-icon">queue</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="state.statequeuemanager.html#states" class="tsd-kind-icon">states</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="state.viewhooks.html#loadallcontrollerlocals" class="tsd-kind-icon">load<wbr>All<wbr>Controller<wbr>Locals</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="state.viewhooks.html#loadallenteringviews" class="tsd-kind-icon">load<wbr>All<wbr>Entering<wbr>Views</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="state.viewhooks.html#registerhooks" class="tsd-kind-icon">register<wbr>Hooks</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="state.viewhooks.html#updateviews" class="tsd-kind-icon">update<wbr>Views</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="state.statequeuemanager.html#attachroute" class="tsd-kind-icon">attach<wbr>Route</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="state.statequeuemanager.html#flush" class="tsd-kind-icon">flush</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="state.statequeuemanager.html#register" class="tsd-kind-icon">register</a></li>
 							</ul>
 						</section>
 					</div>
@@ -119,186 +119,227 @@
 					<!--<h3>constructor</h3>-->
 					<!---->
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>View<wbr>Hooks<span class="tsd-signature-symbol">(</span>transition<span class="tsd-signature-symbol">: </span><a href="transition.transition-1.html" class="tsd-signature-type">Transition</a>, $view<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="state.viewhooks.html" class="tsd-signature-type">ViewHooks</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>State<wbr>Queue<wbr>Manager<span class="tsd-signature-symbol">(</span>states<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span>, builder<span class="tsd-signature-symbol">: </span><a href="state.statebuilder.html" class="tsd-signature-type">StateBuilder</a>, $urlRouterProvider<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, $state<span class="tsd-signature-symbol">: </span><a href="../interfaces/state.stateservice.html" class="tsd-signature-type">StateService</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="state.statequeuemanager.html" class="tsd-signature-type">StateQueueManager</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>transition: <a href="transition.transition-1.html" class="tsd-signature-type">Transition</a></h5>
+									<h5>states: <span class="tsd-signature-type">object</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-index-signature">
+											<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="state.state-1.html" class="tsd-signature-type">State</a></h5>
+										</li>
+									</ul>
 								</li>
 								<li>
-									<h5>$view: <span class="tsd-signature-type">any</span></h5>
+									<h5>builder: <a href="state.statebuilder.html" class="tsd-signature-type">StateBuilder</a></h5>
+								</li>
+								<li>
+									<h5>$urlRouterProvider: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>$state: <a href="../interfaces/state.stateservice.html" class="tsd-signature-type">StateService</a></h5>
 								</li>
 							</ul>
 							<div class="tsd-returns">
-								<h4 class="tsd-returns-title">Returns <a href="state.viewhooks.html" class="tsd-signature-type">ViewHooks</a></h4>
+								<h4 class="tsd-returns-title">Returns <a href="state.statequeuemanager.html" class="tsd-signature-type">StateQueueManager</a></h4>
 							</div>
 							<hr>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/hooks/viewHooks.ts#L17">state/hooks/viewHooks.ts:17</a></li>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateQueueManager.ts#L9">state/stateQueueManager.ts:9</a></li>
 								</ul>
 						</aside>        </li>
 					</ul>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
-					<a name="_view" class="tsd-anchor"></a>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="_state" class="tsd-anchor"></a>
 					<!---->
-					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> $view</h3>-->
+					<!--<h3>$state</h3>-->
 					<!---->
-					<div class="tsd-signature tsd-kind-icon">$view<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<div class="tsd-signature tsd-kind-icon">$state<span class="tsd-signature-symbol">:</span> <a href="../interfaces/state.stateservice.html" class="tsd-signature-type">StateService</a></div>
 					<div class="tsd-declaration">
 					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/hooks/viewHooks.ts#L17">state/hooks/viewHooks.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateQueueManager.ts#L15">state/stateQueueManager.ts:15</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
-					<a name="enteringviews" class="tsd-anchor"></a>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="_urlrouterprovider" class="tsd-anchor"></a>
 					<!---->
-					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> entering<wbr>Views</h3>-->
+					<!--<h3>$url<wbr>Router<wbr>Provider</h3>-->
 					<!---->
-					<div class="tsd-signature tsd-kind-icon">entering<wbr>Views<span class="tsd-signature-symbol">:</span> <a href="view.viewconfig.html" class="tsd-signature-type">ViewConfig</a><span class="tsd-signature-symbol">[]</span></div>
+					<div class="tsd-signature tsd-kind-icon">$url<wbr>Router<wbr>Provider<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<div class="tsd-declaration">
 					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/hooks/viewHooks.ts#L14">state/hooks/viewHooks.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateQueueManager.ts#L14">state/stateQueueManager.ts:14</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
-					<a name="exitingviews" class="tsd-anchor"></a>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="autoflush" class="tsd-anchor"></a>
 					<!---->
-					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> exiting<wbr>Views</h3>-->
+					<!--<h3>auto<wbr>Flush</h3>-->
 					<!---->
-					<div class="tsd-signature tsd-kind-icon">exiting<wbr>Views<span class="tsd-signature-symbol">:</span> <a href="view.viewconfig.html" class="tsd-signature-type">ViewConfig</a><span class="tsd-signature-symbol">[]</span></div>
+					<div class="tsd-signature tsd-kind-icon">auto<wbr>Flush<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<div class="tsd-declaration">
 					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/hooks/viewHooks.ts#L15">state/hooks/viewHooks.ts:15</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateQueueManager.ts#L73">state/stateQueueManager.ts:73</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
-					<a name="transition" class="tsd-anchor"></a>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="builder" class="tsd-anchor"></a>
 					<!---->
-					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> transition</h3>-->
+					<!--<h3>builder</h3>-->
 					<!---->
-					<div class="tsd-signature tsd-kind-icon">transition<span class="tsd-signature-symbol">:</span> <a href="transition.transition-1.html" class="tsd-signature-type">Transition</a></div>
+					<div class="tsd-signature tsd-kind-icon">builder<span class="tsd-signature-symbol">:</span> <a href="state.statebuilder.html" class="tsd-signature-type">StateBuilder</a></div>
 					<div class="tsd-declaration">
 					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/hooks/viewHooks.ts#L16">state/hooks/viewHooks.ts:16</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateQueueManager.ts#L13">state/stateQueueManager.ts:13</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
-					<a name="treechanges" class="tsd-anchor"></a>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="queue" class="tsd-anchor"></a>
 					<!---->
-					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> tree<wbr>Changes</h3>-->
+					<!--<h3>queue</h3>-->
 					<!---->
-					<div class="tsd-signature tsd-kind-icon">tree<wbr>Changes<span class="tsd-signature-symbol">:</span> <a href="../interfaces/transition.treechanges.html" class="tsd-signature-type">TreeChanges</a></div>
+					<div class="tsd-signature tsd-kind-icon">queue<span class="tsd-signature-symbol">:</span> <a href="state.state-1.html" class="tsd-signature-type">State</a><span class="tsd-signature-symbol">[]</span></div>
 					<div class="tsd-declaration">
 					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/hooks/viewHooks.ts#L13">state/hooks/viewHooks.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateQueueManager.ts#L9">state/stateQueueManager.ts:9</a></li>
 						</ul>
 					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="states" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>states</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">states<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateQueueManager.ts#L12">state/stateQueueManager.ts:12</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="state.state-1.html" class="tsd-signature-type">State</a></h5>
+							</li>
+						</ul>
+					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="loadallcontrollerlocals" class="tsd-anchor"></a>
+					<a name="attachroute" class="tsd-anchor"></a>
 					<!---->
-					<!--<h3>load<wbr>All<wbr>Controller<wbr>Locals</h3>-->
+					<!--<h3>attach<wbr>Route</h3>-->
 					<!---->
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">load<wbr>All<wbr>Controller<wbr>Locals<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IPromise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">attach<wbr>Route<span class="tsd-signature-symbol">(</span>$state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<div class="tsd-returns">
-								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">IPromise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							</div>
-							<hr>
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/hooks/viewHooks.ts#L36">state/hooks/viewHooks.ts:36</a></li>
-								</ul>
-						</aside>        </li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="loadallenteringviews" class="tsd-anchor"></a>
-					<!---->
-					<!--<h3>load<wbr>All<wbr>Entering<wbr>Views</h3>-->
-					<!---->
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">load<wbr>All<wbr>Entering<wbr>Views<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IPromise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<div class="tsd-returns">
-								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">IPromise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							</div>
-							<hr>
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/hooks/viewHooks.ts#L28">state/hooks/viewHooks.ts:28</a></li>
-								</ul>
-						</aside>        </li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="registerhooks" class="tsd-anchor"></a>
-					<!---->
-					<!--<h3>register<wbr>Hooks</h3>-->
-					<!---->
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">register<wbr>Hooks<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>$state: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>state: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
 							<div class="tsd-returns">
 								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 							</div>
 							<hr>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/hooks/viewHooks.ts#L56">state/hooks/viewHooks.ts:56</a></li>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateQueueManager.ts#L75">state/stateQueueManager.ts:75</a></li>
 								</ul>
 						</aside>        </li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="updateviews" class="tsd-anchor"></a>
+					<a name="flush" class="tsd-anchor"></a>
 					<!---->
-					<!--<h3>update<wbr>Views</h3>-->
+					<!--<h3>flush</h3>-->
 					<!---->
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">update<wbr>Views<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">flush<span class="tsd-signature-symbol">(</span>$state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>$state: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
 							<div class="tsd-returns">
-								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter-index-signature">
+										<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="state.state-1.html" class="tsd-signature-type">State</a></h5>
+									</li>
+								</ul>
 							</div>
 							<hr>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/hooks/viewHooks.ts#L49">state/hooks/viewHooks.ts:49</a></li>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateQueueManager.ts#L41">state/stateQueueManager.ts:41</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="register" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>register</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">register<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><a href="../interfaces/state.statedeclaration.html" class="tsd-signature-type">StateDeclaration</a>, pre<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>config: <a href="../interfaces/state.statedeclaration.html" class="tsd-signature-type">StateDeclaration</a></h5>
+								</li>
+								<li>
+									<h5>pre <span class="tsd-flag ts-flagOptional">Optional</span>: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/stateQueueManager.ts#L19">state/stateQueueManager.ts:19</a></li>
 								</ul>
 						</aside>        </li>
 					</ul>
@@ -369,9 +410,45 @@
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
 						<a href="state.statematcher.html" class="tsd-kind-icon">State<wbr>Matcher</a>
 					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-external-module">
 						<a href="state.statequeuemanager.html" class="tsd-kind-icon">State<wbr>Queue<wbr>Manager</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="state.statequeuemanager.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="state.statequeuemanager.html#_state" class="tsd-kind-icon">$state</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="state.statequeuemanager.html#_urlrouterprovider" class="tsd-kind-icon">$url<wbr>Router<wbr>Provider</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="state.statequeuemanager.html#autoflush" class="tsd-kind-icon">auto<wbr>Flush</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="state.statequeuemanager.html#builder" class="tsd-kind-icon">builder</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="state.statequeuemanager.html#queue" class="tsd-kind-icon">queue</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="state.statequeuemanager.html#states" class="tsd-kind-icon">states</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="state.statequeuemanager.html#attachroute" class="tsd-kind-icon">attach<wbr>Route</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="state.statequeuemanager.html#flush" class="tsd-kind-icon">flush</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="state.statequeuemanager.html#register" class="tsd-kind-icon">register</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
 						<a href="state.stateregistry.html" class="tsd-kind-icon">State<wbr>Registry</a>
 					</li>
@@ -381,45 +458,9 @@
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
 						<a href="state.transitionmanager.html" class="tsd-kind-icon">Transition<wbr>Manager</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-class tsd-parent-kind-external-module">
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
 						<a href="state.viewhooks.html" class="tsd-kind-icon">View<wbr>Hooks</a>
-						<ul>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class">
-								<a href="state.viewhooks.html#constructor" class="tsd-kind-icon">constructor</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
-								<a href="state.viewhooks.html#_view" class="tsd-kind-icon">$view</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
-								<a href="state.viewhooks.html#enteringviews" class="tsd-kind-icon">entering<wbr>Views</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
-								<a href="state.viewhooks.html#exitingviews" class="tsd-kind-icon">exiting<wbr>Views</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
-								<a href="state.viewhooks.html#transition" class="tsd-kind-icon">transition</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
-								<a href="state.viewhooks.html#treechanges" class="tsd-kind-icon">tree<wbr>Changes</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="state.viewhooks.html#loadallcontrollerlocals" class="tsd-kind-icon">load<wbr>All<wbr>Controller<wbr>Locals</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="state.viewhooks.html#loadallenteringviews" class="tsd-kind-icon">load<wbr>All<wbr>Entering<wbr>Views</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="state.viewhooks.html#registerhooks" class="tsd-kind-icon">register<wbr>Hooks</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="state.viewhooks.html#updateviews" class="tsd-kind-icon">update<wbr>Views</a>
-							</li>
-						</ul>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../interfaces/state.builders.html" class="tsd-kind-icon">Builders</a>
 					</li>

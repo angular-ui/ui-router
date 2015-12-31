@@ -7,6 +7,7 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
 	<script src="../assets/js/modernizr.js"></script>
 </head>
 <body>
@@ -121,78 +122,42 @@
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="onbefore" class="tsd-anchor"></a>
-					<h3>on<wbr>Before</h3>
+					<!---->
+					<!--<h3>on<wbr>Before</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Before<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/transition.ihookregistry.html">IHookRegistry</a>.<a href="../interfaces/transition.ihookregistry.html#onbefore">onBefore</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L110">transition/hookRegistry.ts:110</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L78">transition/hookRegistry.ts:78</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>ngdoc</dt>
-							<dd><p>function</p>
-							</dd>
-							<dt>name</dt>
-							<dd><p>ui.router.state.$transitionsProvider#onBefore</p>
-							</dd>
-							<dt>methodof</dt>
-							<dd><p>ui.router.state.$transitionsProvider</p>
-							</dd>
-							<dt>description</dt>
-							<dd><p>Registers a function to be injected and invoked before a Transition begins.</p>
-								<p>This function can be injected with one additional special value:</p>
-								<ul>
-									<li><strong><code>$transition$</code></strong>: The current transition</li>
-								</ul>
-							</dd>
-							<dt>param</dt>
-							<dd><p>An object that specifies which transitions to invoke the callback for (typically this
-								value will be {} for this callback, to match all invalid transitions)</p>
-								<ul>
-									<li><strong><code>to</code></strong> - {string|function=} - A glob string that matches the &#39;to&#39; state&#39;s name.
-									Or, a function with the signature <code>function(state) {}</code> which should return a boolean to indicate if the state matches.</li>
-									<li><strong><code>from</code></strong> - {string|function=} - A glob string that matches the &#39;from&#39; state&#39;s name.
-									Or, a function with the signature <code>function(state) {}</code> which should return a boolean to indicate if the state matches.</li>
-								</ul>
-							</dd>
-							<dt>param</dt>
-							<dd><p>  The function which will be injected and invoked, before a matching transition is started.
-								The function may optionally return a {boolean|Transition|object} value which will affect the current transition:</p>
-							</dd>
-							<dt>returns</dt>
-							<dd><pre><code>- **`<span class="hljs-literal">false</span>`** <span class="hljs-keyword">to</span> abort the current transition
-- **{Transition}** A Transition object from the <span class="hljs-variable">$transition</span>$.redirect() factory. If returned, the
-   current transition will be aborted and the returned Transition will supersede it.
-- **{object}** A <span class="hljs-keyword">map</span> <span class="hljs-keyword">of</span> resolve functions <span class="hljs-keyword">to</span> be added <span class="hljs-keyword">to</span> the current transition. These resolves will be made
-   available <span class="hljs-keyword">for</span> injection <span class="hljs-keyword">to</span> further steps <span class="hljs-keyword">in</span> the transition.  The object should have {string}s <span class="hljs-keyword">for</span> keys and
-   {function}s <span class="hljs-keyword">for</span> values, like the `resolve` object <span class="hljs-keyword">in</span> {@link ui.router.state.<span class="hljs-variable">$stateProvider</span>#state <span class="hljs-variable">$stateProvider</span>.state}.
-</code></pre></dd>
-						</dl>
-					</div>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-siganture">
 								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchObject<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchCriteria<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
 										<h4 class="tsd-parameters-title">Parameters</h4>
 										<ul class="tsd-parameters">
 											<li>
-												<h5>matchObject: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
+												<h5>matchCriteria: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
 											</li>
 											<li>
 												<h5>callback: <a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a></h5>
 											</li>
 											<li>
-												<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-type">any</span></h5>
+												<h5>options <span class="tsd-flag ts-flagOptional">Optional</span>: <span class="tsd-signature-type">any</span></h5>
 											</li>
 										</ul>
-										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										<div class="tsd-returns">
+											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										</div>
 									</li>
 								</ul>
 							</li>
@@ -201,64 +166,70 @@
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="onenter" class="tsd-anchor"></a>
-					<h3>on<wbr>Enter</h3>
+					<!---->
+					<!--<h3>on<wbr>Enter</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Enter<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<dl class="tsd-comment-tags">
+								<dt>ngdoc</dt>
+								<dd><p>function</p>
+								</dd>
+								<dt>name</dt>
+								<dd><p>ui.router.state.$transitionsProvider#onEnter</p>
+								</dd>
+								<dt>methodof</dt>
+								<dd><p>ui.router.state.$transitionsProvider</p>
+								</dd>
+								<dt>description</dt>
+								<dd><p>Registers a function to be injected and invoked during a transition between the matched &#39;to&#39; and &#39;from&#39; states,
+									when the matched &#39;to&#39; state is being entered. This function is injected with the entering state&#39;s resolves.</p>
+									<p>This function can be injected with two additional special value:</p>
+									<ul>
+										<li><strong><code>$transition$</code></strong>: The current transition</li>
+										<li><strong><code>$state$</code></strong>: The state being entered</li>
+									</ul>
+								</dd>
+								<dt>param</dt>
+								<dd><p>See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
+								</dd>
+								<dt>param</dt>
+								<dd><p>See callback in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
+								</dd>
+							</dl>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/transition.ihookregistry.html">IHookRegistry</a>.<a href="../interfaces/transition.ihookregistry.html#onenter">onEnter</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L159">transition/hookRegistry.ts:159</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L97">transition/hookRegistry.ts:97</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>ngdoc</dt>
-							<dd><p>function</p>
-							</dd>
-							<dt>name</dt>
-							<dd><p>ui.router.state.$transitionsProvider#onEnter</p>
-							</dd>
-							<dt>methodof</dt>
-							<dd><p>ui.router.state.$transitionsProvider</p>
-							</dd>
-							<dt>description</dt>
-							<dd><p>Registers a function to be injected and invoked during a transition between the matched &#39;to&#39; and &#39;from&#39; states,
-								when the matched &#39;to&#39; state is being entered. This function is injected with the entering state&#39;s resolves.</p>
-								<p>This function can be injected with two additional special value:</p>
-								<ul>
-									<li><strong><code>$transition$</code></strong>: The current transition</li>
-									<li><strong><code>$state$</code></strong>: The state being entered</li>
-								</ul>
-							</dd>
-							<dt>param</dt>
-							<dd><p>See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
-							</dd>
-							<dt>param</dt>
-							<dd><p>See callback in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
-							</dd>
-						</dl>
-					</div>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-siganture">
 								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchObject<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchCriteria<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
 										<h4 class="tsd-parameters-title">Parameters</h4>
 										<ul class="tsd-parameters">
 											<li>
-												<h5>matchObject: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
+												<h5>matchCriteria: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
 											</li>
 											<li>
 												<h5>callback: <a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a></h5>
 											</li>
 											<li>
-												<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-type">any</span></h5>
+												<h5>options <span class="tsd-flag ts-flagOptional">Optional</span>: <span class="tsd-signature-type">any</span></h5>
 											</li>
 										</ul>
-										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										<div class="tsd-returns">
+											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										</div>
 									</li>
 								</ul>
 							</li>
@@ -267,60 +238,66 @@
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="onerror" class="tsd-anchor"></a>
-					<h3>on<wbr>Error</h3>
+					<!---->
+					<!--<h3>on<wbr>Error</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<dl class="tsd-comment-tags">
+								<dt>ngdoc</dt>
+								<dd><p>function</p>
+								</dd>
+								<dt>name</dt>
+								<dd><p>ui.router.state.$transitionsProvider#onError</p>
+								</dd>
+								<dt>methodof</dt>
+								<dd><p>ui.router.state.$transitionsProvider</p>
+								</dd>
+								<dt>description</dt>
+								<dd><p>Registers a function to be injected and invoked when a transition has failed for any reason between the matched
+									&#39;to&#39; and &#39;from&#39; state. The transition rejection reason is injected as <code>$error$</code>.</p>
+								</dd>
+								<dt>param</dt>
+								<dd><p>See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
+								</dd>
+								<dt>param</dt>
+								<dd><p>The function which will be injected and invoked, when a matching transition is started.
+									The function&#39;s return value is ignored.</p>
+								</dd>
+							</dl>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/transition.ihookregistry.html">IHookRegistry</a>.<a href="../interfaces/transition.ihookregistry.html#onerror">onError</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L245">transition/hookRegistry.ts:245</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L183">transition/hookRegistry.ts:183</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>ngdoc</dt>
-							<dd><p>function</p>
-							</dd>
-							<dt>name</dt>
-							<dd><p>ui.router.state.$transitionsProvider#onError</p>
-							</dd>
-							<dt>methodof</dt>
-							<dd><p>ui.router.state.$transitionsProvider</p>
-							</dd>
-							<dt>description</dt>
-							<dd><p>Registers a function to be injected and invoked when a transition has failed for any reason between the matched
-								&#39;to&#39; and &#39;from&#39; state. The transition rejection reason is injected as <code>$error$</code>.</p>
-							</dd>
-							<dt>param</dt>
-							<dd><p>See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
-							</dd>
-							<dt>param</dt>
-							<dd><p>The function which will be injected and invoked, when a matching transition is started.
-								The function&#39;s return value is ignored.</p>
-							</dd>
-						</dl>
-					</div>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-siganture">
 								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchObject<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchCriteria<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
 										<h4 class="tsd-parameters-title">Parameters</h4>
 										<ul class="tsd-parameters">
 											<li>
-												<h5>matchObject: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
+												<h5>matchCriteria: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
 											</li>
 											<li>
 												<h5>callback: <a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a></h5>
 											</li>
 											<li>
-												<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-type">any</span></h5>
+												<h5>options <span class="tsd-flag ts-flagOptional">Optional</span>: <span class="tsd-signature-type">any</span></h5>
 											</li>
 										</ul>
-										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										<div class="tsd-returns">
+											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										</div>
 									</li>
 								</ul>
 							</li>
@@ -329,64 +306,70 @@
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="onexit" class="tsd-anchor"></a>
-					<h3>on<wbr>Exit</h3>
+					<!---->
+					<!--<h3>on<wbr>Exit</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Exit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<dl class="tsd-comment-tags">
+								<dt>ngdoc</dt>
+								<dd><p>function</p>
+								</dd>
+								<dt>name</dt>
+								<dd><p>ui.router.state.$transitionsProvider#onExit</p>
+								</dd>
+								<dt>methodof</dt>
+								<dd><p>ui.router.state.$transitionsProvider</p>
+								</dd>
+								<dt>description</dt>
+								<dd><p>Registers a function to be injected and invoked during a transition between the matched &#39;to&#39; and &#39;from states,
+									when the matched &#39;from&#39; state is being exited. This function is in injected with the exiting state&#39;s resolves.</p>
+									<p>This function can be injected with two additional special value:</p>
+									<ul>
+										<li><strong><code>$transition$</code></strong>: The current transition</li>
+										<li><strong><code>$state$</code></strong>: The state being entered</li>
+									</ul>
+								</dd>
+								<dt>param</dt>
+								<dd><p>See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
+								</dd>
+								<dt>param</dt>
+								<dd><p>See callback in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
+								</dd>
+							</dl>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/transition.ihookregistry.html">IHookRegistry</a>.<a href="../interfaces/transition.ihookregistry.html#onexit">onExit</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L195">transition/hookRegistry.ts:195</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L133">transition/hookRegistry.ts:133</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>ngdoc</dt>
-							<dd><p>function</p>
-							</dd>
-							<dt>name</dt>
-							<dd><p>ui.router.state.$transitionsProvider#onExit</p>
-							</dd>
-							<dt>methodof</dt>
-							<dd><p>ui.router.state.$transitionsProvider</p>
-							</dd>
-							<dt>description</dt>
-							<dd><p>Registers a function to be injected and invoked during a transition between the matched &#39;to&#39; and &#39;from states,
-								when the matched &#39;from&#39; state is being exited. This function is in injected with the exiting state&#39;s resolves.</p>
-								<p>This function can be injected with two additional special value:</p>
-								<ul>
-									<li><strong><code>$transition$</code></strong>: The current transition</li>
-									<li><strong><code>$state$</code></strong>: The state being entered</li>
-								</ul>
-							</dd>
-							<dt>param</dt>
-							<dd><p>See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
-							</dd>
-							<dt>param</dt>
-							<dd><p>See callback in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
-							</dd>
-						</dl>
-					</div>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-siganture">
 								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchObject<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchCriteria<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
 										<h4 class="tsd-parameters-title">Parameters</h4>
 										<ul class="tsd-parameters">
 											<li>
-												<h5>matchObject: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
+												<h5>matchCriteria: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
 											</li>
 											<li>
 												<h5>callback: <a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a></h5>
 											</li>
 											<li>
-												<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-type">any</span></h5>
+												<h5>options <span class="tsd-flag ts-flagOptional">Optional</span>: <span class="tsd-signature-type">any</span></h5>
 											</li>
 										</ul>
-										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										<div class="tsd-returns">
+											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										</div>
 									</li>
 								</ul>
 							</li>
@@ -395,62 +378,68 @@
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="onfinish" class="tsd-anchor"></a>
-					<h3>on<wbr>Finish</h3>
+					<!---->
+					<!--<h3>on<wbr>Finish</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Finish<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<dl class="tsd-comment-tags">
+								<dt>ngdoc</dt>
+								<dd><p>function</p>
+								</dd>
+								<dt>name</dt>
+								<dd><p>ui.router.state.$transitionsProvider#onFinish</p>
+								</dd>
+								<dt>methodof</dt>
+								<dd><p>ui.router.state.$transitionsProvider</p>
+								</dd>
+								<dt>description</dt>
+								<dd><p>Registers a function to be injected and invoked when a transition is finished entering/exiting all states.</p>
+									<p>This function can be injected with:</p>
+									<ul>
+										<li><strong><code>$transition$</code></strong>: The current transition</li>
+									</ul>
+								</dd>
+								<dt>param</dt>
+								<dd><p>See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
+								</dd>
+								<dt>param</dt>
+								<dd><p>See callback in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
+								</dd>
+							</dl>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/transition.ihookregistry.html">IHookRegistry</a>.<a href="../interfaces/transition.ihookregistry.html#onfinish">onFinish</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L211">transition/hookRegistry.ts:211</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L149">transition/hookRegistry.ts:149</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>ngdoc</dt>
-							<dd><p>function</p>
-							</dd>
-							<dt>name</dt>
-							<dd><p>ui.router.state.$transitionsProvider#onFinish</p>
-							</dd>
-							<dt>methodof</dt>
-							<dd><p>ui.router.state.$transitionsProvider</p>
-							</dd>
-							<dt>description</dt>
-							<dd><p>Registers a function to be injected and invoked when a transition is finished entering/exiting all states.</p>
-								<p>This function can be injected with:</p>
-								<ul>
-									<li><strong><code>$transition$</code></strong>: The current transition</li>
-								</ul>
-							</dd>
-							<dt>param</dt>
-							<dd><p>See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
-							</dd>
-							<dt>param</dt>
-							<dd><p>See callback in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
-							</dd>
-						</dl>
-					</div>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-siganture">
 								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchObject<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchCriteria<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
 										<h4 class="tsd-parameters-title">Parameters</h4>
 										<ul class="tsd-parameters">
 											<li>
-												<h5>matchObject: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
+												<h5>matchCriteria: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
 											</li>
 											<li>
 												<h5>callback: <a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a></h5>
 											</li>
 											<li>
-												<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-type">any</span></h5>
+												<h5>options <span class="tsd-flag ts-flagOptional">Optional</span>: <span class="tsd-signature-type">any</span></h5>
 											</li>
 										</ul>
-										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										<div class="tsd-returns">
+											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										</div>
 									</li>
 								</ul>
 							</li>
@@ -459,64 +448,70 @@
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="onretain" class="tsd-anchor"></a>
-					<h3>on<wbr>Retain</h3>
+					<!---->
+					<!--<h3>on<wbr>Retain</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Retain<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<dl class="tsd-comment-tags">
+								<dt>ngdoc</dt>
+								<dd><p>function</p>
+								</dd>
+								<dt>name</dt>
+								<dd><p>ui.router.state.$transitionsProvider#onRetain</p>
+								</dd>
+								<dt>methodof</dt>
+								<dd><p>ui.router.state.$transitionsProvider</p>
+								</dd>
+								<dt>description</dt>
+								<dd><p>Registers a function to be injected and invoked during a transition between the matched &#39;to&#39; and &#39;from states,
+									when the matched &#39;from&#39; state is already active and is not being exited nor entered.</p>
+									<p>This function can be injected with two additional special value:</p>
+									<ul>
+										<li><strong><code>$transition$</code></strong>: The current transition</li>
+										<li><strong><code>$state$</code></strong>: The state that is retained</li>
+									</ul>
+								</dd>
+								<dt>param</dt>
+								<dd><p>See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
+								</dd>
+								<dt>param</dt>
+								<dd><p>See callback in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
+								</dd>
+							</dl>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/transition.ihookregistry.html">IHookRegistry</a>.<a href="../interfaces/transition.ihookregistry.html#onretain">onRetain</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L177">transition/hookRegistry.ts:177</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L115">transition/hookRegistry.ts:115</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>ngdoc</dt>
-							<dd><p>function</p>
-							</dd>
-							<dt>name</dt>
-							<dd><p>ui.router.state.$transitionsProvider#onRetain</p>
-							</dd>
-							<dt>methodof</dt>
-							<dd><p>ui.router.state.$transitionsProvider</p>
-							</dd>
-							<dt>description</dt>
-							<dd><p>Registers a function to be injected and invoked during a transition between the matched &#39;to&#39; and &#39;from states,
-								when the matched &#39;from&#39; state is already active and is not being exited nor entered.</p>
-								<p>This function can be injected with two additional special value:</p>
-								<ul>
-									<li><strong><code>$transition$</code></strong>: The current transition</li>
-									<li><strong><code>$state$</code></strong>: The state that is retained</li>
-								</ul>
-							</dd>
-							<dt>param</dt>
-							<dd><p>See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
-							</dd>
-							<dt>param</dt>
-							<dd><p>See callback in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
-							</dd>
-						</dl>
-					</div>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-siganture">
 								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchObject<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchCriteria<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
 										<h4 class="tsd-parameters-title">Parameters</h4>
 										<ul class="tsd-parameters">
 											<li>
-												<h5>matchObject: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
+												<h5>matchCriteria: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
 											</li>
 											<li>
 												<h5>callback: <a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a></h5>
 											</li>
 											<li>
-												<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-type">any</span></h5>
+												<h5>options <span class="tsd-flag ts-flagOptional">Optional</span>: <span class="tsd-signature-type">any</span></h5>
 											</li>
 										</ul>
-										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										<div class="tsd-returns">
+											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										</div>
 									</li>
 								</ul>
 							</li>
@@ -525,75 +520,42 @@
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="onstart" class="tsd-anchor"></a>
-					<h3>on<wbr>Start</h3>
+					<!---->
+					<!--<h3>on<wbr>Start</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Start<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/transition.ihookregistry.html">IHookRegistry</a>.<a href="../interfaces/transition.ihookregistry.html#onstart">onStart</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L141">transition/hookRegistry.ts:141</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L79">transition/hookRegistry.ts:79</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>ngdoc</dt>
-							<dd><p>function</p>
-							</dd>
-							<dt>name</dt>
-							<dd><p>ui.router.state.$transitionsProvider#onStart</p>
-							</dd>
-							<dt>methodof</dt>
-							<dd><p>ui.router.state.$transitionsProvider</p>
-							</dd>
-							<dt>description</dt>
-							<dd><p>Registers a function to be injected and invoked when a transition has begun.  The function is injected in the
-								destination state&#39;s ResolveContext. This function can be injected with one additional special value:</p>
-								<ul>
-									<li><strong><code>$transition$</code></strong>: The current transition</li>
-								</ul>
-							</dd>
-							<dt>param</dt>
-							<dd><p>An object that specifies which transitions to invoke the callback for</p>
-								<ul>
-									<li><strong><code>to</code></strong> - {string|function=} - A glob string that matches the &#39;to&#39; state&#39;s name.
-									Or, a function with the signature <code>function(state) {}</code> which should return a boolean to indicate if the state matches.</li>
-									<li><strong><code>from</code></strong> - {string|function=} - A glob string that matches the &#39;from&#39; state&#39;s name.
-									Or, a function with the signature <code>function(state) {}</code> which should return a boolean to indicate if the state matches.</li>
-								</ul>
-							</dd>
-							<dt>param</dt>
-							<dd><p>  The function which will be injected and invoked, when a matching transition is started.
-								The function may optionally return a {boolean|Transition|object} value which will affect the current transition:</p>
-								<pre><code>- **`<span class="hljs-literal">false</span>`** <span class="hljs-keyword">to</span> abort the current transition
-- **{Transition}** A Transition object from the <span class="hljs-variable">$transition</span>$.redirect() factory. If returned, the
-   current transition will be aborted and the returned Transition will supersede it.
-- **{object}** A <span class="hljs-keyword">map</span> <span class="hljs-keyword">of</span> resolve functions <span class="hljs-keyword">to</span> be added <span class="hljs-keyword">to</span> the current transition. These resolves will be made
-   available <span class="hljs-keyword">for</span> injection <span class="hljs-keyword">to</span> further steps <span class="hljs-keyword">in</span> the transition.  The object should have {string}s <span class="hljs-keyword">for</span> keys and
-   {function}s <span class="hljs-keyword">for</span> values, like the `resolve` object <span class="hljs-keyword">in</span> {@link ui.router.state.<span class="hljs-variable">$stateProvider</span>#state <span class="hljs-variable">$stateProvider</span>.state}.
-</code></pre></dd>
-						</dl>
-					</div>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-siganture">
 								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchObject<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchCriteria<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
 										<h4 class="tsd-parameters-title">Parameters</h4>
 										<ul class="tsd-parameters">
 											<li>
-												<h5>matchObject: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
+												<h5>matchCriteria: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
 											</li>
 											<li>
 												<h5>callback: <a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a></h5>
 											</li>
 											<li>
-												<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-type">any</span></h5>
+												<h5>options <span class="tsd-flag ts-flagOptional">Optional</span>: <span class="tsd-signature-type">any</span></h5>
 											</li>
 										</ul>
-										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										<div class="tsd-returns">
+											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										</div>
 									</li>
 								</ul>
 							</li>
@@ -602,65 +564,71 @@
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="onsuccess" class="tsd-anchor"></a>
-					<h3>on<wbr>Success</h3>
+					<!---->
+					<!--<h3>on<wbr>Success</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Success<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<dl class="tsd-comment-tags">
+								<dt>ngdoc</dt>
+								<dd><p>function</p>
+								</dd>
+								<dt>name</dt>
+								<dd><p>ui.router.state.$transitionsProvider#onSuccess</p>
+								</dd>
+								<dt>methodof</dt>
+								<dd><p>ui.router.state.$transitionsProvider</p>
+								</dd>
+								<dt>description</dt>
+								<dd><p>Registers a function to be injected and invoked when a transition has successfully completed between the matched
+										&#39;to&#39; and &#39;from&#39; state is being exited.
+									This function is in injected with the &#39;to&#39; state&#39;s resolves (note: <code>JIT</code> resolves are not injected).</p>
+									<p>This function can be injected with two additional special value:</p>
+									<ul>
+										<li><strong><code>$transition$</code></strong>: The current transition</li>
+									</ul>
+								</dd>
+								<dt>param</dt>
+								<dd><p>See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
+								</dd>
+								<dt>param</dt>
+								<dd><p>The function which will be injected and invoked, when a matching transition is started.
+									The function&#39;s return value is ignored.</p>
+								</dd>
+							</dl>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/transition.ihookregistry.html">IHookRegistry</a>.<a href="../interfaces/transition.ihookregistry.html#onsuccess">onSuccess</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L230">transition/hookRegistry.ts:230</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L168">transition/hookRegistry.ts:168</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>ngdoc</dt>
-							<dd><p>function</p>
-							</dd>
-							<dt>name</dt>
-							<dd><p>ui.router.state.$transitionsProvider#onSuccess</p>
-							</dd>
-							<dt>methodof</dt>
-							<dd><p>ui.router.state.$transitionsProvider</p>
-							</dd>
-							<dt>description</dt>
-							<dd><p>Registers a function to be injected and invoked when a transition has successfully completed between the matched
-									&#39;to&#39; and &#39;from&#39; state is being exited.
-								This function is in injected with the &#39;to&#39; state&#39;s resolves (note: <code>JIT</code> resolves are not injected).</p>
-								<p>This function can be injected with two additional special value:</p>
-								<ul>
-									<li><strong><code>$transition$</code></strong>: The current transition</li>
-								</ul>
-							</dd>
-							<dt>param</dt>
-							<dd><p>See transitionCriteria in {@link ui.router.state.$transitionsProvider#on $transitionsProvider.on}.</p>
-							</dd>
-							<dt>param</dt>
-							<dd><p>The function which will be injected and invoked, when a matching transition is started.
-								The function&#39;s return value is ignored.</p>
-							</dd>
-						</dl>
-					</div>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-siganture">
 								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchObject<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>matchCriteria<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
 										<h4 class="tsd-parameters-title">Parameters</h4>
 										<ul class="tsd-parameters">
 											<li>
-												<h5>matchObject: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
+												<h5>matchCriteria: <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></h5>
 											</li>
 											<li>
 												<h5>callback: <a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a></h5>
 											</li>
 											<li>
-												<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-type">any</span></h5>
+												<h5>options <span class="tsd-flag ts-flagOptional">Optional</span>: <span class="tsd-signature-type">any</span></h5>
 											</li>
 										</ul>
-										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										<div class="tsd-returns">
+											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+										</div>
 									</li>
 								</ul>
 							</li>
@@ -672,40 +640,42 @@
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="gethooks" class="tsd-anchor"></a>
-					<h3>get<wbr>Hooks</h3>
+					<!---->
+					<!--<h3>get<wbr>Hooks</h3>-->
+					<!---->
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Hooks<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/transition.ieventhook.html" class="tsd-signature-type">IEventHook</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L77">transition/hookRegistry.ts:77</a></li>
-								</ul>
-							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/transition.ieventhook.html" class="tsd-signature-type">IEventHook</a><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/transition.ieventhook.html" class="tsd-signature-type">IEventHook</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<p>Implementation of <a href="../interfaces/transition.ihookregistry.html">IHookRegistry</a>.<a href="../interfaces/transition.ihookregistry.html#gethooks">getHooks</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L76">transition/hookRegistry.ts:76</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
 					<a name="mixin" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> mixin</h3>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagStatic">Static</span> mixin</h3>-->
+					<!---->
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
 						<li class="tsd-signature tsd-kind-icon">mixin<span class="tsd-signature-symbol">(</span>source<span class="tsd-signature-symbol">: </span><a href="transition.hookregistry.html" class="tsd-signature-type">HookRegistry</a>, target<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.ihookregistry.html" class="tsd-signature-type">IHookRegistry</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L69">transition/hookRegistry.ts:69</a></li>
-								</ul>
-							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -715,8 +685,15 @@
 									<h5>target: <a href="../interfaces/transition.ihookregistry.html" class="tsd-signature-type">IHookRegistry</a></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L68">transition/hookRegistry.ts:68</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 			</section>
@@ -724,90 +701,126 @@
 				<h2>Object literals</h2>
 				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-class tsd-is-private">
 					<a name="_transitionevents" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _transition<wbr>Events</h3>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> _transition<wbr>Events</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">_transition<wbr>Events<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L73">transition/hookRegistry.ts:73</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L72">transition/hookRegistry.ts:72</a></li>
 						</ul>
 					</aside>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
 						<a name="_transitionevents.onbefore-1" class="tsd-anchor"></a>
-						<h3>on<wbr>Before</h3>
+						<!---->
+						<!--<h3>on<wbr>Before</h3>-->
+						<!---->
 						<div class="tsd-signature tsd-kind-icon">on<wbr>Before<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></div>
+						<div class="tsd-declaration">
+						</div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L74">transition/hookRegistry.ts:74</a></li>
+								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L73">transition/hookRegistry.ts:73</a></li>
 							</ul>
 						</aside>
 					</section>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
 						<a name="_transitionevents.onenter-1" class="tsd-anchor"></a>
-						<h3>on<wbr>Enter</h3>
+						<!---->
+						<!--<h3>on<wbr>Enter</h3>-->
+						<!---->
 						<div class="tsd-signature tsd-kind-icon">on<wbr>Enter<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></div>
+						<div class="tsd-declaration">
+						</div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L74">transition/hookRegistry.ts:74</a></li>
+								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L73">transition/hookRegistry.ts:73</a></li>
 							</ul>
 						</aside>
 					</section>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
 						<a name="_transitionevents.onerror-1" class="tsd-anchor"></a>
-						<h3>on<wbr>Error</h3>
+						<!---->
+						<!--<h3>on<wbr>Error</h3>-->
+						<!---->
 						<div class="tsd-signature tsd-kind-icon">on<wbr>Error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></div>
+						<div class="tsd-declaration">
+						</div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L74">transition/hookRegistry.ts:74</a></li>
+								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L73">transition/hookRegistry.ts:73</a></li>
 							</ul>
 						</aside>
 					</section>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
 						<a name="_transitionevents.onexit-1" class="tsd-anchor"></a>
-						<h3>on<wbr>Exit</h3>
+						<!---->
+						<!--<h3>on<wbr>Exit</h3>-->
+						<!---->
 						<div class="tsd-signature tsd-kind-icon">on<wbr>Exit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></div>
+						<div class="tsd-declaration">
+						</div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L74">transition/hookRegistry.ts:74</a></li>
+								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L73">transition/hookRegistry.ts:73</a></li>
 							</ul>
 						</aside>
 					</section>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
 						<a name="_transitionevents.onfinish-1" class="tsd-anchor"></a>
-						<h3>on<wbr>Finish</h3>
+						<!---->
+						<!--<h3>on<wbr>Finish</h3>-->
+						<!---->
 						<div class="tsd-signature tsd-kind-icon">on<wbr>Finish<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></div>
+						<div class="tsd-declaration">
+						</div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L74">transition/hookRegistry.ts:74</a></li>
+								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L73">transition/hookRegistry.ts:73</a></li>
 							</ul>
 						</aside>
 					</section>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
 						<a name="_transitionevents.onretain-1" class="tsd-anchor"></a>
-						<h3>on<wbr>Retain</h3>
+						<!---->
+						<!--<h3>on<wbr>Retain</h3>-->
+						<!---->
 						<div class="tsd-signature tsd-kind-icon">on<wbr>Retain<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></div>
+						<div class="tsd-declaration">
+						</div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L74">transition/hookRegistry.ts:74</a></li>
+								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L73">transition/hookRegistry.ts:73</a></li>
 							</ul>
 						</aside>
 					</section>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
 						<a name="_transitionevents.onstart-1" class="tsd-anchor"></a>
-						<h3>on<wbr>Start</h3>
+						<!---->
+						<!--<h3>on<wbr>Start</h3>-->
+						<!---->
 						<div class="tsd-signature tsd-kind-icon">on<wbr>Start<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></div>
+						<div class="tsd-declaration">
+						</div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L74">transition/hookRegistry.ts:74</a></li>
+								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L73">transition/hookRegistry.ts:73</a></li>
 							</ul>
 						</aside>
 					</section>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
 						<a name="_transitionevents.onsuccess-1" class="tsd-anchor"></a>
-						<h3>on<wbr>Success</h3>
+						<!---->
+						<!--<h3>on<wbr>Success</h3>-->
+						<!---->
 						<div class="tsd-signature tsd-kind-icon">on<wbr>Success<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></div>
+						<div class="tsd-declaration">
+						</div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L74">transition/hookRegistry.ts:74</a></li>
+								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L73">transition/hookRegistry.ts:73</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -822,6 +835,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Internals</span>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1.html">ng1</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/params.html">params</a>
@@ -846,6 +862,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Externals</span>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_router_.html">"router"</a>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="../modules/common.html">common</a>

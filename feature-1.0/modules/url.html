@@ -7,6 +7,7 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
 	<script src="../assets/js/modernizr.js"></script>
 </head>
 <body>
@@ -80,6 +81,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-class tsd-parent-kind-external-module tsd-is-not-exported"><a href="../classes/url.matcherconfig.html" class="tsd-kind-icon">Matcher<wbr>Config</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/url.urlmatcher.html" class="tsd-kind-icon">Url<wbr>Matcher</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/url.urlmatcherfactory.html" class="tsd-kind-icon">Url<wbr>Matcher<wbr>Factory</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section tsd-is-not-exported">
@@ -91,14 +93,15 @@
 						<section class="tsd-index-section ">
 							<h3>Variables</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="url.html#_location" class="tsd-kind-icon">$location</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-external-module"><a href="url.html#matcherconfig-1" class="tsd-kind-icon">matcher<wbr>Config</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section tsd-is-not-exported">
+						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="url.html#_urlmatcherfactory" class="tsd-kind-icon">$<wbr>Url<wbr>Matcher<wbr>Factory</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="url.html#_urlrouterprovider" class="tsd-kind-icon">$<wbr>Url<wbr>Router<wbr>Provider</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="url.html#_urlrouterprovider" class="tsd-kind-icon">$<wbr>Url<wbr>Router<wbr>Provider</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="url.html#getdefaultconfig" class="tsd-kind-icon">get<wbr>Default<wbr>Config</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="url.html#memoizeto" class="tsd-kind-icon">memoize<wbr>To</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="url.html#quoteregexp" class="tsd-kind-icon">quote<wbr>Reg<wbr>Exp</a></li>
 							</ul>
@@ -108,89 +111,127 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Variables</h2>
-				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module">
-					<a name="matcherconfig-1" class="tsd-anchor"></a>
-					<h3>matcher<wbr>Config</h3>
-					<div class="tsd-signature tsd-kind-icon">matcher<wbr>Config<span class="tsd-signature-symbol">:</span> <a href="../classes/url.matcherconfig.html" class="tsd-signature-type">MatcherConfig</a></div>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="_location" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>$location</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">$location<span class="tsd-signature-symbol">:</span> <a href="../interfaces/common.locationservices.html" class="tsd-signature-type">LocationServices</a></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/url/urlMatcherConfig.ts#L34">url/urlMatcherConfig.ts:34</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/url/urlRouter.ts#L9">url/urlRouter.ts:9</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module">
+					<a name="matcherconfig-1" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>matcher<wbr>Config</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">matcher<wbr>Config<span class="tsd-signature-symbol">:</span> <a href="../classes/url.matcherconfig.html" class="tsd-signature-type">MatcherConfig</a></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/url/urlMatcherConfig.ts#L24">url/urlMatcherConfig.ts:24</a></li>
 						</ul>
 					</aside>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-					<a name="_urlmatcherfactory" class="tsd-anchor"></a>
-					<h3>$<wbr>Url<wbr>Matcher<wbr>Factory</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">$<wbr>Url<wbr>Matcher<wbr>Factory<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="_urlrouterprovider" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>$<wbr>Url<wbr>Router<wbr>Provider</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">$<wbr>Url<wbr>Router<wbr>Provider<span class="tsd-signature-symbol">(</span>$urlMatcherFactory<span class="tsd-signature-symbol">: </span><a href="../classes/url.urlmatcherfactory.html" class="tsd-signature-type">UrlMatcherFactory</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/url/urlMatcherFactory.ts#L21">url/urlMatcherFactory.ts:21</a></li>
-								</ul>
-							</aside>
 							<div class="tsd-comment tsd-typography">
 								<dl class="tsd-comment-tags">
 									<dt>ngdoc</dt>
 									<dd><p>object</p>
 									</dd>
 									<dt>name</dt>
-									<dd><p>ui.router.util.$urlMatcherFactory</p>
+									<dd><p>ui.router.router.$urlRouterProvider</p>
+									</dd>
+									<dt>requires</dt>
+									<dd><p>ui.router.util.$urlMatcherFactoryProvider</p>
+									</dd>
+									<dt>requires</dt>
+									<dd><p>$locationProvider</p>
 									</dd>
 									<dt>description</dt>
-									<dd><p>Factory for {@link ui.router.util.type:UrlMatcher <code>UrlMatcher</code>} instances. The factory
-										is also available to providers under the name <code>$urlMatcherFactoryProvider</code>.</p>
+									<dd><p><code>$urlRouterProvider</code> has the responsibility of watching <code>$location</code>.
+											When <code>$location</code> changes it runs through a list of rules one by one until a
+											match is found. <code>$urlRouterProvider</code> is used behind the scenes anytime you specify
+										a url in a state configuration. All urls are compiled into a UrlMatcher object.</p>
+										<p>There are several methods on <code>$urlRouterProvider</code> that make it useful to use directly
+										in your module config.</p>
 									</dd>
 								</dl>
 							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-					<a name="_urlrouterprovider" class="tsd-anchor"></a>
-					<h3>$<wbr>Url<wbr>Router<wbr>Provider</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">$<wbr>Url<wbr>Router<wbr>Provider<span class="tsd-signature-symbol">(</span>$locationProvider<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, $urlMatcherFactory<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/url/urlRouter.ts#L24">url/urlRouter.ts:24</a></li>
-								</ul>
-							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>$locationProvider: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>$urlMatcherFactory: <span class="tsd-signature-type">any</span></h5>
+									<h5>$urlMatcherFactory: <a href="../classes/url.urlmatcherfactory.html" class="tsd-signature-type">UrlMatcherFactory</a></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/url/urlRouter.ts#L27">url/urlRouter.ts:27</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="getdefaultconfig" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>get<wbr>Default<wbr>Config</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Default<wbr>Config<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter">
+										<h5>case<wbr>Insensitive<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+									</li>
+									<li class="tsd-parameter">
+										<h5>strict<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+									</li>
+								</ul>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/url/urlMatcherFactory.ts#L10">url/urlMatcherFactory.ts:10</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="memoizeto" class="tsd-anchor"></a>
-					<h3>memoize<wbr>To</h3>
+					<!---->
+					<!--<h3>memoize<wbr>To</h3>-->
+					<!---->
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<li class="tsd-signature tsd-kind-icon">memoize<wbr>To<span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, prop<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/url/urlMatcher.ts#L25">url/urlMatcher.ts:25</a></li>
-								</ul>
-							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -203,34 +244,45 @@
 									<h5>fn: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/url/urlMatcher.ts#L24">url/urlMatcher.ts:24</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="quoteregexp" class="tsd-anchor"></a>
-					<h3>quote<wbr>Reg<wbr>Exp</h3>
+					<!---->
+					<!--<h3>quote<wbr>Reg<wbr>Exp</h3>-->
+					<!---->
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<li class="tsd-signature tsd-kind-icon">quote<wbr>Reg<wbr>Exp<span class="tsd-signature-symbol">(</span>string<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, param<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/url/urlMatcher.ts#L13">url/urlMatcher.ts:13</a></li>
-								</ul>
-							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>string: <span class="tsd-signature-type">any</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> param: <span class="tsd-signature-type">any</span></h5>
+									<h5>param <span class="tsd-flag ts-flagOptional">Optional</span>: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/url/urlMatcher.ts#L12">url/urlMatcher.ts:12</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 			</section>
@@ -243,6 +295,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Internals</span>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="ng1.html">ng1</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="params.html">params</a>
@@ -269,6 +324,9 @@
 						<span>Externals</span>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="_router_.html">"router"</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="common.html">common</a>
 					</li>
 				</ul>
@@ -281,17 +339,23 @@
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
 						<a href="../classes/url.urlmatcher.html" class="tsd-kind-icon">Url<wbr>Matcher</a>
 					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="../classes/url.urlmatcherfactory.html" class="tsd-kind-icon">Url<wbr>Matcher<wbr>Factory</a>
+					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../interfaces/url.params.html" class="tsd-kind-icon">params</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="url.html#_location" class="tsd-kind-icon">$location</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module">
 						<a href="url.html#matcherconfig-1" class="tsd-kind-icon">matcher<wbr>Config</a>
 					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="url.html#_urlmatcherfactory" class="tsd-kind-icon">$<wbr>Url<wbr>Matcher<wbr>Factory</a>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="url.html#_urlrouterprovider" class="tsd-kind-icon">$<wbr>Url<wbr>Router<wbr>Provider</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="url.html#_urlrouterprovider" class="tsd-kind-icon">$<wbr>Url<wbr>Router<wbr>Provider</a>
+						<a href="url.html#getdefaultconfig" class="tsd-kind-icon">get<wbr>Default<wbr>Config</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="url.html#memoizeto" class="tsd-kind-icon">memoize<wbr>To</a>

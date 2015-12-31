@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>StateProvider | UI-Router</title>
+	<title>TypeDefinition | UI-Router</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -58,25 +58,39 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="../modules/state.html">state</a>
+					<a href="../modules/params.html">params</a>
 				</li>
 				<li>
-					<a href="state.stateprovider.html">StateProvider</a>
+					<a href="params.typedefinition.html">TypeDefinition</a>
 				</li>
 			</ul>
-			<h1>Interface StateProvider</h1>
+			<h1>Interface TypeDefinition</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Defines the behavior of a custom <a href="../classes/params.type.html">Type</a>.
+						See: <a href="../classes/url.urlmatcherfactory.html#type">UrlMatcherFactory.type</a></p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">StateProvider</span>
+						<span class="target">TypeDefinition</span>
 					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel">
+				<h3>Implemented by</h3>
+				<ul class="tsd-hierarchy">
+					<li><a href="../classes/params.type.html" class="tsd-signature-type">Type</a></li>
 				</ul>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
@@ -86,9 +100,10 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="state.stateprovider.html#decorator" class="tsd-kind-icon">decorator</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="state.stateprovider.html#oninvalid" class="tsd-kind-icon">on<wbr>Invalid</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="state.stateprovider.html#state" class="tsd-kind-icon">state</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="params.typedefinition.html#decode" class="tsd-kind-icon">decode</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="params.typedefinition.html#encode" class="tsd-kind-icon">encode</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="params.typedefinition.html#equals" class="tsd-kind-icon">equals</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="params.typedefinition.html#is" class="tsd-kind-icon">is</a></li>
 							</ul>
 						</section>
 					</div>
@@ -97,105 +112,192 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
-					<a name="decorator" class="tsd-anchor"></a>
+					<a name="decode" class="tsd-anchor"></a>
 					<!---->
-					<!--<h3>decorator</h3>-->
+					<!--<h3>decode</h3>-->
 					<!---->
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">decorator<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, func<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">decode<span class="tsd-signature-symbol">(</span>val<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-header">
+							<p> Converts a parameter value (from URL string or transition param) to a custom/native value. </p>
+						</li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Converts a parameter value (from URL string or transition param) to a custom/native value.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>name: <span class="tsd-signature-type">string</span></h5>
+									<h5>val: <span class="tsd-signature-type">string</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>The URL parameter value to decode.</p>
+									</div>
 								</li>
 								<li>
-									<h5>func: <span class="tsd-signature-type">Function</span></h5>
+									<h5>key <span class="tsd-flag ts-flagOptional">Optional</span>: <span class="tsd-signature-type">string</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>The name of the parameter in which <code>val</code> is stored. Can be used for meta-programming of <code>Type</code> objects.</p>
+									</div>
 								</li>
 							</ul>
 							<div class="tsd-returns">
 								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+								: <p>a custom representation of the URL parameter value.</p>
 							</div>
 							<hr>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/interface.ts#L414">state/interface.ts:414</a></li>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L259">params/interface.ts:259</a></li>
 								</ul>
 						</aside>        </li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
-					<a name="oninvalid" class="tsd-anchor"></a>
+					<a name="encode" class="tsd-anchor"></a>
 					<!---->
-					<!--<h3>on<wbr>Invalid</h3>-->
+					<!--<h3>encode</h3>-->
 					<!---->
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">on<wbr>Invalid<span class="tsd-signature-symbol">(</span>callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">encode<span class="tsd-signature-symbol">(</span>val<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-header">
+							<p> Encodes a custom/native type value to a string that can be embedded in a URL. Note that the
+								return value does <em>not</em> need to be URL-safe (i.e. passed through <code>encodeURIComponent()</code>), it
+							only needs to be a representation of <code>val</code> that has been coerced to a string. </p>
+						</li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Encodes a custom/native type value to a string that can be embedded in a URL. Note that the
+										return value does <em>not</em> need to be URL-safe (i.e. passed through <code>encodeURIComponent()</code>), it
+									only needs to be a representation of <code>val</code> that has been coerced to a string.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>callback: <span class="tsd-signature-type">Function</span></h5>
+									<h5>val: <span class="tsd-signature-type">any</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>The value to encode.</p>
+									</div>
+								</li>
+								<li>
+									<h5>key <span class="tsd-flag ts-flagOptional">Optional</span>: <span class="tsd-signature-type">string</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>The name of the parameter in which <code>val</code> is stored. Can be used for meta-programming of <code>Type</code> objects.</p>
+									</div>
 								</li>
 							</ul>
 							<div class="tsd-returns">
-								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span>
+									<span class="tsd-signature-symbol"> | </span>
+									<span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span>
+								</h4>
+								: <p>a string representation of <code>val</code> that can be encoded in a URL.</p>
 							</div>
 							<hr>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/interface.ts#L413">state/interface.ts:413</a></li>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L250">params/interface.ts:250</a></li>
 								</ul>
 						</aside>        </li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
-					<a name="state" class="tsd-anchor"></a>
+					<a name="equals" class="tsd-anchor"></a>
 					<!---->
-					<!--<h3>state</h3>-->
+					<!--<h3>equals</h3>-->
 					<!---->
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">state<span class="tsd-signature-symbol">(</span>state<span class="tsd-signature-symbol">: </span><a href="state.statedeclaration.html" class="tsd-signature-type">StateDeclaration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="state.stateprovider.html" class="tsd-signature-type">StateProvider</a></li>
-						<li class="tsd-signature tsd-kind-icon">state<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, state<span class="tsd-signature-symbol">: </span><a href="state.statedeclaration.html" class="tsd-signature-type">StateDeclaration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="state.stateprovider.html" class="tsd-signature-type">StateProvider</a></li>
+						<li class="tsd-signature tsd-kind-icon">equals<span class="tsd-signature-symbol">(</span>a<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, b<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-header">
+							<p> Determines whether two decoded values are equivalent. </p>
+						</li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Determines whether two decoded values are equivalent.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>state: <a href="state.statedeclaration.html" class="tsd-signature-type">StateDeclaration</a></h5>
+									<h5>a: <span class="tsd-signature-type">any</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>A value to compare against.</p>
+									</div>
+								</li>
+								<li>
+									<h5>b: <span class="tsd-signature-type">any</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>A value to compare against.</p>
+									</div>
 								</li>
 							</ul>
 							<div class="tsd-returns">
-								<h4 class="tsd-returns-title">Returns <a href="state.stateprovider.html" class="tsd-signature-type">StateProvider</a></h4>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+								: <p><code>true</code> if the values are equivalent/equal, otherwise <code>false</code>.</p>
 							</div>
 							<hr>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/interface.ts#L411">state/interface.ts:411</a></li>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L268">params/interface.ts:268</a></li>
 								</ul>
 						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="is" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>is</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">is<span class="tsd-signature-symbol">(</span>val<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, key<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-header">
+							<p> Detects whether a value is of a particular type. Accepts a native (decoded) value
+							and determines whether it matches the current <code>Type</code> object. </p>
+						</li>
+					</ul>
+					<ul class="tsd-descriptions">
 						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Detects whether a value is of a particular type. Accepts a native (decoded) value
+									and determines whether it matches the current <code>Type</code> object.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>name: <span class="tsd-signature-type">string</span></h5>
+									<h5>val: <span class="tsd-signature-type">any</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>The value to check.</p>
+									</div>
 								</li>
 								<li>
-									<h5>state: <a href="state.statedeclaration.html" class="tsd-signature-type">StateDeclaration</a></h5>
+									<h5>key <span class="tsd-flag ts-flagOptional">Optional</span>: <span class="tsd-signature-type">string</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>If the type check is happening in the context of a specific <a href="../classes/url.urlmatcher.html">UrlMatcher</a>  object,
+											this is the name of the parameter in which <code>val</code> is stored. Can be used for
+										meta-programming of <code>Type</code> objects.</p>
+									</div>
 								</li>
 							</ul>
 							<div class="tsd-returns">
-								<h4 class="tsd-returns-title">Returns <a href="state.stateprovider.html" class="tsd-signature-type">StateProvider</a></h4>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+								: <p><code>true</code> if the value matches the type, otherwise <code>false</code>.</p>
 							</div>
 							<hr>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/state/interface.ts#L412">state/interface.ts:412</a></li>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L239">params/interface.ts:239</a></li>
 								</ul>
 						</aside>        </li>
 					</ul>
@@ -214,7 +316,7 @@
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/ng1.html">ng1</a>
 					</li>
-					<li class=" tsd-kind-external-module">
+					<li class="current tsd-kind-external-module">
 						<a href="../modules/params.html">params</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -223,7 +325,7 @@
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/resolve.html">resolve</a>
 					</li>
-					<li class="current tsd-kind-external-module">
+					<li class=" tsd-kind-external-module">
 						<a href="../modules/state.html">state</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -248,110 +350,77 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.enterexithooks.html" class="tsd-kind-icon">Enter<wbr>Exit<wbr>Hooks</a>
+					<li class=" tsd-kind-enum tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../enums/params.deftype.html" class="tsd-kind-icon">Def<wbr>Type</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.glob.html" class="tsd-kind-icon">Glob</a>
+						<a href="../classes/params.param.html" class="tsd-kind-icon">Param</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../classes/params.paramtypes.html" class="tsd-kind-icon">Param<wbr>Types</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.resolvehooks.html" class="tsd-kind-icon">Resolve<wbr>Hooks</a>
+						<a href="../classes/params.stateparams.html" class="tsd-kind-icon">State<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.state-1.html" class="tsd-kind-icon">State</a>
+						<a href="../classes/params.type.html" class="tsd-kind-icon">Type</a>
 					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.statebuilder.html" class="tsd-kind-icon">State<wbr>Builder</a>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="params.paramdeclaration.html" class="tsd-kind-icon">Param<wbr>Declaration</a>
 					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.statematcher.html" class="tsd-kind-icon">State<wbr>Matcher</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.statequeuemanager.html" class="tsd-kind-icon">State<wbr>Queue<wbr>Manager</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.stateregistry.html" class="tsd-kind-icon">State<wbr>Registry</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.targetstate.html" class="tsd-kind-icon">Target<wbr>State</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.transitionmanager.html" class="tsd-kind-icon">Transition<wbr>Manager</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/state.viewhooks.html" class="tsd-kind-icon">View<wbr>Hooks</a>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="params.rawparams.html" class="tsd-kind-icon">Raw<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="state.builders.html" class="tsd-kind-icon">Builders</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="state.hrefoptions.html" class="tsd-kind-icon">Href<wbr>Options</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="state.statedeclaration.html" class="tsd-kind-icon">State<wbr>Declaration</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="state.stateparams.html" class="tsd-kind-icon">State<wbr>Params</a>
+						<a href="params.replace.html" class="tsd-kind-icon">Replace</a>
 					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="state.stateprovider.html" class="tsd-kind-icon">State<wbr>Provider</a>
+						<a href="params.typedefinition.html" class="tsd-kind-icon">Type<wbr>Definition</a>
 						<ul>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
-								<a href="state.stateprovider.html#decorator" class="tsd-kind-icon">decorator</a>
+								<a href="params.typedefinition.html#decode" class="tsd-kind-icon">decode</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
-								<a href="state.stateprovider.html#oninvalid" class="tsd-kind-icon">on<wbr>Invalid</a>
+								<a href="params.typedefinition.html#encode" class="tsd-kind-icon">encode</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
-								<a href="state.stateprovider.html#state" class="tsd-kind-icon">state</a>
+								<a href="params.typedefinition.html#equals" class="tsd-kind-icon">equals</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="params.typedefinition.html#is" class="tsd-kind-icon">is</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="state.stateservice.html" class="tsd-kind-icon">State<wbr>Service</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="state.viewdeclaration.html" class="tsd-kind-icon">View<wbr>Declaration</a>
-					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
-						<a href="../modules/state.html#builderfunction" class="tsd-kind-icon">Builder<wbr>Function</a>
-					</li>
-					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
-						<a href="../modules/state.html#stateorname" class="tsd-kind-icon">State<wbr>OrName</a>
+						<a href="../modules/params.html#paramsorarray" class="tsd-kind-icon">Params<wbr>OrArray</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/state.html#eager" class="tsd-kind-icon">EAGER</a>
+						<a href="../modules/params.html#hasown" class="tsd-kind-icon">has<wbr>Own</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module">
+						<a href="../modules/params.html#paramtypes-1" class="tsd-kind-icon">param<wbr>Types</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/state.html#lazy" class="tsd-kind-icon">LAZY</a>
+						<a href="../modules/params.html#valfromstring" class="tsd-kind-icon">val<wbr>From<wbr>String</a>
 					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="../modules/state.html#_includedbystatefilter" class="tsd-kind-icon">$<wbr>Included<wbr>ByState<wbr>Filter</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="../modules/state.html#_isstatefilter" class="tsd-kind-icon">$<wbr>IsState<wbr>Filter</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="../modules/state.html#_stateprovider" class="tsd-kind-icon">$<wbr>State<wbr>Provider</a>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/params.html#valtostring" class="tsd-kind-icon">val<wbr>ToString</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/state.html#_staterefactivedirective" class="tsd-kind-icon">$<wbr>State<wbr>Ref<wbr>Active<wbr>Directive</a>
+						<a href="../modules/params.html#_stateparamsprovider" class="tsd-kind-icon">$<wbr>State<wbr>Params<wbr>Provider</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/state.html#_staterefdirective" class="tsd-kind-icon">$<wbr>State<wbr>Ref<wbr>Directive</a>
+						<a href="../modules/params.html#arraytype" class="tsd-kind-icon">Array<wbr>Type</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/state.html#parsestateref" class="tsd-kind-icon">parse<wbr>State<wbr>Ref</a>
+						<a href="../modules/params.html#isshorthand" class="tsd-kind-icon">is<wbr>Shorthand</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/state.html#parseurl" class="tsd-kind-icon">parse<wbr>Url</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/state.html#statecontext" class="tsd-kind-icon">state<wbr>Context</a>
+						<a href="../modules/params.html#swapstring" class="tsd-kind-icon">swap<wbr>String</a>
 					</li>
 				</ul>
 			</nav>

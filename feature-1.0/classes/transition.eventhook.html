@@ -7,6 +7,7 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
 	<script src="../assets/js/modernizr.js"></script>
 </head>
 <body>
@@ -115,17 +116,14 @@
 				<h2>Constructors</h2>
 				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
 					<a name="constructor" class="tsd-anchor"></a>
-					<h3>constructor</h3>
+					<!---->
+					<!--<h3>constructor</h3>-->
+					<!---->
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">new <wbr>Event<wbr>Hook<span class="tsd-signature-symbol">(</span>matchCriteria<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="transition.eventhook.html" class="tsd-signature-type">EventHook</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L41">transition/hookRegistry.ts:41</a></li>
-								</ul>
-							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -135,7 +133,7 @@
 									<h5>callback: <a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> options: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;&lt;any&gt;{}</span></h5>
+									<h5>options <span class="tsd-flag ts-flagDefault value">Default value</span>: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;&lt;any&gt;{}</span></h5>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter">
 											<h5>priority<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
@@ -143,8 +141,15 @@
 									</ul>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="transition.eventhook.html" class="tsd-signature-type">EventHook</a></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="transition.eventhook.html" class="tsd-signature-type">EventHook</a></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L40">transition/hookRegistry.ts:40</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 			</section>
@@ -152,33 +157,45 @@
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="callback" class="tsd-anchor"></a>
-					<h3>callback</h3>
+					<!---->
+					<!--<h3>callback</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">callback<span class="tsd-signature-symbol">:</span> <a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/transition.ieventhook.html">IEventHook</a>.<a href="../interfaces/transition.ieventhook.html#callback">callback</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L38">transition/hookRegistry.ts:38</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="matchcriteria" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>match<wbr>Criteria</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">match<wbr>Criteria<span class="tsd-signature-symbol">:</span> <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
 						<ul>
 							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L39">transition/hookRegistry.ts:39</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="matchcriteria" class="tsd-anchor"></a>
-					<h3>match<wbr>Criteria</h3>
-					<div class="tsd-signature tsd-kind-icon">match<wbr>Criteria<span class="tsd-signature-symbol">:</span> <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L40">transition/hookRegistry.ts:40</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="priority" class="tsd-anchor"></a>
-					<h3>priority</h3>
+					<!---->
+					<!--<h3>priority</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">priority<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/transition.ieventhook.html">IEventHook</a>.<a href="../interfaces/transition.ieventhook.html#priority">priority</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L41">transition/hookRegistry.ts:41</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L40">transition/hookRegistry.ts:40</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -187,17 +204,14 @@
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="matches" class="tsd-anchor"></a>
-					<h3>matches</h3>
+					<!---->
+					<!--<h3>matches</h3>-->
+					<!---->
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">matches<span class="tsd-signature-symbol">(</span>to<span class="tsd-signature-symbol">: </span><a href="state.state-1.html" class="tsd-signature-type">State</a>, from<span class="tsd-signature-symbol">: </span><a href="state.state-1.html" class="tsd-signature-type">State</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L49">transition/hookRegistry.ts:49</a></li>
-								</ul>
-							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -207,8 +221,15 @@
 									<h5>from: <a href="state.state-1.html" class="tsd-signature-type">State</a></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L48">transition/hookRegistry.ts:48</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 			</section>
@@ -221,6 +242,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Internals</span>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1.html">ng1</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/params.html">params</a>
@@ -245,6 +269,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Externals</span>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_router_.html">"router"</a>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="../modules/common.html">common</a>

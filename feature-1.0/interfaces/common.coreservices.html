@@ -3,10 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>IRuntime | UI-Router</title>
+	<title>CoreServices | UI-Router</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
 	<script src="../assets/js/modernizr.js"></script>
 </head>
 <body>
@@ -60,10 +61,10 @@
 					<a href="../modules/common.html">common</a>
 				</li>
 				<li>
-					<a href="common.iruntime.html">IRuntime</a>
+					<a href="common.coreservices.html">CoreServices</a>
 				</li>
 			</ul>
-			<h1>Interface IRuntime</h1>
+			<h1>Interface CoreServices</h1>
 		</div>
 	</div>
 </header>
@@ -74,7 +75,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">IRuntime</span>
+						<span class="target">CoreServices</span>
 					</li>
 				</ul>
 			</section>
@@ -85,14 +86,10 @@
 						<section class="tsd-index-section tsd-is-external tsd-is-not-exported">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported"><a href="common.iruntime.html#_injector" class="tsd-kind-icon">$injector</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported"><a href="common.iruntime.html#_q" class="tsd-kind-icon">$q</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section tsd-is-external tsd-is-not-exported">
-							<h3>Methods</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-external tsd-is-not-exported"><a href="common.iruntime.html#setruntimeinjector" class="tsd-kind-icon">set<wbr>Runtime<wbr>Injector</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported"><a href="common.coreservices.html#_injector" class="tsd-kind-icon">$injector</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported"><a href="common.coreservices.html#_q" class="tsd-kind-icon">$q</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported"><a href="common.coreservices.html#location" class="tsd-kind-icon">location</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported"><a href="common.coreservices.html#locationconfig" class="tsd-kind-icon">location<wbr>Config</a></li>
 							</ul>
 						</section>
 					</div>
@@ -102,49 +99,75 @@
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
 					<a name="_injector" class="tsd-anchor"></a>
-					<h3>$injector</h3>
-					<div class="tsd-signature tsd-kind-icon">$injector<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ng.auto.IInjectorService</span></div>
+					<!---->
+					<!--<h3>$injector</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">$injector<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">IInjectorService</span></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/common/angular1.ts#L9">common/angular1.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/common/coreservices.ts#L32">common/coreservices.ts:32</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
 					<a name="_q" class="tsd-anchor"></a>
-					<h3>$q</h3>
+					<!---->
+					<!--<h3>$q</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">$q<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">IQService</span></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/common/angular1.ts#L10">common/angular1.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/common/coreservices.ts#L31">common/coreservices.ts:31</a></li>
 						</ul>
 					</aside>
 				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-external tsd-is-not-exported">
-				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
-					<a name="setruntimeinjector" class="tsd-anchor"></a>
-					<h3>set<wbr>Runtime<wbr>Injector</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Runtime<wbr>Injector<span class="tsd-signature-symbol">(</span>$injector<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ng.auto.IInjectorService</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/common/angular1.ts#L8">common/angular1.ts:8</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>$injector: <span class="tsd-signature-type">ng.auto.IInjectorService</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
-						</li>
-					</ul>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
+					<a name="location" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>location</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">location<span class="tsd-signature-symbol">:</span> <a href="common.locationservices.html" class="tsd-signature-type">LocationServices</a>        <div class="tsd-header">
+							<p> Services related to getting or setting the browser location (url) </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Services related to getting or setting the browser location (url)</p>
+							</div>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/common/coreservices.ts#L34">common/coreservices.ts:34</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
+					<a name="locationconfig" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>location<wbr>Config</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">location<wbr>Config<span class="tsd-signature-symbol">:</span> <a href="common.locationconfig.html" class="tsd-signature-type">LocationConfig</a>        <div class="tsd-header">
+							<p> Retrieves configuration for how to construct a URL. </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Retrieves configuration for how to construct a URL.</p>
+							</div>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/common/coreservices.ts#L36">common/coreservices.ts:36</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 		</div>
@@ -156,6 +179,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Internals</span>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1.html">ng1</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/params.html">params</a>
@@ -181,6 +207,9 @@
 					<li class="label tsd-is-external">
 						<span>Externals</span>
 					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_router_.html">"router"</a>
+					</li>
 					<li class="current tsd-kind-external-module tsd-is-external">
 						<a href="../modules/common.html">common</a>
 					</li>
@@ -191,16 +220,19 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface tsd-parent-kind-external-module tsd-is-external tsd-is-not-exported">
-						<a href="common.iruntime.html" class="tsd-kind-icon">IRuntime</a>
+						<a href="common.coreservices.html" class="tsd-kind-icon">Core<wbr>Services</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
-								<a href="common.iruntime.html#_injector" class="tsd-kind-icon">$injector</a>
+								<a href="common.coreservices.html#_injector" class="tsd-kind-icon">$injector</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
-								<a href="common.iruntime.html#_q" class="tsd-kind-icon">$q</a>
+								<a href="common.coreservices.html#_q" class="tsd-kind-icon">$q</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
-								<a href="common.iruntime.html#setruntimeinjector" class="tsd-kind-icon">set<wbr>Runtime<wbr>Injector</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
+								<a href="common.coreservices.html#location" class="tsd-kind-icon">location</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
+								<a href="common.coreservices.html#locationconfig" class="tsd-kind-icon">location<wbr>Config</a>
 							</li>
 						</ul>
 					</li>

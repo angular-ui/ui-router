@@ -7,6 +7,7 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
 	<script src="../assets/js/modernizr.js"></script>
 </head>
 <body>
@@ -112,19 +113,23 @@
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="current" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> current</h3>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> current</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">current<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<dl class="tsd-comment-tags">
+								<dt>internal</dt>
+								<dd></dd>
+							</dl>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L81">transition/interface.ts:81</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L79">transition/interface.ts:79</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>internal</dt>
-							<dd></dd>
-						</dl>
-					</div>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
@@ -134,7 +139,9 @@
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
-										<h4 class="tsd-returns-title">Returns <a href="../classes/transition.transition-1.html" class="tsd-signature-type">Transition</a></h4>
+										<div class="tsd-returns">
+											<h4 class="tsd-returns-title">Returns <a href="../classes/transition.transition-1.html" class="tsd-signature-type">Transition</a></h4>
+										</div>
 									</li>
 								</ul>
 							</li>
@@ -143,174 +150,222 @@
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="custom" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> custom</h3>
-					<div class="tsd-signature tsd-kind-icon">custom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L75">transition/interface.ts:75</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>You can define your own Transition Options inside this property and use them, e.g., from a <a href="../classes/transition.transitionhook.html">TransitionHook</a></p>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> custom</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">custom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span>        <div class="tsd-header">
+							<p> You can define your own Transition Options inside this property and use them, e.g., from a Transition Hook </p>
 						</div>
 					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>You can define your own Transition Options inside this property and use them, e.g., from a Transition Hook</p>
+							</div>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L73">transition/interface.ts:73</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="inherit" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> inherit</h3>
-					<div class="tsd-signature tsd-kind-icon">inherit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> inherit</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">inherit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span>        <div class="tsd-header">
+							<p> This option sets whether or not the transition&#39;s parameter values should be inherited from
+							the current state parameters. </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>This option sets whether or not the transition&#39;s parameter values should be inherited from
+								the current state parameters.</p>
+							</div>
+							<ul>
+								<li>If <code>true</code>, it will inherit parameters from current state.</li>
+								<li>If <code>false</code>, only the parameters which are provided to <code>transitionTo</code> will be used.</li>
+							</ul>
+							<dl class="tsd-comment-tags">
+								<dt>default</dt>
+								<dd><p><code>false</code></p>
+								</dd>
+							</dl>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L44">transition/interface.ts:44</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L42">transition/interface.ts:42</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>This option sets whether or not the transition&#39;s parameter values should be inherited from
-							the current state parameters.</p>
-						</div>
-						<ul>
-							<li>If <code>true</code>, it will inherit parameters from current state.</li>
-							<li>If <code>false</code>, only the parameters which are provided to <code>transitionTo</code> will be used.</li>
-						</ul>
-						<dl class="tsd-comment-tags">
-							<dt>default</dt>
-							<dd><p><code>false</code></p>
-							</dd>
-						</dl>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="location" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> location</h3>
-					<div class="tsd-signature tsd-kind-icon">location<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> location</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">location<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span>        <div class="tsd-header">
+							<p> This option changes how the Transition interacts with the browser&#39;s location bar (URL). </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>This option changes how the Transition interacts with the browser&#39;s location bar (URL).</p>
+							</div>
+							<ul>
+								<li>If <code>true</code>, it will update the url in the location bar.</li>
+								<li>If <code>false</code>, it will not update the url in the location bar.</li>
+								<li>If it is the string &quot;<code>replace</code>&quot;, it will update the url and also replace the last history record.</li>
+							</ul>
+							<dl class="tsd-comment-tags">
+								<dt>default</dt>
+								<dd><p><code>true</code></p>
+								</dd>
+							</dl>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L27">transition/interface.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L25">transition/interface.ts:25</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>This option changes how the Transition interacts with the browser&#39;s location bar (URL).</p>
-						</div>
-						<ul>
-							<li>If <code>true</code>, it will update the url in the location bar.</li>
-							<li>If <code>false</code>, it will not update the url in the location bar.</li>
-							<li>If it is the string &quot;<code>replace</code>&quot;, it will update the url and also replace the last history record.</li>
-						</ul>
-						<dl class="tsd-comment-tags">
-							<dt>default</dt>
-							<dd><p><code>true</code></p>
-							</dd>
-						</dl>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="notify" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> notify</h3>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> notify</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">notify<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<dl class="tsd-comment-tags">
+								<dt>deprecated</dt>
+								<dd></dd>
+							</dl>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L49">transition/interface.ts:49</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L47">transition/interface.ts:47</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>deprecated</dt>
-							<dd></dd>
-						</dl>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="previous" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> previous</h3>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> previous</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">previous<span class="tsd-signature-symbol">:</span> <a href="../classes/transition.transition-1.html" class="tsd-signature-type">Transition</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L79">transition/interface.ts:79</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>internal</dt>
-							<dd></dd>
-						</dl>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="relative" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> relative</h3>
-					<div class="tsd-signature tsd-kind-icon">relative<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="state.statedeclaration.html" class="tsd-signature-type">StateDeclaration</a><span class="tsd-signature-symbol"> | </span><a href="../classes/state.state-1.html" class="tsd-signature-type">State</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L33">transition/interface.ts:33</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>When transitioning to relative path (e.g &#39;<code>^</code>&#39;), this option defines which state to be relative from.</p>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<dl class="tsd-comment-tags">
+								<dt>internal</dt>
+								<dd></dd>
+							</dl>
 						</div>
-						<dl class="tsd-comment-tags">
-							<dt>default</dt>
-							<dd><p><code>$state.current</code></p>
-							</dd>
-						</dl>
 					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="reload" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> reload</h3>
-					<div class="tsd-signature tsd-kind-icon">reload<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="state.statedeclaration.html" class="tsd-signature-type">StateDeclaration</a><span class="tsd-signature-symbol"> | </span><a href="../classes/state.state-1.html" class="tsd-signature-type">State</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L71">transition/interface.ts:71</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>This option may be used to force states which are currently active to reload.</p>
-						</div>
-						<p>During a normal transition, a state is &quot;retained&quot; if:</p>
-						<ul>
-							<li>It was previously active</li>
-							<li>The state&#39;s parameter values have not changed</li>
-							<li>All the parent states&#39; parameter values have not changed</li>
-						</ul>
-						<p>Forcing a reload of a state will cause it to be exited and entered, which will:</p>
-						<ul>
-							<li>Refetch that state&#39;s resolve data</li>
-							<li>Exit the state (onExit hook)</li>
-							<li>Re-enter the state (onEnter hook)</li>
-							<li><p>Re-render the views (controllers and templates)</p>
-							</li>
-							<li><p>When <code>true</code>, the destination state (and all parent states) will be reloaded.</p>
-							</li>
-							<li>When it is a string and is the name of a state, or when it is a State object,
-							that state and any children states will be reloaded.</li>
-						</ul>
-						<dl class="tsd-comment-tags">
-							<dt>default</dt>
-							<dd><p><code>false</code></p>
-							</dd>
-						</dl>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="reloadstate" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> reload<wbr>State</h3>
-					<div class="tsd-signature tsd-kind-icon">reload<wbr>State<span class="tsd-signature-symbol">:</span> <a href="../classes/state.state-1.html" class="tsd-signature-type">State</a></div>
 					<aside class="tsd-sources">
 						<ul>
 							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L77">transition/interface.ts:77</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>internal</dt>
-							<dd></dd>
-						</dl>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="relative" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> relative</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">relative<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="state.statedeclaration.html" class="tsd-signature-type">StateDeclaration</a><span class="tsd-signature-symbol"> | </span><a href="../classes/state.state-1.html" class="tsd-signature-type">State</a>        <div class="tsd-header">
+							<p> When transitioning to relative path (e.g &#39;<code>^</code>&#39;), this option defines which state to be relative from. </p>
+						</div>
 					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>When transitioning to relative path (e.g &#39;<code>^</code>&#39;), this option defines which state to be relative from.</p>
+							</div>
+							<dl class="tsd-comment-tags">
+								<dt>default</dt>
+								<dd><p><code>$state.current</code></p>
+								</dd>
+							</dl>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L31">transition/interface.ts:31</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="reload" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> reload</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">reload<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="state.statedeclaration.html" class="tsd-signature-type">StateDeclaration</a><span class="tsd-signature-symbol"> | </span><a href="../classes/state.state-1.html" class="tsd-signature-type">State</a>        <div class="tsd-header">
+							<p> This option may be used to force states which are currently active to reload. </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>This option may be used to force states which are currently active to reload.</p>
+							</div>
+							<p>During a normal transition, a state is &quot;retained&quot; if:</p>
+							<ul>
+								<li>It was previously active</li>
+								<li>The state&#39;s parameter values have not changed</li>
+								<li>All the parent states&#39; parameter values have not changed</li>
+							</ul>
+							<p>Forcing a reload of a state will cause it to be exited and entered, which will:</p>
+							<ul>
+								<li>Refetch that state&#39;s resolve data</li>
+								<li>Exit the state (onExit hook)</li>
+								<li>Re-enter the state (onEnter hook)</li>
+								<li><p>Re-render the views (controllers and templates)</p>
+								</li>
+								<li><p>When <code>true</code>, the destination state (and all parent states) will be reloaded.</p>
+								</li>
+								<li>When it is a string and is the name of a state, or when it is a State object,
+								that state and any children states will be reloaded.</li>
+							</ul>
+							<dl class="tsd-comment-tags">
+								<dt>default</dt>
+								<dd><p><code>false</code></p>
+								</dd>
+							</dl>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L69">transition/interface.ts:69</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="reloadstate" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> reload<wbr>State</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">reload<wbr>State<span class="tsd-signature-symbol">:</span> <a href="../classes/state.state-1.html" class="tsd-signature-type">State</a></div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<dl class="tsd-comment-tags">
+								<dt>internal</dt>
+								<dd></dd>
+							</dl>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/interface.ts#L75">transition/interface.ts:75</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 		</div>
@@ -322,6 +377,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Internals</span>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1.html">ng1</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/params.html">params</a>
@@ -346,6 +404,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Externals</span>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_router_.html">"router"</a>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="../modules/common.html">common</a>

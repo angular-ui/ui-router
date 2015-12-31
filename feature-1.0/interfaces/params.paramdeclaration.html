@@ -7,6 +7,7 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
 	<script src="../assets/js/modernizr.js"></script>
 </head>
 <body>
@@ -73,22 +74,23 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Inside the <a href="state.statedeclaration.html#params">StateDeclaration.params</a> object of a <a href="state.statedeclaration.html">StateDeclaration</a>:
-						A ParamDeclaration object defines how a single State Parameter should work.</p>
+						<p>Inside a <a href="state.statedeclaration.html#params">StateDeclaration.params</a>:</p>
 					</div>
+					<p>A ParamDeclaration object defines how a single State Parameter should work.</p>
 					<dl class="tsd-comment-tags">
 						<dt>example</dt>
-						<dd><hr>
-							<pre><code>var mystate = {
+						<dd><pre><code>
+<span class="hljs-keyword">var</span> mystate = {
   template: <span class="hljs-string">'&lt;div ui-view/&gt;'</span>,
-  controller: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span> {}
+  controller: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{}
   url: <span class="hljs-string">'/mystate/:param1'</span>,
   params: {
-    param1: <span class="hljs-string">"index"</span>,         // Default value <span class="hljs-keyword">for</span> <span class="hljs-string">'param1'</span>
+    param1: <span class="hljs-string">"index"</span>, <span class="hljs-comment">// &lt;-- Default value for 'param1'</span>
+                     <span class="hljs-comment">// (shorthand ParamDeclaration)</span>
 
-    nonUrlParam: {           // ParamDeclaration <span class="hljs-keyword">for</span> <span class="hljs-string">'nonUrlParam'</span> starts
-     <span class="hljs-built_in">type</span>: <span class="hljs-string">"int"</span>,            // non
-     array: <span class="hljs-keyword">true</span>,
+    nonUrlParam: { <span class="hljs-comment">// &lt;-- ParamDeclaration for 'nonUrlParam'</span>
+     type: <span class="hljs-string">"int"</span>,
+     <span class="hljs-keyword">array</span>: <span class="hljs-keyword">true</span>,
      value: []
     }
   }
@@ -114,8 +116,6 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="params.paramdeclaration.html#array" class="tsd-kind-icon">array</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="params.paramdeclaration.html#dynamic" class="tsd-kind-icon">dynamic</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="params.paramdeclaration.html#isoptional" class="tsd-kind-icon">is<wbr>Optional</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="params.paramdeclaration.html#replace" class="tsd-kind-icon">replace</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="params.paramdeclaration.html#squash" class="tsd-kind-icon">squash</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="params.paramdeclaration.html#type" class="tsd-kind-icon">type</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="params.paramdeclaration.html#value" class="tsd-kind-icon">value</a></li>
@@ -128,95 +128,198 @@
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="array" class="tsd-anchor"></a>
-					<h3>array</h3>
-					<div class="tsd-signature tsd-kind-icon">array<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<!---->
+					<!--<h3>array</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">array<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span>        <div class="tsd-header">
+							<p> A property of <a href="params.paramdeclaration.html">ParamDeclaration</a>: </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>A property of <a href="params.paramdeclaration.html">ParamDeclaration</a>:</p>
+							</div>
+							<p>Explicitly specifies the array mode of a URL parameter</p>
+							<ul>
+								<li>If <code>false</code>, the parameter value will be treated (encoded/decoded) as a single value</li>
+								<li>If <code>true</code>, the parameter value will be treated (encoded/decoded) as an array of values.</li>
+								<li>If <code>auto</code> (for query parameters only), if multiple values for a single parameter are present
+									in the URL (e.g.: /foo?bar=1&amp;bar=2&amp;bar=3) then the values are mapped to an array (e.g.:
+									<code>{ foo: [ &#39;1&#39;, &#39;2&#39;, &#39;3&#39; ] }</code>). However, if only one value is present (e.g.: /foo?bar=1)
+								then the value is treated as single value (e.g.: { foo: &#39;1&#39; }).</li>
+							</ul>
+							<p>If you specified a <a href="params.paramdeclaration.html#type">type</a> for the parameter, the value will be treated as an array
+							of the specified Type.</p>
+							<dl class="tsd-comment-tags">
+								<dt>example</dt>
+								<dd><pre><code>
+{
+  name: <span class="hljs-string">'foo</span>',
+  url: '/foo/{arrayParam:<span class="hljs-keyword">int</span>}`,
+  params: {
+    arrayParam: { array: <span class="hljs-keyword">true</span> }
+  }
+}
+
+<span class="hljs-comment">// After the transition, URL should be '/foo/1-2-3'</span>
+$state.go(<span class="hljs-string">"foo"</span>, { arrayParam: [ <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span> ] });
+</code></pre></dd>
+								<dt>default</dt>
+								<dd><p><code>false</code> for path parameters, such as <code>url: &#39;/foo/:pathParam&#39;</code></p>
+								</dd>
+								<dt>default</dt>
+								<dd><p><code>auto</code> for query parameters, such as <code>url: &#39;/foo?queryParam&#39;</code></p>
+								</dd>
+								<dt>default</dt>
+								<dd><p><code>true</code> if the parameter name ends in <code>[]</code>, such as <code>url: &#39;/foo/{implicitArrayParam:int[]}&#39;</code></p>
+								</dd>
+							</dl>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L87">params/interface.ts:87</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L131">params/interface.ts:131</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="dynamic" class="tsd-anchor"></a>
-					<h3>dynamic</h3>
+					<!---->
+					<!--<h3>dynamic</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">dynamic<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L92">params/interface.ts:92</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="isoptional" class="tsd-anchor"></a>
-					<h3>is<wbr>Optional</h3>
-					<div class="tsd-signature tsd-kind-icon">is<wbr>Optional<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L91">params/interface.ts:91</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>internal</dt>
-							<dd></dd>
-						</dl>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<dl class="tsd-comment-tags">
+								<dt>todo</dt>
+								<dd><p>document this one too</p>
+								</dd>
+							</dl>
+						</div>
 					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="replace" class="tsd-anchor"></a>
-					<h3>replace</h3>
-					<div class="tsd-signature tsd-kind-icon">replace<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L89">params/interface.ts:89</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L215">params/interface.ts:215</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="squash" class="tsd-anchor"></a>
-					<h3>squash</h3>
-					<div class="tsd-signature tsd-kind-icon">squash<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
+					<!---->
+					<!--<h3>squash</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">squash<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span>        <div class="tsd-header">
+							<p> A property of <a href="params.paramdeclaration.html">ParamDeclaration</a>: </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>A property of <a href="params.paramdeclaration.html">ParamDeclaration</a>:</p>
+							</div>
+							<p>Configures how a default parameter value is represented in the URL when the current parameter value
+							is the same as the default value.</p>
+							<p>There are three squash settings:</p>
+							<ul>
+								<li><code>false</code>: The parameter&#39;s default value is not squashed. It is encoded and included in the URL</li>
+								<li><code>true</code>: The parameter&#39;s default value is omitted from the URL. If the parameter is preceeded
+									and followed by slashes in the state&#39;s url declaration, then one of those slashes are omitted.
+								This can allow for cleaner looking URLs.</li>
+								<li><code>&quot;&amp;lt;arbitrary string&amp;gt;&quot;</code>: The parameter&#39;s default value is replaced with an arbitrary
+								placeholder of your choice.</li>
+							</ul>
+							<dl class="tsd-comment-tags">
+								<dt>example</dt>
+								<dd><pre><code>
+{
+  name: <span class="hljs-string">'mystate'</span>,
+  url: <span class="hljs-string">'/mystate/:myparam'</span>,
+  params: {
+    myparam: <span class="hljs-string">'defaultParamValue'</span>
+    squash: true
+  }
+}
+
+// URL will be `/mystate/`
+<span class="hljs-variable">$state</span>.go(<span class="hljs-string">'mystate'</span>, { myparam: <span class="hljs-string">'defaultParamValue'</span> });
+
+// URL will be `/mystate/someOtherValue`
+<span class="hljs-variable">$state</span>.go(<span class="hljs-string">'mystate'</span>, { myparam: <span class="hljs-string">'someOtherValue'</span> });
+</code></pre></dd>
+								<dt>example</dt>
+								<dd><pre><code>
+{
+  name: <span class="hljs-string">'mystate2'</span>,
+  url: <span class="hljs-string">'/mystate2/:myparam2'</span>,
+  params: {
+    myparam2: <span class="hljs-string">'defaultParamValue'</span>
+    squash: <span class="hljs-string">"~"</span>
+  }
+}
+
+// URL will be `/mystate/~`
+<span class="hljs-variable">$state</span>.go(<span class="hljs-string">'mystate'</span>, { myparam2: <span class="hljs-string">'defaultParamValue'</span> });
+
+// URL will be `/mystate/someOtherValue`
+<span class="hljs-variable">$state</span>.go(<span class="hljs-string">'mystate'</span>, { myparam2: <span class="hljs-string">'someOtherValue'</span> });
+</code></pre><p>If squash is not set, it uses the configured default squash policy. (See <a href="../classes/url.matcherconfig.html#defaultsquashpolicy">defaultSquashPolicy</a>())</p>
+								</dd>
+							</dl>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L88">params/interface.ts:88</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L187">params/interface.ts:187</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="type" class="tsd-anchor"></a>
-					<h3>type</h3>
-					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../classes/params.type.html" class="tsd-signature-type">Type</a></div>
+					<!---->
+					<!--<h3>type</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../classes/params.type.html" class="tsd-signature-type">Type</a>        <div class="tsd-header">
+							<p> A property of <a href="params.paramdeclaration.html">ParamDeclaration</a>: </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>A property of <a href="params.paramdeclaration.html">ParamDeclaration</a>:</p>
+							</div>
+							<p>Specifies the <a href="../classes/params.type.html">Type</a> of the parameter.</p>
+							<p>Set this property to the name of parameter&#39;s type.   The type may be either one of the
+							built in types, or a custom type that has been registered with the [[$urlMatcherFactory]]</p>
+						</div>
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L86">params/interface.ts:86</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L94">params/interface.ts:94</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Specifies the parameter type.</p>
-						</div>
-						<p>Supplying a parameter type</p>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="value" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> value</h3>
-					<div class="tsd-signature tsd-kind-icon">value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L79">params/interface.ts:79</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Specifies the default value for this parameter. This implicitly sets this parameter as optional.</p>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> value</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span>        <div class="tsd-header">
+							<p> A property of <a href="params.paramdeclaration.html">ParamDeclaration</a>: </p>
 						</div>
-						<p>When UI-Router routes to a state and no value is specified for this parameter in the URL or transition,
-							the default value will be used instead. If value is a function, it will be injected and invoked, and the
-						return value used.</p>
-						<p>Note:  <code>value: undefined</code> is treated as though no default value was specified, while <code>value: null</code> is treated
-						as &quot;the default value is null&quot;.</p>
-						<pre><code>// define default values <span class="hljs-keyword">for</span> <span class="hljs-keyword">param</span>1 and <span class="hljs-keyword">param</span>2
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>A property of <a href="params.paramdeclaration.html">ParamDeclaration</a>:</p>
+							</div>
+							<p>Specifies the default value for this parameter. This implicitly sets this parameter as optional.</p>
+							<p>When UI-Router routes to a state and no value is specified for this parameter in the URL or transition,
+								the default value will be used instead. If value is a function, it will be injected and invoked, and the
+							return value used.</p>
+							<p>Note:  <code>value: undefined</code> is treated as though no default value was specified, while <code>value: null</code> is treated
+							as &quot;the default value is null&quot;.</p>
+							<pre><code>// define default values <span class="hljs-keyword">for</span> <span class="hljs-keyword">param</span>1 and <span class="hljs-keyword">param</span>2
 params: {
   <span class="hljs-keyword">param</span>1: {
     value: <span class="hljs-string">"defaultValue"</span>
@@ -225,10 +328,11 @@ params: {
     value: <span class="hljs-string">"param2Default;
   }
 }</span>
-</code></pre><p>Shorthand: If you only need to configure the default value of the parameter, you may use a shorthand syntax.
-							In the params map, instead mapping the param name to a full parameter configuration object, simply set map it
-						to the default parameter value, e.g.:</p>
-						<pre><code><span class="hljs-comment">// define a parameter's default value</span>
+</code></pre><h3 id="shorthand-declaration">Shorthand Declaration</h3>
+							<p>If you only want to set the default value of the parameter, you may use a shorthand syntax.
+								In the params map, instead mapping the param name to a full parameter configuration object, simply set map it
+							to the default parameter value, e.g.:</p>
+							<pre><code><span class="hljs-comment">// define a parameter's default value</span>
 params: {
   para<span class="hljs-title">m1</span>: {
     value: <span class="hljs-string">"defaultValue"</span>
@@ -244,7 +348,13 @@ params: {
   param2: "</span>para<span class="hljs-title">m2</span>Default<span class="hljs-string">"
 }</span>
 </code></pre><p>This defines a default value for the parameter.  If the parameter value is <code>undefined</code>, this value will be used instead</p>
+						</div>
 					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/params/interface.ts#L84">params/interface.ts:84</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 		</div>
@@ -256,6 +366,9 @@ params: {
 					</li>
 					<li class="label tsd-is-external">
 						<span>Internals</span>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1.html">ng1</a>
 					</li>
 					<li class="current tsd-kind-external-module">
 						<a href="../modules/params.html">params</a>
@@ -282,6 +395,9 @@ params: {
 						<span>Externals</span>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_router_.html">"router"</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="../modules/common.html">common</a>
 					</li>
 				</ul>
@@ -298,6 +414,9 @@ params: {
 						<a href="../classes/params.paramtypes.html" class="tsd-kind-icon">Param<wbr>Types</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="../classes/params.stateparams.html" class="tsd-kind-icon">State<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
 						<a href="../classes/params.type.html" class="tsd-kind-icon">Type</a>
 					</li>
 				</ul>
@@ -310,12 +429,6 @@ params: {
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="params.paramdeclaration.html#dynamic" class="tsd-kind-icon">dynamic</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="params.paramdeclaration.html#isoptional" class="tsd-kind-icon">is<wbr>Optional</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="params.paramdeclaration.html#replace" class="tsd-kind-icon">replace</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="params.paramdeclaration.html#squash" class="tsd-kind-icon">squash</a>
@@ -331,10 +444,13 @@ params: {
 				</ul>
 				<ul class="after-current">
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="params.paramsconfig.html" class="tsd-kind-icon">Params<wbr>Config</a>
+						<a href="params.rawparams.html" class="tsd-kind-icon">Raw<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="params.replace.html" class="tsd-kind-icon">Replace</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="params.rawparams.html" class="tsd-kind-icon">Raw<wbr>Params</a>
+						<a href="params.typedefinition.html" class="tsd-kind-icon">Type<wbr>Definition</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
 						<a href="../modules/params.html#paramsorarray" class="tsd-kind-icon">Params<wbr>OrArray</a>
@@ -350,6 +466,9 @@ params: {
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/params.html#valtostring" class="tsd-kind-icon">val<wbr>ToString</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/params.html#_stateparamsprovider" class="tsd-kind-icon">$<wbr>State<wbr>Params<wbr>Provider</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/params.html#arraytype" class="tsd-kind-icon">Array<wbr>Type</a>
