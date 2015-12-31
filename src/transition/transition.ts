@@ -24,19 +24,10 @@ let transitionCount = 0, REJECT = new RejectFactory();
 const stateSelf: (_state: State) => StateDeclaration = prop("self");
 
 /**
- * @ngdoc object
- * @name ui.router.state.type:Transition
+ * The representation of a transition between two states.
  *
- * @description
- * Represents a transition between two states, and contains all contextual information about the
- * to/from states and parameters, as well as the list of states being entered and exited as a
- * result of this transition.
- *
- * @param {Object} from The origin {@link ui.router.state.$stateProvider#state state} from which the transition is leaving.
- * @param {Object} to The target {@link ui.router.state.$stateProvider#state state} being transitioned to.
- * @param {Object} options An object hash of the options for this transition.
- *
- * @returns {Object} New `Transition` object
+ * Contains all contextual information about the to/from states, parameters, resolves, as well as the
+ * list of states being entered and exited as a result of this transition.
  */
 export class Transition implements IHookRegistry {
   $id: number;
@@ -47,16 +38,81 @@ export class Transition implements IHookRegistry {
   private _options: TransitionOptions;
   private _treeChanges: TreeChanges;
 
+  /**
+   * Registers a callback function as an `onBefore` Transition Hook
+   *
+   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onBefore]]
+   *
+   * See [[IHookRegistry.onBefore]]
+   */
   onBefore:   IHookRegistration;
+  /**
+   * Registers a callback function as an `onStart` Transition Hook
+   *
+   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onStart]]
+   *
+   * See [[IHookRegistry.onStart]]
+   */
   onStart:    IHookRegistration;
+  /**
+   * Registers a callback function as an `onEnter` State Hook
+   *
+   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onEnter]]
+   *
+   * See [[IHookRegistry.onEnter]]
+   */
   onEnter:    IHookRegistration;
+  /**
+   * Registers a callback function as an `onRetain` State Hook
+   *
+   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onRetain]]
+   *
+   * See [[IHookRegistry.onRetain]]
+   */
   onRetain:   IHookRegistration;
+  /**
+   * Registers a callback function as an `onExit` State Hook
+   *
+   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onExit]]
+   *
+   * See [[IHookRegistry.onExit]]
+   */
   onExit:     IHookRegistration;
+  /**
+   * Registers a callback function as an `onFinish` Transition Hook
+   *
+   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onFinish]]
+   *
+   * See [[IHookRegistry.onFinish]]
+   */
   onFinish:   IHookRegistration;
+  /**
+   * Registers a callback function as an `onSuccess` Transition Hook
+   *
+   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onSuccess]]
+   *
+   * See [[IHookRegistry.onSuccess]]
+   */
   onSuccess:  IHookRegistration;
+  /**
+   * Registers a callback function as an `onError` Transition Hook
+   *
+   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onError]]
+   *
+   * See [[IHookRegistry.onError]]
+   */
   onError:    IHookRegistration;
   getHooks:   IHookGetter;
 
+  /**
+   * Creates a new Transition object.
+   *
+   * If the target state is not valid, an error is thrown.
+   *
+   * @param fromPath The path of [[Node]]s from which the transition is leaving.  The last node in the `fromPath`
+   *        encapsulates the "from state".
+   * @param targetState The target state and parameters being transitioned to (also, the transition options)
+   */
   constructor(fromPath: Node[], targetState: TargetState) {
     if (!targetState.valid()) {
       throw new Error(targetState.error());
@@ -82,42 +138,27 @@ export class Transition implements IHookRegistry {
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.state.type:Transition#$from
-   * @methodOf ui.router.state.type:Transition
+   * Returns the "from state"
    *
-   * @description
-   * Returns the origin state of the current transition, as passed to the `Transition` constructor.
-   *
-   * @returns {TargetState} The origin state reference of the transition ("from state").
+   * @returns The state object for the Transition's "from state".
    */
-  from() {
+  from(): StateDeclaration {
     return this.$from().self;
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.state.type:Transition#$to
-   * @methodOf ui.router.state.type:Transition
+   * Returns the "to state"
    *
-   * @description
-   * Returns the target state of the current transition, as passed to the `Transition` constructor.
-   *
-   * @returns {TargetState} The state reference the transition is targetting ("to state")
+   * @returns The state object for the Transition's target state ("to state").
    */
   to() {
     return this.$to().self;
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.state.type:Transition#is
-   * @methodOf ui.router.state.type:Transition
-   *
-   * @description
    * Determines whether two transitions are equivalent.
    */
-  is(compare: (Transition|{to: any, from: any})) {
+  is(compare: (Transition|{to: any, from: any})): boolean {
     if (compare instanceof Transition) {
       // TODO: Also compare parameters
       return this.is({ to: compare.$to().name, from: compare.$from().name });
@@ -129,31 +170,33 @@ export class Transition implements IHookRegistry {
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.state.type:Transition#params
-   * @methodOf ui.router.state.type:Transition
+   * Gets transition parameter values
    *
-   * @description
-   * Gets the calculated StateParams object for the transition target.
-   *
-   * @returns {StateParams} the StateParams object for the transition.
+   * @param pathname Pick which treeChanges path to get parameters for:
+   *   (`'to'`, `'from'`, `'entering'`, `'exiting'`, `'retained'`)
+   * @returns transition parameter values for the desired path.
    */
-  // TODO
   params(pathname: string = "to"): { [key: string]: any } {
     return this._treeChanges[pathname].map(prop("values")).reduce(mergeR, {});
   }
 
   /**
-   * Returns an object with any settled resolve data
+   * Get resolved data
+   *
+   * @returns an object (key/value pairs) where keys are resolve names and values are any settled resolve data,
+   *    or `undefined` for pending resolve data
    */
-  resolves = () => map(tail(this._treeChanges.to).resolveContext.getResolvables(), res => res.data);
+  resolves(): { [resolveName: string]: any } {
+    return map(tail(this._treeChanges.to).resolveContext.getResolvables(), res => res.data);
+  }
 
   /**
    * Adds new resolves to this transition.
-   * @param resolves an ResolveDeclarations object which describes the new resolves
-   * @param state (optional) the state in the topath which should receive the new resolves (otherwise, the root state)
+   *
+   * @param resolves an [[ResolveDeclarations]] object which describes the new resolves
+   * @param state the state in the "to path" which should receive the new resolves (otherwise, the root state)
    */
-  addResolves(resolves: { [key: string]: Function }, state: StateOrName = "") {
+  addResolves(resolves: { [key: string]: Function }, state: StateOrName = ""): void {
     let stateName: string = (typeof state === "string") ? state : state.name;
     let topath = this._treeChanges.to;
     let targetNode = find(topath, node => node.state.name === stateName);
@@ -161,77 +204,62 @@ export class Transition implements IHookRegistry {
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.state.type:Transition#previous
-   * @methodOf ui.router.state.type:Transition
+   * Gets the previous transition, from which this transition was redirected.
    *
-   * @description
-   * Gets the previous transition from which this transition was redirected.
-   *
-   * @returns {Object} A `Transition` instance, or `null`.
+   * @returns The previous Transition, or null if this Transition is not the result of a redirection
    */
   previous(): Transition {
     return this._options.previous || null;
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.state.type:Transition#options
-   * @methodOf ui.router.state.type:Transition
+   * Get the transition options
    *
-   * @description
-   * Returns all options passed to the constructor of this `Transition`.
+   * @returns the options for this Transition.
    */
-  options() {
+  options(): TransitionOptions {
     return this._options;
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.state.type:Transition#entering
-   * @methodOf ui.router.state.type:Transition
-   *
-   * @description
    * Gets the states being entered.
    *
-   * @returns {Array} Returns an array of states that will be entered in this transition.
+   * @returns an array of states that will be entered during this transition.
    */
   entering(): StateDeclaration[] {
     return map(this._treeChanges.entering, prop('state')).map(stateSelf);
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.state.type:Transition#exiting
-   * @methodOf ui.router.state.type:Transition
-   *
-   * @description
    * Gets the states being exited.
    *
-   * @returns {Array} Returns an array of states that will be exited in this transition.
+   * @returns an array of states that will be exited during this transition.
    */
   exiting(): StateDeclaration[] {
     return map(this._treeChanges.exiting, prop('state')).map(stateSelf).reverse();
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.state.type:Transition#retained
-   * @methodOf ui.router.state.type:Transition
-   *
-   * @description
    * Gets the states being retained.
    *
-   * @returns {Array} Returns an array of states that were entered in a previous transition that
-   *           will not be exited.
+   * @returns an array of states that are already entered from a previous Transition, that will not be
+   *    exited during this Transition
    */
   retained(): StateDeclaration[] {
     return map(this._treeChanges.retained, prop('state')).map(stateSelf);
   }
 
   /**
-   * Returns a list of ViewConfig objects for a given path. Returns one ViewConfig for each view in
-   * each state in a named path of the transition's tree changes. Optionally limited to a given state in that path.
+   * Get the [[ViewConfig]]s associated with this Transition
+   *
+   * Each state can define one or more views (template/controller), which are encapsulated as `ViewConfig` objects.
+   * This method fetches the `ViewConfigs` for a given path in the Transition (e.g., "to" or "entering").
+   *
+   * @param pathname the name of the path to fetch views for:
+   *   (`'to'`, `'from'`, `'entering'`, `'exiting'`, `'retained'`)
+   * @param state If provided, only returns the `ViewConfig`s for a single state in the path
+   *
+   * @returns a list of ViewConfig objects for the given path.
    */
   views(pathname: string = "entering", state?: State): ViewConfig[] {
     let path = this._treeChanges[pathname];
@@ -270,17 +298,14 @@ export class Transition implements IHookRegistry {
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.state.type:Transition#ignored
-   * @methodOf ui.router.state.type:Transition
+   * Checks if the transition will be ignored.
    *
-   * @description
    * Indicates whether the transition should be ignored, based on whether the to and from states are the
-   * same, and whether the `reload` option is set.
+   * same, whether the parameters are equal (or dynamic), and whether the `reload` option is set.
    *
-   * @returns {boolean} Whether the transition should be ignored.
+   * @returns true if the Transition should be ignored.
    */
-  ignored() {
+  ignored(): boolean {
     let {to, from} = this._treeChanges;
     if (this._options.reload || tail(to).state !== tail(from).state) return false;
 
@@ -291,6 +316,9 @@ export class Transition implements IHookRegistry {
     return tuples.map(([schema, toVals, fromVals]) => Param.equals(schema, toVals, fromVals)).reduce(allTrueR, true);
   }
 
+  /**
+   * @hidden
+   */
   hookBuilder(): HookBuilder {
     return new HookBuilder($transitions, this, <TransitionHookOptions> {
       transition: this,
@@ -298,7 +326,14 @@ export class Transition implements IHookRegistry {
     });
   }
 
-  run () {
+  /**
+   * Runs the transition
+   *
+   * This method is generally called from the [[StateService.transitionTo]]
+   *
+   * @returns a promise for a successful transition.
+   */
+  run (): IPromise<any> {
     let hookBuilder = this.hookBuilder();
     let runSynchronousHooks = TransitionHook.runSynchronousHooks;
     // TODO: nuke these in favor of chaining off the promise, i.e.,
@@ -351,10 +386,20 @@ export class Transition implements IHookRegistry {
 
   isActive = () => this === this._options.current();
 
+  /**
+   * Checks if the Transition is valid
+   *
+   * @returns true if the Transition is valid
+   */
   valid() {
     return !this.error();
   }
 
+  /**
+   * The reason the Transition is invalid
+   *
+   * @returns an error message explaining why the transition is invalid
+   */
   error() {
     let state = this.$to();
 
@@ -364,6 +409,11 @@ export class Transition implements IHookRegistry {
       return `Param values not valid for state '${state.name}'`;
   }
 
+  /**
+   * A string representation of the Transition
+   *
+   * @returns A string representation of the Transition
+   */
   toString () {
     let fromStateOrName = this.from();
     let toStateOrName = this.to();

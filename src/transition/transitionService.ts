@@ -29,21 +29,67 @@ export let defaultTransOpts: TransitionOptions = {
   current     : () => null
 };
 
+/**
+ * This class provides services related to Transitions.
+ *
+ * Most importantly, it allows global Transition Hooks to be registered, and has a factory function
+ * for creating new Transitions.
+ */
 class TransitionService implements ITransitionService, IHookRegistry {
   constructor() {
     this._reinit();
   }
 
-  /** @inheritdoc */
-  onBefore  : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
-  onStart   : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
-  onEnter   : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
-  onRetain  : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
-  onExit    : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
-  onFinish  : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
-  onSuccess : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
-  onError   : (matchObject: IMatchCriteria, callback: IInjectable, options?) => Function;
+  /**
+   * Registers a callback function as an `onBefore` Transition Hook
+   *
+   * See [[IHookRegistry.onBefore]]
+   */
+  onBefore  : IHookRegistration;
+  /**
+   * Registers a callback function as an `onStart` Transition Hook
+   *
+   * See [[IHookRegistry.onStart]]
+   */
+  onStart   : IHookRegistration;
+  /**
+   * Registers a callback function as an `onEnter` Transition Hook
+   *
+   * See [[IHookRegistry.onEnter]]
+   */
+  onEnter   : IHookRegistration;
+  /**
+   * Registers a callback function as an `onRetain` Transition Hook
+   *
+   * See [[IHookRegistry.onRetain]]
+   */
+  onRetain  : IHookRegistration;
+  /**
+   * Registers a callback function as an `onExit` Transition Hook
+   *
+   * See [[IHookRegistry.onExit]]
+   */
+  onExit    : IHookRegistration;
+  /**
+   * Registers a callback function as an `onFinish` Transition Hook
+   *
+   * See [[IHookRegistry.onFinish]]
+   */
+  onFinish  : IHookRegistration;
+  /**
+   * Registers a callback function as an `onSuccess` Transition Hook
+   *
+   * See [[IHookRegistry.onSuccess]]
+   */
+  onSuccess : IHookRegistration;
+  /**
+   * Registers a callback function as an `onError` Transition Hook
+   *
+   * See [[IHookRegistry.onError]]
+   */
+  onError   : IHookRegistration;
 
+  /** @hidden */
   getHooks  : (hookName: string) => IEventHook[];
 
   private _defaultErrorHandler: ((_error) => void) = function $defaultErrorHandler($error$) {
@@ -51,21 +97,29 @@ class TransitionService implements ITransitionService, IHookRegistry {
   };
 
   defaultErrorHandler(handler: (error) => void) {
-    if (arguments.length)
-      this._defaultErrorHandler = handler;
-    return this._defaultErrorHandler;
+    return this._defaultErrorHandler = handler || this._defaultErrorHandler;
   }
 
   private _reinit() {
     HookRegistry.mixin(new HookRegistry(), this);
   }
 
+  /**
+   * Creates a new [[Transition]] object
+   *
+   * This is a factory function for creating new Transition objects.
+   *
+   * @param fromPath
+   * @param targetState
+   * @returns {Transition}
+   */
   create(fromPath: Node[], targetState: TargetState) {
     return new Transition(fromPath, targetState);
   }
 }
 
 
+// todo: move to Router class
 export let $transitions = new TransitionService();
 
 $TransitionProvider.prototype = $transitions;
