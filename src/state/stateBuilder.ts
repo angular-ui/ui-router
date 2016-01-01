@@ -44,12 +44,15 @@ export class StateBuilder {
   /** An object that contains all the BuilderFunctions registered, key'd by the name of the State property they build */
   private builders: Builders;
 
-  constructor(root: () => State, private matcher: StateMatcher, $urlMatcherFactoryProvider: UrlMatcherFactory) {
+  constructor(private matcher: StateMatcher, $urlMatcherFactoryProvider: UrlMatcherFactory) {
     let self = this;
+
+    const isRoot = (state) => state.name === "";
+    const root = () => matcher.find("");
 
     this.builders = {
       parent: [function (state: State) {
-        if (state === root()) return null;
+        if (isRoot(state)) return null;
         return matcher.find(self.parentName(state)) || root();
       }],
 
@@ -79,7 +82,7 @@ export class StateBuilder {
 
       // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
       navigable: [function (state: State) {
-        return (state !== root()) && state.url ? state : (state.parent ? state.parent.navigable : null);
+        return !isRoot(state) && state.url ? state : (state.parent ? state.parent.navigable : null);
       }],
 
       params: [function (state: State): { [key: string]: Param } {

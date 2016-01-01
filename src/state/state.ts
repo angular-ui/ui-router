@@ -46,7 +46,7 @@ export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: U
   let $state: StateService = <any> function $state() {};
 
   let matcher       = new StateMatcher(states);
-  let builder       = new StateBuilder(() => root, matcher, $urlMatcherFactoryProvider);
+  let builder       = new StateBuilder(matcher, $urlMatcherFactoryProvider);
   let stateQueue    = new StateQueueManager(states, builder, $urlRouterProvider, $state);
   let transQueue    = new Queue<Transition>();
   let treeChangesQueue = new Queue<TreeChanges>();

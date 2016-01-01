@@ -43,7 +43,7 @@ describe('view', function() {
 
     states = {};
     let matcher = new StateMatcher(states);
-    let stateBuilder = new StateBuilder(() => root, matcher, $urlMatcherFactoryProvider);
+    let stateBuilder = new StateBuilder(matcher, $urlMatcherFactoryProvider);
     register = registerState(states, stateBuilder);
     root = register({name: ""});
   }));

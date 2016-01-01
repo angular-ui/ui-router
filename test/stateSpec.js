@@ -81,14 +81,14 @@ describe('state helpers', function() {
   });
 
   describe('StateBuilder', function() {
-    var builder, root, matcher, urlMatcherFactoryProvider = {
+    var builder, matcher, urlMatcherFactoryProvider = {
       compile: function() {},
       isMatcher: function() {}
     };
 
     beforeEach(function() {
       matcher = new StateMatcher(states);
-      builder = new StateBuilder(function() { return root; }, matcher, urlMatcherFactoryProvider);
+      builder = new StateBuilder(matcher, urlMatcherFactoryProvider);
     });
 
     describe('interface', function() {
@@ -145,7 +145,7 @@ describe('state helpers', function() {
       });
 
       it('should concatenate URLs from root', function() {
-        root = { url: { append: function() {} } }, url = {};
+        var root = states[''] = { url: { append: function() {} } }, url = {};
         spyOn(root.url, 'append').and.returnValue(url);
         spyOn(urlMatcherFactoryProvider, 'isMatcher').and.returnValue(true);
         spyOn(urlMatcherFactoryProvider, 'compile').and.returnValue(url);
@@ -159,6 +159,7 @@ describe('state helpers', function() {
       });
 
       it('should pass through custom UrlMatchers', function() {
+        var root = states[''] = { url: { append: function() {} } };
         var url = new UrlMatcher("/");
         spyOn(urlMatcherFactoryProvider, 'isMatcher').and.returnValue(true);
         spyOn(root.url, 'append').and.returnValue(url);
