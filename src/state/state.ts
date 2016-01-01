@@ -52,6 +52,19 @@ export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: U
   let treeChangesQueue = new Queue<TreeChanges>();
   let rejectFactory = new RejectFactory();
 
+  let rootStateDef: StateDeclaration = {
+    name: '',
+    url: '^',
+    views: null,
+    params: {
+      '#': { value: null, type: 'hash' }
+    },
+    abstract: true
+  };
+  root = stateQueue.register(rootStateDef);
+  root.navigable = null;
+
+
   /**
    * @ngdoc function
    * @name ui.router.state.$stateProvider#decorator
@@ -390,18 +403,6 @@ export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: U
 
     let $transitions: ITransitionService = <any> _$transition;
     // Implicit root state that is always active
-    let rootStateDef: StateDeclaration = {
-      name: '',
-      url: '^',
-      views: null,
-      params: {
-        '#': { value: null, type: 'hash' }
-      },
-      abstract: true
-    };
-    root = stateQueue.register(rootStateDef, true);
-
-    root.navigable = null;
     const rootPath = () => PathFactory.bindTransNodesToPath([new Node(root, {})]);
 
     $view.rootContext(root);

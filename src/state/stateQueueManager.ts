@@ -16,7 +16,7 @@ export class StateQueueManager {
     this.queue = [];
   }
 
-  register(config: StateDeclaration, pre?: boolean) {
+  register(config: StateDeclaration) {
     let {states, queue, $state} = this;
     // Wrap a new object around the state so we can store our private details easily.
     // @TODO: state = new State(extend({}, config, { ... }))
@@ -30,7 +30,7 @@ export class StateQueueManager {
     if (states.hasOwnProperty(state.name) || pluck(queue, 'name').indexOf(state.name) !== -1)
       throw new Error(`State '${state.name}' is already defined`);
 
-    queue[pre ? "unshift" : "push"](state);
+    queue.push(state);
 
     if (this.autoFlush) {
       this.flush($state);
