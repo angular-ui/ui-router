@@ -22,9 +22,7 @@ export class TransitionRejection {
   }
 
   toString() {
-    function detailString(d) {
-      return d && d.toString !== Object.prototype.toString ? d.toString() : JSON.stringify(d);
-    }
+    const detailString = d => d && d.toString !== Object.prototype.toString ? d.toString() : JSON.stringify(d);
     let type = this.type, message = this.message, detail = detailString(this.detail);
     return `TransitionRejection(type: ${type}, message: ${message}, detail: ${detail})`;
   }

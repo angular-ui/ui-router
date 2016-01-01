@@ -309,7 +309,7 @@ describe('transition', function () {
         var states = [], rejection, transition = makeTransition("A", "D");
         transitionProvider.onEnter({ from: "*", to: "*" }, function($state$) { states.push($state$); });
         transitionProvider.onEnter({ from: "*", to: "C" }, function($state, $transition$) {
-          return $transition$.redirect(targetState("B"));
+          return targetState("B");
         });
         transition.promise.catch(function(err) { rejection = err; });
 
@@ -317,8 +317,7 @@ describe('transition', function () {
 
         expect(pluck(states, 'name')).toEqual([ 'B', 'C' ]);
         expect(rejection.type).toEqual(RejectType.SUPERSEDED);
-        expect(rejection.detail.to().name).toEqual("B");
-        expect(rejection.detail.from().name).toEqual("A");
+        expect(rejection.detail.name()).toEqual("B");
         expect(rejection.redirected).toEqual(true);
       }));
 

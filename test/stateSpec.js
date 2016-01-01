@@ -1885,7 +1885,7 @@ describe('.onInvalid()', function() {
 
   it('should allow redirection if an ITargetState is returned', inject(function($state, $transitions, $q) {
     $stateProvider.onInvalid(function($to$) {
-      return $state.targetState("second", $to$.params(), $to$.options());
+      return $state.target("second", $to$.params(), $to$.options());
     });
 
     $state.go("invalid");

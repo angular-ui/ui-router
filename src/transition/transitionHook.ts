@@ -6,9 +6,8 @@ import {IInjectable, defaults, extend, noop, filter, not, isFunction, isDefined,
 import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 
-import {Transition} from "./transition";
 import {TransitionRejection, RejectFactory} from "./rejectFactory";
-import {State} from "../state/module";
+import {State, TargetState} from "../state/module";
 import {Resolvable, ResolveContext} from "../resolve/module";
 
 let REJECT = new RejectFactory();
@@ -42,7 +41,7 @@ export class TransitionHook {
     // If the hook returns false, abort the current Transition
     [eq(false),         val(REJECT.aborted("Hook aborted transition"))],
     // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
-    [is(Transition),    (transition) => REJECT.redirected(transition)],
+    [is(TargetState),   (target) => REJECT.redirected(target)],
     // A promise was returned, wait for the promise and then chain another hookHandler
     [isPromise,         (promise) => promise.then(this.handleHookResult.bind(this))]
   ]);

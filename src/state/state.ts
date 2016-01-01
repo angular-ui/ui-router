@@ -371,7 +371,7 @@ export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: U
         }
         let target = <TargetState> result;
         // Recreate the TargetState, in case the state is now defined.
-        target = $state.targetState(target.identifier(), target.params(), target.options());
+        target = $state.target(target.identifier(), target.params(), target.options());
 
         if (!target.valid()) return rejectFactory.invalid(target.error());
         if (latestThing() !== latest) return rejectFactory.superseded();
@@ -542,7 +542,7 @@ export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: U
     };
 
     /** Factory method for creating a TargetState */
-    $state.targetState = function targetState(identifier: StateOrName, params: ParamsOrArray, options: TransitionOptions = {}): TargetState {
+    $state.target = function target(identifier: StateOrName, params: ParamsOrArray, options: TransitionOptions = {}): TargetState {
       let stateDefinition = matcher.find(identifier, options.relative);
       return new TargetState(identifier, stateDefinition, params, options);
     };
@@ -593,10 +593,11 @@ export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: U
       if (isObject(options.reload) && !(<any>options.reload).name)
         throw new Error('Invalid reload state object');
       options.reloadState = options.reload === true ? $state.$current.path[0] : matcher.find(<any> options.reload, options.relative);
+
       if (options.reload && !options.reloadState)
         throw new Error(`No such reload state '${(isString(options.reload) ? options.reload : (<any>options.reload).name)}'`);
 
-      let ref: TargetState = $state.targetState(to, toParams, options);
+      let ref: TargetState = $state.target(to, toParams, options);
       let latestTreeChanges: TreeChanges = treeChangesQueue.peekTail();
       let currentPath: Node[] = latestTreeChanges ? latestTreeChanges.to : rootPath();
 

@@ -420,7 +420,7 @@ export interface StateService {
   $current:     State;
   transition:   Transition;
   reload        (stateOrName: StateOrName): IPromise<State>;
-  targetState   (identifier: StateOrName, params: ParamsOrArray, options: TransitionOptions): TargetState;
+  target        (identifier: StateOrName, params: ParamsOrArray, options: TransitionOptions): TargetState;
   go            (to: StateOrName, params: RawParams, options: TransitionOptions): IPromise<State>;
   transitionTo  (to: StateOrName, toParams: ParamsOrArray, options: TransitionOptions): IPromise<State>;
   is            (stateOrName: StateOrName, params?: RawParams, options?: TransitionOptions): boolean;

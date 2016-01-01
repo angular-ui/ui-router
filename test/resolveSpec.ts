@@ -635,7 +635,7 @@ describe("Integration: Resolvables system", () => {
   it("should not re-resolve data, when redirecting to a child", () => {
     $transitions.onStart({to: "J"}, ($transition$, _J) => {
       expect(counts._J).toEqualData(1);
-      return $transition$.redirect($state.targetState("K"));
+      return $state.target("K");
     });
     $state.go("J");
     $rootScope.$digest();

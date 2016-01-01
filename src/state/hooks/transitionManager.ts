@@ -9,6 +9,7 @@ import {Transition} from "../../transition/transition";
 import {TransitionRejection, RejectType} from "../../transition/rejectFactory";
 
 import {StateService, StateDeclaration} from "../interface";
+import {TargetState} from "../targetState";
 import {ViewHooks} from "./viewHooks";
 import {EnterExitHooks} from "./enterExitHooks";
 import {ResolveHooks} from "./resolveHooks";
@@ -94,10 +95,8 @@ export class TransitionManager {
         return $state.current;
       }
 
-      if (error.type === RejectType.SUPERSEDED) {
-        if (error.redirected && error.detail instanceof Transition) {
-          return this._redirectMgr(error.detail).runTransition();
-        }
+      if (error.type === RejectType.SUPERSEDED && error.redirected && error.detail instanceof TargetState) {
+        return this._redirectMgr(transition.redirect(error.detail)).runTransition();
       }
     }
 

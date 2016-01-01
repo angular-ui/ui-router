@@ -166,7 +166,7 @@ import {Transition} from "../transition/transition";
       $urlRouter.update();
 
     function redirectFn():TargetState {
-      return $state.targetState(redirect.to, redirect.toParams, redirect.options);
+      return $state.target(redirect.to, redirect.toParams, redirect.options);
     }
 
     if (e.defaultPrevented) {
