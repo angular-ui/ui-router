@@ -67,11 +67,15 @@ app.run(runBlock);
 const bindFunctions = (fnNames: string[], from, to) =>
     fnNames.forEach(name => to[name] = from[name].bind(from));
 
-let router = null;
+let router: Router = null;
 
 ng1UIRouter.$inject = ['$locationProvider'];
+/** This angular 1 provider instantiates a Router and exposes its services via the angular injector */
 function ng1UIRouter($locationProvider) {
+
+  // Create a new instance of the Router when the ng1UIRouterProvider is initialized
   router = new Router();
+
   bindFunctions(['hashPrefix'], $locationProvider, services.locationConfig);
 
   this.$get = $get;
@@ -110,6 +114,20 @@ function resolveFactory() {
   };
 }
 
+function $stateParamsProvider() {
+  this.$get = $get;
+  $get.$inject = ['$rootScope'];
+  function $get(   $rootScope) {
+
+    $rootScope.$watch(function() {
+      router.stateParams.$digest();
+    });
+
+    return router.stateParams;
+  }
+}
+
+
 angular.module('ui.router.init', []).provider("ng1UIRouter", <any> ng1UIRouter);
 // Register as a provider so it's available to other providers
 angular.module('ui.router.util').provider('$urlMatcherFactory', ['ng1UIRouterProvider', () => router.urlMatcherFactory]);
@@ -122,3 +140,4 @@ angular.module('ui.router.init').run(['ng1UIRouter', function(ng1UIRouter) { }])
 angular.module('ui.router.resolve').run(['$resolve', function(resolve) { }]);
 angular.module('ui.router.state').run(['$state', function($state) { }]);
 angular.module('ui.router.util').run(['$urlMatcherFactory', function($urlMatcherFactory) { }]);
+angular.module('ui.router.state').provider('$stateParams', ['ng1UIRouterProvider', $stateParamsProvider]);

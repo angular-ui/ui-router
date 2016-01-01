@@ -17,10 +17,8 @@ export class StateParams {
   $observe(key: string, fn: Function) {}
 }
 
-$StateParamsProvider.$inject = [];
-function $StateParamsProvider() {
 
-  function stateParamsFactory() {
+  export function stateParamsFactory() {
     let observers = {}, current = {};
 
     function unhook(key, func) {
@@ -118,20 +116,3 @@ function $StateParamsProvider() {
 
     return new StateParams();
   }
-
-  let global = stateParamsFactory();
-
-  this.$get = $get;
-  $get.$inject = ['$rootScope'];
-  function $get(   $rootScope) {
-
-    $rootScope.$watch(function() {
-      global.$digest();
-    });
-
-    return global;
-  }
-}
-
-angular.module('ui.router.state')
-    .provider('$stateParams', <IServiceProviderFactory> $StateParamsProvider);
