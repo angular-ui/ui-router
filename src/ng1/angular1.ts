@@ -143,11 +143,11 @@ angular.module('ui.router.init', []).provider("ng1UIRouter", <any> ng1UIRouter);
 angular.module('ui.router.util').provider('$urlMatcherFactory', ['ng1UIRouterProvider', () => router.urlMatcherFactory]);
 
 function getUrlRouterProvider() {
-  router.urlRouterProvider["$get"] = [ 'ng1UIRouter', function() {
+  router.urlRouterProvider["$get"] = function() {
     router.urlRouter.update(true);
     if (!this.interceptDeferred) router.urlRouter.listen();
     return router.urlRouter;
-  }];
+  };
   return router.urlRouterProvider;
 }
 angular.module('ui.router.router').provider('$urlRouter', ['ng1UIRouterProvider', getUrlRouterProvider]);
@@ -161,3 +161,9 @@ angular.module('ui.router.resolve').run(['$resolve', function(resolve) { }]);
 angular.module('ui.router.state').run(['$state', function($state) { }]);
 angular.module('ui.router.util').run(['$urlMatcherFactory', function($urlMatcherFactory) { }]);
 angular.module('ui.router.state').provider('$stateParams', ['ng1UIRouterProvider', $stateParamsProvider]);
+
+function getTransitionsProvider() {
+  router.transitionService["$get"] = () => router.transitionService;
+  return router.transitionService;
+}
+angular.module('ui.router.state').provider('$transitions', ['ng1UIRouterProvider', getTransitionsProvider]);

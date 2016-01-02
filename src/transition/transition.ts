@@ -12,12 +12,13 @@ import {
 import {StateDeclaration, StateOrName} from "../state/interface";
 import {TransitionOptions, TransitionHookOptions, TreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";
 
-import {$transitions, TransitionHook, HookRegistry, matchState, HookBuilder, RejectFactory, TransitionRejection} from "./module";
+import {TransitionHook, HookRegistry, matchState, HookBuilder, RejectFactory, TransitionRejection} from "./module";
 import {Node, PathFactory} from "../path/module";
 import {State, TargetState} from "../state/module";
 import {Param} from "../params/module";
 import {Resolvable} from "../resolve/module";
 import {ViewConfig} from "../view/module";
+import {TransitionService} from "./transitionService";
 
 
 let transitionCount = 0, REJECT = new RejectFactory();
@@ -112,8 +113,9 @@ export class Transition implements IHookRegistry {
    * @param fromPath The path of [[Node]]s from which the transition is leaving.  The last node in the `fromPath`
    *        encapsulates the "from state".
    * @param targetState The target state and parameters being transitioned to (also, the transition options)
+   * @param $transitions The Transition Service instance
    */
-  constructor(fromPath: Node[], targetState: TargetState) {
+  constructor(fromPath: Node[], targetState: TargetState, private $transitions: TransitionService) {
     if (!targetState.valid()) {
       throw new Error(targetState.error());
     }
@@ -284,7 +286,7 @@ export class Transition implements IHookRegistry {
     let newOptions = extend({}, this.options(), targetState.options(), { previous: this });
     targetState = new TargetState(targetState.identifier(), targetState.$state(), targetState.params(), newOptions);
 
-    let redirectTo = new Transition(this._treeChanges.from, targetState);
+    let redirectTo = new Transition(this._treeChanges.from, targetState, this.$transitions);
 
     // If the current transition has already resolved any resolvables which are also in the redirected "to path", then
     // add those resolvables to the redirected transition.  Allows you to define a resolve at a parent level, wait for
@@ -320,7 +322,7 @@ export class Transition implements IHookRegistry {
    * @hidden
    */
   hookBuilder(): HookBuilder {
-    return new HookBuilder($transitions, this, <TransitionHookOptions> {
+    return new HookBuilder(this.$transitions, this, <TransitionHookOptions> {
       transition: this,
       current: this._options.current
     });

@@ -35,9 +35,9 @@ export let defaultTransOpts: TransitionOptions = {
  * Most importantly, it allows global Transition Hooks to be registered, and has a factory function
  * for creating new Transitions.
  */
-class TransitionService implements ITransitionService, IHookRegistry {
+export class TransitionService implements ITransitionService, IHookRegistry {
   constructor() {
-    this._reinit();
+    HookRegistry.mixin(new HookRegistry(), this);
   }
 
   /**
@@ -100,10 +100,6 @@ class TransitionService implements ITransitionService, IHookRegistry {
     return this._defaultErrorHandler = handler || this._defaultErrorHandler;
   }
 
-  private _reinit() {
-    HookRegistry.mixin(new HookRegistry(), this);
-  }
-
   /**
    * Creates a new [[Transition]] object
    *
@@ -114,30 +110,6 @@ class TransitionService implements ITransitionService, IHookRegistry {
    * @returns {Transition}
    */
   create(fromPath: Node[], targetState: TargetState) {
-    return new Transition(fromPath, targetState);
+    return new Transition(fromPath, targetState, this);
   }
 }
-
-
-// todo: move to Router class
-export let $transitions = new TransitionService();
-
-$TransitionProvider.prototype = $transitions;
-function $TransitionProvider() {
-  this._reinit.bind($transitions)();
-
-  /**
-   * @ngdoc service
-   * @name ui.router.state.$transitions
-   *
-   * @description
-   * The `$transitions` service is a registry for global transition hooks, and is a factory for Transition objects.
-   */
-  this.$get = function $get() {
-    return $transitions;
-  };
-}
-
-export let $transitionsProvider = $TransitionProvider;
-angular.module('ui.router.state')
-  .provider('$transitions', <IServiceProviderFactory> $transitionsProvider);
