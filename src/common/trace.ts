@@ -204,11 +204,3 @@ class Trace {
 
 let trace = new Trace();
 export {trace};
-
-watchDigests.$inject = ['$rootScope'];
-function watchDigests($rootScope) {
-  $rootScope.$watch(function() { trace.approximateDigests++; });
-}
-
-angular.module("ui.router").run(watchDigests);
-angular.module("ui.router").service("$trace", () => trace);
