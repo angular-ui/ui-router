@@ -21,7 +21,7 @@ let services: CoreServices = {
   locationConfig: <any> {}
 };
 
-["replace", "url", "path", "search", "hash"]
+["replace", "url", "path", "search", "hash", "onChange"]
     .forEach(key => services.location[key] = notImplemented(key));
 
 ["port", "protocol", "host", "baseHref", "html5Mode", "hashPrefix" ]
@@ -43,6 +43,7 @@ interface LocationServices {
   path(): string;
   search(): string;
   hash(): string;
+  onChange(callback: Function): Function;
 }
 
 interface LocationConfig {

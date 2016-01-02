@@ -276,7 +276,7 @@ export class $UrlRouterProvider {
    * @description
    *
    */
-  $get(    $rootScope) {
+  $get() {
     let self = this;
     var location = $location.url();
 
@@ -312,7 +312,7 @@ export class $UrlRouterProvider {
     }
 
     function listen() {
-      return self.listener = self.listener || $rootScope.$on('$locationChangeSuccess', update);
+      return self.listener = self.listener || $location.onChange(update);
     }
 
     if (!self.interceptDeferred) listen();
@@ -420,6 +420,3 @@ export class $UrlRouterProvider {
     return new UrlRouter();
   }
 }
-
-
-(<any> $UrlRouterProvider.prototype).$get.$inject = [ '$rootScope'];

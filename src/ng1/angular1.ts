@@ -78,9 +78,20 @@ function ng1UIRouter($locationProvider) {
 
   bindFunctions(['hashPrefix'], $locationProvider, services.locationConfig);
 
+  let urlListeners: Function[] = [];
+  services.location.onChange = (callback) => {
+    urlListeners.push(callback);
+    return () => {
+      let idx = urlListeners.indexOf(callback);
+      if (idx !== -1) urlListeners.splice(idx, 1);
+    }
+  };
+
   this.$get = $get;
-  $get.$inject = ['$location', '$browser', '$sniffer'];
-  function $get($location, $browser, $sniffer) {
+  $get.$inject = ['$location', '$browser', '$sniffer', '$rootScope'];
+  function $get($location, $browser, $sniffer, $rootScope) {
+
+    $rootScope.$on("$locationChangeSuccess", evt => urlListeners.forEach(fn => fn(evt)));
 
     services.locationConfig.html5Mode = function() {
       var html5Mode = $locationProvider.html5Mode();
