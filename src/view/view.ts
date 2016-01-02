@@ -1,8 +1,10 @@
-/** @module view */ /** for typedoc */
+/** @module view */
+/** for typedoc */
 "use strict";
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {isInjectable, isString, extend, curry, applyPairs, prop, pick, removeFrom, TypedMap} from "../common/common";
 import {trace} from "../common/module";
+import {services} from "../common/coreservices";
 
 import {StateViewConfig, ViewDeclaration} from "../state/interface";
 import {UIViewData, ViewContext} from "./interface";
@@ -112,8 +114,8 @@ export class ViewConfig {
  * @description
  *
  */
-$View.$inject = ['$rootScope', '$templateFactory', '$q', '$timeout'];
-function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
+$View.$inject = ['$templateFactory'];
+function $View(   $templateFactory) {
 
   let uiViews: UIViewData[] = [];
   let viewConfigs: ViewConfig[] = [];
@@ -145,6 +147,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $timeout) {
     if (!viewConfig.hasTemplate())
       throw new Error(`No template configuration specified for '${viewConfig.uiViewName}@${viewConfig.uiViewContextAnchor}'`);
 
+    let $q = services.$q;
     let promises = {
       template: $q.when(viewConfig.getTemplate($templateFactory, injector)),
       controller: $q.when(viewConfig.getController(injector))
