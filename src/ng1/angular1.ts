@@ -138,11 +138,20 @@ function $stateParamsProvider() {
   }
 }
 
-
 angular.module('ui.router.init', []).provider("ng1UIRouter", <any> ng1UIRouter);
 // Register as a provider so it's available to other providers
 angular.module('ui.router.util').provider('$urlMatcherFactory', ['ng1UIRouterProvider', () => router.urlMatcherFactory]);
-angular.module('ui.router.router').provider('$urlRouter', ['ng1UIRouterProvider', () => router.urlRouterProvider]);
+
+function getUrlRouterProvider() {
+  router.urlRouterProvider["$get"] = [ 'ng1UIRouter', function() {
+    router.urlRouter.update(true);
+    if (!this.interceptDeferred) router.urlRouter.listen();
+    return router.urlRouter;
+  }];
+  return router.urlRouterProvider;
+}
+angular.module('ui.router.router').provider('$urlRouter', ['ng1UIRouterProvider', getUrlRouterProvider]);
+
 angular.module('ui.router.state').provider('$state', ['ng1UIRouterProvider', () => router.stateProvider]);
 angular.module('ui.router.resolve', []).factory('$resolve', <any> resolveFactory);
 

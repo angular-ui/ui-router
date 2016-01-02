@@ -21,12 +21,43 @@ function interpolate(pattern, match) {
   });
 }
 
-
 function handleIfMatch($injector, handler, match) {
   if (!match) return false;
   var result = $injector.invoke(handler, handler, { $match: match });
   return isDefined(result) ? result : true;
 }
+
+function appendBasePath(url, isHtml5, absolute) {
+  var baseHref = services.locationConfig.baseHref();
+  if (baseHref === '/') return url;
+  if (isHtml5) return baseHref.slice(0, -1) + url;
+  if (absolute) return baseHref.slice(1) + url;
+  return url;
+}
+
+// TODO: Optimize groups of rules with non-empty prefix into some sort of decision tree
+function update(rules: Function[], otherwiseFn: Function, evt?: any) {
+  if (evt && evt.defaultPrevented) return;
+
+  function check(rule) {
+    var handled = rule(services.$injector, $location);
+
+    if (!handled) return false;
+    if (isString(handled)) {
+      $location.replace();
+      $location.url(handled);
+    }
+    return true;
+  }
+  var n = rules.length, i;
+
+  for (i = 0; i < n; i++) {
+    if (check(rules[i])) return;
+  }
+  // always check otherwise last to allow dynamic updates to the set of rules
+  if (otherwiseFn) check(otherwiseFn);
+}
+
 
 /**
  * @ngdoc object
@@ -44,11 +75,10 @@ function handleIfMatch($injector, handler, match) {
  * There are several methods on `$urlRouterProvider` that make it useful to use directly
  * in your module config.
  */
-export class $UrlRouterProvider {
-  private rules = [];
-  private otherwiseFn: Function = null;
+export class UrlRouterProvider {
+  rules = [];
+  otherwiseFn: Function = null;
   private interceptDeferred = false;
-  private listener;
 
   constructor(private $urlMatcherFactory: UrlMatcherFactory) {
 
@@ -264,75 +294,37 @@ export class $UrlRouterProvider {
    * @param {boolean} defer Indicates whether to defer location change interception. Passing
             no parameter is equivalent to `true`.
    */
-  deferIntercept = function (defer) {
+  deferIntercept(defer) {
     if (defer === undefined) defer = true;
     this.interceptDeferred = defer;
   };
+}
+
+export class UrlRouter {
+  private location: string;
+  private listener: Function;
+
+  constructor(private urlRouterProvider: UrlRouterProvider) {
+    Object.keys(UrlRouter.prototype)
+        .filter(key => typeof UrlRouter.prototype[key] === 'function')
+        .forEach(key => this[key] = this[key].bind(this));
+  }
 
   /**
-   * @ngdoc object
-   * @name ui.router.router.$urlRouter
+   * @ngdoc function
+   * @name ui.router.router.$urlRouter#sync
+   * @methodOf ui.router.router.$urlRouter
    *
    * @description
+   * Triggers an update; the same update that happens when the address bar url changes, aka `$locationChangeSuccess`.
+   * This method is useful when you need to use `preventDefault()` on the `$locationChangeSuccess` event,
+   * perform some custom logic (route protection, auth, config, redirection, etc) and then finally proceed
+   * with the transition by calling `$urlRouter.sync()`.
    *
-   */
-  $get() {
-    let self = this;
-    var location = $location.url();
-
-    function appendBasePath(url, isHtml5, absolute) {
-      var baseHref = services.locationConfig.baseHref();
-      if (baseHref === '/') return url;
-      if (isHtml5) return baseHref.slice(0, -1) + url;
-      if (absolute) return baseHref.slice(1) + url;
-      return url;
-    }
-
-    // TODO: Optimize groups of rules with non-empty prefix into some sort of decision tree
-    function update(evt?: any) {
-      if (evt && evt.defaultPrevented) return;
-
-      function check(rule) {
-        var handled = rule(services.$injector, $location);
-
-        if (!handled) return false;
-        if (isString(handled)) {
-          $location.replace();
-          $location.url(handled);
-        }
-        return true;
-      }
-      var n = self.rules.length, i;
-
-      for (i = 0; i < n; i++) {
-        if (check(self.rules[i])) return;
-      }
-      // always check otherwise last to allow dynamic updates to the set of rules
-      if (self.otherwiseFn) check(self.otherwiseFn);
-    }
-
-    function listen() {
-      return self.listener = self.listener || $location.onChange(update);
-    }
-
-    if (!self.interceptDeferred) listen();
-
-    class UrlRouter {
-      /**
-       * @ngdoc function
-       * @name ui.router.router.$urlRouter#sync
-       * @methodOf ui.router.router.$urlRouter
-       *
-       * @description
-       * Triggers an update; the same update that happens when the address bar url changes, aka `$locationChangeSuccess`.
-       * This method is useful when you need to use `preventDefault()` on the `$locationChangeSuccess` event,
-       * perform some custom logic (route protection, auth, config, redirection, etc) and then finally proceed
-       * with the transition by calling `$urlRouter.sync()`.
-       *
-       * @example
-       * <pre>
-       * angular.module('app', ['ui.router'])
-       *   .run(function($rootScope, $urlRouter) {
+   * @example
+   * <pre>
+   * angular.module('app', ['ui.router'])
+   *   .run(function($rootScope, $urlRouter) {
        *     $rootScope.$on('$locationChangeSuccess', function(evt) {
        *       // Halt state change from even starting
        *       evt.preventDefault();
@@ -342,81 +334,78 @@ export class $UrlRouterProvider {
        *       if (meetsRequirement) $urlRouter.sync();
        *     });
        * });
-       * </pre>
-       */
-      sync() {
-        update();
-      }
+   * </pre>
+   */
+  sync() {
+    update(this.urlRouterProvider.rules, this.urlRouterProvider.otherwiseFn);
+  }
 
-      listen() {
-        return listen();
-      }
+  listen() {
+    return this.listener = this.listener || $location.onChange(evt => update(this.urlRouterProvider.rules, this.urlRouterProvider.otherwiseFn, evt));
+  }
 
-      update(read) {
-        if (read) {
-          location = $location.url();
-          return;
-        }
-        if ($location.url() === location) return;
+  update(read) {
+    if (read) {
+      this.location = $location.url();
+      return;
+    }
+    if ($location.url() === this.location) return;
 
-        $location.url(location);
-        $location.replace();
-      }
+    $location.url(this.location);
+    $location.replace();
+  }
 
-      push(urlMatcher, params, options) {
-        $location.url(urlMatcher.format(params || {}));
-        if (options && options.replace) $location.replace();
-      }
+  push(urlMatcher, params, options) {
+    $location.url(urlMatcher.format(params || {}));
+    if (options && options.replace) $location.replace();
+  }
 
-      /**
-       * @ngdoc function
-       * @name ui.router.router.$urlRouter#href
-       * @methodOf ui.router.router.$urlRouter
-       *
-       * @description
-       * A URL generation method that returns the compiled URL for a given
-       * {@link ui.router.util.type:UrlMatcher `UrlMatcher`}, populated with the provided parameters.
-       *
-       * @example
-       * <pre>
-       * $bob = $urlRouter.href(new UrlMatcher("/about/:person"), {
+  /**
+   * @ngdoc function
+   * @name ui.router.router.$urlRouter#href
+   * @methodOf ui.router.router.$urlRouter
+   *
+   * @description
+   * A URL generation method that returns the compiled URL for a given
+   * {@link ui.router.util.type:UrlMatcher `UrlMatcher`}, populated with the provided parameters.
+   *
+   * @example
+   * <pre>
+   * $bob = $urlRouter.href(new UrlMatcher("/about/:person"), {
        *   person: "bob"
        * });
-       * // $bob == "/about/bob";
-       * </pre>
-       *
-       * @param {UrlMatcher} urlMatcher The `UrlMatcher` object which is used as the template of the URL to generate.
-       * @param {object=} params An object of parameter values to fill the matcher's required parameters.
-       * @param {object=} options Options object. The options are:
-       *
-       * - **`absolute`** - {boolean=false},  If true will generate an absolute url, e.g. "http://www.example.com/fullurl".
-       *
-       * @returns {string} Returns the fully compiled URL, or `null` if `params` fail validation against `urlMatcher`
-       */
-      href(urlMatcher: UrlMatcher, params: any, options: any): string {
-        if (!urlMatcher.validates(params)) return null;
+   * // $bob == "/about/bob";
+   * </pre>
+   *
+   * @param {UrlMatcher} urlMatcher The `UrlMatcher` object which is used as the template of the URL to generate.
+   * @param {object=} params An object of parameter values to fill the matcher's required parameters.
+   * @param {object=} options Options object. The options are:
+   *
+   * - **`absolute`** - {boolean=false},  If true will generate an absolute url, e.g. "http://www.example.com/fullurl".
+   *
+   * @returns {string} Returns the fully compiled URL, or `null` if `params` fail validation against `urlMatcher`
+   */
+  href(urlMatcher: UrlMatcher, params: any, options: any): string {
+    if (!urlMatcher.validates(params)) return null;
 
-        var url = urlMatcher.format(params);
-        options = options || {};
+    var url = urlMatcher.format(params);
+    options = options || {};
 
-        let cfg = services.locationConfig;
-        var isHtml5 = cfg.html5Mode();
-        if (!isHtml5 && url !== null) {
-          url = "#" + cfg.hashPrefix() + url;
-        }
-        url = appendBasePath(url, isHtml5, options.absolute);
+    let cfg = services.locationConfig;
+    var isHtml5 = cfg.html5Mode();
+    if (!isHtml5 && url !== null) {
+      url = "#" + cfg.hashPrefix() + url;
+    }
+    url = appendBasePath(url, isHtml5, options.absolute);
 
-        if (!options.absolute || !url) {
-          return url;
-        }
-
-        var slash = (!isHtml5 && url ? '/' : ''), port = cfg.port();
-        port = <any> (port === 80 || port === 443 ? '' : ':' + port);
-
-        return [cfg.protocol(), '://', cfg.host(), port, slash, url].join('');
-      }
+    if (!options.absolute || !url) {
+      return url;
     }
 
-    return new UrlRouter();
+    var slash = (!isHtml5 && url ? '/' : ''), port = cfg.port();
+    port = <any> (port === 80 || port === 443 ? '' : ':' + port);
+
+    return [cfg.protocol(), '://', cfg.host(), port, slash, url].join('');
   }
 }
+
