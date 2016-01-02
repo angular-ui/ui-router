@@ -20,7 +20,7 @@ describe("UrlRouter", function () {
       inject(function($rootScope, $location, $injector) {
         scope = $rootScope.$new();
         location = $location;
-        $ur = $injector.invoke($urp.$get);
+        $ur = $injector.invoke($urp.$get, $urp);
       });
     });
 
@@ -71,7 +71,7 @@ describe("UrlRouter", function () {
       inject(function($rootScope, $location, $injector) {
         scope = $rootScope.$new();
         location = $location;
-        $ur = $injector.invoke($urp.$get);
+        $ur = $injector.invoke($urp.$get, $urp);
         $s = $injector.get('$sniffer');
         $s.history = true;
       });

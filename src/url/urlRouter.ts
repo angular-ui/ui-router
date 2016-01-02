@@ -8,6 +8,26 @@ import {UrlMatcherFactory} from "./urlMatcherFactory";
 
 let $location = services.location;
 
+// Returns a string that is a prefix of all strings matching the RegExp
+function regExpPrefix(re) {
+  var prefix = /^\^((?:\\[^a-zA-Z0-9]|[^\\\[\]\^$*+?.()|{}]+)*)/.exec(re.source);
+  return (prefix != null) ? prefix[1].replace(/\\(.)/g, "$1") : '';
+}
+
+// Interpolates matched values into a String.replace()-style pattern
+function interpolate(pattern, match) {
+  return pattern.replace(/\$(\$|\d{1,2})/, function (m, what) {
+    return match[what === '$' ? 0 : Number(what)];
+  });
+}
+
+
+function handleIfMatch($injector, handler, match) {
+  if (!match) return false;
+  var result = $injector.invoke(handler, handler, { $match: match });
+  return isDefined(result) ? result : true;
+}
+
 /**
  * @ngdoc object
  * @name ui.router.router.$urlRouterProvider
@@ -24,20 +44,14 @@ let $location = services.location;
  * There are several methods on `$urlRouterProvider` that make it useful to use directly
  * in your module config.
  */
-export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
-  var rules = [], otherwise = null, interceptDeferred = false, listener;
+export class $UrlRouterProvider {
+  private rules = [];
+  private otherwiseFn: Function = null;
+  private interceptDeferred = false;
+  private listener;
 
-  // Returns a string that is a prefix of all strings matching the RegExp
-  function regExpPrefix(re) {
-    var prefix = /^\^((?:\\[^a-zA-Z0-9]|[^\\\[\]\^$*+?.()|{}]+)*)/.exec(re.source);
-    return (prefix != null) ? prefix[1].replace(/\\(.)/g, "$1") : '';
-  }
+  constructor(private $urlMatcherFactory: UrlMatcherFactory) {
 
-  // Interpolates matched values into a String.replace()-style pattern
-  function interpolate(pattern, match) {
-    return pattern.replace(/\$(\$|\d{1,2})/, function (m, what) {
-      return match[what === '$' ? 0 : Number(what)];
-    });
   }
 
   /**
@@ -71,9 +85,9 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
    *
    * @return {object} `$urlRouterProvider` - `$urlRouterProvider` instance
    */
-  this.rule = function (rule) {
+  rule(rule) {
     if (!isFunction(rule)) throw new Error("'rule' must be a function");
-    rules.push(rule);
+    this.rules.push(rule);
     return this;
   };
 
@@ -108,18 +122,11 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
    *
    * @return {object} `$urlRouterProvider` - `$urlRouterProvider` instance
    */
-  this.otherwise = function (rule) {
+  otherwise(rule) {
     if (!isFunction(rule) && !isString(rule)) throw new Error("'rule' must be a string or function");
-    otherwise = isString(rule) ? () => rule : rule;
+    this.otherwiseFn = isString(rule) ? () => rule : rule;
     return this;
   };
-
-
-  function handleIfMatch($injector, handler, match) {
-    if (!match) return false;
-    var result = $injector.invoke(handler, handler, { $match: match });
-    return isDefined(result) ? result : true;
-  }
 
   /**
    * @ngdoc function
@@ -160,7 +167,8 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
    * @param {string|object} what The incoming path that you want to redirect.
    * @param {string|function} handler The path you want to redirect your user to.
    */
-  this.when = function (what, handler) {
+  when(what, handler) {
+    let {$urlMatcherFactory} = this;
     var redirect, handlerIsString = isString(handler);
 
     // @todo Queue this
@@ -256,9 +264,9 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
    * @param {boolean} defer Indicates whether to defer location change interception. Passing
             no parameter is equivalent to `true`.
    */
-  this.deferIntercept = function (defer) {
+  deferIntercept = function (defer) {
     if (defer === undefined) defer = true;
-    interceptDeferred = defer;
+    this.interceptDeferred = defer;
   };
 
   /**
@@ -268,10 +276,8 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
    * @description
    *
    */
-  this.$get = $get;
-  $get.$inject = [ '$rootScope'];
-  function $get(    $rootScope) {
-
+  $get(    $rootScope) {
+    let self = this;
     var location = $location.url();
 
     function appendBasePath(url, isHtml5, absolute) {
@@ -296,23 +302,22 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
         }
         return true;
       }
-      var n = rules.length, i;
+      var n = self.rules.length, i;
 
       for (i = 0; i < n; i++) {
-        if (check(rules[i])) return;
+        if (check(self.rules[i])) return;
       }
       // always check otherwise last to allow dynamic updates to the set of rules
-      if (otherwise) check(otherwise);
+      if (self.otherwiseFn) check(self.otherwiseFn);
     }
 
     function listen() {
-      listener = listener || $rootScope.$on('$locationChangeSuccess', update);
-      return listener;
+      return self.listener = self.listener || $rootScope.$on('$locationChangeSuccess', update);
     }
 
-    if (!interceptDeferred) listen();
+    if (!self.interceptDeferred) listen();
 
-    return {
+    class UrlRouter {
       /**
        * @ngdoc function
        * @name ui.router.router.$urlRouter#sync
@@ -341,11 +346,11 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
        */
       sync() {
         update();
-      },
+      }
 
       listen() {
         return listen();
-      },
+      }
 
       update(read) {
         if (read) {
@@ -356,12 +361,12 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
 
         $location.url(location);
         $location.replace();
-      },
+      }
 
       push(urlMatcher, params, options) {
         $location.url(urlMatcher.format(params || {}));
         if (options && options.replace) $location.replace();
-      },
+      }
 
       /**
        * @ngdoc function
@@ -410,7 +415,11 @@ export function $UrlRouterProvider($urlMatcherFactory: UrlMatcherFactory) {
 
         return [cfg.protocol(), '://', cfg.host(), port, slash, url].join('');
       }
-    };
+    }
+
+    return new UrlRouter();
   }
 }
 
+
+(<any> $UrlRouterProvider.prototype).$get.$inject = [ '$rootScope'];
