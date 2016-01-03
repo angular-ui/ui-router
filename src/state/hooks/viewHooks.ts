@@ -8,6 +8,7 @@ import {TreeChanges} from "../../transition/interface";
 import {Transition} from "../../transition/transition";
 
 import {ViewConfig} from "../../view/view";
+import {ViewService} from "../../view/view";
 
 export class ViewHooks {
   private treeChanges: TreeChanges;
@@ -16,7 +17,7 @@ export class ViewHooks {
   private transition: Transition;
   private $view; // service
 
-  constructor(transition: Transition, $view) {
+  constructor(transition: Transition, $view: ViewService) {
     this.transition = transition;
     this.$view = $view;
 

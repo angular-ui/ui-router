@@ -193,6 +193,8 @@ angular.module('ui.router.state').provider('$transitions', ['ng1UIRouterProvider
 // $templateFactory service
 angular.module('ui.router.util').factory('$templateFactory', ['ng1UIRouter', () => router.templateFactory]);
 
+// The $view service
+angular.module('ui.router').factory('$view', () => router.viewService);
 
 // The old $resolve service
 angular.module('ui.router').factory('$resolve', <any> resolveFactory);

@@ -1,7 +1,7 @@
-/** @module view */
-/** for typedoc */
 "use strict";
+/** @module view */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
+import {TemplateFactory} from "./templateFactory";
 import {isInjectable, isString, extend, curry, applyPairs, prop, pick, removeFrom, TypedMap} from "../common/common";
 import {trace} from "../common/module";
 import {services} from "../common/coreservices";
@@ -104,27 +104,22 @@ export class ViewConfig {
   }
 }
 
+
+const match = (obj1, ...keys) =>
+    (obj2) => keys.reduce(((memo, key) => memo && obj1[key] === obj2[key]), true);
+
 /**
- * @ngdoc object
- * @name ui.router.state.$view
- *
- * @requires ui.router.util.$templateFactory
- * @requires $rootScope
- *
- * @description
- *
+ * The View service
  */
-$View.$inject = ['$templateFactory'];
-function $View(   $templateFactory) {
+export class ViewService {
+  private uiViews: UIViewData[] = [];
+  private viewConfigs: ViewConfig[] = [];
+  private _rootContext;
 
-  let uiViews: UIViewData[] = [];
-  let viewConfigs: ViewConfig[] = [];
+  constructor(private $templateFactory: TemplateFactory) { }
 
-  const match = (obj1, ...keys) =>
-      (obj2) => keys.reduce(((memo, key) => memo && obj1[key] === obj2[key]), true);
-
-  this.rootContext = function(context) {
-    return context ? this._rootContext = context : this._rootContext;
+  rootContext(context) {
+    return this._rootContext = context || this._rootContext;
   };
 
   /**
@@ -143,13 +138,13 @@ function $View(   $templateFactory) {
    *    `$templateFactory.fromConfig()`, including `params` and `locals`.
    * @return {Promise.<string>} Returns a promise that resolves to the value of the template loaded.
    */
-  this.load = function load (viewConfig: ViewConfig, injector: ResolveInjector) {
+  load(viewConfig: ViewConfig, injector: ResolveInjector) {
     if (!viewConfig.hasTemplate())
       throw new Error(`No template configuration specified for '${viewConfig.uiViewName}@${viewConfig.uiViewContextAnchor}'`);
 
     let $q = services.$q;
     let promises: any = {
-      template: $q.when(viewConfig.getTemplate($templateFactory, injector)),
+      template: $q.when(viewConfig.getTemplate(this.$templateFactory, injector)),
       controller: $q.when(viewConfig.getController(injector))
     };
 
@@ -165,19 +160,19 @@ function $View(   $templateFactory) {
    * @param {String} name The fully-qualified name of the view to reset.
    * @return {Boolean} Returns `true` if the view exists, otherwise `false`.
    */
-  this.reset = function reset (viewConfig) {
+  reset(viewConfig) {
     trace.traceViewServiceEvent("<- Removing", viewConfig);
-    viewConfigs.filter(match(viewConfig, "uiViewName", "context")).forEach(removeFrom(viewConfigs));
+    this.viewConfigs.filter(match(viewConfig, "uiViewName", "context")).forEach(removeFrom(this.viewConfigs));
   };
 
-  this.registerStateViewConfig = function(viewConfig: ViewConfig) {
+  registerStateViewConfig(viewConfig: ViewConfig) {
     trace.traceViewServiceEvent("-> Registering", viewConfig);
-    viewConfigs.push(viewConfig);
+    this.viewConfigs.push(viewConfig);
   };
 
-  this.sync = () => {
+  sync = () => {
     let uiViewsByFqn: TypedMap<UIViewData> =
-        uiViews.map(uiv => [uiv.fqn, uiv]).reduce(applyPairs, <any> {});
+        this.uiViews.map(uiv => [uiv.fqn, uiv]).reduce(applyPairs, <any> {});
 
     /**
      * Given a ui-view and a ViewConfig, determines if they "match".
@@ -266,7 +261,7 @@ function $View(   $templateFactory) {
     const depthCompare = curry((depthFn, posNeg, left, right) => posNeg * (depthFn(left) - depthFn(right)));
 
     const matchingConfigPair = uiView => {
-      let matchingConfigs = viewConfigs.filter(matches(uiView));
+      let matchingConfigs = this.viewConfigs.filter(matches(uiView));
       if (matchingConfigs.length > 1)
         matchingConfigs.sort(depthCompare(viewConfigDepth, -1)); // descending
       return [uiView, matchingConfigs[0]];
@@ -275,11 +270,11 @@ function $View(   $templateFactory) {
     const configureUiView = ([uiView, viewConfig]) => {
       // If a parent ui-view is reconfigured, it could destroy child ui-views.
       // Before configuring a child ui-view, make sure it's still in the active uiViews array.
-      if (uiViews.indexOf(uiView) !== -1)
+      if (this.uiViews.indexOf(uiView) !== -1)
         uiView.configUpdated(viewConfig);
     };
 
-    uiViews.sort(depthCompare(uiViewDepth, 1)).map(matchingConfigPair).forEach(configureUiView);
+    this.uiViews.sort(depthCompare(uiViewDepth, 1)).map(matchingConfigPair).forEach(configureUiView);
   };
 
   /**
@@ -291,8 +286,9 @@ function $View(   $templateFactory) {
    *                   of the view.
    * @return {Function} Returns a de-registration function used when the view is destroyed.
    */
-  this.registerUiView = function register(uiView: UIViewData) {
+  registerUiView(uiView: UIViewData) {
     trace.traceViewServiceUiViewEvent("-> Registering", uiView);
+    let uiViews = this.uiViews;
     const fqnMatches = uiv => uiv.fqn === uiView.fqn;
     if (uiViews.filter(fqnMatches).length)
       trace.traceViewServiceUiViewEvent("!!!! duplicate uiView named:", uiView);
@@ -316,14 +312,16 @@ function $View(   $templateFactory) {
    *
    * @return {Array} Returns an array of fully-qualified view names.
    */
-  this.available = () => uiViews.map(prop("fqn"));
+  available() {
+    return this.uiViews.map(prop("fqn"));
+  }
 
   /**
    * Returns the list of views on the page containing loaded content.
    *
    * @return {Array} Returns an array of fully-qualified view names.
    */
-  this.active = () => uiViews.filter(prop("$config")).map(prop("name"));
+  active() {
+    return this.uiViews.filter(prop("$config")).map(prop("name"));
+  }
 }
-
-angular.module('ui.router.state').service('$view', $View);
