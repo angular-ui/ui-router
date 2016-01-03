@@ -365,8 +365,7 @@ export function applyPairs(memo: TypedMap<any>, keyValTuple: any[]) {
 export function isInjectable(val) {
   if (isArray(val) && val.length) {
     let head = val.slice(0, -1), tail = val.slice(-1);
-    if (head.filter(not(isString)).length || tail.filter(not(isFunction)).length)
-      return false;
+    return !(head.filter(not(isString)).length || tail.filter(not(isFunction)).length)
   }
   return isFunction(val);
 }

@@ -8,7 +8,8 @@ var common = uiRouter.common,
   eq = common.eq,
   not = common.not,
   pattern = common.pattern,
-  val = common.val;
+  val = common.val,
+  isInjectable = common.isInjectable;
 
 describe('common', function() {
   describe('filter', function() {
@@ -95,6 +96,29 @@ describe('common', function() {
       expect(typeChecker(false)).toBe("boolean!");
       expect(typeChecker(null)).toBe("null!");
       expect(typeChecker(undefined)).toBe(undefined);
+    });
+  });
+
+  describe('isInjectable', function() {
+    it('should accept functions', function() {
+      function fn() {}
+      expect(isInjectable(fn)).toBeTruthy();
+    });
+
+    it('should accept functions with parameters', function() {
+      function fn(foo, bar) {}
+      expect(isInjectable(fn)).toBeTruthy();
+    });
+
+    it('should accept ng1 annotated functions', function() {
+      fn.$inject = ['foo', 'bar'];
+      function fn (foo, bar) {}
+      expect(isInjectable(fn)).toBeTruthy();
+    });
+
+    it('should accept ng1 array notation', function() {
+      var fn = ['foo', 'bar', function(foo, bar) {}];
+      expect(isInjectable(fn)).toBeTruthy();
     });
   });
 });
