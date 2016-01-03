@@ -1,7 +1,7 @@
 /// <reference path='../../typings/jasmine/jasmine.d.ts' />
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 /// <reference path='../../typings/angularjs/angular-mocks.d.ts' />
-import {map} from "../../src/common/common"
+import {map} from "../../src/common/common";
 
 beforeEach(function() {
   jasmine.addMatchers(<any> {
@@ -12,6 +12,12 @@ beforeEach(function() {
         }
       }
     },
+
+    toBeResolved: () => ({
+      compare: actual => ({
+        pass: !!testablePromise(actual).$$resolved
+      })
+    }),
 
     toHaveClass: function() {
       return {

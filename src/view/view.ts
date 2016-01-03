@@ -148,7 +148,7 @@ function $View(   $templateFactory) {
       throw new Error(`No template configuration specified for '${viewConfig.uiViewName}@${viewConfig.uiViewContextAnchor}'`);
 
     let $q = services.$q;
-    let promises = {
+    let promises: any = {
       template: $q.when(viewConfig.getTemplate($templateFactory, injector)),
       controller: $q.when(viewConfig.getController(injector))
     };

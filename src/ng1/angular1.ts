@@ -21,6 +21,7 @@ import {Resolvables} from "../resolve/interface";
 import {Resolvable, ResolveContext} from "../resolve/module";
 import {State} from "../state/module";
 import {trace} from "../common/trace";
+import {map} from "../common/common";
 
 let app = angular.module("ui.router.angular1", []);
 
@@ -115,23 +116,30 @@ function ng1UIRouter($locationProvider) {
   }
 }
 
-function resolveFactory() {
-  return {
-    resolve: (invocables, locals, parent, self) => {
-      let state = new State({ params: {} });
-      let node = new Node(state, <RawParams> {});
-      let context = new ResolveContext([node]);
-      let resolvables: Resolvables = {};
-      forEach(invocables, (invocable, key) => {
-        resolvables[key] = new Resolvable(`${key}`, invocable);
-      });
+const resolveFactory = () => ({
+  /**
+   * This emulates most of the behavior of the ui-router 0.2.x $resolve.resolve() service API.
+   * @param invocables an object, with keys as resolve names and values as injectable functions
+   * @param locals key/value pre-resolved data (locals)
+   * @param parent a promise for a "parent resolve"
+   */
+  resolve: (invocables, locals = {}, parent?) => {
+    let parentNode = new Node(new State({ params: {} }));
+    let node = new Node(new State({ params: {} }));
+    let context = new ResolveContext([parentNode, node]);
 
-      context.addResolvables(resolvables, node.state);
+    context.addResolvables(Resolvable.makeResolvables(invocables), node.state);
 
+    const resolveData = (parentLocals) => {
+      const rewrap = locals => Resolvable.makeResolvables(<any> map(locals, local => () => local));
+      context.addResolvables(rewrap(parentLocals), parentNode.state);
+      context.addResolvables(rewrap(locals), node.state);
       return context.resolvePath();
-    }
-  };
-}
+    };
+
+    return parent ? parent.then(resolveData) : resolveData({});
+  }
+});
 
 function $stateParamsProvider() {
   this.$get = $get;
@@ -168,11 +176,9 @@ angular.module('ui.router.router').provider('$urlRouter', ['ng1UIRouterProvider'
 
 // $state service and $stateProvider
 angular.module('ui.router.state').provider('$state', ['ng1UIRouterProvider', () => router.stateProvider]);
-angular.module('ui.router.resolve', []).factory('$resolve', <any> resolveFactory);
 
 /* This effectively calls $get() to init when we enter runtime */
 angular.module('ui.router.init').run(['ng1UIRouter', function(ng1UIRouter) { }]);
-angular.module('ui.router.resolve').run(['$resolve', function(resolve) { }]);
 angular.module('ui.router.state').run(['$state', function($state) { }]);
 
 // $stateParams service
@@ -185,6 +191,8 @@ function getTransitionsProvider() {
 }
 angular.module('ui.router.state').provider('$transitions', ['ng1UIRouterProvider', getTransitionsProvider]);
 
+// The old $resolve service
+angular.module('ui.router').factory('$resolve', <any> resolveFactory);
 
 // $trace service
 angular.module("ui.router").service("$trace", () => trace);

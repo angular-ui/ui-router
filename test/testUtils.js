@@ -86,14 +86,6 @@ function resolvedError(promise) {
   return result.error;
 }
 
-beforeEach(function () {
-  jasmine.addMatchers({
-    toBeResolved: function(actual) {
-      return !!testablePromise(actual).$$resolved;
-    }
-  });
-});
-
 // Misc test utils
 function caught(fn) {
   try {
