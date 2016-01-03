@@ -18,6 +18,7 @@ import {paramTypes, Param, Type, StateParams} from "../params/module";
 import {UrlMatcher} from "../url/urlMatcher";
 import {ViewConfig} from "../view/view";
 import {UrlMatcherFactory} from "../url/urlMatcherFactory";
+import {services} from "../common/coreservices";
 
 /**
  * @ngdoc object
@@ -359,8 +360,8 @@ export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: U
    * you're coming from.
    */
   this.$get = $get;
-  $get.$inject = ['$q', '$injector', '$view', '$stateParams', '$urlRouter', '$transitions'];
-  function $get(   $q,   $injector,   $view,   $stateParams,   $urlRouter,   _$transition) {
+  $get.$inject = ['$view', '$stateParams', '$urlRouter', '$transitions'];
+  function $get(   $view,   $stateParams,   $urlRouter,   _$transition) {
 
     /**
      * Invokes the onInvalid callbacks, in natural order.  Each callback's return value is checked in sequence
@@ -375,6 +376,7 @@ export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: U
       let latest = latestThing();
       let $from$ = PathFactory.makeTargetState(fromPath);
       let callbackQueue = new Queue<Function>([].concat(invalidCallbacks));
+      let {$q, $injector} = services;
 
       const invokeCallback = (callback: Function) => $q.when($injector.invoke(callback, null, { $to$, $from$ }));
 
@@ -605,10 +607,10 @@ export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: U
       if (!ref.exists())
         return handleInvalidTargetState(currentPath, ref);
       if (!ref.valid())
-        return $q.reject(ref.error());
+        return services.$q.reject(ref.error());
 
       let transition = $transitions.create(currentPath, ref);
-      let tMgr = new TransitionManager(transition, $transitions, $urlRouter, $view, $state, $stateParams, $q, transQueue, treeChangesQueue);
+      let tMgr = new TransitionManager(transition, $transitions, $urlRouter, $view, $state, $stateParams, services.$q, transQueue, treeChangesQueue);
       let transitionPromise = tMgr.runTransition();
       // Return a promise for the transition, which also has the transition object on it.
       return extend(transitionPromise, { transition });

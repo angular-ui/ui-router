@@ -13,15 +13,12 @@ class Router {
 
   urlRouter: UrlRouter = new UrlRouter(this.urlRouterProvider);
 
-  stateProvider = new $StateProvider(this.urlRouterProvider, this.urlMatcherFactory);
+  transitionService: TransitionService = new TransitionService();
 
   stateParams = stateParamsFactory();
 
-  transitionService: TransitionService = new TransitionService();
+  stateProvider = new $StateProvider(this.urlRouterProvider, this.urlMatcherFactory);
 
-  constructor() {
-
-  }
 }
 
 export { Router };
