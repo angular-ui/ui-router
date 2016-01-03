@@ -4,6 +4,7 @@ import {$StateProvider} from "./state/state";
 import {stateParamsFactory} from "./params/stateParams";
 import {UrlRouter} from "./url/urlRouter";
 import {TransitionService} from "./transition/transitionService";
+import {TemplateFactory} from "./view/templateFactory";
 
 class Router {
 
@@ -15,9 +16,12 @@ class Router {
 
   transitionService: TransitionService = new TransitionService();
 
+  templateFactory = new TemplateFactory();
+
   stateParams = stateParamsFactory();
 
   stateProvider = new $StateProvider(this.urlRouterProvider, this.urlMatcherFactory);
+
 
 }
 

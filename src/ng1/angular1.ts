@@ -22,6 +22,7 @@ import {Resolvable, ResolveContext} from "../resolve/module";
 import {State} from "../state/module";
 import {trace} from "../common/trace";
 import {map} from "../common/common";
+import {prop} from "../common/common";
 
 let app = angular.module("ui.router.angular1", []);
 
@@ -92,8 +93,8 @@ function ng1UIRouter($locationProvider) {
   };
 
   this.$get = $get;
-  $get.$inject = ['$location', '$browser', '$sniffer', '$rootScope'];
-  function $get($location, $browser, $sniffer, $rootScope) {
+  $get.$inject = ['$location', '$browser', '$sniffer', '$rootScope', '$http', '$templateCache'];
+  function $get($location, $browser, $sniffer, $rootScope, $http, $templateCache) {
 
     // Bind $locationChangeSuccess to the listeners registered in LocationService.onChange
     $rootScope.$on("$locationChangeSuccess", evt => urlListeners.forEach(fn => fn(evt)));
@@ -104,6 +105,9 @@ function ng1UIRouter($locationProvider) {
       html5Mode = isObject(html5Mode) ? html5Mode.enabled : html5Mode;
       return html5Mode && $sniffer.history;
     };
+
+    services.template.get = (url: string) =>
+        $http.get(url, { cache: $templateCache, headers: { Accept: 'text/html' }}).then(prop("data"));
 
     // Bind these LocationService functions to $location
     bindFunctions(["replace", "url", "path", "search", "hash"], $location, services.location);
@@ -190,6 +194,10 @@ function getTransitionsProvider() {
   return router.transitionService;
 }
 angular.module('ui.router.state').provider('$transitions', ['ng1UIRouterProvider', getTransitionsProvider]);
+
+// $templateFactory service
+angular.module('ui.router.util').factory('$templateFactory', ['ng1UIRouter', () => router.templateFactory]);
+
 
 // The old $resolve service
 angular.module('ui.router').factory('$resolve', <any> resolveFactory);

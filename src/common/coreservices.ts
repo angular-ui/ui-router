@@ -18,7 +18,8 @@ let services: CoreServices = {
   $q: undefined,
   $injector: undefined,
   location: <any> {},
-  locationConfig: <any> {}
+  locationConfig: <any> {},
+  template: <any> {}
 };
 
 ["replace", "url", "path", "search", "hash", "onChange"]
@@ -34,6 +35,7 @@ interface CoreServices {
   location: LocationServices;
   /** Retrieves configuration for how to construct a URL. */
   locationConfig: LocationConfig;
+  template: TemplateServices;
 }
 
 interface LocationServices {
@@ -56,5 +58,10 @@ interface LocationConfig {
   hashPrefix(): string;
   hashPrefix(newprefix: string): string;
 }
+
+interface TemplateServices {
+  get(url: string): string;
+}
+
 
 export {services};
