@@ -145,17 +145,12 @@ const resolveFactory = () => ({
   }
 });
 
-function $stateParamsProvider() {
-  this.$get = $get;
-  $get.$inject = ['$rootScope'];
-  function $get(   $rootScope) {
+function $stateParamsFactory(ng1UIRouter, $rootScope) {
+  $rootScope.$watch(function() {
+    router.stateParams.$digest();
+  });
 
-    $rootScope.$watch(function() {
-      router.stateParams.$digest();
-    });
-
-    return router.stateParams;
-  }
+  return router.stateParams;
 }
 
 // The 'ui.router' ng1 module depends on 'ui.router.init' module.
@@ -186,7 +181,7 @@ angular.module('ui.router.init').run(['ng1UIRouter', function(ng1UIRouter) { }])
 angular.module('ui.router.state').run(['$state', function($state) { }]);
 
 // $stateParams service
-angular.module('ui.router.state').provider('$stateParams', ['ng1UIRouterProvider', $stateParamsProvider]);
+angular.module('ui.router.state').factory('$stateParams', ['ng1UIRouter', '$rootScope', $stateParamsFactory]);
 
 // $transitions service and $transitionsProvider
 function getTransitionsProvider() {
