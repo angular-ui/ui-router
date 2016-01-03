@@ -8,6 +8,7 @@ import {Resolvables, IOptions1} from "./interface"
 
 import {State} from "../state/module";
 import {ResolveContext} from "./resolveContext";
+import {isInjectable} from "../common/common";
 
 /**
  * The basic building block for the resolve system.
@@ -91,7 +92,7 @@ export class Resolvable {
    */
   static makeResolvables(resolves: { [key: string]: Function; }): Resolvables {
     // If a hook result is an object, it should be a map of strings to functions.
-    let invalid = filter(resolves, not(isFunction)), keys = Object.keys(invalid);
+    let invalid = filter(resolves, not(isInjectable)), keys = Object.keys(invalid);
     if (keys.length)
       throw new Error(`Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}`);
     return map(resolves, (fn, name: string) => new Resolvable(name, fn));

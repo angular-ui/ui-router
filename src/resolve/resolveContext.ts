@@ -9,6 +9,7 @@ import {Resolvables, ResolvePolicy, IOptions1} from "./interface";
 import {Node} from "../path/module";
 import {Resolvable} from "./resolvable";
 import {State} from "../state/module";
+import {mergeR} from "../common/common";
 
 // TODO: make this configurable
 let defaultResolvePolicy = ResolvePolicy[ResolvePolicy.LAZY];
@@ -93,7 +94,7 @@ export class ResolveContext {
   resolvePath(options: IOptions1 = {}): IPromise<any> {
     trace.traceResolvePath(this._path, options);
     const promiseForNode = (node: Node) => this.resolvePathElement(node.state, options);
-    return services.$q.all(<any> map(this._path, promiseForNode)).then(noop);
+    return services.$q.all(<any> map(this._path, promiseForNode)).then(all => all.reduce(mergeR, {}));
   }
 
   // returns a promise for all the resolvables on this PathElement
@@ -115,7 +116,7 @@ export class ResolveContext {
 
     trace.traceResolvePathElement(this, matchingResolves, options);
 
-    return services.$q.all(resolvablePromises).then(noop);
+    return services.$q.all(resolvablePromises);
   } 
   
   

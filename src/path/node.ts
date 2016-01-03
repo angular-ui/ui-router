@@ -17,7 +17,7 @@ export class Node {
   public resolveInjector: ResolveInjector;
 
   // Possibly extract this logic into an intermediary object that maps states to nodes
-  constructor(public state: State, params: RawParams, resolves: any = {}) {
+  constructor(public state: State, params: RawParams = {}, resolves: any = {}) {
     // Object.freeze(extend(this, { ... }))
     this.schema = state.parameters({ inherit: false });
 
