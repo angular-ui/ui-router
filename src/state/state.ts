@@ -19,6 +19,7 @@ import {UrlMatcher} from "../url/urlMatcher";
 import {ViewConfig} from "../view/view";
 import {UrlMatcherFactory} from "../url/urlMatcherFactory";
 import {services} from "../common/coreservices";
+import {StateRegistry} from "./stateRegistry";
 
 /**
  * @ngdoc object
@@ -41,30 +42,17 @@ import {services} from "../common/coreservices";
  *
  * The `$stateProvider` provides interfaces to declare these states for your app.
  */
-export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: UrlMatcherFactory) {
+export function $StateProvider(stateRegistry: StateRegistry) {
+  var self = this;
+  this.stateRegistry = stateRegistry;
+  let matcher = stateRegistry.matcher;
+  let stateQueue = stateRegistry.stateQueue;
 
-  let root: State, states: { [key: string]: State } = {};
-  let $state: StateService = <any> function $state() {};
+  let $state: StateService = this.$state = <any> function $state() {};
 
-  let matcher       = new StateMatcher(states);
-  let builder       = new StateBuilder(matcher, $urlMatcherFactoryProvider);
-  let stateQueue    = new StateQueueManager(states, builder, $urlRouterProvider, $state);
   let transQueue    = new Queue<Transition>();
   let treeChangesQueue = new Queue<TreeChanges>();
   let rejectFactory = new RejectFactory();
-
-  let rootStateDef: StateDeclaration = {
-    name: '',
-    url: '^',
-    views: null,
-    params: {
-      '#': { value: null, type: 'hash' }
-    },
-    abstract: true
-  };
-  root = stateQueue.register(rootStateDef);
-  root.navigable = null;
-
 
   /**
    * @ngdoc function
@@ -159,8 +147,7 @@ export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: U
    */
   this.decorator = decorator;
   function decorator(name: string, func: BuilderFunction) {
-    /*jshint validthis: true */
-    return builder.builder(name, func) || this;
+    return self.stateRegistry.decorator(name, func) || this;
   }
 
   /**
@@ -304,7 +291,7 @@ export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: U
     } else {
       definition.name = name;
     }
-    stateQueue.register(definition);
+    self.stateRegistry.register(definition);
     return this;
   }
 
@@ -405,6 +392,7 @@ export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: U
 
     let $transitions: ITransitionService = <any> _$transition;
     // Implicit root state that is always active
+    let root = self.stateRegistry.root();
     const rootPath = () => PathFactory.bindTransNodesToPath([new Node(root, {})]);
 
     $view.rootContext(root);
@@ -416,8 +404,7 @@ export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: U
       transition: null
     });
 
-    stateQueue.flush($state);
-    stateQueue.autoFlush = true; // Autoflush once we are in runtime
+    stateQueue.autoFlush($state); // Autoflush once we are in runtime
 
     /**
      * @ngdoc function
@@ -790,11 +777,7 @@ export function $StateProvider($urlRouterProvider, $urlMatcherFactoryProvider: U
      * @param {string|object=} base When stateOrName is a relative state reference, the state will be retrieved relative to context.
      * @returns {Object|Array} State configuration object or array of all objects.
      */
-    $state.get = function (stateOrName: StateOrName, base: StateOrName): (StateDeclaration|StateDeclaration[]) {
-      if (arguments.length === 0) return Object.keys(states).map(function(name) { return states[name].self; });
-      let found = matcher.find(stateOrName, base || $state.$current);
-      return found && found.self || null;
-    };
+    $state.get = self.stateRegistry.get.bind(self.stateRegistry);
 
     return $state;
   }

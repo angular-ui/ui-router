@@ -7,12 +7,12 @@ import {StateService} from "./interface";
 
 export class StateQueueManager {
   queue: State[];
+  private $state: StateService;
 
   constructor(
       public states: { [key: string]: State; },
       public builder: StateBuilder,
-      public $urlRouterProvider,
-      public $state: StateService) {
+      public $urlRouterProvider) {
     this.queue = [];
   }
 
@@ -32,7 +32,7 @@ export class StateQueueManager {
 
     queue.push(state);
 
-    if (this.autoFlush) {
+    if (this.$state) {
       this.flush($state);
     }
     return state;
@@ -70,7 +70,10 @@ export class StateQueueManager {
     return states;
   }
 
-  autoFlush: boolean = false;
+  autoFlush($state) {
+    this.$state = $state;
+    this.flush($state);
+  }
 
   attachRoute($state, state) {
     let {$urlRouterProvider} = this;
