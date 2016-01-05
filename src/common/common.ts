@@ -10,6 +10,11 @@ export type IInjectable = (Function|any[]);
 
 export var abstractKey = 'abstract';
 
+/** Binds a list of functions from the 'from' reference to the _this reference and puts the bound fn on the 'to' object */
+export const bindFunctions = (from, to, bindTo, fnNames: string[] = Object.keys(from)) =>
+    fnNames.filter(name => typeof from[name] === 'function')
+        .forEach(name => to[name] = from[name].bind(bindTo));
+
 // Stolen from: http://stackoverflow.com/questions/4394747/javascript-curry-function
 export function curry(fn: Function): Function {
   let initial_args = [].slice.apply(arguments, [1]);

@@ -20,6 +20,7 @@ import {ViewConfig} from "../view/view";
 import {UrlMatcherFactory} from "../url/urlMatcherFactory";
 import {services} from "../common/coreservices";
 import {StateRegistry} from "./stateRegistry";
+import {bindFunctions} from "../common/common";
 
 /**
  * @ngdoc object

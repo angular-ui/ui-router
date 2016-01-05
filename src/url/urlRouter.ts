@@ -1,6 +1,6 @@
 /** @module url */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {isFunction, isString, isDefined, isArray, isObject, extend} from "../common/common";
+import {isFunction, isString, isDefined, isArray, isObject, extend, bindFunctions} from "../common/common";
 import {IServiceProviderFactory} from "angular";
 import {UrlMatcher} from "./module";
 import {services} from "../common/coreservices";
@@ -305,9 +305,7 @@ export class UrlRouter {
   private listener: Function;
 
   constructor(private urlRouterProvider: UrlRouterProvider) {
-    Object.keys(UrlRouter.prototype)
-        .filter(key => typeof UrlRouter.prototype[key] === 'function')
-        .forEach(key => this[key] = this[key].bind(this));
+    bindFunctions(UrlRouter.prototype, this, this);
   }
 
   /**

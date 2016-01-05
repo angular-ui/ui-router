@@ -23,6 +23,8 @@ import {State} from "../state/module";
 import {trace} from "../common/trace";
 import {map} from "../common/common";
 import {prop} from "../common/common";
+import {bindFunctions} from "../common/common";
+import {removeFrom} from "../common/common";
 
 let app = angular.module("ui.router.angular1", []);
 
@@ -67,9 +69,6 @@ function runBlock($injector, $q) {
 
 app.run(runBlock);
 
-const bindFunctions = (fnNames: string[], from, to) =>
-    fnNames.forEach(name => to[name] = from[name].bind(from));
-
 let router: Router = null;
 
 ng1UIRouter.$inject = ['$locationProvider'];
@@ -80,16 +79,13 @@ function ng1UIRouter($locationProvider) {
   router = new Router();
 
   // Bind LocationConfig.hashPrefix to $locationProvider.hashPrefix
-  bindFunctions(['hashPrefix'], $locationProvider, services.locationConfig);
+  bindFunctions($locationProvider, services.locationConfig, $locationProvider, ['hashPrefix']);
 
   // Create a LocationService.onChange registry
   let urlListeners: Function[] = [];
   services.location.onChange = (callback) => {
     urlListeners.push(callback);
-    return function deregisterListener() {
-      let idx = urlListeners.indexOf(callback);
-      if (idx !== -1) urlListeners.splice(idx, 1);
-    }
+    return () => removeFrom(urlListeners)(callback);
   };
 
   this.$get = $get;
@@ -110,11 +106,11 @@ function ng1UIRouter($locationProvider) {
         $http.get(url, { cache: $templateCache, headers: { Accept: 'text/html' }}).then(prop("data"));
 
     // Bind these LocationService functions to $location
-    bindFunctions(["replace", "url", "path", "search", "hash"], $location, services.location);
+    bindFunctions($location, services.location, $location, ["replace", "url", "path", "search", "hash"]);
     // Bind these LocationConfig functions to $location
-    bindFunctions(['port', 'protocol', 'host'], $location, services.locationConfig);
+    bindFunctions($location, services.locationConfig, $location, ['port', 'protocol', 'host']);
     // Bind these LocationConfig functions to $browser
-    bindFunctions(['baseHref'], $browser, services.locationConfig);
+    bindFunctions($browser, services.locationConfig, $browser, ['baseHref']);
 
     return router;
   }
