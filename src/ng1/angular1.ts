@@ -168,12 +168,19 @@ function getUrlRouterProvider() {
   return router.urlRouterProvider;
 }
 angular.module('ui.router.router').provider('$urlRouter', ['ng1UIRouterProvider', getUrlRouterProvider]);
+angular.module('ui.router.router').run(['$urlRouter', function($urlRouter) { }]);
 
 // $state service and $stateProvider
-angular.module('ui.router.state').provider('$state', ['ng1UIRouterProvider', () => router.stateProvider]);
-
-/* This effectively calls $get() to init when we enter runtime */
-angular.module('ui.router.init').run(['ng1UIRouter', function(ng1UIRouter) { }]);
+// $urlRouter service and $urlRouterProvider
+function getStateProvider() {
+  router.stateProvider["$get"] = function() {
+    // Autoflush once we are in runtime
+    router.stateRegistry.stateQueue.autoFlush(router.stateService);
+    return router.stateService;
+  };
+  return router.stateProvider;
+}
+angular.module('ui.router.state').provider('$state', ['ng1UIRouterProvider', getStateProvider]);
 angular.module('ui.router.state').run(['$state', function($state) { }]);
 
 // $stateParams service

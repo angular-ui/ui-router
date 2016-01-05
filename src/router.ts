@@ -1,12 +1,13 @@
 import {UrlMatcherFactory} from "./url/urlMatcherFactory";
 import {UrlRouterProvider} from "./url/urlRouter";
-import {$StateProvider} from "./state/state";
+import {StateProvider} from "./state/state";
 import {stateParamsFactory} from "./params/stateParams";
 import {UrlRouter} from "./url/urlRouter";
 import {TransitionService} from "./transition/transitionService";
 import {TemplateFactory} from "./view/templateFactory";
 import {ViewService} from "./view/view";
 import {StateRegistry} from "./state/stateRegistry";
+import {StateService} from "./state/stateService";
 
 class Router {
 
@@ -24,10 +25,15 @@ class Router {
 
   stateParams = stateParamsFactory();
 
-  stateRegistry: StateRegistry = new StateRegistry(this.urlMatcherFactory, this.urlRouterProvider, () => this.stateProvider.$state.$current);
+  stateRegistry: StateRegistry = new StateRegistry(this.urlMatcherFactory, this.urlRouterProvider, () => this.stateService.$current);
 
-  stateProvider = new $StateProvider(this.stateRegistry);
+  stateProvider = new StateProvider(this.stateRegistry);
 
+  stateService = new StateService(this.viewService, this.stateParams, this.urlRouter, this.transitionService, this.stateRegistry, this.stateProvider);
+
+  constructor() {
+    this.viewService.rootContext(this.stateRegistry.root());
+  }
 }
 
 export { Router };
