@@ -5,7 +5,7 @@
  * @module params
  * @preferred doc
  */
-/**!*/
+/** for typedoc */
 export * from "./param";
 export * from "./paramTypes";
 export * from "./stateParams";

@@ -1,5 +1,4 @@
 /** @module common */ /** for typedoc */
-import {map} from "./common"
 
 export class Queue<T> {
   constructor(private _items: T[] = []) { }
@@ -15,7 +14,7 @@ export class Queue<T> {
   }
 
   clear(): Array<T> {
-    var current = this._items;
+    let current = this._items;
     this._items = [];
     return current;
   }
@@ -25,7 +24,7 @@ export class Queue<T> {
   }
 
   remove(item: T) {
-    var idx = this._items.indexOf(item);
+    let idx = this._items.indexOf(item);
     return idx > -1 && this._items.splice(idx, 1)[0];
   }
 

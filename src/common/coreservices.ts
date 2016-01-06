@@ -6,9 +6,8 @@
  */
 
 /** for typedoc */
-import * as foo from "./common";
-import IQService = angular.IQService;
-import IInjectorService = angular.auto.IInjectorService;
+//import {IQService} from "angular";
+//import {IInjectorService} from "angular";
 
 let notImplemented = (fnname) => () => {
   throw new Error(`${fnname}(): No coreservices implementation for UI-Router is loaded. You should include one of: ['angular1.js']`);
@@ -29,8 +28,8 @@ let services: CoreServices = {
     .forEach(key => services.locationConfig[key] = notImplemented(key));
 
 interface CoreServices {
-  $q: IQService;
-  $injector: IInjectorService;
+  $q; // : IQService;
+  $injector; // : IInjectorService;
   /** Services related to getting or setting the browser location (url) */
   location: LocationServices;
   /** Retrieves configuration for how to construct a URL. */

@@ -4,15 +4,15 @@ import {IPromise} from "angular";
 import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 import {
-    map, find, extend, filter, mergeR, flatten, unnest, tail, forEach, identity,
-    omit, isObject, isPromise, not, prop, propEq, toJson, val, abstractKey,
-    arrayTuples, allTrueR, Predicate
+    map, find, extend, filter, mergeR, unnest, tail,
+    omit, isObject, not, prop, propEq, toJson, val, abstractKey,
+    arrayTuples, allTrueR
 } from "../common/common";
 
 import {StateDeclaration, StateOrName} from "../state/interface";
 import {TransitionOptions, TransitionHookOptions, TreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";
 
-import {TransitionHook, HookRegistry, matchState, HookBuilder, RejectFactory, TransitionRejection} from "./module";
+import {TransitionHook, HookRegistry, matchState, HookBuilder, RejectFactory} from "./module";
 import {Node, PathFactory} from "../path/module";
 import {State, TargetState} from "../state/module";
 import {Param} from "../params/module";

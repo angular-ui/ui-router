@@ -11,7 +11,7 @@ function ArrayType(type, mode) {
 
   // Unwrap array value for "auto" mode. Return undefined for empty array.
   function arrayUnwrap(val) {
-    switch(val.length) {
+    switch (val.length) {
       case 0: return undefined;
       case 1: return mode === "auto" ? val[0] : val;
       default: return val;
@@ -22,17 +22,17 @@ function ArrayType(type, mode) {
   function arrayHandler(callback, allTruthyMode?: boolean) {
     return function handleArray(val) {
       let arr = arrayWrap(val);
-      var result = map(arr, callback);
-      return (allTruthyMode === true) ? filter(result, val => !val).length === 0 : arrayUnwrap(result);
+      let result = map(arr, callback);
+      return (allTruthyMode === true) ? filter(result, x => !x).length === 0 : arrayUnwrap(result);
     };
   }
 
   // Wraps type (.equals) functions to operate on each value of an array
   function arrayEqualsHandler(callback) {
     return function handleArray(val1, val2) {
-      var left = arrayWrap(val1), right = arrayWrap(val2);
+      let left = arrayWrap(val1), right = arrayWrap(val2);
       if (left.length !== right.length) return false;
-      for (var i = 0; i < left.length; i++) {
+      for (let i = 0; i < left.length; i++) {
         if (!callback(left[i], right[i])) return false;
       }
       return true;
@@ -97,7 +97,7 @@ export class Type implements TypeDefinition {
 
 
   $subPattern() {
-    var sub = this.pattern.toString();
+    let sub = this.pattern.toString();
     return sub.substr(1, sub.length - 2);
   }
 

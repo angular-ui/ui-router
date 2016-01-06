@@ -2,13 +2,13 @@
 import {Type} from "./type";
 
 export interface RawParams {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export type ParamsOrArray = (RawParams|RawParams[]);
 
 /**
- Inside a [[StateDeclaration.params]]:
+ * Inside a [[StateDeclaration.params]]:
  *
  * A ParamDeclaration object defines how a single State Parameter should work.
  *
@@ -55,7 +55,7 @@ export interface ParamDeclaration {
    *     value: "param2Default;
    *   }
    * }
-   *```
+   * ```
    *
    * ### Shorthand Declaration
    * If you only want to set the default value of the parameter, you may use a shorthand syntax.
@@ -77,7 +77,7 @@ export interface ParamDeclaration {
    *   param1: "defaultValue",
    *   param2: "param2Default"
    * }
-   ```
+   * ```
    *
    * This defines a default value for the parameter.  If the parameter value is `undefined`, this value will be used instead
    */
@@ -105,7 +105,6 @@ export interface ParamDeclaration {
    * `{ foo: [ '1', '2', '3' ] }`). However, if only one value is present (e.g.: /foo?bar=1)
    * then the value is treated as single value (e.g.: { foo: '1' }).
    *
-
    * If you specified a [[type]] for the parameter, the value will be treated as an array
    * of the specified Type.
    *
@@ -216,8 +215,8 @@ export interface ParamDeclaration {
 }
 
 interface Replace {
-  from: string,
-  to:string
+  from: string;
+  to: string;
 }
 
 

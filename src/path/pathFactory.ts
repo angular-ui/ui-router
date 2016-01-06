@@ -1,6 +1,6 @@
 /** @module path */ /** for typedoc */
 
-import {map, extend, find, pairs, prop, propEq, pick, omit, not, curry, tail, applyPairs, mergeR} from "../common/common";
+import {extend, find, prop, propEq, pick, omit, not, curry, tail, mergeR} from "../common/common";
 
 import {RawParams} from "../params/interface";
 import {TreeChanges} from "../transition/interface";
@@ -8,7 +8,6 @@ import {TreeChanges} from "../transition/interface";
 import {State, TargetState} from "../state/module";
 import {Node} from "../path/module";
 import {ResolveContext, Resolvable, ResolveInjector} from "../resolve/module";
-import {ViewConfig} from "../view/module";
 import {Transition} from "../transition/module";
 
 /**

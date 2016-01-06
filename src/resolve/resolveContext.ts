@@ -1,6 +1,6 @@
 /** @module path */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {IInjectable, find, filter, map, noop, tail, defaults, extend, prop, propEq, pick, omit, isString, isObject} from "../common/common";
+import {IInjectable, find, filter, map, tail, defaults, extend, prop, propEq, pick, omit, isString, isObject} from "../common/common";
 import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 import {IPromise} from "angular";
@@ -39,6 +39,7 @@ export class ResolveContext {
   /**
    * Gets the available Resolvables for the last element of this path.
    *
+   * @param state the State (within the ResolveContext's Path) for which to get resolvables
    * @param options
    *
    * options.omitOwnLocals: array of property names
@@ -60,7 +61,6 @@ export class ResolveContext {
   getResolvables(state?: State, options?: any): Resolvables {
     options = defaults(options, { omitOwnLocals: [] });
 
-    const offset = find(this._path, propEq(''));
     const path = (state ?  this._pathTo(state) : this._path);
     const last = tail(path);
 
@@ -129,7 +129,6 @@ export class ResolveContext {
    *
    * @return a promise for the return value of the function.
    *
-   * @param state: The state context object (within the path)
    * @param fn: the function to inject (i.e., onEnter, onExit, controller)
    * @param locals: are the angular $injector-style locals to inject
    * @param options: options (TODO: document)
@@ -157,7 +156,6 @@ export class ResolveContext {
    *
    * @return the return value of the function.
    *
-   * @param state: The state context object (within the path)
    * @param fn: the function to inject (i.e., onEnter, onExit, controller)
    * @param locals: are the angular $injector-style locals to inject
    * @param options: options (TODO: document)

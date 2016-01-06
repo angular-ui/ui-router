@@ -1,7 +1,6 @@
 /** @module url */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {isFunction, isString, isDefined, isArray, isObject, extend, bindFunctions} from "../common/common";
-import {IServiceProviderFactory} from "angular";
+import {isFunction, isString, isDefined, isArray, extend, bindFunctions} from "../common/common";
 import {UrlMatcher} from "./module";
 import {services} from "../common/coreservices";
 import {UrlMatcherFactory} from "./urlMatcherFactory";
@@ -10,7 +9,7 @@ let $location = services.location;
 
 // Returns a string that is a prefix of all strings matching the RegExp
 function regExpPrefix(re) {
-  var prefix = /^\^((?:\\[^a-zA-Z0-9]|[^\\\[\]\^$*+?.()|{}]+)*)/.exec(re.source);
+  let prefix = /^\^((?:\\[^a-zA-Z0-9]|[^\\\[\]\^$*+?.()|{}]+)*)/.exec(re.source);
   return (prefix != null) ? prefix[1].replace(/\\(.)/g, "$1") : '';
 }
 
@@ -23,12 +22,12 @@ function interpolate(pattern, match) {
 
 function handleIfMatch($injector, handler, match) {
   if (!match) return false;
-  var result = $injector.invoke(handler, handler, { $match: match });
+  let result = $injector.invoke(handler, handler, { $match: match });
   return isDefined(result) ? result : true;
 }
 
 function appendBasePath(url, isHtml5, absolute) {
-  var baseHref = services.locationConfig.baseHref();
+  let baseHref = services.locationConfig.baseHref();
   if (baseHref === '/') return url;
   if (isHtml5) return baseHref.slice(0, -1) + url;
   if (absolute) return baseHref.slice(1) + url;
@@ -40,7 +39,7 @@ function update(rules: Function[], otherwiseFn: Function, evt?: any) {
   if (evt && evt.defaultPrevented) return;
 
   function check(rule) {
-    var handled = rule(services.$injector, $location);
+    let handled = rule(services.$injector, $location);
 
     if (!handled) return false;
     if (isString(handled)) {
@@ -49,7 +48,7 @@ function update(rules: Function[], otherwiseFn: Function, evt?: any) {
     }
     return true;
   }
-  var n = rules.length, i;
+  let n = rules.length, i;
 
   for (i = 0; i < n; i++) {
     if (check(rules[i])) return;
@@ -199,7 +198,7 @@ export class UrlRouterProvider {
    */
   when(what, handler) {
     let {$urlMatcherFactory} = this;
-    var redirect, handlerIsString = isString(handler);
+    let redirect, handlerIsString = isString(handler);
 
     // @todo Queue this
     if (isString(what)) what = $urlMatcherFactory.compile(what);
@@ -207,34 +206,34 @@ export class UrlRouterProvider {
     if (!handlerIsString && !isFunction(handler) && !isArray(handler))
       throw new Error("invalid 'handler' in when()");
 
-    var strategies = {
-      matcher: function (what, handler) {
+    let strategies = {
+      matcher: function (_what, _handler) {
         if (handlerIsString) {
-          redirect = $urlMatcherFactory.compile(handler);
-          handler = ['$match', redirect.format.bind(redirect)];
+          redirect = $urlMatcherFactory.compile(_handler);
+          _handler = ['$match', redirect.format.bind(redirect)];
         }
         return extend(function () {
-          return handleIfMatch(services.$injector, handler, what.exec($location.path(), $location.search(), $location.hash()));
+          return handleIfMatch(services.$injector, _handler, _what.exec($location.path(), $location.search(), $location.hash()));
         }, {
-          prefix: isString(what.prefix) ? what.prefix : ''
+          prefix: isString(_what.prefix) ? _what.prefix : ''
         });
       },
-      regex: function (what, handler) {
-        if (what.global || what.sticky) throw new Error("when() RegExp must not be global or sticky");
+      regex: function (_what, _handler) {
+        if (_what.global || _what.sticky) throw new Error("when() RegExp must not be global or sticky");
 
         if (handlerIsString) {
-          redirect = handler;
-          handler = ['$match', ($match) => interpolate(redirect, $match)];
+          redirect = _handler;
+          _handler = ['$match', ($match) => interpolate(redirect, $match)];
         }
         return extend(function () {
-          return handleIfMatch(services.$injector, handler, what.exec($location.path()));
+          return handleIfMatch(services.$injector, _handler, _what.exec($location.path()));
         }, {
-          prefix: regExpPrefix(what)
+          prefix: regExpPrefix(_what)
         });
       }
     };
 
-    var check = {
+    let check = {
       matcher: $urlMatcherFactory.isMatcher(what),
       regex: what instanceof RegExp
     };
@@ -292,7 +291,7 @@ export class UrlRouterProvider {
    * </pre>
    *
    * @param {boolean} defer Indicates whether to defer location change interception. Passing
-            no parameter is equivalent to `true`.
+   *        no parameter is equivalent to `true`.
    */
   deferIntercept(defer) {
     if (defer === undefined) defer = true;
@@ -323,15 +322,15 @@ export class UrlRouter {
    * <pre>
    * angular.module('app', ['ui.router'])
    *   .run(function($rootScope, $urlRouter) {
-       *     $rootScope.$on('$locationChangeSuccess', function(evt) {
-       *       // Halt state change from even starting
-       *       evt.preventDefault();
-       *       // Perform custom logic
-       *       var meetsRequirement = ...
-       *       // Continue with the update and state transition if logic allows
-       *       if (meetsRequirement) $urlRouter.sync();
-       *     });
-       * });
+   *     $rootScope.$on('$locationChangeSuccess', function(evt) {
+   *       // Halt state change from even starting
+   *       evt.preventDefault();
+   *       // Perform custom logic
+   *       var meetsRequirement = ...
+   *       // Continue with the update and state transition if logic allows
+   *       if (meetsRequirement) $urlRouter.sync();
+   *     });
+   * });
    * </pre>
    */
   sync() {
@@ -370,8 +369,8 @@ export class UrlRouter {
    * @example
    * <pre>
    * $bob = $urlRouter.href(new UrlMatcher("/about/:person"), {
-       *   person: "bob"
-       * });
+   *   person: "bob"
+   * });
    * // $bob == "/about/bob";
    * </pre>
    *
@@ -386,11 +385,11 @@ export class UrlRouter {
   href(urlMatcher: UrlMatcher, params: any, options: any): string {
     if (!urlMatcher.validates(params)) return null;
 
-    var url = urlMatcher.format(params);
+    let url = urlMatcher.format(params);
     options = options || {};
 
     let cfg = services.locationConfig;
-    var isHtml5 = cfg.html5Mode();
+    let isHtml5 = cfg.html5Mode();
     if (!isHtml5 && url !== null) {
       url = "#" + cfg.hashPrefix() + url;
     }
@@ -400,7 +399,7 @@ export class UrlRouter {
       return url;
     }
 
-    var slash = (!isHtml5 && url ? '/' : ''), port = cfg.port();
+    let slash = (!isHtml5 && url ? '/' : ''), port = cfg.port();
     port = <any> (port === 80 || port === 443 ? '' : ':' + port);
 
     return [cfg.protocol(), '://', cfg.host(), port, slash, url].join('');

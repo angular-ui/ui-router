@@ -1,5 +1,5 @@
 /** @module state */ /** for typedoc */
-import {map, noop, extend, pick, omit, values, applyPairs, prop,  isArray, isDefined, isFunction, isString, forEach} from "../common/common";
+import {map, noop, extend, pick, omit, values, applyPairs, prop, isDefined, isFunction, isString, forEach} from "../common/common";
 import {StateDeclaration} from "./interface";
 
 import {State, StateMatcher} from "./module";
@@ -9,7 +9,7 @@ import {UrlMatcher} from "../url/urlMatcher";
 
 const parseUrl = (url: string): any => {
   if (!isString(url)) return false;
-  var root = url.charAt(0) === '^';
+  let root = url.charAt(0) === '^';
   return { val: root ? url.substring(1) : url, root };
 };
 
@@ -86,9 +86,9 @@ export class StateBuilder {
       }],
 
       params: [function (state: State): { [key: string]: Param } {
-        const makeConfigParam = (config:any, id:string) => Param.fromConfig(id, null, config);
-        let urlParams:Param[] = (state.url && state.url.parameters({inherit: false})) || [];
-        let nonUrlParams:Param[] = values(map(omit(state.params || {}, urlParams.map(prop('id'))), makeConfigParam));
+        const makeConfigParam = (config: any, id: string) => Param.fromConfig(id, null, config);
+        let urlParams: Param[] = (state.url && state.url.parameters({inherit: false})) || [];
+        let nonUrlParams: Param[] = values(map(omit(state.params || {}, urlParams.map(prop('id'))), makeConfigParam));
         return urlParams.concat(nonUrlParams).map(p => [p.id, p]).reduce(applyPairs, {});
       }],
 
@@ -164,7 +164,7 @@ export class StateBuilder {
 
     for (let key in builders) {
       if (!builders.hasOwnProperty(key)) continue;
-      let chain = builders[key].reduce((parentFn, step: BuilderFunction) => (state) => step(state, parentFn), noop);
+      let chain = builders[key].reduce((parentFn, step: BuilderFunction) => (_state) => step(_state, parentFn), noop);
       state[key] = chain(state);
     }
     return state;

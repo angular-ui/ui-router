@@ -1,8 +1,6 @@
 /** @module url */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {IServiceProviderFactory} from "angular";
-import {forEach, extend, inherit, map, filter, isObject, isDefined, isArray, isString,
-    isInjectable, isFunction, toJson, fromJson, identity, equals} from "../common/common";
+import {forEach, extend, isObject, isDefined, isFunction} from "../common/common";
 
 import {UrlMatcher, matcherConfig} from "./module";
 import {Param, paramTypes, Type} from "../params/module";
@@ -79,7 +77,7 @@ export class UrlMatcherFactory {
   isMatcher(object: any) {
     // TODO: typeof?
     if (!isObject(object)) return false;
-    var result = true;
+    let result = true;
 
     forEach(UrlMatcher.prototype, (val, name) => {
       if (isFunction(val)) result = result && (isDefined(object[name]) && isFunction(object[name]));
@@ -139,7 +137,7 @@ export class UrlMatcherFactory {
    * ```
    */
   type(name: string, definition?: (Function|Type), definitionFn?: Function) {
-    var type = paramTypes.type(name, definition, definitionFn);
+    let type = paramTypes.type(name, definition, definitionFn);
     return !isDefined(definition) ? type : this;
   };
 

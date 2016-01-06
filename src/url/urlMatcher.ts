@@ -1,7 +1,7 @@
 /** @module url */ /** for typedoc */
 import {
-  map, prop, propEq, defaults, extend, inherit, identity, isDefined, isObject, isArray, isString,
-  invoke, unnest, tail, forEach, find, curry, omit, pairs, allTrueR
+  map, prop, propEq, defaults, extend, inherit, identity, isArray, isString,
+  unnest, tail, forEach, find, omit, pairs, allTrueR
 } from "../common/common";
 import {Param, paramTypes} from "../params/module";
 
@@ -10,7 +10,7 @@ interface params {
 }
 
 function quoteRegExp(string: any, param?: any) {
-  var surroundPattern = ['', ''], result = string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
+  let surroundPattern = ['', ''], result = string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
   if (!param) return result;
 
   switch (param.squash) {
@@ -111,7 +111,7 @@ export class UrlMatcher {
     //    [^{}\\]+                       - anything other than curly braces or backslash
     //    \\.                            - a backslash escape
     //    \{(?:[^{}\\]+|\\.)*\}          - a matched set of curly braces containing other atoms
-    var placeholder = /([:*])([\w\[\]]+)|\{([\w\[\]]+)(?:\:\s*((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
+    let placeholder = /([:*])([\w\[\]]+)|\{([\w\[\]]+)(?:\:\s*((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
         searchPlaceholder = /([:]?)([\w\[\]-]+)|\{([\w\[\]-]+)(?:\:\s*((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
         last = 0, m, patterns = [];
 
@@ -124,7 +124,7 @@ export class UrlMatcher {
     // The number of segments is always 1 more than the number of parameters.
     const matchDetails = (m, isSearch) => {
       // IE[78] returns '' for unmatched groups instead of null
-      var id = m[2] || m[3], regexp = isSearch ? m[4] : m[4] || (m[1] === '*' ? '.*' : null);
+      let id = m[2] || m[3], regexp = isSearch ? m[4] : m[4] || (m[1] === '*' ? '.*' : null);
 
       return {
         id,
@@ -137,7 +137,7 @@ export class UrlMatcher {
       };
     }
 
-    var p, param, segment;
+    let p, segment;
 
     while ((m = placeholder.exec(pattern))) {
       p = matchDetails(m, false);
@@ -152,10 +152,10 @@ export class UrlMatcher {
     segment = pattern.substring(last);
 
     // Find any search parameter names and remove them from the last segment
-    var i = segment.indexOf('?');
+    let i = segment.indexOf('?');
 
     if (i >= 0) {
-      var search = segment.substring(i);
+      let search = segment.substring(i);
       segment = segment.substring(0, i);
 
       if (search.length > 0) {
@@ -236,7 +236,7 @@ export class UrlMatcher {
    * @returns {Object}  The captured parameter values.
    */
   exec(path: string, search: any = {}, hash?: string, options: any = {}) {
-    var match = memoizeTo(this._cache, 'pattern', () => {
+    let match = memoizeTo(this._cache, 'pattern', () => {
       return new RegExp([
         '^',
         unnest(this._cache.path.concat(this).map(prop('_compiled'))).join(''),
@@ -249,7 +249,7 @@ export class UrlMatcher {
 
     //options = defaults(options, { isolate: false });
 
-    var allParams:    Param[] = this.parameters(),
+    let allParams:    Param[] = this.parameters(),
         pathParams:   Param[] = allParams.filter(param => !param.isSearch()),
         searchParams: Param[] = allParams.filter(param => param.isSearch()),
         nPathSegments  = this._cache.path.concat(this).map(urlm => urlm._segments.length - 1).reduce((a, x) => a + x),
@@ -262,17 +262,17 @@ export class UrlMatcher {
       const reverseString = (str: string) => str.split("").reverse().join("");
       const unquoteDashes = (str: string) => str.replace(/\\-/g, "-");
 
-      var split = reverseString(string).split(/-(?!\\)/);
-      var allReversed = map(split, reverseString);
+      let split = reverseString(string).split(/-(?!\\)/);
+      let allReversed = map(split, reverseString);
       return map(allReversed, unquoteDashes).reverse();
     }
 
-    for (var i = 0; i < nPathSegments; i++) {
-      var param: Param = pathParams[i];
-      var value: (any|any[]) = match[i + 1];
+    for (let i = 0; i < nPathSegments; i++) {
+      let param: Param = pathParams[i];
+      let value: (any|any[]) = match[i + 1];
 
       // if the param value matches a pre-replace pair, replace the value before decoding.
-      for (var j = 0; j < param.replace; j++) {
+      for (let j = 0; j < param.replace; j++) {
         if (param.replace[j].from === value) value = param.replace[j].to;
       }
       if (value && param.array === true) value = decodePathArray(value);
@@ -350,7 +350,7 @@ export class UrlMatcher {
    * @returns {string}  the formatted URL (path and optionally search part).
    */
   format(values = {}) {
-    var segments: string[] = this._segments,
+    let segments: string[] = this._segments,
         result: string = segments[0],
         search: boolean = false,
         params: Param[] = this.parameters({inherit: false}),
@@ -364,11 +364,11 @@ export class UrlMatcher {
 
     // TODO: rewrite as reduce over params with result as initial
     params.map((param: Param, i) => {
-      var isPathParam = i < segments.length - 1;
-      var value = param.value(values[param.id]);
-      var isDefaultValue = param.isDefaultValue(value);
-      var squash = isDefaultValue ? param.squash : false;
-      var encoded = param.type.encode(value);
+      let isPathParam = i < segments.length - 1;
+      let value = param.value(values[param.id]);
+      let isDefaultValue = param.isDefaultValue(value);
+      let squash = isDefaultValue ? param.squash : false;
+      let encoded = param.type.encode(value);
 
       if (!isPathParam) {
         if (encoded == null || (isDefaultValue && squash !== false)) return;
@@ -393,7 +393,7 @@ export class UrlMatcher {
 
     if (values["#"]) result += "#" + values["#"];
 
-    var processedParams = ['#'].concat(params.map(prop('id')));
+    let processedParams = ['#'].concat(params.map(prop('id')));
     return (parent && parent.format(omit(values, processedParams)) || '') + result;
   }
 }

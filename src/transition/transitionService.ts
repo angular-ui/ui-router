@@ -1,16 +1,12 @@
 /** @module transition */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
-import {IServiceProviderFactory} from "angular";
-
-import {IHookRegistry, ITransitionService, TransitionOptions, IHookRegistration, IHookGetter} from "./interface";
+import {IHookRegistry, ITransitionService, TransitionOptions, IHookRegistration} from "./interface";
 
 import {Transition} from "./transition";
 import {HookRegistry} from "./hookRegistry";
 import {TargetState} from "../state/module";
 import {Node} from "../path/module";
-import {IMatchCriteria} from "./interface";
-import {IInjectable} from "../common/common";
 import {IEventHook} from "./interface";
 
 /**

@@ -1,7 +1,5 @@
 /** @module state */ /** for typedoc */
 
-import {StateService} from "./interface";
-import {extend} from "../common/common";
 import {State} from "./stateObject";
 import {StateMatcher} from "./stateMatcher";
 import {StateBuilder} from "./stateBuilder";

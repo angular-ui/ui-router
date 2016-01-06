@@ -1,24 +1,6 @@
 /** @module state */ /** for typedoc */
-import {
-  extend, defaults, copy, equalForKeys, forEach, find, prop,
-  propEq, ancestors, noop, isDefined, isObject, isString, values
-} from "../common/common";
-import {Queue} from "../common/queue";
-
-import {IServiceProviderFactory, IPromise} from "angular";
-import {StateService, StateDeclaration, StateOrName, HrefOptions, ViewDeclaration } from "./interface";
-import {ITransitionService, TransitionOptions, TreeChanges} from "../transition/interface";
-import {RawParams, ParamsOrArray} from "../params/interface";
-
-import {Glob, StateQueueManager, StateBuilder, StateMatcher, State, TargetState, BuilderFunction} from "./module";
-import {Transition, RejectFactory, defaultTransOpts} from "../transition/module";
-import {PathFactory, Node} from "../path/module";
-import {TransitionManager} from "./hooks/transitionManager";
-import {paramTypes, Param, Type, StateParams} from "../params/module";
-import {UrlMatcher} from "../url/urlMatcher";
-import {ViewConfig} from "../view/view";
-import {UrlMatcherFactory} from "../url/urlMatcherFactory";
-import {services} from "../common/coreservices";
+import { isObject } from "../common/common";
+import {BuilderFunction} from "./module";
 import {StateRegistry} from "./stateRegistry";
 import {bindFunctions} from "../common/common";
 

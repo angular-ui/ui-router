@@ -48,7 +48,7 @@ class ParamTypes {
       },
       decode(val) {
         if (this.is(val)) return val;
-        var match = this.capture.exec(val);
+        let match = this.capture.exec(val);
         return match ? new Date(match[1], match[2] - 1, match[3]) : undefined;
       },
       is: (val) => val instanceof Date && !isNaN(val.valueOf()),
@@ -91,8 +91,8 @@ class ParamTypes {
   }
 
   _flushTypeQueue() {
-    while(this.typeQueue.length) {
-      var type = this.typeQueue.shift();
+    while (this.typeQueue.length) {
+      let type = this.typeQueue.shift();
       if (type.pattern) throw new Error("You cannot override a type's .pattern at runtime.");
       extend(this.types[type.name], services.$injector.invoke(type.def));
     }

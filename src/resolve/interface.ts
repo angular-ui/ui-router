@@ -1,5 +1,4 @@
 /** @module resolve */ /** for typedoc */
-import {IPromise} from "angular";
 import {Resolvable} from "./resolvable";
 
 export interface Resolvables {
@@ -11,10 +10,6 @@ export interface IOptions1 {
   resolvePolicy ?: string;
 }
 
-interface IOrdinals { [key: string]: number; }
-interface IPolicies { [key: string]: string; }
-
-// TODO: convert to enum
 // Defines the available policies and their ordinals.
 export enum ResolvePolicy {
   JIT, // JIT resolves are resolved just-in-time, right before an injected function that depends on them is invoked.

@@ -88,7 +88,7 @@ export class State {
 
   parameters(opts?): Param[] {
     opts = defaults(opts, { inherit: true });
-    var inherited = opts.inherit && this.parent && this.parent.parameters() || [];
+    let inherited = opts.inherit && this.parent && this.parent.parameters() || [];
     return inherited.concat(values(this.params));
   }
 

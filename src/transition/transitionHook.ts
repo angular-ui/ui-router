@@ -1,14 +1,14 @@
 /** @module transition */ /** for typedoc */
 import {IPromise} from "angular";
 import {TransitionHookOptions} from "./interface";
-import {IInjectable, defaults, extend, noop, filter, not, isFunction, isDefined, map, pattern, val,
-    eq, is, isPromise, isObject, parse, fnToString, maxLength, Predicate} from "../common/common";
+import {IInjectable, defaults, extend, noop, not, isDefined, pattern, val,
+    eq, is, isPromise, parse, fnToString, maxLength, Predicate} from "../common/common";
 import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 
 import {TransitionRejection, RejectFactory} from "./rejectFactory";
-import {State, TargetState} from "../state/module";
-import {Resolvable, ResolveContext} from "../resolve/module";
+import {TargetState} from "../state/module";
+import {ResolveContext} from "../resolve/module";
 
 let REJECT = new RejectFactory();
 
@@ -21,7 +21,7 @@ let defaultOptions = {
 };
 
 export class TransitionHook {
-  constructor(private fn:IInjectable,
+  constructor(private fn: IInjectable,
               private locals: any,
               private resolveContext: ResolveContext,
               private options: TransitionHookOptions) {

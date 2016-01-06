@@ -247,11 +247,11 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
       // slight difference in logic routing
       activeEqClass = $interpolate($attrs.uiSrefActiveEq || '', false)($scope);
 
-      var uiSrefActive = $scope.$eval($attrs.uiSrefActive) || $interpolate($attrs.uiSrefActive || '', false)($scope);
+      let uiSrefActive = $scope.$eval($attrs.uiSrefActive) || $interpolate($attrs.uiSrefActive || '', false)($scope);
       if (isObject(uiSrefActive)) {
         forEach(uiSrefActive, function(stateOrName, activeClass) {
           if (isString(stateOrName)) {
-            var ref = parseStateRef(stateOrName, $state.current.name);
+            let ref = parseStateRef(stateOrName, $state.current.name);
             addState(ref.state, $scope.$eval(ref.paramExpr), activeClass);
           }
         });
@@ -271,8 +271,8 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
       $scope.$on('$stateChangeSuccess', update);
 
       function addState(stateName, stateParams, activeClass) {
-        var state = $state.get(stateName, stateContext($element));
-        var stateHash = createStateHash(stateName, stateParams);
+        let state = $state.get(stateName, stateContext($element));
+        let stateHash = createStateHash(stateName, stateParams);
 
         states.push({
           state: state || { name: stateName },
@@ -284,7 +284,7 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
       }
 
       updateAfterTransition.$inject = ['$transition$'];
-      function updateAfterTransition ($transition$) { $transition$.promise.then(update); };
+      function updateAfterTransition ($transition$) { $transition$.promise.then(update); }
       let deregisterFn = $transitions.onStart({}, updateAfterTransition);
       $scope.$on('$destroy', deregisterFn);
 

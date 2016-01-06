@@ -1,7 +1,6 @@
 /** @module view */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IServiceProviderFactory} from "angular";
-import * as common from "../common/common";
 
 /**
  * @ngdoc object

@@ -1,12 +1,11 @@
 /** @module path */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {extend, pick, map, filter, not, isFunction} from "../common/common";
+import {extend, pick, map, filter, not} from "../common/common";
 import {services} from "../common/coreservices";
 import {trace} from "../common/trace";
 import {IPromise} from "angular";
-import {Resolvables, IOptions1} from "./interface"
+import {Resolvables, IOptions1} from "./interface";
 
-import {State} from "../state/module";
 import {ResolveContext} from "./resolveContext";
 import {isInjectable} from "../common/common";
 
@@ -50,23 +49,23 @@ export class Resolvable {
     
     trace.traceResolveResolvable(this, options);
     // First, set up an overall deferred/promise for this Resolvable
-    var deferred = services.$q.defer();
+    let deferred = services.$q.defer();
     this.promise = deferred.promise;
     // Load a map of all resolvables for this state from the context path
     // Omit the current Resolvable from the result, so we don't try to inject this into this
-    var ancestorsByName: Resolvables = resolveContext.getResolvables(null, {  omitOwnLocals: [ name ] });
+    let ancestorsByName: Resolvables = resolveContext.getResolvables(null, {  omitOwnLocals: [ name ] });
 
     // Limit the ancestors Resolvables map to only those that the current Resolvable fn's annotations depends on
-    var depResolvables: Resolvables = <any> pick(ancestorsByName, deps);
+    let depResolvables: Resolvables = <any> pick(ancestorsByName, deps);
 
     // Get promises (or synchronously invoke resolveFn) for deps
-    var depPromises: any = map(depResolvables, (resolvable: Resolvable) => resolvable.get(resolveContext, options));
+    let depPromises: any = map(depResolvables, (resolvable: Resolvable) => resolvable.get(resolveContext, options));
 
     // Return a promise chain that waits for all the deps to resolve, then invokes the resolveFn passing in the
     // dependencies as locals, then unwraps the resulting promise's data.
     return services.$q.all(depPromises).then(locals => {
       try {
-        var result = services.$injector.invoke(resolveFn, null, locals);
+        let result = services.$injector.invoke(resolveFn, null, locals);
         deferred.resolve(result);
       } catch (error) {
         deferred.reject(error);

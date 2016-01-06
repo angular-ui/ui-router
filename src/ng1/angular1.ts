@@ -11,13 +11,10 @@
 
 /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {IQService} from "angular";
 import {Router} from "../router";
 import {services} from "../common/coreservices";
-import {forEach, isObject} from "../common/common";
-import {RawParams} from "../params/interface";
+import {isObject} from "../common/common";
 import {Node} from "../path/module";
-import {Resolvables} from "../resolve/interface";
 import {Resolvable, ResolveContext} from "../resolve/module";
 import {State} from "../state/module";
 import {trace} from "../common/trace";
@@ -97,7 +94,7 @@ function ng1UIRouter($locationProvider) {
 
     // Bind LocationConfig.html5Mode to $locationProvider.html5Mode and $sniffer.history
     services.locationConfig.html5Mode = function() {
-      var html5Mode = $locationProvider.html5Mode();
+      let html5Mode = $locationProvider.html5Mode();
       html5Mode = isObject(html5Mode) ? html5Mode.enabled : html5Mode;
       return html5Mode && $sniffer.history;
     };
@@ -131,7 +128,7 @@ const resolveFactory = () => ({
     context.addResolvables(Resolvable.makeResolvables(invocables), node.state);
 
     const resolveData = (parentLocals) => {
-      const rewrap = locals => Resolvable.makeResolvables(<any> map(locals, local => () => local));
+      const rewrap = _locals => Resolvable.makeResolvables(<any> map(_locals, local => () => local));
       context.addResolvables(rewrap(parentLocals), parentNode.state);
       context.addResolvables(rewrap(locals), node.state);
       return context.resolvePath();

@@ -1,7 +1,7 @@
 import {extend, defaults, isDefined, isObject, isString} from "../common/common";
 import {Queue} from "../common/queue";
 import {services} from "../common/coreservices";
-import IPromise = angular.IPromise;
+import {IPromise} from "angular";
 
 import {PathFactory} from "../path/pathFactory";
 import {Node} from "../path/node";
@@ -113,17 +113,17 @@ export class StateService {
    * let app angular.module('app', ['ui.router']);
    *
    * app.controller('ctrl', function ($scope, $state) {
-     *   $scope.reload = function(){
-     *     $state.reload();
-     *   }
-     * });
+   *   $scope.reload = function(){
+   *     $state.reload();
+   *   }
+   * });
    * </pre>
    *
    * `reload()` is just an alias for:
    * <pre>
    * $state.transitionTo($state.current, $stateParams, {
-     *   reload: true, inherit: false, notify: true
-     * });
+   *   reload: true, inherit: false, notify: true
+   * });
    * </pre>
    *
    * @param {string=|object=} reloadState - A state name or a state object, which is the root of the resolves to be re-resolved.
@@ -134,11 +134,11 @@ export class StateService {
    * let app angular.module('app', ['ui.router']);
    *
    * app.controller('ctrl', function ($scope, $state) {
-     *   $scope.reload = function(){
-     *     //will reload 'contact.detail' and nested 'contact.detail.item' states
-     *     $state.reload('contact.detail');
-     *   }
-     * });
+   *   $scope.reload = function(){
+   *     //will reload 'contact.detail' and nested 'contact.detail.item' states
+   *     $state.reload('contact.detail');
+   *   }
+   * });
    * </pre>
    *
    * @returns {promise} A promise representing the state of the new transition. See
@@ -170,10 +170,10 @@ export class StateService {
    * let app = angular.module('app', ['ui.router']);
    *
    * app.controller('ctrl', function ($scope, $state) {
-     *   $scope.changeState = function () {
-     *     $state.go('contact.detail');
-     *   };
-     * });
+   *   $scope.changeState = function () {
+   *     $state.go('contact.detail');
+   *   };
+   * });
    * </pre>
    * <img src='../ngdoc_assets/StateGoExamples.png'/>
    *
@@ -244,10 +244,10 @@ export class StateService {
    * let app = angular.module('app', ['ui.router']);
    *
    * app.controller('ctrl', function ($scope, $state) {
-     *   $scope.changeState = function () {
-     *     $state.transitionTo('contact.detail');
-     *   };
-     * });
+   *   $scope.changeState = function () {
+   *     $state.transitionTo('contact.detail');
+   *   };
+   * });
    * </pre>
    *
    * @param {string} to State name.

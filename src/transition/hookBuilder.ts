@@ -1,7 +1,6 @@
 /** @module transition */ /** for typedoc */
 
-import {IPromise} from "angular";
-import {IInjectable, extend, tail, isPromise, isArray, assertPredicate, unnestR, flatten, identity} from "../common/common";
+import {IInjectable, extend, tail, isArray, assertPredicate, unnestR, flatten, identity} from "../common/common";
 
 import {TransitionOptions, TransitionHookOptions, IHookRegistry, TreeChanges, IEventHook, ITransitionService} from "./interface";
 
@@ -13,11 +12,6 @@ interface IToFrom {
   to:   State;
   from: State;
 }
-
-let successErrorOptions: TransitionHookOptions = {
-  async: false,
-  rejectIfSuperseded: false
-};
 
 /**
  * This class returns applicable TransitionHooks for a specific Transition instance.

@@ -18,9 +18,9 @@ import {TargetState} from "../state/module";
 import {Transition} from "../transition/transition";
 
 (function() {
-  let {extend, isFunction, isString} = angular;
+  let {isFunction, isString} = angular;
 
-  function applyPairs(memo, keyValTuple:any[]) {
+  function applyPairs(memo, keyValTuple: any[]) {
     let key, value;
     if (Array.isArray(keyValTuple)) [key, value] = keyValTuple;
     if (!isString(key)) throw new Error("invalid parameters to applyPairs");
@@ -29,7 +29,7 @@ import {Transition} from "../transition/transition";
   }
 
   stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$urlRouter'];
-  function stateChangeStartHandler($transition$:Transition, $stateEvents, $rootScope, $urlRouter) {
+  function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootScope, $urlRouter) {
     if (!$transition$.options().notify || !$transition$.valid() || $transition$.ignored())
       return;
 
@@ -53,10 +53,10 @@ import {Transition} from "../transition/transition";
      *
      * <pre>
      * $rootScope.$on('$stateChangeStart', function(event, transition) {
-   *   event.preventDefault();
-   *   // transitionTo() promise will be rejected with
-   *   // a 'transition prevented' error
-   * })
+     *   event.preventDefault();
+     *   // transitionTo() promise will be rejected with
+     *   // a 'transition prevented' error
+     * })
      * </pre>
      */
 
@@ -64,7 +64,7 @@ import {Transition} from "../transition/transition";
     let fromParams = $transition$.params("from");
 
     if (enabledEvents.$stateChangeSuccess) {
-      var startEvent = $rootScope.$broadcast('$stateChangeStart', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$);
+      let startEvent = $rootScope.$broadcast('$stateChangeStart', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$);
 
       if (startEvent.defaultPrevented) {
         if (enabledEvents.$stateChangeCancel) {
@@ -126,7 +126,7 @@ import {Transition} from "../transition/transition";
   }
 
   stateNotFoundHandler.$inject = ['$to$', '$from$', '$state', '$rootScope', '$urlRouter'];
-  function stateNotFoundHandler($to$:TargetState, $from$:TargetState, $state:StateService, $rootScope, $urlRouter) {
+  function stateNotFoundHandler($to$: TargetState, $from$: TargetState, $state: StateService, $rootScope, $urlRouter) {
     /**
      * @ngdoc event
      * @name ui.router.state.$state#$stateNotFound
@@ -152,20 +152,20 @@ import {Transition} from "../transition/transition";
      *
      * // somewhere else
      * $scope.$on('$stateNotFound', function(event, transition) {
-   * function(event, unfoundState, fromState, fromParams){
-   *     console.log(unfoundState.to); // "lazy.state"
-   *     console.log(unfoundState.toParams); // {a:1, b:2}
-   *     console.log(unfoundState.options); // {inherit:false} + default options
-   * });
-   * </pre>
-   */
+     * function(event, unfoundState, fromState, fromParams){
+     *     console.log(unfoundState.to); // "lazy.state"
+     *     console.log(unfoundState.toParams); // {a:1, b:2}
+     *     console.log(unfoundState.options); // {inherit:false} + default options
+     * });
+     * </pre>
+     */
     let redirect = {to: $to$.identifier(), toParams: $to$.params(), options: $to$.options()};
     let e = $rootScope.$broadcast('$stateNotFound', redirect, $from$.state(), $from$.params());
 
     if (e.defaultPrevented || e.retry)
       $urlRouter.update();
 
-    function redirectFn():TargetState {
+    function redirectFn(): TargetState {
       return $state.target(redirect.to, redirect.toParams, redirect.options);
     }
 
@@ -177,7 +177,7 @@ import {Transition} from "../transition/transition";
   }
 
   $StateEventsProvider.$inject = ['$stateProvider'];
-  function $StateEventsProvider($stateProvider:StateProvider) {
+  function $StateEventsProvider($stateProvider: StateProvider) {
     $StateEventsProvider.prototype.instance = this;
 
     interface IEventsToggle {
@@ -189,7 +189,7 @@ import {Transition} from "../transition/transition";
 
     let runtime = false;
     let allEvents = ['$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError'];
-    let enabledStateEvents:IEventsToggle = <IEventsToggle> allEvents.map(e => [e, true]).reduce(applyPairs, {});
+    let enabledStateEvents = <IEventsToggle> allEvents.map(e => [e, true]).reduce(applyPairs, {});
 
     function assertNotRuntime() {
       if (runtime) throw new Error("Cannot enable events at runtime (use $stateEventsProvider");
@@ -199,7 +199,7 @@ import {Transition} from "../transition/transition";
      * Enables the deprecated UI-Router 0.2.x State Events
      * [ '$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError' ]
      */
-    this.enable = function (...events:string[]) {
+    this.enable = function (...events: string[]) {
       assertNotRuntime();
       if (!events || !events.length) events = allEvents;
       events.forEach(event => enabledStateEvents[event] = true);
@@ -209,7 +209,7 @@ import {Transition} from "../transition/transition";
      * Disables the deprecated UI-Router 0.2.x State Events
      * [ '$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError' ]
      */
-    this.disable = function (...events:string[]) {
+    this.disable = function (...events: string[]) {
       assertNotRuntime();
       if (!events || !events.length) events = allEvents;
       events.forEach(event => delete enabledStateEvents[event]);
