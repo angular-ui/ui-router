@@ -3,8 +3,8 @@
 
 import {extend, isDefined} from "../common/common";
 import {trace} from "../common/trace";
-import {ViewConfig} from "./view";
-import {UIViewData} from "./interface";
+import {ViewConfig} from "../view/view";
+import {UIViewData} from "../view/interface";
 
 /**
  * @ngdoc directive

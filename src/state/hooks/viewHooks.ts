@@ -2,7 +2,7 @@
 import {IPromise} from "angular";
 import {find, propEq, noop} from "../../common/common";
 import {services} from "../../common/coreservices";
-import {annotateController} from "../../ng1/angular1";
+import {annotateController} from "../../ng1/services";
 
 import {TreeChanges} from "../../transition/interface";
 import {Transition} from "../../transition/transition";
