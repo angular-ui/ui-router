@@ -329,6 +329,7 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
 
       function exactMatch(state, params) { return $state.is(state.name, params); }
 
+      update();
     }]
   };
 }

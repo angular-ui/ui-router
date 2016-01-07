@@ -661,5 +661,15 @@ describe('uiSrefActive', function() {
       expect(el[0].className).toMatch(/admin/);
       expect(el[0].className).not.toMatch(/contacts/);
     }));
+
+    it('should update the active classes when compiled', inject(function($compile, $rootScope, $document, $state, $q) {
+      $state.transitionTo('admin.roles');
+      $q.flush();
+      timeoutFlush();
+      el = $compile('<div ui-sref-active="{active: \'admin.roles\'}"/>')($rootScope);
+      $rootScope.$digest();
+      timeoutFlush();
+      expect(el.hasClass('active')).toBeTruthy();
+    }));
   });
 });
