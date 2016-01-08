@@ -9,6 +9,15 @@ import {ViewService} from "./view/view";
 import {StateRegistry} from "./state/stateRegistry";
 import {StateService} from "./state/stateService";
 
+/**
+ * The master class used to instantiate an instance of UI-Router.
+ *
+ * This class instantiates and wires the global UI-Router services.
+ *
+ * After instantiating a new instance of the Router class, configure it for your app.  For instance, register
+ * your app states with the [[stateRegistry]] (and set url options using ...).  Then, tell UI-Router to monitor
+ * the URL by calling `urlRouter.listen()` ([[URLRouter.listen]])
+ */
 class Router {
 
   urlMatcherFactory: UrlMatcherFactory = new UrlMatcherFactory();
@@ -27,6 +36,7 @@ class Router {
 
   stateRegistry: StateRegistry = new StateRegistry(this.urlMatcherFactory, this.urlRouterProvider, () => this.stateService.$current);
 
+  // TODO: move this to ng1.ts
   stateProvider = new StateProvider(this.stateRegistry);
 
   stateService = new StateService(this.viewService, this.stateParams, this.urlRouter, this.transitionService, this.stateRegistry, this.stateProvider);

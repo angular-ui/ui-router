@@ -2,7 +2,7 @@
 /** @module view */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {TemplateFactory} from "./templateFactory";
-import {isInjectable, isString, extend, curry, applyPairs, prop, pick, removeFrom, TypedMap} from "../common/common";
+import {isInjectable, isString, extend, equals, curry, applyPairs, prop, pick, removeFrom, TypedMap} from "../common/common";
 import {trace} from "../common/module";
 import {services} from "../common/coreservices";
 
@@ -234,7 +234,7 @@ export class ViewService {
 
       // Check if the tails of the segment arrays match. ex, these arrays' tails match:
       // vc: ["foo", "bar"], uiv fqn: ["$default", "foo", "bar"]
-      if (!angular.equals(vcSegments, uivSegments.slice(0 - vcSegments.length)))
+      if (!equals(vcSegments, uivSegments.slice(0 - vcSegments.length)))
         return false;
 
       // Now check if the fqn ending at the first segment of the viewConfig matches the context:

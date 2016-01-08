@@ -39,6 +39,7 @@ module.exports = function (grunt) {
       },
       build: {
         files: {
+          '<%= builddir %>/ui-router.min.js': ['<banner:meta.banner>', '<%= builddir %>/ui-router.js'],
           '<%= builddir %>/<%= pkg.name %>.min.js': ['<banner:meta.banner>', '<%= builddir %>/<%= pkg.name %>.js'],
           '<%= builddir %>/ng1/stateEvents.min.js': ['<banner:meta.banner>', '<%= builddir %>/ng1/stateEvents.js']
         }
@@ -46,7 +47,7 @@ module.exports = function (grunt) {
     },
     webpack: {
       build: {
-        entry: files.commonJsEntrypoint,
+        entry: files.ng1CommonJsEntrypoint,
         output: {
           path: '<%= builddir %>',
           filename: '<%= pkg.name %>.js',
@@ -65,6 +66,18 @@ module.exports = function (grunt) {
             }
           }
         ]
+      },
+      core: {
+        entry: files.coreCommonJsEntrypoint,
+        output: {
+          path: '<%= builddir %>',
+          filename: 'ui-router.js',
+          library: 'ui-router-core',
+          libraryTarget: 'umd'
+        },
+        module: {
+          loaders: []
+        }
       }
     },
     release: {

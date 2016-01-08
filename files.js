@@ -1,8 +1,8 @@
 routerFiles = {
-  commonJsEntrypoint: ['./build/es5/ng1.js'],
+  ng1CommonJsEntrypoint: ['./build/es5/ng1.js'],
+  coreCommonJsEntrypoint: ['./build/es5/ui-router.js'],
   es6Entrypoint:      ['./build/es6/ng1.js'],
 
-  buildDest:          ['build/angular-ui-router.js'], // The distribution file
   src:                [
     'src/ui-router.ts', // Main UI-Router module (re-exports all other core modules)
     'src/ng1.ts', // UI-Router angular1 module (re-exports ui-router and ng1 modules)

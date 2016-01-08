@@ -13,7 +13,9 @@ function getDefaultConfig() {
 }
 
 /**
- * Factory for [[UrlMatcher]] instances. The factory is available to ng1 services as
+ * Factory for [[UrlMatcher]] instances.
+ *
+ * The factory is available to ng1 services as
  * `$urlMatcherFactor` or ng1 providers as `$urlMatcherFactoryProvider`.
  */
 export class UrlMatcherFactory {
