@@ -2,7 +2,6 @@
 import {IPromise} from "angular";
 import {find, propEq, noop} from "../../common/common";
 import {services} from "../../common/coreservices";
-import {annotateController} from "../../ng1/services";
 
 import {TreeChanges} from "../../transition/interface";
 import {Transition} from "../../transition/transition";
@@ -34,19 +33,6 @@ export class ViewHooks {
     return services.$q.all(this.enteringViews.map(loadView)).then(noop);
   }
 
-  loadAllControllerLocals() {
-    const loadLocals = (vc: ViewConfig) => {
-      let deps = annotateController(vc.controller);
-      let resolveInjector = find(this.treeChanges.to, propEq('state', vc.context)).resolveInjector;
-      function $loadControllerLocals() { }
-      $loadControllerLocals.$inject = deps;
-      return services.$q.all(resolveInjector.getLocals($loadControllerLocals)).then((locals) => vc.locals = locals);
-    };
-
-    let loadAllLocals = this.enteringViews.filter(vc => !!vc.controller).map(loadLocals);
-    return services.$q.all(loadAllLocals).then(noop);
-  }
-
   updateViews() {
     let $view = this.$view;
     this.exitingViews.forEach((viewConfig: ViewConfig) => $view.reset(viewConfig));
@@ -57,7 +43,6 @@ export class ViewHooks {
   registerHooks() {
     if (this.enteringViews.length) {
       this.transition.onStart({}, this.loadAllEnteringViews.bind(this));
-      this.transition.onFinish({}, this.loadAllControllerLocals.bind(this));
     }
 
     if (this.exitingViews.length || this.enteringViews.length)

@@ -1,5 +1,5 @@
 var module = angular.mock.module;
-var uiRouter = require("ui-router");
+var uiRouter = require("angular-ui-router");
 var common = uiRouter.common;
 var RejectType = uiRouter.transition.RejectType;
 var extend = common.extend;

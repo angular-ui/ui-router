@@ -13,15 +13,12 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {Router} from "../router";
 import {services} from "../common/coreservices";
-import {isObject} from "../common/common";
+import {isObject, map, prop, bindFunctions, removeFrom, propEq, find, noop} from "../common/common";
 import {Node} from "../path/module";
 import {Resolvable, ResolveContext} from "../resolve/module";
 import {State} from "../state/module";
 import {trace} from "../common/trace";
-import {map} from "../common/common";
-import {prop} from "../common/common";
-import {bindFunctions} from "../common/common";
-import {removeFrom} from "../common/common";
+import {ViewConfig} from "../view/view";
 
 let app = angular.module("ui.router.angular1", []);
 
@@ -185,6 +182,22 @@ angular.module('ui.router.state').factory('$stateParams', ['ng1UIRouter', '$root
 
 // $transitions service and $transitionsProvider
 function getTransitionsProvider() {
+  loadAllControllerLocals.$inject = ['$transition$'];
+  function loadAllControllerLocals($transition$) {
+    const loadLocals = (vc: ViewConfig) => {
+      let deps = annotateController(vc.controller);
+      let toPath: Node[] = $transition$.treeChanges().to;
+      let resolveInjector = find(toPath, propEq('state', vc.context)).resolveInjector;
+      function $loadControllerLocals() { }
+      $loadControllerLocals.$inject = deps;
+      return services.$q.all(resolveInjector.getLocals($loadControllerLocals)).then((locals) => vc.locals = locals);
+    };
+
+    let loadAllLocals = $transition$.views("entering").filter(vc => !!vc.controller).map(loadLocals);
+    return services.$q.all(loadAllLocals).then(noop);
+  }
+  router.transitionService.onFinish({}, loadAllControllerLocals);
+
   router.transitionService["$get"] = () => router.transitionService;
   return router.transitionService;
 }

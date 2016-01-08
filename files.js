@@ -1,10 +1,11 @@
 routerFiles = {
-  commonJsEntrypoint: ['./build/es5/ui-router.js'],
-  es6Entrypoint:      ['./build/es6/ui-router.js'],
+  commonJsEntrypoint: ['./build/es5/ng1.js'],
+  es6Entrypoint:      ['./build/es6/ng1.js'],
 
   buildDest:          ['build/angular-ui-router.js'], // The distribution file
   src:                [
-    'src/ui-router.ts', // Main UI-Router module (imports everything else)
+    'src/ui-router.ts', // Main UI-Router module (re-exports all other core modules)
+    'src/ng1.ts', // UI-Router angular1 module (re-exports ui-router and ng1 modules)
     'src/ng1/stateEvents.ts' // There might be a better approach to compiling this file
   ],
 

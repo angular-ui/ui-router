@@ -1,4 +1,4 @@
-var uiRouter = require('ui-router');
+var uiRouter = require("angular-ui-router");
 var Glob = uiRouter.state.Glob;
 
 describe('Glob', function() {
