@@ -467,11 +467,7 @@ export function applyPairs(memo: TypedMap<any>, keyValTuple: any[]) {
 }
 
 export function fnToString(fn: IInjectable) {
-  let _fn = pattern([
-    [isArray, arr => arr.slice(-1)[0]],
-    [val(true), identity]
-  ])(fn);
-
+  let _fn = isArray(fn) ? fn.slice(-1)[0] : fn;
   return _fn && _fn.toString() || "undefined";
 }
 

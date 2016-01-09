@@ -5,6 +5,7 @@ import {isFunction, isString, isDefined, isArray} from "../common/predicates";
 import {UrlMatcher} from "./module";
 import {services} from "../common/coreservices";
 import {UrlMatcherFactory} from "./urlMatcherFactory";
+import {StateParams} from "../params/stateParams";
 
 let $location = services.location;
 
@@ -21,9 +22,9 @@ function interpolate(pattern, match) {
   });
 }
 
-function handleIfMatch($injector, handler, match) {
+function handleIfMatch($injector, $stateParams, handler, match) {
   if (!match) return false;
-  let result = $injector.invoke(handler, handler, { $match: match });
+  let result = $injector.invoke(handler, handler, { $match: match, $stateParams: $stateParams });
   return isDefined(result) ? result : true;
 }
 
@@ -80,7 +81,7 @@ export class UrlRouterProvider {
   otherwiseFn: Function = null;
   private interceptDeferred = false;
 
-  constructor(private $urlMatcherFactory: UrlMatcherFactory) {
+  constructor(private $urlMatcherFactory: UrlMatcherFactory, private $stateParams: StateParams) {
 
   }
 
@@ -198,7 +199,7 @@ export class UrlRouterProvider {
    * @param {string|function} handler The path you want to redirect your user to.
    */
   when(what, handler) {
-    let {$urlMatcherFactory} = this;
+    let {$urlMatcherFactory, $stateParams} = this;
     let redirect, handlerIsString = isString(handler);
 
     // @todo Queue this
@@ -214,7 +215,7 @@ export class UrlRouterProvider {
           _handler = ['$match', redirect.format.bind(redirect)];
         }
         return extend(function () {
-          return handleIfMatch(services.$injector, _handler, _what.exec($location.path(), $location.search(), $location.hash()));
+          return handleIfMatch(services.$injector, $stateParams, _handler, _what.exec($location.path(), $location.search(), $location.hash()));
         }, {
           prefix: isString(_what.prefix) ? _what.prefix : ''
         });
@@ -227,7 +228,7 @@ export class UrlRouterProvider {
           _handler = ['$match', ($match) => interpolate(redirect, $match)];
         }
         return extend(function () {
-          return handleIfMatch(services.$injector, _handler, _what.exec($location.path()));
+          return handleIfMatch(services.$injector, $stateParams, _handler, _what.exec($location.path()));
         }, {
           prefix: regExpPrefix(_what)
         });

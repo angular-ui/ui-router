@@ -14,7 +14,8 @@ import {StateDeclaration, StateOrName} from "../state/interface";
 import {TransitionOptions, TransitionHookOptions, TreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";
 
 import {TransitionHook, HookRegistry, matchState, HookBuilder, RejectFactory} from "./module";
-import {Node, PathFactory} from "../path/module";
+import {Node} from "../path/node";
+import {PathFactory} from "../path/pathFactory";
 import {State, TargetState} from "../state/module";
 import {Param} from "../params/module";
 import {Resolvable} from "../resolve/module";

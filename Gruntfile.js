@@ -68,11 +68,11 @@ module.exports = function (grunt) {
         ]
       },
       core: {
-        entry: files.coreCommonJsEntrypoint,
+        entry: files.justjsCommonJsEntrypoint,
         output: {
           path: '<%= builddir %>',
-          filename: 'ui-router.js',
-          library: 'ui-router-core',
+          filename: 'ui-router-justjs.js',
+          library: 'uiRouter',
           libraryTarget: 'umd'
         },
         module: {

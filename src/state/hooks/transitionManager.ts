@@ -64,10 +64,14 @@ export class TransitionManager {
   runTransition(): IPromise<any> {
     this.activeTransQ.clear();  // TODO: nuke this
     this.activeTransQ.enqueue(this.transition);
-    return this.transition.run()
+    let promise = this.transition.run()
         .then((trans: Transition) => trans.to()) // resolve to the final state (TODO: good? bad?)
-        .catch(error => this.transRejected(error)) // if rejected, handle dynamic and redirect
-        .finally(() => this.activeTransQ.remove(this.transition));
+        .catch(error => this.transRejected(error)); // if rejected, handle dynamic and redirect
+
+    let always = () => this.activeTransQ.remove(this.transition);
+    promise.then(always, always);
+
+    return promise;
   }
 
   registerUpdateGlobalState() {

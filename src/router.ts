@@ -20,9 +20,11 @@ import {StateService} from "./state/stateService";
  */
 class Router {
 
+  stateParams = stateParamsFactory();
+
   urlMatcherFactory: UrlMatcherFactory = new UrlMatcherFactory();
 
-  urlRouterProvider: UrlRouterProvider = new UrlRouterProvider(this.urlMatcherFactory);
+  urlRouterProvider: UrlRouterProvider = new UrlRouterProvider(this.urlMatcherFactory, this.stateParams);
 
   urlRouter: UrlRouter = new UrlRouter(this.urlRouterProvider);
 
@@ -31,8 +33,6 @@ class Router {
   templateFactory = new TemplateFactory();
 
   viewService = new ViewService(this.templateFactory);
-
-  stateParams = stateParamsFactory();
 
   stateRegistry: StateRegistry = new StateRegistry(this.urlMatcherFactory, this.urlRouterProvider, () => this.stateService.$current);
 

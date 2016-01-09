@@ -40,7 +40,7 @@ export class TransitionHook {
     // Transition is no longer current
     [this.isSuperseded, () => REJECT.superseded(this.options.current())],
     // If the hook returns false, abort the current Transition
-    [eq(false),         val(REJECT.aborted("Hook aborted transition"))],
+    [eq(false),         () => REJECT.aborted("Hook aborted transition")],
     // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
     [is(TargetState),   (target) => REJECT.redirected(target)],
     // A promise was returned, wait for the promise and then chain another hookHandler
