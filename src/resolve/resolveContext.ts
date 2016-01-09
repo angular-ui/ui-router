@@ -1,6 +1,8 @@
 /** @module path */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {IInjectable, find, filter, map, tail, defaults, extend, prop, propEq, pick, omit, isString, isObject} from "../common/common";
+import {IInjectable, find, filter, map, tail, defaults, extend, pick, omit} from "../common/common";
+import {prop, propEq} from "../common/hof";
+import {isString, isObject} from "../common/predicates";
 import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 import {IPromise} from "angular";

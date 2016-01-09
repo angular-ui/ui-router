@@ -1,6 +1,7 @@
 /** @module state */ /** for typedoc */
 import {IPromise} from "angular";
-import {find, propEq, noop} from "../../common/common";
+import {find, noop} from "../../common/common";
+import {propEq} from "../../common/hof";
 import {services} from "../../common/coreservices";
 
 import {TreeChanges} from "../../transition/interface";

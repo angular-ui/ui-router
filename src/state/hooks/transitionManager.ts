@@ -1,6 +1,7 @@
 /** @module state */ /** for typedoc */
 import {IPromise, IQService} from "angular";
-import {copy, prop} from "../../common/common";
+import {copy} from "../../common/common";
+import {prop} from "../../common/hof";
 import {Queue} from "../../common/queue";
 import {Param} from "../../params/param";
 

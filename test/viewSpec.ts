@@ -4,7 +4,8 @@
 
 var module = angular.mock.module;
 
-import {inherit, extend, curry} from "../src/common/common";
+import {inherit, extend} from "../src/common/common";
+import {curry} from "../src/common/hof";
 import {Node} from "../src/path/module";
 import {ResolveContext} from "../src/resolve/module";
 import {PathFactory} from "../src/path/module";

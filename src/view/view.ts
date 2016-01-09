@@ -2,7 +2,9 @@
 /** @module view */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {TemplateFactory} from "./templateFactory";
-import {isInjectable, isString, extend, equals, curry, applyPairs, prop, pick, removeFrom, TypedMap} from "../common/common";
+import {extend, equals, applyPairs, pick, removeFrom, TypedMap} from "../common/common";
+import {curry, prop} from "../common/hof";
+import {isInjectable, isString} from "../common/predicates";
 import {trace} from "../common/module";
 import {services} from "../common/coreservices";
 

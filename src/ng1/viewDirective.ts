@@ -1,7 +1,8 @@
 /** @module view */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 
-import {extend, isDefined} from "../common/common";
+import {extend} from "../common/common";
+import {isDefined} from "../common/predicates";
 import {trace} from "../common/trace";
 import {ViewConfig} from "../view/view";
 import {UIViewData} from "../view/interface";

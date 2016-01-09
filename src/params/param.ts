@@ -1,5 +1,7 @@
 /** @module params */ /** for typedoc */
-import {isInjectable, extend, isDefined, isString, isArray, filter, map, prop, propEq, applyPairs} from "../common/common";
+import {extend, filter, map, applyPairs} from "../common/common";
+import {prop, propEq} from "../common/hof";
+import {isInjectable, isDefined, isString, isArray} from "../common/predicates";
 import {RawParams} from "../params/interface";
 import {services} from "../common/coreservices";
 import {matcherConfig} from "../url/urlMatcherConfig";

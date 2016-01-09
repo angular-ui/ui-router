@@ -1,5 +1,7 @@
 /** @module state */ /** for typedoc */
-import {map, noop, extend, pick, omit, values, applyPairs, prop, isDefined, isFunction, isString, forEach} from "../common/common";
+import {map, noop, extend, pick, omit, values, applyPairs, forEach} from "../common/common";
+import {isDefined, isFunction, isString} from "../common/predicates";
+import {prop} from "../common/hof";
 import {StateDeclaration} from "./interface";
 
 import {State, StateMatcher} from "./module";

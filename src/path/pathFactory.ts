@@ -1,6 +1,7 @@
 /** @module path */ /** for typedoc */
 
-import {extend, find, prop, propEq, pick, omit, not, curry, tail, mergeR} from "../common/common";
+import {extend, find, pick, omit, tail, mergeR} from "../common/common";
+import {prop, propEq, not, curry} from "../common/hof";
 
 import {RawParams} from "../params/interface";
 import {TreeChanges} from "../transition/interface";

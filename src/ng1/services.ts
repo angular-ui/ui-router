@@ -13,7 +13,9 @@
 /// <reference path='../../typings/angularjs/angular.d.ts' />
 import {Router} from "../router";
 import {services} from "../common/coreservices";
-import {isObject, map, prop, bindFunctions, removeFrom, propEq, find, noop} from "../common/common";
+import {map, bindFunctions, removeFrom, find, noop} from "../common/common";
+import {prop, propEq} from "../common/hof";
+import {isObject} from "../common/predicates";
 import {Node} from "../path/module";
 import {Resolvable, ResolveContext} from "../resolve/module";
 import {State} from "../state/module";

@@ -1,5 +1,7 @@
 /** @module params */ /** for typedoc */
-import {isDefined, fromJson, toJson, is, identity, equals, inherit, map, extend, val} from "../common/common";
+import {fromJson, toJson, identity, equals, inherit, map, extend} from "../common/common";
+import {isDefined} from "../common/predicates";
+import {is, val} from "../common/hof";
 import {services} from "../common/coreservices";
 import {Type} from "./type";
 

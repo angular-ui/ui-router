@@ -1,5 +1,5 @@
 /** @module state */ /** for typedoc */
-import {isString} from "../common/common";
+import {isString} from "../common/predicates";
 import {StateOrName} from "./interface";
 import {State} from "./module";
 

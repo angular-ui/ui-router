@@ -1,5 +1,6 @@
 /** @module params */ /** for typedoc */
-import {extend, isArray, isDefined, filter, map} from "../common/common";
+import {extend, filter, map} from "../common/common";
+import {isArray, isDefined} from "../common/predicates";
 import {TypeDefinition} from "./interface";
 
 /**

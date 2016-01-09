@@ -1,13 +1,15 @@
 /** @module path */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {extend, pick, map, filter, not} from "../common/common";
+import {extend, pick, map, filter} from "../common/common";
+import {not} from "../common/hof";
+import {isInjectable} from "../common/predicates";
+
 import {services} from "../common/coreservices";
 import {trace} from "../common/trace";
 import {IPromise} from "angular";
 import {Resolvables, IOptions1} from "./interface";
 
 import {ResolveContext} from "./resolveContext";
-import {isInjectable} from "../common/common";
 
 /**
  * The basic building block for the resolve system.

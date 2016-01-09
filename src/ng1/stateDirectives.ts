@@ -1,6 +1,7 @@
 /** @module state */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {copy, defaults, isString, isObject, forEach, toJson} from "../common/common";
+import {copy, defaults, forEach, toJson} from "../common/common";
+import {isString, isObject} from "../common/predicates";
 import {defaultTransOpts} from "../transition/module";
 
 function parseStateRef(ref, current) {

@@ -1,8 +1,10 @@
 /** @module url */ /** for typedoc */
 import {
-  map, prop, propEq, defaults, extend, inherit, identity, isArray, isString,
+  map, defaults, extend, inherit, identity,
   unnest, tail, forEach, find, omit, pairs, allTrueR
 } from "../common/common";
+import {prop, propEq } from "../common/hof";
+import {isArray, isString} from "../common/predicates";
 import {Param, paramTypes} from "../params/module";
 
 interface params {

@@ -1,7 +1,8 @@
 /** @module state */ /** for typedoc */
 
 import {StateDeclaration, ViewDeclaration} from "./interface";
-import {extend, defaults, values, find, propEq} from "../common/module";
+import {extend, defaults, values, find} from "../common/common";
+import {propEq} from "../common/hof";
 import {Param} from "../params/module";
 import {UrlMatcher} from "../url/module";
 

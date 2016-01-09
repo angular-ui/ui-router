@@ -1,6 +1,7 @@
 /** @module path */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {extend, prop, propEq, applyPairs, map, find, allTrueR, values} from "../common/common";
+import {extend, applyPairs, map, find, allTrueR, values} from "../common/common";
+import {prop, propEq} from "../common/hof";
 import {State} from "../state/module";
 import {RawParams} from "../params/interface";
 import {Param} from "../params/module";

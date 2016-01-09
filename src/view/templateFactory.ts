@@ -1,6 +1,6 @@
 /** @module view */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {isDefined, isFunction} from "../common/common";
+import {isDefined, isFunction} from "../common/predicates";
 import {services} from "../common/coreservices";
 import {ViewDeclaration} from "../state/interface";
 

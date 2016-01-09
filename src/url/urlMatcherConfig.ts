@@ -1,5 +1,5 @@
 /** @module url */ /** for typedoc */
-import {isDefined, isString} from "../common/common";
+import {isDefined, isString} from "../common/predicates";
 
 class MatcherConfig {
   _isCaseInsensitive: boolean = false;

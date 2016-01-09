@@ -1,5 +1,7 @@
 /** @module transition */ /** for typedoc */
-import {IInjectable, extend, val, isString, isFunction, removeFrom} from "../common/common";
+import {IInjectable, extend, removeFrom} from "../common/common";
+import {isString, isFunction} from "../common/predicates";
+import {val} from "../common/hof";
 
 import {IMatchCriteria, IStateMatch, IEventHook, IHookRegistry, IHookRegistration} from "./interface";
 

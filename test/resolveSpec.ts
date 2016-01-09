@@ -2,13 +2,14 @@
 /// <reference path='../typings/angularjs/angular-mocks.d.ts' />
 /// <reference path='../typings/jasmine/jasmine.d.ts' />
 
-import * as uiRouter from "../src/ui-router";
-import {Resolvable, ResolveContext} from "../src/resolve/module"
+import "../src/ui-router";
+import {ResolveContext} from "../src/resolve/module";
 
 import {State} from "../src/state/module";
 import {Node, PathFactory} from "../src/path/module";
 
-import {omit, map, pick, prop, extend, forEach} from "../src/common/common"
+import {omit, map, pick, extend, forEach} from "../src/common/common";
+import {prop} from "../src/common/hof";
 import {StateDeclaration} from "../src/state/interface";
 import Spy = jasmine.Spy;
 

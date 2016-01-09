@@ -1,8 +1,9 @@
 /** @module transition */ /** for typedoc */
 import {IPromise} from "angular";
 import {TransitionHookOptions} from "./interface";
-import {IInjectable, defaults, extend, noop, not, isDefined, pattern, val,
-    eq, is, isPromise, parse, fnToString, maxLength, Predicate} from "../common/common";
+import {IInjectable, defaults, extend, noop, fnToString, maxLength, Predicate} from "../common/common";
+import {isDefined, isPromise } from "../common/predicates";
+import {not, pattern, val, eq, is, parse } from "../common/hof";
 import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 

@@ -5,9 +5,10 @@ import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 import {
     map, find, extend, filter, mergeR, unnest, tail,
-    omit, isObject, not, prop, propEq, toJson, val, abstractKey,
-    arrayTuples, allTrueR
+    omit, toJson, abstractKey, arrayTuples, allTrueR
 } from "../common/common";
+import { isObject } from "../common/predicates";
+import { not, prop, propEq, val } from "../common/hof";
 
 import {StateDeclaration, StateOrName} from "../state/interface";
 import {TransitionOptions, TransitionHookOptions, TreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";

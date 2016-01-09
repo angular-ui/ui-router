@@ -1,6 +1,7 @@
 /** @module url */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {forEach, extend, isObject, isDefined, isFunction} from "../common/common";
+import {forEach, extend} from "../common/common";
+import {isObject, isDefined, isFunction} from "../common/predicates";
 
 import {UrlMatcher, matcherConfig} from "./module";
 import {Param, paramTypes, Type} from "../params/module";

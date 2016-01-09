@@ -1,4 +1,5 @@
-import {extend, defaults, isDefined, isObject, isString} from "../common/common";
+import {extend, defaults } from "../common/common";
+import {isDefined, isObject, isString} from "../common/predicates";
 import {Queue} from "../common/queue";
 import {services} from "../common/coreservices";
 import {IPromise} from "angular";

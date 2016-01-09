@@ -1,8 +1,8 @@
 /** @module state */ /** for typedoc */
-import { isObject } from "../common/common";
+import {isObject} from "../common/predicates";
+import {bindFunctions} from "../common/common";
 import {BuilderFunction} from "./module";
 import {StateRegistry} from "./stateRegistry";
-import {bindFunctions} from "../common/common";
 
 /**
  * @ngdoc object
