@@ -1,4 +1,10 @@
 /**
+ * Higher order functions
+ *
+ * @module common
+ */
+
+/**
  * Returns a new function for [Partial Application](https://en.wikipedia.org/wiki/Partial_application) of the original function.
  *
  * Given a function with N parameters, returns a new function that supports partial application.

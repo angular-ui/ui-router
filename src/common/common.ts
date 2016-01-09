@@ -1,7 +1,7 @@
 /** @module common */ /** for typedoc */
-/// <reference path='../../typings/angularjs/angular.d.ts' />
 import {isDefined, isFunction, isNumber, isString, isObject, isArray, isRegExp, isDate} from "./predicates";
 
+let angular = (<any> window).angular;
 export const fromJson = angular && angular.fromJson || _fromJson;
 export const toJson = angular && angular.toJson || _toJson;
 export const copy = angular && angular.copy || _copy;

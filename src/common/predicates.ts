@@ -1,3 +1,6 @@
+/** Predicates @module common */
+
+/** reimplementation of common.not */
 const not = (fn) => (x) => !fn(x);
 const tis = (t) => (x) => typeof(x) === t;
 export const isDefined = not(tis('undefined'));
