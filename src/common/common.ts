@@ -1,5 +1,7 @@
 /** @module common */ /** for typedoc */
-import {isDefined, isFunction, isNumber, isString, isObject, isArray, isRegExp, isDate} from "./predicates";
+
+import {isFunction, isString, isArray, isRegExp, isDate} from "./predicates";
+import { all, pattern, any, not, prop, curry, val } from "./hof";
 
 let angular = (<any> window).angular;
 export const fromJson = angular && angular.fromJson || _fromJson;
@@ -10,10 +12,6 @@ export const extend = angular && angular.extend || _extend;
 export const equals = angular && angular.equals || _equals;
 export const identity = (x) => x;
 export const noop = () => undefined;
-
-export * from "./hof";
-import { all, pattern, and, any, not, prop, curry, pipe, val } from "./hof";
-export { isDefined, isFunction, isNumber, isString, isObject, isArray };
 
 type Mapper<X, T> = (x: X, key?: (string|number)) => T;
 export interface TypedMap<T> { [key: string]: T; }
@@ -87,7 +85,8 @@ export function bindFunctions(from, to, bindTo, fnNames: string[] = Object.keys(
  * prototypal inheritance helper.
  * Creates a new object which has `parent` object as its prototype, and then copies the properties from `extra` onto it
  */
-export const inherit = (parent, extra) => extend(new (extend(function() {}, { prototype: parent }))(), extra);
+export const inherit = (parent, extra) =>
+    extend(new (extend(function() {}, { prototype: parent }))(), extra);
 
 /**
  * Given an arguments object, converts the arguments at index idx and above to an array.
@@ -401,9 +400,9 @@ export const flatten   = (arr: any[]) => arr.reduce(flattenR, []);
  * oneString.filter(assertPredicate(isNumber, "Not all numbers")); // throws Error(""Not all numbers"");
  * ```
  */
-export function assertPredicate<T>(fn: Predicate<T>, errMsg: string = "assert failure"): Predicate<T> {
+export function assertPredicate<T>(fn: Predicate<T>, errMsg: (string|Function) = "assert failure"): Predicate<T> {
   return (obj: T) => {
-    if (!fn(obj)) throw new Error(errMsg);
+    if (!fn(obj)) throw new Error(isFunction(errMsg) ? (<Function> errMsg)(obj) : errMsg);
     return true;
   };
 }
@@ -466,29 +465,6 @@ export function applyPairs(memo: TypedMap<any>, keyValTuple: any[]) {
   memo[key] = value;
   return memo;
 }
-
-/**
- * Predicate which checks if a value is injectable
- *
- * A value is "injectable" if it is a function, or if it is an ng1 array-notation-style array
- * where all the elements in the array are Strings, except the last one, which is a Function
- */
-export function isInjectable(val) {
-  if (isArray(val) && val.length) {
-    let head = val.slice(0, -1), tail = val.slice(-1);
-    return !(head.filter(not(isString)).length || tail.filter(not(isFunction)).length);
-  }
-  return isFunction(val);
-}
-/** Predicate which checks if a value is `=== null` */
-export const isNull = o => o === null;
-
-/**
- * Predicate which checks if a value looks like a Promise
- *
- * It is probably a Promise if it's an object, and it has a `then` property which is a Function
- */
-export const isPromise = and(isObject, pipe(prop('then'), isFunction));
 
 export function fnToString(fn: IInjectable) {
   let _fn = pattern([
@@ -559,8 +535,11 @@ function _forEach(obj: (any[]|any), cb, _this) {
   Object.keys(obj).forEach(key => cb(obj[key], key));
 }
 
-function _extend(to, from) {
-  return !from ? to : Object.keys(from).reduce((m, key) => { m[key] = from[key]; return m; }, to);
+function _copyProps(to, from) { Object.keys(from).forEach(key => to[key] = from[key]); return to; }
+function _extend(toObj, fromObj);
+function _extend(toObj, ...fromObj);
+function _extend(toObj, rest) {
+  return restArgs(arguments, 1).filter(identity).reduce(_copyProps, toObj);
 }
 
 function _equals(o1, o2) {

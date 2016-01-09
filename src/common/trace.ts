@@ -1,5 +1,7 @@
 /** @module common */ /** for typedoc */
-import {isNull, isPromise, isNumber, fnToString, maxLength, padString, isInjectable, is, invoke, not, val, pattern, parse, isDefined, identity} from "../common/common";
+import {fnToString, maxLength, padString, identity} from "../common/common";
+import {is, invoke, not, val, pattern, parse} from "../common/hof";
+import {isNull, isPromise, isNumber, isInjectable, isDefined} from "../common/predicates";
 import {Resolvable}  from "../resolve/resolvable";
 import {Transition}  from "../transition/transition";
 import {TransitionRejection}  from "../transition/rejectFactory";
