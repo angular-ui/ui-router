@@ -34,21 +34,21 @@ $transitionsProvider.onBefore({ to: 'my.state', from: '*' }, function(AsyncServi
   return AsyncService.doSomeAsyncThing();
 });
 
-$transitionsProvider.onBefore({ to: 'other.state', from: '*' }, function(AsyncService) {
+$transitionsProvider.onBefore({ to: 'other.state', from: '*' }, function($transition$, AsyncService) {
   // someAsyncResult added as resolve to transition. It is injectable into other resolves or controllers.
-  return { someAsyncResult: AsyncService.doSomeAsyncThing }; 
+  $transition$.addResolves({ someAsyncResult: AsyncService.doSomeAsyncThing });
 });
 
 $transitionsProvider.onStart({ to: function(state) { return state.requiresAuth; } }, function($transition$, $state, AuthService) {
-  return AuthService.ensureAuthenticated().catch(function() { return $state.redirect("login"); });
+  return AuthService.ensureAuthenticated().catch(function() { return $state.target("login"); });
 });
 
 $transitionsProvider.onStart({ to: function(state) { return state.requiresAuth; } }, function($transition$, $state, AuthService) {
-  return AuthService.ensureAuthenticated().catch(function() { return $state.redirect("login"); });
+  return AuthService.ensureAuthenticated().catch(function() { return $state.target("login"); });
 });
 
 $transitionsProvider.onStart({ to: function(state) { return state.redirectTo; } }, function($transition$, $state) {
-  return $state.redirect($transition$.to.redirectTo); });
+  return $state.target($transition$.to.redirectTo); });
 });
 ```
 
