@@ -12,6 +12,12 @@
 $TemplateFactory.$inject = ['$http', '$templateCache', '$injector'];
 function $TemplateFactory(  $http,   $templateCache,   $injector) {
 
+  var $templateRequest = (
+    $injector.has &&
+    $injector.has('$templateRequest') &&
+    $injector.get('$templateRequest')
+  );
+
   /**
    * @ngdoc function
    * @name ui.router.util.$templateFactory#fromConfig
@@ -82,9 +88,11 @@ function $TemplateFactory(  $http,   $templateCache,   $injector) {
   this.fromUrl = function (url, params) {
     if (isFunction(url)) url = url(params);
     if (url == null) return null;
-    else return $http
-        .get(url, { cache: $templateCache, headers: { Accept: 'text/html' }})
-        .then(function(response) { return response.data; });
+
+    return ($templateRequest && $templateRequest(url) || $http.get(url, {
+      cache: $templateCache,
+      headers: { Accept: 'text/html' }
+    })).then(function(response) { return response.data; });
   };
 
   /**
