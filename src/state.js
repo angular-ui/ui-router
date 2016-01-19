@@ -1048,7 +1048,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
       // Filter parameters before we pass them to event handlers etc.
       toParams = filterByKeys(to.params.$$keys(), toParams || {});
-
+      
+      // Re-add the saved hash before we start returning things or broadcasting $stateChangeStart
+      if (hash) toParams['#'] = hash;
+      
       // Broadcast start event and cancel the transition if requested
       if (options.notify) {
         /**
@@ -1125,9 +1128,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
             $injector.invoke(entering.self.onEnter, entering.self, entering.locals.globals);
           }
         }
-
-        // Re-add the saved hash before we start returning things
-        if (hash) toParams['#'] = hash;
 
         // Run it again, to catch any transitions in callbacks
         if ($state.transition !== transition) return TransitionSuperseded;

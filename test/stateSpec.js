@@ -570,6 +570,18 @@ describe('state', function () {
       expect($location.url()).toBe('/front/world#frag');
       expect($location.hash()).toBe('frag');
     }));
+    
+    it('has access to the #fragment in $stateChangeStart hook', inject(function ($state, $q, $location, $rootScope) {
+        var hash_accessible = false;
+        $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+            hash_accessible = toParams['#'] === 'frag';
+        });
+        
+        $state.transitionTo('home.item', {id: 'world', '#': 'frag'});
+        $q.flush();
+        
+        expect(hash_accessible).toBe(true);
+    }));
   });
 
   describe('.go()', function () {
