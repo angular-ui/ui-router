@@ -289,7 +289,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
 
         if (controller) {
           let locals = data.$locals;
-          let controllerInstance = $controller(controller, extend(locals, { $scope: scope }));
+          let controllerInstance = $controller(controller, extend(locals, { $scope: scope, $element: $element }));
           if (controllerAs) scope[controllerAs] = controllerInstance;
           $element.data('$ngControllerController', controllerInstance);
           $element.children().data('$ngControllerController', controllerInstance);
