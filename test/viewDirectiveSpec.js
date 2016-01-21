@@ -103,6 +103,12 @@ describe('uiView', function () {
       }
     }
   },
+  mState = {
+    template: 'mState',
+    controller: function ($scope, $element) {
+      $scope.elementId = $element.attr('id');
+    }
+  },
   nState = {
     template: 'nState',
     controller: function ($scope, $element) {
@@ -128,6 +134,7 @@ describe('uiView', function () {
       .state('j', jState)
       .state('k', kState)
       .state('l', lState)
+      .state('m', mState)
       .state('n', nState)
   }));
 
@@ -321,6 +328,14 @@ describe('uiView', function () {
     $q.flush();
 
     expect(elem.text()).toBe('value');
+  }));
+
+  it('should instantiate a controller with both $scope and $element injections', inject(function ($state, $q) {
+    elem.append($compile('<div><ui-view id="mState">{{elementId}}</ui-view></div>')(scope));
+    $state.transitionTo(mState);
+    $q.flush();
+
+    expect(elem.text()).toBe('mState');
   }));
 
   describe('play nicely with other directives', function() {
