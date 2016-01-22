@@ -52,7 +52,7 @@ export class StateParams {
       let parents = ancestors($current, $to), parentParams, inherited = {}, inheritList = [];
 
       for (let i in parents) {
-        if (!parents[i].params) continue;
+        if (!parents[i] || !parents[i].params) continue;
         parentParams = Object.keys(parents[i].params);
         if (!parentParams.length) continue;
 
