@@ -61,10 +61,40 @@ describe("UrlMatcher", function () {
     expect(matcher.format(array)).toBe('/?foo=bar&foo=baz');
   });
 
-  it("should encode and decode slashes in parameter values", function () {
-    var matcher = new UrlMatcher('/:foo');
-    expect(matcher.format({ foo: "/" })).toBe('/%252F');
-    expect(matcher.format({ foo: "//" })).toBe('/%252F%252F');
+  it("should encode and decode slashes in parameter values as ~2F", function () {
+    var matcher1 = new UrlMatcher('/:foo');
+
+    expect(matcher1.format({ foo: "/" })).toBe('/~2F');
+    expect(matcher1.format({ foo: "//" })).toBe('/~2F~2F');
+
+    expect(matcher1.exec('/')).toBeTruthy();
+    expect(matcher1.exec('//')).not.toBeTruthy();
+
+    expect(matcher1.exec('/').foo).toBe("");
+    expect(matcher1.exec('/123').foo).toBe("123");
+    expect(matcher1.exec('/~2F').foo).toBe("/");
+    expect(matcher1.exec('/123~2F').foo).toBe("123/");
+
+    // param :foo should match between two slashes
+    var matcher2 = new UrlMatcher('/:foo/');
+
+    expect(matcher2.exec('/')).not.toBeTruthy();
+    expect(matcher2.exec('//')).toBeTruthy();
+
+    expect(matcher2.exec('//').foo).toBe("");
+    expect(matcher2.exec('/123/').foo).toBe("123");
+    expect(matcher2.exec('/~2F/').foo).toBe("/");
+    expect(matcher2.exec('/123~2F/').foo).toBe("123/");
+  });
+
+  it("should encode and decode tildes in parameter values as ~~", function () {
+    var matcher1 = new UrlMatcher('/:foo');
+
+    expect(matcher1.format({ foo: "abc" })).toBe('/abc');
+    expect(matcher1.format({ foo: "~abc" })).toBe('/~~abc');
+
+    expect(matcher1.exec('/abc').foo).toBe("abc");
+    expect(matcher1.exec('/~~abc').foo).toBe("~abc");
   });
 
   describe("snake-case parameters", function() {
@@ -305,6 +335,8 @@ describe("UrlMatcher", function () {
       expect(m.exec("/foo", {param1: [ "1", "2" ]})).toEqual({ param1: [ "1", "2" ] });
 
       $location.url("/foo");
+      expect(m.exec($location.path(), $location.search())).toEqual( { param1: undefined } );
+      $location.url("/foo?param1=");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: undefined } );
       $location.url("/foo?param1=bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: [ 'bar' ] } );

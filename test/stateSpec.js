@@ -1169,6 +1169,82 @@ describe('state', function () {
       expect($state.current.name).toBe('');
     }));
 
+
+    // Tests for issue #2339
+    describe("slashes in parameter values", function() {
+
+      var $rootScope, $state, $compile;
+      beforeEach(function () {
+
+        stateProvider.state('myState', {
+          url: '/my-state?:previous',
+          controller: function () {
+            log += 'myController;';
+          }
+        });
+
+        inject(function (_$rootScope_, _$state_, _$compile_) {
+          $rootScope = _$rootScope_;
+          $state = _$state_;
+          $compile = _$compile_;
+        });
+        spyOn($state, 'go').andCallThrough();
+        spyOn($state, 'transitionTo').andCallThrough();
+        $compile('<div><div ui-view/></div>')($rootScope);
+        log = '';
+      });
+
+      describe('with no "/" in the params', function () {
+        beforeEach(function () {
+          $state.go('myState',{previous: 'last'});
+          $rootScope.$digest();
+        });
+        it('should call $state.go once', function() {
+          expect($state.go.calls.length).toBe(1);
+        });
+        it('should call $state.transitionTo once', function() {
+          expect($state.transitionTo.calls.length).toBe(1);
+        });
+        it('should call myController once', function() {
+          expect(log).toBe('myController;');
+        });
+      });
+
+      describe('with a "/" in the params', function () {
+        beforeEach(function () {
+          $state.go('myState',{previous: '/last'});
+          $rootScope.$digest();
+        });
+        it('should call $state.go once', function() {
+          expect($state.go.calls.length).toBe(1);
+        });
+        it('should call $state.transitionTo once', function() {
+          expect($state.transitionTo.calls.length).toBe(1);
+        });
+        it('should call myController once', function() {
+          expect(log).toBe('myController;');
+        });
+      });
+
+      describe('with an encoded "/" in the params', function () {
+        beforeEach(function () {
+          $state.go('myState',{previous: encodeURIComponent('/last')});
+          $rootScope.$digest();
+        });
+        it('should call $state.go once', function() {
+          expect($state.go.calls.length).toBe(1);
+        });
+        it('should call $state.transitionTo once', function() {
+          expect($state.transitionTo.calls.length).toBe(1);
+        });
+        it('should call myController once', function() {
+          expect(log).toBe('myController;');
+        });
+      });
+    });
+
+
+
     describe("typed parameter handling", function() {
       beforeEach(function () {
         stateProvider.state({
