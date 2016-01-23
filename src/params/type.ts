@@ -22,6 +22,7 @@ function ArrayType(type, mode) {
   // Wraps type (.is/.encode/.decode) functions to operate on each value of an array
   function arrayHandler(callback, allTruthyMode?: boolean) {
     return function handleArray(val) {
+      if (isArray(val) && val.length === 0) return val;
       let arr = arrayWrap(val);
       let result = map(arr, callback);
       return (allTruthyMode === true) ? filter(result, x => !x).length === 0 : arrayUnwrap(result);

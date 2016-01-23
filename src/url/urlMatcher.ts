@@ -279,7 +279,7 @@ export class UrlMatcher {
       let value: (any|any[]) = match[i + 1];
 
       // if the param value matches a pre-replace pair, replace the value before decoding.
-      for (let j = 0; j < param.replace; j++) {
+      for (let j = 0; j < param.replace.length; j++) {
         if (param.replace[j].from === value) value = param.replace[j].to;
       }
       if (value && param.array === true) value = decodePathArray(value);
@@ -381,6 +381,7 @@ export class UrlMatcher {
       if (!isPathParam) {
         if (encoded == null || (isDefaultValue && squash !== false)) return;
         if (!isArray(encoded)) encoded = [<string> encoded];
+        if (encoded.length === 0) return;
 
         encoded = map(<string[]> encoded, encodeURIComponent).join(`&${param.id}=`);
         result += (search ? '&' : '?') + (`${param.id}=${encoded}`);
