@@ -246,6 +246,28 @@ describe('state', function () {
       expect(called).toBeFalsy();
     }));
 
+    // Test for issue #2356
+    it('retains reloadOnSearch (dynamic) parameters after going to child, then back to reloadOnSearch state', inject(function ($state, $q, $stateParams, $location, $rootScope){
+      stateProvider.state('RS.child', { url: "/child", template: 'woo' });
+      initStateTo(RS);
+
+      var called;
+      $rootScope.$on('$stateChangeStart', function () { called = true });
+      $state.go(".", { term: 'goodbye' }); $q.flush();
+      expect($stateParams).toEqual({term: 'goodbye'});
+      expect($location.url()).toEqual("/search?term=goodbye");
+      expect(called).toBeFalsy();
+
+      $state.go("RS.child"); $q.flush();
+      expect($stateParams).toEqual({term: 'goodbye'});
+      expect($location.url()).toEqual("/search/child?term=goodbye");
+      expect(called).toBeTruthy();
+
+      $state.go("RS"); $q.flush();
+      expect($stateParams).toEqual({term: 'goodbye'});
+      expect($location.url()).toEqual("/search?term=goodbye");
+    }));
+
     it('does trigger state change for path params even if reloadOnSearch is false', inject(function ($state, $q, $location, $rootScope){
       initStateTo(RSP, { doReload: 'foo' });
       expect($state.params.doReload).toEqual('foo');
