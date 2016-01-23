@@ -272,6 +272,8 @@ describe("UrlMatcher", function () {
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: undefined } );
       $location.url("/foo?param1=bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: 'bar' } ); // auto unwrap
+      $location.url("/foo?param1=");
+      expect(m.exec($location.path(), $location.search())).toEqual( { param1: undefined } );
       $location.url("/foo?param1=bar&param1=baz");
       if (angular.isArray($location.search())) // conditional for angular 1.0.8
         expect(m.exec($location.path(), $location.search())).toEqual( { param1: ['bar', 'baz'] } );
@@ -332,6 +334,29 @@ describe("UrlMatcher", function () {
       if (angular.isArray($location.search())) // conditional for angular 1.0.8
         expect(m.exec($location.path(), $location.search())).toEqual( { "param1[]": ['bar', 'baz'] } );
       expect(m.format({ "param1[]": ['bar', 'baz'] })).toBe("/foo?param1[]=bar&param1[]=baz");
+    }));
+
+    // Test for issue #2222
+    it("should return default value, if query param is missing.", inject(function($location) {
+      var m = new UrlMatcher('/state?param1&param2&param3&param5', {
+        params: {
+          param1 : 'value1',
+          param2 : {array: true, value: ['value2']},
+          param3 : {array: true, value: []},
+          param5 : {array: true, value: function() {return [];}}
+        }
+      });
+
+      var parsed = m.exec("/state");
+      var expected = {
+        "param1": 'value1',
+        "param2": ['value2'],
+        "param3": [],
+        "param5": []
+      };
+
+      expect(parsed).toEqualData(expected)
+      expect(m.params.$$values(parsed)).toEqualData(expected);
     }));
 
     it("should not be wrapped by ui-router into an array if array: false", inject(function($location) {
