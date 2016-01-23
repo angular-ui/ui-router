@@ -28,8 +28,8 @@ import {Transition} from "../transition/transition";
     return memo;
   }
 
-  stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$urlRouter'];
-  function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootScope, $urlRouter) {
+  stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$state', '$urlRouter'];
+  function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootScope, $state, $urlRouter) {
     if (!$transition$.options().notify || !$transition$.valid() || $transition$.ignored())
       return;
 
@@ -70,7 +70,8 @@ import {Transition} from "../transition/transition";
         if (enabledEvents.$stateChangeCancel) {
           $rootScope.$broadcast('$stateChangeCancel', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$);
         }
-        $urlRouter.update();
+        //Don't update and resync url if there's been a new transition started. see issue #2238, #600
+        if ($state.transition == null) $urlRouter.update();
         return false;
       }
 

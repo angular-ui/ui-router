@@ -1994,3 +1994,35 @@ describe('$stateParams', function () {
     expect($stateParams.foo).toBeUndefined();
   }));
 });
+
+// Test for #600, #2238, #2229
+describe('otherwise and state redirects', function() {
+  beforeEach(module('ui.router.state.events', function($stateEventsProvider) {
+    $stateEventsProvider.enable();
+  }));
+
+  beforeEach(module(function ($stateProvider, $urlRouterProvider) {
+    $urlRouterProvider.otherwise('/home');
+    $stateProvider
+        .state('home', { url: '/home', template: 'home' })
+        .state('loginPage', { url: '/login', templateUrl: 'login.html' });
+  }));
+
+  beforeEach(inject(function ($rootScope, $state) {
+    $rootScope.$on('$stateChangeStart', function (event, toState) {
+      if (toState.name !== "loginPage") {
+        event.preventDefault();
+        $state.go('loginPage', { redirectUrl: toState.name });
+      }
+    });
+  }));
+
+  it("should not go into an infinite loop", inject(function($location, $rootScope, $state, $urlRouter, $httpBackend) {
+    $httpBackend.expectGET("login.html").respond("login page");
+    $location.url("notmatched");
+    $urlRouter.update(true);
+    expect(function() { $rootScope.$digest(); }).not.toThrow();
+    expect(function() { $httpBackend.flush(); }).not.toThrow();
+    expect($state.current.name).toBe("loginPage")
+  }));
+});
