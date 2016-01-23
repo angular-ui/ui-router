@@ -1084,7 +1084,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          */
         if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams, options).defaultPrevented) {
           $rootScope.$broadcast('$stateChangeCancel', to.self, toParams, from.self, fromParams);
-          $urlRouter.update();
+          //Don't update and resync url if there's been a new transition started. see issue #2238, #600
+          if ($state.transition == null) $urlRouter.update();
           return TransitionPrevented;
         }
       }
