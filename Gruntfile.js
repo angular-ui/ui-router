@@ -21,12 +21,12 @@ module.exports = function (grunt) {
     concat: {
       options: {
         banner: '<%= meta.banner %>\n\n'+
+                '(function (window, angular, undefined) {\n',
+        footer: '})(window, window.angular);'+ 
                 '/* commonjs package manager support (eg componentjs) */\n'+
                 'if (typeof module !== "undefined" && typeof exports !== "undefined" && module.exports === exports){\n'+
-                '  module.exports = \'ui.router\';\n'+
-                '}\n\n'+
-                '(function (window, angular, undefined) {\n',
-        footer: '})(window, window.angular);'
+                '  module.exports = angular.module(\'ui.router\');\n'+
+                '}'
       },
       build: {
         src: files.src,
