@@ -6,7 +6,7 @@ var common = uiRouter.common;
 var prop = common.prop;
 
 beforeEach(function() {
-  var app = angular.module('ui.router.router.test', function () { });
+  var app = angular.module('ui.router.router.test', []);
   app.config(function ($urlMatcherFactoryProvider) {
     provider = $urlMatcherFactoryProvider;
     UrlMatcher = provider.UrlMatcher;

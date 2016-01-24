@@ -10,7 +10,7 @@ describe("UrlRouter", function () {
   describe("provider", function () {
 
     beforeEach(function() {
-      angular.module('ui.router.router.test', function() {}).config(function ($urlRouterProvider) {
+      angular.module('ui.router.router.test', []).config(function ($urlRouterProvider) {
         $urlRouterProvider.deferIntercept();
         $urp = $urlRouterProvider;
       });
@@ -51,7 +51,7 @@ describe("UrlRouter", function () {
   describe("service", function() {
 
     beforeEach(function() {
-      angular.module('ui.router.router.test', function() {}).config(function ($urlRouterProvider, $locationProvider) {
+      angular.module('ui.router.router.test', []).config(function ($urlRouterProvider, $locationProvider) {
         $urp = $urlRouterProvider;
         $lp  = $locationProvider;
 
