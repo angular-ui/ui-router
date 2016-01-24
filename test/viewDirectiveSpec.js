@@ -1,6 +1,11 @@
 /*jshint browser: true, indent: 2 */
 /*global describe: false, it: false, beforeEach: false, expect: false, resolvedValue: false, module: false, inject: false, angular: false */
 
+function animateFlush($animate) {
+  $animate && $animate.triggerCallbacks && $animate.triggerCallbacks(); // 1.2-1.3
+  $animate && $animate.flush && $animate.flush(); // 1.4
+}
+
 describe('uiView', function () {
   'use strict';
 
@@ -149,7 +154,7 @@ describe('uiView', function () {
       $q.flush();
       if ($animate) {
         expect(log).toBe('m;n;');
-        $animate.triggerCallbacks();
+        animateFlush($animate);
         expect(log).toBe('m;n;$destroy(m);');
       } else {
         expect(log).toBe('m;$destroy(m);n;');
@@ -286,7 +291,7 @@ describe('uiView', function () {
       $state.transitionTo(aState);
       $q.flush();
 
-      if ($animate) $animate.triggerCallbacks();
+      animateFlush($animate);
 
       expect($uiViewScroll).not.toHaveBeenCalled();
     }));
@@ -296,7 +301,7 @@ describe('uiView', function () {
       $state.transitionTo(aState);
       $q.flush();
 
-      if ($animate) $animate.triggerCallbacks();
+      animateFlush($animate);
 
       expect($uiViewScroll).toHaveBeenCalledWith(elem.find('span').parent());
     }));
@@ -309,7 +314,7 @@ describe('uiView', function () {
       $state.transitionTo(aState);
       $q.flush();
 
-      if ($animate) $animate.triggerCallbacks();
+      animateFlush($animate);
 
       expect($uiViewScroll).not.toHaveBeenCalled();
 
@@ -317,7 +322,7 @@ describe('uiView', function () {
       $state.transitionTo(bState);
       $q.flush();
 
-      if ($animate) $animate.triggerCallbacks();
+      animateFlush($animate);
 
       var target,
           index   = -1,

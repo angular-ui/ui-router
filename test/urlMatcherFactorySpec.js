@@ -1,7 +1,7 @@
 describe("UrlMatcher", function () {
   var provider;
   beforeEach(function() {
-    angular.module('ui.router.router.test', function() {}).config(function ($urlMatcherFactoryProvider) {
+    angular.module('ui.router.router.test', []).config(function ($urlMatcherFactoryProvider) {
       provider = $urlMatcherFactoryProvider;
     });
 
