@@ -22,7 +22,7 @@
 $StateProvider.$inject = ['$urlRouterProvider', '$urlMatcherFactoryProvider'];
 function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
-  var root, states = {}, $state, queue = {}, abstractKey = 'abstract';
+  var root, states = {}, $state, queue = {}, abstractKey = 'abstract', stateAliases = {};
 
   // Builds state properties from definition passed to registerState()
   var stateBuilder = {
@@ -114,6 +114,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
   function findState(stateOrName, base) {
     if (!stateOrName) return undefined;
+    // find state by alias
+    if(stateAliases[stateOrName]){
+      stateOrName = stateAliases[stateOrName];
+    }
 
     var isStr = isString(stateOrName),
         name  = isStr ? stateOrName : stateOrName.name,
@@ -169,6 +173,9 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       resolve: state.resolve || {},
       toString: function() { return this.name; }
     });
+
+    //Set alias
+    stateAliases[state.alias] = state.name;
 
     var name = state.name;
     if (!isString(name) || name.indexOf('@') >= 0) throw new Error("State must have a valid name");
