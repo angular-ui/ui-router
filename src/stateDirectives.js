@@ -372,6 +372,8 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
       function removeClass(el, className) { el.removeClass(className); }
       function anyMatch(state, params) { return $state.includes(state.name, params); }
       function exactMatch(state, params) { return $state.is(state.name, params); }
+
+      update();
     }]
   };
 }
