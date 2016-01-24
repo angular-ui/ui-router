@@ -188,14 +188,14 @@ module.exports = function (grunt) {
     var bower = grunt.file.readJSON('bower.json'),
         component = grunt.file.readJSON('component.json'),
         version = bower.version;
-    if (version != grunt.config('pkg.version')) throw 'Version mismatch in bower.json';
-    if (version != component.version) throw 'Version mismatch in component.json';
+    if (version != grunt.config('pkg.version')) throw new Error('Version mismatch in bower.json');
+    if (version != component.version) throw new Error('Version mismatch in component.json');
 
     promising(this,
       ensureCleanMaster().then(function () {
         return exec('git tag -l \'' + version + '\'');
       }).then(function (result) {
-        if (result.stdout.trim() !== '') throw 'Tag \'' + version + '\' already exists';
+        if (result.stdout.trim() !== '') throw new Error('Tag \'' + version + '\' already exists');
         grunt.config('buildtag', '');
         grunt.config('builddir', 'release');
       })
@@ -225,7 +225,7 @@ module.exports = function (grunt) {
       grunt.log.write(result.stderr + result.stdout);
     }, function (error) {
       grunt.log.write(error.stderr + '\n');
-      throw 'Failed to run \'' + cmd + '\'';
+      throw new Error('Failed to run \'' + cmd + '\'');
     });
   }
 
@@ -241,10 +241,10 @@ module.exports = function (grunt) {
 
   function ensureCleanMaster() {
     return exec('git symbolic-ref HEAD').then(function (result) {
-      if (result.stdout.trim() !== 'refs/heads/master') throw 'Not on master branch, aborting';
+      if (result.stdout.trim() !== 'refs/heads/master') throw new Error('Not on master branch, aborting');
       return exec('git status --porcelain');
     }).then(function (result) {
-      if (result.stdout.trim() !== '') throw 'Working copy is dirty, aborting';
+      if (result.stdout.trim() !== '') throw new Error('Working copy is dirty, aborting');
     });
   }
 };
