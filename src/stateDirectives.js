@@ -367,6 +367,7 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
           }
         }
       }
+      update();
 
       function addClass(el, className) { $timeout(function () { el.addClass(className); }); }
       function removeClass(el, className) { el.removeClass(className); }
