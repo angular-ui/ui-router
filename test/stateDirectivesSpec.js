@@ -635,6 +635,17 @@ describe('uiSrefActive', function() {
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
   }));
 
+  it('should allow multiple classes to be supplied', inject(function($rootScope, $q, $compile, $state) {
+    template = $compile('<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active="active also-active">Contacts</a></div>')($rootScope);
+    $rootScope.$digest();
+    var a = angular.element(template[0].getElementsByTagName('a')[0]);
+
+    $state.transitionTo('contacts.item.edit', { id: 1 });
+    $q.flush();
+    timeoutFlush();
+    expect(a.attr('class')).toMatch(/active also-active/);
+  }));
+
   describe('ng-{class,style} interface', function() {
     it('should match on abstract states that are included by the current state', inject(function($rootScope, $compile, $state, $q) {
       el = $compile('<div ui-sref-active="{active: \'admin.*\'}"><a ui-sref-active="active" ui-sref="admin.roles">Roles</a></div>')($rootScope);
