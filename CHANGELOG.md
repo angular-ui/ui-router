@@ -1,3 +1,12 @@
+<a name="0.2.17"></a>
+### 0.2.17 (2016-01-25)
+
+
+#### Bug Fixes
+
+* **uiSrefActive:** allow multiple classes ([a89114a0](https://github.com/angular-ui/ui-router/commit/a89114a083813c1a7280c48fc18e626caa5a31f4), closes [#2481](https://github.com/angular-ui/ui-router/issues/2481), [#2482](https://github.com/angular-ui/ui-router/issues/2482))
+
+
 <a name="0.2.16"></a>
 ### 0.2.16 (2016-01-24)
 

@@ -1,13 +1,18 @@
 {
   "name": "angular-ui-router",
   "description": "State-based routing for AngularJS",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "homepage": "http://angular-ui.github.com/",
   "contributors": [
     {
       "name": "Nate Abele",
-      "email": "nate@unionofrad.com",
+      "email": "nate@radify.io",
       "web": "https://github.com/nateabele"
+    },
+    {
+      "name": "Chris Thielen",
+      "email": "christhielen@gmail.com",
+      "web": "https://github.com/christopherthielen"
     },
     {
       "name": "Tim Kindberg",
