@@ -1,3 +1,5 @@
+var ngMajorVer = angular.version.major;
+var ngMinorVer = angular.version.minor;
 /**
  * @ngdoc directive
  * @name ui.router.state.directive:ui-view
@@ -21,6 +23,9 @@
  * when a view is populated. By default, $anchorScroll is overridden by ui-router's custom scroll
  * service, {@link ui.router.state.$uiViewScroll}. This custom service let's you
  * scroll ui-view elements into view when they are populated during a state activation.
+ *
+ * @param {string=} noanimation If truthy, the non-animated renderer will be selected (no animations
+ * will be applied to the ui-view)
  *
  * *Note: To revert back to old [`$anchorScroll`](http://docs.angularjs.org/api/ng.$anchorScroll)
  * functionality, call `$uiViewScrollProvider.useAnchorScroll()`.*
@@ -133,24 +138,35 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate)
   // Returns a set of DOM manipulation functions based on which Angular version
   // it should use
   function getRenderer(attrs, scope) {
-    var statics = function() {
-      return {
-        enter: function (element, target, cb) { target.after(element); cb(); },
-        leave: function (element, cb) { element.remove(); cb(); }
-      };
+    var statics = {
+      enter: function (element, target, cb) { target.after(element); cb(); },
+      leave: function (element, cb) { element.remove(); cb(); }
     };
 
+    if (!!attrs.noanimation) return statics;
+
+    function animEnabled(element) {
+      if (ngMajorVer === 1 && ngMinorVer >= 4) return !!$animate.enabled(element);
+      if (ngMajorVer === 1 && ngMinorVer >= 2) return !!$animate.enabled();
+      return (!!$animator);
+    }
+
+    // ng 1.2+
     if ($animate) {
       return {
         enter: function(element, target, cb) {
-          if (angular.version.minor > 2) {
+          if (!animEnabled(element)) {
+            statics.enter(element, target, cb);
+          } else if (angular.version.minor > 2) {
             $animate.enter(element, null, target).then(cb);
           } else {
             $animate.enter(element, null, target, cb);
           }
         },
         leave: function(element, cb) {
-          if (angular.version.minor > 2) {
+          if (!animEnabled(element)) {
+            statics.leave(element, cb);
+          } else if (angular.version.minor > 2) {
             $animate.leave(element).then(cb);
           } else {
             $animate.leave(element, cb);
@@ -159,6 +175,7 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate)
       };
     }
 
+    // ng 1.1.5
     if ($animator) {
       var animate = $animator && $animator(scope, attrs);
 
@@ -168,7 +185,7 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate)
       };
     }
 
-    return statics();
+    return statics;
   }
 
   var directive = {
