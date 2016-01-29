@@ -7,6 +7,7 @@
 /ngdoc_assets
 /sample
 /test
+/bower_components
 Gruntfile.js
 files.js
 
