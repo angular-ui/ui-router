@@ -64,6 +64,7 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
    */
   this.rule = function (rule) {
     if (!isFunction(rule)) throw new Error("'rule' must be a function");
+    rule.position = rules.length;
     rules.push(rule);
     return this;
   };
@@ -308,7 +309,8 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
     rules.sort(function(ruleA, ruleB) {
       var aLength = ruleA.prefix ? ruleA.prefix.length : 0;
       var bLength = ruleB.prefix ? ruleB.prefix.length : 0;
-      return bLength - aLength;
+      var lengthDiff = bLength - aLength;
+      return lengthDiff !== 0 ? lengthDiff : ruleA.position - ruleB.position;
     });
 
     if (!interceptDeferred) listen();

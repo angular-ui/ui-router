@@ -59,7 +59,31 @@ describe("UrlRouter", function () {
           match = ['/foo/bar', $match];
         }).when('/bar', function($match) {
           match = ['/bar', $match];
-        });
+        }).when('/', function() { 
+          match = '/home';
+        }).when('/abc', function() { 
+          match = '/abc/step1';
+        }).when('/abc', function() { 
+          match = '/abc/step2';
+        }).when('/defg', function() { 
+          match = '/defg';
+        }).when('/hij', function() { 
+          match = '/hij/step1';
+        }).when('/hij', function() { 
+          match = '/hij/step2';
+        }).when('/hij', function() { 
+          match = '/hij/step3';
+        }).when('/hij', function() { 
+          match = '/hij/step4';
+        }).when('/klmno', function() { 
+          match = '/klmno/step1';
+        }).when('/klmno', function() { 
+          match = '/klmno/step2';
+        }).when('/pqr', function() { 
+          match = '/pqr/step1';
+        }).when('/pqr', function() { 
+          match = '/pqr/step2';}
+        );
       });
 
       module('ui.router.router', 'ui.router.router.test');
@@ -83,6 +107,12 @@ describe("UrlRouter", function () {
       scope.$emit("$locationChangeSuccess");
       expect(match[0]).toBe("/foo/:param");
       expect(match[1]).toEqual({param: 'baz'});
+    });
+    
+    it('should default to the first rule defined for same url', function() {
+        location.path('/hij');
+        scope.$emit('$locationChangeSuccess');
+        expect(match).toBe('/hij/step1');
     });
 
     it("should execute rewrite rules", function () {
