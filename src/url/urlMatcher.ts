@@ -6,6 +6,7 @@ import {
 import {prop, propEq } from "../common/hof";
 import {isArray, isString} from "../common/predicates";
 import {Param, paramTypes} from "../params/module";
+import {isDefined} from "../common/predicates";
 
 interface params {
   $$validates: (params: string) => Array<string>;
@@ -283,10 +284,16 @@ export class UrlMatcher {
         if (param.replace[j].from === value) value = param.replace[j].to;
       }
       if (value && param.array === true) value = decodePathArray(value);
+      if (isDefined(value)) value = param.type.decode(value);
       values[param.id] = param.value(value);
     }
     forEach(searchParams, param => {
-      values[param.id] = param.value(search[param.id])
+      let value = search[param.id];
+      for (let j = 0; j < param.replace.length; j++) {
+        if (param.replace[j].from === value) value = param.replace[j].to;
+      }
+      if (isDefined(value)) value = param.type.decode(value);
+      values[param.id] = param.value(value);
     });
 
     if (hash) values["#"] = hash;

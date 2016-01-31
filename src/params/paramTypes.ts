@@ -5,9 +5,12 @@ import {is, val} from "../common/hof";
 import {services} from "../common/coreservices";
 import {Type} from "./type";
 
-const swapString = (search, replace) => val => val != null ? val.toString().replace(search, replace) : val;
-const valToString   = swapString(/\//g, "%2F");
-const valFromString = swapString(/%2F/g, "/");
+// Use tildes to pre-encode slashes.
+// If the slashes are simply URLEncoded, the browser can choose to pre-decode them,
+// and bidirectional encoding/decoding fails.
+// Tilde was chosen because it's not a RFC 3986 section 2.2 Reserved Character
+function valToString(val) { return val != null ? val.toString().replace(/~/g, "~~").replace(/\//g, "~2F") : val; }
+function valFromString(val) { return val != null ? val.toString().replace(/~2F/g, "/").replace(/~~/g, "~") : val; }
 
 class ParamTypes {
   types: any;

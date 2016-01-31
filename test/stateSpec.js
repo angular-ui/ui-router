@@ -329,7 +329,7 @@ describe('state', function () {
         onEnter: function(badness) {}
       })
       .state('resolveTimeout', {
-        url: "/:foo",
+        url: "/resolve-timeout/:foo",
         resolve: {
           value: function ($timeout) {
             return $timeout(function() { log += "Success!"; }, 1);
@@ -1265,6 +1265,84 @@ describe('state', function () {
       $rootScope.$apply();
       expect($state.current.name).toBe('');
     }));
+
+
+    // Tests for issue #2339
+    describe("slashes in parameter values", function() {
+
+      var $rootScope, $state, $compile;
+      beforeEach(function () {
+
+        stateProvider.state('myState', {
+          template: 'myState',
+          url: '/my-state?:previous',
+          controller: function () {
+            log += 'myController;';
+          }
+        });
+
+        inject(function (_$rootScope_, _$state_, _$compile_, $trace) {
+          //$trace.enable(1);
+          $rootScope = _$rootScope_;
+          $state = _$state_;
+          $compile = _$compile_;
+        });
+        spyOn($state, 'go').and.callThrough();
+        spyOn($state, 'transitionTo').and.callThrough();
+        $compile('<div><div ui-view/></div>')($rootScope);
+        log = '';
+      });
+
+      describe('with no "/" in the params', function () {
+        beforeEach(function () {
+          $state.go('myState',{previous: 'last'});
+          $rootScope.$digest();
+        });
+        it('should call $state.go once', function() {
+          expect($state.go.calls.count()).toBe(1);
+        });
+        it('should call $state.transitionTo once', function() {
+          expect($state.transitionTo.calls.count()).toBe(1);
+        });
+        it('should call myController once', function() {
+          expect(log).toBe('myController;');
+        });
+      });
+
+      describe('with a "/" in the params', function () {
+        beforeEach(function () {
+          $state.go('myState',{previous: '/last'});
+          $rootScope.$digest();
+        });
+        it('should call $state.go once', function() {
+          expect($state.go.calls.count()).toBe(1);
+        });
+        it('should call $state.transitionTo once', function() {
+          expect($state.transitionTo.calls.count()).toBe(1);
+        });
+        it('should call myController once', function() {
+          expect(log).toBe('myController;');
+        });
+      });
+
+      describe('with an encoded "/" in the params', function () {
+        beforeEach(function () {
+          $state.go('myState',{previous: encodeURIComponent('/last')});
+          $rootScope.$digest();
+        });
+        it('should call $state.go once', function() {
+          expect($state.go.calls.count()).toBe(1);
+        });
+        it('should call $state.transitionTo once', function() {
+          expect($state.transitionTo.calls.count()).toBe(1);
+        });
+        it('should call myController once', function() {
+          expect(log).toBe('myController;');
+        });
+      });
+    });
+
+
 
     describe("typed parameter handling", function() {
       beforeEach(function () {
