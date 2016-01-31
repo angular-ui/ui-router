@@ -203,6 +203,19 @@ describe("UrlMatcher", function () {
 
       expect(m.format(params)).toEqual('/users');
     });
+
+    it("should format query parameters from parent, child, grandchild matchers", function() {
+      var m = new UrlMatcher('/parent?qParent');
+      var m2 = m.append(new UrlMatcher('/child?qChild'));
+      var m3 = m2.append(new UrlMatcher('/grandchild?qGrandchild'));
+
+      var params = { qParent: 'parent', qChild: 'child', qGrandchild: 'grandchild' };
+      var url = '/parent/child/grandchild?qParent=parent&qChild=child&qGrandchild=grandchild';
+
+      var formatted = m3.format(params);
+      expect(formatted).toBe(url);
+      expect(m3.exec(url.split('?')[0], params)).toEqualData(params);
+    })
   });
 
   describe(".append()", function() {
