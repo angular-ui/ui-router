@@ -1,12 +1,20 @@
 /**
- * This file provides implementation of the deprecated UI-Router 0.2.x state events:
+ * Provides implementation of the UI-Router 0.2.x state events.
  *
- * @deprecated $stateChangeStart See: [[TransitionService.onStart]]
- * @deprecated $stateChangeSuccess See: [[TransitionService.onSuccess]]
- * @deprecated $stateChangeError See: [[TransitionService.onError]]
- * @deprecated $stateNotFound See: [[StateProvider.onInvalid]]
+ * The 0.2.x state events are deprecated.  We recommend moving to Transition Hooks instead, as they
+ * provide much more flexibility, support async, and provide the context (the Transition, etc) necessary
+ * to implement meaningful application behaviors.
  *
- * @module ng1
+ * To enable these state events, include the `stateEvents.js` file in your project, e.g.,
+ * ```
+ * <script src="stateEvents.js"></script>
+ * ```
+ * and also make sure you depend on the `ui.router.state.events` angular module, e.g.,
+ * ```
+ * angular.module("myApplication", ['ui.router', 'ui.router.state.events']
+ * ```
+ *
+ * @module ng1_state_events
  */
 
 /** for typedoc */
@@ -16,6 +24,126 @@ import {IServiceProviderFactory} from "angular";
 import {StateService, StateProvider} from "../state/interface";
 import {TargetState} from "../state/module";
 import {Transition} from "../transition/transition";
+
+/**
+ * An event broadcast on `$rootScope` when the state transition **begins**.
+ *
+ * You can use `event.preventDefault()`
+ * to prevent the transition from happening and then the transition promise will be
+ * rejected with a `'transition prevented'` value.
+ *
+ * Additional arguments to the event handler are provided:
+ * - `toState`: the Transition Target state
+ * - `toParams`: the Transition Target Params
+ * - `fromState`: the state the transition is coming from
+ * - `fromParams`: the parameters from the state the transition is coming from
+ * - `options`: any Transition Options
+ * - `$transition$`: the [[Transition]]
+ *
+ * @example
+ * ```
+ *
+ * $rootScope.$on('$stateChangeStart', function(event, transition) {
+ *   event.preventDefault();
+ *   // transitionTo() promise will be rejected with
+ *   // a 'transition prevented' error
+ * })
+ * ```
+ *
+ * @deprecated use [[TransitionService.onStart]]
+ * @event $stateChangeStart
+ */
+var $stateChangeStart;
+
+/**
+ * An event broadcast on `$rootScope` if a transition is **cancelled**.
+ *
+ * Additional arguments to the event handler are provided:
+ * - `toState`: the Transition Target state
+ * - `toParams`: the Transition Target Params
+ * - `fromState`: the state the transition is coming from
+ * - `fromParams`: the parameters from the state the transition is coming from
+ * - `options`: any Transition Options
+ * - `$transition$`: the [[Transition]] that was cancelled
+ *
+ * @deprecated
+ * @event $stateChangeCancel
+ */
+var $stateChangeCancel;
+
+/**
+ *
+ * An event broadcast on `$rootScope` once the state transition is **complete**.
+ *
+ * Additional arguments to the event handler are provided:
+ * - `toState`: the Transition Target state
+ * - `toParams`: the Transition Target Params
+ * - `fromState`: the state the transition is coming from
+ * - `fromParams`: the parameters from the state the transition is coming from
+ * - `options`: any Transition Options
+ * - `$transition$`: the [[Transition]] that just succeeded
+ *
+ * @deprecated use [[TransitionService.onStart]] and [[Transition.promise]], or [[Transition.onSuccess]]
+ * @event $stateChangeSuccess
+ */
+var $stateChangeSuccess;
+
+/**
+ * An event broadcast on `$rootScope` when an **error occurs** during transition.
+ *
+ * It's important to note that if you
+ * have any errors in your resolve functions (javascript errors, non-existent services, etc)
+ * they will not throw traditionally. You must listen for this $stateChangeError event to
+ * catch **ALL** errors.
+ *
+ * Additional arguments to the event handler are provided:
+ * - `toState`: the Transition Target state
+ * - `toParams`: the Transition Target Params
+ * - `fromState`: the state the transition is coming from
+ * - `fromParams`: the parameters from the state the transition is coming from
+ * - `error`: The reason the transition errored.
+ * - `options`: any Transition Options
+ * - `$transition$`: the [[Transition]] that errored
+ *
+ * @deprecated use [[TransitionService.onStart]] and [[Transition.promise]], or [[Transition.onError]]
+ * @event $stateChangeError
+ */
+var $stateChangeError;
+
+/**
+ * An event broadcast on `$rootScope` when a requested state **cannot be found** using the provided state name.
+ *
+ * The event is broadcast allowing any handlers a single chance to deal with the error (usually by
+ * lazy-loading the unfound state). A `TargetState` object is passed to the listener handler,
+ * you can see its properties in the example. You can use `event.preventDefault()` to abort the
+ * transition and the promise returned from `transitionTo()` will be rejected with a
+ * `'transition aborted'` error.
+ *
+ * Additional arguments to the event handler are provided:
+ * - `unfoundState` Unfound State information. Contains: `to, toParams, options` properties.
+ * - `fromState`: the state the transition is coming from
+ * - `fromParams`: the parameters from the state the transition is coming from
+ * - `options`: any Transition Options
+ * @example
+ *
+ * <pre>
+ * // somewhere, assume lazy.state has not been defined
+ * $state.go("lazy.state", { a: 1, b: 2 }, { inherit: false });
+ *
+ * // somewhere else
+ * $scope.$on('$stateNotFound', function(event, transition) {
+ * function(event, unfoundState, fromState, fromParams){
+ *     console.log(unfoundState.to); // "lazy.state"
+ *     console.log(unfoundState.toParams); // {a:1, b:2}
+ *     console.log(unfoundState.options); // {inherit:false} + default options
+ * });
+ * </pre>
+ *
+ * @deprecated use [[StateProvider.onInvalid]] // TODO: Move to [[StateService.onInvalid]]
+ * @event $stateNotFound
+ */
+var $stateNotFound;
+
 
 (function() {
   let {isFunction, isString} = angular;
@@ -35,30 +163,6 @@ import {Transition} from "../transition/transition";
 
     let enabledEvents = $stateEvents.provider.enabled();
 
-    /**
-     * @ngdoc event
-     * @name ui.router.state.$state#$stateChangeStart
-     * @eventOf ui.router.state.$state
-     * @eventType broadcast on root scope
-     * @description
-     * Fired when the state transition **begins**. You can use `event.preventDefault()`
-     * to prevent the transition from happening and then the transition promise will be
-     * rejected with a `'transition prevented'` value.
-     *
-     * @param {Object} event Event object.
-     * @param {Transition} Transition An object containing all contextual information about
-     * the current transition, including to and from states and parameters.
-     *
-     * @example
-     *
-     * <pre>
-     * $rootScope.$on('$stateChangeStart', function(event, transition) {
-     *   event.preventDefault();
-     *   // transitionTo() promise will be rejected with
-     *   // a 'transition prevented' error
-     * })
-     * </pre>
-     */
 
     let toParams = $transition$.params("to");
     let fromParams = $transition$.params("from");
@@ -76,20 +180,6 @@ import {Transition} from "../transition/transition";
       }
 
       $transition$.promise.then(function () {
-        /**
-         * @ngdoc event
-         * @name ui.router.state.$state#$stateChangeSuccess
-         * @eventOf ui.router.state.$state
-         * @eventType broadcast on root scope
-         * @description
-         * Fired once the state transition is **complete**.
-         *
-         * @param {Object} event Event object.
-         * @param to
-         * @param toParams
-         * @param from
-         * @param fromParams
-         */
         $rootScope.$broadcast('$stateChangeSuccess', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$.options(), $transition$);
       });
     }
@@ -99,24 +189,7 @@ import {Transition} from "../transition/transition";
         if (error && (error.type === 2 /* RejectType.SUPERSEDED */ || error.type === 3 /* RejectType.ABORTED */))
           return;
 
-        /**
-         * @ngdoc event
-         * @name ui.router.state.$state#$stateChangeError
-         * @eventOf ui.router.state.$state
-         * @eventType broadcast on root scope
-         * @description
-         * Fired when an **error occurs** during transition. It's important to note that if you
-         * have any errors in your resolve functions (javascript errors, non-existent services, etc)
-         * they will not throw traditionally. You must listen for this $stateChangeError event to
-         * catch **ALL** errors.
-         *
-         * @param {Object} event Event object.
-         * @param {State} toState The state being transitioned to.
-         * @param {Object} toParams The params supplied to the `toState`.
-         * @param {State} fromState The current state, pre-transition.
-         * @param {Object} fromParams The params supplied to the `fromState`.
-         * @param {Error} error The resolve error object.
-         */
+
         let evt = $rootScope.$broadcast('$stateChangeError', $transition$.to(), toParams, $transition$.from(), fromParams, error, $transition$.options(), $transition$);
 
         if (!evt.defaultPrevented) {
@@ -128,38 +201,6 @@ import {Transition} from "../transition/transition";
 
   stateNotFoundHandler.$inject = ['$to$', '$from$', '$state', '$rootScope', '$urlRouter'];
   function stateNotFoundHandler($to$: TargetState, $from$: TargetState, $state: StateService, $rootScope, $urlRouter) {
-    /**
-     * @ngdoc event
-     * @name ui.router.state.$state#$stateNotFound
-     * @eventOf ui.router.state.$state
-     * @eventType broadcast on root scope
-     * @description
-     * Fired when a requested state **cannot be found** using the provided state name during transition.
-     * The event is broadcast allowing any handlers a single chance to deal with the error (usually by
-     * lazy-loading the unfound state). A `TargetState` object is passed to the listener handler,
-     * you can see its properties in the example. You can use `event.preventDefault()` to abort the
-     * transition and the promise returned from `transitionTo()` will be rejected with a
-     * `'transition aborted'` error.
-     *
-     * @param {Object} event Event object.
-     * @param {Object} unfoundState Unfound State information. Contains: `to, toParams, options` properties.
-     * @param {State} fromState Current state object.
-     * @param {Object} fromParams Current state params.
-     * @example
-     *
-     * <pre>
-     * // somewhere, assume lazy.state has not been defined
-     * $state.go("lazy.state", { a: 1, b: 2 }, { inherit: false });
-     *
-     * // somewhere else
-     * $scope.$on('$stateNotFound', function(event, transition) {
-     * function(event, unfoundState, fromState, fromParams){
-     *     console.log(unfoundState.to); // "lazy.state"
-     *     console.log(unfoundState.toParams); // {a:1, b:2}
-     *     console.log(unfoundState.options); // {inherit:false} + default options
-     * });
-     * </pre>
-     */
     let redirect = {to: $to$.identifier(), toParams: $to$.params(), options: $to$.options()};
     let e = $rootScope.$broadcast('$stateNotFound', redirect, $from$.state(), $from$.params());
 
