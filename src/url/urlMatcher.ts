@@ -364,37 +364,65 @@ export class UrlMatcher {
    * @returns {string}  the formatted URL (path and optionally search part).
    */
   format(values = {}) {
+    if (!this.validates(values)) return null;
+
+    let path = this.formatPath(values);
+    let query = this.formatQuery(values);
+
+    if (query) path += '?' + query;
+
+    return path;
+  }
+  formatQuery(values = {}) {
     let segments: string[] = this._segments,
-        result: string = segments[0],
-        search: boolean = false,
         params: Param[] = this.parameters({inherit: false}),
         parent: UrlMatcher = tail(this._cache.path);
-
-    if (!this.validates(values)) return null;
 
     function encodeDashes(str) { // Replace dashes with encoded "\-"
       return encodeURIComponent(str).replace(/-/g, c => `%5C%${c.charCodeAt(0).toString(16).toUpperCase()}`);
     }
 
-    // TODO: rewrite as reduce over params with result as initial
+    let processedParams = params.map(prop('id'));
+    let parentParams = parent && parent.formatQuery(omit(values, processedParams));
+
+    return (parentParams ?  parentParams + '&' : '') + params.reduce((previousValue, currentValue, currentIndex) => {
+      let isPathParam = currentIndex < segments.length - 1;
+      if (isPathParam) {
+        return previousValue;
+      }
+      let value = currentValue.value(values[currentValue.id]);
+      let encoded = currentValue.type.encode(value);
+      let isDefaultValue = currentValue.isDefaultValue(value);
+      let squash = isDefaultValue ? currentValue.squash : false;
+
+      if (encoded == null || (isDefaultValue && squash !== false)) return previousValue;
+      if (!isArray(encoded)) encoded = [<string> encoded];
+      if (encoded.length === 0) return previousValue;
+
+      encoded = map(<string[]> encoded, encodeURIComponent).join(`&${currentValue.id}=`);
+      return previousValue + (previousValue ? '&' : '') + (`${currentValue.id}=${encoded}`)
+    }, '');
+  }
+  formatPath(values = {}) {
+    let segments: string[] = this._segments,
+        result: string = segments[0],
+        params: Param[] = this.parameters({inherit: false}),
+        parent: UrlMatcher = tail(this._cache.path);
+
+    function encodeDashes(str) { // Replace dashes with encoded "\-"
+      return encodeURIComponent(str).replace(/-/g, c => `%5C%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+    }
+
     params.map((param: Param, i) => {
       let isPathParam = i < segments.length - 1;
+      if (!isPathParam) {
+        return;
+      }
       var isFinalPathParam = i + 2 === segments.length;
       let value = param.value(values[param.id]);
       let isDefaultValue = param.isDefaultValue(value);
       let squash = isDefaultValue ? param.squash : false;
       let encoded = param.type.encode(value);
-
-      if (!isPathParam) {
-        if (encoded == null || (isDefaultValue && squash !== false)) return;
-        if (!isArray(encoded)) encoded = [<string> encoded];
-        if (encoded.length === 0) return;
-
-        encoded = map(<string[]> encoded, encodeURIComponent).join(`&${param.id}=`);
-        result += (search ? '&' : '?') + (`${param.id}=${encoded}`);
-        search = true;
-        return;
-      }
 
       result += ((segment, result) => {
         if (squash === true) return segment.match(result.match(/\/$/) ? /\/?(.*)/ : /(.*)/)[1];
@@ -412,6 +440,6 @@ export class UrlMatcher {
     if (values["#"]) result += "#" + values["#"];
 
     let processedParams = ['#'].concat(params.map(prop('id')));
-    return (parent && parent.format(omit(values, processedParams)) || '') + result;
+    return (parent && parent.formatPath(omit(values, processedParams)) || '') + result;
   }
 }

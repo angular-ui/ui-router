@@ -109,6 +109,8 @@ describe("UrlRouter", function () {
           exec:       function() {},
           isRoot:     function() {},
           format:     function() {},
+          formatQuery:function() {},
+          formatPath: function() {},
           append:     function() {},
           validates:  function() {},
           parameter:  function() {},

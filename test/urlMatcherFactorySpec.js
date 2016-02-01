@@ -592,6 +592,8 @@ describe("urlMatcherFactory", function () {
 
     var custom = {
       format:     angular.noop,
+      formatQuery:angular.noop,
+      formatPath: angular.noop,
       exec:       angular.noop,
       append:     angular.noop,
       isRoot:     angular.noop,
