@@ -30,6 +30,8 @@ describe('state', function () {
       HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'} },
       RS = { url: '^/search?term', reloadOnSearch: false },
       RSP = { url: '^/:doReload/search?term', reloadOnSearch: false },
+      RSQ = { url: '/parent?term', reloadOnSearch: false, params: {term: {squash: true, value: null}}},
+      RSR = { url: '/:param', reloadOnSearch: false},
       OPT = { url: '/opt/:param', params: { param: "100" } },
       OPT2 = { url: '/opt2/:param2/:param3', params: { param3: "300", param4: "400" } },
       URLLESS = { url: '/urllessparams', params: { myparam: { type: 'int' } } },
@@ -61,7 +63,8 @@ describe('state', function () {
       .state('ISS2101', ISS2101)
       .state('RS', RS)
       .state('RSP', RSP)
-
+      .state('RSQ', RSQ)
+      .state('RSQ.RSR', RSR)
       .state('home', { url: "/" })
       .state('home.item', { url: "front/:id" })
       .state('about', { url: "/about" })
@@ -279,6 +282,33 @@ describe('state', function () {
       $q.flush();
       expect($state.params.doReload).toEqual('bar');
       expect(called).toBeTruthy();
+    }));
+
+    it('does not retain optional search parameter after going to child, clearing parameter, and returning to parent', inject(function($state, $q, $location) {
+
+      initStateTo(RSQ, {term: 'bar'});
+
+      expect($state.params).toEqual({term: 'bar'});
+      expect($location.url()).toEqual('/parent?term=bar');
+
+      $state.transitionTo(RSR, {param: 'foo', term: 'bar'});
+      $q.flush();
+
+      expect($state.params).toEqual({param: 'foo', term: 'bar'});
+      expect($location.url()).toEqual('/parent/foo?term=bar');
+
+      $state.transitionTo(RSR, {param: 'foo'});
+      $q.flush();
+
+      expect($state.params).toEqual({param: 'foo', term: null});
+      expect($location.url()).toEqual('/parent/foo');
+
+      $state.transitionTo(RSQ);
+      $q.flush();
+
+      expect($state.params).toEqual({term: null});
+      expect($location.url()).toEqual('/parent');
+
     }));
 
     it('ignores non-applicable state parameters', inject(function ($state, $q) {
@@ -1025,6 +1055,8 @@ describe('state', function () {
         'OPT.OPT2',
         'RS',
         'RSP',
+        'RSQ',
+        'RSQ.RSR',
         'URLLESS',
         'about',
         'about.person',

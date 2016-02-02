@@ -1143,7 +1143,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         $state.transition = null;
 
         if (options.location && to.navigable) {
-          $urlRouter.push(to.navigable.url, to.navigable.locals.globals.$stateParams, {
+          $urlRouter.push(to.navigable.url, toParams, {
             $$avoidResync: true, replace: options.location === 'replace'
           });
         }
