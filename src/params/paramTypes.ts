@@ -18,32 +18,32 @@ class ParamTypes {
   typeQueue: any[] = [];
 
   private defaultTypes: any = {
-    hash: {
+    "hash": {
       encode: valToString,
       decode: valFromString,
       is: is(String),
       pattern: /.*/,
       equals: val(true)
     },
-    string: {
+    "string": {
       encode: valToString,
       decode: valFromString,
       is: is(String),
       pattern: /[^/]*/
     },
-    int: {
+    "int": {
       encode: valToString,
       decode(val) { return parseInt(val, 10); },
       is(val) { return isDefined(val) && this.decode(val.toString()) === val; },
       pattern: /-?\d+/
     },
-    bool: {
+    "bool": {
       encode: val => val && 1 || 0,
       decode: val => parseInt(val, 10) !== 0,
       is: is(Boolean),
       pattern: /0|1/
     },
-    date: {
+    "date": {
       encode(val) {
         return !this.is(val) ? undefined : [
           val.getFullYear(),
@@ -61,14 +61,14 @@ class ParamTypes {
       pattern: /[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])/,
       capture: /([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/
     },
-    json: {
+    "json": {
       encode: toJson,
       decode: fromJson,
       is: is(Object),
       equals: equals,
       pattern: /[^/]*/
     },
-    any: { // does not encode/decode
+    "any": { // does not encode/decode
       encode: identity,
       decode: identity,
       equals: equals,
