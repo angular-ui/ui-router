@@ -3,8 +3,8 @@
 
 We've totally redesigned UI-Router under the covers (rewrote about 60% of the codebase!), separating concerns and detangling the spaghetti.  We have taken some new approaches which we hope will provide unprecedented flexibility and control to your UI-Router app.
 
-Have a look at our new [Sample application](http://ui-router.github.io/sample-app/#/mymessages/inbox/5648b50cc586cac4aed6836f)
-([Source on GitHub](http://github.com/ui-router/sample-app))
+We're working on a new [sample app](http://ui-router.github.io/sample-app/#/mymessages/inbox/5648b50cc586cac4aed6836f) ([Source](https://github.com/ui-router/sample-app)), as well as a [state and transition visualizer](https://github.com/ui-router/visualizer).  Check them out, and give us some feedback.  
+
 
 #### What's changed?
 
