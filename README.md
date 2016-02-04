@@ -1,7 +1,10 @@
 # feature-1.0 branch
-## Note: this is a pre-alpha preview of UI-Router 1.0
+## Note: this is an alpha version of UI-Router 1.0
 
 We've totally redesigned UI-Router under the covers (rewrote about 60% of the codebase!), separating concerns and detangling the spaghetti.  We have taken some new approaches which we hope will provide unprecedented flexibility and control to your UI-Router app.
+
+Have a look at our new [Sample application](http://ui-router.github.io/sample-app/#/mymessages/inbox/5648b50cc586cac4aed6836f)
+([Source on GitHub](http://github.com/ui-router/sample-app))
 
 #### What's changed?
 
@@ -30,23 +33,24 @@ When registering a hook, you can provide criteria (a state name, a glob, or a fu
 
 This enables lots of fun stuff!  Here are a couple of possibilities to get your imagination started:
 ```javascript
+// Perform some async thing before running the transition
 $transitionsProvider.onBefore({ to: 'my.state', from: '*' }, function(AsyncService) {
   return AsyncService.doSomeAsyncThing();
 });
 
+// Add resolves to a transitoin on-the-fly
 $transitionsProvider.onBefore({ to: 'other.state', from: '*' }, function($transition$, AsyncService) {
   // someAsyncResult added as resolve to transition. It is injectable into other resolves or controllers.
   $transition$.addResolves({ someAsyncResult: AsyncService.doSomeAsyncThing });
 });
 
+// Declaratively protect states which require authentication; redirect to 'login' if the user is unauthenticated.
 $transitionsProvider.onStart({ to: function(state) { return state.requiresAuth; } }, function($transition$, $state, AuthService) {
   return AuthService.ensureAuthenticated().catch(function() { return $state.target("login"); });
 });
 
-$transitionsProvider.onStart({ to: function(state) { return state.requiresAuth; } }, function($transition$, $state, AuthService) {
-  return AuthService.ensureAuthenticated().catch(function() { return $state.target("login"); });
-});
-
+// Declaratively set up default substates or other redirects; Redirect to a different target state
+// as declared on the original state, i.e., redirectTo: 'someotherstate'
 $transitionsProvider.onStart({ to: function(state) { return state.redirectTo; } }, function($transition$, $state) {
   return $state.target($transition$.to.redirectTo); });
 });
@@ -74,11 +78,11 @@ Build it.  Try it.  Let us know what's horribly broken.
 
 #### ES6/TypeScript
 
-We have plans to migrate these new classes to ES6 (for sure), and possibly Typescript.
+We have migrated our codebase to ES6 and Typescript.
 
 #### Angular 2
 
-We'd like to support Angular 2
+We'd are going to support Angular 2.  We plan to release a ui-router-ng2 around the same time ng2 final is released.
 
 #### Lazy Loading
 
