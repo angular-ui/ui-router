@@ -17,7 +17,7 @@
 
 *_Please help us out by testing the 1.0 alpha release!_* 
 
-[1.0.0alpha0 Announcement](https://github.com/angular-ui/ui-router/releases/tag/1.0.0alpha0) ([Source  Code](https://github.com/angular-ui/ui-router/tree/feature-1.0)) | [Sample App](ui-router.github.io/sample-app/) ([Source Code](https://github.com/ui-router/sample-app)) | [Known Issues](https://github.com/angular-ui/ui-router/issues?q=is%3Aissue+is%3Aopen+label%3A1.0)
+[1.0.0alpha0 Announcement](https://github.com/angular-ui/ui-router/releases/tag/1.0.0alpha0) ([Source  Code](https://github.com/angular-ui/ui-router/tree/feature-1.0)) | [Sample App](http://ui-router.github.io/sample-app/) ([Source Code](https://github.com/ui-router/sample-app)) | [Known Issues](https://github.com/angular-ui/ui-router/issues?q=is%3Aissue+is%3Aopen+label%3A1.0)
 
 
 ---
