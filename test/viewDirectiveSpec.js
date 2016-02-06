@@ -123,16 +123,12 @@ describe('uiView', function () {
       .state('l', lState)
       .state('m', {
         controller: function($scope) {
-          log += 'm;';
-          $scope.$on('$destroy', function() {
-            log += '$destroy(m);';
-          });
-        },
+          log += 'ctrl(m);';
+          $scope.$on('$destroy', function() { log += '$destroy(m);'; });
+        }
       })
       .state('n', {
-        controller: function($scope) {
-          log += 'n;';
-        },
+        controller: function($scope) { log += 'ctrl(n);'; }
       });
   }));
 
@@ -143,23 +139,6 @@ describe('uiView', function () {
   }));
 
   describe('linking ui-directive', function () {
-
-    it('$destroy event is triggered after animation ends', inject(function($state, $q, $animate) {
-      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
-
-      $state.transitionTo('m');
-      $q.flush();
-      expect(log).toBe('m;');
-      $state.transitionTo('n');
-      $q.flush();
-      if ($animate) {
-        expect(log).toBe('m;n;');
-        animateFlush($animate);
-        expect(log).toBe('m;n;$destroy(m);');
-      } else {
-        expect(log).toBe('m;$destroy(m);n;');
-      }
-    }));
 
     it('anonymous ui-view should be replaced with the template of the current $state', inject(function ($state, $q) {
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
@@ -594,5 +573,56 @@ describe('uiView', function () {
       // No more animations
       expect($animate.queue.length).toBe(0);
     }));
+
+    it ('should disable animations if noanimation="true" is present', inject(function($state, $q, $compile, $animate) {
+      var content = 'Initial Content', animation;
+      elem.append($compile('<div><ui-view noanimation="true">' + content + '</ui-view></div>')(scope));
+
+      animation = $animate.queue.shift();
+      expect(animation).toBeUndefined();
+
+      $state.transitionTo(aState);
+      $q.flush();
+      animation = $animate.queue.shift();
+      expect(animation).toBeUndefined();
+      expect(elem.text()).toBe(aState.template);
+
+      $state.transitionTo(bState);
+      $q.flush();
+      animation = $animate.queue.shift();
+      expect(animation).toBeUndefined();
+      expect(elem.text()).toBe(bState.template);
+    }));
+
+    it('$destroy event is triggered after animation ends', inject(function($state, $q, $animate, $rootScope) {
+      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+      $rootScope.$on('$stateChangeSuccess', function(evt, toState) { log += 'success(' + toState.name + ');'; });
+
+      $state.transitionTo('m');
+      $q.flush();
+      expect(log).toBe('success(m);ctrl(m);');
+      $state.transitionTo('n');
+      $q.flush();
+      if ($animate) {
+        expect(log).toBe('success(m);ctrl(m);success(n);ctrl(n);');
+        animateFlush($animate);
+        expect(log).toBe('success(m);ctrl(m);success(n);ctrl(n);$destroy(m);');
+      } else {
+        expect(log).toBe('success(m);ctrl(m);$destroy(m);success(n);ctrl(n);');
+      }
+    }));
+
+    it('$destroy event is triggered before $stateChangeSuccess if noanimation is present', inject(function($state, $q, $animate, $rootScope) {
+      elem.append($compile('<div><ui-view noanimation="true"></ui-view></div>')(scope));
+      $rootScope.$on('$stateChangeSuccess', function(evt, toState) { log += 'success(' + toState.name + ');'; });
+
+      $state.transitionTo('m');
+      $q.flush();
+      expect(log).toBe('success(m);ctrl(m);');
+      $state.transitionTo('n');
+      $q.flush();
+      expect(log).toBe('success(m);ctrl(m);success(n);$destroy(m);ctrl(n);');
+    }));
+
   });
 });
