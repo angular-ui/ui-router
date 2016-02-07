@@ -1,20 +1,20 @@
-<a href="https://github.com/angular-ui/ui-router/edit/master/src/stateDirectives.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/stateDirectives.js#L79" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">ui-sref</code>
+<a href="https://github.com/angular-ui/ui-router/edit/master/src/stateDirectives.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/stateDirectives.js#L116" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">ui-sref</code>
 <div><span class="hint">directive in module <code ng:non-bindable="">ui.router.state</code>
 </span>
 </div>
 </h1>
 <div><h2 id="description">Description</h2>
-<div class="description"><div class="ui-router-state-directive-page ui-router-state-directive-ui-sref-page"><p>A directive that binds a link (<code>&lt;a&gt;</code> tag) to a state. If the state has an associated 
-URL, the directive will automatically generate &amp; update the <code>href</code> attribute via 
-the <a href="#/api/ui.router.state.$state#methods_href">$state.href()</a> method. Clicking 
-the link will trigger a state transition with optional parameters. </p>
-<p>Also middle-clicking, right-clicking, and ctrl-clicking on the link will be 
+<div class="description"><div class="ui-router-state-directive-page ui-router-state-directive-ui-sref-page"><p>A directive that binds a link (<code>&lt;a&gt;</code> tag) to a state. If the state has an associated
+URL, the directive will automatically generate &amp; update the <code>href</code> attribute via
+the <a href="#/api/ui.router.state.$state#methods_href">$state.href()</a> method. Clicking
+the link will trigger a state transition with optional parameters.</p>
+<p>Also middle-clicking, right-clicking, and ctrl-clicking on the link will be
 handled natively by the browser.</p>
-<p>You can also use relative state paths within ui-sref, just like the relative 
+<p>You can also use relative state paths within ui-sref, just like the relative
 paths passed to <code>$state.go()</code>. You just need to be aware that the path is relative
-to the state that the link lives in, in other words the state that loaded the 
+to the state that the link lives in, in other words the state that loaded the
 template containing the link.</p>
-<p>You can specify options to pass to <a href="#/api/ui.router.state.$state#go">$state.go()</a>
+<p>You can specify options to pass to <a href="#/api/ui.router.state.$state#methods_go">$state.go()</a>
 using the <code>ui-sref-opts</code> attribute. Options are restricted to <code>location</code>, <code>inherit</code>,
 and <code>reload</code>.</p>
 </div></div>
@@ -30,10 +30,10 @@ and <code>reload</code>.</p>
    ...
 &lt;/ANY&gt;</pre>
 <h4 id="usage_parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>ui-sref</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-directive-page ui-router-state-directive-ui-sref-page"><p>&#39;stateName&#39; can be any valid absolute or relative state</p>
-</div></td></tr><tr><td>ui-sref-opts</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-directive-page ui-router-state-directive-ui-sref-page"><p>options to pass to <a href="#/api/ui.router.state.$state#go">$state.go()</a></p>
+</div></td></tr><tr><td>ui-sref-opts</td><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="ui-router-state-directive-page ui-router-state-directive-ui-sref-page"><p>options to pass to <a href="#/api/ui.router.state.$state#methods_go">$state.go()</a></p>
 </div></td></tr></tbody></table></div>
 <h2 id="example">Example</h2>
-<div class="example"><div class="ui-router-state-directive-page ui-router-state-directive-ui-sref-page"><p>Here&#39;s an example of how you&#39;d use ui-sref and how it would compile. If you have the 
+<div class="example"><div class="ui-router-state-directive-page ui-router-state-directive-ui-sref-page"><p>Here&#39;s an example of how you&#39;d use ui-sref and how it would compile. If you have the
 following template:
 <pre class="prettyprint linenums">
 &lt;a ui-sref="home"&gt;Home&lt;/a&gt; | &lt;a ui-sref="about"&gt;About&lt;/a&gt; | &lt;a ui-sref="{page: 2}"&gt;Next page&lt;/a&gt;

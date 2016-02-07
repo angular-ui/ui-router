@@ -1,4 +1,4 @@
-<a href="https://github.com/angular-ui/ui-router/edit/master/src/resolve.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/resolve.js#L11" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">$resolve</code>
+<a href="https://github.com/angular-ui/ui-router/edit/master/src/resolve.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/resolve.js#L11" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">$resolve</code>
 <div><span class="hint">service in module <code ng:non-bindable="">ui.router.util</code>
 </span>
 </div>
@@ -13,7 +13,7 @@
 </li>
 </ul>
 <div class="member method"><h2 id="methods">Methods</h2>
-<ul class="methods"><li><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/resolve.js#L246" class="view-source icon-eye-open"> </a><h3 id="methods_resolve">resolve(invocables, locals, parent, self)</h3>
+<ul class="methods"><li><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/resolve.js#L246" class="view-source icon-eye-open"> </a><h3 id="methods_resolve">resolve(invocables, locals, parent, self)</h3>
 <div class="resolve"><div class="ui-router-util-resolve-resolve-page"><p>Resolves a set of invocables. An invocable is a function to be invoked via 
 <code>$injector.invoke()</code>, and can have an arbitrary number of dependencies. 
 An invocable can either return a value directly,
@@ -41,7 +41,7 @@ invocable is rejected, the <code>$resolve</code> promise is immediately rejected
 same error. A rejection of a <code>parent</code> promise (if specified) will likewise be 
 propagated immediately. Once the <code>$resolve</code> promise has been rejected, no 
 further invocables will be called.</p>
-<p>Cyclic dependencies between invocables are not permitted and will caues <code>$resolve</code>
+<p>Cyclic dependencies between invocables are not permitted and will cause <code>$resolve</code>
 to throw an error. As a special case, an injectable can depend on a parameter 
 with the same name as the injectable, which will be fulfilled from the <code>parent</code> 
 injectable of the same name. This allows inherited values to be decorated. 
@@ -65,7 +65,7 @@ routes.</p>
 of all invocables, as well as any inherited and local values.</p>
 </div></td></tr></table></div>
 </li>
-<li><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/resolve.js#L42" class="view-source icon-eye-open"> </a><h3 id="methods_study">study(invocables)</h3>
+<li><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/resolve.js#L42" class="view-source icon-eye-open"> </a><h3 id="methods_study">study(invocables)</h3>
 <div class="study"><div class="ui-router-util-resolve-study-page"><p>Studies a set of invocables that are likely to be used multiple times.
 <pre class="prettyprint linenums">
 $resolve.study(invocables)(locals, parent, self)

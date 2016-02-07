@@ -1,4 +1,4 @@
-<a href="https://github.com/angular-ui/ui-router/edit/master/src/state.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/state.js#L713" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">$state</code>
+<a href="https://github.com/angular-ui/ui-router/edit/master/src/state.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/state.js#L714" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">$state</code>
 <div><span class="hint">service in module <code ng:non-bindable="">ui.router.state</code>
 </span>
 </div>
@@ -25,7 +25,7 @@ you&#39;re coming from.</p>
 </li>
 </ul>
 <div class="member method"><h2 id="methods">Methods</h2>
-<ul class="methods"><li><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/state.js#L1374" class="view-source icon-eye-open"> </a><h3 id="methods_get">get(stateOrName, context)</h3>
+<ul class="methods"><li><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/state.js#L1379" class="view-source icon-eye-open"> </a><h3 id="methods_get">get(stateOrName, context)</h3>
 <div class="get"><div class="ui-router-state-state-get-page"><p>Returns the state configuration object for any specific state or all states.</p>
 </div><h5 id="methods_get_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>stateOrName <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-get-page"><p>(absolute or relative) If provided, will only get the config for
 the requested state. If not provided, returns an array of ALL state configs.</p>
@@ -33,7 +33,7 @@ the requested state. If not provided, returns an array of ALL state configs.</p>
 </div></td></tr></tbody></table><h5 id="methods_get_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object|Array</a></td><td><div class="ui-router-state-state-get-page"><p>State configuration object or array of all objects.</p>
 </div></td></tr></table></div>
 </li>
-<li><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/state.js#L918" class="view-source icon-eye-open"> </a><h3 id="methods_go">go(to, params, options)</h3>
+<li><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/state.js#L921" class="view-source icon-eye-open"> </a><h3 id="methods_go">go(to, params, options)</h3>
 <div class="go"><div class="ui-router-state-state-go-page"><p>Convenience method for transitioning to a new state. <code>$state.go</code> calls 
 <code>$state.transitionTo</code> internally but automatically sets options to 
 <code>{ location: true, inherit: true, relative: $state.$current, notify: true }</code>. 
@@ -49,7 +49,8 @@ inherit from the currently active ancestor states).</p>
 </ul>
 </div></td></tr><tr><td>params <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-go-page"><p>A map of the parameters that will be sent to the state,
 will populate $stateParams. Any parameters that are not specified will be inherited from currently 
-defined parameters. This allows, for example, going to a sibling state that shares parameters
+defined parameters. Only parameters specified in the state definition can be overridden, new 
+parameters will be ignored. This allows, for example, going to a sibling state that shares parameters
 specified in a parent state. Parameter inheritance only works between common ancestor states, I.e.
 transitioning to a sibling will get you the parameters for all parents, transitioning to a child
 will get you all current parameters, etc.</p>
@@ -61,9 +62,10 @@ will get you all current parameters, etc.</p>
 <li><strong><code>relative</code></strong> - {object=$state.$current}, When transitioning with relative path (e.g &#39;^&#39;), 
  defines which state to be relative from.</li>
 <li><strong><code>notify</code></strong> - {boolean=true}, If <code>true</code> will broadcast $stateChangeStart and $stateChangeSuccess events.</li>
-<li><strong><code>reload</code></strong> (v0.2.5) - {boolean=false}, If <code>true</code> will force transition even if the state or params 
- have not changed, aka a reload of the same state. It differs from reloadOnSearch because you&#39;d
- use this when you want to force a reload when <em>everything</em> is the same, including search params.</li>
+<li><strong><code>reload</code></strong> (v0.2.5) - {boolean=false|string|object}, If <code>true</code> will force transition even if no state or params
+ have changed.  It will reload the resolves and views of the current state and parent states.
+ If <code>reload</code> is a string (or state object), the state object is fetched (by name, or object reference); and \
+ the transition reloads the resolves and views for that matched state, and all its children states.</li>
 </ul>
 </div></td></tr></tbody></table><h5 id="methods_go_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-promise">promise</a></td><td><div class="ui-router-state-state-go-page"><p>A promise representing the state of the new transition.</p>
 <p>Possible success values:</p>
@@ -93,7 +95,7 @@ app.controller('ctrl', function ($scope, $state) {
 </div></div>
 </div>
 </li>
-<li><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/state.js#L1338" class="view-source icon-eye-open"> </a><h3 id="methods_href">href(stateOrName, params, options)</h3>
+<li><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/state.js#L1343" class="view-source icon-eye-open"> </a><h3 id="methods_href">href(stateOrName, params, options)</h3>
 <div class="href"><div class="ui-router-state-state-href-page"><p>A url generation method that returns the compiled url for the given state populated with the given params.</p>
 </div><h5 id="methods_href_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>stateOrName</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-href-page"><p>The state name or state object you&#39;d like to generate a url from.</p>
 </div></td></tr><tr><td>params <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-href-page"><p>An object of parameter values to fill the state&#39;s required parameters.</p>
@@ -115,7 +117,7 @@ expect($state.href("about.person", { person: "bob" })).toEqual("/about/bob");
 </div></div>
 </div>
 </li>
-<li><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/state.js#L1295" class="view-source icon-eye-open"> </a><h3 id="methods_includes">includes(stateOrName, params, options)</h3>
+<li><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/state.js#L1300" class="view-source icon-eye-open"> </a><h3 id="methods_includes">includes(stateOrName, params, options)</h3>
 <div class="includes"><div class="ui-router-state-state-includes-page"><p>A method to determine if the current active state is equal to or is the child of the
 state stateName. If any params are passed then they will be tested for a match as well.
 Not all the parameters need to be passed, just the ones you&#39;d like to test for equality.</p>
@@ -160,7 +162,7 @@ $state.includes("item.**"); // returns false
 </div></div>
 </div>
 </li>
-<li><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/state.js#L1235" class="view-source icon-eye-open"> </a><h3 id="methods_is">is(stateOrName, params, options)</h3>
+<li><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/state.js#L1240" class="view-source icon-eye-open"> </a><h3 id="methods_is">is(stateOrName, params, options)</h3>
 <div class="is"><div class="ui-router-state-state-is-page"><p>Similar to <a href="#/api/ui.router.state.$state#methods_includes">$state.includes</a>,
 but only checks for the full state name. If params is supplied then it will be
 tested for strict equality against the current active params object, so all params
@@ -189,7 +191,7 @@ $state.is(contactDetailItemStateObject); // returns true
 </div></div>
 </div>
 </li>
-<li><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/state.js#L848" class="view-source icon-eye-open"> </a><h3 id="methods_reload">reload(state)</h3>
+<li><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/state.js#L849" class="view-source icon-eye-open"> </a><h3 id="methods_reload">reload(state)</h3>
 <div class="reload"><div class="ui-router-state-state-reload-page"><p>A method that force reloads the current state. All resolves are re-resolved,
 controllers reinstantiated, and events re-fired.</p>
 </div><h5 id="methods_reload_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>state <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-string">string=</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-state-state-reload-page"><ul>
@@ -219,7 +221,7 @@ $state.transitionTo($state.current, $stateParams, {
 </div></div>
 </div>
 </li>
-<li><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/state.js#L962" class="view-source icon-eye-open"> </a><h3 id="methods_transitionto">transitionTo(to, toParams, options)</h3>
+<li><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/state.js#L965" class="view-source icon-eye-open"> </a><h3 id="methods_transitionto">transitionTo(to, toParams, options)</h3>
 <div class="transitionto"><div class="ui-router-state-state-transitionto-page"><p>Low-level method for transitioning to a new state. <a href="#/api/ui.router.state.$state#methods_go">$state.go</a>
 uses <code>transitionTo</code> internally. <code>$state.go</code> is recommended in most situations.</p>
 </div><h5 id="methods_transitionto_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>to</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ui-router-state-state-transitionto-page"><p>State name.</p>

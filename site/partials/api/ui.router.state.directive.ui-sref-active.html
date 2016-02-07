@@ -1,4 +1,4 @@
-<a href="https://github.com/angular-ui/ui-router/edit/master/src/stateDirectives.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/stateDirectives.js#L211" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">ui-sref-active</code>
+<a href="https://github.com/angular-ui/ui-router/edit/master/src/stateDirectives.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/stateDirectives.js#L271" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">ui-sref-active</code>
 <div><span class="hint">directive in module <code ng:non-bindable="">ui.router.state</code>
 </span>
 </div>
@@ -57,5 +57,10 @@ interpolated value are ignored).</p>
   &lt;/li&gt;
 &lt;/ul&gt;
 </pre>
+<p>It is also possible to pass ui-sref-active an expression that evaluates
+to an object hash, whose keys represent active class names and whose
+values represent the respective state names/globs.
+ui-sref-active will match if the current active state <strong>includes</strong> any of
+the specified state names/globs, even the abstract ones.</p>
 </div></div>
 </div>

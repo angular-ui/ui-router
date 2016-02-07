@@ -1,4 +1,4 @@
-<a href="https://github.com/angular-ui/ui-router/edit/master/src/urlRouter.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/urlRouter.js#L17" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">$urlRouterProvider</code>
+<a href="https://github.com/angular-ui/ui-router/edit/master/src/urlRouter.js" class="improve-docs"><i class="icon-edit"> </i>Improve this doc</a><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/urlRouter.js#L17" class="view-source"><i class="icon-eye-open"> </i>View source</a><h1><code ng:non-bindable="">$urlRouterProvider</code>
 <div><span class="hint">service in module <code ng:non-bindable="">ui.router.router</code>
 </span>
 </div>
@@ -18,7 +18,7 @@ in your module config.</p>
 </li>
 </ul>
 <div class="member method"><h2 id="methods">Methods</h2>
-<ul class="methods"><li><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/urlRouter.js#L247" class="view-source icon-eye-open"> </a><h3 id="methods_deferintercept">deferIntercept(defer)</h3>
+<ul class="methods"><li><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/urlRouter.js#L249" class="view-source icon-eye-open"> </a><h3 id="methods_deferintercept">deferIntercept(defer)</h3>
 <div class="deferintercept"><div class="ui-router-router-urlrouterprovider-deferintercept-page"><p>Disables (or enables) deferring location change interception.</p>
 <p>If you wish to customize the behavior of syncing the URL (for example, if you wish to
 defer a transition but maintain the current URL), call this method at configuration time.
@@ -60,9 +60,9 @@ app.config(function ($urlRouterProvider) {
 </div></div>
 </div>
 </li>
-<li><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/urlRouter.js#L102" class="view-source icon-eye-open"> </a><h3 id="methods_otherwise">otherwise(rule)</h3>
+<li><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/urlRouter.js#L102" class="view-source icon-eye-open"> </a><h3 id="methods_otherwise">otherwise(rule)</h3>
 <div class="otherwise"><div class="ui-router-router-urlrouterprovider-otherwise-page"><p>Defines a path that is used when an invalid route is requested.</p>
-</div><h5 id="methods_otherwise_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>rule</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-router-urlrouterprovider-otherwise-page"><p>The url path you want to redirect to or a function
+</div><h5 id="methods_otherwise_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>rule</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-router-urlrouterprovider-otherwise-page"><p>The url path you want to redirect to or a function
 rule that returns the url path. The function version is passed two params: 
 <code>$injector</code> and <code>$location</code> services, and must return a url string.</p>
 </div></td></tr></tbody></table><h5 id="methods_otherwise_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-router-urlrouterprovider-otherwise-page"><p><code>$urlRouterProvider</code> - <code>$urlRouterProvider</code> instance</p>
@@ -85,10 +85,10 @@ app.config(function ($urlRouterProvider) {
 </div></div>
 </div>
 </li>
-<li><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/urlRouter.js#L65" class="view-source icon-eye-open"> </a><h3 id="methods_rule">rule(rule)</h3>
+<li><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/urlRouter.js#L65" class="view-source icon-eye-open"> </a><h3 id="methods_rule">rule(rule)</h3>
 <div class="rule"><div class="ui-router-router-urlrouterprovider-rule-page"><p>Defines rules that are used by <code>$urlRouterProvider</code> to find matches for
 specific URLs.</p>
-</div><h5 id="methods_rule_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>rule</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-router-urlrouterprovider-rule-page"><p>Handler function that takes <code>$injector</code> and <code>$location</code>
+</div><h5 id="methods_rule_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>rule</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-router-urlrouterprovider-rule-page"><p>Handler function that takes <code>$injector</code> and <code>$location</code>
 services as arguments. You can use them to return a valid path as a string.</p>
 </div></td></tr></tbody></table><h5 id="methods_rule_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-router-urlrouterprovider-rule-page"><p><code>$urlRouterProvider</code> - <code>$urlRouterProvider</code> instance</p>
 </div></td></tr></table><h4 id="methods_rule_example">Example</h4>
@@ -110,8 +110,9 @@ app.config(function ($urlRouterProvider) {
 </div></div>
 </div>
 </li>
-<li><a href="https://github.com/angular-ui/ui-router/blob/a7d25c6/src/urlRouter.js#L156" class="view-source icon-eye-open"> </a><h3 id="methods_when">when(what, handler)</h3>
-<div class="when"><div class="ui-router-router-urlrouterprovider-when-page"><p>Registers a handler for a given url matching. if handle is a string, it is
+<li><a href="https://github.com/angular-ui/ui-router/blob/1e46c8d/src/urlRouter.js#L158" class="view-source icon-eye-open"> </a><h3 id="methods_when">when(what, handler)</h3>
+<div class="when"><div class="ui-router-router-urlrouterprovider-when-page"><p>Registers a handler for a given url matching. </p>
+<p>If the handler is a string, it is
 treated as a redirect, and is interpolated according to the syntax of match
 (i.e. like <code>String.replace()</code> for <code>RegExp</code>, or like a <code>UrlMatcher</code> pattern otherwise).</p>
 <p>If the handler is a function, it is injectable. It gets invoked if <code>$location</code>
@@ -124,7 +125,7 @@ will continue trying to find another one that matches.</li>
 <li><strong>void</strong> or any <strong>truthy</strong> value tells <code>$urlRouter</code> that the url was handled.</li>
 </ul>
 </div><h5 id="methods_when_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>what</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-router-urlrouterprovider-when-page"><p>The incoming path that you want to redirect.</p>
-</div></td></tr><tr><td>handler</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ui-router-router-urlrouterprovider-when-page"><p>The path you want to redirect your user to.</p>
+</div></td></tr><tr><td>handler</td><td><a href="" class="label type-hint type-hint-string">string</a><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ui-router-router-urlrouterprovider-when-page"><p>The path you want to redirect your user to.</p>
 </div></td></tr></tbody></table><h4 id="methods_when_example">Example</h4>
 <div class="example"><div class="ui-router-router-urlrouterprovider-when-page"><pre class="prettyprint linenums">
 var app = angular.module('app', ['ui.router.router']);
