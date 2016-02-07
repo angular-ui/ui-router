@@ -305,12 +305,6 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
       return listener;
     }
 
-    rules.sort(function(ruleA, ruleB) {
-      var aLength = ruleA.prefix ? ruleA.prefix.length : 0;
-      var bLength = ruleB.prefix ? ruleB.prefix.length : 0;
-      return bLength - aLength;
-    });
-
     if (!interceptDeferred) listen();
 
     return {

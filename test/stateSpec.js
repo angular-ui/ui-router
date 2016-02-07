@@ -111,7 +111,7 @@ describe('state', function () {
         }
       })
       .state('resolveTimeout', {
-        url: "/:foo",
+        url: "/resolve-timeout/:foo",
         resolve: {
           value: function ($timeout) {
             return $timeout(function() { log += "Success!"; }, 1);
