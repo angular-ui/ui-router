@@ -1,10 +1,15 @@
 /*jshint browser: true, indent: 2 */
 /*global describe: false, it: false, beforeEach: false, expect: false, resolvedValue: false, module: false, inject: false, angular: false */
 
+function animateFlush($animate) {
+  $animate && $animate.triggerCallbacks && $animate.triggerCallbacks(); // 1.2-1.3
+  $animate && $animate.flush && $animate.flush(); // 1.4
+}
+
 describe('uiView', function () {
   'use strict';
 
-  var scope, $compile, elem;
+  var log, scope, $compile, elem;
 
   beforeEach(function() {
     var depends = ['ui.router'];
@@ -26,6 +31,10 @@ describe('uiView', function () {
       return jasmine.createSpy('$uiViewScroll');
     });
   }));
+
+  beforeEach(function() {
+    log = '';
+  });
 
   var aState = {
     template: 'aState template'
@@ -112,6 +121,15 @@ describe('uiView', function () {
       .state('j', jState)
       .state('k', kState)
       .state('l', lState)
+      .state('m', {
+        controller: function($scope) {
+          log += 'ctrl(m);';
+          $scope.$on('$destroy', function() { log += '$destroy(m);'; });
+        }
+      })
+      .state('n', {
+        controller: function($scope) { log += 'ctrl(n);'; }
+      });
   }));
 
   beforeEach(inject(function ($rootScope, _$compile_) {
@@ -252,7 +270,7 @@ describe('uiView', function () {
       $state.transitionTo(aState);
       $q.flush();
 
-      if ($animate) $animate.triggerCallbacks();
+      animateFlush($animate);
 
       expect($uiViewScroll).not.toHaveBeenCalled();
     }));
@@ -262,7 +280,7 @@ describe('uiView', function () {
       $state.transitionTo(aState);
       $q.flush();
 
-      if ($animate) $animate.triggerCallbacks();
+      animateFlush($animate);
 
       expect($uiViewScroll).toHaveBeenCalledWith(elem.find('span').parent());
     }));
@@ -275,7 +293,7 @@ describe('uiView', function () {
       $state.transitionTo(aState);
       $q.flush();
 
-      if ($animate) $animate.triggerCallbacks();
+      animateFlush($animate);
 
       expect($uiViewScroll).not.toHaveBeenCalled();
 
@@ -283,7 +301,7 @@ describe('uiView', function () {
       $state.transitionTo(bState);
       $q.flush();
 
-      if ($animate) $animate.triggerCallbacks();
+      animateFlush($animate);
 
       var target,
           index   = -1,
@@ -555,5 +573,56 @@ describe('uiView', function () {
       // No more animations
       expect($animate.queue.length).toBe(0);
     }));
+
+    it ('should disable animations if noanimation="true" is present', inject(function($state, $q, $compile, $animate) {
+      var content = 'Initial Content', animation;
+      elem.append($compile('<div><ui-view noanimation="true">' + content + '</ui-view></div>')(scope));
+
+      animation = $animate.queue.shift();
+      expect(animation).toBeUndefined();
+
+      $state.transitionTo(aState);
+      $q.flush();
+      animation = $animate.queue.shift();
+      expect(animation).toBeUndefined();
+      expect(elem.text()).toBe(aState.template);
+
+      $state.transitionTo(bState);
+      $q.flush();
+      animation = $animate.queue.shift();
+      expect(animation).toBeUndefined();
+      expect(elem.text()).toBe(bState.template);
+    }));
+
+    it('$destroy event is triggered after animation ends', inject(function($state, $q, $animate, $rootScope) {
+      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+      $rootScope.$on('$stateChangeSuccess', function(evt, toState) { log += 'success(' + toState.name + ');'; });
+
+      $state.transitionTo('m');
+      $q.flush();
+      expect(log).toBe('success(m);ctrl(m);');
+      $state.transitionTo('n');
+      $q.flush();
+      if ($animate) {
+        expect(log).toBe('success(m);ctrl(m);success(n);ctrl(n);');
+        animateFlush($animate);
+        expect(log).toBe('success(m);ctrl(m);success(n);ctrl(n);$destroy(m);');
+      } else {
+        expect(log).toBe('success(m);ctrl(m);$destroy(m);success(n);ctrl(n);');
+      }
+    }));
+
+    it('$destroy event is triggered before $stateChangeSuccess if noanimation is present', inject(function($state, $q, $animate, $rootScope) {
+      elem.append($compile('<div><ui-view noanimation="true"></ui-view></div>')(scope));
+      $rootScope.$on('$stateChangeSuccess', function(evt, toState) { log += 'success(' + toState.name + ');'; });
+
+      $state.transitionTo('m');
+      $q.flush();
+      expect(log).toBe('success(m);ctrl(m);');
+      $state.transitionTo('n');
+      $q.flush();
+      expect(log).toBe('success(m);ctrl(m);success(n);$destroy(m);ctrl(n);');
+    }));
+
   });
 });

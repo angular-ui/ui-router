@@ -1,7 +1,7 @@
 describe("UrlMatcher", function () {
   var provider;
   beforeEach(function() {
-    angular.module('ui.router.router.test', function() {}).config(function ($urlMatcherFactoryProvider) {
+    angular.module('ui.router.router.test', []).config(function ($urlMatcherFactoryProvider) {
       provider = $urlMatcherFactoryProvider;
     });
 
@@ -61,10 +61,40 @@ describe("UrlMatcher", function () {
     expect(matcher.format(array)).toBe('/?foo=bar&foo=baz');
   });
 
-  it("should encode and decode slashes in parameter values", function () {
-    var matcher = new UrlMatcher('/:foo');
-    expect(matcher.format({ foo: "/" })).toBe('/%252F');
-    expect(matcher.format({ foo: "//" })).toBe('/%252F%252F');
+  it("should encode and decode slashes in parameter values as ~2F", function () {
+    var matcher1 = new UrlMatcher('/:foo');
+
+    expect(matcher1.format({ foo: "/" })).toBe('/~2F');
+    expect(matcher1.format({ foo: "//" })).toBe('/~2F~2F');
+
+    expect(matcher1.exec('/')).toBeTruthy();
+    expect(matcher1.exec('//')).not.toBeTruthy();
+
+    expect(matcher1.exec('/').foo).toBe("");
+    expect(matcher1.exec('/123').foo).toBe("123");
+    expect(matcher1.exec('/~2F').foo).toBe("/");
+    expect(matcher1.exec('/123~2F').foo).toBe("123/");
+
+    // param :foo should match between two slashes
+    var matcher2 = new UrlMatcher('/:foo/');
+
+    expect(matcher2.exec('/')).not.toBeTruthy();
+    expect(matcher2.exec('//')).toBeTruthy();
+
+    expect(matcher2.exec('//').foo).toBe("");
+    expect(matcher2.exec('/123/').foo).toBe("123");
+    expect(matcher2.exec('/~2F/').foo).toBe("/");
+    expect(matcher2.exec('/123~2F/').foo).toBe("123/");
+  });
+
+  it("should encode and decode tildes in parameter values as ~~", function () {
+    var matcher1 = new UrlMatcher('/:foo');
+
+    expect(matcher1.format({ foo: "abc" })).toBe('/abc');
+    expect(matcher1.format({ foo: "~abc" })).toBe('/~~abc');
+
+    expect(matcher1.exec('/abc').foo).toBe("abc");
+    expect(matcher1.exec('/~~abc').foo).toBe("~abc");
   });
 
   describe("snake-case parameters", function() {
@@ -87,6 +117,28 @@ describe("UrlMatcher", function () {
       expect(function() { new UrlMatcher('/users/?from&to&snake-'); }).toThrow(err);
     });
   });
+
+  describe("parameters containing periods", function() {
+    it("should match if properly formatted", function() {
+      var matcher = new UrlMatcher('/users/?from&to&with.periods&with.periods.also');
+      var params = matcher.parameters();
+
+      expect(params.length).toBe(4);
+      expect(params).toContain('from');
+      expect(params).toContain('to');
+      expect(params).toContain('with.periods');
+      expect(params).toContain('with.periods.also');
+      expect(matcher.parameters()).toEqual(['from','to','with.periods','with.periods.also']);
+    });
+
+    it("should not match if invalid", function() {
+      var err = "Invalid parameter name '.periods' in pattern '/users/?from&to&.periods'";
+      expect(function() { new UrlMatcher('/users/?from&to&.periods'); }).toThrow(err);
+
+      err = "Invalid parameter name 'periods.' in pattern '/users/?from&to&periods.'";
+      expect(function() { new UrlMatcher('/users/?from&to&periods.'); }).toThrow(err);
+    });
+  });  
 
   describe(".exec()", function() {
     it("should capture parameter values", function () {
@@ -148,6 +200,14 @@ describe("UrlMatcher", function () {
       var m = new UrlMatcher('/users/:id#:section'),
           params = { id: 'bob', section: 'contact-details' };
       expect(m.format(params)).toEqual('/users/bob#contact-details');
+    });
+
+    it("should trim trailing slashes when the terminal value is optional", function () {
+      var config = { params: { id: { squash: true, value: '123' } } },
+          m = new UrlMatcher('/users/:id', config),
+          params = { id: '123' };
+
+      expect(m.format(params)).toEqual('/users');
     });
   });
 
@@ -242,6 +302,8 @@ describe("UrlMatcher", function () {
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: undefined } );
       $location.url("/foo?param1=bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: 'bar' } ); // auto unwrap
+      $location.url("/foo?param1=");
+      expect(m.exec($location.path(), $location.search())).toEqual( { param1: undefined } );
       $location.url("/foo?param1=bar&param1=baz");
       if (angular.isArray($location.search())) // conditional for angular 1.0.8
         expect(m.exec($location.path(), $location.search())).toEqual( { param1: ['bar', 'baz'] } );
@@ -274,6 +336,8 @@ describe("UrlMatcher", function () {
 
       $location.url("/foo");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: undefined } );
+      $location.url("/foo?param1=");
+      expect(m.exec($location.path(), $location.search())).toEqual( { param1: undefined } );
       $location.url("/foo?param1=bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: [ 'bar' ] } );
       $location.url("/foo?param1=bar&param1=baz");
@@ -302,6 +366,29 @@ describe("UrlMatcher", function () {
       if (angular.isArray($location.search())) // conditional for angular 1.0.8
         expect(m.exec($location.path(), $location.search())).toEqual( { "param1[]": ['bar', 'baz'] } );
       expect(m.format({ "param1[]": ['bar', 'baz'] })).toBe("/foo?param1[]=bar&param1[]=baz");
+    }));
+
+    // Test for issue #2222
+    it("should return default value, if query param is missing.", inject(function($location) {
+      var m = new UrlMatcher('/state?param1&param2&param3&param5', {
+        params: {
+          param1 : 'value1',
+          param2 : {array: true, value: ['value2']},
+          param3 : {array: true, value: []},
+          param5 : {array: true, value: function() {return [];}}
+        }
+      });
+
+      var parsed = m.exec("/state");
+      var expected = {
+        "param1": 'value1',
+        "param2": ['value2'],
+        "param3": [],
+        "param5": []
+      };
+
+      expect(parsed).toEqualData(expected)
+      expect(m.params.$$values(parsed)).toEqualData(expected);
     }));
 
     it("should not be wrapped by ui-router into an array if array: false", inject(function($location) {
@@ -512,6 +599,33 @@ describe("urlMatcherFactory", function () {
       expect(m.format({ foo: 5, flag: true })).toBe("/5/1");
     });
 
+    it("should match built-in types with spaces", function () {
+      var m = new UrlMatcher("/{foo: int}/{flag:  bool}");
+      expect(m.exec("/1138/1")).toEqual({ foo: 1138, flag: true });
+      expect(m.format({ foo: 5, flag: true })).toBe("/5/1");
+    });
+
+    it("should match types named only in params", function () {
+      var m = new UrlMatcher("/{foo}/{flag}", {
+        params: {
+          foo: { type: 'int'},
+          flag: { type: 'bool'}
+        }
+      });
+      expect(m.exec("/1138/1")).toEqual({foo: 1138, flag: true});
+      expect(m.format({foo: 5, flag: true})).toBe("/5/1");
+    });
+
+    it("should throw an error if a param type is declared twice", function () {
+      expect(function() {
+        new UrlMatcher("/{foo:int}", {
+          params: {
+            foo: {type: 'int'}
+          }
+        });
+      }).toThrow("Param 'foo' has two type configurations.");
+    });
+
     it("should encode/decode dates", function () {
       var m = new UrlMatcher("/calendar/{date:date}"),
           result = m.exec("/calendar/2014-03-26");
@@ -588,6 +702,7 @@ describe("urlMatcherFactory", function () {
         params: { id: { value: null, squash: true } }
       });
       expect(m.exec('/users/1138')).toEqual({ id: 1138 });
+      expect(m.exec('/users1138')).toBeNull();
       expect(m.exec('/users/').id).toBeNull();
       expect(m.exec('/users').id).toBeNull();
     });
@@ -622,8 +737,8 @@ describe("urlMatcherFactory", function () {
         params: { id: { value: null, squash: true }, state: { value: null, squash: true } }
       });
 
-      expect(m.format()).toBe("/users/");
-      expect(m.format({ id: 1138 })).toBe("/users/1138/");
+      expect(m.format()).toBe("/users");
+      expect(m.format({ id: 1138 })).toBe("/users/1138");
       expect(m.format({ state: "NY" })).toBe("/users/NY");
       expect(m.format({ id: 1138, state: "NY" })).toBe("/users/1138/NY");
     });

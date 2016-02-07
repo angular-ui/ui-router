@@ -12,7 +12,7 @@ describe('uiStateRef', function() {
       url: '/contacts',
       template: '<a ui-sref=".item({ id: 5 })" class="item">Person</a> <ui-view></ui-view>'
     }).state('contacts.item', {
-      url: '/:id',
+      url: '/{id:int}',
       template: '<a ui-sref=".detail" class="item-detail">Detail</a> | <a ui-sref="^" class="item-parent">Parent</a> | <ui-view></ui-view>'
     }).state('contacts.item.detail', {
       template: '<div class="title">Detail</div> | <a ui-sref="^" class="item-parent2">Item</a>'
@@ -130,7 +130,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect($stateParams).toEqual({ id: "5" });
+      expect($stateParams).toEqual({ id: 5 });
     }));
 
     it('should transition when given a click that contains no data (fake-click)', inject(function($state, $stateParams, $q) {
@@ -147,7 +147,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect($stateParams).toEqual({ id: "5" });
+      expect($stateParams).toEqual({ id: 5 });
     }));
 
     it('should not transition states when ctrl-clicked', inject(function($state, $stateParams, $q) {
@@ -291,6 +291,71 @@ describe('uiStateRef', function() {
     }));
   });
 
+  describe('links with dynamic state definitions', function () {
+    var template;
+
+    beforeEach(inject(function($rootScope, $compile, $state) {
+      el = angular.element('<a ui-state="state" ui-state-params="params">state</a>');
+      scope = $rootScope;
+      angular.extend(scope, { state: 'contacts', params: {} });
+      template = $compile(el)(scope);
+      scope.$digest();
+    }));
+
+    it('sets the correct initial href', function () {
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+    });
+
+    it('updates to the new href', function () {
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+
+      scope.state = 'contacts.item';
+      scope.params = { id: 5 };
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/5');
+
+      scope.params.id = 25;
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/25');
+    });
+
+    it('retains the old href if the new points to a non-state', function () {
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+      scope.state = 'nostate';
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+    });
+
+    it('accepts param overrides', inject(function ($compile) {
+      el = angular.element('<a ui-state="state" ui-state-params="params">state</a>');
+      scope.state  = 'contacts.item';
+      scope.params = { id: 10 };
+      template = $compile(el)(scope);
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/10');
+    }));
+
+    it('accepts option overrides', inject(function ($compile, $timeout, $state) {
+      var transitionOptions;
+
+      el = angular.element('<a ui-state="state" ui-state-opts="opts">state</a>');
+      scope.state  = 'contacts';
+      scope.opts = { reload: true };
+      template = $compile(el)(scope);
+      scope.$digest();
+
+      spyOn($state, 'go').andCallFake(function(state, params, options) {
+        transitionOptions = options;
+      });
+
+      triggerClick(template)
+      $timeout.flush();
+
+      expect(transitionOptions.reload).toEqual(true);
+      expect(transitionOptions.absolute).toBeUndefined();
+    }));
+  });
+
   describe('forms', function() {
     var el, scope;
 
@@ -328,7 +393,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.$current.name).toBe("contacts.item.detail");
-      expect($state.params).toEqual({ id: "5" });
+      expect($state.params).toEqual({ id: 5 });
     }));
 
     it('should resolve states from parent uiView', inject(function ($state, $stateParams, $q, $timeout) {
@@ -362,33 +427,6 @@ describe('uiStateRef', function() {
       expect($state.$current.name).toBe("contacts");
     }));
   });
-
-  describe('transition options', function() {
-
-    beforeEach(inject(function($rootScope, $compile, $state) {
-      el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })" ui-sref-opts="{ reload: true, absolute: true, notify: true }">Details</a>');
-      scope = $rootScope;
-      scope.contact = { id: 5 };
-
-      $compile(el)(scope);
-      scope.$digest();
-    }));
-
-    it('uses allowed transition options', inject(function($q, $timeout, $state) {
-      var transitionOptions;
-
-      spyOn($state, 'go').andCallFake(function(state, params, options) {
-        transitionOptions = options;
-      });
-
-      triggerClick(el);
-      $timeout.flush();
-
-      expect(transitionOptions.reload).toEqual(true);
-      expect(transitionOptions.absolute).toEqual(true);
-      expect(transitionOptions.notify).toBeUndefined();
-    }));
-  });
 });
 
 describe('uiSrefActive', function() {
@@ -413,6 +451,12 @@ describe('uiSrefActive', function() {
       url: '/detail/:foo'
     }).state('contacts.item.edit', {
       url: '/edit'
+    }).state('admin', {
+      url: '/admin',
+      abstract: true,
+      template: '<ui-view/>'
+    }).state('admin.roles', {
+      url: '/roles?page'
     });
   }));
 
@@ -590,6 +634,74 @@ describe('uiSrefActive', function() {
     timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
   }));
+
+  it('should allow multiple classes to be supplied', inject(function($rootScope, $q, $compile, $state) {
+    template = $compile('<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active="active also-active">Contacts</a></div>')($rootScope);
+    $rootScope.$digest();
+    var a = angular.element(template[0].getElementsByTagName('a')[0]);
+
+    $state.transitionTo('contacts.item.edit', { id: 1 });
+    $q.flush();
+    timeoutFlush();
+    expect(a.attr('class')).toMatch(/active also-active/);
+  }));
+
+  describe('ng-{class,style} interface', function() {
+    it('should match on abstract states that are included by the current state', inject(function($rootScope, $compile, $state, $q) {
+      el = $compile('<div ui-sref-active="{active: \'admin.*\'}"><a ui-sref-active="active" ui-sref="admin.roles">Roles</a></div>')($rootScope);
+      $state.transitionTo('admin.roles');
+      $q.flush();
+      timeoutFlush();
+      var abstractParent = el[0];
+      expect(abstractParent.className).toMatch(/active/);
+      var child = el[0].querySelector('a');
+      expect(child.className).toMatch(/active/);
+    }));
+
+    it('should match on state parameters', inject(function($compile, $rootScope, $state, $q) {
+      el = $compile('<div ui-sref-active="{active: \'admin.roles({page: 1})\'}"></div>')($rootScope);
+      $state.transitionTo('admin.roles', {page: 1});
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).toMatch(/active/);
+    }));
+
+    it('should shadow the state provided by ui-sref', inject(function($compile, $rootScope, $state, $q) {
+      el = $compile('<div ui-sref-active="{active: \'admin.roles({page: 1})\'}"><a ui-sref="admin.roles"></a></div>')($rootScope);
+      $state.transitionTo('admin.roles');
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).not.toMatch(/active/);
+      $state.transitionTo('admin.roles', {page: 1});
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).toMatch(/active/);
+    }));
+
+    it('should support multiple <className, stateOrName> pairs', inject(function($compile, $rootScope, $state, $q) {
+      el = $compile('<div ui-sref-active="{contacts: \'contacts.*\', admin: \'admin.roles({page: 1})\'}"></div>')($rootScope);
+      $state.transitionTo('contacts');
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).toMatch(/contacts/);
+      expect(el[0].className).not.toMatch(/admin/);
+      $state.transitionTo('admin.roles', {page: 1});
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).toMatch(/admin/);
+      expect(el[0].className).not.toMatch(/contacts/);
+    }));
+
+    it('should update the active classes when compiled', inject(function($compile, $rootScope, $document, $state, $q) {
+      $state.transitionTo('admin.roles');
+      $q.flush();
+      timeoutFlush();
+      el = $compile('<div ui-sref-active="{active: \'admin.roles\'}"/>')($rootScope);
+      $rootScope.$digest();
+      timeoutFlush();
+      expect(el.hasClass('active')).toBeTruthy();
+    }));
+  });
 });
 
 describe('uiView controllers or onEnter handlers', function() {

@@ -54,7 +54,7 @@ angular.module('uiRouterSample', [
 
         .state("home", {
 
-          // Use a url of "/" to set a states as the "index".
+          // Use a url of "/" to set a state as the "index".
           url: "/",
 
           // Example of an inline template string. By default, templates
@@ -83,7 +83,7 @@ angular.module('uiRouterSample', [
               return $timeout(function () {
                 return '<p class="lead">UI-Router Resources</p><ul>' +
                          '<li><a href="https://github.com/angular-ui/ui-router/tree/master/sample">Source for this Sample</a></li>' +
-                         '<li><a href="https://github.com/angular-ui/ui-router">Github Main Page</a></li>' +
+                         '<li><a href="https://github.com/angular-ui/ui-router">GitHub Main Page</a></li>' +
                          '<li><a href="https://github.com/angular-ui/ui-router#quick-start">Quick Start</a></li>' +
                          '<li><a href="https://github.com/angular-ui/ui-router/wiki">In-Depth Guide</a></li>' +
                          '<li><a href="https://github.com/angular-ui/ui-router/wiki/Quick-Reference">API Reference</a></li>' +

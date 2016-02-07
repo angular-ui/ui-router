@@ -1,11 +1,10 @@
 describe("UrlRouter", function () {
 
-  var $urp, $lp, $ur, location, match, scope;
-
+  var $urp, $lp, $s, $ur, location, match, scope;
   describe("provider", function () {
 
     beforeEach(function() {
-      angular.module('ui.router.router.test', function() {}).config(function ($urlRouterProvider) {
+      angular.module('ui.router.router.test', []).config(function ($urlRouterProvider) {
         $urlRouterProvider.deferIntercept();
         $urp = $urlRouterProvider;
       });
@@ -46,7 +45,7 @@ describe("UrlRouter", function () {
   describe("service", function() {
 
     beforeEach(function() {
-      angular.module('ui.router.router.test', function() {}).config(function ($urlRouterProvider, $locationProvider) {
+      angular.module('ui.router.router.test', []).config(function ($urlRouterProvider, $locationProvider) {
         $urp = $urlRouterProvider;
         $lp  = $locationProvider;
 
@@ -67,6 +66,8 @@ describe("UrlRouter", function () {
         scope = $rootScope.$new();
         location = $location;
         $ur = $injector.invoke($urp.$get);
+        $s = $injector.get('$sniffer');
+        $s.history = true;
       });
     });
 
@@ -235,6 +236,13 @@ describe("UrlRouter", function () {
         $lp.html5Mode(true);
         expect($lp.html5Mode()).toBe(true);
         expect($urlRouter.href(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('/hello/world#frag');
+      }));
+
+      it('should return URLs with #fragments when html5Mode is true & browser does not support pushState', inject(function($urlRouter) {
+        $lp.html5Mode(true);
+        $s.history = false;
+        expect($lp.html5Mode()).toBe(true);
+        expect($urlRouter.href(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('#/hello/world#frag');
       }));
     });
   });

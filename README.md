@@ -2,7 +2,7 @@
 
 #### The de-facto solution to flexible routing with nested views
 ---
-**[Download 0.2.15](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)** (or **[Minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)**) **|**
+**[Download 0.2.17](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)** (or **[Minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)**) **|**
 **[Guide](https://github.com/angular-ui/ui-router/wiki) |**
 **[API](http://angular-ui.github.io/ui-router/site) |**
 **[Sample](http://angular-ui.github.com/ui-router/sample/) ([Src](https://github.com/angular-ui/ui-router/tree/gh-pages/sample)) |**
@@ -12,6 +12,13 @@
 **[Contribute](https://github.com/angular-ui/ui-router/blob/master/CONTRIBUTING.md#contribute) |**
 **[Help!](http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router) |**
 **[Discuss](https://groups.google.com/forum/#!categories/angular-ui/router)**
+
+---
+
+*_Please help us out by testing the 1.0 alpha release!_* 
+
+[1.0.0alpha0 Announcement](https://github.com/angular-ui/ui-router/releases/tag/1.0.0alpha0) ([Source  Code](https://github.com/angular-ui/ui-router/tree/feature-1.0)) | [Sample App](http://ui-router.github.io/sample-app/) ([Source Code](https://github.com/ui-router/sample-app)) | [Known Issues](https://github.com/angular-ui/ui-router/issues?q=is%3Aissue+is%3Aopen+label%3A1.0)
+
 
 ---
 

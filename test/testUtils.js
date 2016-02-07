@@ -1,5 +1,11 @@
 // Promise testing support
-angular.module('ngMock').config(function ($provide) {
+angular.module('ngMock').config(function ($provide, $locationProvider) {
+  var oldFn = $locationProvider.html5Mode;
+  $locationProvider.html5Mode = function() {
+    var retval = oldFn.apply($locationProvider, arguments);
+    return (angular.isDefined(retval) && angular.isDefined(retval.enabled)) ? retval.enabled : retval;
+  };
+
   $provide.decorator('$q', function ($delegate, $rootScope) {
     $delegate.flush = function() {
       $rootScope.$digest();

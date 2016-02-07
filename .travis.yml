@@ -12,5 +12,7 @@ before_script:
 script:
   - grunt integrate
 
+sudo: false
+
 git:
   depth: 10

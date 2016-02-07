@@ -69,7 +69,7 @@ module.exports = function (grunt) {
     },
     karma: {
       options: {
-        configFile: 'config/karma.js',
+        configFile: 'config/karma-1.4.9.js',
         singleRun: true,
         exclude: [],
         frameworks: ['jasmine'],
@@ -88,21 +88,17 @@ module.exports = function (grunt) {
         background: false,
         browsers: [ grunt.option('browser') || 'Chrome' ]
       },
-      past: {
-        configFile: 'config/karma-1.0.8.js'
-      },
-      unstable: {
-        configFile: 'config/karma-1.1.5.js'
-      },
-      future: {
-        configFile: 'config/karma-1.3.0.js'
-      },
+      ng108: { configFile: 'config/karma-1.0.8.js' },
+      ng115: { configFile: 'config/karma-1.1.5.js' },
+      ng1214: { configFile: 'config/karma-1.2.14.js' },
+      ng130: { configFile: 'config/karma-1.3.0.js' },
+      ng149: { configFile: 'config/karma-1.4.9.js' },
+      ng150: { configFile: 'config/karma-1.5.0.js' },
       background: {
           background: true,
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
       },
       watch: {
-        configFile: 'config/karma.js',
         singleRun: false,
         autoWatch: true,
         autoWatchInterval: 1
@@ -129,7 +125,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('integrate', ['build', 'jshint', 'karma:unit', 'karma:past', 'karma:unstable']);
+  grunt.registerTask('integrate', ['build', 'jshint', 'karma:ng108', 'karma:ng115', 'karma:ng1214', 'karma:ng130', 'karma:ng149', 'karma:ng150']);
   grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
   grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
   grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
@@ -183,14 +179,14 @@ module.exports = function (grunt) {
     var bower = grunt.file.readJSON('bower.json'),
         component = grunt.file.readJSON('component.json'),
         version = bower.version;
-    if (version != grunt.config('pkg.version')) throw 'Version mismatch in bower.json';
-    if (version != component.version) throw 'Version mismatch in component.json';
+    if (version != grunt.config('pkg.version')) throw new Error('Version mismatch in bower.json');
+    if (version != component.version) throw new Error('Version mismatch in component.json');
 
     promising(this,
       ensureCleanMaster().then(function () {
         return exec('git tag -l \'' + version + '\'');
       }).then(function (result) {
-        if (result.stdout.trim() !== '') throw 'Tag \'' + version + '\' already exists';
+        if (result.stdout.trim() !== '') throw new Error('Tag \'' + version + '\' already exists');
         grunt.config('buildtag', '');
         grunt.config('builddir', 'release');
       })
@@ -220,7 +216,7 @@ module.exports = function (grunt) {
       grunt.log.write(result.stderr + result.stdout);
     }, function (error) {
       grunt.log.write(error.stderr + '\n');
-      throw 'Failed to run \'' + cmd + '\'';
+      throw new Error('Failed to run \'' + cmd + '\'');
     });
   }
 
@@ -236,10 +232,10 @@ module.exports = function (grunt) {
 
   function ensureCleanMaster() {
     return exec('git symbolic-ref HEAD').then(function (result) {
-      if (result.stdout.trim() !== 'refs/heads/master') throw 'Not on master branch, aborting';
+      if (result.stdout.trim() !== 'refs/heads/master') throw new Error('Not on master branch, aborting');
       return exec('git status --porcelain');
     }).then(function (result) {
-      if (result.stdout.trim() !== '') throw 'Working copy is dirty, aborting';
+      if (result.stdout.trim() !== '') throw new Error('Working copy is dirty, aborting');
     });
   }
 };
