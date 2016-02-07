@@ -10,3 +10,6 @@ bower_components
 
 # webstorm files
 .idea
+*.iml
+*.ipr
+*.iws

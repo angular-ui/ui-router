@@ -1,7 +1,7 @@
 {
   "name": "angular-ui-router",
   "description": "State-based routing for AngularJS",
-  "version": "0.2.17",
+  "version": "0.2.18",
   "homepage": "http://angular-ui.github.com/",
   "contributors": [
     {
@@ -36,13 +36,16 @@
   "bugs": {
     "url": "https://github.com/angular-ui/ui-router/issues"
   },
+  "license": "MIT",
   "licenses": [
     {
       "type": "MIT",
       "url": "https://github.com/angular-ui/ui-router/blob/master/LICENSE"
     }
   ],
-  "dependencies": {},
+  "dependencies": {
+    "angular": "^1.0.8"
+  },
   "devDependencies": {
     "faithful-exec": "~0.1.0",
     "grunt": "~0.4.1",
