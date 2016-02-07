@@ -88,21 +88,12 @@ module.exports = function (grunt) {
         background: false,
         browsers: [ grunt.option('browser') || 'Chrome' ]
       },
-      ng108: {
-        configFile: 'config/karma-1.0.8.js'
-      },
-      ng115: {
-        configFile: 'config/karma-1.1.5.js'
-      },
-      ng1214: {
-        configFile: 'config/karma-1.2.14.js'
-      },
-      ng130: {
-        configFile: 'config/karma-1.3.0.js'
-      },
-      ng149: {
-        configFile: 'config/karma-1.4.9.js'
-      },
+      ng108: { configFile: 'config/karma-1.0.8.js' },
+      ng115: { configFile: 'config/karma-1.1.5.js' },
+      ng1214: { configFile: 'config/karma-1.2.14.js' },
+      ng130: { configFile: 'config/karma-1.3.0.js' },
+      ng149: { configFile: 'config/karma-1.4.9.js' },
+      ng150: { configFile: 'config/karma-1.5.0.js' },
       background: {
           background: true,
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
@@ -134,7 +125,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('integrate', ['build', 'jshint', 'karma:ng149', 'karma:ng108', 'karma:ng115', 'karma:ng1214', 'karma:ng130']);
+  grunt.registerTask('integrate', ['build', 'jshint', 'karma:ng108', 'karma:ng115', 'karma:ng1214', 'karma:ng130', 'karma:ng149', 'karma:ng150']);
   grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
   grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
   grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);

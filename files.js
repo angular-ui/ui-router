@@ -13,7 +13,8 @@ routerFiles = {
     'src/stateFilters.js'
   ],
   testUtils: [
-    'test/testUtils.js'
+    'test/testUtils.js',
+    'node_modules/phantomjs-polyfill/bind-polyfill.js'
   ],
   test: [
     'test/*Spec.js',
