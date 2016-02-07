@@ -75,7 +75,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
     // Derive parameters for this state and ensure they're a super-set of parent's parameters
     params: function(state) {
-      return state.parent && state.parent.params ? extend(state.parent.params.$$new(), state.ownParams) : new $$UMFP.ParamSet();
+      var ownParams = pick(state.ownParams, state.ownParams.$$keys());
+      return state.parent && state.parent.params ? extend(state.parent.params.$$new(), ownParams) : new $$UMFP.ParamSet();
     },
 
     // If there is no explicit multi-view configuration, make one up so we don't have

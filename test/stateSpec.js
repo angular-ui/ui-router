@@ -1123,6 +1123,21 @@ describe('state', function () {
       expect($state.params).toEqual({ param: "100", param2: "200", param3: "300", param4: "400" });
       expect(count).toEqual(2);
     }));
+
+    // test for #2025
+    it("should be applied on transitions to children, even if the params state has no url", inject(function($state, $q) {
+      var count = 0;
+      stateProvider.state('nourl', { params: { x: null } });
+      stateProvider.state('nourl.child', { url: "/child" });
+      $state.go("nourl", { x: "FOO" }); $q.flush();
+
+      expect($state.current.name).toBe("nourl");
+      expect($state.params).toEqualData({ x: "FOO" });
+
+      $state.go("nourl.child", { x: "FOO" }); $q.flush();
+      expect($state.current.name).toBe("nourl.child");
+      expect($state.params).toEqualData({ x: "FOO" });
+    }));
   });
 
   // TODO: Enforce by default in next major release (1.0.0)
