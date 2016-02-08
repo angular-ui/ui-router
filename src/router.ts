@@ -2,6 +2,7 @@ import {UrlMatcherFactory} from "./url/urlMatcherFactory";
 import {UrlRouterProvider} from "./url/urlRouter";
 import {StateProvider} from "./state/state";
 import {stateParamsFactory} from "./params/stateParams";
+import {StateParams} from "./params/stateParams";
 import {UrlRouter} from "./url/urlRouter";
 import {TransitionService} from "./transition/transitionService";
 import {TemplateFactory} from "./view/templateFactory";
@@ -18,7 +19,7 @@ import {StateService} from "./state/stateService";
  * your app states with the [[stateRegistry]] (and set url options using ...).  Then, tell UI-Router to monitor
  * the URL by calling `urlRouter.listen()` ([[URLRouter.listen]])
  */
-class Router {
+class UIRouter {
 
   stateParams = stateParamsFactory();
 
@@ -46,4 +47,4 @@ class Router {
   }
 }
 
-export { Router };
+export { UIRouter };

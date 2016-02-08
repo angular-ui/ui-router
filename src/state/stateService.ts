@@ -2,7 +2,6 @@ import {extend, defaults } from "../common/common";
 import {isDefined, isObject, isString} from "../common/predicates";
 import {Queue} from "../common/queue";
 import {services} from "../common/coreservices";
-import {IPromise} from "angular";
 
 import {PathFactory} from "../path/pathFactory";
 import {Node} from "../path/node";
@@ -145,7 +144,7 @@ export class StateService {
    * @returns {promise} A promise representing the state of the new transition. See
    * {@link ui.router.state.$state#methods_go $state.go}.
    */
-  reload(reloadState: StateOrName): IPromise<State> {
+  reload(reloadState: StateOrName): Promise<State> {
     return this.transitionTo(this.current, this.$stateParams, {
       reload: isDefined(reloadState) ? reloadState : true,
       inherit: false,
@@ -219,7 +218,7 @@ export class StateService {
    * - *resolve error* - when an error has occurred with a `resolve`
    *
    */
-  go(to: StateOrName, params: RawParams, options: TransitionOptions): IPromise<State> {
+  go(to: StateOrName, params: RawParams, options: TransitionOptions): Promise<State> {
     let defautGoOpts = { relative: this.$current, inherit: true };
     let transOpts = defaults(options, defautGoOpts, defaultTransOpts);
     return this.transitionTo(to, params, transOpts);
@@ -269,7 +268,7 @@ export class StateService {
    * @returns {promise} A promise representing the state of the new transition. See
    * {@link ui.router.state.$state#methods_go $state.go}.
    */
-  transitionTo(to: StateOrName, toParams: RawParams = {}, options: TransitionOptions = {}): IPromise<State> {
+  transitionTo(to: StateOrName, toParams: RawParams = {}, options: TransitionOptions = {}): Promise<State> {
     let {transQueue, treeChangesQueue} = this;
     options = defaults(options, defaultTransOpts);
     options = extend(options, { current: transQueue.peekTail.bind(transQueue)});

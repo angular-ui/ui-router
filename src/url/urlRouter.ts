@@ -1,5 +1,4 @@
 /** @module url */ /** for typedoc */
-/// <reference path='../../typings/angularjs/angular.d.ts' />
 import {extend, bindFunctions} from "../common/common";
 import {isFunction, isString, isDefined, isArray} from "../common/predicates";
 import {UrlMatcher} from "./module";

@@ -43,11 +43,11 @@ function stringify(o) {
   return JSON.stringify(o, (key, val) => format(val)).replace(/\\"/g, '"');
 }
 
-enum Category {
+export enum Category {
   RESOLVE, TRANSITION, HOOK, INVOKE, UIVIEW, VIEWCONFIG
 }
 
-class Trace {
+export class Trace {
   approximateDigests: number;
 
   constructor() {

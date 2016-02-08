@@ -1,5 +1,4 @@
 /** @module state */ /** for typedoc */
-import {IPromise} from "angular";
 import {find, noop} from "../../common/common";
 import {propEq} from "../../common/hof";
 import {services} from "../../common/coreservices";
@@ -15,7 +14,7 @@ export class ViewHooks {
   private enteringViews: ViewConfig[];
   private exitingViews: ViewConfig[];
   private transition: Transition;
-  private $view; // service
+  private $view: ViewService; // service
 
   constructor(transition: Transition, $view: ViewService) {
     this.transition = transition;
@@ -29,7 +28,7 @@ export class ViewHooks {
   loadAllEnteringViews() {
     const loadView = (vc: ViewConfig) => {
       let resolveInjector = find(this.treeChanges.to, propEq('state', vc.context)).resolveInjector;
-      return <IPromise<ViewConfig>> this.$view.load(vc, resolveInjector);
+      return <Promise<ViewConfig>> this.$view.load(vc, resolveInjector);
     };
     return services.$q.all(this.enteringViews.map(loadView)).then(noop);
   }

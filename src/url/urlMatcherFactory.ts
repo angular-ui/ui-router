@@ -1,5 +1,4 @@
 /** @module url */ /** for typedoc */
-/// <reference path='../../typings/angularjs/angular.d.ts' />
 import {forEach, extend} from "../common/common";
 import {isObject, isDefined, isFunction} from "../common/predicates";
 

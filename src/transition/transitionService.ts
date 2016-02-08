@@ -1,6 +1,4 @@
 /** @module transition */ /** for typedoc */
-/// <reference path='../../typings/angularjs/angular.d.ts' />
-
 import {IHookRegistry, ITransitionService, TransitionOptions, IHookRegistration} from "./interface";
 
 import {Transition} from "./transition";

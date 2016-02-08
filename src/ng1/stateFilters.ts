@@ -1,5 +1,4 @@
 /** @module state */ /** for typedoc */
-/// <reference path='../../typings/angularjs/angular.d.ts' />
 
 /**
  * @ngdoc filter

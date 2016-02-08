@@ -27,7 +27,7 @@ let services: CoreServices = {
 ["port", "protocol", "host", "baseHref", "html5Mode", "hashPrefix" ]
     .forEach(key => services.locationConfig[key] = notImplemented(key));
 
-interface CoreServices {
+export interface CoreServices {
   $q; // : IQService;
   $injector; // : IInjectorService;
   /** Services related to getting or setting the browser location (url) */
@@ -37,7 +37,7 @@ interface CoreServices {
   template: TemplateServices;
 }
 
-interface LocationServices {
+export interface LocationServices {
   replace(): void;
   url(newurl: string): string;
   url(): string;
@@ -47,7 +47,7 @@ interface LocationServices {
   onChange(callback: Function): Function;
 }
 
-interface LocationConfig {
+export interface LocationConfig {
   port(): number;
   protocol(): string;
   host(): string;
@@ -58,7 +58,7 @@ interface LocationConfig {
   hashPrefix(newprefix: string): string;
 }
 
-interface TemplateServices {
+export interface TemplateServices {
   get(url: string): string;
 }
 

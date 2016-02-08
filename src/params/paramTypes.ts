@@ -12,7 +12,7 @@ import {Type} from "./type";
 function valToString(val) { return val != null ? val.toString().replace(/~/g, "~~").replace(/\//g, "~2F") : val; }
 function valFromString(val) { return val != null ? val.toString().replace(/~2F/g, "/").replace(/~~/g, "~") : val; }
 
-class ParamTypes {
+export class ParamTypes {
   types: any;
   enqueue: boolean = true;
   typeQueue: any[] = [];

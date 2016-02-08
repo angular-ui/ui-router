@@ -9,9 +9,11 @@
  * @preferred
  */
 
-/** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {Router} from "../router";
+/// <reference path='../../typings/es6-shim/es6-shim.d.ts' />
+
+/** for typedoc */
+import {UIRouter} from "../router";
 import {services} from "../common/coreservices";
 import {map, bindFunctions, removeFrom, find, noop} from "../common/common";
 import {prop, propEq} from "../common/hof";
@@ -148,14 +150,14 @@ function runBlock($injector, $q) {
 
 app.run(runBlock);
 
-let router: Router = null;
+let router: UIRouter = null;
 
 ng1UIRouter.$inject = ['$locationProvider'];
 /** This angular 1 provider instantiates a Router and exposes its services via the angular injector */
 function ng1UIRouter($locationProvider) {
 
   // Create a new instance of the Router when the ng1UIRouterProvider is initialized
-  router = new Router();
+  router = new UIRouter();
 
   // Bind LocationConfig.hashPrefix to $locationProvider.hashPrefix
   bindFunctions($locationProvider, services.locationConfig, $locationProvider, ['hashPrefix']);

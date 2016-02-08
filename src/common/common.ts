@@ -3,17 +3,17 @@
 import {isFunction, isString, isArray, isRegExp, isDate} from "./predicates";
 import { all, pattern, any, not, prop, curry, val } from "./hof";
 
-let angular = (<any> window).angular;
-export const fromJson = angular && angular.fromJson || _fromJson;
-export const toJson = angular && angular.toJson || _toJson;
-export const copy = angular && angular.copy || _copy;
-export const forEach = angular && angular.forEach || _forEach;
-export const extend = angular && angular.extend || _extend;
-export const equals = angular && angular.equals || _equals;
+let angular = (<any> window).angular || {};
+export const fromJson = angular.fromJson || _fromJson;
+export const toJson = angular.toJson || _toJson;
+export const copy = angular.copy || _copy;
+export const forEach = angular.forEach || _forEach;
+export const extend = angular.extend || _extend;
+export const equals = angular.equals || _equals;
 export const identity = (x) => x;
 export const noop = () => undefined;
 
-type Mapper<X, T> = (x: X, key?: (string|number)) => T;
+export type Mapper<X, T> = (x: X, key?: (string|number)) => T;
 export interface TypedMap<T> { [key: string]: T; }
 export type Predicate<X> = (X) => boolean;
 export type IInjectable = (Function|any[]);
@@ -570,3 +570,9 @@ function _arraysEq(a1, a2) {
   if (a1.length !== a2.length) return false;
   return arrayTuples(a1, a2).reduce((b, t) => b && _equals(t[0], t[1]), true);
 }
+//
+//const _addToGroup = (result, keyFn) => (item) =>
+//  (result[keyFn(item)] = result[keyFn(item)] || []).push(item) && result;
+//const groupBy = (array, keyFn) => array.reduce((memo, item) => _addToGroup(memo, keyFn), {});
+//
+//

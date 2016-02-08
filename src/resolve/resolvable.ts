@@ -1,12 +1,10 @@
 /** @module path */ /** for typedoc */
-/// <reference path='../../typings/angularjs/angular.d.ts' />
 import {extend, pick, map, filter} from "../common/common";
 import {not} from "../common/hof";
 import {isInjectable} from "../common/predicates";
 
 import {services} from "../common/coreservices";
 import {trace} from "../common/trace";
-import {IPromise} from "angular";
 import {Resolvables, IOptions1} from "./interface";
 
 import {ResolveContext} from "./resolveContext";
@@ -32,7 +30,7 @@ export class Resolvable {
   resolveFn: Function;
   deps: string[];
 
-  promise: IPromise<any> = undefined;
+  promise: Promise<any> = undefined;
   data: any;
 
   // synchronous part:
@@ -80,7 +78,7 @@ export class Resolvable {
     });
   }
 
-  get(resolveContext: ResolveContext, options?: IOptions1): IPromise<any> {
+  get(resolveContext: ResolveContext, options?: IOptions1): Promise<any> {
     return this.promise || this.resolveResolvable(resolveContext, options);
   }
 

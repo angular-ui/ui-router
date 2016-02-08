@@ -1,8 +1,6 @@
 var ngMajorVer = angular.version.major;
 var ngMinorVer = angular.version.minor;
 /** @module view */ /** for typedoc */
-/// <reference path='../../typings/angularjs/angular.d.ts' />
-
 import {extend} from "../common/common";
 import {isDefined} from "../common/predicates";
 import {trace} from "../common/trace";

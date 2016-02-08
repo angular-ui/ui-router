@@ -8,4 +8,4 @@ import * as url from "./url/module";
 import * as view from "./view/module";
 
 export { common, params, path, resolve, state, transition, url, view };
-export {Router} from "./router";
+export {UIRouter} from "./router";

@@ -1,6 +1,4 @@
 /** @module transition */ /** for typedoc */
-/// <reference path='../../typings/angularjs/angular.d.ts' />
-import {IPromise} from "angular";
 import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 import {
@@ -36,7 +34,7 @@ export class Transition implements IHookRegistry {
   $id: number;
 
   private _deferred = services.$q.defer();
-  promise: IPromise<any> = this._deferred.promise;
+  promise: Promise<any> = this._deferred.promise;
 
   private _options: TransitionOptions;
   private _treeChanges: TreeChanges;
@@ -337,7 +335,7 @@ export class Transition implements IHookRegistry {
    *
    * @returns a promise for a successful transition.
    */
-  run (): IPromise<any> {
+  run (): Promise<any> {
     let hookBuilder = this.hookBuilder();
     let runSynchronousHooks = TransitionHook.runSynchronousHooks;
     // TODO: nuke these in favor of chaining off the promise, i.e.,

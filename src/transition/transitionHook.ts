@@ -1,5 +1,4 @@
 /** @module transition */ /** for typedoc */
-import {IPromise} from "angular";
 import {TransitionHookOptions} from "./interface";
 import {IInjectable, defaults, extend, noop, fnToString, maxLength, Predicate} from "../common/common";
 import {isDefined, isPromise } from "../common/predicates";
@@ -87,7 +86,7 @@ export class TransitionHook {
    *
    * Returns a promise chain composed of any promises returned from each hook.invokeStep() call
    */
-  static runSynchronousHooks(hooks: TransitionHook[], locals = {}, swallowExceptions: boolean = false): IPromise<any> {
+  static runSynchronousHooks(hooks: TransitionHook[], locals = {}, swallowExceptions: boolean = false): Promise<any> {
     let results = [];
     for (let i = 0; i < hooks.length; i++) {
       try {

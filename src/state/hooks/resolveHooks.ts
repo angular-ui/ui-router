@@ -24,13 +24,13 @@ export class ResolveHooks {
     let treeChanges = this.transition.treeChanges();
 
     /** a function which resolves any EAGER Resolvables for a Path */
-    $eagerResolvePath.$inject = ['$transition$'];
+    (<any> $eagerResolvePath).$inject = ['$transition$'];
     function $eagerResolvePath($transition$) {
       return tail(<any[]> treeChanges.to).resolveContext.resolvePath(extend({ transition: $transition$ }, { resolvePolicy: EAGER }));
     }
 
     /** Returns a function which pre-resolves any LAZY Resolvables for a Node in a Path */
-    $lazyResolveEnteringState.$inject = ['$state$', '$transition$'];
+    (<any> $lazyResolveEnteringState).$inject = ['$state$', '$transition$'];
     function $lazyResolveEnteringState($state$, $transition$) {
       let node = find(<any[]> treeChanges.entering, propEq('state', $state$));
       return node.resolveContext.resolvePathElement(node.state, extend({transition: $transition$}, { resolvePolicy: LAZY }));

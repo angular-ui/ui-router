@@ -1,5 +1,4 @@
-import {Router} from "../src/ui-router";
-import {HookBuilder} from "../src/transition/hookBuilder";
+import {UIRouter} from "../src/ui-router";
 import {TransitionService} from "../src/transition/transitionService";
 import {tree2Array} from "./stateHelper.ts";
 import {StateService} from "../src/state/stateService";
@@ -11,7 +10,7 @@ import {tail} from "../src/common/common";
 import {PathFactory} from "../src/path/pathFactory";
 
 describe('HookBuilder:', function() {
-  let uiRouter: Router = null;
+  let uiRouter: UIRouter = null;
   let $trans: TransitionService = null;
   let $state: StateService = null;
   let root: State = null;
@@ -22,7 +21,7 @@ describe('HookBuilder:', function() {
 
   beforeEach(() => {
     log = "";
-    uiRouter = new Router();
+    uiRouter = new UIRouter();
     $trans = uiRouter.transitionService;
     $state = uiRouter.stateService;
     root = uiRouter.stateRegistry.root();

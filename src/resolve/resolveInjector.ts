@@ -4,6 +4,7 @@ import {map} from "../common/common";
 import {Resolvable} from "./resolvable";
 import {ResolveContext} from "./resolveContext";
 import {State} from "../state/module";
+import {TypedMap} from "../common/common";
 
 export class ResolveInjector {
   constructor(private _resolveContext: ResolveContext, private _state: State) { }

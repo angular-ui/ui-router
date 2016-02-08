@@ -18,8 +18,6 @@
  */
 
 /** for typedoc */
-/// <reference path='../../typings/angularjs/angular.d.ts' />
-
 import {IServiceProviderFactory} from "angular";
 import {StateService, StateProvider} from "../state/interface";
 import {TargetState} from "../state/module";

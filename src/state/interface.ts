@@ -1,6 +1,4 @@
 /** @module state */ /** for typedoc */
-import {IPromise} from "angular";
-
 import {TransitionOptions} from "../transition/interface";
 import {ParamDeclaration, RawParams, ParamsOrArray} from "../params/interface";
 
@@ -417,10 +415,10 @@ export interface StateService {
   current:      StateDeclaration;
   $current:     State;
   transition:   Transition;
-  reload        (stateOrName: StateOrName): IPromise<State>;
+  reload        (stateOrName: StateOrName): Promise<State>;
   target        (identifier: StateOrName, params: ParamsOrArray, options: TransitionOptions): TargetState;
-  go            (to: StateOrName, params: RawParams, options: TransitionOptions): IPromise<State>;
-  transitionTo  (to: StateOrName, toParams: ParamsOrArray, options: TransitionOptions): IPromise<State>;
+  go            (to: StateOrName, params: RawParams, options: TransitionOptions): Promise<State>;
+  transitionTo  (to: StateOrName, toParams: ParamsOrArray, options: TransitionOptions): Promise<State>;
   is            (stateOrName: StateOrName, params?: RawParams, options?: TransitionOptions): boolean;
   includes      (stateOrName: StateOrName, params?: RawParams, options?: TransitionOptions): boolean;
   href          (stateOrName: StateOrName, params?: RawParams, options?: HrefOptions): string;

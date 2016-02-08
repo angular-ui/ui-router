@@ -1,5 +1,4 @@
 /** @module state */ /** for typedoc */
-import {IPromise, IQService} from "angular";
 import {copy} from "../../common/common";
 import {prop} from "../../common/hof";
 import {Queue} from "../../common/queue";
@@ -45,7 +44,7 @@ export class TransitionManager {
       private $view, // service
       private $state: StateService,
       private $stateParams, // service/obj
-      private $q: IQService, // TODO: get from runtime.$q
+      private $q, // TODO: get from runtime.$q
       private activeTransQ: Queue<Transition>,
       private changeHistory: Queue<TreeChanges>
   ) {
@@ -61,7 +60,7 @@ export class TransitionManager {
     this.resolveHooks.registerHooks();
   }
 
-  runTransition(): IPromise<any> {
+  runTransition(): Promise<any> {
     this.activeTransQ.clear();  // TODO: nuke this
     this.activeTransQ.enqueue(this.transition);
     this.$state.transition = this.transition;
@@ -92,7 +91,7 @@ export class TransitionManager {
     this.updateStateParams();
   }
 
-  transRejected(error): (StateDeclaration|IPromise<any>) {
+  transRejected(error): (StateDeclaration|Promise<any>) {
     let {transition, $state, $stateParams, $q} = this;
     // Handle redirect and abort
     if (error instanceof TransitionRejection) {

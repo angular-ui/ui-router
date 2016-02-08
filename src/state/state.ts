@@ -3,6 +3,7 @@ import {isObject} from "../common/predicates";
 import {bindFunctions} from "../common/common";
 import {BuilderFunction} from "./module";
 import {StateRegistry} from "./stateRegistry";
+import {State} from "./stateObject";
 
 /**
  * @ngdoc object

@@ -214,7 +214,7 @@ export interface ParamDeclaration {
   dynamic: boolean;
 }
 
-interface Replace {
+export interface Replace {
   from: string;
   to: string;
 }

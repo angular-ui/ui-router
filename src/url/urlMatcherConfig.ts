@@ -1,7 +1,7 @@
 /** @module url */ /** for typedoc */
 import {isDefined, isString} from "../common/predicates";
 
-class MatcherConfig {
+export class MatcherConfig {
   _isCaseInsensitive: boolean = false;
   _isStrictMode: boolean = true;
   _defaultSquashPolicy: (boolean|string) = false;
@@ -21,4 +21,5 @@ class MatcherConfig {
   }
 }
 
+// TODO: Do not export global instance; create one in UIRouter() constructor
 export let matcherConfig = new MatcherConfig();

@@ -1,11 +1,9 @@
 /** @module path */ /** for typedoc */
-/// <reference path='../../typings/angularjs/angular.d.ts' />
 import {IInjectable, find, filter, map, tail, defaults, extend, pick, omit} from "../common/common";
 import {prop, propEq} from "../common/hof";
 import {isString, isObject} from "../common/predicates";
 import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
-import {IPromise} from "angular";
 import {Resolvables, ResolvePolicy, IOptions1} from "./interface";
 
 import {Node} from "../path/module";
@@ -17,7 +15,7 @@ import {mergeR} from "../common/common";
 let defaultResolvePolicy = ResolvePolicy[ResolvePolicy.LAZY];
 
 interface IPolicies { [key: string]: string; }
-interface IPromises { [key: string]: IPromise<any>; }
+interface Promises { [key: string]: Promise<any>; }
 
 export class ResolveContext {
 
@@ -93,7 +91,7 @@ export class ResolveContext {
   }
    
   // Returns a promise for an array of resolved path Element promises
-  resolvePath(options: IOptions1 = {}): IPromise<any> {
+  resolvePath(options: IOptions1 = {}): Promise<any> {
     trace.traceResolvePath(this._path, options);
     const promiseForNode = (node: Node) => this.resolvePathElement(node.state, options);
     return services.$q.all(<any> map(this._path, promiseForNode)).then(all => all.reduce(mergeR, {}));
@@ -103,7 +101,7 @@ export class ResolveContext {
   // options.resolvePolicy: only return promises for those Resolvables which are at 
   // the specified policy, or above.  i.e., options.resolvePolicy === 'lazy' will
   // resolve both 'lazy' and 'eager' resolves.
-  resolvePathElement(state: State, options: IOptions1 = {}): IPromise<any> {
+  resolvePathElement(state: State, options: IOptions1 = {}): Promise<any> {
     // The caller can request the path be resolved for a given policy and "below" 
     let policy: string = options && options.resolvePolicy;
     let policyOrdinal: number = ResolvePolicy[policy || defaultResolvePolicy];
@@ -114,7 +112,7 @@ export class ResolveContext {
     let matchingResolves = filter(resolvables, matchesRequestedPolicy);
 
     const getResolvePromise = (resolvable: Resolvable) => resolvable.get(this.isolateRootTo(state), options);
-    let resolvablePromises: IPromises = <any> map(matchingResolves, getResolvePromise);
+    let resolvablePromises: Promises = <any> map(matchingResolves, getResolvePromise);
 
     trace.traceResolvePathElement(this, matchingResolves, options);
 
@@ -135,11 +133,11 @@ export class ResolveContext {
    * @param locals: are the angular $injector-style locals to inject
    * @param options: options (TODO: document)
    */
-  invokeLater(fn: IInjectable, locals: any = {}, options: IOptions1 = {}): IPromise<any> {
+  invokeLater(fn: IInjectable, locals: any = {}, options: IOptions1 = {}): Promise<any> {
     let resolvables = this.getResolvablesForFn(fn);
     trace.tracePathElementInvoke(tail(this._path), fn, Object.keys(resolvables), extend({when: "Later"}, options));
     const getPromise = (resolvable: Resolvable) => resolvable.get(this, options);
-    let promises: IPromises = <any> map(resolvables, getPromise);
+    let promises: Promises = <any> map(resolvables, getPromise);
     
     return services.$q.all(promises).then(() => {
       try {
