@@ -1,15 +1,15 @@
 describe('uiStateRef', function() {
 
-  var timeoutFlush, el, el2, template, scope, document, _locationProvider;
+  var timeoutFlush, el, el2, el3, template, scope, document, _locationProvider;
 
   beforeEach(module('ui.router'));
 
   beforeEach(module(function($stateProvider, $locationProvider) {
     _locationProvider = $locationProvider;
     $stateProvider.state('top', {
-      url: ''
+      url: '?param'
     }).state('contacts', {
-      url: '/contacts',
+      url: '/contacts?param',
       template: '<a ui-sref=".item({ id: 5 })" class="item">Person</a> <ui-view></ui-view>'
     }).state('contacts.item', {
       url: '/{id:int}',
@@ -79,12 +79,14 @@ describe('uiStateRef', function() {
   function buildDOM($rootScope, $compile, $timeout) {
     el = angular.element('<a ui-sref="contacts.item.detail({ id: contact.id })">Details</a>');
     el2 = angular.element('<a ui-sref="top">Top</a>');
+    el3 = angular.element('<a ui-sref=".({param: 1})">Param 1</a>');
     scope = $rootScope;
     scope.contact = { id: 5 };
     scope.$apply();
 
     $compile(el)(scope);
     $compile(el2)(scope);
+    $compile(el3)(scope);
     scope.$digest();
 
     timeoutFlush = function () {
@@ -103,6 +105,7 @@ describe('uiStateRef', function() {
     it('should generate the correct href', function() {
       expect(el.attr('href')).toBe('#/contacts/5');
       expect(el2.attr('href')).toBe('#');
+      expect(el3.attr('href')).toBe('#?param=1');
     });
 
     it('should update the href when parameters change', function() {
@@ -288,6 +291,16 @@ describe('uiStateRef', function() {
 
       expect($state.current.name).toEqual('top');
       expect($stateParams).toEqualData({});
+    }));
+
+    it('should not transition state and change state params on "." pesudostate click', inject(function($state, $stateParams, $q){
+        triggerClick(el);
+        timeoutFlush();
+        triggerClick(el3);
+        timeoutFlush();
+        $q.flush();
+        expect($state.current.name).toEqual('contacts.item.detail');
+        expect($stateParams).toEqualData({param: '1', id: 5});
     }));
   });
 
