@@ -1,3 +1,6 @@
+/// <reference path='../typings/angularjs/angular.d.ts' />
+/// <reference path='../typings/jasmine/jasmine.d.ts' />
+
 // Promise testing support
 angular.module('ngMock').config(function ($provide, $locationProvider) {
   var oldFn = $locationProvider.html5Mode;
@@ -45,7 +48,7 @@ angular.module('ngMock').config(function ($provide, $locationProvider) {
       var deferred = qDefer();
       expose(deferred.promise);
       return deferred;
-    }
+    };
 
     return $delegate;
   });
@@ -67,7 +70,7 @@ try {
 
 function testablePromise(promise) {
   if (!promise || !promise.then) throw new Error('Expected a promise, but got ' + jasmine.pp(promise) + '.');
-  if (!isDefined(promise.$$resolved)) throw new Error('Promise has not been augmented by ngMock');
+  if (!angular.isDefined(promise.$$resolved)) throw new Error('Promise has not been augmented by ngMock');
   return promise;
 }
 
@@ -85,17 +88,9 @@ function resolvedValue(promise) {
 
 function resolvedError(promise) {
   var result = resolvedPromise(promise);
-  if (result.success) throw new Error('Promise was expected to fail but returned ' + jasmin.pp(res.value) + '.');
+  if (result.success) throw new Error('Promise was expected to fail but returned ' + jasmine.pp(result.value) + '.');
   return result.error;
 }
-
-beforeEach(function () {
-  this.addMatchers({
-    toBeResolved: function() {
-      return !!testablePromise(this.actual).$$resolved;
-    }
-  });
-});
 
 // Misc test utils
 function caught(fn) {
@@ -107,7 +102,22 @@ function caught(fn) {
   }
 }
 
+// Usage of this helper should be replaced with a custom matcher in jasmine 2.0+
+function obj(object) {
+  var o = {};
+  angular.forEach(object, function (val, key) {
+    if (!/^\$/.test(key) && key != "#")
+      o[key] = val;
+  });
+  return o;
+}
+
+function html5Compat(html5mode) {
+  return (angular.isObject(html5mode) && html5mode.hasOwnProperty("enabled") ? html5mode.enabled : html5mode);
+}
+
+
 // Utils for test from core angular
 var noop = angular.noop,
     toJson = angular.toJson;
-beforeEach(module('ui.router.compat'));
+beforeEach(angular.mock.module('ui.router.compat'));

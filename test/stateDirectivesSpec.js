@@ -1,3 +1,6 @@
+var module = angular.mock.module;
+var uiRouter = require("angular-ui-router");
+
 describe('uiStateRef', function() {
 
   var timeoutFlush, el, el2, template, scope, document, _locationProvider;
@@ -130,7 +133,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect($stateParams).toEqual({ id: 5 });
+      expect(obj($stateParams)).toEqualData({ id: 5 });
     }));
 
     it('should transition when given a click that contains no data (fake-click)', inject(function($state, $stateParams, $q) {
@@ -141,57 +144,62 @@ describe('uiStateRef', function() {
         ctrlKey:  undefined,
         shiftKey: undefined,
         altKey:   undefined,
-        button:   undefined 
+        button:   undefined
       });
       timeoutFlush();
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect($stateParams).toEqual({ id: 5 });
+      expect(obj($stateParams)).toEqualData({ id: 5 });
     }));
 
     it('should not transition states when ctrl-clicked', inject(function($state, $stateParams, $q) {
       expect($state.$current.name).toEqual('top');
+      expect(obj($stateParams)).toEqualData({});
+
       triggerClick(el, { ctrlKey: true });
 
       timeoutFlush();
       $q.flush();
-      
+
       expect($state.current.name).toEqual('top');
-      expect($stateParams).toEqualData({ });
+      expect(obj($stateParams)).toEqualData({ });
     }));
 
     it('should not transition states when meta-clicked', inject(function($state, $stateParams, $q) {
       expect($state.$current.name).toEqual('top');
+      expect(obj($stateParams)).toEqualData({});
 
       triggerClick(el, { metaKey: true });
       timeoutFlush();
       $q.flush();
 
       expect($state.current.name).toEqual('top');
-      expect($stateParams).toEqualData({});
+      expect(obj($stateParams)).toEqualData({});
     }));
 
     it('should not transition states when shift-clicked', inject(function($state, $stateParams, $q) {
       expect($state.$current.name).toEqual('top');
+      expect(obj($stateParams)).toEqualData({});
 
       triggerClick(el, { shiftKey: true });
       timeoutFlush();
       $q.flush();
 
       expect($state.current.name).toEqual('top');
-      expect($stateParams).toEqualData({});
+      expect(obj($stateParams)).toEqualData({});
     }));
 
     it('should not transition states when middle-clicked', inject(function($state, $stateParams, $q) {
       expect($state.$current.name).toEqual('top');
+      expect(obj($stateParams)).toEqualData({});
 
       triggerClick(el, { button: 1 });
       timeoutFlush();
       $q.flush();
 
       expect($state.current.name).toEqual('top');
-      expect($stateParams).toEqualData({});
+      expect(obj($stateParams)).toEqualData({});
     }));
 
     it('should not transition states when element has target specified', inject(function($state, $stateParams, $q) {
@@ -203,11 +211,13 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('top');
-      expect($stateParams).toEqualData({});
+      expect(obj($stateParams)).toEqualData({});
     }));
 
     it('should not transition states if preventDefault() is called in click handler', inject(function($state, $stateParams, $q) {
       expect($state.$current.name).toEqual('top');
+      expect(obj($stateParams)).toEqualData({});
+
       el.bind('click', function(e) {
         e.preventDefault();
       });
@@ -217,12 +227,12 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('top');
-      expect($stateParams).toEqualData({});
+      expect(obj($stateParams)).toEqualData({});
     }));
 
     it('should allow passing params to current state', inject(function($compile, $rootScope, $state) {
       $state.current.name = 'contacts.item.detail';
-      
+
       el = angular.element("<a ui-sref=\"{id: $index}\">Details</a>");
       $rootScope.$index = 3;
       $rootScope.$apply();
@@ -231,10 +241,10 @@ describe('uiStateRef', function() {
       $rootScope.$digest();
       expect(el.attr('href')).toBe('#/contacts/3');
     }));
-    
+
     it('should allow multi-line attribute values when passing params to current state', inject(function($compile, $rootScope, $state) {
       $state.current.name = 'contacts.item.detail';
-      
+
       el = angular.element("<a ui-sref=\"{\n\tid: $index\n}\">Details</a>");
       $rootScope.$index = 3;
       $rootScope.$apply();
@@ -287,7 +297,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.current.name).toEqual('top');
-      expect($stateParams).toEqualData({});
+      expect(obj($stateParams)).toEqualData({});
     }));
   });
 
@@ -344,7 +354,72 @@ describe('uiStateRef', function() {
       template = $compile(el)(scope);
       scope.$digest();
 
-      spyOn($state, 'go').andCallFake(function(state, params, options) {
+      spyOn($state, 'go').and.callFake(function(state, params, options) {
+        transitionOptions = options;
+      });
+
+      triggerClick(template)
+      $timeout.flush();
+
+      expect(transitionOptions.reload).toEqual(true);
+      expect(transitionOptions.absolute).toBeUndefined();
+    }));
+  });
+
+  describe('links with dynamic state definitions', function () {
+    var template;
+
+    beforeEach(inject(function($rootScope, $compile, $state) {
+      el = angular.element('<a ui-state="state" ui-state-params="params">state</a>');
+      scope = $rootScope;
+      angular.extend(scope, { state: 'contacts', params: {} });
+      template = $compile(el)(scope);
+      scope.$digest();
+    }));
+
+    it('sets the correct initial href', function () {
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+    });
+
+    it('updates to the new href', function () {
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+
+      scope.state = 'contacts.item';
+      scope.params = { id: 5 };
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/5');
+
+      scope.params.id = 25;
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/25');
+    });
+
+    it('retains the old href if the new points to a non-state', function () {
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+      scope.state = 'nostate';
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+    });
+
+    it('accepts param overrides', inject(function ($compile) {
+      el = angular.element('<a ui-state="state" ui-state-params="params">state</a>');
+      scope.state  = 'contacts.item';
+      scope.params = { id: 10 };
+      template = $compile(el)(scope);
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/10');
+    }));
+
+    it('accepts option overrides', inject(function ($compile, $timeout, $state) {
+      var transitionOptions;
+
+      el = angular.element('<a ui-state="state" ui-state-opts="opts">state</a>');
+      scope.state  = 'contacts';
+      scope.opts = { reload: true };
+      template = $compile(el)(scope);
+      scope.$digest();
+
+      spyOn($state, 'go').and.callFake(function(state, params, options) {
         transitionOptions = options;
       });
 
@@ -393,7 +468,7 @@ describe('uiStateRef', function() {
       $q.flush();
 
       expect($state.$current.name).toBe("contacts.item.detail");
-      expect($state.params).toEqual({ id: 5 });
+      expect(obj($state.params)).toEqualData({ id: 5 });
     }));
 
     it('should resolve states from parent uiView', inject(function ($state, $stateParams, $q, $timeout) {
@@ -404,6 +479,7 @@ describe('uiStateRef', function() {
       triggerClick(parentToChild);
       $timeout.flush();
       $q.flush();
+      expect($state.$current.name).toBe("contacts.item")
 
       var childToGrandchild = angular.element(template[0].querySelector('a.item-detail'));
       var childToParent = angular.element(template[0].querySelector('a.item-parent'));
@@ -441,12 +517,12 @@ describe('uiSrefActive', function() {
     }).state('contacts', {
       url: '/contacts',
       views: {
-        '@': {
+        '$default': {
           template: '<a ui-sref=".item({ id: 6 })" ui-sref-active="active">Contacts</a>'
         }
       }
     }).state('contacts.item', {
-      url: '/:id',
+      url: '/:id'
     }).state('contacts.item.detail', {
       url: '/detail/:foo'
     }).state('contacts.item.edit', {
@@ -514,11 +590,13 @@ describe('uiSrefActive', function() {
     $state.transitionTo('contacts.item.edit', { id: 1 });
     $q.flush();
     timeoutFlush();
+    expect($state.params.id).toBe('1');
     expect(a.attr('class')).toMatch(/active/);
 
     $state.transitionTo('contacts.item.edit', { id: 4 });
     $q.flush();
     timeoutFlush();
+    expect($state.params.id).toBe('4');
     expect(a.attr('class')).not.toMatch(/active/);
   }));
 
@@ -598,10 +676,13 @@ describe('uiSrefActive', function() {
   it('should match fuzzy on lazy loaded states', inject(function($rootScope, $q, $compile, $state) {
     el = angular.element('<div><a ui-sref="contacts.lazy" ui-sref-active="active">Lazy Contact</a></div>');
     template = $compile(el)($rootScope);
-    $rootScope.$digest();
+    $q.flush();
 
-    $rootScope.$on('$stateNotFound', function () {
-      _stateProvider.state('contacts.lazy', {});
+    _stateProvider.onInvalid(function ($to$) {
+      if ($to$.name() === 'contacts.lazy') {
+        _stateProvider.state('contacts.lazy', {});
+        return $to$;
+      }
     });
 
     $state.transitionTo('contacts.item', { id: 1 });
@@ -615,13 +696,16 @@ describe('uiSrefActive', function() {
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
   }));
 
-  it('should match exactly on lazy loaded states', inject(function($rootScope, $q, $compile, $state) {
+  it('should match exactly on lazy loaded states', inject(function($transitions, $rootScope, $q, $compile, $state) {
     el = angular.element('<div><a ui-sref="contacts.lazy" ui-sref-active-eq="active">Lazy Contact</a></div>');
     template = $compile(el)($rootScope);
-    $rootScope.$digest();
+    $q.flush();
 
-    $rootScope.$on('$stateNotFound', function () {
-      _stateProvider.state('contacts.lazy', {});
+    _stateProvider.onInvalid(function ($to$) {
+      if ($to$.name() === 'contacts.lazy') {
+        _stateProvider.state('contacts.lazy', {});
+        return $to$;
+      }
     });
 
     $state.transitionTo('contacts.item', { id: 1 });
@@ -702,51 +786,4 @@ describe('uiSrefActive', function() {
       expect(el.hasClass('active')).toBeTruthy();
     }));
   });
-});
-
-describe('uiView controllers or onEnter handlers', function() {
-  var el, template, scope, document, count;
-
-  beforeEach(module('ui.router'));
-
-  beforeEach(module(function($stateProvider) {
-    count = 0;
-    $stateProvider
-      .state('aside',         { url: '/aside', template: '<div class="aside"></div>' })
-      .state('A',           { url: '/A', template: '<div class="A" ui-view="fwd"></div>' })
-      .state('A.fwd', {
-        url: '/fwd', views: { 'fwd@A': {
-          template: '<div class="fwd" ui-view>',
-          controller: function($state) { if (count++ < 20 && $state.current.name == 'A.fwd') $state.go(".nest"); }
-        }}
-      })
-      .state('A.fwd.nest',  { url: '/nest', template: '<div class="nest"></div>' });
-  }));
-
-  beforeEach(inject(function($document) {
-    document = $document[0];
-  }));
-
-  it('should not go into an infinite loop when controller uses $state.go', inject(function($rootScope, $q, $compile, $state) {
-    el = angular.element('<div><ui-view></ui-view></div>');
-    template = $compile(el)($rootScope);
-    $rootScope.$digest();
-
-    $state.transitionTo('aside');
-    $q.flush();
-    expect(template[0].querySelector('.aside')).toBeDefined();
-    expect(template[0].querySelector('.fwd')).toBeNull();
-
-    $state.transitionTo('A');
-    $q.flush();
-    expect(template[0].querySelector('.A')).not.toBeNull();
-    expect(template[0].querySelector('.fwd')).toBeNull();
-
-    $state.transitionTo('A.fwd');
-    $q.flush();
-    expect(template[0].querySelector('.A')).not.toBeNull();
-    expect(template[0].querySelector('.fwd')).not.toBeNull();
-    expect(template[0].querySelector('.nest')).not.toBeNull();
-    expect(count).toBe(1);
-  }));
 });

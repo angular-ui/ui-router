@@ -1,5 +1,10 @@
-/*jshint browser: true, indent: 2 */
-/*global describe: false, it: false, beforeEach: false, expect: false, resolvedValue: false, module: false, inject: false, angular: false */
+var module = angular.mock.module;
+var uiRouter = require("angular-ui-router");
+
+function animateFlush($animate) {
+  $animate && $animate.triggerCallbacks && $animate.triggerCallbacks(); // 1.2-1.3
+  $animate && $animate.flush && $animate.flush(); // 1.4
+}
 
 function animateFlush($animate) {
   $animate && $animate.triggerCallbacks && $animate.triggerCallbacks(); // 1.2-1.3
@@ -12,7 +17,7 @@ describe('uiView', function () {
   var log, scope, $compile, elem;
 
   beforeEach(function() {
-    var depends = ['ui.router'];
+    var depends = ['ui.router', 'ui.router.state.events'];
 
     try {
       angular.module('ngAnimate');
@@ -26,7 +31,8 @@ describe('uiView', function () {
     module('ui.router.test');
   });
 
-  beforeEach(module(function ($provide) {
+  beforeEach(module(function ($provide, $stateEventsProvider) {
+    $stateEventsProvider.enable();
     $provide.decorator('$uiViewScroll', function () {
       return jasmine.createSpy('$uiViewScroll');
     });
@@ -91,6 +97,7 @@ describe('uiView', function () {
     controller: function() {
       this.someProperty = "value"
     },
+    template: "hi",
     controllerAs: "vm"
   },
   lState = {
@@ -104,6 +111,13 @@ describe('uiView', function () {
       view3: {
         template: 'view3'
       }
+    }
+  },
+
+  oState = {
+    template: 'oState',
+    controller: function ($scope, $element) {
+      $scope.elementId = $element.attr('id');
     }
   };
 
@@ -122,14 +136,17 @@ describe('uiView', function () {
       .state('k', kState)
       .state('l', lState)
       .state('m', {
+        template: 'mState',
         controller: function($scope) {
           log += 'ctrl(m);';
           $scope.$on('$destroy', function() { log += '$destroy(m);'; });
         }
       })
       .state('n', {
+        template: 'nState',
         controller: function($scope) { log += 'ctrl(n);'; }
-      });
+      })
+      .state('o', oState)
   }));
 
   beforeEach(inject(function ($rootScope, _$compile_) {
@@ -324,6 +341,14 @@ describe('uiView', function () {
     expect(elem.text()).toBe('value');
   }));
 
+  it('should instantiate a controller with both $scope and $element injections', inject(function ($state, $q) {
+    elem.append($compile('<div><ui-view id="oState">{{elementId}}</ui-view></div>')(scope));
+    $state.transitionTo(oState);
+    $q.flush();
+
+    expect(elem.text()).toBe('oState');
+  }));
+
   describe('play nicely with other directives', function() {
     // related to issue #857
     it('should work with ngIf', inject(function ($state, $q, $compile) {
@@ -412,7 +437,7 @@ describe('uiView', function () {
       }));
 
       it ('should populate each view with content', inject(function($state, $q, $compile) {
-        elem.append($compile('<div><ui-view ng-repeat="view in views" name="{{view}}"></ui-view></div>')(scope));
+        elem.append($compile('<div><ui-view ng-repeat="view in views" name="{{view}}">defaultcontent</ui-view></div>')(scope));
 
         $state.transitionTo(lState);
         $q.flush();
@@ -471,10 +496,7 @@ describe('uiView', function () {
     });
   });
 
-  describe('AngularJS 1.2.* Animations', function() {
-    // Only doing tests for AngularJS 1.2.*
-    if (['1.0.8', '1.1.5'].indexOf(angular.version.full) !== -1) return;
-
+  describe('AngularJS Animations', function() {
     it ('should do transition animations', inject(function($state, $q, $compile, $animate) {
       var content = 'Initial Content',
           animation;
@@ -483,7 +505,7 @@ describe('uiView', function () {
       // Enter Animation
       animation = $animate.queue.shift();
       expect(animation.event).toBe('enter');
-      expect(animation.element.text()).toBe(content);
+      expect(animation.element.text() + "-1").toBe(content + "-1");
 
       $state.transitionTo(aState);
       $q.flush();
@@ -491,11 +513,11 @@ describe('uiView', function () {
       // Enter Animation
       animation = $animate.queue.shift();
       expect(animation.event).toBe('enter');
-      expect(animation.element.text()).toBe(aState.template);
+      expect(animation.element.text() + "-2").toBe(aState.template + "-2");
       // Leave Animation
       animation = $animate.queue.shift();
       expect(animation.event).toBe('leave');
-      expect(animation.element.text()).toBe(content);
+      expect(animation.element.text() + "-3").toBe(content + "-3");
 
       $state.transitionTo(bState);
       $q.flush();
@@ -503,11 +525,11 @@ describe('uiView', function () {
       // Enter Animation
       animation = $animate.queue.shift();
       expect(animation.event).toBe('enter');
-      expect(animation.element.text()).toBe(bState.template);
+      expect(animation.element.text() + "-4").toBe(bState.template + "-4");
       // Leave Animation
       animation = $animate.queue.shift();
       expect(animation.event).toBe('leave');
-      expect(animation.element.text()).toBe(aState.template);
+      expect(animation.element.text() + "-5").toBe(aState.template + "-5");
 
       // No more animations
       expect($animate.queue.length).toBe(0);
@@ -594,35 +616,78 @@ describe('uiView', function () {
       expect(elem.text()).toBe(bState.template);
     }));
 
-    it('$destroy event is triggered after animation ends', inject(function($state, $q, $animate, $rootScope) {
-      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
-      $rootScope.$on('$stateChangeSuccess', function(evt, toState) { log += 'success(' + toState.name + ');'; });
+    describe('$destroy event', function() {
+      it('is triggered after animation ends', inject(function($state, $q, $animate, $rootScope) {
+        elem.append($compile('<div><ui-view></ui-view></div>')(scope));
 
-      $state.transitionTo('m');
-      $q.flush();
-      expect(log).toBe('success(m);ctrl(m);');
-      $state.transitionTo('n');
-      $q.flush();
-      if ($animate) {
-        expect(log).toBe('success(m);ctrl(m);success(n);ctrl(n);');
+        $state.transitionTo('m');
+        $q.flush();
+        expect(log).toBe('ctrl(m);');
+        $state.transitionTo('n');
+        $q.flush();
+
+        expect(log).toBe('ctrl(m);ctrl(n);');
         animateFlush($animate);
-        expect(log).toBe('success(m);ctrl(m);success(n);ctrl(n);$destroy(m);');
-      } else {
-        expect(log).toBe('success(m);ctrl(m);$destroy(m);success(n);ctrl(n);');
-      }
-    }));
+        expect(log).toBe('ctrl(m);ctrl(n);$destroy(m);');
+      }));
 
-    it('$destroy event is triggered before $stateChangeSuccess if noanimation is present', inject(function($state, $q, $animate, $rootScope) {
-      elem.append($compile('<div><ui-view noanimation="true"></ui-view></div>')(scope));
-      $rootScope.$on('$stateChangeSuccess', function(evt, toState) { log += 'success(' + toState.name + ');'; });
+      it('is triggered before $stateChangeSuccess if noanimation is present', inject(function($state, $q, $animate, $rootScope) {
+        elem.append($compile('<div><ui-view noanimation="true"></ui-view></div>')(scope));
 
-      $state.transitionTo('m');
-      $q.flush();
-      expect(log).toBe('success(m);ctrl(m);');
-      $state.transitionTo('n');
-      $q.flush();
-      expect(log).toBe('success(m);ctrl(m);success(n);$destroy(m);ctrl(n);');
-    }));
-
+        $state.transitionTo('m');
+        $q.flush();
+        expect(log).toBe('ctrl(m);');
+        $state.transitionTo('n');
+        $q.flush();
+        expect(log).toBe('ctrl(m);$destroy(m);ctrl(n);');
+      }));
+    });
   });
+});
+
+describe('uiView controllers or onEnter handlers', function() {
+  var el, template, scope, document, count;
+
+  beforeEach(module('ui.router'));
+
+  beforeEach(module(function($stateProvider) {
+    count = 0;
+    $stateProvider
+      .state('aside',         { url: '/aside', template: '<div class="aside"></div>' })
+      .state('A',           { url: '/A', template: '<div class="A" ui-view="fwd"></div>' })
+      .state('A.fwd', {
+        url: '/fwd', views: { 'fwd': {
+          template: '<div class="fwd" ui-view>',
+          controller: function($state) { if (count++ < 20 && $state.current.name == 'A.fwd') $state.go(".nest"); }
+        }}
+      })
+      .state('A.fwd.nest',  { url: '/nest', template: '<div class="nest"></div>' });
+  }));
+
+  beforeEach(inject(function($document) {
+    document = $document[0];
+  }));
+
+  it('should not go into an infinite loop when controller uses $state.go', inject(function($rootScope, $q, $compile, $state) {
+    el = angular.element('<div><ui-view></ui-view></div>');
+    template = $compile(el)($rootScope);
+    $rootScope.$digest();
+
+    $state.transitionTo('aside');
+    $q.flush();
+    expect(template[0].querySelector('.aside')).toBeDefined();
+    expect(template[0].querySelector('.fwd')).toBeNull();
+
+    $state.transitionTo('A');
+    $q.flush();
+    expect(template[0].querySelector('.A')).not.toBeNull();
+    expect(template[0].querySelector('.fwd')).toBeNull();
+
+    $state.transitionTo('A.fwd');
+    $q.flush();
+    expect(template[0].querySelector('.A')).not.toBeNull();
+    expect(template[0].querySelector('.fwd')).not.toBeNull();
+    expect(template[0].querySelector('.nest')).not.toBeNull();
+    expect(count).toBe(1);
+  }));
 });

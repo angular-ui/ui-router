@@ -1,30 +1,40 @@
 routerFiles = {
-  src: [
-    'src/common.js',
-    'src/resolve.js',
-    'src/templateFactory.js',
-    'src/urlMatcherFactory.js',
-    'src/urlRouter.js',
-    'src/state.js',
-    'src/view.js',
-    'src/viewScroll.js',
-    'src/viewDirective.js',
-    'src/stateDirectives.js',
-    'src/stateFilters.js'
+  ng1CommonJsEntrypoint: ['./build/es5/ng1.js'],
+  justjsCommonJsEntrypoint: ['./build/es5/justjs.js'],
+  // es6Entrypoint:      ['./build/es6/ng1.js'],
+
+  src:                [
+    'src/ui-router.ts', // Main UI-Router module (re-exports all other core modules)
+    'src/ng1.ts', // UI-Router angular1 module (re-exports ui-router and ng1 modules)
+    'src/justjs.ts', // UI-Router plain ol js module (re-exports ui-router)
+    'src/ng1/stateEvents.ts' // There might be a better approach to compiling this file
   ],
+
+  // Test helpers
   testUtils: [
     'test/testUtils.js',
-    'node_modules/phantomjs-polyfill/bind-polyfill.js'
-  ],
-  test: [
-    'test/*Spec.js',
     'test/compat/matchers.js'
   ],
+
+  // Returns necessary files for a specific version of angular
   angular: function(version) {
     return [
       'lib/angular-' + version + '/angular.js',
-      'lib/angular-' + version + '/angular-mocks.js'
-    ].concat(['1.0.8', '1.1.5'].indexOf(version) === -1 ? ['lib/angular-' + version + '/angular-animate.js'] : []);
+      'lib/angular-' + version + '/angular-mocks.js',
+      'lib/angular-' + version + '/angular-animate.js'
+    ];
+  },
+
+  // This returns a Karma 'files configuration' for the files served by the Karma web server
+  // http://karma-runner.github.io/0.8/config/files.html
+  karmaServedFiles: function(version) {
+    return routerFiles.angular(version).map(function (pattern) {
+      return { watched: false, included: true, nocache: true, pattern: pattern };
+    }).concat([
+      { watched: true, included: false, nocache: true, pattern: 'src/**/*.ts' },
+      { watched: true, included: false, nocache: true, pattern: 'test/**/*.ts' },
+      { watched: true, included: false, nocache: true, pattern: 'test/**/*.js' }
+    ]);
   }
 };
 

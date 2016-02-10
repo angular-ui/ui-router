@@ -1,6 +1,12 @@
+var module = angular.mock.module;
+var uiRouter = require("angular-ui-router");
+var UrlMatcher = uiRouter.url.UrlMatcher;
+var services = uiRouter.common.services;
+
 describe("UrlRouter", function () {
 
   var $urp, $lp, $s, $ur, location, match, scope;
+
   describe("provider", function () {
 
     beforeEach(function() {
@@ -14,13 +20,13 @@ describe("UrlRouter", function () {
       inject(function($rootScope, $location, $injector) {
         scope = $rootScope.$new();
         location = $location;
-        $ur = $injector.invoke($urp.$get);
+        $ur = $injector.invoke($urp.$get, $urp);
       });
     });
 
     it("should throw on non-function rules", function () {
-      expect(function() { $urp.rule(null); }).toThrow("'rule' must be a function")
-      expect(function() { $urp.otherwise(null); }).toThrow("'rule' must be a function")
+      expect(function() { $urp.rule(null); }).toThrowError("'rule' must be a function");
+      expect(function() { $urp.otherwise(null); }).toThrowError("'rule' must be a string or function");
     });
 
     it("should allow location changes to be deferred", inject(function ($urlRouter, $location, $rootScope) {
@@ -65,7 +71,7 @@ describe("UrlRouter", function () {
       inject(function($rootScope, $location, $injector) {
         scope = $rootScope.$new();
         location = $location;
-        $ur = $injector.invoke($urp.$get);
+        $ur = $injector.invoke($urp.$get, $urp);
         $s = $injector.get('$sniffer');
         $s.history = true;
       });
@@ -101,17 +107,19 @@ describe("UrlRouter", function () {
       var custom = {
         url: {
           exec:       function() {},
+          isRoot:     function() {},
           format:     function() {},
-          concat:     function() {},
+          append:     function() {},
           validates:  function() {},
+          parameter:  function() {},
           parameters: function() {}
         },
         handler: function() {}
       };
 
-      spyOn(custom.url, "exec").andReturn({});
-      spyOn(custom.url, "format").andReturn("/foo-bar");
-      spyOn(custom, "handler").andReturn(true);
+      spyOn(custom.url, "exec").and.returnValue({});
+      spyOn(custom.url, "format").and.returnValue("/foo-bar");
+      spyOn(custom, "handler").and.returnValue(true);
 
       $urp.when(custom.url, custom.handler);
       scope.$broadcast("$locationChangeSuccess");
@@ -149,29 +157,45 @@ describe("UrlRouter", function () {
     }));
 
     describe("location updates", function() {
-      it('can push location changes', inject(function($urlRouter, $location) {
-        spyOn($location, "url");
-        spyOn($location, "replace");
+      it('can push location changes', inject(function($urlRouter) {
+        spyOn(services.location, "url");
+        spyOn(services.location, "replace");
         $urlRouter.push(new UrlMatcher("/hello/:name"), { name: "world" });
 
-        expect($location.url).toHaveBeenCalledWith("/hello/world");
-        expect($location.replace).not.toHaveBeenCalled();
+        expect(services.location.url).toHaveBeenCalledWith("/hello/world");
+        expect(services.location.replace).not.toHaveBeenCalled();
       }));
 
       it('can push a replacement location', inject(function($urlRouter, $location) {
-        spyOn($location, "url");
-        spyOn($location, "replace");
+        spyOn(services.location, "url");
+        spyOn(services.location, "replace");
         $urlRouter.push(new UrlMatcher("/hello/:name"), { name: "world" }, { replace: true });
 
-        expect($location.url).toHaveBeenCalledWith("/hello/world");
-        expect($location.replace).toHaveBeenCalled();
+        expect(services.location.url).toHaveBeenCalledWith("/hello/world");
+        expect(services.location.replace).toHaveBeenCalled();
       }));
 
       it('can push location changes with no parameters', inject(function($urlRouter, $location) {
-        spyOn($location, "url");
-        $urlRouter.push(new UrlMatcher("/hello/:name"));
+        spyOn(services.location, "url");
+        $urlRouter.push(new UrlMatcher("/hello/:name", {params:{name: ""}}));
 
-        expect($location.url).toHaveBeenCalledWith("/hello/");
+        expect(services.location.url).toHaveBeenCalledWith("/hello/");
+      }));
+
+      it('can push location changes that include a #fragment', inject(function($urlRouter, $location) {
+        // html5mode disabled
+        $lp.html5Mode(false);
+        expect(html5Compat($lp.html5Mode())).toBe(false);
+        $urlRouter.push(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'});
+        expect($location.url()).toBe('/hello/world#frag');
+        expect($location.hash()).toBe('frag');
+
+        // html5mode enabled
+        $lp.html5Mode(true);
+        expect(html5Compat($lp.html5Mode())).toBe(true);
+        $urlRouter.push(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'});
+        expect($location.url()).toBe('/hello/world#frag');
+        expect($location.hash()).toBe('frag');
       }));
 
       it('can push location changes that include a #fragment', inject(function($urlRouter, $location) {
@@ -193,9 +217,9 @@ describe("UrlRouter", function () {
       it('can read and sync a copy of location URL', inject(function($urlRouter, $location) {
         $location.url('/old');
 
-        spyOn($location, 'url').andCallThrough();
+        spyOn(services.location, 'url').and.callThrough();
         $urlRouter.update(true);
-        expect($location.url).toHaveBeenCalled();
+        expect(services.location.url).toHaveBeenCalled();
 
         $location.url('/new');
         $urlRouter.update();
@@ -218,7 +242,7 @@ describe("UrlRouter", function () {
       }));
 
       it('should handle the new html5Mode object config from Angular 1.3', inject(function($urlRouter) {
-        
+
         $lp.html5Mode({
           enabled: false
         });
@@ -229,19 +253,19 @@ describe("UrlRouter", function () {
       it('should return URLs with #fragments', inject(function($urlRouter) {
         // html5mode disabled
         $lp.html5Mode(false);
-        expect($lp.html5Mode()).toBe(false);
+        expect(html5Compat($lp.html5Mode())).toBe(false);
         expect($urlRouter.href(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('#/hello/world#frag');
 
         // html5mode enabled
         $lp.html5Mode(true);
-        expect($lp.html5Mode()).toBe(true);
+        expect(html5Compat($lp.html5Mode())).toBe(true);
         expect($urlRouter.href(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('/hello/world#frag');
       }));
 
       it('should return URLs with #fragments when html5Mode is true & browser does not support pushState', inject(function($urlRouter) {
         $lp.html5Mode(true);
         $s.history = false;
-        expect($lp.html5Mode()).toBe(true);
+        expect(html5Compat($lp.html5Mode())).toBe(true);
         expect($urlRouter.href(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('#/hello/world#frag');
       }));
     });

@@ -7,9 +7,15 @@ node_modules
 bower_components
 .DS_Store
 *~
+.tscache
+.baseDir.ts
 
 # webstorm files
 .idea
+idea-out
 *.iml
 *.ipr
 *.iws
+
+# generate doc to _doc; copy to proper gh-pages dir
+_doc

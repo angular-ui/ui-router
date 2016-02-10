@@ -1,3 +1,6 @@
+var module = angular.mock.module;
+var uiRouter = require("angular-ui-router");
+
 describe('uiView', function () {
   'use strict';
 

@@ -3,6 +3,8 @@ module.exports = function (grunt) {
 
   require('load-grunt-tasks')(grunt);
   var files = require('./files').files;
+  var systemjs = require('systemjs');
+  //var jspm = require('jspm');
 
   // Project configuration.
   grunt.initConfig({
@@ -18,28 +20,63 @@ module.exports = function (grunt) {
         ' */'
     },
     clean: [ '<%= builddir %>' ],
-    concat: {
-      options: {
-        banner: '<%= meta.banner %>\n\n'+
-                '/* commonjs package manager support (eg componentjs) */\n'+
-                'if (typeof module !== "undefined" && typeof exports !== "undefined" && module.exports === exports){\n'+
-                '  module.exports = \'ui.router\';\n'+
-                '}\n\n'+
-                '(function (window, angular, undefined) {\n',
-        footer: '})(window, window.angular);'
-      },
-      build: {
+    ts: {
+      es5: {
         src: files.src,
-        dest: '<%= builddir %>/<%= pkg.name %>.js'
+        outDir: '<%= builddir %>/es5',
+        options: { module: 'commonjs'}
+      },
+      es6: {
+        src: files.src,
+        outDir: '<%= builddir %>/es6',
+        options: { target: "es6"}
       }
     },
     uglify: {
       options: {
-        banner: '<%= meta.banner %>\n'
+        banner: '<%= meta.banner %>\n',
+        mangle: true
       },
       build: {
         files: {
-          '<%= builddir %>/<%= pkg.name %>.min.js': ['<banner:meta.banner>', '<%= concat.build.dest %>']
+          '<%= builddir %>/ui-router.min.js': ['<banner:meta.banner>', '<%= builddir %>/ui-router.js'],
+          '<%= builddir %>/<%= pkg.name %>.min.js': ['<banner:meta.banner>', '<%= builddir %>/<%= pkg.name %>.js'],
+          '<%= builddir %>/ng1/stateEvents.min.js': ['<banner:meta.banner>', '<%= builddir %>/ng1/stateEvents.js']
+        }
+      }
+    },
+    webpack: {
+      build: {
+        entry: files.ng1CommonJsEntrypoint,
+        output: {
+          path: '<%= builddir %>',
+          filename: '<%= pkg.name %>.js',
+          library: 'ui.router',
+          libraryTarget: 'umd'
+        },
+        module: {
+          loaders: []
+        },
+        externals: [
+          {
+            angular: {
+              root: 'angular',
+              commonjs2: 'angular',
+              commonjs: 'angular'
+            }
+          }
+        ]
+      },
+      core: {
+        entry: files.justjsCommonJsEntrypoint,
+        output: {
+          path: '<%= builddir %>',
+          filename: 'ui-router-justjs.js',
+          library: 'uiRouter',
+          libraryTarget: 'umd'
+        },
+        module: {
+          loaders: []
         }
       }
     },
@@ -48,15 +85,9 @@ module.exports = function (grunt) {
       src: '<%= builddir %>',
       dest: 'release'
     },
-    jshint: {
-      all: ['Gruntfile.js', 'src/*.js', '<%= builddir %>/<%= pkg.name %>.js'],
-      options: {
-        eqnull: true
-      }
-    },
     watch: {
-      files: ['src/*.js', 'test/**/*.js'],
-      tasks: ['build', 'karma:background:run']
+      files: ['src/**/*.ts', 'src/**/*.js', 'test/**/*.js'],
+      tasks: ['ts:es5', 'webpack', 'karma:ng14']
     },
     connect: {
       server: {},
@@ -69,35 +100,41 @@ module.exports = function (grunt) {
     },
     karma: {
       options: {
-        configFile: 'config/karma-1.4.9.js',
-        singleRun: true,
-        exclude: [],
-        frameworks: ['jasmine'],
-        reporters: 'dots', // 'dots' || 'progress'
-        port: 8080,
-        colors: true,
-        autoWatch: false,
-        autoWatchInterval: 0,
+        configFile: 'config/karma.js',
+        // Serve and load angular files using regular Karma mode
         browsers: [ grunt.option('browser') || 'PhantomJS' ]
       },
+      // Same as karma:base
       unit: {
-        browsers: [ grunt.option('browser') || 'PhantomJS' ]
       },
+      // Launch Karma in Chrome, click debug button, debug tests
       debug: {
         singleRun: false,
         background: false,
+        autoWatch: true,
+        autoWatchInterval: 1,
         browsers: [ grunt.option('browser') || 'Chrome' ]
       },
-      ng108: { configFile: 'config/karma-1.0.8.js' },
-      ng115: { configFile: 'config/karma-1.1.5.js' },
-      ng1214: { configFile: 'config/karma-1.2.14.js' },
-      ng130: { configFile: 'config/karma-1.3.0.js' },
-      ng149: { configFile: 'config/karma-1.4.9.js' },
-      ng150: { configFile: 'config/karma-1.5.0.js' },
-      background: {
-          background: true,
-          browsers: [ grunt.option('browser') || 'PhantomJS' ]
+      // Test with angular 1.2
+      ng12: {
+        options: { files: files.karmaServedFiles('1.2.28') }
       },
+      // Test with angular 1.3
+      ng13: {
+        options: { files: files.karmaServedFiles('1.3.16') }
+      },
+      // Test with angular 1.4
+      ng14: {
+        options: { files: files.karmaServedFiles('1.4.9') }
+      },
+      // Test with angular 1.5
+      ng15: {
+        options: { files: files.karmaServedFiles('1.5.0') }
+      },
+      background: {
+          background: true
+      },
+      // PhantomJS in the console; watch for changes to tests/src
       watch: {
         singleRun: false,
         autoWatch: true,
@@ -125,25 +162,29 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('integrate', ['build', 'jshint', 'karma:ng108', 'karma:ng115', 'karma:ng1214', 'karma:ng130', 'karma:ng149', 'karma:ng150']);
-  grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
-  grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
-  grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
-  grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['dist', 'ngdocs', 'widedocs']);
-  grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'dist', 'perform-release']);
+  grunt.registerTask('integrate', ['clean', 'build', 'karma:ng12', 'karma:ng13', 'karma:ng14', 'karma:ng15']);
+  grunt.registerTask('default', ['build', 'karma:unit', 'docs']);
+  grunt.registerTask('build', 'Perform a normal build', ['clean', 'ts', 'webpack', 'bundles', 'uglify']);
+  grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['build', 'ngdocs']);
+  grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'build', 'perform-release']);
   grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect:server', 'karma:background', 'watch']);
   grunt.registerTask('sample', 'Run connect server with keepalive:true for sample app development', ['connect:sample']);
 
-  grunt.registerTask('widedocs', 'Convert to bootstrap container-fluid', function () {
-    promising(this,
-      system(
-      'sed -i.bak ' + 
-      '-e \'s/class="row"/class="row-fluid"/\' ' + 
-      '-e \'s/icon-cog"><\\/i>/icon-cog"><\\/i>Provider/\' ' + 
-      '-e \'s/role="main" class="container"/role="main" class="container-fluid"/\' site/index.html')
+  grunt.registerTask('docs', 'Generate documentation to _doc', function() { 
+    promising(this, 
+      system('./node_modules/typedoc/bin/typedoc --readme ./README.md --name "UI-Router" --theme ./typedoctheme --mode modules --module commonjs --target es5 --out _doc  src/params src/path src/resolve src/state src/transition src/url src/view src/ng1')
     );
   });
 
+  grunt.registerTask('bundles', 'Create the bundles and reorganize any additional dist files (addons, etc)', function() {
+    var builddir = grunt.config('builddir');
+    grunt.task.requires([ 'clean', 'ts' ]);
+    grunt.task.run(['webpack']);
+
+    ['stateEvents.js', 'stateEvents.js.map'].forEach(function(file) {
+      grunt.file.copy(builddir + "/es5/ng1/" + file, builddir + "/ng1/" + file);
+    })
+  });
 
   grunt.registerTask('publish-pages', 'Publish a clean build, docs, and sample to github.io', function () {
     promising(this,
@@ -194,9 +235,10 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('perform-release', function () {
-    grunt.task.requires([ 'prepare-release', 'dist' ]);
-
     var version = grunt.config('pkg.version'), releasedir = grunt.config('builddir');
+    grunt.task.requires([ 'prepare-release', 'build' ]);
+    grunt.file.delete(releasedir + "/es5");
+    grunt.file.delete(releasedir + "/es6");
     promising(this,
       system('git add \'' + releasedir + '\'').then(function () {
         return system('git commit -m \'release ' + version + '\'');

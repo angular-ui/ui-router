@@ -1,13 +1,17 @@
 {
   "name": "angular-ui-router",
   "description": "State-based routing for AngularJS",
-  "version": "0.2.18",
+  "version": "1.0.0alpha0",
   "homepage": "http://angular-ui.github.com/",
   "contributors": [
     {
       "name": "Nate Abele",
       "email": "nate@radify.io",
-      "web": "https://github.com/nateabele"
+      "web": "https://radify.io"
+    },
+    {
+      "name": "Chris Thielen",
+      "web": "https://github.com/christopherthielen"
     },
     {
       "name": "Chris Thielen",
@@ -44,33 +48,40 @@
     }
   ],
   "dependencies": {
-    "angular": "^1.0.8"
+    "angular": "^1.2"
   },
   "devDependencies": {
+    "babel-core": "^5.8.14",
+    "es6-module-loader": "^0.17.3",
     "faithful-exec": "~0.1.0",
     "grunt": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-connect": "~0.7.1",
-    "grunt-contrib-jshint": "~0.8.0",
     "grunt-contrib-uglify": "~0.4.0",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-conventional-changelog": "~1.1.0",
-    "grunt-karma": "~0.6.2",
-    "grunt-ngdocs": "~0.2.5",
-    "karma": "~0.10.4",
+    "grunt-karma": "~0.11.2",
+    "grunt-ngdocs": "~0.1.7",
+    "grunt-shell": "^1.1.2",
+    "grunt-ts": "^4.2.0",
+    "grunt-webpack": "^1.0.10",
+    "jasmine-core": "~2.3.4",
+    "jsdoc": "git://github.com/jsdoc3/jsdoc.git#v3.2.2",
+    "karma": "~0.12.0",
     "karma-chrome-launcher": "~0.1.0",
-    "karma-coffee-preprocessor": "~0.1.0",
-    "karma-firefox-launcher": "~0.1.0",
-    "karma-html2js-preprocessor": "~0.1.0",
-    "karma-jasmine": "~0.1.3",
+    "karma-jasmine": "~0.3.6",
     "karma-phantomjs-launcher": "~0.1.0",
-    "karma-requirejs": "~0.2.0",
     "karma-script-launcher": "~0.1.0",
+    "karma-systemjs": "^0.7.2",
     "load-grunt-tasks": "~0.4.0",
     "phantomjs-polyfill": "0.0.1",
-    "requirejs": "^2.1.22",
-    "shelljs": "~0.2.6"
+    "shelljs": "~0.2.6",
+    "systemjs": "^0.18.4",
+    "tslint": "=2.5.0",
+    "typedoc": "git://github.com/christopherthielen/typedoc.git#v0.3-uirouter",
+    "typescript": "=1.7.3",
+    "webpack": "1.x",
+    "webpack-dev-server": "1.x"
   },
   "main": "release/angular-ui-router.js"
 }
