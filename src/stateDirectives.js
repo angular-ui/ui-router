@@ -33,7 +33,7 @@ function clickHook(el, $state, $timeout, type, current) {
     if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || el.attr('target'))) {
       // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
       var transition = $timeout(function() {
-        $state.go(target.state, target.params, target.options);
+          $state.go(target.state === '.' ? $state.current.name : target.state, target.params, target.options);
       });
       e.preventDefault();
 
@@ -128,7 +128,7 @@ function $StateRefDirective($state, $timeout) {
 
       var update = function(val) {
         if (val) def.params = angular.copy(val);
-        def.href = $state.href(ref.state, def.params, def.options);
+        def.href = $state.href(ref.state === '.' ? $state.current.name : ref.state, def.params, def.options);
 
         if (active) active.$$addStateInfo(ref.state, def.params);
         if (def.href !== null) attrs.$set(type.attr, def.href);
@@ -139,6 +139,13 @@ function $StateRefDirective($state, $timeout) {
         def.params = angular.copy(scope.$eval(ref.paramExpr));
       }
       update();
+        if (ref.state === '.') {
+            scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
+                if (fromState.name !== toState.name) {
+                    update();
+                }
+            });
+        }
 
       if (!type.clickable) return;
       element.bind("click", clickHook(element, $state, $timeout, type, function() { return def; }));
