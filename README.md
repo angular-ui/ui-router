@@ -1,137 +1,34 @@
-# feature-1.0 branch
-## Note: this is an alpha version of UI-Router 1.0
-
-We've totally redesigned UI-Router under the covers (rewrote about 60% of the codebase!), separating concerns and detangling the spaghetti.  We have taken some new approaches which we hope will provide unprecedented flexibility and control to your UI-Router app.
-
-We're working on a new [sample app](http://ui-router.github.io/sample-app/#/mymessages/inbox/5648b50cc586cac4aed6836f) ([Source](https://github.com/ui-router/sample-app)), as well as a [state and transition visualizer](https://github.com/ui-router/visualizer).  Check them out, and give us some feedback.  
-
-
-#### What's changed?
-
-##### Resolves
-The Resolve API has been rewritten from scratch.  We've introduced the concept of a resolve policy, which can be one of:
-
-* EAGER: All eager resolves for a transition are resolved at the beginning, before any states are entered (this is way UI-Router 0.2.x handles resolves)
-* LAZY: Lazy resolves are resolved when the state they are declared on is entered.
-* JIT: Just-In-Time resolves do not resolve until just before they are injected into some other function. (extremely lazy)
-
-In 1.0, by default, resolves on your states are "JIT"
-
-##### Transition
-
-We've created a Transition Service to manage transitioning from one state to another.  The transition service provides hooks, which you can register a callback on.  The transition hooks allow you to run code at various stages of a transition, altering it as your app requires.
-
-The transition lifecycle hooks are currently:
-
-* onBefore
-* onStart/onInvalid
-* onEnter (for individual states)
-* onSuccess
-* onError
-
-When registering a hook, you can provide criteria (a state name, a glob, or a function), and you can modify the transition by returning something from the hook (an abort, a redirect, a promise, or some new resolves to add to the transition).
-
-This enables lots of fun stuff!  Here are a couple of possibilities to get your imagination started:
-```javascript
-// Perform some async thing before running the transition
-$transitionsProvider.onBefore({ to: 'my.state', from: '*' }, function(AsyncService) {
-  return AsyncService.doSomeAsyncThing();
-});
-
-// Add resolves to a transitoin on-the-fly
-$transitionsProvider.onBefore({ to: 'other.state', from: '*' }, function($transition$, AsyncService) {
-  // someAsyncResult added as resolve to transition. It is injectable into other resolves or controllers.
-  $transition$.addResolves({ someAsyncResult: AsyncService.doSomeAsyncThing });
-});
-
-// Declaratively protect states which require authentication; redirect to 'login' if the user is unauthenticated.
-$transitionsProvider.onStart({ to: function(state) { return state.requiresAuth; } }, function($transition$, $state, AuthService) {
-  return AuthService.ensureAuthenticated().catch(function() { return $state.target("login"); });
-});
-
-// Declaratively set up default substates or other redirects; Redirect to a different target state
-// as declared on the original state, i.e., redirectTo: 'someotherstate'
-$transitionsProvider.onStart({ to: function(state) { return state.redirectTo; } }, function($transition$, $state) {
-  return $state.target($transition$.to.redirectTo); });
-});
-```
-
-##### State
-
-The $state service has been heavily refactored, and is now the primary client of the $transition service.  This doesn't offer the end user much *now*, but this separation should eventually enable us to provide things like multiple simultanesouly active states and parallel transitions (think UI-Router Extras "Sticky States").
-
-State events will soon be deprecated, but can be easily re-enabled by including the stateEvents.js file.  The state events have all been refactored as callbacks to the transition hooks.
-
-##### Views
-
-The way UI-Router manages views has been heavily refactored into a view service.  This should allow us to plug in alternate rendering schemes (react?), and should help ease the transition to angular 2.
-
-##### Parameters
-
-This one has been a long time coming.  Finally, UI-Router supports dynamic parameters in both the URL path and query string.  We've included a decorator which enables reloadOnSearch behavior using dynamic params automatically.
-
-### What's next?
-
-We're not done making sure every use case that you've been using in UI-Router 0.2.x works just as well in 1.0.  In fact, we just got the new code routing again on June 25 and have no idea what gaps are out there.  We'd like to get some other eyes on this new codebase.  We've moved in most of the unit tests from 0.2.x, but there are certain to be some things missing.  
-
-Build it.  Try it.  Let us know what's horribly broken.
-
-#### ES6/TypeScript
-
-We have migrated our codebase to ES6 and Typescript.
-
-#### Angular 2
-
-We'd are going to support Angular 2.  We plan to release a ui-router-ng2 around the same time ng2 final is released.
-
-#### Lazy Loading
-
-We'd like to have out-of-the-box support for lazy loading states (like UI-Router Extras "Future States")
-
----------------------------------------------
-
-
-The rest of this README is from an old release.
-
-
-
 # AngularUI Router &nbsp;[![Build Status](https://travis-ci.org/angular-ui/ui-router.svg?branch=master)](https://travis-ci.org/angular-ui/ui-router)
 
-#### The de-facto solution to flexible routing with nested views
+#### The de-facto solution to flexible routing in angular
 ---
-**[Download 0.2.17](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)** (or **[Minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)**) **|**
+**[Download stable](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)** (or **[Minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)**) **|**
 **[Guide](https://github.com/angular-ui/ui-router/wiki) |**
 **[API](http://angular-ui.github.io/ui-router/site) |**
-**[Sample](http://angular-ui.github.com/ui-router/sample/) ([Src](https://github.com/angular-ui/ui-router/tree/gh-pages/sample)) |**
+**[Sample](http://ui-router.github.io/sample-app/#/mymessages) ([Src](https://github.com/ui-router/sample-app)) |**
 **[FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions) |**
 **[Resources](#resources) |**
 **[Report an Issue](https://github.com/angular-ui/ui-router/blob/master/CONTRIBUTING.md#report-an-issue) |**
 **[Contribute](https://github.com/angular-ui/ui-router/blob/master/CONTRIBUTING.md#contribute) |**
 **[Help!](http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router) |**
-**[Discuss](https://groups.google.com/forum/#!categories/angular-ui/router)**
 
 ---
 
-*_Please help us out by testing the 1.0 alpha release!_* 
-
-[1.0.0alpha0 Announcement](https://github.com/angular-ui/ui-router/releases/tag/1.0.0alpha0) ([Source  Code](https://github.com/angular-ui/ui-router/tree/feature-1.0)) | [Sample App](http://ui-router.github.io/sample-app/) ([Source Code](https://github.com/ui-router/sample-app)) | [Known Issues](https://github.com/angular-ui/ui-router/issues?q=is%3Aissue+is%3Aopen+label%3A1.0)
-
+Note: this is the angular1 source for UI-Router version 1.0 alpha.  If you are looking for the source for UI-Router 
+version 0.2.x, it can be found [here](https://github.com/angular-ui/ui-router/tree/legacy)
 
 ---
 
-AngularUI Router is a routing framework for [AngularJS](http://angularjs.org), which allows you to organize the
-parts of your interface into a [*state machine*](https://en.wikipedia.org/wiki/Finite-state_machine). Unlike the
-[`$route` service](http://docs.angularjs.org/api/ngRoute.$route) in the Angular ngRoute module, which is organized around URL
-routes, UI-Router is organized around [*states*](https://github.com/angular-ui/ui-router/wiki),
-which may optionally have routes, as well as other behavior, attached.
+Angular UI-Router is a client-side [Single Page Application](https://en.wikipedia.org/wiki/Single-page_application) 
+routing framework for [AngularJS](http://angularjs.org).  
+  
+Routing frameworks for SPAs update the browser's URL as the user nagivates through the app.  Conversely, they allows 
+changes to the browser's URL to drive navigation through the app, thus allowing the user to create a bookmark to a 
+location deep within the SPA.
 
-States are bound to *named*, *nested* and *parallel views*, allowing you to powerfully manage your application's interface.
-
-Check out the sample app: http://angular-ui.github.io/ui-router/sample/
-
--
-**Note:** *UI-Router is under active development. As such, while this library is well-tested, the API may change. Consider using it in production applications only if you're comfortable following a changelog and updating your usage accordingly.*
-
+UI-Router applications are modeled as a hierarchical tree of states. UI-Router provides a 
+[*state machine*](https://en.wikipedia.org/wiki/Finite-state_machine) to manage the transitions between those 
+application states in a transaction-like manner. 
 
 ## Get Started
 
