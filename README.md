@@ -1,5 +1,11 @@
 # AngularUI Router &nbsp;[![Build Status](https://travis-ci.org/angular-ui/ui-router.svg?branch=master)](https://travis-ci.org/angular-ui/ui-router)
 
+**Note: this is the Angular 1.x source for UI-Router version 1.0 alpha.  If you are looking for the source for UI-Router 
+version 0.2.x, it can be found [here](https://github.com/angular-ui/ui-router/tree/legacy)**
+
+---
+
+
 #### The de-facto solution to flexible routing in angular
 ---
 **[Download stable](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)** (or **[Minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)**) **|**
@@ -12,10 +18,6 @@
 **[Contribute](https://github.com/angular-ui/ui-router/blob/master/CONTRIBUTING.md#contribute) |**
 **[Help!](http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router) |**
 
----
-
-Note: this is the angular1 source for UI-Router version 1.0 alpha.  If you are looking for the source for UI-Router 
-version 0.2.x, it can be found [here](https://github.com/angular-ui/ui-router/tree/legacy)
 
 ---
 
