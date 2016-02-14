@@ -129,6 +129,7 @@ function $StateRefDirective($state, $timeout) {
       var def    = { state: ref.state, href: null, params: null, options: null };
       var type   = getTypeInfo(element);
       var active = uiSrefActive[1] || uiSrefActive[0];
+      var unlinkInfoFn = null;
 
       def.options = extend(defaultOpts(element, $state), attrs.uiSrefOpts ? scope.$eval(attrs.uiSrefOpts) : {});
 
@@ -136,7 +137,8 @@ function $StateRefDirective($state, $timeout) {
         if (val) def.params = angular.copy(val);
         def.href = $state.href(ref.state, def.params, def.options);
 
-        if (active) active.$$addStateInfo(ref.state, def.params);
+        if (unlinkInfoFn) unlinkInfoFn();
+        if (active) unlinkInfoFn = active.$$addStateInfo(ref.state, def.params);
         if (def.href !== null) attrs.$set(type.attr, def.href);
       };
 
@@ -185,10 +187,7 @@ function $StateRefDynamicDirective($state, $timeout) {
         def.state = group[0]; def.params = group[1]; def.options = group[2];
         def.href = $state.href(def.state, def.params, def.options);
 
-        if (unlinkInfoFn) {
-          unlinkInfoFn();
-          unlinkInfoFn = null;
-        }
+        if (unlinkInfoFn) unlinkInfoFn();
         if (active) unlinkInfoFn = active.$$addStateInfo(def.state, def.params);
         if (def.href) attrs.$set(type.attr, def.href);
       }
