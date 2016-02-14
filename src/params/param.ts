@@ -11,7 +11,7 @@ import {paramTypes} from "./paramTypes";
 let hasOwn = Object.prototype.hasOwnProperty;
 let isShorthand = cfg => ["value", "type", "squash", "array", "dynamic"].filter(hasOwn.bind(cfg || {})).length === 0;
 
-enum DefType {
+export enum DefType {
   PATH, SEARCH, CONFIG
 }
 

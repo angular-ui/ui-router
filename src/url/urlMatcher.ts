@@ -7,6 +7,9 @@ import {prop, propEq } from "../common/hof";
 import {isArray, isString} from "../common/predicates";
 import {Param, paramTypes} from "../params/module";
 import {isDefined} from "../common/predicates";
+import {DefType} from "../params/param";
+import {unnestR} from "../common/common";
+import {arrayTuples} from "../common/common";
 
 interface params {
   $$validates: (params: string) => Array<string>;
@@ -364,54 +367,93 @@ export class UrlMatcher {
    * @returns {string}  the formatted URL (path and optionally search part).
    */
   format(values = {}) {
-    let segments: string[] = this._segments,
-        result: string = segments[0],
-        search: boolean = false,
-        params: Param[] = this.parameters({inherit: false}),
-        parent: UrlMatcher = tail(this._cache.path);
-
     if (!this.validates(values)) return null;
 
-    function encodeDashes(str) { // Replace dashes with encoded "\-"
-      return encodeURIComponent(str).replace(/-/g, c => `%5C%${c.charCodeAt(0).toString(16).toUpperCase()}`);
-    }
+    // Build the full path of UrlMatchers (including all parent UrlMatchers)
+    let urlMatchers = this._cache.path.slice().concat(this);
 
-    // TODO: rewrite as reduce over params with result as initial
-    params.map((param: Param, i) => {
-      let isPathParam = i < segments.length - 1;
-      var isFinalPathParam = i + 2 === segments.length;
+    // Extract all the static segments and Params into an ordered array
+    let pathSegmentsAndParams: Array<string|Param> =
+        urlMatchers.map(UrlMatcher.pathSegmentsAndParams).reduce(unnestR, []);
+
+    // Extract the query params into a separate array
+    let queryParams: Array<Param> =
+        urlMatchers.map(UrlMatcher.queryParams).reduce(unnestR, []);
+
+    /**
+     * Given a Param,
+     * Applies the parameter value, then returns details about it
+     */
+    function getDetails(param: Param): ParamDetails {
+      // Normalize to typed value
       let value = param.value(values[param.id]);
       let isDefaultValue = param.isDefaultValue(value);
+      // Check if we're in squash mode for the parameter
       let squash = isDefaultValue ? param.squash : false;
+      // Allow the Parameter's Type to encode the value
       let encoded = param.type.encode(value);
 
-      if (!isPathParam) {
-        if (encoded == null || (isDefaultValue && squash !== false)) return;
-        if (!isArray(encoded)) encoded = [<string> encoded];
-        if (encoded.length === 0) return;
+      return { param, value, isDefaultValue, squash, encoded };
+    }
 
-        encoded = map(<string[]> encoded, encodeURIComponent).join(`&${param.id}=`);
-        result += (search ? '&' : '?') + (`${param.id}=${encoded}`);
-        search = true;
-        return;
-      }
+    // Build up the path-portion from the list of static segments and parameters
+    let pathString = pathSegmentsAndParams.reduce((acc: string, x: string|Param) => {
+      // The element is a static segment (a raw string); just append it
+      if (isString(x)) return acc + x;
 
-      result += ((segment, result) => {
-        if (squash === true) return segment.match(result.match(/\/$/) ? /\/?(.*)/ : /(.*)/)[1];
-        if (isString(squash)) return squash + segment;
-        if (squash !== false) return "";
-        if (encoded == null) return segment;
-        if (isArray(encoded)) return map(<string[]> encoded, encodeDashes).join("-") + segment;
-        if (param.type.raw) return encoded + segment;
-        return encodeURIComponent(<string> encoded) + segment;
-      })(segments[i + 1], result);
+      // Otherwise, it's a Param.  Fetch details about the parameter value
+      let {squash, encoded, param} = getDetails(<Param> x);
 
-      if (isFinalPathParam && squash === true && result.slice(-1) === '/') result = result.slice(0, -1);
-    });
+      // If squash is === true, try to remove a slash from the path
+      if (squash === true) return (acc.match(/\/$/)) ? acc.slice(0, -1) : acc;
+      // If squash is a string, use the string for the param value
+      if (isString(squash)) return acc + squash;
+      if (squash !== false) return acc; // ?
+      if (encoded == null) return acc;
+      // If this parameter value is an array, encode the value using encodeDashes
+      if (isArray(encoded)) return acc + map(<string[]> encoded, UrlMatcher.encodeDashes).join("-");
+      // If the parameter type is "raw", then do not encodeURIComponent
+      if (param.type.raw) return acc + encoded;
+      // Encode the value
+      return acc + encodeURIComponent(<string> encoded);
+    }, "");
 
-    if (values["#"]) result += "#" + values["#"];
+    // Build the query string by
+    let queryString = queryParams.map((param: Param) => {
+      let {squash, encoded, isDefaultValue} = getDetails(param);
+      if (encoded == null || (isDefaultValue && squash !== false)) return;
+      if (!isArray(encoded)) encoded = [<string> encoded];
+      if (encoded.length === 0) return;
+      if (!param.type.raw) encoded = map(<string[]> encoded, encodeURIComponent);
 
-    let processedParams = ['#'].concat(params.map(prop('id')));
-    return (parent && parent.format(omit(values, processedParams)) || '') + result;
+      return encoded.map(val => `${param.id}=${val}`);
+    }).filter(identity).reduce(unnestR, []).join("&");
+
+    // Concat the pathstring with the queryString (if exists) and the hasString (if exists)
+    return pathString + (queryString ? `?${queryString}` : "") + (values["#"] ? "#" + values["#"] : "");
   }
+
+  static encodeDashes(str) { // Replace dashes with encoded "\-"
+    return encodeURIComponent(str).replace(/-/g, c => `%5C%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+  }
+
+  /** Given a matcher, return an array with the matcher's path segments and path params, in order */
+  static pathSegmentsAndParams(matcher: UrlMatcher) {
+    let staticSegments = matcher._segments;
+    let pathParams = matcher._params.filter(p => p.location === DefType.PATH);
+    return arrayTuples(staticSegments, pathParams.concat(undefined)).reduce(unnestR, []).filter(x => x !== "" && isDefined(x));
+  }
+
+  /** Given a matcher, return an array with the matcher's query params */
+  static queryParams(matcher: UrlMatcher): Param[] {
+    return matcher._params.filter(p => p.location === DefType.SEARCH);
+  }
+}
+
+interface ParamDetails {
+  param: Param;
+  value: any;
+  isDefaultValue: boolean;
+  squash: (boolean|string);
+  encoded: (string|string[]);
 }
