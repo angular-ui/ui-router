@@ -302,10 +302,11 @@ describe('uiStateRef', function() {
   });
 
   describe('links with dynamic state definitions', function () {
-    var template;
+    var template, $state;
 
-    beforeEach(inject(function($rootScope, $compile, $state) {
-      el = angular.element('<a ui-state="state" ui-state-params="params">state</a>');
+    beforeEach(inject(function($rootScope, $compile, _$state_) {
+      $state = _$state_;
+      el = angular.element('<a ui-sref-active="active" ui-sref-active-eq="activeeq" ui-state="state" ui-state-params="params">state</a>');
       scope = $rootScope;
       angular.extend(scope, { state: 'contacts', params: {} });
       template = $compile(el)(scope);
@@ -328,6 +329,38 @@ describe('uiStateRef', function() {
       scope.$digest();
       expect(angular.element(template[0]).attr('href')).toBe('#/contacts/25');
     });
+
+    it('updates a linked ui-sref-active', inject(function ($timeout) {
+      function tick() { scope.$digest(); try { $timeout.flush(); } catch (error) { } }
+      expect(template[0].className).not.toContain('active');
+      expect(template[0].className).not.toContain('activeeq');
+
+      $state.go('contacts');
+      tick();
+      expect(template[0].className).toContain('active activeeq');
+
+      scope.state = 'contacts.item';
+      scope.params = { id: 5 };
+      tick();
+      expect(template[0].className).not.toContain('active');
+      expect(template[0].className).not.toContain('activeeq');
+
+      $state.go('contacts.item', { id: -5 });
+      tick();
+      expect(template[0].className).not.toContain('active');
+      expect(template[0].className).not.toContain('activeeq');
+
+      $state.go('contacts.item', { id: 5 });
+      tick();
+      expect(template[0].className).toContain('active activeeq');
+
+      scope.state = 'contacts';
+      scope.params = { };
+      tick();
+      expect(template[0].className).toContain('active');
+      expect(template[0].className).not.toContain('activeeq');
+
+    }));
 
     it('retains the old href if the new points to a non-state', function () {
       expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
