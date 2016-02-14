@@ -418,7 +418,8 @@ export class UrlMatcher {
       return acc + encodeURIComponent(<string> encoded);
     }, "");
 
-    // Build the query string by
+    // Build the query string by applying parameter values (array or regular)
+    // then mapping to key=value, then flattening and joining using "&"
     let queryString = queryParams.map((param: Param) => {
       let {squash, encoded, isDefaultValue} = getDetails(param);
       if (encoded == null || (isDefaultValue && squash !== false)) return;
@@ -426,10 +427,10 @@ export class UrlMatcher {
       if (encoded.length === 0) return;
       if (!param.type.raw) encoded = map(<string[]> encoded, encodeURIComponent);
 
-      return encoded.map(val => `${param.id}=${val}`);
+      return (<string[]> encoded).map(val => `${param.id}=${val}`);
     }).filter(identity).reduce(unnestR, []).join("&");
 
-    // Concat the pathstring with the queryString (if exists) and the hasString (if exists)
+    // Concat the pathstring with the queryString (if exists) and the hashString (if exists)
     return pathString + (queryString ? `?${queryString}` : "") + (values["#"] ? "#" + values["#"] : "");
   }
 
