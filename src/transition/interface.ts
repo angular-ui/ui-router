@@ -576,9 +576,10 @@ export type IStateMatch = Predicate<State>
  * This object is used to configure whether or not a Transition Hook is invoked for a particular transition,
  * based on the Transition's "to state" and "from state".
  *
- * The `to` and `from` can be state globs, or a function that takes a state.
- * Both `to` and `from` are optional.  If one of these is omitted, it is replaced with the
- * function: `function() { return true; }`, which effectively matches any state.
+ * Each property (`to`, `from`, `exiting`, `retained`, and `entering`) can be state globs, a function that takes a
+ * state, or a boolean (see [[MatchCriterion]])
+ *
+ * All properties are optional.  If any property is omitted, it is replaced with the value `true`, and always matches.
  *
  * @example
  * ```js
@@ -620,24 +621,47 @@ export type IStateMatch = Predicate<State>
  *   }
  * }
  * ```
+ *
+ * @example
+ * ```js
+ *
+ * // This matches a transition that is exiting `parent.child`
+ * var match = {
+ *   exiting: 'parent.child'
+ * }
+ * ```
  */
 export interface IMatchCriteria {
-  /**
-   * A glob string that matches the 'to' state's name.
-   * Or, a function with the signature `function(state) {}` which should return a boolean to indicate if the state matches.
-   */
-  to?: (string|IStateMatch);
-
-  /**
-   *  A glob string that matches the 'from' state's name.
-   *  Or, a function with the signature `function(State) { return boolean; }` which should return a boolean to
-   *  indicate if the state matches.
-   */
-  from?: (string|IStateMatch);
+  /** A [[MatchCriterion]] to match the destination state */
+  to?: MatchCriterion;
+  /** A [[MatchCriterion]] to match the original (from) state */
+  from?: MatchCriterion;
+  /** A [[MatchCriterion]] to match any state that would be exiting */
+  exiting?: MatchCriterion;
+  /** A [[MatchCriterion]] to match any state that would be retained */
+  retained?: MatchCriterion;
+  /** A [[MatchCriterion]] to match any state that would be entering */
+  entering?: MatchCriterion;
 }
+
+export interface IMatchingNodes {
+  to: Node[];
+  from: Node[];
+  exiting: Node[];
+  retained: Node[];
+  entering: Node[];
+}
+
+/**
+ * A glob string that matches the name of a state
+ * Or, a function with the signature `function(state) { return matches; }`
+ * which should return a boolean to indicate if a state matches.
+ * Or, `true` to match anything
+ */
+export type MatchCriterion = (string|IStateMatch|boolean)
 
 export interface IEventHook {
   callback: IInjectable;
   priority: number;
-  matches:  (a: State, b: State) => boolean;
+  matches:  (treeChanges: TreeChanges) => IMatchingNodes;
 }

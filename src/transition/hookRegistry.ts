@@ -1,30 +1,31 @@
 /** @module transition */ /** for typedoc */
-import {IInjectable, extend, removeFrom} from "../common/common";
+import {IInjectable, extend, removeFrom, anyTrueR, allTrueR, tail} from "../common/common";
 import {isString, isFunction} from "../common/predicates";
 import {val} from "../common/hof";
+import {Node} from "../path/node";
 
-import {IMatchCriteria, IStateMatch, IEventHook, IHookRegistry, IHookRegistration} from "./interface";
-
+import {IMatchCriteria, IStateMatch, IEventHook, IHookRegistry, IHookRegistration, TreeChanges, MatchCriterion, IMatchingNodes} from "./interface";
 import {Glob, State} from "../state/module";
 
 /**
  * Determines if the given state matches the matchCriteria
  * @param state a State Object to test against
- * @param matchCriteria {string|array|function}
+ * @param criterion
  * - If a string, matchState uses the string as a glob-matcher against the state name
  * - If an array (of strings), matchState uses each string in the array as a glob-matchers against the state name
  *   and returns a positive match if any of the globs match.
  * - If a function, matchState calls the function with the state and returns true if the function's result is truthy.
  * @returns {boolean}
  */
-export function matchState(state: State, matchCriteria: (string|IStateMatch)) {
-  let toMatch = isString(matchCriteria) ? [matchCriteria] : matchCriteria;
+export function matchState(state: State, criterion: MatchCriterion) {
+  let toMatch = isString(criterion) ? [criterion] : criterion;
 
   function matchGlobs(_state) {
-    for (let i = 0; i < toMatch.length; i++) {
-      let glob = Glob.fromString(toMatch[i]);
+    let globStrings = <string[]> toMatch;
+    for (let i = 0; i < globStrings.length; i++) {
+      let glob = Glob.fromString(globStrings[i]);
 
-      if ((glob && glob.matches(_state.name)) || (!glob && toMatch[i] === _state.name)) {
+      if ((glob && glob.matches(_state.name)) || (!glob && globStrings[i] === _state.name)) {
         return true;
       }
     }
@@ -41,14 +42,41 @@ export class EventHook implements IEventHook {
   matchCriteria: IMatchCriteria;
   priority: number;
 
-  constructor(matchCriteria: IMatchCriteria, callback: IInjectable, options: { priority: number } = <any>{}) {
+  constructor(matchCriteria: IMatchCriteria, callback: IInjectable, options: { priority?: number } = <any>{}) {
     this.callback = callback;
-    this.matchCriteria = extend({to: val(true), from: val(true)}, matchCriteria);
+    this.matchCriteria = extend({ to: true, from: true, exiting: true, retained: true, entering: true }, matchCriteria);
     this.priority = options.priority || 0;
   }
 
-  matches(to: State, from: State) {
-    return <boolean> matchState(to, this.matchCriteria.to) && matchState(from, this.matchCriteria.from);
+  private static _matchingNodes(nodes: Node[], criterion: MatchCriterion): Node[] {
+    if (criterion === true) return nodes;
+    let matching = nodes.filter(node => matchState(node.state, criterion));
+    return matching.length ? matching : null;
+  }
+
+  /**
+   * Determines if this hook's [[matchCriteria]] match the given [[TreeChanges]]
+   *
+   * @returns an IMatchingNodes object, or null. If an IMatchingNodes object is returned, its values
+   * are the matching [[Node]]s for each [[MatchCriterion]] (to, from, exiting, retained, entering)
+   */
+  matches(treeChanges: TreeChanges): IMatchingNodes {
+    let mc = this.matchCriteria, _matchingNodes = EventHook._matchingNodes;
+
+    let matches = {
+      to: _matchingNodes([tail(treeChanges.to)], mc.to),
+      from: _matchingNodes([tail(treeChanges.from)], mc.from),
+      exiting: _matchingNodes(treeChanges.exiting, mc.exiting),
+      retained: _matchingNodes(treeChanges.retained, mc.retained),
+      entering: _matchingNodes(treeChanges.entering, mc.entering),
+    };
+
+    // Check if all the criteria matched the TreeChanges object
+    let allMatched: boolean = ["to", "from", "exiting", "retained", "entering"]
+        .map(prop => matches[prop])
+        .reduce(allTrueR, true);
+
+    return allMatched ? matches : null;
   }
 }
 

@@ -15,17 +15,17 @@ export class EnterExitHooks {
   }
 
   registerOnEnterHooks() {
-    let onEnterRegistration = (state) => this.transition.onEnter({to: state.name}, state.onEnter);
-    this.transition.entering().filter(state => !!state.onEnter).forEach(onEnterRegistration);
+    this.transition.entering().filter(state => !!state.onEnter)
+        .forEach(state => this.transition.onEnter({entering: state.name}, state.onEnter));
   }
 
   registerOnRetainHooks() {
-    let onRetainRegistration = (state) => this.transition.onRetain({}, state.onRetain);
-    this.transition.retained().filter(state => !!state.onRetain).forEach(onRetainRegistration);
+    this.transition.retained().filter(state => !!state.onRetain)
+        .forEach(state => this.transition.onRetain({retained: state.name}, state.onRetain));
   }
 
   registerOnExitHooks() {
-    let onExitRegistration = (state) => this.transition.onExit({from: state.name}, state.onExit);
-    this.transition.exiting().filter(state => !!state.onExit).forEach(onExitRegistration);
+    this.transition.exiting().filter(state => !!state.onExit)
+        .forEach(state => this.transition.onExit({exiting: state.name}, state.onExit));
   }
 }

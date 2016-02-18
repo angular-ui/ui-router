@@ -5,6 +5,7 @@ import {propEq} from "../../common/hof";
 import {ResolvePolicy} from "../../resolve/interface";
 
 import {Transition} from "../../transition/transition";
+import {val} from "../../common/hof";
 
 
 let LAZY = ResolvePolicy[ResolvePolicy.LAZY];
@@ -38,6 +39,6 @@ export class ResolveHooks {
     // Resolve eager resolvables before when the transition starts
     this.transition.onStart({}, $eagerResolvePath, { priority: 1000 });
     // Resolve lazy resolvables before each state is entered
-    this.transition.onEnter({}, $lazyResolveEnteringState, { priority: 1000 });
+    this.transition.onEnter({ entering: val(true) }, $lazyResolveEnteringState, { priority: 1000 });
   }
 }
