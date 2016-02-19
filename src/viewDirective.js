@@ -332,6 +332,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $state,   $interpolate
             scope[locals.$$controllerAs] = controller;
             scope[locals.$$controllerAs][locals.$$resolveAs] = resolveData;
           }
+          if (isFunction(controller.$onInit)) controller.$onInit();
           $element.data('$ngControllerController', controller);
           $element.children().data('$ngControllerController', controller);
         }
