@@ -14,7 +14,7 @@ function animateFlush($animate) {
 describe('uiView', function () {
   'use strict';
 
-  var log, scope, $compile, elem;
+  var log, scope, $compile, elem, $onInit;
 
   beforeEach(function() {
     var depends = ['ui.router', 'ui.router.state.events'];
@@ -40,6 +40,7 @@ describe('uiView', function () {
 
   beforeEach(function() {
     log = '';
+    $onInit = jasmine.createSpy('$onInit');
   });
 
   var aState = {
@@ -119,6 +120,13 @@ describe('uiView', function () {
     controller: function ($scope, $element) {
       $scope.elementId = $element.attr('id');
     }
+  },
+  pState = {
+    controller: function() {
+      this.$onInit = $onInit;
+    },
+    template: "hi",
+    controllerAs: "vm"
   };
 
   beforeEach(module(function ($stateProvider) {
@@ -147,6 +155,7 @@ describe('uiView', function () {
         controller: function($scope) { log += 'ctrl(n);'; }
       })
       .state('o', oState)
+      .state('p', pState)
   }));
 
   beforeEach(inject(function ($rootScope, _$compile_) {
@@ -347,6 +356,14 @@ describe('uiView', function () {
     $q.flush();
 
     expect(elem.text()).toBe('oState');
+  }));
+
+  it('should call the existing $onInit after instantiating a controller', inject(function ($state, $q) {
+    elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+    $state.transitionTo(pState);
+    $q.flush();
+
+    expect($onInit).toHaveBeenCalled();
   }));
 
   describe('play nicely with other directives', function() {

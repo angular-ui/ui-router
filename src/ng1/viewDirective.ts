@@ -2,7 +2,7 @@ var ngMajorVer = angular.version.major;
 var ngMinorVer = angular.version.minor;
 /** @module view */ /** for typedoc */
 import {extend} from "../common/common";
-import {isDefined} from "../common/predicates";
+import {isDefined, isFunction} from "../common/predicates";
 import {trace} from "../common/trace";
 import {ViewConfig} from "../view/view";
 import {UIViewData} from "../view/interface";
@@ -319,6 +319,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
           let locals = data.$locals;
           let controllerInstance = $controller(controller, extend(locals, { $scope: scope, $element: $element }));
           if (controllerAs) scope[controllerAs] = controllerInstance;
+          if (isFunction(controllerInstance.$onInit)) controllerInstance.$onInit();
           $element.data('$ngControllerController', controllerInstance);
           $element.children().data('$ngControllerController', controllerInstance);
         }
