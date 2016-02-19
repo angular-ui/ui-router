@@ -78,7 +78,7 @@
     "karma-systemjs": "^0.7.2",
     "load-grunt-tasks": "~0.4.0",
     "phantomjs-polyfill": "0.0.1",
-    "reflect-metadata": "^0.1.2",
+    "reflect-metadata": "=0.1.2",
     "rxjs": "^5.0.0-beta.0",
     "shelljs": "~0.2.6",
     "systemjs": "^0.18.4",
