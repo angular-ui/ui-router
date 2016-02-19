@@ -51,8 +51,11 @@
     "angular": "^1.2"
   },
   "devDependencies": {
+    "angular2": "^2.0.0-beta.1",
     "babel-core": "^5.8.14",
     "es6-module-loader": "^0.17.3",
+    "es6-promise": "^3.0.2",
+    "es6-shim": "^0.33.13",
     "faithful-exec": "~0.1.0",
     "grunt": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",
@@ -63,7 +66,7 @@
     "grunt-karma": "~0.11.2",
     "grunt-ngdocs": "~0.1.7",
     "grunt-shell": "^1.1.2",
-    "grunt-ts": "^4.2.0",
+    "grunt-ts": "^5.2.0",
     "grunt-webpack": "^1.0.10",
     "jasmine-core": "~2.3.4",
     "jsdoc": "git://github.com/jsdoc3/jsdoc.git#v3.2.2",
@@ -75,13 +78,16 @@
     "karma-systemjs": "^0.7.2",
     "load-grunt-tasks": "~0.4.0",
     "phantomjs-polyfill": "0.0.1",
+    "reflect-metadata": "^0.1.2",
+    "rxjs": "^5.0.0-beta.0",
     "shelljs": "~0.2.6",
     "systemjs": "^0.18.4",
     "tslint": "=2.5.0",
     "typedoc": "git://github.com/christopherthielen/typedoc.git#v0.3-uirouter",
     "typescript": "=1.7.3",
     "webpack": "1.x",
-    "webpack-dev-server": "1.x"
+    "webpack-dev-server": "1.x",
+    "zone.js": "^0.5.10"
   },
   "main": "release/angular-ui-router.js"
 }

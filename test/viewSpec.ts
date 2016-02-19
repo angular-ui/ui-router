@@ -74,7 +74,8 @@ describe('view', function() {
         rawViewName: '$default',
         context: { name: "blarg", parent: rootcontext },
         params: {type: "Acme"},
-        locals: {}
+        locals: {},
+        node: {}
       };
       var injector = {
         invokeNow: (fn, locals) => $injector.invoke(fn, null, locals),

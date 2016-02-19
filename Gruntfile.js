@@ -21,16 +21,8 @@ module.exports = function (grunt) {
     },
     clean: [ '<%= builddir %>' ],
     ts: {
-      es5: {
-        src: files.src,
-        outDir: '<%= builddir %>/es5',
-        options: { module: 'commonjs'}
-      },
-      es6: {
-        src: files.src,
-        outDir: '<%= builddir %>/es6',
-        options: { target: "es6"}
-      }
+      ng1: { tsconfig: 'tsconfig.json' },
+      ng2: { tsconfig: 'tsconfig-ng2.json' }
     },
     uglify: {
       options: {
@@ -39,7 +31,7 @@ module.exports = function (grunt) {
       },
       build: {
         files: {
-          '<%= builddir %>/ui-router.min.js': ['<banner:meta.banner>', '<%= builddir %>/ui-router.js'],
+          '<%= builddir %>/ui-router-ng2.min.js': ['<banner:meta.banner>', '<%= builddir %>/ui-router-ng2.js'],
           '<%= builddir %>/<%= pkg.name %>.min.js': ['<banner:meta.banner>', '<%= builddir %>/<%= pkg.name %>.js'],
           '<%= builddir %>/ng1/stateEvents.min.js': ['<banner:meta.banner>', '<%= builddir %>/ng1/stateEvents.js']
         }
@@ -67,18 +59,34 @@ module.exports = function (grunt) {
           }
         ]
       },
-      core: {
-        entry: files.justjsCommonJsEntrypoint,
+      ng2: {
+        entry: files.ng2CommonJsEntrypoint,
         output: {
           path: '<%= builddir %>',
-          filename: 'ui-router-justjs.js',
+          filename: 'ui-router-ng2.js',
           library: 'uiRouter',
           libraryTarget: 'umd'
         },
         module: {
           loaders: []
-        }
+        },
+        externals: [{
+          'angular2/core': {root: ['ng', 'core'], commonjs: 'angular2/core', commonjs2: 'angular2/core', amd: 'angular2/core'},
+          'angular2/common': {root: ['ng', 'common'], commonjs: 'angular2/common', commonjs2: 'angular2/common', amd: 'angular2/common'}
+        }]
       }
+      //,core: {
+      //  entry: files.justjsCommonJsEntrypoint,
+      //  output: {
+      //    path: '<%= builddir %>',
+      //    filename: 'ui-router-justjs.js',
+      //    library: 'uiRouter',
+      //    libraryTarget: 'umd'
+      //  },
+      //  module: {
+      //    loaders: []
+      //  }
+      //}
     },
     release: {
       files: ['<%= pkg.name %>.js', '<%= pkg.name %>.min.js'],
@@ -164,7 +172,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('integrate', ['clean', 'build', 'karma:ng12', 'karma:ng13', 'karma:ng14', 'karma:ng15']);
   grunt.registerTask('default', ['build', 'karma:unit', 'docs']);
-  grunt.registerTask('build', 'Perform a normal build', ['clean', 'ts', 'webpack', 'bundles', 'uglify']);
+  grunt.registerTask('build', 'Perform a normal build', ['clean', 'ts', 'bundles', 'uglify']);
   grunt.registerTask('dist-docs', 'Perform a clean build and generate documentation', ['build', 'ngdocs']);
   grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'build', 'perform-release']);
   grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect:server', 'karma:background', 'watch']);

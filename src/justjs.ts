@@ -1,5 +1,3 @@
-/// <reference path="../node_modules/typescript/lib/lib.es6.d.ts"/>
-
 export * from "./ui-router";
 import {services} from "./common/coreservices";
 import {isDefined, isFunction, isArray, isObject, isInjectable} from "./common/predicates";
@@ -87,3 +85,11 @@ loc.onChange = (cb) => {
   window.addEventListener("hashchange", cb, false);
 };
 
+let locCfg = <any> services.locationConfig;
+
+locCfg.port = () => location.port;
+locCfg.protocol = () => location.protocol;
+locCfg.host = () => location.host;
+locCfg.baseHref = () => "";
+locCfg.html5Mode = () => false;
+locCfg.hashPrefix = () => "";

@@ -1,6 +1,5 @@
 "use strict";
 /** @module view */ /** for typedoc */
-/// <reference path='../../typings/angularjs/angular.d.ts' />
 import {TemplateFactory} from "./templateFactory";
 import {extend, equals, applyPairs, pick, removeFrom, TypedMap} from "../common/common";
 import {curry, prop} from "../common/hof";
@@ -12,6 +11,7 @@ import {StateViewConfig, ViewDeclaration} from "../state/interface";
 import {UIViewData, ViewContext} from "./interface";
 
 import {ResolveInjector} from "../resolve/module";
+import {Node} from "../path/node";
 
 /**
  * Given a raw view name from a views: config, returns a normalized target viewName and contextAnchor
@@ -62,6 +62,7 @@ export class ViewConfig {
 
   params: any;
   locals: any;
+  node: Node;
 
   constructor(stateViewConfig: StateViewConfig) {
     // viewName is something like "$default" or "foo.bar" or "$default.foo.bar.$default"
@@ -75,7 +76,7 @@ export class ViewConfig {
       uiViewContextAnchor = anchor.name;
     }
 
-    extend(this, pick(stateViewConfig, "viewDeclarationObj", "params", "context", "locals"), {uiViewName, uiViewContextAnchor});
+    extend(this, pick(stateViewConfig, "viewDeclarationObj", "params", "context", "locals", "node"), {uiViewName, uiViewContextAnchor});
     this.controllerAs = stateViewConfig.viewDeclarationObj.controllerAs;
   }
 

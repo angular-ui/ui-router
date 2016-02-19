@@ -2,6 +2,7 @@
 import {TransitionOptions} from "../transition/interface";
 import {ParamDeclaration, RawParams, ParamsOrArray} from "../params/interface";
 
+import {Node} from "../path/node";
 import {State} from "./stateObject";
 import {TargetState} from "./targetState";
 import {ViewContext} from "../view/interface";
@@ -12,6 +13,14 @@ export type StateOrName = (string|StateDeclaration|State);
 /**
  * @hidden
  * Internal Context obj, State-view definition, transition params
+ *
+ * TODO: refactor this to only...
+ *
+ * - viewDeclarationObj
+ * - rawViewName
+ * - node
+ *
+ * ... then derive the remainder and pass to a framework specific factory function to generate the ViewConfig
  */
 export interface StateViewConfig {
   /** A view block from a state config */
@@ -22,6 +31,7 @@ export interface StateViewConfig {
   params: any;
   /**  The context object reference this ViewConfig belongs to */
   context: ViewContext;
+  node: Node;
 }
 
 /** View declaration inside state declaration */

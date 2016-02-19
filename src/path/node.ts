@@ -1,5 +1,4 @@
 /** @module path */ /** for typedoc */
-/// <reference path='../../typings/angularjs/angular.d.ts' />
 import {extend, applyPairs, map, find, allTrueR, values} from "../common/common";
 import {prop, propEq} from "../common/hof";
 import {State} from "../state/module";
@@ -28,7 +27,7 @@ export class Node {
     this.resolves = extend(map(state.resolve, (fn: Function, name: string) => new Resolvable(name, fn)), resolves);
 
     const makeViewConfig = (viewDeclarationObj, rawViewName) =>
-        new ViewConfig({ rawViewName, viewDeclarationObj, context: state, params});
+        new ViewConfig({ rawViewName, viewDeclarationObj, context: state, params, node: this});
     this.views = values(map(state.views, makeViewConfig));
   }
 

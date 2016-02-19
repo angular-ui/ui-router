@@ -1,13 +1,15 @@
 routerFiles = {
   ng1CommonJsEntrypoint: ['./build/es5/ng1.js'],
+  ng2CommonJsEntrypoint: ['./build/es5/ng2.js'],
   justjsCommonJsEntrypoint: ['./build/es5/justjs.js'],
   // es6Entrypoint:      ['./build/es6/ng1.js'],
 
   src:                [
-    'src/ui-router.ts', // Main UI-Router module (re-exports all other core modules)
     'src/ng1.ts', // UI-Router angular1 module (re-exports ui-router and ng1 modules)
-    'src/justjs.ts', // UI-Router plain ol js module (re-exports ui-router)
     'src/ng1/stateEvents.ts' // There might be a better approach to compiling this file
+    //'src/ui-router.ts', // Main UI-Router module (re-exports all other core modules)
+    //'src/ng2.ts', // UI-Router angular2 module (re-exports ui-router and ng2 modules)
+    //'src/justjs.ts', // UI-Router plain ol js module (re-exports ui-router)
   ],
 
   // Test helpers
