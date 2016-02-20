@@ -24,7 +24,7 @@ version 0.2.x, it can be found [here](https://github.com/angular-ui/ui-router/tr
 Angular UI-Router is a client-side [Single Page Application](https://en.wikipedia.org/wiki/Single-page_application) 
 routing framework for [AngularJS](http://angularjs.org).  
   
-Routing frameworks for SPAs update the browser's URL as the user nagivates through the app.  Conversely, they allows 
+Routing frameworks for SPAs update the browser's URL as the user nagivates through the app.  Conversely, this allows 
 changes to the browser's URL to drive navigation through the app, thus allowing the user to create a bookmark to a 
 location deep within the SPA.
 
