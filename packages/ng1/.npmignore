@@ -1,0 +1,6 @@
+**/tsconfig.json
+**/webpack.config.js
+**/node_modules
+**/ng2*
+typings
+.*

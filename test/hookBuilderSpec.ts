@@ -1,4 +1,4 @@
-import {UIRouter} from "../src/ui-router";
+import {UIRouter} from "../src/core";
 import {TransitionService} from "../src/transition/transitionService";
 import {tree2Array} from "./stateHelper.ts";
 import {StateService} from "../src/state/stateService";

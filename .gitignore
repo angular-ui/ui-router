@@ -1,5 +1,6 @@
 # master only
 build
+build_packages
 site
 
 # common

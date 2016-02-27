@@ -1,0 +1,16 @@
+{
+  "moduleResolution": "node",
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "rootDir": ".",
+    "target": "es5",
+    "outDir": "../",
+    "declaration": true,
+    "sourceMap": true
+  },
+  "files": [
+    "ng2.ts"
+  ]
+}

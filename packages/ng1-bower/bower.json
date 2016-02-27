@@ -8,7 +8,12 @@
   },
   "ignore": [
     "**/.*",
-    "node_modules",
+    "**/tsconfig.json",
+    "**/webpack.config.js",
+    "**/node_modules",
+    "**/ng2*",
+    "**/typings",
+    "commonjs",
     "bower_components",
     "component.json",
     "package.json",
@@ -22,3 +27,4 @@
     "files.js"
   ]
 }
+

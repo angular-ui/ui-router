@@ -19,7 +19,7 @@ import {StateService} from "./state/stateService";
  * your app states with the [[stateRegistry]] (and set url options using ...).  Then, tell UI-Router to monitor
  * the URL by calling `urlRouter.listen()` ([[URLRouter.listen]])
  */
-class UIRouter {
+export class UIRouter {
 
   stateParams = stateParamsFactory();
 
@@ -46,5 +46,3 @@ class UIRouter {
     this.viewService.rootContext(this.stateRegistry.root());
   }
 }
-
-export { UIRouter };

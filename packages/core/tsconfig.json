@@ -1,0 +1,4 @@
+{
+  "compilerOptions": { "rootDir": ".", "outDir": ".." },
+  "files": [ "core.ts" ]
+}

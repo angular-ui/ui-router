@@ -4,8 +4,10 @@
  */
 /** for typedoc */
 
-export * from "./ui-router";
+export * from "./core";
+
 import "./justjs";
+
 export * from "./ng2/uiView";
 export * from "./ng2/uiSref";
 export * from "./ng2/uiSrefActive";
