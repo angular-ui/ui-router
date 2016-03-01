@@ -1,5 +1,3 @@
-var ngMajorVer = angular.version.major;
-var ngMinorVer = angular.version.minor;
 /** @module view */ /** for typedoc */
 import {extend} from "../common/common";
 import {isDefined} from "../common/predicates";
@@ -30,9 +28,6 @@ import {UIViewData} from "../view/interface";
  * when a view is populated. By default, $anchorScroll is overridden by ui-router's custom scroll
  * service, {@link ui.router.state.$uiViewScroll}. This custom service let's you
  * scroll ui-view elements into view when they are populated during a state activation.
- *
- * @param {string=} noanimation If truthy, the non-animated renderer will be selected (no animations
- * will be applied to the ui-view)
  *
  * *Note: To revert back to old [`$anchorScroll`](http://docs.angularjs.org/api/ng.$anchorScroll)
  * functionality, call `$uiViewScrollProvider.useAnchorScroll()`.*
@@ -127,26 +122,16 @@ $ViewDirective.$inject = ['$view', '$animate', '$uiViewScroll', '$interpolate', 
 function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,   $q) {
 
   function getRenderer(attrs, scope) {
-
-    function animEnabled(element) {
-      if (!!attrs.noanimation) return false;
-      return (ngMajorVer === 1 && ngMinorVer >= 4) ? !!$animate.enabled(element) : !!$animate.enabled();
-    }
-
     return {
       enter: function(element, target, cb) {
-        if (!animEnabled(element)) {
-          target.after(element); cb();
-        } else if (angular.version.minor > 2) {
+        if (angular.version.minor > 2) {
           $animate.enter(element, null, target).then(cb);
         } else {
           $animate.enter(element, null, target, cb);
         }
       },
       leave: function(element, cb) {
-        if (!animEnabled(element)) {
-          element.remove(); cb();
-        } else if (angular.version.minor > 2) {
+        if (angular.version.minor > 2) {
           $animate.leave(element).then(cb);
         } else {
           $animate.leave(element, cb);
@@ -192,7 +177,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
         trace.traceUiViewEvent("Linking", viewData);
 
         function configUpdatedCallback(config?: ViewConfig) {
-          if (configsEqual(viewConfig, config) || scope._willBeDestroyed) return;
+          if (configsEqual(viewConfig, config)) return;
           trace.traceUiViewConfigUpdated(viewData, config && config.context);
 
           viewConfig = config;
@@ -210,59 +195,51 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
         });
 
         function cleanupLastView() {
-          var _previousEl = previousEl;
-          var _currentScope = currentScope;
-
-          if (_currentScope) {
-            _currentScope._willBeDestroyed = true;
+          if (previousEl) {
+            trace.traceUiViewEvent("Removing (previous) el", previousEl.data('$uiView'));
+            previousEl.remove();
+            previousEl = null;
           }
 
-          function cleanOld() {
-            if (_previousEl) {
-              trace.traceUiViewEvent("Removing    (previous) el", viewData);
-              _previousEl.remove();
-              _previousEl = null;
-            }
-
-            if (_currentScope) {
-              trace.traceUiViewEvent("Destroying  (previous) scope", viewData);
-              _currentScope.$destroy();
-              _currentScope = null;
-            }
+          if (currentScope) {
+            trace.traceUiViewEvent("Destroying scope", viewData);
+            currentScope.$destroy();
+            currentScope = null;
           }
 
           if (currentEl) {
-            trace.traceUiViewEvent("Animate out (previous)", viewData);
+            let _viewData = currentEl.data('$uiView');
+            trace.traceUiViewEvent("Animate out", _viewData);
             renderer.leave(currentEl, function() {
-              cleanOld();
+              _viewData.$$animLeave.resolve();
               previousEl = null;
             });
 
             previousEl = currentEl;
-          } else {
-            cleanOld();
-            previousEl = null;
+            currentEl = null;
           }
-
-          currentEl = null;
-          currentScope = null;
         }
 
         function updateView(config?: ViewConfig) {
           config = config || <any> {};
           let newScope = scope.$new();
           trace.traceUiViewScopeCreated(viewData, newScope);
+          let animEnter = $q.defer(), animLeave = $q.defer();
 
-          extend(viewData, {
+          let $uiViewData = extend({}, viewData, {
             context: config.context,
             $template: config.template,
             $controller: config.controller,
             $controllerAs: config.controllerAs,
-            $locals: config.locals
+            $locals: config.locals,
+            $animEnter: animEnter.promise,
+            $animLeave: animLeave.promise,
+            $$animLeave: animLeave
           });
 
           let cloned = $transclude(newScope, function(clone) {
-            renderer.enter(clone.data('$uiView', viewData), $element, function onUiViewEnter() {
+            renderer.enter(clone.data('$uiView', $uiViewData), $element, function onUiViewEnter() {
+              animEnter.resolve();
               if (currentScope) {
                 currentScope.$emit('$viewContentAnimationEnded');
               }
