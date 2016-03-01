@@ -1,5 +1,3 @@
-var ngMajorVer = angular.version.major;
-var ngMinorVer = angular.version.minor;
 /** @module view */ /** for typedoc */
 import {extend} from "../common/common";
 import {isDefined} from "../common/predicates";
@@ -30,9 +28,6 @@ import {UIViewData} from "../view/interface";
  * when a view is populated. By default, $anchorScroll is overridden by ui-router's custom scroll
  * service, {@link ui.router.state.$uiViewScroll}. This custom service let's you
  * scroll ui-view elements into view when they are populated during a state activation.
- *
- * @param {string=} noanimation If truthy, the non-animated renderer will be selected (no animations
- * will be applied to the ui-view)
  *
  * *Note: To revert back to old [`$anchorScroll`](http://docs.angularjs.org/api/ng.$anchorScroll)
  * functionality, call `$uiViewScrollProvider.useAnchorScroll()`.*
@@ -127,26 +122,16 @@ $ViewDirective.$inject = ['$view', '$animate', '$uiViewScroll', '$interpolate', 
 function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,   $q) {
 
   function getRenderer(attrs, scope) {
-
-    function animEnabled(element) {
-      if (!!attrs.noanimation) return false;
-      return (ngMajorVer === 1 && ngMinorVer >= 4) ? !!$animate.enabled(element) : !!$animate.enabled();
-    }
-
     return {
       enter: function(element, target, cb) {
-        if (!animEnabled(element)) {
-          target.after(element); cb();
-        } else if (angular.version.minor > 2) {
+        if (angular.version.minor > 2) {
           $animate.enter(element, null, target).then(cb);
         } else {
           $animate.enter(element, null, target, cb);
         }
       },
       leave: function(element, cb) {
-        if (!animEnabled(element)) {
-          element.remove(); cb();
-        } else if (angular.version.minor > 2) {
+        if (angular.version.minor > 2) {
           $animate.leave(element).then(cb);
         } else {
           $animate.leave(element, cb);

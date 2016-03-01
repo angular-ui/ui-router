@@ -17,7 +17,7 @@ describe('uiView', function () {
   var log, scope, $compile, elem;
 
   beforeEach(function() {
-    var depends = ['ui.router', 'ui.router.state.events'];
+    var depends = ['ui.router'];
 
     try {
       angular.module('ngAnimate');
@@ -31,8 +31,7 @@ describe('uiView', function () {
     module('ui.router.test');
   });
 
-  beforeEach(module(function ($provide, $stateEventsProvider) {
-    $stateEventsProvider.enable();
+  beforeEach(module(function ($provide) {
     $provide.decorator('$uiViewScroll', function () {
       return jasmine.createSpy('$uiViewScroll');
     });
@@ -138,13 +137,17 @@ describe('uiView', function () {
       .state('m', {
         template: 'mState',
         controller: function($scope) {
-          log += 'ctrl(m);';
-          $scope.$on('$destroy', function() { log += '$destroy(m);'; });
-        }
+          log += 'm;';
+          $scope.$on('$destroy', function() {
+            log += '$destroy(m);';
+          });
+        },
       })
       .state('n', {
         template: 'nState',
-        controller: function($scope) { log += 'ctrl(n);'; }
+        controller: function($scope) {
+          log += 'n;';
+        },
       })
       .state('o', oState)
   }));
@@ -156,6 +159,23 @@ describe('uiView', function () {
   }));
 
   describe('linking ui-directive', function () {
+
+    it('$destroy event is triggered after animation ends', inject(function($state, $q, $animate) {
+      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+
+      $state.transitionTo('m');
+      $q.flush();
+      expect(log).toBe('m;');
+      $state.transitionTo('n');
+      $q.flush();
+      if ($animate) {
+        expect(log).toBe('m;n;');
+        animateFlush($animate);
+        expect(log).toBe('m;n;$destroy(m);');
+      } else {
+        expect(log).toBe('m;$destroy(m);n;');
+      }
+    }));
 
     it('anonymous ui-view should be replaced with the template of the current $state', inject(function ($state, $q) {
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
@@ -595,53 +615,6 @@ describe('uiView', function () {
       // No more animations
       expect($animate.queue.length).toBe(0);
     }));
-
-    it ('should disable animations if noanimation="true" is present', inject(function($state, $q, $compile, $animate) {
-      var content = 'Initial Content', animation;
-      elem.append($compile('<div><ui-view noanimation="true">' + content + '</ui-view></div>')(scope));
-
-      animation = $animate.queue.shift();
-      expect(animation).toBeUndefined();
-
-      $state.transitionTo(aState);
-      $q.flush();
-      animation = $animate.queue.shift();
-      expect(animation).toBeUndefined();
-      expect(elem.text()).toBe(aState.template);
-
-      $state.transitionTo(bState);
-      $q.flush();
-      animation = $animate.queue.shift();
-      expect(animation).toBeUndefined();
-      expect(elem.text()).toBe(bState.template);
-    }));
-
-    describe('$destroy event', function() {
-      it('is triggered after animation ends', inject(function($state, $q, $animate, $rootScope) {
-        elem.append($compile('<div><ui-view></ui-view></div>')(scope));
-
-        $state.transitionTo('m');
-        $q.flush();
-        expect(log).toBe('ctrl(m);');
-        $state.transitionTo('n');
-        $q.flush();
-
-        expect(log).toBe('ctrl(m);ctrl(n);');
-        animateFlush($animate);
-        expect(log).toBe('ctrl(m);ctrl(n);$destroy(m);');
-      }));
-
-      it('is triggered before $stateChangeSuccess if noanimation is present', inject(function($state, $q, $animate, $rootScope) {
-        elem.append($compile('<div><ui-view noanimation="true"></ui-view></div>')(scope));
-
-        $state.transitionTo('m');
-        $q.flush();
-        expect(log).toBe('ctrl(m);');
-        $state.transitionTo('n');
-        $q.flush();
-        expect(log).toBe('ctrl(m);$destroy(m);ctrl(n);');
-      }));
-    });
   });
 });
 
