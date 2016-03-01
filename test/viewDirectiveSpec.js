@@ -9,10 +9,11 @@ function animateFlush($animate) {
 describe('uiView', function () {
   'use strict';
 
-  var scope, $compile, elem;
+  var scope, $compile, elem, log;
 
   beforeEach(function() {
     var depends = ['ui.router'];
+    log = "";
 
     try {
       angular.module('ngAnimate');
@@ -101,6 +102,16 @@ describe('uiView', function () {
         template: 'view3'
       }
     }
+  },
+  nState = {
+    template: 'nState',
+    controller: function ($scope, $element) {
+      var data = $element.data('$uiView');
+      $scope.$on("$destroy", function() { log += 'destroy;'});
+      data.$animEnter.then(function() { log += "animEnter;"});
+      data.$animLeave.then(function() {
+        log += "animLeave;"});
+    }
   };
 
   beforeEach(module(function ($stateProvider) {
@@ -117,6 +128,7 @@ describe('uiView', function () {
       .state('j', jState)
       .state('k', kState)
       .state('l', lState)
+      .state('n', nState)
   }));
 
   beforeEach(inject(function ($rootScope, _$compile_) {
@@ -560,5 +572,34 @@ describe('uiView', function () {
       // No more animations
       expect($animate.queue.length).toBe(0);
     }));
+
+    it ('should expose animation promises to controllers', inject(function($state, $q, $compile, $animate, $rootScope) {
+      $rootScope.$on('$stateChangeStart', function(evt, toState) {
+        log += 'start:' + toState.name + ';';
+      });
+      $rootScope.$on('$stateChangeSuccess', function(evt, toState) {
+        log += 'success:' + toState.name + ';';
+      });
+
+      var content = 'Initial Content';
+      elem.append($compile('<div><ui-view>' + content + '</ui-view></div>')(scope));
+      $state.transitionTo('n');
+      $q.flush();
+
+      expect($state.current.name).toBe('n');
+      expect(log).toBe('start:n;success:n;');
+
+      animateFlush($animate);
+      expect(log).toBe('start:n;success:n;animEnter;');
+
+      $state.transitionTo('a');
+      $q.flush();
+      expect($state.current.name).toBe('a');
+      expect(log).toBe('start:n;success:n;animEnter;start:a;success:a;destroy;');
+
+      animateFlush($animate);
+      expect(log).toBe('start:n;success:n;animEnter;start:a;success:a;destroy;animLeave;');
+    }));
+
   });
 });
