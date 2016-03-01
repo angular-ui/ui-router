@@ -9,7 +9,7 @@ function animateFlush($animate) {
 describe('uiView', function () {
   'use strict';
 
-  var log, scope, $compile, elem;
+  var scope, $compile, elem;
 
   beforeEach(function() {
     var depends = ['ui.router'];
@@ -31,10 +31,6 @@ describe('uiView', function () {
       return jasmine.createSpy('$uiViewScroll');
     });
   }));
-
-  beforeEach(function() {
-    log = '';
-  });
 
   var aState = {
     template: 'aState template'
@@ -121,15 +117,6 @@ describe('uiView', function () {
       .state('j', jState)
       .state('k', kState)
       .state('l', lState)
-      .state('m', {
-        controller: function($scope) {
-          log += 'ctrl(m);';
-          $scope.$on('$destroy', function() { log += '$destroy(m);'; });
-        }
-      })
-      .state('n', {
-        controller: function($scope) { log += 'ctrl(n);'; }
-      });
   }));
 
   beforeEach(inject(function ($rootScope, _$compile_) {
