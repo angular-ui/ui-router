@@ -196,20 +196,22 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
 
         function cleanupLastView() {
           if (previousEl) {
-            trace.traceUiViewEvent("Removing    (previous) el", viewData);
+            trace.traceUiViewEvent("Removing (previous) el", previousEl.data('$uiView'));
             previousEl.remove();
             previousEl = null;
           }
 
           if (currentScope) {
-            trace.traceUiViewEvent("Destroying  (previous) scope", viewData);
+            trace.traceUiViewEvent("Destroying scope", viewData);
             currentScope.$destroy();
             currentScope = null;
           }
 
           if (currentEl) {
-            trace.traceUiViewEvent("Animate out (previous)", viewData);
+            let _viewData = currentEl.data('$uiView');
+            trace.traceUiViewEvent("Animate out", _viewData);
             renderer.leave(currentEl, function() {
+              _viewData.$$animLeave.resolve();
               previousEl = null;
             });
 
@@ -222,17 +224,22 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
           config = config || <any> {};
           let newScope = scope.$new();
           trace.traceUiViewScopeCreated(viewData, newScope);
+          let animEnter = $q.defer(), animLeave = $q.defer();
 
-          extend(viewData, {
+          let $uiViewData = extend({}, viewData, {
             context: config.context,
             $template: config.template,
             $controller: config.controller,
             $controllerAs: config.controllerAs,
-            $locals: config.locals
+            $locals: config.locals,
+            $animEnter: animEnter.promise,
+            $animLeave: animLeave.promise,
+            $$animLeave: animLeave
           });
 
           let cloned = $transclude(newScope, function(clone) {
-            renderer.enter(clone.data('$uiView', viewData), $element, function onUiViewEnter() {
+            renderer.enter(clone.data('$uiView', $uiViewData), $element, function onUiViewEnter() {
+              animEnter.resolve();
               if (currentScope) {
                 currentScope.$emit('$viewContentAnimationEnded');
               }
