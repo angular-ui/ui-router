@@ -87,7 +87,9 @@ export class TransitionService implements ITransitionService, IHookRegistry {
   getHooks  : (hookName: string) => IEventHook[];
 
   private _defaultErrorHandler: ((_error) => void) = function $defaultErrorHandler($error$) {
-    if ($error$ instanceof Error) console.log($error$);
+    if ($error$ instanceof Error) {
+      console.error($error$);
+    }
   };
 
   defaultErrorHandler(handler: (error) => void) {
