@@ -54,7 +54,8 @@ beforeEach(function () {
     O: { resolve: { _O: function(_O2) { return _O2 + "O"; }, _O2: function(_O) { return _O + "O2"; } } },
     P: { resolve: { $state: function($state) { return $state } },
       Q: { resolve: { _Q: function($state) { counts._Q++; vals._Q = $state; return "foo"; }}}
-    }
+    },
+    PAnnotated: { resolve: { $state: ['$state', function($state) { return $state }] } }
   };
 
   var stateProps = ["resolve", "resolvePolicy"];
@@ -94,6 +95,48 @@ describe('Resolvables system:', function () {
     emptyPath = [];
     asyncCount = 0;
   }));
+
+  describe('strictDi support', function () {
+    let originalStrictDi: boolean;
+    let supportsStrictDi = false;
+
+    beforeEach(inject(function ($injector) {
+      // not all angular versions support strictDi mode.
+      // here, we detect the feature
+      try {
+        $injector.annotate(() => {}, true);
+      } catch (e) {
+        supportsStrictDi = true;
+      }
+
+      if (supportsStrictDi) {
+        originalStrictDi = $injector.strictDi;
+        $injector.strictDi = true;
+      }
+    }));
+
+    afterEach(inject(function ($injector) {
+      if (supportsStrictDi) {
+        $injector.strictDi = originalStrictDi;
+      }
+    }));
+
+    it('should throw when creating a resolvable with an unannotated fn and strictDi mode on', inject(function ($injector) {
+      if (supportsStrictDi) {
+        expect(() => {
+          makePath([ "P" ]);
+        }).toThrowError(/strictdi/);
+      }
+    });
+
+    it('should not throw when creating a resolvable with an annotated fn and strictDi mode on', inject(function ($injector) {
+      if (supportsStrictDi) {
+        expect(() => {
+          makePath([ "PAnnotated" ]);
+        }).not.toThrowError(/strictdi/);
+      }
+    });
+  });
 
   describe('ResolveContext.resolvePathElement()', function () {
     it('should resolve all resolves in a PathElement', inject(function ($q) {

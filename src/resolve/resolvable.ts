@@ -23,7 +23,12 @@ import {ResolveContext} from "./resolveContext";
  */
 export class Resolvable {
   constructor(name: string, resolveFn: Function, preResolvedData?: any) {
-    extend(this, { name, resolveFn, deps: services.$injector.annotate(resolveFn), data: preResolvedData });
+    extend(this, {
+     name, 
+     resolveFn, 
+     deps: services.$injector.annotate(resolveFn, services.$injector.strictDi), 
+     data: preResolvedData 
+   });
   }
 
   name: string;
