@@ -73,7 +73,7 @@ export class ResolveContext {
 
   /** Inspects a function `fn` for its dependencies.  Returns an object containing any matching Resolvables */
   getResolvablesForFn(fn: IInjectable): { [key: string]: Resolvable } {
-    let deps = services.$injector.annotate(<Function> fn);
+    let deps = services.$injector.annotate(<Function> fn, services.$injector.strictDi);
     return <any> pick(this.getResolvables(), deps);
   }
 
