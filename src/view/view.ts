@@ -54,6 +54,7 @@ export class ViewConfig {
   template: string;
   controller: Function;
   controllerAs: string;
+  resolveAs: string;
 
   context: ViewContext;
 
@@ -78,6 +79,7 @@ export class ViewConfig {
 
     extend(this, pick(stateViewConfig, "viewDeclarationObj", "params", "context", "locals", "node"), {uiViewName, uiViewContextAnchor});
     this.controllerAs = stateViewConfig.viewDeclarationObj.controllerAs;
+    this.resolveAs = stateViewConfig.viewDeclarationObj.resolveAs;
   }
 
   /**

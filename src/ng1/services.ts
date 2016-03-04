@@ -15,7 +15,7 @@
 /** for typedoc */
 import {UIRouter} from "../router";
 import {services} from "../common/coreservices";
-import {map, bindFunctions, removeFrom, find, noop} from "../common/common";
+import {map, bindFunctions, removeFrom, find, noop, TypedMap} from "../common/common";
 import {prop, propEq} from "../common/hof";
 import {isObject} from "../common/predicates";
 import {Node} from "../path/module";
@@ -272,7 +272,7 @@ function getTransitionsProvider() {
   loadAllControllerLocals.$inject = ['$transition$'];
   function loadAllControllerLocals($transition$) {
     const loadLocals = (vc: ViewConfig) => {
-      let resolveCtx = find($transition$.treeChanges().to, propEq('state', vc.context)).resolveContext;
+      let resolveCtx = (<Node> find($transition$.treeChanges().to, propEq('state', vc.context))).resolveContext;
       let controllerDeps = annotateController(vc.controller);
       let resolvables = resolveCtx.getResolvables();
 

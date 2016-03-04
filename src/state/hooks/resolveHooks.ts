@@ -36,7 +36,7 @@ export class ResolveHooks {
       let node = find(<any[]> treeChanges.entering, propEq('state', $state$));
 
       // A new Resolvable contains all the resolved data in this context as a single object, for injection as `$resolve$`
-      let $resolve$ = new Resolvable("$resolve$", () => map(context.getResolvables(), r => r.data));
+      let $resolve$ = new Resolvable("$resolve$", () => map(context.getResolvables(), (r: Resolvable) => r.data));
       let context = node.resolveContext;
       var options = extend({transition: $transition$}, { resolvePolicy: LAZY });
 

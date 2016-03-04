@@ -79,6 +79,19 @@ export interface ViewDeclaration {
   controllerProvider?:  Function;
 
   /**
+   * The scope variable name to use for resolve data.
+   *
+   * A property of either [[StateDeclaration]] or [[ViewDeclaration]].  For a given view, the view-level property
+   * takes precedence over the state-level property.
+   *
+   * When a view is activated, the resolved data for the state which the view belongs to is put on the scope.
+   * This property sets the name of the scope variable to use for the resolved data.
+   *
+   * Defaults to `$resolve`.
+   */
+  resolveAs?: string;
+
+  /**
    * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
    *
    * HTML template as a string or a function which returns an html template as a string.

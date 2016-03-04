@@ -102,7 +102,7 @@ export class StateBuilder {
       views: [function (state: State) {
         let views = {},
             tplKeys = ['templateProvider', 'templateUrl', 'template', 'notify', 'async'],
-            ctrlKeys = ['controller', 'controllerProvider', 'controllerAs'];
+            ctrlKeys = ['controller', 'controllerProvider', 'controllerAs', 'resolveAs'];
         let allKeys = tplKeys.concat(ctrlKeys);
 
         forEach(state.views || {"$default": pick(state, allKeys)}, function (config, name) {
@@ -111,7 +111,8 @@ export class StateBuilder {
           forEach(ctrlKeys, (key) => {
             if (state[key] && !config[key]) config[key] = state[key];
           });
-          if (Object.keys(config).length > 0) views[name] = config;
+          config.resolveAs = config.resolveAs || '$resolve';
+          if (Object.keys(config).length > 1) views[name] = config;
         });
         return views;
       }],
