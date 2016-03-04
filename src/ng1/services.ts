@@ -272,12 +272,16 @@ function getTransitionsProvider() {
   loadAllControllerLocals.$inject = ['$transition$'];
   function loadAllControllerLocals($transition$) {
     const loadLocals = (vc: ViewConfig) => {
-      let deps = annotateController(vc.controller);
-      let toPath: Node[] = $transition$.treeChanges().to;
-      let resolveInjector = find(toPath, propEq('state', vc.context)).resolveInjector;
+      let resolveCtx = find($transition$.treeChanges().to, propEq('state', vc.context)).resolveContext;
+      let controllerDeps = annotateController(vc.controller);
+      let resolvables = resolveCtx.getResolvables();
+
       function $loadControllerLocals() { }
-      $loadControllerLocals.$inject = deps;
-      return services.$q.all(resolveInjector.getLocals($loadControllerLocals)).then((locals) => vc.locals = locals);
+      $loadControllerLocals.$inject = controllerDeps.filter(dep => resolvables.hasOwnProperty(dep));
+      // Load any controller resolves that aren't already loaded
+      return resolveCtx.invokeLater($loadControllerLocals)
+          // Then provide the view config with all the resolved data
+          .then(() => vc.locals = map(resolvables, res => res.data));
     };
 
     let loadAllLocals = $transition$.views("entering").filter(vc => !!vc.controller).map(loadLocals);
