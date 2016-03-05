@@ -15,7 +15,7 @@
 /** for typedoc */
 import {UIRouter} from "../router";
 import {services} from "../common/coreservices";
-import {map, bindFunctions, removeFrom, find, noop} from "../common/common";
+import {map, bindFunctions, removeFrom, find, noop, TypedMap} from "../common/common";
 import {prop, propEq} from "../common/hof";
 import {isObject} from "../common/predicates";
 import {Node} from "../path/module";
@@ -272,12 +272,16 @@ function getTransitionsProvider() {
   loadAllControllerLocals.$inject = ['$transition$'];
   function loadAllControllerLocals($transition$) {
     const loadLocals = (vc: ViewConfig) => {
-      let deps = annotateController(vc.controller);
-      let toPath: Node[] = $transition$.treeChanges().to;
-      let resolveInjector = find(toPath, propEq('state', vc.context)).resolveInjector;
+      let resolveCtx = (<Node> find($transition$.treeChanges().to, propEq('state', vc.context))).resolveContext;
+      let controllerDeps = annotateController(vc.controller);
+      let resolvables = resolveCtx.getResolvables();
+
       function $loadControllerLocals() { }
-      $loadControllerLocals.$inject = deps;
-      return services.$q.all(resolveInjector.getLocals($loadControllerLocals)).then((locals) => vc.locals = locals);
+      $loadControllerLocals.$inject = controllerDeps.filter(dep => resolvables.hasOwnProperty(dep));
+      // Load any controller resolves that aren't already loaded
+      return resolveCtx.invokeLater($loadControllerLocals)
+          // Then provide the view config with all the resolved data
+          .then(() => vc.locals = map(resolvables, res => res.data));
     };
 
     let loadAllLocals = $transition$.views("entering").filter(vc => !!vc.controller).map(loadLocals);

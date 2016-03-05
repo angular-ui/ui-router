@@ -1,11 +1,12 @@
 /** @module state */ /** for typedoc */
-import {extend, find, tail} from "../../common/common";
+import {extend, find, tail, map} from "../../common/common";
 import {propEq} from "../../common/hof";
 
 import {ResolvePolicy} from "../../resolve/interface";
 
 import {Transition} from "../../transition/transition";
 import {val} from "../../common/hof";
+import {Resolvable} from "../../resolve/resolvable";
 
 
 let LAZY = ResolvePolicy[ResolvePolicy.LAZY];
@@ -33,7 +34,16 @@ export class ResolveHooks {
     (<any> $lazyResolveEnteringState).$inject = ['$state$', '$transition$'];
     function $lazyResolveEnteringState($state$, $transition$) {
       let node = find(<any[]> treeChanges.entering, propEq('state', $state$));
-      return node.resolveContext.resolvePathElement(node.state, extend({transition: $transition$}, { resolvePolicy: LAZY }));
+
+      // A new Resolvable contains all the resolved data in this context as a single object, for injection as `$resolve$`
+      let $resolve$ = new Resolvable("$resolve$", () => map(context.getResolvables(), (r: Resolvable) => r.data));
+      let context = node.resolveContext;
+      var options = extend({transition: $transition$}, { resolvePolicy: LAZY });
+
+      // Resolve all the LAZY resolves, then resolve the `$resolve$` object, then add `$resolve$` to the context
+      return context.resolvePathElement(node.state, options)
+          .then(() => $resolve$.resolveResolvable(context))
+          .then(() => context.addResolvables({$resolve$}, node.state));
     }
 
     // Resolve eager resolvables before when the transition starts

@@ -9,7 +9,7 @@ function animateFlush($animate) {
 describe('uiView', function () {
   'use strict';
 
-  var scope, $compile, elem, log;
+  var $stateProvider, scope, $compile, elem, log;
 
   beforeEach(function() {
     var depends = ['ui.router'];
@@ -120,7 +120,8 @@ describe('uiView', function () {
     }
   };
 
-  beforeEach(module(function ($stateProvider) {
+  beforeEach(module(function (_$stateProvider_) {
+    $stateProvider = _$stateProvider_;
     $stateProvider
       .state('a', aState)
       .state('b', bState)
@@ -337,6 +338,73 @@ describe('uiView', function () {
 
     expect(elem.text()).toBe('mState');
   }));
+
+  describe('(resolved data)', function() {
+    var _scope;
+    function controller($scope) { _scope = $scope; }
+
+    var _state = {
+      name: 'resolve',
+      resolve: {
+        user: function($timeout) {
+          return $timeout(function() { return "joeschmoe"; }, 100);
+        }
+      }
+    };
+
+    it('should provide the resolved data on the $scope', inject(function ($state, $q, $timeout) {
+      var state = angular.extend({}, _state, { template: '{{$resolve.user}}', controller: controller });
+      $stateProvider.state(state);
+      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+
+      $state.transitionTo('resolve'); $q.flush(); $timeout.flush();
+      expect(elem.text()).toBe('joeschmoe');
+      expect(_scope.$resolve).toBeDefined();
+      expect(_scope.$resolve.user).toBe('joeschmoe')
+    }));
+
+    it('should put the resolved data on the resolveAs variable', inject(function ($state, $q, $timeout) {
+      var state = angular.extend({}, _state, { template: '{{$$$resolve.user}}', resolveAs: '$$$resolve', controller: controller });
+      $stateProvider.state(state);
+      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+
+      $state.transitionTo('resolve'); $q.flush(); $timeout.flush();
+      expect(elem.text()).toBe('joeschmoe');
+      expect(_scope.$$$resolve).toBeDefined();
+      expect(_scope.$$$resolve.user).toBe('joeschmoe')
+    }));
+
+    it('should put the resolved data on the controllerAs', inject(function ($state, $q, $timeout) {
+      var state = angular.extend({}, _state, { template: '{{$ctrl.$resolve.user}}', controllerAs: '$ctrl', controller: controller });
+      $stateProvider.state(state);
+      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+
+      $state.transitionTo('resolve'); $q.flush(); $timeout.flush();
+      expect(elem.text()).toBe('joeschmoe');
+      expect(_scope.$resolve).toBeDefined();
+      expect(_scope.$ctrl).toBeDefined();
+      expect(_scope.$ctrl.$resolve).toBeDefined();
+      expect(_scope.$ctrl.$resolve.user).toBe('joeschmoe');
+    }));
+
+    it('should use the view-level resolveAs over the state-level resolveAs', inject(function ($state, $q, $timeout) {
+      var views = {
+        "$default": {
+          controller: controller,
+          template: '{{$$$resolve.user}}',
+          resolveAs: '$$$resolve'
+        }
+      };
+      var state = angular.extend({}, _state, { resolveAs: 'foo', views: views })
+      $stateProvider.state(state);
+      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+
+      $state.transitionTo('resolve'); $q.flush(); $timeout.flush();
+      expect(elem.text()).toBe('joeschmoe');
+      expect(_scope.$$$resolve).toBeDefined();
+      expect(_scope.$$$resolve.user).toBe('joeschmoe');
+    }));
+  });
 
   describe('play nicely with other directives', function() {
     // related to issue #857

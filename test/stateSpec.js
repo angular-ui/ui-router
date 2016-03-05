@@ -181,7 +181,7 @@ describe('state helpers', function() {
       it('should return filtered keys if view config is provided', function() {
         var config = { url: "/foo", templateUrl: "/foo.html", controller: "FooController" };
         expect(builder.builder('views')(config)).toEqual({
-          $default: { templateUrl: "/foo.html", controller: "FooController" }
+          $default: { templateUrl: "/foo.html", controller: "FooController", resolveAs: '$resolve' }
         });
       });
 

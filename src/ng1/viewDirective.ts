@@ -117,6 +117,26 @@ import {UIViewData} from "../view/interface";
  * <ui-view autoscroll='false'/>
  * <ui-view autoscroll='scopeVariable'/>
  * </pre>
+ *
+ * Resolve data:
+ *
+ * The resolved data from the state's `resolve` block is placed on the scope as `$resolve` (this
+ * can be customized using [[ViewDeclaration.resolveAs]]).  This can be then accessed from the template.
+ *
+ * Note that when `controllerAs` is being used, `$resolve` is set on the controller instance *after* the
+ * controller is instantiated.  The `$onInit()` hook can be used to perform initialization code which
+ * depends on `$resolve` data.
+ *
+ * @example
+ * ```
+ *
+ * $stateProvider.state('home', {
+ *   template: '<my-component user="$resolve.user"></my-component>',
+ *   resolve: {
+ *     user: function(UserService) { return UserService.fetchUser(); }
+ *   }
+ * });
+ * ```
  */
 $ViewDirective.$inject = ['$view', '$animate', '$uiViewScroll', '$interpolate', '$q'];
 function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,   $q) {
@@ -231,6 +251,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
             $template: config.template,
             $controller: config.controller,
             $controllerAs: config.controllerAs,
+            $resolveAs: config.resolveAs,
             $locals: config.locals,
             $animEnter: animEnter.promise,
             $animLeave: animLeave.promise,
@@ -291,11 +312,17 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
         let link = $compile($element.contents());
         let controller = data.$controller;
         let controllerAs = data.$controllerAs;
+        let resolveAs = data.$resolveAs;
+        let locals = data.$locals;
 
+        scope[resolveAs] = locals;
+        
         if (controller) {
-          let locals = data.$locals;
           let controllerInstance = $controller(controller, extend(locals, { $scope: scope, $element: $element }));
-          if (controllerAs) scope[controllerAs] = controllerInstance;
+          if (controllerAs) {
+            scope[controllerAs] = controllerInstance;
+            scope[controllerAs][resolveAs] = locals;
+          }
           $element.data('$ngControllerController', controllerInstance);
           $element.children().data('$ngControllerController', controllerInstance);
         }
