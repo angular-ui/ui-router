@@ -686,15 +686,14 @@ describe('uiView', function () {
       expect($state.current.name).toBe('n');
       expect(log).toBe('start:n;success:n;');
 
-      animateFlush($animate);
+      animateFlush($animate); $q.flush();
       expect(log).toBe('start:n;success:n;animEnter;');
 
-      $state.transitionTo('a');
-      $q.flush();
+      $state.transitionTo('a'); $q.flush();
       expect($state.current.name).toBe('a');
       expect(log).toBe('start:n;success:n;animEnter;start:a;success:a;destroy;');
 
-      animateFlush($animate);
+      animateFlush($animate); $q.flush();
       expect(log).toBe('start:n;success:n;animEnter;start:a;success:a;destroy;animLeave;');
     }));
 
