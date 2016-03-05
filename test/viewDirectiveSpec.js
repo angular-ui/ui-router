@@ -406,6 +406,20 @@ describe('uiView', function () {
     }));
   });
 
+  it('should call the existing $onInit after instantiating a controller', inject(function ($state, $q) {
+    var $onInit = jasmine.createSpy();
+    $stateProvider.state('onInit', {
+      controller: function() { this.$onInit = $onInit; },
+      template: "hi",
+      controllerAs: "vm"
+    });
+    elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+    $state.transitionTo('onInit');
+    $q.flush();
+
+    expect($onInit).toHaveBeenCalled();
+  }));
+
   describe('play nicely with other directives', function() {
     // related to issue #857
     it('should work with ngIf', inject(function ($state, $q, $compile) {

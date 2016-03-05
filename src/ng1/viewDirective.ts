@@ -1,6 +1,6 @@
 /** @module view */ /** for typedoc */
 import {extend} from "../common/common";
-import {isDefined} from "../common/predicates";
+import {isDefined, isFunction} from "../common/predicates";
 import {trace} from "../common/trace";
 import {ViewConfig} from "../view/view";
 import {UIViewData} from "../view/interface";
@@ -323,6 +323,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
             scope[controllerAs] = controllerInstance;
             scope[controllerAs][resolveAs] = locals;
           }
+          if (isFunction(controllerInstance.$onInit)) controllerInstance.$onInit();
           $element.data('$ngControllerController', controllerInstance);
           $element.children().data('$ngControllerController', controllerInstance);
         }
