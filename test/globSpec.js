@@ -1,5 +1,5 @@
 var uiRouter = require("angular-ui-router");
-var Glob = uiRouter.state.Glob;
+var Glob = uiRouter.common.Glob;
 
 describe('Glob', function() {
   it('should match glob strings', function() {
