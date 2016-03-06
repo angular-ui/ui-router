@@ -26,7 +26,7 @@ import {RawParams} from "../params/interface";
 import {ParamsOrArray} from "../params/interface";
 import {TransitionManager} from "./hooks/transitionManager";
 import {Param} from "../params/param";
-import {Glob} from "./glob";
+import {Glob} from "../common/glob";
 import {equalForKeys} from "../common/common";
 import {HrefOptions} from "./interface";
 import {StateProvider} from "./state";

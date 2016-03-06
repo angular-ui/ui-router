@@ -5,7 +5,8 @@ import {val} from "../common/hof";
 import {Node} from "../path/node";
 
 import {IMatchCriteria, IStateMatch, IEventHook, IHookRegistry, IHookRegistration, TreeChanges, MatchCriterion, IMatchingNodes} from "./interface";
-import {Glob, State} from "../state/module";
+import {Glob} from "../common/glob";
+import {State} from "../state/stateObject";
 
 /**
  * Determines if the given state matches the matchCriteria
