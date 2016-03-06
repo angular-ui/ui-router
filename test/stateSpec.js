@@ -2027,3 +2027,23 @@ describe('otherwise and state redirects', function() {
     expect($state.current.name).toBe("loginPage")
   }));
 });
+
+
+describe('hook redirects from .otherwise()', function() {
+  beforeEach(module(function ($stateProvider, $urlRouterProvider) {
+    $urlRouterProvider.otherwise('/home');
+    $stateProvider
+        .state('home', { url: '/home', template: 'home' })
+        .state('loginPage', { url: '/login', template: 'login' });
+  }));
+
+  // Test for #2455
+  it("should go to the redirect-to target state and url", inject(function($transitions, $q, $state, $location) {
+    $transitions.onBefore({ to: 'home' }, function() {
+      return $state.target('loginPage', {}, { location: true });
+    });
+    $q.flush();
+    expect($state.current.name).toBe("loginPage");
+    expect($location.path()).toBe('/login');
+  }));
+});
