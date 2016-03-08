@@ -1294,7 +1294,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.state = state;
 	        this.schema = state.parameters({ inherit: false });
 	        var getParamVal = function (paramDef) { return [paramDef.id, paramDef.value(params[paramDef.id])]; };
-	        this.values = this.schema.reduce(function (memo, pDef) { return common_1.applyPairs(memo, getParamVal(pDef)); }, {});
+	        this.paramValues = this.schema.reduce(function (memo, pDef) { return common_1.applyPairs(memo, getParamVal(pDef)); }, {});
 	        this.resolves = common_1.extend(common_1.map(state.resolve, function (fn, name) { return new module_1.Resolvable(name, fn); }), resolves);
 	        var makeViewConfig = function (viewDeclarationObj, rawViewName) {
 	            return new view_1.ViewConfig({ rawViewName: rawViewName, viewDeclarationObj: viewDeclarationObj, context: state, params: params });
@@ -1307,7 +1307,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Node.prototype.equals = function (node, keys) {
 	        var _this = this;
 	        if (keys === void 0) { keys = this.schema.map(common_1.prop('id')); }
-	        var paramValsEq = function (key) { return _this.parameter(key).type.equals(_this.values[key], node.values[key]); };
+	        var paramValsEq = function (key) { return _this.parameter(key).type.equals(_this.paramValues[key], node.values[key]); };
 	        return this.state === node.state && keys.map(paramValsEq).reduce(common_1.allTrueR, true);
 	    };
 	    Node.clone = function (node, update) {
