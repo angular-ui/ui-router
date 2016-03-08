@@ -222,7 +222,7 @@ describe('state helpers', function() {
 
 describe('state', function () {
 
-  var $injector, stateProvider, locationProvider, templateParams, template, ctrlName;
+  var $injector, $stateProvider, locationProvider, templateParams, template, ctrlName;
 
   beforeEach(module('ui.router', function($locationProvider) {
     locationProvider = $locationProvider;
@@ -248,24 +248,18 @@ describe('state', function () {
     HH = { parent: H, template: "hh" },
     HHH = {parent: HH, data: {propA: 'overriddenA', propC: 'propC'}, template: "hhh" },
     RS = { url: '^/search?term', reloadOnSearch: false, template: "rs" },
-    dynamicstate = {
-      url: '^/dynstate/:path/:pathDyn?search&searchDyn', params: {
-        pathDyn: { dynamic: true },
-        searchDyn: { dynamic: true }
-      }, template: "dynamicstate"
-    },
     OPT = { url: '/opt/:param', params: { param: "100" }, template: "opt" },
     OPT2 = { url: '/opt2/:param2/:param3', params: { param3: "300", param4: "400" }, template: "opt2" },
     ISS2101 = { params: { bar: { squash: false, value: 'qux'}}, url: '/2101/{bar:string}'},
     URLLESS = { url: '/urllessparams', params: { myparam: { type: 'int' } } },
     AppInjectable = {};
 
-  beforeEach(module(function ($stateProvider, $provide) {
+  beforeEach(module(function (_$stateProvider_, $provide) {
     angular.forEach([ A, B, C, D, DD, E, H, HH, HHH ], function (state) {
       state.onEnter = callbackLogger(state, 'onEnter');
       state.onExit = callbackLogger(state, 'onExit');
     });
-    stateProvider = $stateProvider;
+    $stateProvider = _$stateProvider_;
 
     $stateProvider
       .state('A', A)
@@ -280,7 +274,6 @@ describe('state', function () {
       .state('HH', HH)
       .state('HHH', HHH)
       .state('RS', RS)
-      .state('dynamicstate', dynamicstate)
       .state('OPT', OPT)
       .state('OPT.OPT2', OPT2)
       .state('ISS2101', ISS2101)
@@ -409,10 +402,10 @@ describe('state', function () {
   describe('provider', function () {
     it ('should ignore Object properties when registering states', function () {
       expect(function() {
-        stateProvider.state('toString', { url: "/to-string" });
+        $stateProvider.state('toString', { url: "/to-string" });
       }).not.toThrow();
       expect(function() {
-        stateProvider.state('watch', { url: "/watch" });
+        $stateProvider.state('watch', { url: "/watch" });
       }).not.toThrow();
     });
   });
@@ -446,17 +439,6 @@ describe('state', function () {
     }));
 
     describe("(dynamic params)", function () {
-      var stateChanged;
-
-      beforeEach(inject(function (_$rootScope_, _$state_, _$stateParams_, _$transitions_, _$q_, _$location_) {
-        $transitions.onStart({}, function () {
-          stateChanged = true;
-        });
-
-        $q.flush();
-      }));
-
-
       it('resolves a fully dynamic $state.go() with the current state', function () {
         initStateTo(RS);
         var destState, promise = $state.go(".", {term: "hello"});
@@ -480,7 +462,27 @@ describe('state', function () {
       });
 
       describe("", function() {
+        var stateChanged, dynamicstate;
+
         beforeEach(function () {
+          dynamicstate = {
+            name: 'dynamicstate',
+            url: '^/dynstate/:path/:pathDyn?search&searchDyn',
+            params: {
+              pathDyn: { dynamic: true },
+              searchDyn: { dynamic: true }
+            },
+            template: "dynamicstate",
+            controller: function($stateParams) {
+              $scope.$watch($stateParams.searchDyn);
+            }
+          }
+          $stateProvider.state(dynamicstate);
+
+          $transitions.onSuccess({}, function () {
+            stateChanged = true;
+          });
+
           initStateTo(dynamicstate, { path: 'pathfoo', pathDyn: 'pathbar', search: 'searchfoo', searchDyn: 'searchbar' });
           expect(stateChanged).toBeTruthy();
           expect(obj($stateParams)).toEqual({ path: 'pathfoo', pathDyn: 'pathbar', search: 'searchfoo', searchDyn: 'searchbar' });
@@ -489,28 +491,28 @@ describe('state', function () {
         });
 
         it('triggers state change for non-dynamic search params', function () {
-          $state.go(dynamicstate, {search: 'somethingelse'});
+          $state.go('dynamicstate', {search: 'somethingelse'});
           $q.flush();
           expect(stateChanged).toBeTruthy();
           expect(obj($stateParams)).toEqual({ path: 'pathfoo', pathDyn: 'pathbar', search: 'somethingelse', searchDyn: 'searchbar' });
         });
 
         it('does not trigger state change for dynamic search params', function () {
-          $state.go(dynamicstate, {searchDyn: 'somethingelse'});
+          $state.go('dynamicstate', {searchDyn: 'somethingelse'});
           $q.flush();
           expect(stateChanged).toBeFalsy();
           expect(obj($stateParams)).toEqual({ path: 'pathfoo', pathDyn: 'pathbar', search: 'searchfoo', searchDyn: 'somethingelse' });
         });
 
         it('triggers state change for non-dynamic path params', function () {
-          $state.go(dynamicstate, {path: 'somethingelse'});
+          $state.go('dynamicstate', {path: 'somethingelse'});
           $q.flush();
           expect(stateChanged).toBeTruthy();
           expect(obj($stateParams)).toEqual({ path: 'somethingelse', pathDyn: 'pathbar', search: 'searchfoo', searchDyn: 'searchbar' });
         });
 
         it('does not trigger state change for dynamic path params', function () {
-          $state.go(dynamicstate, {pathDyn: 'somethingelse'});
+          $state.go('dynamicstate', {pathDyn: 'somethingelse'});
           $q.flush();
           expect(stateChanged).toBeFalsy();
           expect(obj($stateParams)).toEqual({ path: 'pathfoo', pathDyn: 'somethingelse', search: 'searchfoo', searchDyn: 'searchbar' });
@@ -1127,7 +1129,7 @@ describe('state', function () {
       var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
       var names = ['', 'A', 'B', 'C', 'D', 'DD', 'DDDD', 'E', 'F', 'H', 'HH', 'HHH', 'ISS2101', 'OPT', 'OPT.OPT2', 'RS', 'URLLESS',
         'about', 'about.person', 'about.person.item', 'about.sidebar', 'about.sidebar.item',
-        'badParam', 'badParam2', 'dynamicTemplate', 'dynamicstate', 'first', 'home', 'home.item', 'home.redirect',
+        'badParam', 'badParam2', 'dynamicTemplate', 'first', 'home', 'home.item', 'home.redirect',
         'json', 'logA', 'logA.logB', 'logA.logB.logC', 'resolveFail', 'resolveTimeout',
         'root', 'root.sub1', 'root.sub2', 'second'];
 
@@ -1278,7 +1280,7 @@ describe('state', function () {
       var $rootScope, $state, $compile;
       beforeEach(function () {
 
-        stateProvider.state('myState', {
+        $stateProvider.state('myState', {
           template: 'myState',
           url: '/my-state?:previous',
           controller: function () {
@@ -1350,7 +1352,7 @@ describe('state', function () {
 
     describe("typed parameter handling", function() {
       beforeEach(function () {
-        stateProvider.state({
+        $stateProvider.state({
           name: "types",
           url: "/types/{p1:string}/{p2:date}",
           params: {
@@ -1359,7 +1361,7 @@ describe('state', function () {
             nonurl: null
           }
         });
-        stateProvider.state({
+        $stateProvider.state({
           name: "types.substate",
           url: "/sub/{p3[]:int}/{p4:json}?{p5:bool}",
           params: {
@@ -1627,14 +1629,14 @@ describe('state', function () {
   describe('provider decorators', function () {
 
     it('should return built-in decorators', inject(function ($state) {
-      expect(stateProvider.decorator('parent')({ parent: A }).self.name).toBe("A");
+      expect($stateProvider.decorator('parent')({ parent: A }).self.name).toBe("A");
     }));
 
     it('should allow built-in decorators to be overridden', inject(function ($state, $q) {
-      stateProvider.decorator('data', function(state) {
+      $stateProvider.decorator('data', function(state) {
         return angular.extend(state.data || {}, { foo: "bar" });
       });
-      stateProvider.state('AA', { parent: A, data: { baz: "true" } });
+      $stateProvider.state('AA', { parent: A, data: { baz: "true" } });
 
       $state.transitionTo('AA');
       $q.flush();
@@ -1642,10 +1644,10 @@ describe('state', function () {
     }));
 
     it('should allow new decorators to be added', inject(function ($state, $q) {
-      stateProvider.decorator('custom', function(state) {
+      $stateProvider.decorator('custom', function(state) {
         return function() { return "Custom functionality for state '" + state + "'" };
       });
-      stateProvider.state('decoratorTest', {});
+      $stateProvider.state('decoratorTest', {});
 
       $state.transitionTo('decoratorTest');
       $q.flush();
@@ -1653,7 +1655,7 @@ describe('state', function () {
     }));
 
     it('should allow built-in decorators to be extended', inject(function ($state, $q, $httpBackend) {
-      stateProvider.decorator('views', function(state, parent) {
+      $stateProvider.decorator('views', function(state, parent) {
         var result = {};
 
         var views = parent(state);
@@ -1666,7 +1668,7 @@ describe('state', function () {
         return result;
       });
 
-      stateProvider.state('viewTest', {
+      $stateProvider.state('viewTest', {
         views: {
           "viewA@": { template: '<div/>' },
           "viewB@": { template: '<div/>' }
@@ -1685,10 +1687,10 @@ describe('state', function () {
       function decorator1(state, parent) { d.d1 = true; return parent(state); }
       function decorator2(state, parent) { d.d2 = true; return parent(state); }
 
-      stateProvider.decorator('parent', decorator1);
-      stateProvider.decorator('parent', decorator2);
+      $stateProvider.decorator('parent', decorator1);
+      $stateProvider.decorator('parent', decorator2);
 
-      stateProvider.state({ name: "test", parent: A });
+      $stateProvider.state({ name: "test", parent: A });
       $state.go("test"); $q.flush();
 
       expect($state.$current.name).toBe("test");
@@ -1702,10 +1704,10 @@ describe('state', function () {
       function decorator1(state, parent) { d.d1 = true; return parent(state); }
       function decorator2(state, parent) { d.d2 = true; return {}; }
 
-      stateProvider.decorator('data', decorator1);
-      stateProvider.decorator('data', decorator2);
+      $stateProvider.decorator('data', decorator1);
+      $stateProvider.decorator('data', decorator2);
 
-      stateProvider.state({ name: "test", data: { x: 1 } });
+      $stateProvider.state({ name: "test", data: { x: 1 } });
       $state.go("test"); $q.flush();
 
       expect($state.$current.name).toBe("test");
@@ -1719,10 +1721,10 @@ describe('state', function () {
       function decorator1(state, parent) { d.d1 = true; return angular.extend(parent(state), { y: 2 }); }
       function decorator2(state, parent) { d.d2 = true; return angular.extend(parent(state), { z: 3 }); }
 
-      stateProvider.decorator('data', decorator1);
-      stateProvider.decorator('data', decorator2);
+      $stateProvider.decorator('data', decorator1);
+      $stateProvider.decorator('data', decorator2);
 
-      stateProvider.state({ name: "test", data: { x: 1 } });
+      $stateProvider.state({ name: "test", data: { x: 1 } });
       $state.go("test"); $q.flush();
 
       expect($state.$current.name).toBe("test");
