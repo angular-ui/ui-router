@@ -9,8 +9,8 @@ import {ViewConfig} from "../view/view";
 
 export class Node {
 
-  public schema:   Param[];
-  public values:   { [key: string]: any };
+  public paramSchema:   Param[];
+  public paramValues:   { [key: string]: any };
   public resolves: any;
   public views:    ViewConfig[];
   public resolveContext: ResolveContext;
@@ -19,10 +19,10 @@ export class Node {
   // Possibly extract this logic into an intermediary object that maps states to nodes
   constructor(public state: State, params: RawParams = {}, resolves: any = {}) {
     // Object.freeze(extend(this, { ... }))
-    this.schema = state.parameters({ inherit: false });
+    this.paramSchema = state.parameters({ inherit: false });
 
     const getParamVal = (paramDef: Param) => [ paramDef.id, paramDef.value(params[paramDef.id]) ];
-    this.values = this.schema.reduce((memo, pDef) => applyPairs(memo, getParamVal(pDef)), {});
+    this.paramValues = this.paramSchema.reduce((memo, pDef) => applyPairs(memo, getParamVal(pDef)), {});
 
     this.resolves = extend(map(state.resolve, (fn: Function, name: string) => new Resolvable(name, fn)), resolves);
 
@@ -32,16 +32,16 @@ export class Node {
   }
 
   parameter(name: string): Param {
-    return find(this.schema, propEq("id", name));
+    return find(this.paramSchema, propEq("id", name));
   }
 
-  equals(node: Node, keys = this.schema.map(prop('id'))): boolean {
-    const paramValsEq = key => this.parameter(key).type.equals(this.values[key], node.values[key]);
+  equals(node: Node, keys = this.paramSchema.map(prop('id'))): boolean {
+    const paramValsEq = key => this.parameter(key).type.equals(this.paramValues[key], node.paramValues[key]);
     return this.state === node.state && keys.map(paramValsEq).reduce(allTrueR, true);
   }
 
   static clone(node: Node, update: any = {}) {
-    return new Node(node.state, (update.values || node.values), (update.resolves || node.resolves));
+    return new Node(node.state, (update.paramValues || node.paramValues), (update.resolves || node.resolves));
   }
 
   /**
