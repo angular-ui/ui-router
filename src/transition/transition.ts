@@ -179,7 +179,7 @@ export class Transition implements IHookRegistry {
    * @returns transition parameter values for the desired path.
    */
   params(pathname: string = "to"): { [key: string]: any } {
-    return this._treeChanges[pathname].map(prop("values")).reduce(mergeR, {});
+    return this._treeChanges[pathname].map(prop("paramValues")).reduce(mergeR, {});
   }
 
   /**
@@ -311,8 +311,8 @@ export class Transition implements IHookRegistry {
     let {to, from} = this._treeChanges;
     if (this._options.reload || tail(to).state !== tail(from).state) return false;
 
-    let nodeSchemas: Param[][] = to.map(node => node.schema.filter(not(prop('dynamic'))));
-    let [toValues, fromValues] = [to, from].map(path => path.map(prop('values')));
+    let nodeSchemas: Param[][] = to.map((node: Node) => node.paramSchema.filter(not(prop('dynamic'))));
+    let [toValues, fromValues] = [to, from].map(path => path.map(prop('paramValues')));
     let tuples = arrayTuples(nodeSchemas, toValues, fromValues);
 
     return tuples.map(([schema, toVals, fromVals]) => Param.equals(schema, toVals, fromVals)).reduce(allTrueR, true);
@@ -426,7 +426,7 @@ export class Transition implements IHookRegistry {
     // (X) means the to state is invalid.
     let id = this.$id,
         from = isObject(fromStateOrName) ? fromStateOrName.name : fromStateOrName,
-        fromParams = toJson(avoidEmptyHash(this._treeChanges.from.map(prop('values')).reduce(mergeR, {}))),
+        fromParams = toJson(avoidEmptyHash(this._treeChanges.from.map(prop('paramValues')).reduce(mergeR, {}))),
         toValid = this.valid() ? "" : "(X) ",
         to = isObject(toStateOrName) ? toStateOrName.name : toStateOrName,
         toParams = toJson(avoidEmptyHash(this.params()));

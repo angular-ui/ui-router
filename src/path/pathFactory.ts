@@ -21,7 +21,7 @@ export class PathFactory {
   /** Given a Node[], create an TargetState */
   static makeTargetState(path: Node[]): TargetState {
     let state = tail(path).state;
-    return new TargetState(state, state, path.map(prop("values")).reduce(mergeR, {}));
+    return new TargetState(state, state, path.map(prop("paramValues")).reduce(mergeR, {}));
   }
 
   /* Given params and a state, creates an Node */
@@ -50,8 +50,8 @@ export class PathFactory {
    */
   static inheritParams(fromPath: Node[], toPath: Node[], toKeys: string[] = []): Node[] {
     function nodeParamVals(path: Node[], state: State): RawParams {
-      let node = find(path, propEq('state', state));
-      return extend({}, node && node.values);
+      let node: Node = find(path, propEq('state', state));
+      return extend({}, node && node.paramValues);
     }
 
     /**
@@ -60,7 +60,7 @@ export class PathFactory {
      */
     let makeInheritedParamsNode = curry(function(_fromPath: Node[], _toKeys: string[], toNode: Node): Node {
       // All param values for the node (may include default key/vals, when key was not found in toParams)
-      let toParamVals = extend({}, toNode && toNode.values);
+      let toParamVals = extend({}, toNode && toNode.paramValues);
       // limited to only those keys found in toParams
       let incomingParamVals = pick(toParamVals, _toKeys);
       toParamVals = omit(toParamVals, _toKeys);
@@ -88,7 +88,7 @@ export class PathFactory {
     resolvePath.forEach((node: Node) => {
       node.resolveContext = resolveContext.isolateRootTo(node.state);
       node.resolveInjector = new ResolveInjector(node.resolveContext, node.state);
-      node.resolves.$stateParams = new Resolvable("$stateParams", () => node.values, node.values);
+      node.resolves.$stateParams = new Resolvable("$stateParams", () => node.paramValues, node.paramValues);
     });
 
     return resolvePath;
@@ -108,7 +108,7 @@ export class PathFactory {
 
     /** Given a retained node, return a new node which uses the to node's param values */
     function applyToParams(retainedNode: Node, idx: number): Node {
-      return Node.clone(retainedNode, { values: toPath[idx].values });
+      return Node.clone(retainedNode, { paramValues: toPath[idx].paramValues });
     }
 
     let from: Node[], retained: Node[], exiting: Node[], entering: Node[], to: Node[];
