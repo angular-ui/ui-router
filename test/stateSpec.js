@@ -457,10 +457,11 @@ describe('state', function () {
         expect($location.search()).toEqual({term: 'hello'});
       });
 
-      describe("", function() {
-        var stateChanged, dynamicstate;
+      fdescribe("", function() {
+        var stateChanged, dynamicstate, log;
 
-        beforeEach(function () {
+        beforeEach(inject(function ($compile, $rootScope) {
+          log = "";
           dynamicstate = {
             name: 'dynamicstate',
             url: '^/dynstate/:path/:pathDyn?search&searchDyn',
@@ -469,22 +470,28 @@ describe('state', function () {
               searchDyn: { dynamic: true }
             },
             template: "dynamicstate",
-            controller: function($stateParams) {
-              $scope.$watch($stateParams.searchDyn);
+            controller: function($scope, $transition$) {
+              var params = $transition$.params();
+              log += params.searchDyn + ";";
+              this.uiOnParamsChanged = function(newP, oldP) {
+                log += newP.searchDyn + ";";
+              };
             }
-          }
+          };
+
           $stateProvider.state(dynamicstate);
 
           $transitions.onSuccess({}, function () {
             stateChanged = true;
           });
 
+          $compile('<div><ui-view></ui-view></div>')($rootScope.$new());
           initStateTo(dynamicstate, { path: 'pathfoo', pathDyn: 'pathbar', search: 'searchfoo', searchDyn: 'searchbar' });
           expect(stateChanged).toBeTruthy();
           expect(obj($stateParams)).toEqual({ path: 'pathfoo', pathDyn: 'pathbar', search: 'searchfoo', searchDyn: 'searchbar' });
           expect($location.url()).toEqual("/dynstate/pathfoo/pathbar?search=searchfoo&searchDyn=searchbar");
           stateChanged = false;
-        });
+        }));
 
         it('triggers state change for non-dynamic search params', function () {
           $state.go('dynamicstate', {search: 'somethingelse'});
@@ -494,6 +501,13 @@ describe('state', function () {
         });
 
         it('does not trigger state change for dynamic search params', function () {
+          $state.go('dynamicstate', {searchDyn: 'somethingelse'});
+          $q.flush();
+          expect(stateChanged).toBeFalsy();
+          expect(log).toBe('searchbar;somethingelse;')
+        });
+
+        it('allows $watch on the $stateParams object', function () {
           $state.go('dynamicstate', {searchDyn: 'somethingelse'});
           $q.flush();
           expect(stateChanged).toBeFalsy();

@@ -4,6 +4,7 @@ import {isDefined, isFunction} from "../common/predicates";
 import {trace} from "../common/trace";
 import {ViewConfig} from "../view/view";
 import {UIViewData} from "../view/interface";
+import {RejectType} from "../transition/rejectFactory";
 
 /**
  * @ngdoc directive
@@ -294,8 +295,8 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
   return directive;
 }
 
-$ViewDirectiveFill.$inject = ['$compile', '$controller', '$interpolate', '$injector', '$q'];
-function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injector,   $q) {
+$ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view', '$q'];
+function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,   $q) {
   return {
     restrict: 'ECA',
     priority: -400,
@@ -323,7 +324,42 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
             scope[controllerAs] = controllerInstance;
             scope[controllerAs][resolveAs] = locals;
           }
+
+          // TODO: Use $view service as a central point for registering component-level hooks
+          // Then, when a component is created, tell the $view service, so it can invoke hooks
+          // $view.componentLoaded(controllerInstance, { $scope: scope, $element: $element });
+          // scope.$on('$destroy', () => $view.componentUnloaded(controllerInstance, { $scope: scope, $element: $element }));
+
+          // TODO: move this hook to $view or /hooks/onInitHook.ts or something
           if (isFunction(controllerInstance.$onInit)) controllerInstance.$onInit();
+
+          // TODO: move this hook to $view or /hooks/onParamsChanged.ts or something
+          if (isFunction(controllerInstance.uiOnParamsChanged)) {
+            
+            update.$inject = ['$transition$'];
+            function update($transition$) {
+              controllerInstance.uiOnParamsChanged($transition$.params("to"), $transition$.params("from"));
+            }
+            
+            onDynamic.$inject = ['$error$', '$transition$'];
+            function onDynamic($error$, $transition$) {
+              if ($error$.type === RejectType.IGNORED) update($transition$);
+            }
+            
+            let deregister = [
+              $transitions.onSuccess({}, update),
+              $transitions.onError({}, onDynamic)
+            ];
+
+            scope.$on('$destroy', () => deregister.forEach(x => x()));
+          }
+          
+          // TODO: create canDeactivate hook (controller sugar)
+          // if (isFunction(controllerInstance.canDeactivate)) {
+          //   let deregister = [
+          //   scope.$on($transitions.onStart({exiting: uiViewState}, controllerInstance.canDeactivate.bind(controllerInstance)));
+          // } 
+
           $element.data('$ngControllerController', controllerInstance);
           $element.children().data('$ngControllerController', controllerInstance);
         }
