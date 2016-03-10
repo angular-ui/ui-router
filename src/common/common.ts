@@ -504,6 +504,7 @@ export function tail<T>(arr: T[]): T {
   return arr.length && arr[arr.length - 1] || undefined;
 }
 
+export const kebobString = (camelCase: string) => camelCase.replace(/([A-Z])/g, $1 => "-"+$1.toLowerCase());
 
 function _toJson(obj) {
   return JSON.stringify(obj);

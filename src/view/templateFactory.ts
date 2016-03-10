@@ -2,6 +2,7 @@
 import {isDefined, isFunction} from "../common/predicates";
 import {services} from "../common/coreservices";
 import {Ng1ViewDeclaration} from "../ng1/interface";
+import {IInjectable} from "../common/common";
 
 /**
  * Service which manages loading of templates from a ViewConfig.
@@ -66,7 +67,7 @@ export class TemplateFactory {
    * @return {string|Promise.<string>} The template html as a string, or a promise 
    * for that string.
    */
-  fromProvider(provider: Function, params: any, injectFn: Function) {
+  fromProvider(provider: IInjectable, params: any, injectFn: Function) {
     return injectFn(provider);
   };
 }

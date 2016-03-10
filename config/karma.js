@@ -34,7 +34,10 @@ module.exports = function (karma) {
     ],
 
     // Karma files available to serve is overridden using files.karmaServedFiles() in some grunt tasks (e.g., karma:ng12)
-    files: files.karmaServedFiles('1.4.9'),
+    // files: files.karmaServedFiles('1.2.28'),
+    // files: files.karmaServedFiles('1.3.16'),
+    // files: files.karmaServedFiles('1.4.9'),
+    files: files.karmaServedFiles('1.5.0'),
     // Actual tests to load is configured in systemjs.files block
     systemjs: {
       // Set up systemjs paths

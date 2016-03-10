@@ -743,3 +743,341 @@ describe('uiView controllers or onEnter handlers', function() {
     expect(count).toBe(1);
   }));
 });
+
+
+describe('angular 1.5+ style .component()', function() {
+  var el, app, scope, log, svcs, $stateProvider;
+
+  beforeEach((function() {
+    app = angular.module('foo', []);
+
+    // ng 1.2 directive (manually bindToController)
+    app.directive('ng12Directive', function () {
+      return {
+        restrict: 'E',
+        scope: { data: '=' },
+        templateUrl: '/comp_tpl.html',
+        controller: function($scope) { this.data = $scope.data; },
+        controllerAs: '$ctrl'
+      }
+    });
+
+    // ng 1.3-1.4 directive with bindToController
+    app.directive('ng13Directive', function () {
+      return {
+        scope: { data: '=' },
+        templateUrl: '/comp_tpl.html',
+        controller: function() {},
+        bindToController: true,
+        controllerAs: '$ctrl'
+      }
+    });
+
+    // ng 1.5+ component
+    if (angular.version.minor >= 5) {
+      app.component('ngComponent', {
+        bindings: { data: '<', data2: '<' },
+        templateUrl: '/comp_tpl.html',
+        controller: function () {
+          this.$onInit = function () {
+            log += "onInit;"
+          }
+        }
+      });
+
+      app.component('header', {
+        bindings: { status: '<' },
+        template: '#{{ $ctrl.status }}#'
+      });
+    }
+  }));
+
+  beforeEach(module('ui.router', 'foo'));
+  beforeEach(module(function(_$stateProvider_) {
+    $stateProvider = _$stateProvider_;
+  }));
+
+  beforeEach(inject(function($rootScope, _$httpBackend_, _$compile_, _$state_, _$q_) {
+    svcs = { $httpBackend: _$httpBackend_, $compile: _$compile_, $state: _$state_, $q: _$q_ };
+    scope = $rootScope.$new();
+    log = "";
+    el = angular.element('<div><ui-view></ui-view></div>');
+    svcs.$compile(el)(scope);
+  }));
+
+  describe('routing using component templates', function() {
+    beforeEach(function() {
+      $stateProvider.state('cmp_tpl', {
+        url: '/cmp_tpl',
+        templateUrl: '/state_tpl.html',
+        controller: function() {},
+        resolve: { data: function() { return "DATA!"; } }
+      });
+    });
+
+    it('should work with directives which themselves have templateUrls', function() {
+      var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+      $httpBackend.expectGET('/state_tpl.html').respond('x<ng12-directive data="$resolve.data"></ng12-directive>x');
+      $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
+
+      $state.transitionTo('cmp_tpl');
+      $q.flush();
+
+      // Template has not yet been fetched
+      var directiveEl = el[0].querySelector('div ui-view ng12-directive');
+      expect(directiveEl).toBeNull();
+      expect($state.current.name).toBe('');
+
+      // Fetch templates
+      $httpBackend.flush();
+      directiveEl = el[0].querySelector('div ui-view ng12-directive');
+      expect(directiveEl).toBeDefined();
+      expect($state.current.name).toBe('cmp_tpl');
+
+      expect(angular.element(directiveEl).data('$ng12DirectiveController')).toBeDefined();
+      expect(el.text()).toBe('x-DATA!-x');
+    });
+
+    if (angular.version.minor >= 3) {
+      it('should work with ng 1.3+ bindToController directives', function () {
+        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+        $httpBackend.expectGET('/state_tpl.html').respond('x<ng13-directive data="$resolve.data"></ng13-directive>x');
+        $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
+
+        $state.transitionTo('cmp_tpl');
+        $q.flush();
+        $httpBackend.flush();
+
+        directiveEl = el[0].querySelector('div ui-view ng13-directive');
+        expect(directiveEl).toBeDefined();
+        expect($state.current.name).toBe('cmp_tpl');
+
+        expect(angular.element(directiveEl).data('$ng13DirectiveController')).toBeDefined();
+        expect(el.text()).toBe('x-DATA!-x');
+      });
+    }
+
+    if (angular.version.minor >= 5) {
+      it('should work with ng 1.5+ .component()s', function () {
+        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+        $httpBackend.expectGET('/state_tpl.html').respond('x<ng-component data="$resolve.data"></ng-component>x');
+        $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
+
+        $state.transitionTo('cmp_tpl');
+        $q.flush();
+        $httpBackend.flush();
+
+        directiveEl = el[0].querySelector('div ui-view ng-component');
+        expect(directiveEl).toBeDefined();
+        expect($state.current.name).toBe('cmp_tpl');
+
+        expect(angular.element(directiveEl).data('$ngComponentController')).toBeDefined();
+        expect(el.text()).toBe('x-DATA!-x');
+      });
+    }
+  });
+
+  describe('+ component: declaration', function() {
+    it('should disallow controller/template configuration', function () {
+      var stateDef = {
+        url: '/route2cmp',
+        component: 'ng12Directive',
+        resolve: { data: function() { return "DATA!"; } }
+      };
+
+      expect(function() { $stateProvider.state('route2cmp', extend({template: "fail"} , stateDef)); }).toThrow();
+      expect(function() { $stateProvider.state('route2cmp', extend({templateUrl: "fail.html"} , stateDef)); }).toThrow();
+      expect(function() { $stateProvider.state('route2cmp', extend({templateProvider: function() {}} , stateDef)); }).toThrow();
+      expect(function() { $stateProvider.state('route2cmp', extend({controllerAs: "fail"} , stateDef)); }).toThrow();
+      expect(function() { $stateProvider.state('route2cmp', extend({controller: "FailCtrl"} , stateDef)); }).toThrow();
+      expect(function() { $stateProvider.state('route2cmp', extend({controllerProvider: function() {}} , stateDef)); }).toThrow();
+
+      expect(function() { $stateProvider.state('route2cmp', stateDef); }).not.toThrow();
+    });
+
+    it('should work with angular 1.2+ directives', function () {
+      $stateProvider.state('route2cmp', {
+        url: '/route2cmp',
+        component: 'ng12Directive',
+        resolve: { data: function() { return "DATA!"; } }
+      });
+
+      var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+      $state.transitionTo('route2cmp');
+      $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
+      $q.flush();
+      $httpBackend.flush();
+
+      directiveEl = el[0].querySelector('div ui-view ng12-directive');
+      expect(directiveEl).toBeDefined();
+      expect($state.current.name).toBe('route2cmp');
+      expect(el.text()).toBe('-DATA!-');
+    });
+
+    if (angular.version.minor >= 3) {
+      it('should work with angular 1.3+ bindToComponent directives', function () {
+        $stateProvider.state('route2cmp', {
+          url: '/route2cmp',
+          component: 'ng13Directive',
+          resolve: { data: function() { return "DATA!"; } }
+        });
+
+        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+        $state.transitionTo('route2cmp');
+        $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
+        $q.flush();
+        $httpBackend.flush();
+
+        directiveEl = el[0].querySelector('div ui-view ng13-directive');
+        expect(directiveEl).toBeDefined();
+        expect($state.current.name).toBe('route2cmp');
+        expect(el.text()).toBe('-DATA!-');
+      });
+    }
+
+    if (angular.version.minor >= 5) {
+      it('should work with angular 1.5+ .component()s', function () {
+        $stateProvider.state('route2cmp', {
+          url: '/route2cmp',
+          component: 'ngComponent',
+          resolve: { data: function() { return "DATA!"; } }
+        });
+
+        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+        $state.transitionTo('route2cmp');
+        $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
+        $q.flush();
+        $httpBackend.flush();
+
+        directiveEl = el[0].querySelector('div ui-view ng-component');
+        expect(directiveEl).toBeDefined();
+        expect($state.current.name).toBe('route2cmp');
+        expect(el.text()).toBe('-DATA!-');
+      });
+    }
+  });
+
+  if (angular.version.minor >= 5) {
+    describe('+ named views with component: declaration', function () {
+      var stateDef;
+      beforeEach(function () {
+        stateDef = {
+          url: '/route2cmp',
+          views: {
+            header: {component: "header"},
+            content: {component: "ngComponent"}
+          },
+          resolve: {
+            status: function () { return "awesome"; },
+            data: function () { return "DATA!"; }
+          }
+        };
+
+        el = angular.element('<div><div ui-view="header"></div><div ui-view="content"</div>');
+        svcs.$compile(el)(scope);
+      });
+
+      it('should disallow controller/template configuration in the view', function () {
+        expect(function () {
+          var state = extend({}, stateDef);
+          state.views.header.template = "fails";
+          $stateProvider.state('route2cmp', state);
+        }).toThrow();
+        expect(function () { $stateProvider.state('route2cmp', stateDef); }).not.toThrow();
+      });
+
+      it('should render components as views', function () {
+        $stateProvider.state('route2cmp', stateDef);
+        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+        $state.transitionTo('route2cmp');
+        $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
+        $q.flush();
+        $httpBackend.flush();
+        var header = el[0].querySelector('[ui-view=header]');
+        var content = el[0].querySelector('[ui-view=content]');
+
+        expect(header.textContent).toBe('#awesome#');
+        expect(content.textContent).toBe('-DATA!-');
+      });
+
+      it('should allow a component view declaration to use a string as a shorthand', function () {
+        stateDef = {
+          url: '/route2cmp',
+          views: { header: 'header', content: 'ngComponent' },
+          resolve: {
+            status: function () { return "awesome"; },
+            data: function () { return "DATA!"; }
+          }
+        };
+        $stateProvider.state('route2cmp', stateDef);
+        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+        $state.transitionTo('route2cmp');
+        $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
+        $q.flush();
+        $httpBackend.flush();
+        var header = el[0].querySelector('[ui-view=header]');
+        var content = el[0].querySelector('[ui-view=content]');
+
+        expect(header.textContent).toBe('#awesome#');
+        expect(content.textContent).toBe('-DATA!-');
+      });
+    });
+  }
+
+  describe('+ bindings: declaration', function() {
+    it('should provide the named component binding with data from the named resolve', function () {
+      $stateProvider.state('route2cmp', {
+        url: '/route2cmp',
+        component: 'ng12Directive',
+        bindings: { data: "foo" },
+        resolve: { foo: function() { return "DATA!"; } }
+      });
+
+      var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+      $state.transitionTo('route2cmp');
+      $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
+      $q.flush();
+      $httpBackend.flush();
+
+      directiveEl = el[0].querySelector('div ui-view ng12-directive');
+      expect(directiveEl).toBeDefined();
+      expect($state.current.name).toBe('route2cmp');
+      expect(el.text()).toBe('-DATA!-');
+    });
+
+    if (angular.version.minor >= 5) {
+      it('should provide default bindings for any component bindings omitted in the state.bindings map', function () {
+        $stateProvider.state('route2cmp', {
+          url: '/route2cmp',
+          component: 'ngComponent',
+          bindings: { data: "foo" },
+          resolve: {
+            foo: function() { return "DATA!"; },
+            data2: function() { return "DATA2!"; }
+          }
+        });
+
+        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+        $state.transitionTo('route2cmp');
+        $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}.{{ $ctrl.data2 }}-');
+        $q.flush();
+        $httpBackend.flush();
+
+        directiveEl = el[0].querySelector('div ui-view ng-component');
+        expect(directiveEl).toBeDefined();
+        expect($state.current.name).toBe('route2cmp');
+        expect(el.text()).toBe('-DATA!.DATA2!-');
+      });
+    }
+  });
+});

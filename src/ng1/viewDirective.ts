@@ -1,6 +1,6 @@
 /** @module view */ /** for typedoc */
 "use strict";
-import {extend, map, unnestR, filter} from "../common/common";
+import {extend, map, unnestR, filter, kebobString} from "../common/common";
 import {isDefined, isFunction} from "../common/predicates";
 import {trace} from "../common/trace";
 import {ActiveUIView} from "../view/interface";
@@ -338,16 +338,38 @@ function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,
         scope[resolveAs] = locals;
         
         if (controller) {
-          let controllerInstance = $controller(controller, extend(locals, { $scope: scope, $element: $element }));
+          let controllerInstance = $controller(controller, extend({}, locals, { $scope: scope, $element: $element }));
           if (controllerAs) {
             scope[controllerAs] = controllerInstance;
             scope[controllerAs][resolveAs] = locals;
           }
 
+          // TODO: Use $view service as a central point for registering component-level hooks
+          // Then, when a component is created, tell the $view service, so it can invoke hooks
+          // $view.componentLoaded(controllerInstance, { $scope: scope, $element: $element });
+          // scope.$on('$destroy', () => $view.componentUnloaded(controllerInstance, { $scope: scope, $element: $element }));
+
           $element.data('$ngControllerController', controllerInstance);
           $element.children().data('$ngControllerController', controllerInstance);
 
           registerControllerCallbacks($transitions, controllerInstance, scope, cfg);
+        }
+
+        // Wait for the component to appear in the DOM
+        if (cfg.viewDecl.component) {
+          let cmp = cfg.viewDecl.component;
+          let kebobName = kebobString(cmp);
+          let getComponentController = () => {
+            let directiveEl = [].slice.call($element[0].children)
+                .filter(el => el && el.tagName && el.tagName.toLowerCase() === kebobName) ;
+            return directiveEl && angular.element(directiveEl).data(`$${cmp}Controller`);
+          };
+
+          let deregisterWatch = scope.$watch(getComponentController, function(ctrlInstance) {
+            if (!ctrlInstance) return;
+            registerControllerCallbacks($transitions, ctrlInstance, scope, cfg);
+            deregisterWatch();
+          });
         }
 
         link(scope);

@@ -1,6 +1,7 @@
 /** @module ng1 */ /** */
 import {StateDeclaration, _ViewDeclaration} from "../state/interface";
 import {ParamDeclaration} from "../params/interface";
+import {IInjectable} from "../common/common";
 
 /**
  * The StateDeclaration object is used to define a state or nested state.
@@ -242,8 +243,7 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    * ```
    */
   views?: { [key: string]: Ng1ViewDeclaration; };
-  data?: any;
-  onEnter?: Function;
+  data?: any; onEnter?: Function;
   onRetain?: Function;
   onExit?: Function;
 
@@ -254,6 +254,94 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
 }
 
 export interface Ng1ViewDeclaration extends _ViewDeclaration {
+  /**
+   * The name of the component to use for this view.
+   *
+   * The name of an [angular 1.5+ `.component()`](https://docs.angularjs.org/guide/component) (or directive with 
+   * bindToController and/or scope declaration) which will be used for this view.
+   *
+   * Resolve data can be provided to the component via the component's `bindings` object (for 1.3+ directives, the
+   * `bindToController` is used; for other directives, the `scope` declaration is used).  For each binding declared 
+   * on the component, any resolve with the same name is set on the component's controller instance.  The binding 
+   * is provided to the component as a one-time-binding.  In general, * components should likewise declare their 
+   * input bindings as [one-way (`"<"`)](https://docs.angularjs.org/api/ng/service/$compile#-scope-).
+   *
+   * Note: inside a "views:" block, a bare string `"foo"` is shorthand for `{ component: "foo" }`
+   *
+   * Note: Mapping from resolve names to component inputs may be specified using [[bindings]].
+   *
+   * @example:
+   * ```
+   *
+   * .state('profile', {
+   *   // Unnamed view should be <my-profile></my-profile> component
+   *   component: 'MyProfile',
+   * }
+   * .state('messages', {
+   *   // 'header' named view should be <nav-bar></nav-bar> component
+   *   // 'content' named view should be <message-list></message-list> component
+   *   views: {
+   *     header: { component: 'NavBar' },
+   *     content: { component: 'MessageList' }
+   *   }
+   * }
+   * .state('contacts', {
+   *   // Inside a "views:" block, a bare string "NavBar" is shorthand for { component: "NavBar" }
+   *   // 'header' named view should be <nav-bar></nav-bar> component
+   *   // 'content' named view should be <contact-list></contact-list> component
+   *   views: {
+   *     header: 'NavBar',
+   *     content: 'ContactList'
+   *   }
+   * }
+   * ```
+   *
+   * Note: When using `component` to define a view, you may _not_ use any of: `template`, `templateUrl`,
+   * `templateProvider`, `controller`, `controllerProvider`, `controllerAs`.
+   *
+   * See also: Todd Motto's angular 1.3 and 1.4 [backport of .component()](https://github.com/toddmotto/angular-component)
+   */
+  component?: string;
+
+  /**
+   * An object to map from component `bindings` names to `resolve` names, for [[component]] style view.
+   *
+   * When using a [[component]] declaration, each component's input binding is supplied data from a resolve of the
+   * same name, by default.  You may supply data from a different resolve name by mapping it here.
+   *
+   * Each key in this object is the name of one of the component's input bindings.
+   * Each value is the name of the resolve that should be provided to that binding.
+   *
+   * Any component bindings that are omitted from this map get the default behavior of mapping to a resolve of the
+   * same name.
+   *
+   * @example
+   * ```
+   * $stateProvider.state('foo', {
+   *   resolve: {
+   *     foo: function(FooService) { return FooService.get(); },
+   *     bar: function(BarService) { return BarService.get(); }
+   *   },
+   *   component: 'Baz',
+   *   // The component's `baz` binding gets data from the `bar` resolve
+   *   // The component's `foo` binding gets data from the `foo` resolve (default behavior)
+   *   bindings: {
+   *     baz: 'bar'
+   *   }
+   * });
+   *
+   * app.component('Baz', {
+   *   templateUrl: 'baz.html',
+   *   controller: 'BazController',
+   *   bindings: {
+   *     foo: '<', // foo binding
+   *     baz: '<'  // baz binding
+   *   }
+   * });
+   * ```
+   *
+   */
+  bindings?: { [key: string]: string };
 
   /**
    * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
@@ -372,7 +460,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * }
    * ```
    */
-  templateProvider?: Function;
+  templateProvider?: IInjectable;
 
 }
 
