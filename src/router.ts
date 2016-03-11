@@ -35,7 +35,7 @@ export class UIRouter {
 
   viewService = new ViewService(this.templateFactory);
 
-  stateRegistry: StateRegistry = new StateRegistry(this.urlMatcherFactory, this.urlRouterProvider, () => this.stateService.$current);
+  stateRegistry: StateRegistry = new StateRegistry(this.urlMatcherFactory, this.urlRouterProvider);
 
   // TODO: move this to ng1.ts
   stateProvider = new StateProvider(this.stateRegistry);

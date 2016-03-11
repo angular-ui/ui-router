@@ -472,7 +472,10 @@ export class StateService {
    * @param {string|object=} base When stateOrName is a relative state reference, the state will be retrieved relative to context.
    * @returns {Object|Array} State configuration object or array of all objects.
    */
-  get(stateOrName: StateOrName, base: StateOrName) {
-    return this.stateRegistry.get.apply(this.stateRegistry, arguments);
+  get(): StateDeclaration[];
+  get(stateOrName: StateOrName, base: StateOrName): StateDeclaration;
+  get(stateOrName?: StateOrName, base?: StateOrName): (StateDeclaration|StateDeclaration[]) {
+    if (arguments.length === 0) return this.stateRegistry.get();
+    return this.stateRegistry.get(stateOrName, base || this.$current);
   }
 }

@@ -17,7 +17,7 @@ export class StateRegistry {
   private builder: StateBuilder;
   stateQueue: StateQueueManager;
 
-  constructor(urlMatcherFactory: UrlMatcherFactory, urlRouterProvider, private currentState: () => State) {
+  constructor(urlMatcherFactory: UrlMatcherFactory, urlRouterProvider) {
     this.matcher = new StateMatcher(this.states);
     this.builder = new StateBuilder(this.matcher, urlMatcherFactory);
     this.stateQueue = new StateQueueManager(this.states, this.builder, urlRouterProvider);
@@ -44,9 +44,12 @@ export class StateRegistry {
     return this.stateQueue.register(stateDefinition);
   }
 
-  get(stateOrName: StateOrName, base: StateOrName): (StateDeclaration|StateDeclaration[]) {
-    if (arguments.length === 0) return Object.keys(this.states).map(name => this.states[name].self);
-    let found = this.matcher.find(stateOrName, base || this.currentState());
+  get(): StateDeclaration[];
+  get(stateOrName: StateOrName, base: StateOrName): StateDeclaration;
+  get(stateOrName?: StateOrName, base?: StateOrName): (StateDeclaration|StateDeclaration[]) {
+    if (arguments.length === 0) 
+      return <StateDeclaration[]> Object.keys(this.states).map(name => this.states[name].self);
+    let found = this.matcher.find(stateOrName, base);
     return found && found.self || null;
   }
 
