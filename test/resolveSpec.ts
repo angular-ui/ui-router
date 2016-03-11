@@ -2,7 +2,7 @@
 /// <reference path='../typings/angularjs/angular-mocks.d.ts' />
 /// <reference path='../typings/jasmine/jasmine.d.ts' />
 
-import "../src/ui-router";
+import "../src/core";
 import {ResolveContext} from "../src/resolve/module";
 
 import {State} from "../src/state/module";

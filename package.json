@@ -1,8 +1,9 @@
 {
-  "name": "angular-ui-router",
-  "description": "State-based routing for AngularJS",
-  "version": "1.0.0alpha0",
-  "homepage": "http://angular-ui.github.com/",
+  "name": "ui-router",
+  "description": "State-based routing for Javascript",
+  "version": "1.0.0-alpha.1",
+  "scripts": {},
+  "homepage": "http://angular-ui.github.com/ui-router",
   "contributors": [
     {
       "name": "Nate Abele",
@@ -11,11 +12,6 @@
     },
     {
       "name": "Chris Thielen",
-      "web": "https://github.com/christopherthielen"
-    },
-    {
-      "name": "Chris Thielen",
-      "email": "christhielen@gmail.com",
       "web": "https://github.com/christopherthielen"
     },
     {
@@ -40,19 +36,15 @@
   "bugs": {
     "url": "https://github.com/angular-ui/ui-router/issues"
   },
-  "license": "MIT",
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/angular-ui/ui-router/blob/master/LICENSE"
-    }
-  ],
-  "dependencies": {
-    "angular": "^1.2"
+  "engines": {
+    "node": ">4"
   },
+  "license": "MIT",
   "devDependencies": {
     "angular2": "^2.0.0-beta.1",
     "babel-core": "^5.8.14",
+    "conventional-changelog": "^1.1.0",
+    "conventional-changelog-cli": "^1.1.1",
     "es6-module-loader": "^0.17.3",
     "es6-promise": "^3.0.2",
     "es6-shim": "^0.33.13",
@@ -77,17 +69,19 @@
     "karma-script-launcher": "~0.1.0",
     "karma-systemjs": "^0.7.2",
     "load-grunt-tasks": "~0.4.0",
+    "lodash": "^4.5.1",
     "phantomjs-polyfill": "0.0.1",
     "reflect-metadata": "=0.1.2",
     "rxjs": "^5.0.0-beta.0",
-    "shelljs": "~0.2.6",
+    "shelljs": "~0.6.0",
     "systemjs": "^0.18.4",
+    "ts-loader": "^0.8.1",
     "tslint": "=2.5.0",
     "typedoc": "git://github.com/christopherthielen/typedoc.git#v0.3-uirouter",
-    "typescript": "=1.7.3",
+    "typescript": "~1.8.0",
     "webpack": "1.x",
     "webpack-dev-server": "1.x",
+    "yargs": "^4.2.0",
     "zone.js": "^0.5.10"
-  },
-  "main": "release/angular-ui-router.js"
+  }
 }

@@ -1,0 +1,4 @@
+{
+  "dirs": { "src": "src" },
+  "excludes": [ "ng2", "ng2.ts", "justjs.ts"]
+}

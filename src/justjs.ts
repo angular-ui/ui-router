@@ -1,4 +1,4 @@
-export * from "./ui-router";
+export * from "./core";
 import {services} from "./common/coreservices";
 import {isDefined, isFunction, isArray, isObject, isInjectable} from "./common/predicates";
 import {extend, assertPredicate, forEach} from "./common/common";

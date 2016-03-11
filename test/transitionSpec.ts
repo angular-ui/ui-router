@@ -1,6 +1,6 @@
 import {Node} from "../src/path/node";
 var module = angular.mock.module;
-import uiRouter from "../src/ui-router";
+import { UIRouter } from "../src/core";
 import { RejectType } from "../src/transition/rejectFactory";
 import { extend, forEach, map, omit, pick, pluck } from "../src/common/common";
 import {PathFactory} from "../src/path/pathFactory";
