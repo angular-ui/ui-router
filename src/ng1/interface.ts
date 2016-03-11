@@ -1,71 +1,6 @@
-/** @module state */ /** for typedoc */
-import {TransitionOptions} from "../transition/interface";
-import {ParamDeclaration, RawParams, ParamsOrArray} from "../params/interface";
-
-import {Node} from "../path/node";
-import {State} from "./stateObject";
-import {TargetState} from "./targetState";
-import {ViewContext} from "../view/interface";
-import {Transition} from "../transition/module";
-
-export type StateOrName = (string|StateDeclaration|State);
-
-
-/**
- * Base interface for [[Ng1ViewDeclaration]] and [[Ng2ViewDeclaration]]
- *
- * This interface defines the basic data that a normalized view declaration will have on it.
- * Framework-specific implementations may add additional fields (to their interfaces which extend this interface).
- *
- * @hidden
- */
-export interface _ViewDeclaration {
-  /**
-   * The raw name for the view declaration, i.e., the [[StateDeclaration.views]] property name.
-   * 
-   * @hidden
-   */
-  $name?: string;
-
-  /**
-   * The normalized address for the `ui-view` which this ViewConfig targets.
-   *
-   * A ViewConfig targets a `ui-view` in the DOM (relative to the `uiViewContextAnchor`) which has
-   * a specific name.
-   * @example `header` or `$default`
-   *
-   * The `uiViewName` can also target a _nested view_ by providing a dot-notation address
-   * @example `foo.bar` or `foo.$default.bar`
-   * 
-   * @hidden
-   */
-  $uiViewName?: string;
-  
-  /**
-   * The normalized context anchor (state name) for the `uiViewName`
-   *
-   * When targeting a `ui-view`, the `uiViewName` address is anchored to a context name (state name).
-   * 
-   * @hidden
-   */
-  $uiViewContextAnchor?: string;
-
-  /**
-   * A type identifier for the View
-   *
-   * This is used when loading prerequisites for the view, before it enters the DOM.  Different types of views
-   * may load differently (e.g., templateProvider+controllerProvider vs component class)
-   *
-   * @hidden
-   */
-  $type?: string;
-
-  /**
-   * The context that this view is declared within.
-   * @hidden
-   */
-  $context?: ViewContext;
-}
+/** @module ng1 */ /** */
+import {StateDeclaration, _ViewDeclaration} from "../state/interface";
+import {ParamDeclaration} from "../params/interface";
 
 /**
  * The StateDeclaration object is used to define a state or nested state.
@@ -90,7 +25,7 @@ export interface _ViewDeclaration {
  * }
  * ```
  */
-export interface StateDeclaration {
+export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaration {
   /**
    * A unique state name, e.g. `"home"`, `"about"`, `"contacts"`.
    * To create a parent/child state use a dot, e.g. `"about.sales"`, `"home.newest"`.
@@ -306,55 +241,138 @@ export interface StateDeclaration {
    * }
    * ```
    */
-  views?: { [key: string]: _ViewDeclaration; };
+  views?: { [key: string]: Ng1ViewDeclaration; };
   data?: any;
   onEnter?: Function;
   onRetain?: Function;
   onExit?: Function;
 
   /**
-   * @deprecated define individual parameters as [[ParamDeclaration.dynamic]]
+   * @inheritdoc
    */
   reloadOnSearch?: boolean;
 }
 
-export interface StateParams {
-  $digest: () => void;
-  $inherit: (newParams, $current: State, $to: State) => StateParams;
-  $set: (params, url) => boolean;
-  $sync: () => StateParams;
-  $off: () => StateParams;
-  $raw: () => any;
-  $localize: () => StateParams;
-  $observe: (key, fn) => () => void;
-}
+export interface Ng1ViewDeclaration extends _ViewDeclaration {
 
-export interface HrefOptions {
-  relative?:  StateOrName;
-  lossy?:     boolean;
-  inherit?:   boolean;
-  absolute?:  boolean;
-}
+  /**
+   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   *
+   * A Controller function or the name of a registered controller.
+   * The controller function will be used to control the corresponding [[ui-view]] directive.
+   *
+   * If specified as a string, controllerAs can be specified here, i.e., "FooController as foo"
+   */
+  controller?: (Function|string);
 
-export interface StateProvider {
-  state(state: StateDeclaration): StateProvider;
-  state(name: string, state: StateDeclaration): StateProvider;
-  onInvalid(callback: Function): void;
-  decorator(name: string, func: Function);
-}
+  /**
+   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   *
+   * A controller alias name. If present, the controller will be published to scope under the `controllerAs` name.
+   * See: https://docs.angularjs.org/api/ng/directive/ngController
+   */
+  controllerAs?: string;
 
-export interface StateService {
-  params:       any; // TODO: StateParams
-  current:      StateDeclaration;
-  $current:     State;
-  transition:   Transition;
-  reload        (stateOrName: StateOrName): Promise<State>;
-  target        (identifier: StateOrName, params: ParamsOrArray, options: TransitionOptions): TargetState;
-  go            (to: StateOrName, params: RawParams, options: TransitionOptions): Promise<State>;
-  transitionTo  (to: StateOrName, toParams: ParamsOrArray, options: TransitionOptions): Promise<State>;
-  is            (stateOrName: StateOrName, params?: RawParams, options?: TransitionOptions): boolean;
-  includes      (stateOrName: StateOrName, params?: RawParams, options?: TransitionOptions): boolean;
-  href          (stateOrName: StateOrName, params?: RawParams, options?: HrefOptions): string;
-  get           (stateOrName: StateOrName, base?: StateOrName): (StateDeclaration|StateDeclaration[]);
+  /**
+   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   *
+   * Injectable provider function that returns the actual controller function or name of a registered controller.
+   *
+   * @example
+   * ```js
+   *
+   * controllerProvider: function(MyResolveData) {
+   *   if (MyResolveData.foo) {
+   *     return "FooCtrl"
+   *   } else if (MyResolveData.bar) {
+   *     return "BarCtrl";
+   *   } else {
+   *     return function($scope) {
+   *       $scope.baz = "Qux";
+   *     }
+   *   }
+   * }
+   * ```
+   */
+  controllerProvider?: Function;
+
+  /**
+   * The scope variable name to use for resolve data.
+   *
+   * A property of either [[StateDeclaration]] or [[ViewDeclaration]].  For a given view, the view-level property
+   * takes precedence over the state-level property.
+   *
+   * When a view is activated, the resolved data for the state which the view belongs to is put on the scope.
+   * This property sets the name of the scope variable to use for the resolved data.
+   *
+   * Defaults to `$resolve`.
+   */
+  resolveAs?: string;
+
+  /**
+   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   *
+   * HTML template as a string or a function which returns an html template as a string.
+   * This template will be used to render the corresponding [[ui-view]] directive.
+   *
+   * This property takes precedence over templateUrl.
+   *
+   * If `template` is a function, it will be called with the State Parameters as the first argument.
+   *
+   * @example
+   * ```js
+   *
+   * template: "<h1>inline template definition</h1><div ui-view></div>"
+   * ```
+   *
+   * @example
+   * ```js
+   *
+   * template: function(params) {
+   *   return "<h1>generated template</h1>";
+   * }
+   * ```
+   */
+  template?: (Function|string);
+
+  /**
+   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   *
+   * A path or a function that returns a path to an html template.
+   * The template will be fetched and used to render the corresponding [[ui-view]] directive.
+   *
+   * If `templateUrl` is a function, it will be called with the State Parameters as the first argument.
+   *
+   * @example
+   * ```js
+   *
+   * templateUrl: "/templates/home.html"
+   * ```
+   *
+   * @example
+   * ```js
+   *
+   * templateUrl: function(params) {
+   *   return myTemplates[params.pageId];
+   * }
+   * ```
+   */
+  templateUrl?: (string|Function);
+  /**
+   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   *
+   * Injected function which returns the HTML template.
+   * The template will be used to render the corresponding [[ui-view]] directive.
+   *
+   * @example
+   * ```js
+   *
+   * templateProvider: function(MyTemplateService, params) {
+   *   return MyTemplateService.getTemplate(params.pageId);
+   * }
+   * ```
+   */
+  templateProvider?: Function;
+
 }
 

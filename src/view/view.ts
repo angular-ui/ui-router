@@ -1,182 +1,59 @@
-"use strict";
 /** @module view */ /** for typedoc */
-import {TemplateFactory} from "./templateFactory";
-import {extend, equals, applyPairs, pick, removeFrom, TypedMap} from "../common/common";
+import {equals, applyPairs, removeFrom, TypedMap} from "../common/common";
 import {curry, prop} from "../common/hof";
-import {isInjectable, isString} from "../common/predicates";
+import {isString} from "../common/predicates";
 import {trace} from "../common/module";
-import {services} from "../common/coreservices";
-
-import {StateViewConfig, ViewDeclaration} from "../state/interface";
-import {UIViewData, ViewContext} from "./interface";
-
-import {ResolveInjector} from "../resolve/module";
 import {Node} from "../path/node";
 
-/**
- * Given a raw view name from a views: config, returns a normalized target viewName and contextAnchor
- */
-function normalizeUiViewTarget(rawViewName = "") {
-  // TODO: Validate incoming view name with a regexp to allow:
-  // ex: "view.name@foo.bar" , "^.^.view.name" , "view.name@^.^" , "" ,
-  // "@" , "$default@^" , "!$default.$default" , "!foo.bar"
-  let viewAtContext: string[] = rawViewName.split("@");
-  let uiViewName = viewAtContext[0] || "$default";  // default to unnamed view
-  let uiViewContextAnchor = isString(viewAtContext[1]) ? viewAtContext[1] : "^";    // default to parent context
-
-  // Handle relative view-name sugar syntax.
-  // Matches rawViewName "^.^.^.foo.bar" into array: ["^.^.^.foo.bar", "^.^.^", "foo.bar"],
-  let relativeViewNameSugar = /^(\^(?:\.\^)*)\.(.*$)/.exec(uiViewName);
-  if (relativeViewNameSugar) {
-    // Clobbers existing contextAnchor (rawViewName validation will fix this)
-    uiViewContextAnchor = relativeViewNameSugar[1]; // set anchor to "^.^.^"
-    uiViewName = relativeViewNameSugar[2]; // set view-name to "foo.bar"
-  }
-
-  if (uiViewName.charAt(0) === '!') {
-    uiViewName = uiViewName.substr(1);
-    uiViewContextAnchor = ""; // target absolutely from root
-  }
-
-  return {uiViewName, uiViewContextAnchor};
-}
-
-/**
- * Represents the union of a template and (optional) controller.
- *
- * @param {Object} config The view's configuration
- *
- * @returns {Object} New `ViewConfig` object
- */
-export class ViewConfig {
-  viewDeclarationObj: ViewDeclaration;
-
-  template: string;
-  controller: Function;
-  controllerAs: string;
-  resolveAs: string;
-
-  context: ViewContext;
-
-  uiViewName: string;
-  uiViewContextAnchor: string;
-
-  params: any;
-  locals: any;
-  node: Node;
-
-  constructor(stateViewConfig: StateViewConfig) {
-    // viewName is something like "$default" or "foo.bar" or "$default.foo.bar.$default"
-    // contextAnchor is something like "fully.qualified.context" or "^" (parent) or  "^.^.^" (parent.parent.parent)
-    let {uiViewName, uiViewContextAnchor} = normalizeUiViewTarget(stateViewConfig.rawViewName);
-
-    // handle parent relative targeting "^.^.^"
-    let relativeMatch = /^(\^(?:\.\^)*)$/;
-    if (relativeMatch.exec(uiViewContextAnchor)) {
-      let anchor = uiViewContextAnchor.split(".").reduce(((anchor, x) => anchor.parent), stateViewConfig.context);
-      uiViewContextAnchor = anchor.name;
-    }
-
-    extend(this, pick(stateViewConfig, "viewDeclarationObj", "params", "context", "locals", "node"), {uiViewName, uiViewContextAnchor});
-    this.controllerAs = stateViewConfig.viewDeclarationObj.controllerAs;
-    this.resolveAs = stateViewConfig.viewDeclarationObj.resolveAs;
-  }
-
-  /**
-   * Checks a view configuration to ensure that it specifies a template.
-   *
-   * @return {boolean} Returns `true` if the configuration contains a valid template, otherwise `false`.
-   */
-  hasTemplate() {
-    let viewDef = this.viewDeclarationObj;
-    return !!(viewDef.template || viewDef.templateUrl || viewDef.templateProvider);
-  }
-
-  getTemplate($factory, injector: ResolveInjector) {
-    return $factory.fromConfig(this.viewDeclarationObj, this.params, injector.invokeLater.bind(injector));
-  }
-
-  /**
-   * Gets the controller for a view configuration.
-   *
-   *
-   * @returns {Function|Promise.<Function>} Returns a controller, or a promise that resolves to a controller.
-   */
-  getController(injector: ResolveInjector) {
-    //* @param {Object} locals A context object from transition.context() to invoke a function in the correct context
-    let provider = this.viewDeclarationObj.controllerProvider;
-    return isInjectable(provider) ? injector.invokeLater(provider, {}) : this.viewDeclarationObj.controller;
-  }
-}
-
+import {ActiveUIView, ViewContext, ViewConfig} from "./interface";
+import {_ViewDeclaration} from "../state/interface";
 
 const match = (obj1, ...keys) =>
-    (obj2) => keys.reduce(((memo, key) => memo && obj1[key] === obj2[key]), true);
+    (obj2) => keys.reduce((memo, key) => memo && obj1[key] === obj2[key], true);
+
+export type ViewConfigFactory = (node: Node, decl: _ViewDeclaration) => ViewConfig;
 
 /**
  * The View service
  */
 export class ViewService {
-  private uiViews: UIViewData[] = [];
+  private uiViews: ActiveUIView[] = [];
   private viewConfigs: ViewConfig[] = [];
   private _rootContext;
+  private _viewConfigFactories: { [key: string]: ViewConfigFactory } = {};
 
-  constructor(private $templateFactory: TemplateFactory) { }
+  constructor() { }
 
   rootContext(context) {
     return this._rootContext = context || this._rootContext;
   };
 
+  viewConfigFactory(viewType: string, factory: ViewConfigFactory) {
+    this._viewConfigFactories[viewType] = factory;
+  }
+
+  createViewConfig(node: Node, decl: _ViewDeclaration): ViewConfig {
+    let cfgFactory = this._viewConfigFactories[decl.$type];
+    return cfgFactory(node, decl);
+  }
+  
   /**
-   * @ngdoc function
-   * @name ui.router.state.$view#load
-   * @methodOf ui.router.state.$view
+   * De-registers a ViewConfig.
    *
-   * @description
-   * Uses `$templateFactory` to load a template from a configuration object into a named view.
-   *
-   * @param {string} name The fully-qualified name of the view to load the template into
-   * @param {Object} options The options used to load the template:
-   * @param {boolean} options.notify Indicates whether a `$viewContentLoading` event should be
-   *    this call.
-   * @params {*} options.* Accepts the full list of parameters and options accepted by
-   *    `$templateFactory.fromConfig()`, including `params` and `locals`.
-   * @return {Promise.<string>} Returns a promise that resolves to the value of the template loaded.
+   * @param viewConfig The ViewConfig view to deregister.
    */
-  load(viewConfig: ViewConfig, injector: ResolveInjector) {
-    if (!viewConfig.hasTemplate())
-      throw new Error(`No template configuration specified for '${viewConfig.uiViewName}@${viewConfig.uiViewContextAnchor}'`);
-
-    let $q = services.$q;
-    let promises: any = {
-      template: $q.when(viewConfig.getTemplate(this.$templateFactory, injector)),
-      controller: $q.when(viewConfig.getController(injector))
-    };
-
-    return $q.all(promises).then((results) => {
-      trace.traceViewServiceEvent("Loaded", viewConfig);
-      return extend(viewConfig, results);
-    });
-  };
-
-  /**
-   * Resets a view to its initial state.
-   *
-   * @param {String} name The fully-qualified name of the view to reset.
-   * @return {Boolean} Returns `true` if the view exists, otherwise `false`.
-   */
-  reset(viewConfig) {
+  deactivateViewConfig(viewConfig: ViewConfig) {
     trace.traceViewServiceEvent("<- Removing", viewConfig);
     this.viewConfigs.filter(match(viewConfig, "uiViewName", "context")).forEach(removeFrom(this.viewConfigs));
   };
 
-  registerStateViewConfig(viewConfig: ViewConfig) {
-    trace.traceViewServiceEvent("-> Registering", viewConfig);
+  activateViewConfig(viewConfig: ViewConfig) {
+    trace.traceViewServiceEvent("-> Registering", <any> viewConfig);
     this.viewConfigs.push(viewConfig);
   };
 
   sync = () => {
-    let uiViewsByFqn: TypedMap<UIViewData> =
+    let uiViewsByFqn: TypedMap<ActiveUIView> =
         this.uiViews.map(uiv => [uiv.fqn, uiv]).reduce(applyPairs, <any> {});
 
     /**
@@ -232,9 +109,10 @@ export class ViewService {
      * - And the remaining segments [ "$default", "bar" ].join("."_ of the ViewConfig's target name match
      *   the tail of the ui-view's fqn "default.bar"
      */
-    const matches = curry(function(uiView: UIViewData, viewConfig: ViewConfig) {
+    const matches = (uiView: ActiveUIView) => (viewConfig: ViewConfig) => {
       // Split names apart from both viewConfig and uiView into segments
-      let vcSegments = viewConfig.uiViewName.split(".");
+      let vc = viewConfig.viewDecl;
+      let vcSegments = vc.$uiViewName.split(".");
       let uivSegments = uiView.fqn.split(".");
 
       // Check if the tails of the segment arrays match. ex, these arrays' tails match:
@@ -247,17 +125,17 @@ export class ViewService {
       let negOffset = (1 - vcSegments.length) || undefined;
       let fqnToFirstSegment = uivSegments.slice(0, negOffset).join(".");
       let uiViewContext = uiViewsByFqn[fqnToFirstSegment].creationContext;
-      return viewConfig.uiViewContextAnchor === (uiViewContext && uiViewContext.name);
-    });
+      return vc.$uiViewContextAnchor === (uiViewContext && uiViewContext.name);
+    };
 
     // Return the number of dots in the fully qualified name
-    function uiViewDepth(uiView: UIViewData) {
+    function uiViewDepth(uiView: ActiveUIView) {
       return uiView.fqn.split(".").length;
     }
 
     // Return the ViewConfig's context's depth in the context tree.
     function viewConfigDepth(config: ViewConfig) {
-      let context: ViewContext = config.context, count = 0;
+      let context: ViewContext = config.viewDecl.$context, count = 0;
       while (++count && context.parent) context = context.parent;
       return count;
     }
@@ -291,7 +169,7 @@ export class ViewService {
    *                   of the view.
    * @return {Function} Returns a de-registration function used when the view is destroyed.
    */
-  registerUiView(uiView: UIViewData) {
+  registerUiView(uiView: ActiveUIView) {
     trace.traceViewServiceUiViewEvent("-> Registering", uiView);
     let uiViews = this.uiViews;
     const fqnMatches = uiv => uiv.fqn === uiView.fqn;
@@ -328,5 +206,45 @@ export class ViewService {
    */
   active() {
     return this.uiViews.filter(prop("$config")).map(prop("name"));
+  }
+
+  /**
+   * Normalizes a view's name from a state.views configuration block.
+   *
+   * @param context the context object (state declaration) that the view belongs to
+   * @param rawViewName the name of the view, as declared in the [[StateDeclaration.views]]
+   *
+   * @returns the normalized uiViewName and uiViewContextAnchor that the view targets
+   */
+  static normalizeUiViewTarget(context: ViewContext, rawViewName = "") {
+    // TODO: Validate incoming view name with a regexp to allow:
+    // ex: "view.name@foo.bar" , "^.^.view.name" , "view.name@^.^" , "" ,
+    // "@" , "$default@^" , "!$default.$default" , "!foo.bar"
+    let viewAtContext: string[] = rawViewName.split("@");
+    let uiViewName = viewAtContext[0] || "$default";  // default to unnamed view
+    let uiViewContextAnchor = isString(viewAtContext[1]) ? viewAtContext[1] : "^";    // default to parent context
+
+    // Handle relative view-name sugar syntax.
+    // Matches rawViewName "^.^.^.foo.bar" into array: ["^.^.^.foo.bar", "^.^.^", "foo.bar"],
+    let relativeViewNameSugar = /^(\^(?:\.\^)*)\.(.*$)/.exec(uiViewName);
+    if (relativeViewNameSugar) {
+      // Clobbers existing contextAnchor (rawViewName validation will fix this)
+      uiViewContextAnchor = relativeViewNameSugar[1]; // set anchor to "^.^.^"
+      uiViewName = relativeViewNameSugar[2]; // set view-name to "foo.bar"
+    }
+
+    if (uiViewName.charAt(0) === '!') {
+      uiViewName = uiViewName.substr(1);
+      uiViewContextAnchor = ""; // target absolutely from root
+    }
+
+    // handle parent relative targeting "^.^.^"
+    let relativeMatch = /^(\^(?:\.\^)*)$/;
+    if (relativeMatch.exec(uiViewContextAnchor)) {
+      let anchor = uiViewContextAnchor.split(".").reduce(((anchor, x) => anchor.parent), context);
+      uiViewContextAnchor = anchor.name;
+    }
+
+    return {uiViewName, uiViewContextAnchor};
   }
 }

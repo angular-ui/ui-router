@@ -6,6 +6,7 @@ import {HookRegistry} from "./hookRegistry";
 import {TargetState} from "../state/module";
 import {Node} from "../path/module";
 import {IEventHook} from "./interface";
+import {ViewService} from "../view/view";
 
 /**
  * The default transition options.
@@ -30,7 +31,7 @@ export let defaultTransOpts: TransitionOptions = {
  * for creating new Transitions.
  */
 export class TransitionService implements ITransitionService, IHookRegistry {
-  constructor() {
+  constructor(public $view: ViewService) {
     HookRegistry.mixin(new HookRegistry(), this);
   }
 

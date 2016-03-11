@@ -1,13 +1,12 @@
 /** @module state */ /** for typedoc */
-import {find, noop} from "../../common/common";
-import {propEq} from "../../common/hof";
+import {noop} from "../../common/common";
 import {services} from "../../common/coreservices";
 
 import {TreeChanges} from "../../transition/interface";
 import {Transition} from "../../transition/transition";
 
-import {ViewConfig} from "../../view/view";
 import {ViewService} from "../../view/view";
+import {ViewConfig} from "../../view/interface";
 
 export class ViewHooks {
   private treeChanges: TreeChanges;
@@ -26,17 +25,13 @@ export class ViewHooks {
   }
 
   loadAllEnteringViews() {
-    const loadView = (vc: ViewConfig) => {
-      let resolveInjector = find(this.treeChanges.to, propEq('state', vc.context)).resolveInjector;
-      return <Promise<ViewConfig>> this.$view.load(vc, resolveInjector);
-    };
-    return services.$q.all(this.enteringViews.map(loadView)).then(noop);
+    return services.$q.all(this.enteringViews.map(view => view.load())).then(noop);
   }
 
   updateViews() {
     let $view = this.$view;
-    this.exitingViews.forEach((viewConfig: ViewConfig) => $view.reset(viewConfig));
-    this.enteringViews.forEach((viewConfig: ViewConfig) => $view.registerStateViewConfig(viewConfig));
+    this.exitingViews.forEach((viewConfig: ViewConfig) => $view.deactivateViewConfig(viewConfig));
+    this.enteringViews.forEach((viewConfig: ViewConfig) => $view.activateViewConfig(viewConfig));
     $view.sync();
   }
 

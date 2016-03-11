@@ -4,12 +4,13 @@
 
 var module = angular.mock.module;
 
-import {inherit, extend} from "../src/common/common";
+import {inherit, extend, tail} from "../src/common/common";
 import {curry} from "../src/common/hof";
 import {Node} from "../src/path/module";
 import {ResolveContext} from "../src/resolve/module";
 import {PathFactory} from "../src/path/module";
-import {ViewConfig} from "../src/view/module";
+import {ng1ViewsBuilder, ng1ViewConfigFactory} from "../src/ng1/viewsBuilder";
+import {ViewService} from "../src/view/view";
 import {StateMatcher, StateBuilder} from "../src/state/module";
 
 import {State} from "../src/state/module";
@@ -45,43 +46,38 @@ describe('view', function() {
     states = {};
     let matcher = new StateMatcher(states);
     let stateBuilder = new StateBuilder(matcher, $urlMatcherFactoryProvider);
+    stateBuilder.builder('views', ng1ViewsBuilder);
     register = registerState(states, stateBuilder);
     root = register({name: ""});
   }));
 
   describe('controller handling', function() {
-    let ctx, state;
+    let ctx, state, path, ctrlExpression;
     beforeEach(() => {
-      state = register({ name: "foo" });
-      var path = PathFactory.bindTransNodesToPath([root, state].map(_state => new Node(_state, {})));
+      ctrlExpression = null;
+      state = register({
+        name: "foo",
+        template: "test",
+        controllerProvider: function (/* $stateParams, */ foo) { // todo: reimplement localized $stateParams
+          ctrlExpression = /* $stateParams.type + */ foo + "Controller as foo";
+          return ctrlExpression;
+        }
+      });
+      let $view = new ViewService();
+      $view.viewConfigFactory("ng1", ng1ViewConfigFactory);
+      
+      path = PathFactory.bindTransNodesToPath([root, state].map(_state => new Node(_state, {})));
+      path = PathFactory.applyViewConfigs($view, path);
+
       ctx = new ResolveContext(path);
     });
 
     it('uses the controllerProvider to get controller dynamically', inject(function ($view, $q) {
-      var ctrlExpression;
       $controllerProvider.register("AcmeFooController", function($scope, foo) { });
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
 
-      var rootcontext = {name: "", parent: null};
-      var viewConfig = {
-        viewDeclarationObj: {
-          template: "test",
-          controllerProvider: function (/* $stateParams, */ foo) { // todo: reimplement localized $stateParams
-            ctrlExpression = /* $stateParams.type + */ foo + "Controller as foo";
-            return ctrlExpression;
-          }
-        },
-        rawViewName: '$default',
-        context: { name: "blarg", parent: rootcontext },
-        params: {type: "Acme"},
-        locals: {},
-        node: {}
-      };
-      var injector = {
-        invokeNow: (fn, locals) => $injector.invoke(fn, null, locals),
-        invokeLater: (fn, locals) => $injector.invoke(fn, null, locals)
-      };
-      $view.load(new ViewConfig(viewConfig), injector);
+      let view = tail(path).views[0];
+      view.load();
       $q.flush();
       expect(ctrlExpression).toEqual("FooController as foo");
     }));

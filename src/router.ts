@@ -1,8 +1,7 @@
 import {UrlMatcherFactory} from "./url/urlMatcherFactory";
 import {UrlRouterProvider} from "./url/urlRouter";
 import {StateProvider} from "./state/state";
-import {stateParamsFactory} from "./params/stateParams";
-import {StateParams} from "./params/stateParams";
+import {stateParamsFactory, StateParams} from "./params/stateParams";
 import {UrlRouter} from "./url/urlRouter";
 import {TransitionService} from "./transition/transitionService";
 import {TemplateFactory} from "./view/templateFactory";
@@ -21,7 +20,7 @@ import {StateService} from "./state/stateService";
  */
 export class UIRouter {
 
-  stateParams = stateParamsFactory();
+  stateParams: StateParams = stateParamsFactory();
 
   urlMatcherFactory: UrlMatcherFactory = new UrlMatcherFactory();
 
@@ -29,11 +28,11 @@ export class UIRouter {
 
   urlRouter: UrlRouter = new UrlRouter(this.urlRouterProvider);
 
-  transitionService: TransitionService = new TransitionService();
-
   templateFactory = new TemplateFactory();
 
-  viewService = new ViewService(this.templateFactory);
+  viewService = new ViewService();
+
+  transitionService: TransitionService = new TransitionService(this.viewService);
 
   stateRegistry: StateRegistry = new StateRegistry(this.urlMatcherFactory, this.urlRouterProvider);
 

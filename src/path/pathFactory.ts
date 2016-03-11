@@ -1,15 +1,16 @@
 /** @module path */ /** for typedoc */
 
-import {extend, find, pick, omit, tail, mergeR} from "../common/common";
+import {extend, find, pick, omit, tail, mergeR, map, values} from "../common/common";
 import {prop, propEq, not, curry} from "../common/hof";
 
 import {RawParams} from "../params/interface";
 import {TreeChanges} from "../transition/interface";
 
 import {State, TargetState} from "../state/module";
-import {Node} from "../path/module";
+import {Node} from "../path/node";
 import {ResolveContext, Resolvable, ResolveInjector} from "../resolve/module";
 import {Transition} from "../transition/module";
+import {ViewService} from "../view/view";
 
 /**
  * This class contains functions which convert TargetStates, Nodes and paths from one type to another.
@@ -24,17 +25,19 @@ export class PathFactory {
     return new TargetState(state, state, path.map(prop("paramValues")).reduce(mergeR, {}));
   }
 
-  /* Given params and a state, creates an Node */
-  static makeParamsNode = curry((params: RawParams, state: State) => new Node(state, params));
-
   /** Given a fromPath: Node[] and a TargetState, builds a toPath: Node[] */
   static buildToPath(fromPath: Node[], targetState: TargetState): Node[] {
     let toParams = targetState.params();
-    const toParamsNodeFn: (State) => Node = PathFactory.makeParamsNode(toParams);
-    let toPath: Node[] = targetState.$state().path.map(toParamsNodeFn);
+    let toPath: Node[] = targetState.$state().path.map(state => new Node(state, toParams));
 
     if (targetState.options().inherit) toPath = PathFactory.inheritParams(fromPath, toPath, Object.keys(toParams));
     return toPath;
+  }
+  
+  static applyViewConfigs($view: ViewService, path: Node[]) {
+    return path.map(node =>
+        extend(node, { views: values(node.state.views || {}).map(view => $view.createViewConfig(node, view))})
+    );
   }
 
   /**
@@ -88,7 +91,7 @@ export class PathFactory {
     resolvePath.forEach((node: Node) => {
       node.resolveContext = resolveContext.isolateRootTo(node.state);
       node.resolveInjector = new ResolveInjector(node.resolveContext, node.state);
-      node.resolves.$stateParams = new Resolvable("$stateParams", () => node.paramValues, node.paramValues);
+      node.resolves['$stateParams'] = new Resolvable("$stateParams", () => node.paramValues, node.paramValues);
     });
 
     return resolvePath;
@@ -136,6 +139,22 @@ export class PathFactory {
 
   static bindTransitionResolve(treeChanges: TreeChanges, transition: Transition) {
     let rootNode = treeChanges.to[0];
-    rootNode.resolves.$transition$ = new Resolvable('$transition$', () => transition, transition);
+    rootNode.resolves['$transition$'] = new Resolvable('$transition$', () => transition, transition);
+  }
+
+  /**
+   * Find a subpath of a path that stops at the node for a given state
+   *
+   * Given an array of nodes, returns a subset of the array starting from the first node, up to the
+   * node whose state matches `stateName`
+   *
+   * @param path a path of [[Node]]s
+   * @param state the [[State]] to stop at
+   */
+  static subPath(path: Node[], state): Node[] {
+    let node = find(path, _node => _node.state === state);
+    let elementIdx = path.indexOf(node);
+    if (elementIdx === -1) throw new Error("The path does not contain the state: " + state);
+    return path.slice(0, elementIdx + 1);
   }
 }

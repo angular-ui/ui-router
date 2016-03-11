@@ -1,8 +1,8 @@
 /** @module state */ /** for typedoc */
 /// <reference path='../../typings/angularjs/angular.d.ts' />
-import {extend, copy, defaults, forEach, toJson} from "../common/common";
+import {extend, forEach, toJson} from "../common/common";
 import {isString, isObject} from "../common/predicates";
-import {defaultTransOpts} from "../transition/module";
+import {UIViewData} from "./viewDirective";
 
 function parseStateRef(ref, current) {
   let preparsed = ref.match(/^\s*({[^}]*})\s*$/), parsed;
@@ -13,10 +13,10 @@ function parseStateRef(ref, current) {
 }
 
 function stateContext(el) {
-  let stateData = el.parent().inheritedData('$uiView');
+  let $uiView: UIViewData = el.parent().inheritedData('$uiView');
 
-  if (stateData && stateData.context && stateData.context.name) {
-    return stateData.context;
+  if ($uiView && $uiView.$cfg.context && $uiView.$cfg.context.name) {
+    return $uiView.$cfg.context;
   }
 }
 

@@ -1,6 +1,6 @@
 /** @module state */ /** for typedoc */
 
-import {StateDeclaration, ViewDeclaration} from "./interface";
+import {StateDeclaration, _ViewDeclaration} from "./interface";
 import {extend, defaults, values, find} from "../common/common";
 import {propEq} from "../common/hof";
 import {Param} from "../params/module";
@@ -27,7 +27,7 @@ export class State {
   public resolvePolicy: any;
   public url: UrlMatcher;
   public params: { [key: string]: Param };
-  public views: { [key: string]: ViewDeclaration; };
+  public views: { [key: string]: _ViewDeclaration; };
   public self: StateDeclaration;
   public navigable: State;
   public path: State[];

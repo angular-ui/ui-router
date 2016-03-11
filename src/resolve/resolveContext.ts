@@ -10,6 +10,7 @@ import {Node} from "../path/module";
 import {Resolvable} from "./resolvable";
 import {State} from "../state/module";
 import {mergeR} from "../common/common";
+import {PathFactory} from "../path/pathFactory";
 
 // TODO: make this configurable
 let defaultResolvePolicy = ResolvePolicy[ResolvePolicy.LAZY];
@@ -28,10 +29,7 @@ export class ResolveContext {
         return <Node> find(this._path, propEq('state', state));
       },
       _pathTo(state: State): Node[] {
-        let node = this._nodeFor(state);
-        let elementIdx = this._path.indexOf(node);
-        if (elementIdx === -1) throw new Error("This path does not contain the state");
-        return this._path.slice(0, elementIdx + 1);
+        return PathFactory.subPath(this._path, state);
       }
     });
   }

@@ -1,9 +1,18 @@
 /** @module view */ /** for typedoc */
-import {extend} from "../common/common";
+import {extend, map} from "../common/common";
 import {isDefined, isFunction} from "../common/predicates";
 import {trace} from "../common/trace";
-import {ViewConfig} from "../view/view";
-import {UIViewData} from "../view/interface";
+import {ActiveUIView} from "../view/interface";
+import {Ng1ViewConfig} from "./viewsBuilder";
+
+export type UIViewData = {
+  $cfg: Ng1ViewConfig;
+  $uiView: ActiveUIView;
+
+  $animEnter: Promise<any>;
+  $animLeave: Promise<any>;
+  $$animLeave: { resolve(); } // "deferred"
+}
 
 /**
  * @ngdoc directive
@@ -165,7 +174,8 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
   }
 
   let rootData = {
-    context: $view.rootContext()
+    $cfg: { context: $view.rootContext() },
+    $uiView: { }
   };
 
   let directive = {
@@ -185,32 +195,32 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
             inherited     = $element.inheritedData('$uiView') || rootData,
             name          = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default';
 
-        let viewData: UIViewData = {
+        let activeUIView: ActiveUIView = {
           id: directive.count++,                                   // Global sequential ID for ui-view tags added to DOM
           name: name,                                              // ui-view name (<div ui-view="name"></div>
-          fqn: inherited.name ? inherited.fqn + "." + name : name, // fully qualified name, describes location in DOM
+          fqn: inherited.$uiView.fqn ? inherited.$uiView.fqn + "." + name : name, // fully qualified name, describes location in DOM
           config: null,                                            // The ViewConfig loaded (from a state.views definition)
           configUpdated: configUpdatedCallback,                    // Called when the matching ViewConfig changes
-          get creationContext() { return inherited.context; }      // The context in which this ui-view "tag" was created
+          get creationContext() { return inherited.$cfg.context; }      // The context in which this ui-view "tag" was created
         };
 
-        trace.traceUiViewEvent("Linking", viewData);
+        trace.traceUiViewEvent("Linking", activeUIView);
 
-        function configUpdatedCallback(config?: ViewConfig) {
+        function configUpdatedCallback(config?: Ng1ViewConfig) {
           if (configsEqual(viewConfig, config)) return;
-          trace.traceUiViewConfigUpdated(viewData, config && config.context);
+          trace.traceUiViewConfigUpdated(activeUIView, config && config.viewDecl && config.viewDecl.$context);
 
           viewConfig = config;
           updateView(config);
         }
 
-        $element.data('$uiView', viewData);
+        $element.data('$uiView', { $uiView: activeUIView });
 
         updateView();
 
-        unregister = $view.registerUiView(viewData);
+        unregister = $view.registerUiView(activeUIView);
         scope.$on("$destroy", function() {
-          trace.traceUiViewEvent("Destroying/Unregistering", viewData);
+          trace.traceUiViewEvent("Destroying/Unregistering", activeUIView);
           unregister();
         });
 
@@ -222,7 +232,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
           }
 
           if (currentScope) {
-            trace.traceUiViewEvent("Destroying scope", viewData);
+            trace.traceUiViewEvent("Destroying scope", activeUIView);
             currentScope.$destroy();
             currentScope = null;
           }
@@ -240,35 +250,29 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
           }
         }
 
-        function updateView(config?: ViewConfig) {
-          config = config || <any> {};
+        function updateView(config?: Ng1ViewConfig) {
           let newScope = scope.$new();
-          trace.traceUiViewScopeCreated(viewData, newScope);
+          trace.traceUiViewScopeCreated(activeUIView, newScope);
           let animEnter = $q.defer(), animLeave = $q.defer();
-
-          let $uiViewData = extend({}, viewData, {
-            context: config.context,
-            $template: config.template,
-            $controller: config.controller,
-            $controllerAs: config.controllerAs,
-            $resolveAs: config.resolveAs,
-            $locals: config.locals,
+          
+          let $uiViewData: UIViewData = {
+            $cfg: config,
+            $uiView: activeUIView,
             $animEnter: animEnter.promise,
             $animLeave: animLeave.promise,
             $$animLeave: animLeave
-          });
+          };
 
           let cloned = $transclude(newScope, function(clone) {
             renderer.enter(clone.data('$uiView', $uiViewData), $element, function onUiViewEnter() {
               animEnter.resolve();
-              if (currentScope) {
-                currentScope.$emit('$viewContentAnimationEnded');
-              }
+              if (currentScope) currentScope.$emit('$viewContentAnimationEnded');
 
               if (isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
                 $uiViewScroll(clone);
               }
             });
+            
             cleanupLastView();
           });
 
@@ -303,17 +307,18 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
       let initial = tElement.html();
 
       return function (scope, $element) {
-        let data = $element.data('$uiView');
+        let data: UIViewData = $element.data('$uiView');
         if (!data) return;
 
-        $element.html(data.$template || initial);
-        trace.traceUiViewFill(data, $element.html());
+        let cfg: Ng1ViewConfig = data.$cfg || <any> {};
+        $element.html(cfg.template || initial);
+        trace.traceUiViewFill(data.$uiView, $element.html());
 
         let link = $compile($element.contents());
-        let controller = data.$controller;
-        let controllerAs = data.$controllerAs;
-        let resolveAs = data.$resolveAs;
-        let locals = data.$locals;
+        let controller = cfg.controller;
+        let controllerAs = cfg.controllerAs;
+        let resolveAs = cfg.resolveAs;
+        let locals = map(cfg.node && cfg.node.resolves || {}, r => r.data);
 
         scope[resolveAs] = locals;
         

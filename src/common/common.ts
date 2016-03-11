@@ -499,9 +499,8 @@ export function padString(length: number, str: string) {
   return str;
 }
 
-export function tail<T>(collection: T[]): T;
 /** Get the last element of an array */
-export function tail(arr: any[]): any {
+export function tail<T>(arr: T[]): T {
   return arr.length && arr[arr.length - 1] || undefined;
 }
 

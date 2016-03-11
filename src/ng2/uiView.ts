@@ -1,3 +1,4 @@
+/** @module ng2 */ /** */
 import {Component, ElementRef, DynamicComponentLoader} from 'angular2/core';
 import {Injector} from "angular2/core";
 import {provide} from "angular2/core";
@@ -7,9 +8,9 @@ import {Type} from "angular2/core";
 
 import {UIRouter} from "../router";
 import {trace} from "../common/trace";
-import {ViewConfig} from "../view/view";
 import {Inject} from "angular2/core";
-import {ViewContext} from "../view/interface";
+import {ViewContext, ViewConfig} from "../view/interface";
+import {Ng2ViewDeclaration} from "./interface";
 
 let id = 0;
 
@@ -91,12 +92,13 @@ export class UiView {
 
   viewConfigUpdated(config: ViewConfig) {
     let {uiViewData, injector, dcl, elementRef} = this;
+    let viewDecl = <Ng2ViewDeclaration> config.viewDecl;
 
     // The "new" viewconfig is already applied, so exit early
     if (uiViewData.config === config) return;
     // This is a new viewconfig.  Destroy the old component
     this.disposeLast();
-    trace.traceUiViewConfigUpdated(uiViewData, config && config.context);
+    trace.traceUiViewConfigUpdated(uiViewData, config && config.viewDecl.$context);
     uiViewData.config = config;
     // The config may be undefined if there is nothing state currently targeting this UiView.
     if (!config) return;
@@ -105,7 +107,7 @@ export class UiView {
     let rc = config.node.resolveContext;
     let resolvables = rc.getResolvables();
     let rawProviders = Object.keys(resolvables).map(key => provide(key, { useValue: resolvables[key].data }));
-    rawProviders.push(provide(UiView.INJECT.context, { useValue: config.context }));
+    rawProviders.push(provide(UiView.INJECT.context, { useValue: config.viewDecl.$context }));
     rawProviders.push(provide(UiView.INJECT.fqn, { useValue: uiViewData.fqn }));
     let providers = Injector.resolve(rawProviders);
 
@@ -114,7 +116,7 @@ export class UiView {
 
     // The 'controller' should be a Component class
     // TODO: pull from 'component' declaration, do not require template.
-    let component = <Type> config.viewDeclarationObj.controller;
+    let component = <Type> viewDecl.component;
     dcl.loadIntoLocation(component, elementRef, "content", providers).then(ref => this.componentRef = ref);
   }
 }

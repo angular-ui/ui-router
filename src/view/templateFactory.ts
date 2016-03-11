@@ -1,7 +1,7 @@
 /** @module view */ /** for typedoc */
 import {isDefined, isFunction} from "../common/predicates";
 import {services} from "../common/coreservices";
-import {ViewDeclaration} from "../state/interface";
+import {Ng1ViewDeclaration} from "../ng1/interface";
 
 /**
  * Service which manages loading of templates from a ViewConfig.
@@ -21,7 +21,7 @@ export class TemplateFactory {
    * @return {string|object}  The template html as a string, or a promise for 
    * that string,or `null` if no template is configured.
    */
-  fromConfig(config: ViewDeclaration, params: any, injectFn: Function) {
+  fromConfig(config: Ng1ViewDeclaration, params: any, injectFn: Function) {
     return (
       isDefined(config.template) ? this.fromString(config.template, params) :
       isDefined(config.templateUrl) ? this.fromUrl(config.templateUrl, params) :

@@ -94,28 +94,9 @@ export class StateBuilder {
         return urlParams.concat(nonUrlParams).map(p => [p.id, p]).reduce(applyPairs, {});
       }],
 
-      // If there is no explicit multi-view configuration, make one up so we don't have
-      // to handle both cases in the view directive later. Note that having an explicit
-      // 'views' property will mean the default unnamed view properties are ignored. This
-      // is also a good time to resolve view names to absolute names, so everything is a
-      // straight lookup at link time.
-      views: [function (state: State) {
-        let views = {},
-            tplKeys = ['templateProvider', 'templateUrl', 'template', 'notify', 'async'],
-            ctrlKeys = ['controller', 'controllerProvider', 'controllerAs', 'resolveAs'];
-        let allKeys = tplKeys.concat(ctrlKeys);
-
-        forEach(state.views || {"$default": pick(state, allKeys)}, function (config, name) {
-          name = name || "$default"; // Account for views: { "": { template... } }
-          // Allow controller settings to be defined at the state level for all views
-          forEach(ctrlKeys, (key) => {
-            if (state[key] && !config[key]) config[key] = state[key];
-          });
-          config.resolveAs = config.resolveAs || '$resolve';
-          if (Object.keys(config).length > 1) views[name] = config;
-        });
-        return views;
-      }],
+      // Each framework-specific ui-router implementation should define its own `views` builder
+      // e.g., src/ng1/viewsBuilder.ts
+      views: [],
 
       // Keep a full path from the root down to this state as this is needed for state activation.
       path: [function (state: State) {
