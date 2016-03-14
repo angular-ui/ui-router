@@ -1,3 +1,8 @@
+/**
+ * Naive, pure JS implementation of core ui-router services
+ *
+ * @module justjs
+ */ /** */
 export * from "./core";
 import {services} from "./common/coreservices";
 import {isDefined, isFunction, isArray, isObject, isInjectable} from "./common/predicates";

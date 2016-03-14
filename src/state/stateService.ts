@@ -1,3 +1,4 @@
+/** @module state */ /** */
 import {extend, defaults } from "../common/common";
 import {isDefined, isObject, isString} from "../common/predicates";
 import {Queue} from "../common/queue";
@@ -474,7 +475,7 @@ export class StateService {
    */
   get(): StateDeclaration[];
   get(stateOrName: StateOrName, base: StateOrName): StateDeclaration;
-  get(stateOrName?: StateOrName, base?: StateOrName): (StateDeclaration|StateDeclaration[]) {
+  get(stateOrName?: StateOrName, base?: StateOrName): any {
     if (arguments.length === 0) return this.stateRegistry.get();
     return this.stateRegistry.get(stateOrName, base || this.$current);
   }

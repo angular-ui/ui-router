@@ -1,4 +1,4 @@
-/** Predicates @module common */
+/** Predicates @module common */ /** */
 import {and, not, pipe, prop} from "./hof";
 
 const toStr = Object.prototype.toString;

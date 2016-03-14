@@ -1,5 +1,6 @@
 /// <reference path='../typings/angularjs/angular.d.ts' />
 /// <reference path='../typings/es6-shim/es6-shim.d.ts' />
+/** @module core */ /** */
 
 import * as common from "./common/module";
 import * as params from "./params/module";

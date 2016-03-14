@@ -1,3 +1,4 @@
+/** @module ng2 */ /** */
 import {UIRouter} from "../router";
 import {Directive} from "angular2/core";
 import {Optional} from "angular2/core";

@@ -1,3 +1,4 @@
+/** @module ng2 */ /** */
 import {State} from "../state/stateObject";
 import {pick, forEach} from "../common/common";
 

@@ -1,4 +1,4 @@
-/** @module view */ /** for typedoc */
+/** @module ng1 */ /** */
 import {IServiceProviderFactory} from "angular";
 
 /**

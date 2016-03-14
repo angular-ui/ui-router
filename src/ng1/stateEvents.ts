@@ -14,7 +14,7 @@
  * angular.module("myApplication", ['ui.router', 'ui.router.state.events']
  * ```
  *
- * @module ng1_state_events
+ * @module ng1/state_events
  */
 
 /** for typedoc */

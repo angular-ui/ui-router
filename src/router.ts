@@ -1,3 +1,4 @@
+/** @module common */ /** */
 import {UrlMatcherFactory} from "./url/urlMatcherFactory";
 import {UrlRouterProvider} from "./url/urlRouter";
 import {StateProvider} from "./state/state";

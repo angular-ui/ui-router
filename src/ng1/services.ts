@@ -3,7 +3,7 @@
  *
  * - Provides an implementation for the [[CoreServices]] API, based on angular 1 services.
  * - Also registers some services with the angular 1 injector.
- * - Creates and bootstraps a new [[Router]] object, usiong the angular 1 lifecycle
+ * - Creates and bootstraps a new [[UIRouter]] object.  Ties it to the the angular 1 lifecycle.
  *
  * @module ng1
  * @preferred
@@ -24,6 +24,7 @@ import {State} from "../state/module";
 import {trace} from "../common/trace";
 import {ng1ViewsBuilder, ng1ViewConfigFactory, Ng1ViewConfig} from "./viewsBuilder";
 
+/** @hidden */
 let app = angular.module("ui.router.angular1", []);
 
 /**
