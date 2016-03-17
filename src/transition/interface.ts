@@ -372,7 +372,7 @@ export interface IHookRegistry {
    * @example
    * ```
    *
-   * $transitions.onEnter({ to: 'admin' }, function(AuditService, $state$, $transition$) {
+   * $transitions.onEnter({ to: 'admin' }, function(AuditService, $state, $transition$) {
    *   AuditService.log("Entered admin module while transitioning to " + $transition$.to().name);
    * }
    * ```
@@ -384,7 +384,7 @@ export interface IHookRegistry {
    * {
    *   name: 'admin',
    *   template: '<div ui-view/>',
-   *   onEnter: function(AuditService, $state$, $transition$) {
+   *   onEnter: function(AuditService, $state, $transition$) {
    *     AuditService.log("Entered admin module while transitioning to " + $transition$.to().name);
    *   }
    * }
