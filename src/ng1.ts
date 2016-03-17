@@ -12,5 +12,6 @@ export * from "./ng1/stateDirectives";
 export * from "./ng1/stateFilters";
 export * from "./ng1/viewDirective";
 export * from "./ng1/viewScroll";
+export * from "./ng1/viewsBuilder";
 
 export default "ui.router";

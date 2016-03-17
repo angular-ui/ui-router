@@ -5,8 +5,7 @@ import {isNull, isPromise, isNumber, isInjectable, isDefined} from "../common/pr
 import {Resolvable}  from "../resolve/resolvable";
 import {Transition}  from "../transition/transition";
 import {TransitionRejection}  from "../transition/rejectFactory";
-import {UIViewData}  from "../view/interface";
-import {ViewConfig}  from "../view/view";
+import {ActiveUIView, ViewConfig}  from "../view/interface";
 
 function promiseToString(p) {
   if (is(TransitionRejection)(p.reason)) return p.reason.toString();
@@ -19,11 +18,13 @@ function functionToString(fn) {
   return namedFunctionMatch ? namedFunctionMatch[1] : fnStr;
 }
 
-const uiViewString = (viewData) =>
-    `ui-view id#${viewData.id}, contextual name '${viewData.name}@${viewData.creationContext}', fqn: '${viewData.fqn}'`;
+function uiViewString (viewData) {
+    if (!viewData) return 'ui-view (defunct)';
+    return `ui-view id#${viewData.id}, contextual name '${viewData.name}@${viewData.creationContext}', fqn: '${viewData.fqn}'`;
+}
 
 const viewConfigString = (viewConfig: ViewConfig) =>
-    `ViewConfig targeting ui-view: '${viewConfig.uiViewName}@${viewConfig.uiViewContextAnchor}', context: '${viewConfig.context.name}'`;
+    `ViewConfig targeting ui-view: '${viewConfig.viewDecl.$uiViewName}@${viewConfig.viewDecl.$uiViewContextAnchor}', context: '${viewConfig.viewDecl.$context.name}'`;
 
 function normalizedCat(input: Category): string {
   return isNumber(input) ? Category[input] : Category[Category[input]];
@@ -173,22 +174,22 @@ export class Trace {
     console.log(`Transition #${tid} Digest #${digest}: <- Success  ${transitionStr}, final state: ${state}`);
   }
 
-  traceUiViewEvent(event: string, viewData: UIViewData, extra = "") {
+  traceUiViewEvent(event: string, viewData: ActiveUIView, extra = "") {
     if (!this.enabled(Category.UIVIEW)) return;
     console.log(`ui-view: ${padString(30, event)} ${uiViewString(viewData)}${extra}`);
   }
 
-  traceUiViewConfigUpdated(viewData: UIViewData, context) {
+  traceUiViewConfigUpdated(viewData: ActiveUIView, context) {
     if (!this.enabled(Category.UIVIEW)) return;
     this.traceUiViewEvent("Updating", viewData, ` with ViewConfig from context='${context}'`);
   }
 
-  traceUiViewScopeCreated(viewData: UIViewData, newScope) {
+  traceUiViewScopeCreated(viewData: ActiveUIView, newScope) {
     if (!this.enabled(Category.UIVIEW)) return;
     this.traceUiViewEvent("Created scope for", viewData, `, scope #${newScope.$id}`);
   }
 
-  traceUiViewFill(viewData: UIViewData, html) {
+  traceUiViewFill(viewData: ActiveUIView, html) {
     if (!this.enabled(Category.UIVIEW)) return;
     this.traceUiViewEvent("Fill", viewData, ` with: ${maxLength(200, html)}`);
   }
@@ -198,7 +199,7 @@ export class Trace {
     console.log(`$view.ViewConfig: ${event} ${viewConfigString(viewConfig)}`);
   }
 
-  traceViewServiceUiViewEvent(event: string, viewData: UIViewData) {
+  traceViewServiceUiViewEvent(event: string, viewData: ActiveUIView) {
     if (!this.enabled(Category.VIEWCONFIG)) return;
     console.log(`$view.ViewConfig: ${event} ${uiViewString(viewData)}`);
   }

@@ -3,7 +3,7 @@ import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 import {
     map, find, extend, filter, mergeR, unnest, tail,
-    omit, toJson, abstractKey, arrayTuples, allTrueR
+    omit, toJson, abstractKey, arrayTuples, allTrueR, unnestR, identity
 } from "../common/common";
 import { isObject } from "../common/predicates";
 import { not, prop, propEq, val } from "../common/hof";
@@ -17,8 +17,8 @@ import {PathFactory} from "../path/pathFactory";
 import {State, TargetState} from "../state/module";
 import {Param} from "../params/module";
 import {Resolvable} from "../resolve/module";
-import {ViewConfig} from "../view/module";
 import {TransitionService} from "./transitionService";
+import {ViewConfig} from "../view/interface";
 
 
 let transitionCount = 0, REJECT = new RejectFactory();
@@ -127,6 +127,7 @@ export class Transition implements IHookRegistry {
     this._options = extend({ current: val(this) }, targetState.options());
     this.$id = transitionCount++;
     let toPath = PathFactory.buildToPath(fromPath, targetState);
+    toPath = PathFactory.applyViewConfigs($transitions.$view, toPath);
     this._treeChanges = PathFactory.treeChanges(fromPath, toPath, this._options.reloadState);
     PathFactory.bindTransitionResolve(this._treeChanges, this);
   }
@@ -265,7 +266,8 @@ export class Transition implements IHookRegistry {
    */
   views(pathname: string = "entering", state?: State): ViewConfig[] {
     let path = this._treeChanges[pathname];
-    return state ? find(path, propEq('state', state)).views : unnest(path.map(prop("views")));
+    path = !state ? path : path.filter(propEq('state', state));
+    return path.map(prop("views")).filter(identity).reduce(unnestR, []);
   }
 
   treeChanges = () => this._treeChanges;

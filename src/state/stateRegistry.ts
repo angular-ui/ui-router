@@ -46,7 +46,7 @@ export class StateRegistry {
 
   get(): StateDeclaration[];
   get(stateOrName: StateOrName, base: StateOrName): StateDeclaration;
-  get(stateOrName?: StateOrName, base?: StateOrName): (StateDeclaration|StateDeclaration[]) {
+  get(stateOrName?: StateOrName, base?: StateOrName): any {
     if (arguments.length === 0) 
       return <StateDeclaration[]> Object.keys(this.states).map(name => this.states[name].self);
     let found = this.matcher.find(stateOrName, base);

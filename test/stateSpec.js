@@ -89,6 +89,7 @@ describe('state helpers', function() {
     beforeEach(function() {
       matcher = new StateMatcher(states);
       builder = new StateBuilder(matcher, urlMatcherFactoryProvider);
+      builder.builder('views', uiRouter.ng1ViewsBuilder);
     });
 
     describe('interface', function() {
@@ -178,16 +179,19 @@ describe('state helpers', function() {
         expect(urlMatcherFactoryProvider.isMatcher).toHaveBeenCalledWith({ foo: "bar" });
       });
 
-      it('should return filtered keys if view config is provided', function() {
-        var config = { url: "/foo", templateUrl: "/foo.html", controller: "FooController" };
-        expect(builder.builder('views')(config)).toEqual({
-          $default: { templateUrl: "/foo.html", controller: "FooController", resolveAs: '$resolve' }
-        });
+      it('should return a new views object, and copy keys, if no `views` is defined in the state def', function() {
+        var parent = { name: "" };
+        var config = { url: "/foo", templateUrl: "/foo.html", controller: "FooController", parent: parent };
+        var built = builder.builder('views')(config);
+
+        expect(built.$default).not.toEqualData(config);
+        expect(built.$default).toEqualData({ templateUrl: "/foo.html", controller: "FooController", resolveAs: '$resolve' });
       });
 
-      it("should return unmodified view configs if defined", function() {
+      it("should return modified view config object if `views` is defined in the state def", function() {
+        var parent = { name: "" };
         var config = { a: { foo: "bar", controller: "FooController" } };
-        expect(builder.builder('views')({ views: config })).toEqual(config);
+        expect(builder.builder('views')({ parent: parent, views: config })).toEqual(config);
       });
     });
   });
@@ -1282,8 +1286,7 @@ describe('state', function () {
           }
         });
 
-        inject(function (_$rootScope_, _$state_, _$compile_, $trace) {
-          //$trace.enable(1);
+        inject(function (_$rootScope_, _$state_, _$compile_) {
           $rootScope = _$rootScope_;
           $state = _$state_;
           $compile = _$compile_;
@@ -1650,13 +1653,15 @@ describe('state', function () {
     }));
 
     it('should allow built-in decorators to be extended', inject(function ($state, $q, $httpBackend) {
-      stateProvider.decorator('views', function(state) {
+      stateProvider.decorator('views', function(state, parent) {
         var result = {};
 
-        angular.forEach(state.views, function(config, name) {
+        var views = parent(state);
+        angular.forEach(views, function(config, name) {
           result[name] = angular.extend(config, { templateProvider: function() {
             return "Template for " + name;
           }});
+          delete result[name].template;
         });
         return result;
       });

@@ -127,7 +127,7 @@ describe('Resolvables system:', function () {
           makePath([ "P" ]);
         }).toThrowError(/strictdi/);
       }
-    });
+    }));
 
     it('should not throw when creating a resolvable with an annotated fn and strictDi mode on', inject(function ($injector) {
       if (supportsStrictDi) {
@@ -135,7 +135,7 @@ describe('Resolvables system:', function () {
           makePath([ "PAnnotated" ]);
         }).not.toThrowError(/strictdi/);
       }
-    });
+    }));
   });
 
   describe('ResolveContext.resolvePathElement()', function () {

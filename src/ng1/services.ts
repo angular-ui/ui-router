@@ -15,14 +15,14 @@
 /** for typedoc */
 import {UIRouter} from "../router";
 import {services} from "../common/coreservices";
-import {map, bindFunctions, removeFrom, find, noop, TypedMap} from "../common/common";
+import {map, bindFunctions, removeFrom, find, noop} from "../common/common";
 import {prop, propEq} from "../common/hof";
 import {isObject} from "../common/predicates";
 import {Node} from "../path/module";
 import {Resolvable, ResolveContext} from "../resolve/module";
 import {State} from "../state/module";
 import {trace} from "../common/trace";
-import {ViewConfig} from "../view/view";
+import {ng1ViewsBuilder, ng1ViewConfigFactory, Ng1ViewConfig} from "./viewsBuilder";
 
 let app = angular.module("ui.router.angular1", []);
 
@@ -158,6 +158,11 @@ function ng1UIRouter($locationProvider) {
 
   // Create a new instance of the Router when the ng1UIRouterProvider is initialized
   router = new UIRouter();
+  
+  // Apply ng1 `views` builder to the StateBuilder
+  router.stateRegistry.decorator("views", ng1ViewsBuilder);
+
+  router.viewService.viewConfigFactory('ng1', ng1ViewConfigFactory);
 
   // Bind LocationConfig.hashPrefix to $locationProvider.hashPrefix
   bindFunctions($locationProvider, services.locationConfig, $locationProvider, ['hashPrefix']);
@@ -205,8 +210,8 @@ const resolveFactory = () => ({
    * @param parent a promise for a "parent resolve"
    */
   resolve: (invocables, locals = {}, parent?) => {
-    let parentNode = new Node(new State({ params: {} }));
-    let node = new Node(new State({ params: {} }));
+    let parentNode = new Node(new State(<any> { params: {} }));
+    let node = new Node(new State(<any> { params: {} }));
     let context = new ResolveContext([parentNode, node]);
 
     context.addResolvables(Resolvable.makeResolvables(invocables), node.state);
@@ -271,8 +276,8 @@ angular.module('ui.router.state').factory('$stateParams', ['ng1UIRouter', '$root
 function getTransitionsProvider() {
   loadAllControllerLocals.$inject = ['$transition$'];
   function loadAllControllerLocals($transition$) {
-    const loadLocals = (vc: ViewConfig) => {
-      let resolveCtx = (<Node> find($transition$.treeChanges().to, propEq('state', vc.context))).resolveContext;
+    const loadLocals = (vc: Ng1ViewConfig) => {
+      let resolveCtx = (<Node> find($transition$.treeChanges().to, propEq('state', vc.viewDecl.$context))).resolveContext;
       let controllerDeps = annotateController(vc.controller);
       let resolvables = resolveCtx.getResolvables();
 

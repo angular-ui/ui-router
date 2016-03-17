@@ -9,8 +9,10 @@
     "declaration": true,
     "sourceMap": true
   },
-  "files": [
-    "src/ng1.ts",
-    "src/ng1/stateEvents.ts"
+  "exclude": [
+    "node_modules",
+    "build",
+    "build_packages",
+    "test"
   ]
 }

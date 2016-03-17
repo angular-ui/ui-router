@@ -5,30 +5,27 @@ import {State} from "../state/module";
 import {RawParams} from "../params/interface";
 import {Param} from "../params/module";
 import {Resolvable, ResolveContext, ResolveInjector} from "../resolve/module";
-import {ViewConfig} from "../view/view";
+import {ViewConfig} from "../view/interface";
+
+export type Resolvables = { [key: string]: Resolvable };
 
 export class Node {
-
-  public paramSchema:   Param[];
-  public paramValues:   { [key: string]: any };
-  public resolves: any;
-  public views:    ViewConfig[];
+  public paramSchema: Param[];
+  public paramValues: { [key: string]: any };
+  public resolves: Resolvables;
+  public views: ViewConfig[];
   public resolveContext: ResolveContext;
   public resolveInjector: ResolveInjector;
 
   // Possibly extract this logic into an intermediary object that maps states to nodes
-  constructor(public state: State, params: RawParams = {}, resolves: any = {}) {
+  constructor(public state: State, params: RawParams = {}, resolvables: Resolvables = {}) {
     // Object.freeze(extend(this, { ... }))
     this.paramSchema = state.parameters({ inherit: false });
 
     const getParamVal = (paramDef: Param) => [ paramDef.id, paramDef.value(params[paramDef.id]) ];
     this.paramValues = this.paramSchema.reduce((memo, pDef) => applyPairs(memo, getParamVal(pDef)), {});
 
-    this.resolves = extend(map(state.resolve, (fn: Function, name: string) => new Resolvable(name, fn)), resolves);
-
-    const makeViewConfig = (viewDeclarationObj, rawViewName) =>
-        new ViewConfig({ rawViewName, viewDeclarationObj, context: state, params, node: this});
-    this.views = values(map(state.views, makeViewConfig));
+    this.resolves = extend(map(state.resolve, (fn: Function, name: string) => new Resolvable(name, fn)), resolvables);
   }
 
   parameter(name: string): Param {
