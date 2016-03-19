@@ -1,5 +1,3 @@
-undefined
-undefined
 <a name="1.0.0-alpha.1"></a>
 # [1.0.0-alpha.1](https://github.com/angular-ui/ui-router/compare/0.2.18...v1.0.0-alpha.1) (2016-03-10)
 
