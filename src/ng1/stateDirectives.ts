@@ -3,6 +3,7 @@
 import {extend, forEach, toJson} from "../common/common";
 import {isString, isObject} from "../common/predicates";
 import {UIViewData} from "./viewDirective";
+import {parse} from "../common/hof";
 
 function parseStateRef(ref, current) {
   let preparsed = ref.match(/^\s*({[^}]*})\s*$/), parsed;
@@ -14,10 +15,8 @@ function parseStateRef(ref, current) {
 
 function stateContext(el) {
   let $uiView: UIViewData = el.parent().inheritedData('$uiView');
-
-  if ($uiView && $uiView.$cfg.context && $uiView.$cfg.context.name) {
-    return $uiView.$cfg.context;
-  }
+  let context = parse('$cfg.node.state')($uiView);
+  return context && context.name ? context : undefined;
 }
 
 function getTypeInfo(el) {

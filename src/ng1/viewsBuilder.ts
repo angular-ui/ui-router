@@ -58,9 +58,6 @@ export class Ng1ViewConfig implements ViewConfig {
   locals: any; // TODO: delete me
 
   constructor(public node: Node, public viewDecl: Ng1ViewDeclaration) { }
-  get context(): ViewContext { return this.viewDecl.$context; }
-  get controllerAs() { return this.viewDecl.controllerAs; }
-  get resolveAs() { return this.viewDecl.resolveAs; }
 
   load() {
     let $q = services.$q;

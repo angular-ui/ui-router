@@ -44,7 +44,7 @@ export class ViewService {
    */
   deactivateViewConfig(viewConfig: ViewConfig) {
     trace.traceViewServiceEvent("<- Removing", viewConfig);
-    this.viewConfigs.filter(match(viewConfig, "uiViewName", "context")).forEach(removeFrom(this.viewConfigs));
+    removeFrom(this.viewConfigs, viewConfig)
   };
 
   activateViewConfig(viewConfig: ViewConfig) {

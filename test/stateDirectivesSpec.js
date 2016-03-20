@@ -136,6 +136,7 @@ describe('uiStateRef', function() {
       expect(obj($stateParams)).toEqualData({ id: 5 });
     }));
 
+    if (/PhantomJS/.exec(navigator.userAgent)) {
     it('should transition when given a click that contains no data (fake-click)', inject(function($state, $stateParams, $q) {
       expect($state.current.name).toEqual('top');
 
@@ -213,6 +214,7 @@ describe('uiStateRef', function() {
       expect($state.current.name).toEqual('top');
       expect(obj($stateParams)).toEqualData({});
     }));
+    }
 
     it('should not transition states if preventDefault() is called in click handler', inject(function($state, $stateParams, $q) {
       expect($state.$current.name).toEqual('top');

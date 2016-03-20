@@ -1,9 +1,14 @@
 /** @module view */ /** for typedoc */
+"use strict";
 import {extend, map} from "../common/common";
 import {isDefined, isFunction} from "../common/predicates";
 import {trace} from "../common/trace";
 import {ActiveUIView} from "../view/interface";
 import {Ng1ViewConfig} from "./viewsBuilder";
+import {RejectType} from "../transition/rejectFactory";
+import {TransitionService} from "../transition/transitionService";
+import {parse} from "../common/hof";
+import {ResolveContext} from "../resolve/resolveContext";
 
 export type UIViewData = {
   $cfg: Ng1ViewConfig;
@@ -174,7 +179,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
   }
 
   let rootData = {
-    $cfg: { context: $view.rootContext() },
+    $cfg: { viewDecl: { $context: $view.rootContext() } },
     $uiView: { }
   };
 
@@ -201,7 +206,9 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
           fqn: inherited.$uiView.fqn ? inherited.$uiView.fqn + "." + name : name, // fully qualified name, describes location in DOM
           config: null,                                            // The ViewConfig loaded (from a state.views definition)
           configUpdated: configUpdatedCallback,                    // Called when the matching ViewConfig changes
-          get creationContext() { return inherited.$cfg.context; }      // The context in which this ui-view "tag" was created
+          get creationContext() {                                  // The context in which this ui-view "tag" was created
+            return parse('$cfg.viewDecl.$context')(inherited);
+          }
         };
 
         trace.traceUiViewEvent("Linking", activeUIView);
@@ -298,8 +305,12 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
   return directive;
 }
 
-$ViewDirectiveFill.$inject = ['$compile', '$controller', '$interpolate', '$injector', '$q'];
-function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injector,   $q) {
+$ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view', '$timeout'];
+function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,   $timeout) {
+  const getControllerAs = parse('viewDecl.controllerAs');
+  const getResolveAs = parse('viewDecl.resolveAs');
+  const getResolveContext = parse('node.resolveContext');
+
   return {
     restrict: 'ECA',
     priority: -400,
@@ -310,15 +321,16 @@ function $ViewDirectiveFill (  $compile,   $controller,   $interpolate,   $injec
         let data: UIViewData = $element.data('$uiView');
         if (!data) return;
 
-        let cfg: Ng1ViewConfig = data.$cfg || <any> {};
+        let cfg: Ng1ViewConfig = data.$cfg || <any> { viewDecl: {} };
         $element.html(cfg.template || initial);
         trace.traceUiViewFill(data.$uiView, $element.html());
 
         let link = $compile($element.contents());
         let controller = cfg.controller;
-        let controllerAs = cfg.controllerAs;
-        let resolveAs = cfg.resolveAs;
-        let locals = map(cfg.node && cfg.node.resolves || {}, r => r.data);
+        let controllerAs: string = getControllerAs(cfg);
+        let resolveAs: string = getResolveAs(cfg);
+        let resolveCtx: ResolveContext = getResolveContext(cfg);
+        let locals = resolveCtx && map(resolveCtx.getResolvables(), r => r.data);
 
         scope[resolveAs] = locals;
         

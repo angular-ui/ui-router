@@ -26,7 +26,7 @@ beforeEach(function() {
             actual.hasClass(clazz) :
             angular.element(actual).hasClass(clazz);
 
-          var message = pass ? undefined :  "Expected '" + angular.mock.dump(this.actual) + "' to have class '" + clazz + "'.";
+          var message = pass ? undefined :  "Expected '" + angular.mock.dump(actual) + "' to have class '" + clazz + "'.";
 
           return { pass: pass, message: message};
         }
