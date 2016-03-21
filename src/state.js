@@ -974,7 +974,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
       
       // Stop transition when prevented
       if($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams, options).defaultPrevented){
-          return TransitionPrevented;
+        $rootScope.$broadcast('$stateChangeCancel', to.self, toParams, from.self, fromParams);
+        //Don't update and resync url if there's been a new transition started. see issue #2238, #600
+        if ($state.transition == null) $urlRouter.update();
+        return TransitionPrevented;
       }
 
       // Store the hash param for later (since it will be stripped out by various methods)
