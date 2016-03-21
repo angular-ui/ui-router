@@ -119,7 +119,6 @@ export class TransitionManager {
     let options = transition.options();
     $state.params = transition.params();
     copy($state.params, $stateParams);
-    $stateParams.$sync().$off();
 
     if (options.location && $state.$current.navigable) {
       $urlRouter.push($state.$current.navigable.url, $stateParams, { replace: options.location === 'replace' });

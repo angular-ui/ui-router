@@ -3,7 +3,7 @@ import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 import {
     map, find, extend, filter, mergeR, unnest, tail,
-    omit, toJson, abstractKey, arrayTuples, allTrueR, unnestR, identity
+    omit, toJson, abstractKey, arrayTuples, allTrueR, unnestR, identity, anyTrueR
 } from "../common/common";
 import { isObject } from "../common/predicates";
 import { not, prop, propEq, val } from "../common/hof";
@@ -34,6 +34,12 @@ export class Transition implements IHookRegistry {
   $id: number;
 
   private _deferred = services.$q.defer();
+  /**
+   * This promise is resolved or rejected based on the outcome of the Transition.
+   *
+   * When the transition is successful, the promise is resolved
+   * When the transition is unsuccessful, the promise is rejected with the [[TransitionRejection]] or javascript error
+   */
   promise: Promise<any> = this._deferred.promise;
 
   private _options: TransitionOptions;
@@ -113,9 +119,9 @@ export class Transition implements IHookRegistry {
    * @param fromPath The path of [[Node]]s from which the transition is leaving.  The last node in the `fromPath`
    *        encapsulates the "from state".
    * @param targetState The target state and parameters being transitioned to (also, the transition options)
-   * @param $transitions The Transition Service instance
+   * @param _transitionService The Transition Service instance
    */
-  constructor(fromPath: Node[], targetState: TargetState, private $transitions: TransitionService) {
+  constructor(fromPath: Node[], targetState: TargetState, private _transitionService: TransitionService) {
     if (!targetState.valid()) {
       throw new Error(targetState.error());
     }
@@ -127,7 +133,7 @@ export class Transition implements IHookRegistry {
     this._options = extend({ current: val(this) }, targetState.options());
     this.$id = transitionCount++;
     let toPath = PathFactory.buildToPath(fromPath, targetState);
-    toPath = PathFactory.applyViewConfigs($transitions.$view, toPath);
+    toPath = PathFactory.applyViewConfigs(_transitionService.$view, toPath);
     this._treeChanges = PathFactory.treeChanges(fromPath, toPath, this._options.reloadState);
     PathFactory.bindTransitionResolve(this._treeChanges, this);
   }
@@ -288,7 +294,7 @@ export class Transition implements IHookRegistry {
     let newOptions = extend({}, this.options(), targetState.options(), { previous: this });
     targetState = new TargetState(targetState.identifier(), targetState.$state(), targetState.params(), newOptions);
 
-    let redirectTo = new Transition(this._treeChanges.from, targetState, this.$transitions);
+    let redirectTo = new Transition(this._treeChanges.from, targetState, this._transitionService);
 
     // If the current transition has already resolved any resolvables which are also in the redirected "to path", then
     // add those resolvables to the redirected transition.  Allows you to define a resolve at a parent level, wait for
@@ -301,30 +307,47 @@ export class Transition implements IHookRegistry {
     return redirectTo;
   }
 
-  /**
-   * Checks if the transition will be ignored.
-   *
-   * Indicates whether the transition should be ignored, based on whether the to and from states are the
-   * same, whether the parameters are equal (or dynamic), and whether the `reload` option is set.
-   *
-   * @returns true if the Transition should be ignored.
-   */
-  ignored(): boolean {
+  /** @hidden If a transition doesn't exit/enter any states, returns any [[Param]] whose value changed */
+  private _changedParams(): Param[] {
     let {to, from} = this._treeChanges;
-    if (this._options.reload || tail(to).state !== tail(from).state) return false;
+    if (this._options.reload || tail(to).state !== tail(from).state) return undefined;
 
-    let nodeSchemas: Param[][] = to.map((node: Node) => node.paramSchema.filter(not(prop('dynamic'))));
-    let [toValues, fromValues] = [to, from].map(path => path.map(prop('paramValues')));
+    let nodeSchemas: Param[][] = to.map((node: Node) => node.paramSchema);
+    let [toValues, fromValues] = [to, from].map(path => path.map(x => x.paramValues));
     let tuples = arrayTuples(nodeSchemas, toValues, fromValues);
 
-    return tuples.map(([schema, toVals, fromVals]) => Param.equals(schema, toVals, fromVals)).reduce(allTrueR, true);
+    return tuples.map(([schema, toVals, fromVals]) => Param.changed(schema, toVals, fromVals)).reduce(unnestR, []);
+  }
+
+  /**
+   * Returns true if the transition is dynamic.
+   *
+   * A transition is dynamic if no states are entered nor exited, but at least one dynamic parameter has changed.
+   *
+   * @returns true if the Transition is dynamic
+   */
+  dynamic(): boolean {
+    let changes = this._changedParams();
+    return !changes ? false : changes.map(x => x.dynamic).reduce(anyTrueR, false);
+  }
+
+  /**
+   * Returns true if the transition is ignored.
+   *
+   * A transition is ignored if no states are entered nor exited, and no parameter values have changed.
+   *
+   * @returns true if the Transition is ignored.
+   */
+  ignored(): boolean {
+    let changes = this._changedParams();
+    return !changes ? false : changes.length === 0;
   }
 
   /**
    * @hidden
    */
   hookBuilder(): HookBuilder {
-    return new HookBuilder(this.$transitions, this, <TransitionHookOptions> {
+    return new HookBuilder(this._transitionService, this, <TransitionHookOptions> {
       transition: this,
       current: this._options.current
     });

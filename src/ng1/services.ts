@@ -229,10 +229,6 @@ const resolveFactory = () => ({
 });
 
 function $stateParamsFactory(ng1UIRouter, $rootScope) {
-  $rootScope.$watch(function() {
-    router.stateParams.$digest();
-  });
-
   return router.stateParams;
 }
 

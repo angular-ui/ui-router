@@ -1,6 +1,6 @@
 /** @module view */ /** for typedoc */
 "use strict";
-import {extend, map} from "../common/common";
+import {extend, map, unnestR, filter} from "../common/common";
 import {isDefined, isFunction} from "../common/predicates";
 import {trace} from "../common/trace";
 import {ActiveUIView} from "../view/interface";
@@ -9,6 +9,9 @@ import {RejectType} from "../transition/rejectFactory";
 import {TransitionService} from "../transition/transitionService";
 import {parse} from "../common/hof";
 import {ResolveContext} from "../resolve/resolveContext";
+import {Transition} from "../transition/transition";
+import {Node} from "../path/node";
+import {Param} from "../params/param";
 
 export type UIViewData = {
   $cfg: Ng1ViewConfig;
@@ -340,15 +343,65 @@ function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,
             scope[controllerAs] = controllerInstance;
             scope[controllerAs][resolveAs] = locals;
           }
-          if (isFunction(controllerInstance.$onInit)) controllerInstance.$onInit();
+
           $element.data('$ngControllerController', controllerInstance);
           $element.children().data('$ngControllerController', controllerInstance);
+
+          registerControllerCallbacks($transitions, controllerInstance, scope, cfg);
         }
 
         link(scope);
       };
     }
   };
+}
+
+// TODO: move these callbacks to $view and/or `/hooks/components.ts` or something
+function registerControllerCallbacks($transitions: TransitionService, controllerInstance, $scope, cfg: Ng1ViewConfig) {
+  // Call $onInit() ASAP
+  if (isFunction(controllerInstance.$onInit)) controllerInstance.$onInit();
+
+  // Add component-level hook for onParamsChange
+  if (isFunction(controllerInstance.uiOnParamsChanged)) {
+    // Fire callback on any successful transition
+    const paramsUpdated = ($transition$: Transition) => {
+      let ctx: ResolveContext = cfg.node.resolveContext;
+      let viewCreationTrans = ctx.getResolvables()['$transition$'].data;
+      // Exit early if the $transition$ is the same as the view was created within.
+      // Exit early if the $transition$ will exit the state the view is for.
+      if ($transition$ === viewCreationTrans || $transition$.exiting().indexOf(cfg.node.state.self) !== -1) return;
+
+      let toParams = $transition$.params("to");
+      let fromParams = $transition$.params("from");
+      let toSchema: Param[] = $transition$.treeChanges().to.map((node: Node) => node.paramSchema).reduce(unnestR, []);
+      let fromSchema: Param[] = $transition$.treeChanges().from.map((node: Node) => node.paramSchema).reduce(unnestR, []);
+
+      // Find the to params that have different values than the from params
+      let changedToParams = toSchema.filter((param: Param) => {
+        let idx = fromSchema.indexOf(param);
+        return idx === -1 || !fromSchema[idx].type.equals(toParams[param.id], fromParams[param.id]);
+      });
+
+      // Only trigger callback if a to param has changed or is new
+      if (changedToParams.length) {
+        let changedKeys = changedToParams.map(x => x.id);
+        // Filter the params to only changed/new to params.  `$transition$.params()` may be used to get all params.
+        controllerInstance.uiOnParamsChanged(filter(toParams, (val, key) => changedKeys.indexOf(key) !== -1), $transition$);
+      }
+    };
+    $scope.$on('$destroy', $transitions.onSuccess({}, ['$transition$', paramsUpdated]));
+
+    // Fire callback on any IGNORED transition
+    let onDynamic = ($error$, $transition$) => {
+      if ($error$.type === RejectType.IGNORED) paramsUpdated($transition$);
+    };
+    $scope.$on('$destroy', $transitions.onError({}, ['$error$', '$transition$', onDynamic]));
+  }
+
+  // Add component-level hook for canDeactivate
+  if (isFunction(controllerInstance.canDeactivate)) {
+    $scope.$on('$destroy', $transitions.onBefore({exiting: cfg.node.state.name}, controllerInstance.canDeactivate.bind(controllerInstance)));
+  }
 }
 
 angular.module('ui.router.state').directive('uiView', $ViewDirective);

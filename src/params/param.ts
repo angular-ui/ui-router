@@ -1,5 +1,5 @@
 /** @module params */ /** for typedoc */
-import {extend, filter, map, applyPairs} from "../common/common";
+import {extend, filter, map, applyPairs, allTrueR} from "../common/common";
 import {prop, propEq} from "../common/hof";
 import {isInjectable, isDefined, isString, isArray} from "../common/predicates";
 import {RawParams} from "../params/interface";
@@ -135,31 +135,55 @@ export class Param {
     return `{Param:${this.id} ${this.type} squash: '${this.squash}' optional: ${this.isOptional}}`;
   }
 
+  /** Creates a new [[Param]] from a CONFIG block */
   static fromConfig(id: string, type: Type, config: any): Param {
     return new Param(id, type, config, DefType.CONFIG);
   }
 
+  /** Creates a new [[Param]] from a url PATH */
   static fromPath(id: string, type: Type, config: any): Param {
     return new Param(id, type, config, DefType.PATH);
   }
 
+  /** Creates a new [[Param]] from a url SEARCH */
   static fromSearch(id: string, type: Type, config: any): Param {
     return new Param(id, type, config, DefType.SEARCH);
   }
 
-  static values(params: Param[], values): RawParams {
-    values = values || {};
+  static values(params: Param[], values = {}): RawParams {
     return <RawParams> params.map(param => [param.id, param.value(values[param.id])]).reduce(applyPairs, {});
   }
 
-  static equals(params: Param[], values1, values2): boolean {
-    values1 = values1 || {};
-    values2 = values2 || {};
-    return params.map(param => param.type.equals(values1[param.id], values2[param.id])).indexOf(false) === -1;
+  /**
+   * Finds [[Param]] objects which have different param values
+   *
+   * Filters a list of [[Param]] objects to only those whose parameter values differ in two param value objects
+   *
+   * @param params: The list of Param objects to filter
+   * @param values1: The first set of parameter values
+   * @param values2: the second set of parameter values
+   *
+   * @returns any Param objects whose values were different between values1 and values2
+   */
+  static changed(params: Param[], values1 = {}, values2 = {}): Param[] {
+    return params.filter(param => !param.type.equals(values1[param.id], values2[param.id]));
   }
 
-  static validates(params: Param[], values): boolean {
-    values = values || {};
-    return params.map(param => param.validates(values[param.id])).indexOf(false) === -1;
+  /**
+   * Checks if two param value objects are equal (for a set of [[Param]] objects)
+   *
+   * @param params The list of [[Param]] objects to check
+   * @param values1 The first set of param values
+   * @param values2 The second set of param values
+   *
+   * @returns true if the param values in values1 and values2 are equal
+   */
+  static equals(params: Param[], values1 = {}, values2 = {}): boolean {
+    return Param.changed(params, values1, values2).length === 0;
+  }
+
+  /** Returns true if a the parameter values are valid, according to the Param definitions */
+  static validates(params: Param[], values = {}): boolean {
+    return params.map(param => param.validates(values[param.id])).reduce(allTrueR, true);
   }
 }
