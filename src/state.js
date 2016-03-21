@@ -964,11 +964,6 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      * {@link ui.router.state.$state#methods_go $state.go}.
      */
     $state.transitionTo = function transitionTo(to, toParams, options) {
-      // Stop transition when prevented
-      if($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams, options).defaultPrevented){
-          return TransitionPrevented;
-      }
-      
       toParams = toParams || {};
       options = extend({
         location: true, inherit: false, relative: null, notify: true, reload: false, $retry: false
@@ -976,6 +971,11 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
       var from = $state.$current, fromParams = $state.params, fromPath = from.path;
       var evt, toState = findState(to, options.relative);
+      
+      // Stop transition when prevented
+      if($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams, options).defaultPrevented){
+          return TransitionPrevented;
+      }
 
       // Store the hash param for later (since it will be stripped out by various methods)
       var hash = toParams['#'];
