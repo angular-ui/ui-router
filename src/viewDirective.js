@@ -209,6 +209,9 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate)
         function cleanupLastView() {
           var _previousEl = previousEl;
           var _currentScope = currentScope;
+          if(currentScope) {
+            currentScope.$destroy();
+          }
 
           if (_currentScope) {
             _currentScope._willBeDestroyed = true;
