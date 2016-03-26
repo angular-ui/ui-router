@@ -2,10 +2,11 @@
 import {StateDeclaration, _ViewDeclaration} from "../state/interface";
 import {ParamDeclaration} from "../params/interface";
 import {IInjectable} from "../common/common";
+import {Transition} from "../transition/transition";
 
 /**
  * The StateDeclaration object is used to define a state or nested state.
- * It should be registered with the [[$stateProvider]].
+ * It should be registered with the [[StateRegistry]].
  *
  * @example
  * ```js
@@ -28,183 +29,17 @@ import {IInjectable} from "../common/common";
  */
 export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaration {
   /**
-   * A unique state name, e.g. `"home"`, `"about"`, `"contacts"`.
-   * To create a parent/child state use a dot, e.g. `"about.sales"`, `"home.newest"`.
+   * An optional object which defines multiple named views.
    *
+   * Each key is the name of a view, and each value is a [[Ng1ViewDeclaration]].
+   * Unnamed views are internally renamed to `$default`.
    *
-   * Note: States require unique names.  If you omit this property, you must provide
-   * the state name when you register it with the [[$stateProvider]].
-   */
-  name?: string;
-
-  /**
-   * An abstract state can never be directly activated.  Use an abstract state to provide inherited
-   * properties (url, resolve, data, etc) to children states.
-   */
-  abstract?: boolean;
-
-  /**
-   * The parent state of this state can be specified using the [[name]] of the state, e.g., `"parentstate.childstate"`.
-   * Alternatively, you can explicitly set the parent state using this property.  This allows shorter state
-   * names, e.g., `<a ui-sref="childstate">Child</a>` instead of `<a ui-sref="parentstate.childstate">Child</a>
+   * A view's name is used to match an active `<ui-view>` directive in the DOM.  When the state
+   * is entered, the state's views are activated and matched with active `<ui-view>` directives:
    *
-   * @example
-   * ```js
-   *
-   * var parentstate = {
-   *   name: 'parentstate'
-   * }
-   * var childstate = {
-   *   name: 'childstate',
-   *   parent: 'parentstate'
-   *   // or use a JS var which is the parent StateDeclaration, i.e.:
-   *   // parent: parentstate
-   * }
-   * ```
-   */
-  parent?: (string|StateDeclaration);
-
-  /**
-   * A property of [[StateDeclaration]]:
-   *
-   * An object which defines dynamic dependencies/data that can then be injected into this state (or its children)
-   * during a Transition.
-   *
-   * Define a new dependency by adding a key/value to the `resolve` property of the [[StateDeclaration]].
-   * - The key (string) is the name of the dependency.
-   * - The value (function) is an injectable function which returns the dependency, or a promise for the dependency.
-   *
-   * @example
-   * ```js
-   *
-   * resolve: {
-   *   // If you inject `myStateDependency` into a controller, you'll get "abc"
-   *   myStateDependency: function() {
-   *     return "abc";
-   *   },
-   *   myAsyncData: function($http) {
-   *     // Return a promise (async) for the data
-   *     return $http.get("/api/v1/data");
-   *   }
-   * }
-   * ```
-   *
-   * ### Lifecycle
-   *
-   * Since a resolve function can return a promise, the router will delay entering the state until the  promises
-   * are ready.  If any of the promises are rejected, the Transition is aborted with an Error.
-   *
-   * By default, resolves for a state are fetched just before that state is entered. Note that only states
-   * which are being *entered* have their resolves fetched.  States that are "retained" do not have their resolves
-   * re-fetched.  If you are currently in a parent state `A` and are transitioning to a child state `A.B`, the
-   * previously resolved data for state `A` can be injected into `A.B` without delay.
-   *
-   * Any resolved data for `A.B` is retained until `A.B` is exited, e.g., by transitioning back to the parent state `A`.
-   *
-   * Because of this, resolves are a great place to fetch your application's primary data.
-   *
-   * ### Injecting resolves into other things
-   *
-   * During a transition, Resolve data can be injected into:
-   * - Transition Hooks, e.g., $transitions.onStart/onEnter
-   * - ui-view Controllers
-   * - TemplateProviders and ControllerProviders
-   * - Other resolves
-   *
-   * ### Injecting other things into resolves
-   *
-   * Since resolve functions are injected, a common pattern is to inject a custom service such as `UserService`
-   * and delegate to a custom service method, such as `UserService.list()`;
-   *
-   * A resolve function can inject some special values:
-   * - `$transition$`: The current [[Transition]] object; information and API about the current transition, such as
-   *    "to" and "from" State Parameters and transition options.
-   * - Other resolves: This resolve can depend on another resolve, either from the same state, or from any parent state.
-   * - `$stateParams`: (deprecated) The parameters for the current state (Note: these parameter values are
-   *
-   * @example
-   * ```js
-   *
-   * resolve: {
-   *   // Define a resolve 'allusers' which delegates to the UserService
-   *   allusers: function(UserService) {
-   *     return UserService.list(); // list() returns a promise (async) for all the users
-   *   },
-   *   // Define a resolve 'user' which depends on the allusers resolve.
-   *   // This resolve function is not called until 'allusers' is ready.
-   *   user: function(allusers, $transition$) {
-   *     return _.find(allusers, $transition$.params().userId);
-   *   }
-   * }
-   * ```
-   */
-  resolve?: { [key: string]: Function; };
-  /**
-   * @TODO document this ;)
-   */
-  resolvePolicy?: (string|Object);
-
-  /**
-   * A property of [[StateDeclaration]]:
-   *
-   * A URL fragment (with optional parameters) which is used to match the browser location with this state.
-   *
-   * This fragment will be appended to the parent state's URL in order to build up the overall URL for this state.
-   * See [[UrlMatcher]] for details on acceptable patterns.
-   *
-   * @examples
-   * ```js
-   *
-   * url: "/home"
-   * // Define a parameter named 'userid'
-   * url: "/users/:userid"
-   * // param 'bookid' has a custom regexp
-   * url: "/books/{bookid:[a-zA-Z_-]}"
-   * // param 'categoryid' is of type 'int'
-   * url: "/books/{categoryid:int}"
-   * // two parameters for this state
-   * url: "/books/{publishername:string}/{categoryid:int}"
-   * // Query parameters
-   * url: "/messages?before&after"
-   * // Query parameters of type 'date'
-   * url: "/messages?{before:date}&{after:date}"
-   * // Path and query parameters
-   * url: "/messages/:mailboxid?{before:date}&{after:date}"
-   * ```
-   */
-  url?: string;
-
-  /**
-   * A property of [[StateDeclaration]]:
-   *
-   * An object which optionally configures parameters declared in the url, or defines additional non-url
-   * parameters. For each parameter being configured, add a [[ParamDeclaration]] keyed to the name of the parameter.
-   *
-   * @example
-   * ```js
-   *
-   * params: {
-   *   param1: {
-   *    type: "int",
-   *    array: true,
-   *    value: []
-   *   },
-   *   param2: {
-   *     value: "index"
-   *   }
-   * }
-   * ```
-   */
-  params?: { [key: string]: (ParamDeclaration|any); };
-  /**
-   * A property of [[StateDeclaration]]:
-   *
-   * An optional object which defines multiple views, or explicitly targets specific ui-views.
-   *
-   * - What is a view config
-   * - What is a ui-view
-   * - Shorthand controller/template
-   * - Incompatible with ^
+   * - The view's name is processed into a ui-view target:
+   *   - ui-view address: an address to a ui-view
+   *   - state anchor: the state to anchor the address to
    *
    *  Examples:
    *
@@ -217,38 +52,118 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    *   header: {
    *     controller: "headerCtrl",
    *     templateUrl: "header.html"
-   *   }, body: {
+   *   },
+   *   body: {
    *     controller: "bodyCtrl",
    *     templateUrl: "body.html"
-   *   }, footer: {
-   *     controller: "footCtrl",
-   *     templateUrl: "footer.html"
-   *   }
+   *   },
+   *   footer: "footerComponent"
    * }
    * ```
    *
    * @example
    * ```js
-   * // Targets named ui-view="header" from ancestor state 'top''s template, and
-   * // named `ui-view="body" from parent state's template.
+   *
+   * // Targets named ui-view="header" in the template of the ancestor state 'top'
+   * // and the named `ui-view="body" from the parent state's template.
    * views: {
    *   'header@top': {
    *     controller: "msgHeaderCtrl",
    *     templateUrl: "msgHeader.html"
-   *   }, 'body': {
+   *   },
+   *   'body': {
    *     controller: "messagesCtrl",
    *     templateUrl: "messages.html"
    *   }
    * }
    * ```
+   *
+   * ## View targeting details
+   *
+   * There are a few styles of view addressing/targeting.  The most common is a simple `ui-view` name
+   *
+   *
+   * #### Simple ui-view name
+   *
+   * Addresses without an `@` are anchored to the parent state.
+   *
+   * @example
+   * ```js
+   *
+   * // target the `<div ui-view='foo'></div>` created in the parent state's view
+   * views: { foo: {...} }
+   * ```
+   *
+   * #### View name anchored to a state
+   *
+   * You can anchor the `ui-view` name to a specific state by including an `@`
+   *
+   * @example
+   *
+   * ```js
+   *
+   * // target the `<div ui-view='foo'></div>` which was created in a
+   * // view owned by the state `bar.baz`
+   * views: { 'foo@bar.baz': {...} }
+   * ```
+   *
+   * #### Absolute addressing
+   *
+   * You can address a `ui-view` absolutely, using dotted notation, by prefixing the address with a `!`.  Dotted
+   * addresses map to the hierarchy of `ui-view`s active in the DOM:
+   *
+   * @example
+   * ```js
+   *
+   * // absolutely target the `<div ui-view='nested'></div>`... which was created
+   * // in the unnamed/$default root `<ui-view></ui-view>`
+   * views: { '!$default.nested': {...} }
+   * ```
+   *
+   * #### Relative addressing
+   *
+   * Absolute addressing is actually relative addressing, only anchored to the unnamed root state.  You can also use
+   * relative addressing anchored to any state, in order to target a target deeply nested `ui-views`:
+   *
+   * @example
+   * ```js
+   *
+   *
+   * // target the `<div ui-view='bar'></div>`... which was created inside the
+   * // `<div ui-view='bar'></div>`... which was created inside the parent state's template.
+   * views: { 'foo.bar': {...} }
+   * ```
+   *
+   * @example
+   * ```js
+   *
+   * // target the `<div ui-view='bar'></div>`...  which was created in
+   * // `<div ui-view='foo'></div>`... which was created in a template crom the state `baz.qux`
+   * views: { 'foo.bar@baz.qux': {...} }
+   *
+   * ---
+   *
+   * ## State template+controller and `views:` incompatiblity
+   *
+   * If a state has a `views` object, any state-level view properties ([[Ng1ViewDeclaration]]) are ignored.  Therefore,
+   * if _any view_ for a state is declared in the `views` object, then _all of the state's views_ must be defined in
+   * the `views` object.  The state declaration must not have any of the following fields:
+   * - component
+   * - bindings
+   * - resolveAs
+   * - template
+   * - templateUrl
+   * - templateProvider
+   * - controller
+   * - controllerAs
+   * - controllerProvider
    */
   views?: { [key: string]: Ng1ViewDeclaration; };
-  data?: any; onEnter?: Function;
-  onRetain?: Function;
-  onExit?: Function;
 
   /**
-   * @inheritdoc
+   * Makes all search/query parameters `dynamic`
+   *
+   * @deprecated use [[ParamDeclaration.dynamic]]
    */
   reloadOnSearch?: boolean;
 }
@@ -257,38 +172,42 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
   /**
    * The name of the component to use for this view.
    *
+   * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
+   *
    * The name of an [angular 1.5+ `.component()`](https://docs.angularjs.org/guide/component) (or directive with 
    * bindToController and/or scope declaration) which will be used for this view.
    *
    * Resolve data can be provided to the component via the component's `bindings` object (for 1.3+ directives, the
    * `bindToController` is used; for other directives, the `scope` declaration is used).  For each binding declared 
    * on the component, any resolve with the same name is set on the component's controller instance.  The binding 
-   * is provided to the component as a one-time-binding.  In general, * components should likewise declare their 
-   * input bindings as [one-way (`"<"`)](https://docs.angularjs.org/api/ng/service/$compile#-scope-).
+   * is provided to the component as a one-time-binding.  In general, components should likewise declare their
+   * input bindings as [one-way ("&lt;")](https://docs.angularjs.org/api/ng/service/$compile#-scope-).
    *
    * Note: inside a "views:" block, a bare string `"foo"` is shorthand for `{ component: "foo" }`
    *
    * Note: Mapping from resolve names to component inputs may be specified using [[bindings]].
    *
-   * @example:
-   * ```
+   * @example
+   * ```js
    *
    * .state('profile', {
-   *   // Unnamed view should be <my-profile></my-profile> component
+   *   // Use the <my-profile></my-profile> component for the Unnamed view
    *   component: 'MyProfile',
    * }
+   *
    * .state('messages', {
-   *   // 'header' named view should be <nav-bar></nav-bar> component
-   *   // 'content' named view should be <message-list></message-list> component
+   *   // use the <nav-bar></nav-bar> component for the view named 'header'
+   *   // use the <message-list></message-list> component for the view named 'content'
    *   views: {
    *     header: { component: 'NavBar' },
    *     content: { component: 'MessageList' }
    *   }
    * }
+   *
    * .state('contacts', {
    *   // Inside a "views:" block, a bare string "NavBar" is shorthand for { component: "NavBar" }
-   *   // 'header' named view should be <nav-bar></nav-bar> component
-   *   // 'content' named view should be <contact-list></contact-list> component
+   *   // use the <nav-bar></nav-bar> component for the view named 'header'
+   *   // use the <contact-list></contact-list> component for the view named 'content'
    *   views: {
    *     header: 'NavBar',
    *     content: 'ContactList'
@@ -296,18 +215,22 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * }
    * ```
    *
+   *
    * Note: When using `component` to define a view, you may _not_ use any of: `template`, `templateUrl`,
    * `templateProvider`, `controller`, `controllerProvider`, `controllerAs`.
+   *
    *
    * See also: Todd Motto's angular 1.3 and 1.4 [backport of .component()](https://github.com/toddmotto/angular-component)
    */
   component?: string;
 
   /**
-   * An object to map from component `bindings` names to `resolve` names, for [[component]] style view.
+   * An object which maps `resolve`s to [[component]] `bindings`.
    *
-   * When using a [[component]] declaration, each component's input binding is supplied data from a resolve of the
-   * same name, by default.  You may supply data from a different resolve name by mapping it here.
+   * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
+   *
+   * When using a [[component]] declaration (`component: 'myComponent'`), each input binding for the component is supplied
+   * data from a resolve of the same name, by default.  You may supply data from a different resolve name by mapping it here.
    *
    * Each key in this object is the name of one of the component's input bindings.
    * Each value is the name of the resolve that should be provided to that binding.
@@ -316,7 +239,8 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * same name.
    *
    * @example
-   * ```
+   * ```js
+   *
    * $stateProvider.state('foo', {
    *   resolve: {
    *     foo: function(FooService) { return FooService.get(); },
@@ -344,35 +268,46 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
   bindings?: { [key: string]: string };
 
   /**
-   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   * The view's controller function or name
    *
-   * A Controller function or the name of a registered controller.
-   * The controller function will be used to control the corresponding [[ui-view]] directive.
+   * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
    *
-   * If specified as a string, controllerAs can be specified here, i.e., "FooController as foo"
+   * The controller function, or the name of a registered controller.  The controller function will be used
+   * to control the contents of the [[ui-view]] directive.
+   *
+   * If specified as a string, controllerAs can be declared here, i.e., "FooController as foo" instead of in
+   * a separate [[controllerAs]] property.
+   *
+   * See: [[Ng1Controller]] for information about component-level router hooks.
    */
   controller?: (Function|string);
 
   /**
-   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   * A controller alias name.
    *
-   * A controller alias name. If present, the controller will be published to scope under the `controllerAs` name.
+   * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
+   *
+   * If present, the controller will be published to scope under the `controllerAs` name.
    * See: https://docs.angularjs.org/api/ng/directive/ngController
    */
   controllerAs?: string;
 
   /**
-   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   * Dynamic controller provider function.
    *
-   * Injectable provider function that returns the actual controller function or name of a registered controller.
+   * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
+   *
+   * This is an injectable provider function which returns the actual controller function, or the name
+   * of a registered controller.  The provider will invoked during a Transition in which the view's state is
+   * entered.  The provider is called after the resolve data is fetched.
    *
    * @example
    * ```js
    *
-   * controllerProvider: function(MyResolveData) {
+   * controllerProvider: function(MyResolveData, $transition$) {
    *   if (MyResolveData.foo) {
    *     return "FooCtrl"
-   *   } else if (MyResolveData.bar) {
+   *   } else if ($transition$.to().name === 'bar') {
    *     return "BarCtrl";
    *   } else {
    *     return function($scope) {
@@ -387,8 +322,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
   /**
    * The scope variable name to use for resolve data.
    *
-   * A property of either [[StateDeclaration]] or [[ViewDeclaration]].  For a given view, the view-level property
-   * takes precedence over the state-level property.
+   * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
    *
    * When a view is activated, the resolved data for the state which the view belongs to is put on the scope.
    * This property sets the name of the scope variable to use for the resolved data.
@@ -398,14 +332,16 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
   resolveAs?: string;
 
   /**
-   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   * The HTML template for the view.
    *
-   * HTML template as a string or a function which returns an html template as a string.
+   * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
+   *
+   * HTML template as a string, or a function which returns an html template as a string.
    * This template will be used to render the corresponding [[ui-view]] directive.
    *
    * This property takes precedence over templateUrl.
    *
-   * If `template` is a function, it will be called with the State Parameters as the first argument.
+   * If `template` is a function, it will be called with the Transition parameters as the first argument.
    *
    * @example
    * ```js
@@ -424,12 +360,14 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
   template?: (Function|string);
 
   /**
-   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   * The URL for the HTML template for the view.
+   *
+   * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
    *
    * A path or a function that returns a path to an html template.
    * The template will be fetched and used to render the corresponding [[ui-view]] directive.
    *
-   * If `templateUrl` is a function, it will be called with the State Parameters as the first argument.
+   * If `templateUrl` is a function, it will be called with the Transition parameters as the first argument.
    *
    * @example
    * ```js
@@ -446,8 +384,11 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * ```
    */
   templateUrl?: (string|Function);
+
   /**
-   * A property of [[StateDeclaration]] or [[ViewDeclaration]]:
+   * Injected function which returns the HTML template.
+   *
+   * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
    *
    * Injected function which returns the HTML template.
    * The template will be used to render the corresponding [[ui-view]] directive.
@@ -455,8 +396,8 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * @example
    * ```js
    *
-   * templateProvider: function(MyTemplateService, params) {
-   *   return MyTemplateService.getTemplate(params.pageId);
+   * templateProvider: function(MyTemplateService, $transition$) {
+   *   return MyTemplateService.getTemplate($transition$.params().pageId);
    * }
    * ```
    */
@@ -464,3 +405,72 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
 
 }
 
+/**
+ * The shape of a controller for a view (and/or component), defining the controller callbacks.
+ *
+ * A view in UI-Router is comprised of either a `component` ([[Ng1ViewDeclaration.component]]) or a combination of a
+ * `template` (or `templateProvider`) and a `controller` (or `controllerProvider`).
+ *
+ * The `controller` object (or the `component`'s controller object) can define component-level controller callbacks,
+ * which UI-Router will call at the appropriate times.  These callbacks are similar to Transition Hooks
+ * ([[IHookRegistry]]), but are only called if the view is currently active.
+ *
+ * This interface defines the UI-Router component callbacks.
+ *
+ */
+export interface Ng1Controller {
+  /**
+   * This callback is called when parameter values have changed.
+   * 
+   * This callback can be used to respond to changing parameter values in the current state, or in parent/child states.
+   * This callback is especially handy when using dynamic parameters ([[ParamDeclaration.dynamic]])
+   * 
+   * Called when:
+   * - The view is still active
+   * - A new transition has completed successfully
+   * - The state for the view (controller) was not reloaded
+   * - At least one parameter value was changed
+   *
+   * Called with:
+   * @param newValues an object containing the changed parameter values
+   * @param $transition$ the new Transition which triggered this callback
+   *
+   * @example:
+   * ```js
+   *
+   * angular.module('foo').controller('FancyCtrl', function() {
+   *   this.uiOnParamsUpdated = function(newParams) {
+   *     console.log("new params: ", newParams);
+   *   }
+   * });
+   * ```
+   */
+  uiOnParamsUpdated(newValues: any, $transition$: Transition);
+
+  /**
+   * This callback is called when the view's state is about to be exited.
+   *
+   * This callback is used to inform a view that it is about to be exited, due to a new [[Transition]].
+   * The callback can ask for user confirmation, and cancel or alter the new Transition.  The callback should
+   * return a value, or a promise for a value.  If a promise is returned, the new Transition waits until the
+   * promise settles.
+   *
+   *
+   * Called when:
+   * - The view is still active
+   * - A new Transition is about to run
+   * - The new Transition will exit the view's state
+   *
+   * Called with:
+   * - This callback is injected in the new Transition's context
+   *
+   * Relevant return Values:
+   * - `false`: The transition is cancelled.
+   * - A rejected promise: The transition is cancelled.
+   * - [[TargetState]]: The transition is redirected to the new target state.
+   * - Anything else: the transition will continue normally (the state and view will be deactivated)
+   *
+   * @return a value, or a promise for a value.
+   */
+  uiCanExit();
+}
