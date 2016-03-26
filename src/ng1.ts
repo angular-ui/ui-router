@@ -9,10 +9,11 @@
 export * from "./core";
 
 export * from "./ng1/services";
-export * from "./ng1/stateDirectives";
-export * from "./ng1/stateFilters";
-export * from "./ng1/viewDirective";
-export * from "./ng1/viewScroll";
 export * from "./ng1/viewsBuilder";
+
+import "./ng1/stateDirectives";
+import "./ng1/stateFilters";
+import "./ng1/viewDirective";
+import "./ng1/viewScroll";
 
 export default "ui.router";
