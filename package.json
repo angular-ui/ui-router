@@ -72,7 +72,7 @@
     "lodash": "^4.5.1",
     "phantomjs-polyfill": "0.0.1",
     "reflect-metadata": "=0.1.2",
-    "rxjs": "^5.0.0-beta.2",
+    "rxjs": "=5.0.0-beta.2",
     "shelljs": "~0.6.0",
     "systemjs": "^0.18.4",
     "ts-loader": "^0.8.1",
