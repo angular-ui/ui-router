@@ -1,5 +1,4 @@
 /** @module state */ /** for typedoc */
-/// <reference path='../../typings/angularjs/angular.d.ts' />
 import {extend, forEach, toJson} from "../common/common";
 import {isString, isObject} from "../common/predicates";
 import {UIViewData} from "./viewDirective";

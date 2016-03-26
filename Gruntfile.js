@@ -170,7 +170,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('docs', 'Generate documentation to _doc', function() { 
     promising(this, 
-      system('./node_modules/typedoc/bin/typedoc --experimentalDecorators --readme ./README.md --name "UI-Router" --theme ./typedoctheme --mode modules --module commonjs --target es5 --out _doc  src')
+      system('./node_modules/typedoc/bin/typedoc --experimentalDecorators --readme ./README.md --name "UI-Router" --theme ./typedoctheme --mode modules --module commonjs --target es5 --out _doc  src typings/es6-shim/es6-shim.d.ts typings/angularjs/angular.d.ts')
     );
   });
 

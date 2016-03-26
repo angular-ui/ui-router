@@ -7,6 +7,7 @@
  * @preferred
  */
 /** for typedoc */
+export * from "./interface";
 export * from "./hookBuilder";
 export * from "./hookRegistry";
 export * from "./rejectFactory";

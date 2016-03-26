@@ -8,7 +8,8 @@ import {TreeChanges} from "../../transition/interface";
 import {Transition} from "../../transition/transition";
 import {TransitionRejection, RejectType} from "../../transition/rejectFactory";
 
-import {StateService, StateDeclaration} from "../interface";
+import {StateDeclaration} from "../interface";
+import {StateService} from "../stateService";
 import {TargetState} from "../targetState";
 import {ViewHooks} from "./viewHooks";
 import {EnterExitHooks} from "./enterExitHooks";
@@ -115,9 +116,10 @@ export class TransitionManager {
   }
 
   updateStateParams() {
-    let {transition, $urlRouter, $state, $stateParams} = this;
+    let transition = this.transition;
+    let {$urlRouter, $state, $stateParams} = this;
     let options = transition.options();
-    $state.params = transition.params();
+    copy(transition.params(), $state.params);
     copy($state.params, $stateParams);
 
     if (options.location && $state.$current.navigable) {

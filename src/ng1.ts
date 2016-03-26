@@ -1,5 +1,3 @@
-/// <reference path='../typings/angularjs/angular.d.ts' />
-/// <reference path='../typings/es6-shim/es6-shim.d.ts' />
 /**
  * Main entry point for angular 1.x build
  * @module ng1

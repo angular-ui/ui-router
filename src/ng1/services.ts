@@ -9,9 +9,6 @@
  * @preferred
  */
 
-/// <reference path='../../typings/angularjs/angular.d.ts' />
-/// <reference path='../../typings/es6-shim/es6-shim.d.ts' />
-
 /** for typedoc */
 import {UIRouter} from "../router";
 import {services} from "../common/coreservices";

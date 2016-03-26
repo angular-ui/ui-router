@@ -1,15 +1,14 @@
 var module = angular.mock.module;
 var uiRouter = require("angular-ui-router");
-var Glob = uiRouter.state.Glob;
-var common = uiRouter.common,
-  defaults = common.defaults,
-  filter = common.filter,
-  is = common.is,
-  eq = common.eq,
-  not = common.not,
-  pattern = common.pattern,
-  val = common.val,
-  isInjectable = common.isInjectable;
+var Glob = uiRouter.Glob,
+  defaults = uiRouter.defaults,
+  filter = uiRouter.filter,
+  is = uiRouter.is,
+  eq = uiRouter.eq,
+  not = uiRouter.not,
+  pattern = uiRouter.pattern,
+  val = uiRouter.val,
+  isInjectable = uiRouter.isInjectable;
 
 describe('common', function() {
   describe('filter', function() {

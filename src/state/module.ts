@@ -1,4 +1,5 @@
 /** @module state */ /** for typedoc */
+export * from "./interface";
 export * from "./state";
 export * from "./stateBuilder";
 export * from "./hooks/transitionManager";

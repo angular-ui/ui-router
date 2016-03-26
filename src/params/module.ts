@@ -6,6 +6,7 @@
  * @preferred doc
  */
 /** for typedoc */
+export * from "./interface";
 export * from "./param";
 export * from "./paramTypes";
 export * from "./stateParams";

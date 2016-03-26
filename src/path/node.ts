@@ -6,8 +6,7 @@ import {RawParams} from "../params/interface";
 import {Param} from "../params/module";
 import {Resolvable, ResolveContext, ResolveInjector} from "../resolve/module";
 import {ViewConfig} from "../view/interface";
-
-export type Resolvables = { [key: string]: Resolvable };
+import {Resolvables} from "../resolve/interface";
 
 export class Node {
   public paramSchema: Param[];

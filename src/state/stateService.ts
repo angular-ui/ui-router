@@ -474,6 +474,7 @@ export class StateService {
    * @returns {Object|Array} State configuration object or array of all objects.
    */
   get(): StateDeclaration[];
+  get(stateOrName: StateOrName): StateDeclaration;
   get(stateOrName: StateOrName, base: StateOrName): StateDeclaration;
   get(stateOrName?: StateOrName, base?: StateOrName): any {
     if (arguments.length === 0) return this.stateRegistry.get();

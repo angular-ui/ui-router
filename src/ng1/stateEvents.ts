@@ -19,8 +19,7 @@
 
 /** for typedoc */
 import {IServiceProviderFactory} from "angular";
-import {StateService, StateProvider} from "../state/interface";
-import {TargetState} from "../state/module";
+import {TargetState, StateService, StateProvider} from "../state/module";
 import {Transition} from "../transition/transition";
 
 /**
@@ -211,7 +210,7 @@ var $stateNotFound;
 
     if (e.defaultPrevented) {
       return false;
-    } else if (e.retry || $state.get(redirect.to)) {
+    } else if (e.retry || !!$state.get(redirect.to)) {
       return e.retry && isFunction(e.retry.then) ? e.retry.then(redirectFn) : redirectFn();
     }
   }

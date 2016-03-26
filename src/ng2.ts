@@ -1,4 +1,3 @@
-/// <reference path='../typings/es6-shim/es6-shim.d.ts' />
 /**
  * Main entry point for angular 2.x build
  * @module ng2

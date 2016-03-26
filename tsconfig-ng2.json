@@ -14,6 +14,7 @@
   },
   "files": [
     "src/ng2.ts",
-    "src/justjs.ts"
+    "src/justjs.ts",
+    "typings/es6-shim/es6-shim.d.ts"
   ]
 }

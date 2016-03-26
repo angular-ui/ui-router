@@ -4,7 +4,7 @@ import {isString} from "../common/predicates";
 import {StateDeclaration} from "./interface";
 import {State} from "./module";
 import {StateBuilder} from "./stateBuilder";
-import {StateService} from "./interface";
+import {StateService} from "./stateService";
 
 export class StateQueueManager {
   queue: State[];

@@ -318,43 +318,10 @@ export interface StateDeclaration {
   reloadOnSearch?: boolean;
 }
 
-export interface StateParams {
-  $digest: () => void;
-  $inherit: (newParams, $current: State, $to: State) => StateParams;
-  $set: (params, url) => boolean;
-  $sync: () => StateParams;
-  $off: () => StateParams;
-  $raw: () => any;
-  $localize: () => StateParams;
-  $observe: (key, fn) => () => void;
-}
-
 export interface HrefOptions {
   relative?:  StateOrName;
   lossy?:     boolean;
   inherit?:   boolean;
   absolute?:  boolean;
-}
-
-export interface StateProvider {
-  state(state: StateDeclaration): StateProvider;
-  state(name: string, state: StateDeclaration): StateProvider;
-  onInvalid(callback: Function): void;
-  decorator(name: string, func: Function);
-}
-
-export interface StateService {
-  params:       any; // TODO: StateParams
-  current:      StateDeclaration;
-  $current:     State;
-  transition:   Transition;
-  reload        (stateOrName: StateOrName): Promise<State>;
-  target        (identifier: StateOrName, params: ParamsOrArray, options: TransitionOptions): TargetState;
-  go            (to: StateOrName, params: RawParams, options: TransitionOptions): Promise<State>;
-  transitionTo  (to: StateOrName, toParams: ParamsOrArray, options: TransitionOptions): Promise<State>;
-  is            (stateOrName: StateOrName, params?: RawParams, options?: TransitionOptions): boolean;
-  includes      (stateOrName: StateOrName, params?: RawParams, options?: TransitionOptions): boolean;
-  href          (stateOrName: StateOrName, params?: RawParams, options?: HrefOptions): string;
-  get           (stateOrName: StateOrName, base?: StateOrName): (StateDeclaration|StateDeclaration[]);
 }
 

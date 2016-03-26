@@ -1,9 +1,10 @@
-var module    = angular.mock.module;
-var uiRouter  = require("angular-ui-router");
-var Param = uiRouter.params.Param;
-var UrlMatcher = uiRouter.url.UrlMatcher;
-var common = uiRouter.common;
-var prop = common.prop;
+var module      = angular.mock.module;
+var uiRouter    = require("angular-ui-router");
+var Param       = uiRouter.Param;
+var UrlMatcher  = uiRouter.UrlMatcher;
+var prop        = uiRouter.prop;
+var map         = uiRouter.map;
+var find        = uiRouter.find;
 
 beforeEach(function() {
   var app = angular.module('ui.router.router.test', []);
@@ -425,8 +426,8 @@ describe("UrlMatcher", function () {
 
       // Pass again through Param.value() for normalization (like transitionTo)
       var paramDefs = m.parameters();
-      var values = common.map(parsed, function(val, key) {
-        return common.find(paramDefs, function(def) { return def.id === key }).value(val);
+      var values = map(parsed, function(val, key) {
+        return find(paramDefs, function(def) { return def.id === key }).value(val);
       });
       expect(values).toEqualData(expected);
     }));
