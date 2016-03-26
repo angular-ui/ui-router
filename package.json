@@ -47,7 +47,7 @@
     "conventional-changelog-cli": "^1.1.1",
     "es6-module-loader": "^0.17.3",
     "es6-promise": "^3.0.2",
-    "es6-shim": "^0.33.13",
+    "es6-shim": "^0.35.0",
     "faithful-exec": "~0.1.0",
     "grunt": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",
@@ -72,7 +72,7 @@
     "lodash": "^4.5.1",
     "phantomjs-polyfill": "0.0.1",
     "reflect-metadata": "=0.1.2",
-    "rxjs": "^5.0.0-beta.0",
+    "rxjs": "^5.0.0-beta.2",
     "shelljs": "~0.6.0",
     "systemjs": "^0.18.4",
     "ts-loader": "^0.8.1",
@@ -82,6 +82,6 @@
     "webpack": "1.x",
     "webpack-dev-server": "1.x",
     "yargs": "^4.2.0",
-    "zone.js": "^0.5.10"
+    "zone.js": "^0.6.6"
   }
 }
