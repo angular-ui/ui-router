@@ -127,6 +127,13 @@ export interface StateDeclaration {
    * ```
    */
   parent?: (string|StateDeclaration);
+  
+  /** 
+   * Gets the private API portion of the state
+   * 
+   * @hidden 
+   */
+  $$state?: () => State;
 
   /**
    * A property of [[StateDeclaration]]:

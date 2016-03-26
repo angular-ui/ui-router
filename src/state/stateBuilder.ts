@@ -53,6 +53,11 @@ export class StateBuilder {
     const root = () => matcher.find("");
 
     this.builders = {
+      self: [function (state: State) {
+        state.self.$$state = () => state;
+        return state.self;
+      }],
+
       parent: [function (state: State) {
         if (isRoot(state)) return null;
         return matcher.find(self.parentName(state)) || root();
