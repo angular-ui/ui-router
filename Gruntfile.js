@@ -32,7 +32,7 @@ module.exports = function (grunt) {
       build: {
         files: {
           '<%= builddir %>/ui-router-ng2.min.js': ['<banner:meta.banner>', '<%= builddir %>/ui-router-ng2.js'],
-          '<%= builddir %>/<%= pkg.name %>.min.js': ['<banner:meta.banner>', '<%= builddir %>/<%= pkg.name %>.js'],
+          '<%= builddir %>/angular-ui-router.min.js': ['<banner:meta.banner>', '<%= builddir %>/angular-ui-router.js'],
           '<%= builddir %>/ng1/stateEvents.min.js': ['<banner:meta.banner>', '<%= builddir %>/ng1/stateEvents.js']
         }
       }
@@ -42,21 +42,13 @@ module.exports = function (grunt) {
         entry: files.ng1CommonJsEntrypoint,
         output: {
           path: '<%= builddir %>',
-          filename: '<%= pkg.name %>.js',
+          filename: 'angular-ui-router.js',
           library: 'ui.router',
           libraryTarget: 'umd'
         },
-        module: {
-          loaders: []
-        },
+        module: { loaders: [] },
         externals: [
-          {
-            angular: {
-              root: 'angular',
-              commonjs2: 'angular',
-              commonjs: 'angular'
-            }
-          }
+          { angular: { root: 'angular', commonjs2: 'angular', commonjs: 'angular' } }
         ]
       },
       ng2: {
@@ -67,9 +59,7 @@ module.exports = function (grunt) {
           library: 'uiRouter',
           libraryTarget: 'umd'
         },
-        module: {
-          loaders: []
-        },
+        module: { loaders: [] },
         externals: [{
           'angular2/core': {root: ['ng', 'core'], commonjs: 'angular2/core', commonjs2: 'angular2/core', amd: 'angular2/core'},
           'angular2/common': {root: ['ng', 'common'], commonjs: 'angular2/common', commonjs2: 'angular2/common', amd: 'angular2/common'}
