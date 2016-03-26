@@ -420,9 +420,9 @@ function registerControllerCallbacks($transitions: TransitionService, controller
     $scope.$on('$destroy', $transitions.onError({}, ['$error$', '$transition$', onDynamic]));
   }
 
-  // Add component-level hook for canDeactivate
-  if (isFunction(controllerInstance.canDeactivate)) {
-    $scope.$on('$destroy', $transitions.onBefore({exiting: cfg.node.state.name}, controllerInstance.canDeactivate.bind(controllerInstance)));
+  // Add component-level hook for uiCanExit
+  if (isFunction(controllerInstance.uiCanExit)) {
+    $scope.$on('$destroy', $transitions.onBefore({exiting: cfg.node.state.name}, controllerInstance.uiCanExit.bind(controllerInstance)));
   }
 }
 
