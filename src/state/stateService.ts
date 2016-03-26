@@ -284,7 +284,7 @@ export class StateService {
 
     let ref: TargetState = this.target(to, toParams, options);
     let latestTreeChanges: TreeChanges = treeChangesQueue.peekTail();
-    const rootPath = () => PathFactory.bindTransNodesToPath([new Node(this.stateRegistry.root(), {})]);
+    const rootPath = () => PathFactory.bindTransNodesToPath([new Node(this.stateRegistry.root())]);
     let currentPath: Node[] = latestTreeChanges ? latestTreeChanges.to : rootPath();
 
     if (!ref.exists())

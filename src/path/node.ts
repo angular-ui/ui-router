@@ -1,5 +1,5 @@
 /** @module path */ /** for typedoc */
-import {extend, applyPairs, map, find, allTrueR, values} from "../common/common";
+import {extend, applyPairs, map, find, allTrueR, values, mapObj} from "../common/common";
 import {prop, propEq} from "../common/hof";
 import {State} from "../state/module";
 import {RawParams} from "../params/interface";
@@ -9,6 +9,7 @@ import {ViewConfig} from "../view/interface";
 import {Resolvables} from "../resolve/interface";
 
 export class Node {
+  public state: State;
   public paramSchema: Param[];
   public paramValues: { [key: string]: any };
   public resolves: Resolvables;
@@ -16,15 +17,30 @@ export class Node {
   public resolveContext: ResolveContext;
   public resolveInjector: ResolveInjector;
 
-  // Possibly extract this logic into an intermediary object that maps states to nodes
-  constructor(public state: State, params: RawParams = {}, resolvables: Resolvables = {}) {
-    // Object.freeze(extend(this, { ... }))
-    this.paramSchema = state.parameters({ inherit: false });
+  constructor(state: Node);
+  constructor(state: State);
+  constructor(state) {
+    if (state instanceof Node) {
+      let node: Node = state;
+      this.state = node.state;
+      this.paramSchema = node.paramSchema.slice();
+      this.paramValues = extend({}, node.paramValues);
+      this.resolves = extend({}, node.resolves);
+      this.views = node.views && node.views.slice();
+      this.resolveContext = node.resolveContext;
+      this.resolveInjector = node.resolveInjector;
+    } else {
+      this.state = state;
+      this.paramSchema = state.parameters({ inherit: false });
+      this.paramValues = {};
+      this.resolves = mapObj(state.resolve, (fn: Function, name: string) => new Resolvable(name, fn));
+    }
+  }
 
+  applyRawParams(params: RawParams): Node {
     const getParamVal = (paramDef: Param) => [ paramDef.id, paramDef.value(params[paramDef.id]) ];
     this.paramValues = this.paramSchema.reduce((memo, pDef) => applyPairs(memo, getParamVal(pDef)), {});
-
-    this.resolves = extend(map(state.resolve, (fn: Function, name: string) => new Resolvable(name, fn)), resolvables);
+    return this;
   }
 
   parameter(name: string): Param {
@@ -36,8 +52,8 @@ export class Node {
     return this.state === node.state && keys.map(paramValsEq).reduce(allTrueR, true);
   }
 
-  static clone(node: Node, update: any = {}) {
-    return new Node(node.state, (update.paramValues || node.paramValues), (update.resolves || node.resolves));
+  static clone(node: Node) {
+    return new Node(node);
   }
 
   /**

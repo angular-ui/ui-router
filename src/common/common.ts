@@ -286,9 +286,10 @@ export function find(collection, callback) {
   return result;
 }
 
+/** Given an object, returns a new object, where each property is transformed by the callback function */
+export let mapObj: <T,U>(collection: { [key: string]: T }, callback: Mapper<T,U>) => { [key: string]: U } = map;
 /** Given an array, returns a new array, where each element is transformed by the callback function */
 export function map<T, U>(collection: T[], callback: Mapper<T, U>): U[];
-/** Given an object, returns a new object, where each property is transformed by the callback function */
 export function map<T, U>(collection: { [key: string]: T }, callback: Mapper<T, U>): { [key: string]: U }
 /** Maps an array or object properties using a callback function */
 export function map(collection: any, callback: any): any {

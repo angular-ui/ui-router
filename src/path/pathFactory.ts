@@ -28,7 +28,7 @@ export class PathFactory {
   /** Given a fromPath: Node[] and a TargetState, builds a toPath: Node[] */
   static buildToPath(fromPath: Node[], targetState: TargetState): Node[] {
     let toParams = targetState.params();
-    let toPath: Node[] = targetState.$state().path.map(state => new Node(state, toParams));
+    let toPath: Node[] = targetState.$state().path.map(state => new Node(state).applyRawParams(toParams));
 
     if (targetState.options().inherit) toPath = PathFactory.inheritParams(fromPath, toPath, Object.keys(toParams));
     return toPath;
@@ -70,7 +70,7 @@ export class PathFactory {
       let fromParamVals = nodeParamVals(_fromPath, toNode.state) || {};
       // extend toParamVals with any fromParamVals, then override any of those those with incomingParamVals
       let ownParamVals: RawParams = extend(toParamVals, fromParamVals, incomingParamVals);
-      return new Node(toNode.state, ownParamVals);
+      return new Node(toNode.state).applyRawParams(ownParamVals);
     });
 
     // The param keys specified by the incoming toParams
@@ -111,7 +111,9 @@ export class PathFactory {
 
     /** Given a retained node, return a new node which uses the to node's param values */
     function applyToParams(retainedNode: Node, idx: number): Node {
-      return Node.clone(retainedNode, { paramValues: toPath[idx].paramValues });
+      let cloned = Node.clone(retainedNode);
+      cloned.paramValues = toPath[idx].paramValues;
+      return cloned;
     }
 
     let from: Node[], retained: Node[], exiting: Node[], entering: Node[], to: Node[];
