@@ -20,6 +20,7 @@ import {Resolvable, ResolveContext} from "../resolve/module";
 import {State} from "../state/module";
 import {trace} from "../common/trace";
 import {ng1ViewsBuilder, ng1ViewConfigFactory, Ng1ViewConfig} from "./viewsBuilder";
+import {TemplateFactory} from "./templateFactory";
 
 /** @hidden */
 let app = angular.module("ui.router.angular1", []);
@@ -294,7 +295,7 @@ function getTransitionsProvider() {
 angular.module('ui.router.state').provider('$transitions', ['ng1UIRouterProvider', getTransitionsProvider]);
 
 // $templateFactory service
-angular.module('ui.router.util').factory('$templateFactory', ['ng1UIRouter', () => router.templateFactory]);
+angular.module('ui.router.util').factory('$templateFactory', ['ng1UIRouter', () => new TemplateFactory()]);
 
 // The $view service
 angular.module('ui.router').factory('$view', () => router.viewService);

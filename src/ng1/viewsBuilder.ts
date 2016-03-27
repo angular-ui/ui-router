@@ -2,16 +2,15 @@
 import {State} from "../state/stateObject";
 import {pick, forEach, anyTrueR, unnestR} from "../common/common";
 import {kebobString} from "../common/strings";
-import {ViewConfig, ViewContext} from "../view/interface";
+import {ViewConfig} from "../view/interface";
 import {Ng1ViewDeclaration} from "./interface";
 import {ViewService} from "../view/view";
 import {isInjectable, isDefined, isString, isObject} from "../common/predicates";
 import {services} from "../common/coreservices";
 import {trace} from "../common/trace";
 import {Node} from "../path/node";
-import {TemplateFactory} from "../view/templateFactory";
+import {TemplateFactory} from "./templateFactory";
 import {ResolveContext} from "../resolve/resolveContext";
-import {prop, parse} from "../common/hof";
 
 export const ng1ViewConfigFactory = (node, view) => new Ng1ViewConfig(node, view);
 

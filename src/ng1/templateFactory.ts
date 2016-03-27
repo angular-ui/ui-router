@@ -1,7 +1,7 @@
 /** @module view */ /** for typedoc */
 import {isDefined, isFunction} from "../common/predicates";
 import {services} from "../common/coreservices";
-import {Ng1ViewDeclaration} from "../ng1/interface";
+import {Ng1ViewDeclaration} from "./interface";
 import {IInjectable} from "../common/common";
 
 /**

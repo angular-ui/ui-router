@@ -5,7 +5,6 @@ import {StateProvider} from "./state/state";
 import {stateParamsFactory, StateParams} from "./params/stateParams";
 import {UrlRouter} from "./url/urlRouter";
 import {TransitionService} from "./transition/transitionService";
-import {TemplateFactory} from "./view/templateFactory";
 import {ViewService} from "./view/view";
 import {StateRegistry} from "./state/stateRegistry";
 import {StateService} from "./state/stateService";
@@ -28,8 +27,6 @@ export class UIRouter {
   urlRouterProvider: UrlRouterProvider = new UrlRouterProvider(this.urlMatcherFactory, this.stateParams);
 
   urlRouter: UrlRouter = new UrlRouter(this.urlRouterProvider);
-
-  templateFactory = new TemplateFactory();
 
   viewService = new ViewService();
 
