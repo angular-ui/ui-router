@@ -227,6 +227,14 @@ export class StateService {
 
   /** Factory method for creating a TargetState */
   target(identifier: StateOrName, params: ParamsOrArray, options: TransitionOptions = {}): TargetState {
+    // If we're reloading, find the state object to reload from
+    if (isObject(options.reload) && !(<any>options.reload).name)
+      throw new Error('Invalid reload state object');
+    options.reloadState = options.reload === true ? this.stateRegistry.root() : this.stateRegistry.matcher.find(<any> options.reload, options.relative);
+
+    if (options.reload && !options.reloadState)
+      throw new Error(`No such reload state '${(isString(options.reload) ? options.reload : (<any>options.reload).name)}'`);
+
     let stateDefinition = this.stateRegistry.matcher.find(identifier, options.relative);
     return new TargetState(identifier, stateDefinition, params, options);
   };
@@ -273,14 +281,6 @@ export class StateService {
     let {transQueue, treeChangesQueue} = this;
     options = defaults(options, defaultTransOpts);
     options = extend(options, { current: transQueue.peekTail.bind(transQueue)});
-
-    // If we're reloading, find the state object to reload from
-    if (isObject(options.reload) && !(<any>options.reload).name)
-      throw new Error('Invalid reload state object');
-    options.reloadState = options.reload === true ? this.$current.path[0] : this.stateRegistry.matcher.find(<any> options.reload, options.relative);
-
-    if (options.reload && !options.reloadState)
-      throw new Error(`No such reload state '${(isString(options.reload) ? options.reload : (<any>options.reload).name)}'`);
 
     let ref: TargetState = this.target(to, toParams, options);
     let latestTreeChanges: TreeChanges = treeChangesQueue.peekTail();

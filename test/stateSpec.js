@@ -2096,11 +2096,18 @@ describe('otherwise and state redirects', function() {
 
 
 describe('hook redirects from .otherwise()', function() {
+  var log;
   beforeEach(module(function ($stateProvider, $urlRouterProvider) {
+    log = "";
     $urlRouterProvider.otherwise('/home');
     $stateProvider
-        .state('home', { url: '/home', template: 'home' })
+        .state('home', { url: '/home', template: 'home', controller: function() { log += "homeCtrl;"; } })
         .state('loginPage', { url: '/login', template: 'login' });
+  }));
+
+  beforeEach(inject(function($compile, $rootScope) {
+    var $scope = $rootScope.$new();
+    $compile('<div><ui-view></ui-view></div>')($scope);
   }));
 
   // Test for #2455
@@ -2111,5 +2118,28 @@ describe('hook redirects from .otherwise()', function() {
     $q.flush();
     expect($state.current.name).toBe("loginPage");
     expect($location.path()).toBe('/login');
+  }));
+
+  // Test for #2537
+  it("should be able to change option.reload", inject(function($transitions, $q, $state, $trace) {
+    var count = 0;
+    $q.flush();
+    expect($state.current.name).toBe("home");
+    expect(log).toBe("homeCtrl;");
+
+    $state.go('.'); $q.flush();
+    expect(log).toBe("homeCtrl;");
+
+    $transitions.onBefore({ to: 'home' }, function($state, $transition$) {
+      var options = $transition$.options();
+      if (!options.reload && count++ < 2) {
+        return $state.target($transition$.to(), $transition$.params("to"), extend({}, options, {reload: true}));
+      }
+    });
+
+    $state.go('.'); $q.flush();
+
+    expect($state.current.name).toBe("home");
+    expect(log).toBe("homeCtrl;homeCtrl;");
   }));
 });
