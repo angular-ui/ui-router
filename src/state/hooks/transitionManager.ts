@@ -14,6 +14,7 @@ import {TargetState} from "../targetState";
 import {ViewHooks} from "./viewHooks";
 import {EnterExitHooks} from "./enterExitHooks";
 import {ResolveHooks} from "./resolveHooks";
+import {UrlRouter} from "../../url/urlRouter";
 
 /**
  * This class:
@@ -41,7 +42,7 @@ export class TransitionManager {
   constructor(
       private transition: Transition,
       private $transitions,
-      private $urlRouter,
+      private $urlRouter: UrlRouter,
       private $view, // service
       private $state: StateService,
       private $stateParams, // service/obj
@@ -107,6 +108,10 @@ export class TransitionManager {
 
       if (error.type === RejectType.SUPERSEDED && error.redirected && error.detail instanceof TargetState) {
         return this._redirectMgr(transition.redirect(error.detail)).runTransition();
+      }
+
+      if (error.type === RejectType.ABORTED) {
+        this.$urlRouter.update();
       }
     }
 

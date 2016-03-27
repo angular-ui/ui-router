@@ -2095,7 +2095,7 @@ describe('otherwise and state redirects', function() {
 });
 
 
-describe('hook redirects', function() {
+describe('transition hook', function() {
   var log, resolvelog;
   beforeEach(module(function ($stateProvider, $urlRouterProvider) {
     log = resolvelog = "";
@@ -2118,7 +2118,7 @@ describe('hook redirects', function() {
   }));
 
   // Test for #2455
-  it("from .otherwise() should go to the redirect-to target state and url", inject(function($transitions, $q, $state, $location) {
+  it("redirects from .otherwise() should go to the redirect-to target state and url", inject(function($transitions, $q, $state, $location) {
     $transitions.onBefore({ to: 'home' }, function() {
       return $state.target('loginPage', {}, { location: true });
     });
@@ -2128,7 +2128,7 @@ describe('hook redirects', function() {
   }));
 
   // Test for #2537
-  it("should be able to change option.reload", inject(function($transitions, $q, $state, $trace) {
+  it("redirects should be able to change option.reload", inject(function($transitions, $q, $state, $trace) {
     var count = 0;
     $q.flush();
     expect($state.current.name).toBe("home");
@@ -2151,7 +2151,7 @@ describe('hook redirects', function() {
   }));
 
   // Test for #2539
-  it("should re-resolve when reloading during a redirect", inject(function($transitions, $q, $state, $trace) {
+  it("redirects should re-resolve when reloading during a redirect", inject(function($transitions, $q, $state, $trace) {
     var count = 0;
     $q.flush();
 
@@ -2173,4 +2173,14 @@ describe('hook redirects', function() {
     expect($state.current.name).toBe("home");
     expect(resolvelog).toBe("fooResolve;fooResolve;");
   }));
+
+  // Test for #2611
+  it("aborts should reset the URL to the prevous state's", inject(function($transitions, $q, $state, $location) {
+    $q.flush();
+    $transitions.onStart({ to: 'home.foo' }, function() { return false; });
+    $location.path('/home/foo'); $q.flush();
+    expect($state.current.name).toBe("home");
+    expect($location.path()).toBe('/home');
+  }));
+
 });

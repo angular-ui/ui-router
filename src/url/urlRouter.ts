@@ -342,7 +342,7 @@ export class UrlRouter {
     return this.listener = this.listener || $location.onChange(evt => update(this.urlRouterProvider.rules, this.urlRouterProvider.otherwiseFn, evt));
   }
 
-  update(read) {
+  update(read?) {
     if (read) {
       this.location = $location.url();
       return;
