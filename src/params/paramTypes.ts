@@ -57,7 +57,10 @@ export class ParamTypes {
         return match ? new Date(match[1], match[2] - 1, match[3]) : undefined;
       },
       is: (val) => val instanceof Date && !isNaN(val.valueOf()),
-      equals(a, b) { return this.is(a) && this.is(b) && a.toISOString() === b.toISOString(); },
+      equals(l, r) {
+        return ['getFullYear', 'getMonth', 'getDate']
+            .reduce((acc, fn) => acc && l[fn]() === r[fn](), true)
+      },
       pattern: /[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])/,
       capture: /([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/
     },
