@@ -7,6 +7,7 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
 	<script src="../assets/js/modernizr.js"></script>
 </head>
 <body>
@@ -106,6 +107,7 @@
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="transition.eventhook.html#matches" class="tsd-kind-icon">matches</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static"><a href="transition.eventhook.html#_matchingnodes" class="tsd-kind-icon">_matching<wbr>Nodes</a></li>
 							</ul>
 						</section>
 					</div>
@@ -115,17 +117,14 @@
 				<h2>Constructors</h2>
 				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
 					<a name="constructor" class="tsd-anchor"></a>
-					<h3>constructor</h3>
+					<!---->
+					<!--<h3>constructor</h3>-->
+					<!---->
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">new <wbr>Event<wbr>Hook<span class="tsd-signature-symbol">(</span>matchCriteria<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a>, callback<span class="tsd-signature-symbol">: </span><a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="transition.eventhook.html" class="tsd-signature-type">EventHook</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L40">transition/hookRegistry.ts:40</a></li>
-								</ul>
-							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -135,16 +134,23 @@
 									<h5>callback: <a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> options: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;&lt;any&gt;{}</span></h5>
+									<h5>options <span class="tsd-flag ts-flagDefault value">Default value</span>: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;&lt;any&gt;{}</span></h5>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter">
-											<h5>priority<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> priority<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
 										</li>
 									</ul>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="transition.eventhook.html" class="tsd-signature-type">EventHook</a></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="transition.eventhook.html" class="tsd-signature-type">EventHook</a></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/transition/hookRegistry.ts#L44">transition/hookRegistry.ts:44</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 			</section>
@@ -152,33 +158,45 @@
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="callback" class="tsd-anchor"></a>
-					<h3>callback</h3>
+					<!---->
+					<!--<h3>callback</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">callback<span class="tsd-signature-symbol">:</span> <a href="../modules/common.html#iinjectable" class="tsd-signature-type">IInjectable</a></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/transition.ieventhook.html">IEventHook</a>.<a href="../interfaces/transition.ieventhook.html#callback">callback</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L38">transition/hookRegistry.ts:38</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/transition/hookRegistry.ts#L42">transition/hookRegistry.ts:42</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="matchcriteria" class="tsd-anchor"></a>
-					<h3>match<wbr>Criteria</h3>
+					<!---->
+					<!--<h3>match<wbr>Criteria</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">match<wbr>Criteria<span class="tsd-signature-symbol">:</span> <a href="../interfaces/transition.imatchcriteria.html" class="tsd-signature-type">IMatchCriteria</a></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L39">transition/hookRegistry.ts:39</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/transition/hookRegistry.ts#L43">transition/hookRegistry.ts:43</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="priority" class="tsd-anchor"></a>
-					<h3>priority</h3>
+					<!---->
+					<!--<h3>priority</h3>-->
+					<!---->
 					<div class="tsd-signature tsd-kind-icon">priority<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/transition.ieventhook.html">IEventHook</a>.<a href="../interfaces/transition.ieventhook.html#priority">priority</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L40">transition/hookRegistry.ts:40</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/transition/hookRegistry.ts#L44">transition/hookRegistry.ts:44</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -187,28 +205,69 @@
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="matches" class="tsd-anchor"></a>
-					<h3>matches</h3>
+					<!---->
+					<!--<h3>matches</h3>-->
+					<!---->
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">matches<span class="tsd-signature-symbol">(</span>to<span class="tsd-signature-symbol">: </span><a href="state.state-1.html" class="tsd-signature-type">State</a>, from<span class="tsd-signature-symbol">: </span><a href="state.state-1.html" class="tsd-signature-type">State</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">matches<span class="tsd-signature-symbol">(</span>treeChanges<span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.treechanges.html" class="tsd-signature-type">TreeChanges</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/transition.imatchingnodes.html" class="tsd-signature-type">IMatchingNodes</a></li>
+						<li class="tsd-header">
+							<p> Determines if this hook&#39;s <a href="transition.eventhook.html#matchcriteria">matchCriteria</a> match the given <a href="../interfaces/transition.treechanges.html">TreeChanges</a> </p>
+						</li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/transition/hookRegistry.ts#L48">transition/hookRegistry.ts:48</a></li>
-								</ul>
-							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Determines if this hook&#39;s <a href="transition.eventhook.html#matchcriteria">matchCriteria</a> match the given <a href="../interfaces/transition.treechanges.html">TreeChanges</a></p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>to: <a href="state.state-1.html" class="tsd-signature-type">State</a></h5>
-								</li>
-								<li>
-									<h5>from: <a href="state.state-1.html" class="tsd-signature-type">State</a></h5>
+									<h5>treeChanges: <a href="../interfaces/transition.treechanges.html" class="tsd-signature-type">TreeChanges</a></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="../interfaces/transition.imatchingnodes.html" class="tsd-signature-type">IMatchingNodes</a></h4>
+								: <p>an IMatchingNodes object, or null. If an IMatchingNodes object is returned, its values
+								are the matching <a href="path.node.html">Node</a>s for each <a href="../modules/transition.html#matchcriterion">MatchCriterion</a> (to, from, exiting, retained, entering)</p>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/transition/hookRegistry.ts#L64">transition/hookRegistry.ts:64</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+					<a name="_matchingnodes" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> _matching<wbr>Nodes</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">_matching<wbr>Nodes<span class="tsd-signature-symbol">(</span>nodes<span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span>, criterion<span class="tsd-signature-symbol">: </span><a href="../modules/transition.html#matchcriterion" class="tsd-signature-type">MatchCriterion</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>nodes: <a href="path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li>
+									<h5>criterion: <a href="../modules/transition.html#matchcriterion" class="tsd-signature-type">MatchCriterion</a></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/transition/hookRegistry.ts#L52">transition/hookRegistry.ts:52</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 			</section>
@@ -220,7 +279,22 @@
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="../modules/__basedir_.html">".base<wbr>Dir"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="../modules/common.html">common</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/core.html">core</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/justjs.html">justjs</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1.html">ng1</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng2.html">ng2</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/params.html">params</a>
@@ -247,14 +321,8 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="transition.hookbuilder.html" class="tsd-kind-icon">Hook<wbr>Builder</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../interfaces/transition.itofrom.html" class="tsd-kind-icon">ITo<wbr>From</a>
-					</li>
-					<li class=" tsd-kind-object-literal tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/transition.html#successerroroptions" class="tsd-kind-icon">success<wbr>Error<wbr>Options</a>
+					<li class=" tsd-kind-enum tsd-parent-kind-external-module">
+						<a href="../enums/transition.rejecttype.html" class="tsd-kind-icon">Reject<wbr>Type</a>
 					</li>
 				</ul>
 				<ul class="current">
@@ -276,21 +344,36 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="transition.eventhook.html#matches" class="tsd-kind-icon">matches</a>
 							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private tsd-is-static">
+								<a href="transition.eventhook.html#_matchingnodes" class="tsd-kind-icon">_matching<wbr>Nodes</a>
+							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="transition.hookbuilder.html" class="tsd-kind-icon">Hook<wbr>Builder</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
 						<a href="transition.hookregistry.html" class="tsd-kind-icon">Hook<wbr>Registry</a>
 					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="transition.rejectfactory.html" class="tsd-kind-icon">Reject<wbr>Factory</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="transition.transition-1.html" class="tsd-kind-icon">Transition</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="transition.transitionhook.html" class="tsd-kind-icon">Transition<wbr>Hook</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="transition.transitionrejection.html" class="tsd-kind-icon">Transition<wbr>Rejection</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="transition.transitionservice.html" class="tsd-kind-icon">Transition<wbr>Service</a>
+					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../interfaces/transition.itransitionevents.html" class="tsd-kind-icon">ITransition<wbr>Events</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/transition.html#makehookregistrationfn" class="tsd-kind-icon">make<wbr>Hook<wbr>Registration<wbr>Fn</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="../modules/transition.html#matchstate" class="tsd-kind-icon">match<wbr>State</a>
+						<a href="../interfaces/transition.hooktuple.html" class="tsd-kind-icon">Hook<wbr>Tuple</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="../interfaces/transition.ieventhook.html" class="tsd-kind-icon">IEvent<wbr>Hook</a>
@@ -302,16 +385,22 @@
 						<a href="../interfaces/transition.imatchcriteria.html" class="tsd-kind-icon">IMatch<wbr>Criteria</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="../interfaces/transition.itransitionhookoptions.html" class="tsd-kind-icon">ITransition<wbr>Hook<wbr>Options</a>
+						<a href="../interfaces/transition.imatchingnodes.html" class="tsd-kind-icon">IMatching<wbr>Nodes</a>
 					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="../interfaces/transition.itransitionoptions.html" class="tsd-kind-icon">ITransition<wbr>Options</a>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../interfaces/transition.itransitionevents.html" class="tsd-kind-icon">ITransition<wbr>Events</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="../interfaces/transition.itransitionservice.html" class="tsd-kind-icon">ITransition<wbr>Service</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="../interfaces/transition.itreechanges.html" class="tsd-kind-icon">ITree<wbr>Changes</a>
+						<a href="../interfaces/transition.transitionhookoptions.html" class="tsd-kind-icon">Transition<wbr>Hook<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="../interfaces/transition.transitionoptions.html" class="tsd-kind-icon">Transition<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="../interfaces/transition.treechanges.html" class="tsd-kind-icon">Tree<wbr>Changes</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
 						<a href="../modules/transition.html#ierrorhandler" class="tsd-kind-icon">IError<wbr>Handler</a>
@@ -325,20 +414,14 @@
 					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
 						<a href="../modules/transition.html#istatematch" class="tsd-kind-icon">IState<wbr>Match</a>
 					</li>
-					<li class=" tsd-kind-enum tsd-parent-kind-external-module">
-						<a href="../enums/transition.rejecttype.html" class="tsd-kind-icon">Reject<wbr>Type</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="transition.rejectfactory.html" class="tsd-kind-icon">Reject<wbr>Factory</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="transition.transitionrejection.html" class="tsd-kind-icon">Transition<wbr>Rejection</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="transition.transition-1.html" class="tsd-kind-icon">Transition</a>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/transition.html#matchcriterion" class="tsd-kind-icon">Match<wbr>Criterion</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/transition.html#reject" class="tsd-kind-icon">REJECT</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/transition.html#reject-1" class="tsd-kind-icon">REJECT</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/transition.html#stateself" class="tsd-kind-icon">state<wbr>Self</a>
@@ -346,26 +429,17 @@
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/transition.html#transitioncount" class="tsd-kind-icon">transition<wbr>Count</a>
 					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="transition.transitionhook.html" class="tsd-kind-icon">Transition<wbr>Hook</a>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/transition.html#makehookregistrationfn" class="tsd-kind-icon">make<wbr>Hook<wbr>Registration<wbr>Fn</a>
 					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/transition.html#reject-1" class="tsd-kind-icon">REJECT</a>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="../modules/transition.html#matchstate" class="tsd-kind-icon">match<wbr>State</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/transition.html#tuplesort" class="tsd-kind-icon">tuple<wbr>Sort</a>
 					</li>
 					<li class=" tsd-kind-object-literal tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/transition.html#defaultoptions" class="tsd-kind-icon">default<wbr>Options</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="transition.transitionservice.html" class="tsd-kind-icon">Transition<wbr>Service</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module">
-						<a href="../modules/transition.html#_transitions" class="tsd-kind-icon">$transitions</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module">
-						<a href="../modules/transition.html#_transitionsprovider" class="tsd-kind-icon">$transitions<wbr>Provider</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/transition.html#_transitionprovider" class="tsd-kind-icon">$<wbr>Transition<wbr>Provider</a>
 					</li>
 					<li class=" tsd-kind-object-literal tsd-parent-kind-external-module">
 						<a href="../modules/transition.html#defaulttransopts" class="tsd-kind-icon">default<wbr>Trans<wbr>Opts</a>

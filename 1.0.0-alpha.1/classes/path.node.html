@@ -7,6 +7,7 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
 	<script src="../assets/js/modernizr.js"></script>
 </head>
 <body>
@@ -75,11 +76,6 @@
 				<ul class="tsd-hierarchy">
 					<li>
 						<span class="target">Node</span>
-						<ul class="tsd-hierarchy">
-							<li>
-								<a href="../interfaces/path.iparamsnode.html" class="tsd-signature-type">IParamsNode</a>
-							</li>
-						</ul>
 					</li>
 				</ul>
 			</section>
@@ -96,18 +92,19 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="path.node.html#paramschema" class="tsd-kind-icon">param<wbr>Schema</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="path.node.html#paramvalues" class="tsd-kind-icon">param<wbr>Values</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="path.node.html#resolvecontext" class="tsd-kind-icon">resolve<wbr>Context</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="path.node.html#resolveinjector" class="tsd-kind-icon">resolve<wbr>Injector</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="path.node.html#resolves" class="tsd-kind-icon">resolves</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="path.node.html#schema" class="tsd-kind-icon">schema</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="path.node.html#state" class="tsd-kind-icon">state</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="path.node.html#values" class="tsd-kind-icon">values</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="path.node.html#views" class="tsd-kind-icon">views</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="path.node.html#applyrawparams" class="tsd-kind-icon">apply<wbr>Raw<wbr>Params</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="path.node.html#equals" class="tsd-kind-icon">equals</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="path.node.html#parameter" class="tsd-kind-icon">parameter</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="path.node.html#clone" class="tsd-kind-icon">clone</a></li>
@@ -121,93 +118,76 @@
 				<h2>Constructors</h2>
 				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
 					<a name="constructor" class="tsd-anchor"></a>
-					<h3>constructor</h3>
+					<!---->
+					<!--<h3>constructor</h3>-->
+					<!---->
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Node<span class="tsd-signature-symbol">(</span>state<span class="tsd-signature-symbol">: </span><a href="state.state-1.html" class="tsd-signature-type">State</a>, params<span class="tsd-signature-symbol">: </span><a href="../interfaces/params.irawparams.html" class="tsd-signature-type">IRawParams</a>, resolves<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Node<span class="tsd-signature-symbol">(</span>state<span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Node<span class="tsd-signature-symbol">(</span>state<span class="tsd-signature-symbol">: </span><a href="state.state-1.html" class="tsd-signature-type">State</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>state: <a href="path.node.html" class="tsd-signature-type">Node</a></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="path.node.html" class="tsd-signature-type">Node</a></h4>
+							</div>
+							<hr>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/path/node.ts#L19">path/node.ts:19</a></li>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/path/node.ts#L18">path/node.ts:18</a></li>
 								</ul>
-							</aside>
+						</aside>        </li>
+						<li class="tsd-description">
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>state: <a href="state.state-1.html" class="tsd-signature-type">State</a></h5>
 								</li>
-								<li>
-									<h5>params: <a href="../interfaces/params.irawparams.html" class="tsd-signature-type">IRawParams</a></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> resolves: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
-								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="path.node.html" class="tsd-signature-type">Node</a></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="path.node.html" class="tsd-signature-type">Node</a></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/path/node.ts#L20">path/node.ts:20</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="resolvecontext" class="tsd-anchor"></a>
-					<h3>resolve<wbr>Context</h3>
-					<div class="tsd-signature tsd-kind-icon">resolve<wbr>Context<span class="tsd-signature-symbol">:</span> <a href="resolve.resolvecontext.html" class="tsd-signature-type">ResolveContext</a></div>
+					<a name="paramschema" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>param<wbr>Schema</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">param<wbr>Schema<span class="tsd-signature-symbol">:</span> <a href="params.param.html" class="tsd-signature-type">Param</a><span class="tsd-signature-symbol">[]</span></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/path/node.ts#L18">path/node.ts:18</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/path/node.ts#L13">path/node.ts:13</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="resolveinjector" class="tsd-anchor"></a>
-					<h3>resolve<wbr>Injector</h3>
-					<div class="tsd-signature tsd-kind-icon">resolve<wbr>Injector<span class="tsd-signature-symbol">:</span> <a href="resolve.resolveinjector.html" class="tsd-signature-type">ResolveInjector</a></div>
+					<a name="paramvalues" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>param<wbr>Values</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">param<wbr>Values<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/path/node.ts#L19">path/node.ts:19</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="resolves" class="tsd-anchor"></a>
-					<h3>resolves</h3>
-					<div class="tsd-signature tsd-kind-icon">resolves<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/path/node.ts#L16">path/node.ts:16</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="schema" class="tsd-anchor"></a>
-					<h3>schema</h3>
-					<div class="tsd-signature tsd-kind-icon">schema<span class="tsd-signature-symbol">:</span> <a href="params.param.html" class="tsd-signature-type">Param</a><span class="tsd-signature-symbol">[]</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/path/node.ts#L14">path/node.ts:14</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="state" class="tsd-anchor"></a>
-					<h3>state</h3>
-					<div class="tsd-signature tsd-kind-icon">state<span class="tsd-signature-symbol">:</span> <a href="state.state-1.html" class="tsd-signature-type">State</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/path/node.ts#L22">path/node.ts:22</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="values" class="tsd-anchor"></a>
-					<h3>values</h3>
-					<div class="tsd-signature tsd-kind-icon">values<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/path/node.ts#L15">path/node.ts:15</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/path/node.ts#L14">path/node.ts:14</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -220,12 +200,72 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="views" class="tsd-anchor"></a>
-					<h3>views</h3>
-					<div class="tsd-signature tsd-kind-icon">views<span class="tsd-signature-symbol">:</span> <a href="view.viewconfig.html" class="tsd-signature-type">ViewConfig</a><span class="tsd-signature-symbol">[]</span></div>
+					<a name="resolvecontext" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>resolve<wbr>Context</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">resolve<wbr>Context<span class="tsd-signature-symbol">:</span> <a href="resolve.resolvecontext.html" class="tsd-signature-type">ResolveContext</a></div>
+					<div class="tsd-declaration">
+					</div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/path/node.ts#L17">path/node.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/path/node.ts#L17">path/node.ts:17</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="resolveinjector" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>resolve<wbr>Injector</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">resolve<wbr>Injector<span class="tsd-signature-symbol">:</span> <a href="resolve.resolveinjector.html" class="tsd-signature-type">ResolveInjector</a></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/path/node.ts#L18">path/node.ts:18</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="resolves" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>resolves</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">resolves<span class="tsd-signature-symbol">:</span> <a href="../interfaces/resolve.resolvables.html" class="tsd-signature-type">Resolvables</a></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/path/node.ts#L15">path/node.ts:15</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="state" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>state</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">state<span class="tsd-signature-symbol">:</span> <a href="state.state-1.html" class="tsd-signature-type">State</a></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/path/node.ts#L12">path/node.ts:12</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="views" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>views</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">views<span class="tsd-signature-symbol">:</span> <a href="../interfaces/view.viewconfig.html" class="tsd-signature-type">ViewConfig</a><span class="tsd-signature-symbol">[]</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/path/node.ts#L16">path/node.ts:16</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -233,93 +273,130 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="applyrawparams" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>apply<wbr>Raw<wbr>Params</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">apply<wbr>Raw<wbr>Params<span class="tsd-signature-symbol">(</span>params<span class="tsd-signature-symbol">: </span><a href="../interfaces/params.rawparams.html" class="tsd-signature-type">RawParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>params: <a href="../interfaces/params.rawparams.html" class="tsd-signature-type">RawParams</a></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="path.node.html" class="tsd-signature-type">Node</a></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/path/node.ts#L40">path/node.ts:40</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="equals" class="tsd-anchor"></a>
-					<h3>equals</h3>
+					<!---->
+					<!--<h3>equals</h3>-->
+					<!---->
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">equals<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a>, keys<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/path/node.ts#L40">path/node.ts:40</a></li>
-								</ul>
-							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>node: <a href="path.node.html" class="tsd-signature-type">Node</a></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> keys: <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;this.schema.map(prop(&#x27;id&#x27;))</span></h5>
+									<h5>keys <span class="tsd-flag ts-flagDefault value">Default value</span>: <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;this.paramSchema.map(prop(&#x27;id&#x27;))</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/path/node.ts#L50">path/node.ts:50</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="parameter" class="tsd-anchor"></a>
-					<h3>parameter</h3>
+					<!---->
+					<!--<h3>parameter</h3>-->
+					<!---->
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">parameter<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="params.param.html" class="tsd-signature-type">Param</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/path/node.ts#L36">path/node.ts:36</a></li>
-								</ul>
-							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="params.param.html" class="tsd-signature-type">Param</a></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="params.param.html" class="tsd-signature-type">Param</a></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/path/node.ts#L46">path/node.ts:46</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
 					<a name="clone" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> clone</h3>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagStatic">Static</span> clone</h3>-->
+					<!---->
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">clone<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a>, update<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a></li>
+						<li class="tsd-signature tsd-kind-icon">clone<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/path/node.ts#L45">path/node.ts:45</a></li>
-								</ul>
-							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>node: <a href="path.node.html" class="tsd-signature-type">Node</a></h5>
 								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> update: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
-								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="path.node.html" class="tsd-signature-type">Node</a></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="path.node.html" class="tsd-signature-type">Node</a></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/path/node.ts#L55">path/node.ts:55</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
 					<a name="matching" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> matching</h3>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagStatic">Static</span> matching</h3>-->
+					<!---->
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
 						<li class="tsd-signature tsd-kind-icon">matching<span class="tsd-signature-symbol">(</span>first<span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span>, second<span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-header">
+							<p> Returns a new path which is a subpath of the first path. The new path starts from root and contains any nodes
+							that match the nodes in the second path. Nodes are compared using their state property. </p>
+						</li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/feature-1.0/src/path/node.ts#L56">path/node.ts:56</a></li>
-								</ul>
-							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Returns a new path which is a subpath of the first path. The new path starts from root and contains any nodes
@@ -330,13 +407,23 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>first: <a href="path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span></h5>
+									:
 								</li>
 								<li>
 									<h5>second: <a href="path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span></h5>
+									:
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span></h4>
-						</li>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="path.node.html" class="tsd-signature-type">Node</a><span class="tsd-signature-symbol">[]</span></h4>
+								:
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/path/node.ts#L66">path/node.ts:66</a></li>
+								</ul>
+						</aside>        </li>
 					</ul>
 				</section>
 			</section>
@@ -348,7 +435,22 @@
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="../modules/__basedir_.html">".base<wbr>Dir"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="../modules/common.html">common</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/core.html">core</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/justjs.html">justjs</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1.html">ng1</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng2.html">ng2</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/params.html">params</a>
@@ -375,15 +477,6 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="../interfaces/path.iparamsnode.html" class="tsd-kind-icon">IParams<wbr>Node</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="../interfaces/path.iresolvenode.html" class="tsd-kind-icon">IResolve<wbr>Node</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="../interfaces/path.itransnode.html" class="tsd-kind-icon">ITrans<wbr>Node</a>
-					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class tsd-parent-kind-external-module">
@@ -391,6 +484,12 @@
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
 								<a href="path.node.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="path.node.html#paramschema" class="tsd-kind-icon">param<wbr>Schema</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="path.node.html#paramvalues" class="tsd-kind-icon">param<wbr>Values</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="path.node.html#resolvecontext" class="tsd-kind-icon">resolve<wbr>Context</a>
@@ -402,16 +501,13 @@
 								<a href="path.node.html#resolves" class="tsd-kind-icon">resolves</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="path.node.html#schema" class="tsd-kind-icon">schema</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="path.node.html#state" class="tsd-kind-icon">state</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="path.node.html#values" class="tsd-kind-icon">values</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="path.node.html#views" class="tsd-kind-icon">views</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="path.node.html#applyrawparams" class="tsd-kind-icon">apply<wbr>Raw<wbr>Params</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="path.node.html#equals" class="tsd-kind-icon">equals</a>

@@ -1,0 +1,806 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>StateProvider | UI-Router</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
+	<script src="../assets/js/modernizr.js"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">UI-Router</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/state.html">state</a>
+				</li>
+				<li>
+					<a href="state.stateprovider.html">StateProvider</a>
+				</li>
+			</ul>
+			<h1>Class StateProvider</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<dl class="tsd-comment-tags">
+						<dt>ngdoc</dt>
+						<dd><p>object</p>
+						</dd>
+						<dt>name</dt>
+						<dd><p>ui.router.state.$stateProvider</p>
+						</dd>
+						<dt>requires</dt>
+						<dd><p>ui.router.router.$urlRouterProvider</p>
+						</dd>
+						<dt>requires</dt>
+						<dd><p>ui.router.util.$urlMatcherFactoryProvider</p>
+						</dd>
+						<dt>description</dt>
+						<dd><p>The new <code>$stateProvider</code> works similar to Angular&#39;s v1 router, but it focuses purely
+							on state.</p>
+							<p>A state corresponds to a &quot;place&quot; in the application in terms of the overall UI and
+								navigation. A state describes (via the controller / template / view properties) what
+							the UI looks like and does at that place.</p>
+							<p>States often have things in common, and the primary way of factoring out these
+								commonalities in this model is via the state hierarchy, i.e. parent/child states aka
+							nested states.</p>
+							<p>The <code>$stateProvider</code> provides interfaces to declare these states for your app.</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">StateProvider</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="state.stateprovider.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="state.stateprovider.html#invalidcallbacks" class="tsd-kind-icon">invalid<wbr>Callbacks</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="state.stateprovider.html#stateregistry" class="tsd-kind-icon">state<wbr>Registry</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="state.stateprovider.html#decorator" class="tsd-kind-icon">decorator</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="state.stateprovider.html#oninvalid" class="tsd-kind-icon">on<wbr>Invalid</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="state.stateprovider.html#state" class="tsd-kind-icon">state</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>constructor</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>State<wbr>Provider<span class="tsd-signature-symbol">(</span>stateRegistry<span class="tsd-signature-symbol">: </span><a href="state.stateregistry.html" class="tsd-signature-type">StateRegistry</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="state.stateprovider.html" class="tsd-signature-type">StateProvider</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>stateRegistry: <a href="state.stateregistry.html" class="tsd-signature-type">StateRegistry</a></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="state.stateprovider.html" class="tsd-signature-type">StateProvider</a></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/state.ts#L30">state/state.ts:30</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="invalidcallbacks" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>invalid<wbr>Callbacks</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">invalid<wbr>Callbacks<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">[]</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/state.ts#L30">state/state.ts:30</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="stateregistry" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> state<wbr>Registry</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">state<wbr>Registry<span class="tsd-signature-symbol">:</span> <a href="state.stateregistry.html" class="tsd-signature-type">StateRegistry</a></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/state.ts#L31">state/state.ts:31</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="decorator" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>decorator</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">decorator<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, func<span class="tsd-signature-symbol">: </span><a href="../modules/state.html#builderfunction" class="tsd-signature-type">BuilderFunction</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol"> | </span><a href="state.stateprovider.html" class="tsd-signature-type">StateProvider</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>ngdoc</dt>
+									<dd><p>function</p>
+									</dd>
+									<dt>name</dt>
+									<dd><p>ui.router.state.$stateProvider#decorator</p>
+									</dd>
+									<dt>methodof</dt>
+									<dd><p>ui.router.state.$stateProvider</p>
+									</dd>
+									<dt>description</dt>
+									<dd><p>Allows you to extend (carefully) or override (at your own peril) the
+											<code>stateBuilder</code> object used internally by <code>$stateProvider</code>. This can be used
+											to add custom functionality to ui-router, for example inferring templateUrl
+										based on the state name.</p>
+										<p>When passing only a name, it returns the current (original or decorated) builder
+										function that matches <code>name</code>.</p>
+										<p>The builder functions that can be decorated are listed below. Though not all
+										necessarily have a good use case for decoration, that is up to you to decide.</p>
+										<p>In addition, users can attach custom decorators, which will generate new
+											properties within the state&#39;s internal definition. There is currently no clear
+											use-case for this beyond accessing internal states (i.e. $state.$current),
+											however, expect this to become increasingly relevant as we introduce additional
+										meta-programming features.</p>
+										<p><strong>Warning</strong>: Decorators should not be interdependent because the order of
+											execution of the builder functions in non-deterministic. Builder functions
+										should only be dependent on the state definition object and super function.</p>
+										<p>Existing builder functions and current return values:</p>
+										<ul>
+											<li><strong>parent</strong> <code>{object}</code> - returns the parent state object.</li>
+											<li><strong>data</strong> <code>{object}</code> - returns state data, including any inherited data that is not
+											overridden by own values (if any).</li>
+											<li><strong>url</strong> <code>{object}</code> - returns a {@link ui.router.util.type:UrlMatcher UrlMatcher}
+											or <code>null</code>.</li>
+											<li><strong>navigable</strong> <code>{object}</code> - returns closest ancestor state that has a URL (aka is
+											navigable).</li>
+											<li><strong>params</strong> <code>{object}</code> - returns an array of state params that are ensured to
+											be a super-set of parent&#39;s params.</li>
+											<li><strong>views</strong> <code>{object}</code> - returns a views object where each key is an absolute view
+												name (i.e. &quot;viewName@stateName&quot;) and each value is the config object
+												(template, controller) for the view. Even when you don&#39;t use the views object
+												explicitly on a state config, one is still created for you internally.
+												So by decorating this builder function you have access to decorating template
+											and controller properties.</li>
+											<li><strong>ownParams</strong> <code>{object}</code> - returns an array of params that belong to the state,
+											not including any params defined by ancestor states.</li>
+											<li><strong>path</strong> <code>{string}</code> - returns the full path from the root down to this state.
+											Needed for state activation.</li>
+											<li><strong>includes</strong> <code>{object}</code> - returns an object that includes every state that
+											would pass a <code>$state.includes()</code> test.</li>
+										</ul>
+									</dd>
+									<dt>example</dt>
+									<dd><pre>
+// Override the internal 'views' builder with a function that takes the state
+// definition, and a reference to the internal function being overridden:
+$stateProvider.decorator('views', function (state, parent) {
+  let result = {},
+      views = parent(state);
+
+  angular.forEach(views, function (config, name) {
+    let autoName = (state.name + '.' + name).replace('.', '/');
+    config.templateUrl = config.templateUrl || '/partials/' + autoName + '.html';
+    result[name] = config;
+  });
+  return result;
+});
+
+$stateProvider.state('home', {
+  views: {
+    'contact.list': { controller: 'ListController' },
+    'contact.item': { controller: 'ItemController' }
+  }
+});
+
+// ...
+
+$state.go('home');
+// Auto-populates list and item views with /partials/home/contact/list.html,
+// and /partials/home/contact/item.html, respectively.
+</pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <span class="tsd-signature-type">string</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>The name of the builder function to decorate.</p>
+									</div>
+								</li>
+								<li>
+									<h5>func: <a href="../modules/state.html#builderfunction" class="tsd-signature-type">BuilderFunction</a></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>A function that is responsible for decorating the original
+										builder function. The function receives two parameters:</p>
+										<ul>
+											<li><code>{object}</code> - state - The state config object.</li>
+											<li><code>{object}</code> - super - The original builder function.</li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol">&gt;</span>
+									<span class="tsd-signature-symbol"> | </span>
+									<span class="tsd-signature-type">function</span>
+									<span class="tsd-signature-symbol"> | </span>
+									<a href="state.stateprovider.html" class="tsd-signature-type">StateProvider</a>
+								</h4>
+								: <p>$stateProvider - $stateProvider instance</p>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/state.ts#L126">state/state.ts:126</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="oninvalid" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>on<wbr>Invalid</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">on<wbr>Invalid<span class="tsd-signature-symbol">(</span>callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>ngdoc</dt>
+									<dd><p>function</p>
+									</dd>
+									<dt>name</dt>
+									<dd><p>ui.router.state.$stateProvider#onInvalid</p>
+									</dd>
+									<dt>methodof</dt>
+									<dd><p>ui.router.state.$stateProvider</p>
+									</dd>
+									<dt>description</dt>
+									<dd><p>Registers a function to be injected and invoked when transitionTo has been called with an invalid
+										state reference parameter</p>
+										<p>This function can be injected with one some special values:</p>
+										<ul>
+											<li><strong><code>$to$</code></strong>: TargetState</li>
+											<li><strong><code>$from$</code></strong>: TargetState</li>
+										</ul>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>callback: <span class="tsd-signature-type">Function</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>  The function which will be injected and invoked, when a matching transition is started.
+											The function may optionally return a {TargetState} or a Promise for a TargetState.  If one
+										is returned, it is treated as a redirect.</p>
+									</div>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/state.ts#L293">state/state.ts:293</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="state" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>state</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">state<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, definition<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="state.stateprovider.html" class="tsd-signature-type">StateProvider</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>ngdoc</dt>
+									<dd><p>function</p>
+									</dd>
+									<dt>name</dt>
+									<dd><p>ui.router.state.$stateProvider#state</p>
+									</dd>
+									<dt>methodof</dt>
+									<dd><p>ui.router.state.$stateProvider</p>
+									</dd>
+									<dt>description</dt>
+									<dd><p>Registers a state configuration under a given state name. The stateConfig object
+										has the following acceptable properties.</p>
+										<p><a id='template'></a></p>
+										<ul>
+											<li><p><strong><code>template</code></strong> - {string|function=} - html template as a string or a function that returns
+													an html template as a string which should be used by the uiView directives. This property
+												takes precedence over templateUrl.</p>
+												<p>If <code>template</code> is a function, it will be called with the following parameters:</p>
+												<ul>
+													<li>{array.&lt;object&gt;} - state parameters extracted from the current $location.path() by
+													applying the current state</li>
+												</ul>
+											</li>
+										</ul>
+										<p><a id='templateUrl'></a></p>
+										<ul>
+											<li><p><strong><code>templateUrl</code></strong> - {string|function=} - path or function that returns a path to an html
+												template that should be used by uiView.</p>
+												<p>If <code>templateUrl</code> is a function, it will be called with the following parameters:</p>
+												<ul>
+													<li>{array.&lt;object&gt;} - state parameters extracted from the current $location.path() by
+													applying the current state</li>
+												</ul>
+											</li>
+										</ul>
+										<p><a id='templateProvider'></a></p>
+										<ul>
+											<li><strong><code>templateProvider</code></strong> - {function=} - Provider function that returns HTML content
+											string.</li>
+										</ul>
+										<p><a id='controller'></a></p>
+										<ul>
+											<li><strong><code>controller</code></strong> - {string|function=} -  Controller fn that should be associated with newly
+											related scope or the name of a registered controller if passed as a string.</li>
+										</ul>
+										<p><a id='controllerProvider'></a></p>
+										<ul>
+											<li><strong><code>controllerProvider</code></strong> - {function=} - Injectable provider function that returns
+											the actual controller or string.</li>
+										</ul>
+										<p><a id='controllerAs'></a></p>
+										<ul>
+											<li><strong><code>controllerAs</code></strong> – {string=} – A controller alias name. If present the controller will be
+											published to scope under the controllerAs name.</li>
+										</ul>
+										<p><a id='resolve'></a></p>
+										<ul>
+											<li><p><strong><code>resolve</code></strong> - {object.&lt;string, function&gt;=} - An optional map of dependencies which
+													should be injected into the controller. If any of these dependencies are promises,
+													the router will wait for them all to be resolved or one to be rejected before the
+													controller is instantiated. If all the promises are resolved successfully, the values
+													of the resolved promises are injected and $stateChangeSuccess event is fired. If any
+												of the promises are rejected the $stateChangeError event is fired. The map object is:</p>
+												<ul>
+													<li>key - {string}: name of dependency to be injected into controller</li>
+													<li>factory - {string|function}: If string then it is alias for service. Otherwise if function,
+														it is injected and return value it treated as dependency. If result is a promise, it is
+													resolved before its value is injected into controller.</li>
+												</ul>
+											</li>
+										</ul>
+										<p><a id='url'></a></p>
+										<ul>
+											<li><strong><code>url</code></strong> - {string=} - A url with optional parameters. When a state is navigated or
+												transitioned to, the <code>$stateParams</code> service will be populated with any
+											parameters that were passed.</li>
+										</ul>
+										<p><a id='params'></a></p>
+										<ul>
+											<li><strong><code>params</code></strong> - {object=} - An array of parameter names or regular expressions. Only
+												use this within a state if you are not using url. Otherwise you can specify your
+												parameters within the url. When a state is navigated or transitioned to, the
+											$stateParams service will be populated with any parameters that were passed.</li>
+										</ul>
+										<p><a id='views'></a></p>
+										<ul>
+											<li><strong><code>views</code></strong> - {object=} - Use the views property to set up multiple views or to target views
+											manually/explicitly.</li>
+										</ul>
+										<p><a id='abstract'></a></p>
+										<ul>
+											<li><strong><code>abstract</code></strong> - {boolean=} - An abstract state will never be directly activated,
+											but can provide inherited properties to its common children states.</li>
+										</ul>
+										<p><a id='onEnter'></a></p>
+										<ul>
+											<li><strong><code>onEnter</code></strong> - {object=} - Callback function for when a state is entered. Good way
+												to trigger an action or dispatch an event, such as opening a dialog.
+											If minifying your scripts, make sure to use the <code>[&#39;injection1&#39;, &#39;injection2&#39;, function(injection1, injection2){}]</code> syntax.</li>
+										</ul>
+										<p><a id='onExit'></a></p>
+										<ul>
+											<li><strong><code>onExit</code></strong> - {object=} - Callback function for when a state is exited. Good way to
+												trigger an action or dispatch an event, such as opening a dialog.
+											If minifying your scripts, make sure to use the <code>[&#39;injection1&#39;, &#39;injection2&#39;, function(injection1, injection2){}]</code> syntax.</li>
+										</ul>
+										<p><a id='reloadOnSearch'></a></p>
+										<ul>
+											<li><strong><code>reloadOnSearch = true</code></strong> - {boolean=} - If <code>false</code>, will not retrigger the same state
+												just because a search/query parameter has changed (via $location.search() or $location.hash()).
+											Useful for when you&#39;d like to modify $location.search() without triggering a reload.</li>
+										</ul>
+										<p><a id='data'></a></p>
+										<ul>
+											<li><strong><code>data</code></strong> - {object=} - Arbitrary data object, useful for custom configuration.</li>
+										</ul>
+									</dd>
+									<dt>example</dt>
+									<dd><pre>
+// Some state name examples
+
+// stateName can be a single top-level name (must be unique).
+$stateProvider.state("home", {});
+
+// Or it can be a nested state name. This state is a child of the
+// above "home" state.
+$stateProvider.state("home.newest", {});
+
+// Nest states as deeply as needed.
+$stateProvider.state("home.newest.abc.xyz.inception", {});
+
+// state() returns $stateProvider, so you can chain state declarations.
+$stateProvider
+  .state("home", {})
+  .state("about", {})
+  .state("contacts", {});
+</pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <span class="tsd-signature-type">any</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>A unique state name, e.g. &quot;home&quot;, &quot;about&quot;, &quot;contacts&quot;.
+										To create a parent/child state use a dot, e.g. &quot;about.sales&quot;, &quot;home.newest&quot;.</p>
+									</div>
+								</li>
+								<li>
+									<h5>definition: <span class="tsd-signature-type">any</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>State configuration object.</p>
+									</div>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="state.stateprovider.html" class="tsd-signature-type">StateProvider</a></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/state.ts#L264">state/state.ts:264</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/__basedir_.html">".base<wbr>Dir"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common.html">common</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/core.html">core</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/justjs.html">justjs</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1.html">ng1</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng2.html">ng2</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/params.html">params</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/path.html">path</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/resolve.html">resolve</a>
+					</li>
+					<li class="current tsd-kind-external-module">
+						<a href="../modules/state.html">state</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/transition.html">transition</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/url.html">url</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/view.html">view</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.enterexithooks.html" class="tsd-kind-icon">Enter<wbr>Exit<wbr>Hooks</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.glob.html" class="tsd-kind-icon">Glob</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.resolvehooks.html" class="tsd-kind-icon">Resolve<wbr>Hooks</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.state-1.html" class="tsd-kind-icon">State</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.statebuilder.html" class="tsd-kind-icon">State<wbr>Builder</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.statematcher.html" class="tsd-kind-icon">State<wbr>Matcher</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.stateprovider.html" class="tsd-kind-icon">State<wbr>Provider</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="state.stateprovider.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="state.stateprovider.html#invalidcallbacks" class="tsd-kind-icon">invalid<wbr>Callbacks</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="state.stateprovider.html#stateregistry" class="tsd-kind-icon">state<wbr>Registry</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="state.stateprovider.html#decorator" class="tsd-kind-icon">decorator</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="state.stateprovider.html#oninvalid" class="tsd-kind-icon">on<wbr>Invalid</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="state.stateprovider.html#state" class="tsd-kind-icon">state</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.statequeuemanager.html" class="tsd-kind-icon">State<wbr>Queue<wbr>Manager</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.stateregistry.html" class="tsd-kind-icon">State<wbr>Registry</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.stateservice.html" class="tsd-kind-icon">State<wbr>Service</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.targetstate.html" class="tsd-kind-icon">Target<wbr>State</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.transitionmanager.html" class="tsd-kind-icon">Transition<wbr>Manager</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="state.viewhooks.html" class="tsd-kind-icon">View<wbr>Hooks</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../interfaces/state.builders.html" class="tsd-kind-icon">Builders</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="../interfaces/state.hrefoptions.html" class="tsd-kind-icon">Href<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="../interfaces/state.statedeclaration.html" class="tsd-kind-icon">State<wbr>Declaration</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/state.html#builderfunction" class="tsd-kind-icon">Builder<wbr>Function</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/state.html#stateorname" class="tsd-kind-icon">State<wbr>OrName</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/state.html#eager" class="tsd-kind-icon">EAGER</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/state.html#lazy" class="tsd-kind-icon">LAZY</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="../modules/state.html#_includedbystatefilter" class="tsd-kind-icon">$<wbr>Included<wbr>ByState<wbr>Filter</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="../modules/state.html#_isstatefilter" class="tsd-kind-icon">$<wbr>IsState<wbr>Filter</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/state.html#_staterefactivedirective" class="tsd-kind-icon">$<wbr>State<wbr>Ref<wbr>Active<wbr>Directive</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/state.html#_staterefdirective" class="tsd-kind-icon">$<wbr>State<wbr>Ref<wbr>Directive</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/state.html#_staterefdynamicdirective" class="tsd-kind-icon">$<wbr>State<wbr>Ref<wbr>Dynamic<wbr>Directive</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/state.html#clickhook" class="tsd-kind-icon">click<wbr>Hook</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/state.html#defaultopts" class="tsd-kind-icon">default<wbr>Opts</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/state.html#gettypeinfo" class="tsd-kind-icon">get<wbr>Type<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/state.html#parsestateref" class="tsd-kind-icon">parse<wbr>State<wbr>Ref</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/state.html#parseurl" class="tsd-kind-icon">parse<wbr>Url</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/state.html#statecontext" class="tsd-kind-icon">state<wbr>Context</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.io" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

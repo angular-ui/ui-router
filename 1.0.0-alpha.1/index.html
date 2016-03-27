@@ -7,6 +7,7 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
+	<link rel="stylesheet" href="assets/css/typedoctheme.css">
 	<script src="assets/js/modernizr.js"></script>
 </head>
 <body>
@@ -65,98 +66,39 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<h1 id="feature-1-0-branch">feature-1.0 branch</h1>
-				<h2 id="note-this-is-a-pre-alpha-preview-of-ui-router-1-0">Note: this is a pre-alpha preview of UI-Router 1.0</h2>
-				<p>We&#39;ve totally redesigned UI-Router under the covers (rewrote about 60% of the codebase!), separating concerns and detangling the spaghetti.  We have taken some new approaches which we hope will provide unprecedented flexibility and control to your UI-Router app.</p>
-				<h4 id="what-s-changed-">What&#39;s changed?</h4>
-				<h5 id="resolves">Resolves</h5>
-				<p>The Resolve API has been rewritten from scratch.  We&#39;ve introduced the concept of a resolve policy, which can be one of:</p>
-				<ul>
-					<li>EAGER: All eager resolves for a transition are resolved at the beginning, before any states are entered (this is way UI-Router 0.2.x handles resolves)</li>
-					<li>LAZY: Lazy resolves are resolved when the state they are declared on is entered.</li>
-					<li>JIT: Just-In-Time resolves do not resolve until just before they are injected into some other function. (extremely lazy)</li>
-				</ul>
-				<p>In 1.0, by default, resolves on your states are &quot;JIT&quot;</p>
-				<h5 id="transition">Transition</h5>
-				<p>We&#39;ve created a Transition Service to manage transitioning from one state to another.  The transition service provides hooks, which you can register a callback on.  The transition hooks allow you to run code at various stages of a transition, altering it as your app requires.</p>
-				<p>The transition lifecycle hooks are currently:</p>
-				<ul>
-					<li>onBefore</li>
-					<li>onStart/onInvalid</li>
-					<li>onEnter (for individual states)</li>
-					<li>onSuccess</li>
-					<li>onError</li>
-				</ul>
-				<p>When registering a hook, you can provide criteria (a state name, a glob, or a function), and you can modify the transition by returning something from the hook (an abort, a redirect, a promise, or some new resolves to add to the transition).</p>
-				<p>This enables lots of fun stuff!  Here are a couple of possibilities to get your imagination started:</p>
-				<pre><code><span class="hljs-variable">$transitionsProvider</span>.onBefore({ to: <span class="hljs-string">'my.state'</span>, from: <span class="hljs-string">'*'</span> }, <span class="hljs-keyword">function</span>(AsyncService) {
-  return AsyncService.doSomeAsyncThing();
-});
-
-<span class="hljs-variable">$transitionsProvider</span>.onBefore({ to: <span class="hljs-string">'other.state'</span>, from: <span class="hljs-string">'*'</span> }, <span class="hljs-keyword">function</span>(AsyncService) {
-  // someAsyncResult added as resolve to transition. It is injectable into other resolves or controllers.
-  return { someAsyncResult: AsyncService.doSomeAsyncThing }; 
-});
-
-<span class="hljs-variable">$transitionsProvider</span>.onStart({ to: function(state) { return state.requiresAuth; } }, <span class="hljs-keyword">function</span>(<span class="hljs-variable">$transition</span>$, <span class="hljs-variable">$state</span>, AuthService) {
-  return AuthService.ensureAuthenticated().catch(function() { return <span class="hljs-variable">$state</span>.redirect(<span class="hljs-string">"login"</span>); });
-});
-
-<span class="hljs-variable">$transitionsProvider</span>.onStart({ to: function(state) { return state.requiresAuth; } }, <span class="hljs-keyword">function</span>(<span class="hljs-variable">$transition</span>$, <span class="hljs-variable">$state</span>, AuthService) {
-  return AuthService.ensureAuthenticated().catch(function() { return <span class="hljs-variable">$state</span>.redirect(<span class="hljs-string">"login"</span>); });
-});
-
-<span class="hljs-variable">$transitionsProvider</span>.onStart({ to: function(state) { return state.redirectTo; } }, <span class="hljs-keyword">function</span>(<span class="hljs-variable">$transition</span>$, <span class="hljs-variable">$state</span>) {
-  return <span class="hljs-variable">$state</span>.redirect(<span class="hljs-variable">$transition</span>$.to.redirectTo); });
-});
-</code></pre><h5 id="state">State</h5>
-				<p>The $state service has been heavily refactored, and is now the primary client of the $transition service.  This doesn&#39;t offer the end user much <em>now</em>, but this separation should eventually enable us to provide things like multiple simultanesouly active states and parallel transitions (think UI-Router Extras &quot;Sticky States&quot;).</p>
-				<p>State events will soon be deprecated, but can be easily re-enabled by including the stateEvents.js file.  The state events have all been refactored as callbacks to the transition hooks.</p>
-				<h5 id="views">Views</h5>
-				<p>The way UI-Router manages views has been heavily refactored into a view service.  This should allow us to plug in alternate rendering schemes (react?), and should help ease the transition to angular 2.</p>
-				<h5 id="parameters">Parameters</h5>
-				<p>This one has been a long time coming.  Finally, UI-Router supports dynamic parameters in both the URL path and query string.  We&#39;ve included a decorator which enables reloadOnSearch behavior using dynamic params automatically.</p>
-				<h3 id="what-s-next-">What&#39;s next?</h3>
-				<p>We&#39;re not done making sure every use case that you&#39;ve been using in UI-Router 0.2.x works just as well in 1.0.  In fact, we just got the new code routing again on June 25 and have no idea what gaps are out there.  We&#39;d like to get some other eyes on this new codebase.  We&#39;ve moved in most of the unit tests from 0.2.x, but there are certain to be some things missing.  </p>
-				<p>Build it.  Try it.  Let us know what&#39;s horribly broken.</p>
-				<h4 id="es6-typescript">ES6/TypeScript</h4>
-				<p>We have plans to migrate these new classes to ES6 (for sure), and possibly Typescript.</p>
-				<h4 id="angular-2">Angular 2</h4>
-				<p>We&#39;d like to support Angular 2</p>
-				<h4 id="lazy-loading">Lazy Loading</h4>
-				<p>We&#39;d like to have out-of-the-box support for lazy loading states (like UI-Router Extras &quot;Future States&quot;)</p>
-				<hr>
-				<p>The rest of this README is from an old release.</p>
 				<h1 id="angularui-router-nbsp-build-status-https-travis-ci-org-angular-ui-ui-router-svg-branch-master-https-travis-ci-org-angular-ui-ui-router-">AngularUI Router &nbsp;<a href="https://travis-ci.org/angular-ui/ui-router"><img src="https://travis-ci.org/angular-ui/ui-router.svg?branch=master" alt="Build Status"></a></h1>
-				<h4 id="the-de-facto-solution-to-flexible-routing-with-nested-views">The de-facto solution to flexible routing with nested views</h4>
+				<p><strong>Note: this is the Angular 1.x source for UI-Router version 1.0 alpha.  If you are looking for the source for UI-Router
+				version 0.2.x, it can be found <a href="https://github.com/angular-ui/ui-router/tree/legacy">here</a></strong></p>
 				<hr>
-				<p><strong><a href="http://angular-ui.github.io/ui-router/release/angular-ui-router.js">Download 0.2.11</a></strong> (or <strong><a href="http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js">Minified</a></strong>) <strong>|</strong>
+				<h4 id="the-de-facto-solution-to-flexible-routing-in-angular">The de-facto solution to flexible routing in angular</h4>
+				<hr>
+				<p><strong><a href="http://angular-ui.github.io/ui-router/release/angular-ui-router.js">Download stable</a></strong> (or <strong><a href="http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js">Minified</a></strong>) <strong>|</strong>
 					<strong><a href="https://github.com/angular-ui/ui-router/wiki">Guide</a> |</strong>
 					<strong><a href="http://angular-ui.github.io/ui-router/site">API</a> |</strong>
-					<strong><a href="http://angular-ui.github.com/ui-router/sample/">Sample</a> (<a href="https://github.com/angular-ui/ui-router/tree/gh-pages/sample">Src</a>) |</strong>
+					<strong><a href="http://ui-router.github.io/sample-app/#/mymessages">Sample</a> (<a href="https://github.com/ui-router/sample-app">Src</a>) |</strong>
 					<strong><a href="https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions">FAQ</a> |</strong>
 					<strong><a href="#resources">Resources</a> |</strong>
 					<strong><a href="https://github.com/angular-ui/ui-router/blob/master/CONTRIBUTING.md#report-an-issue">Report an Issue</a> |</strong>
 					<strong><a href="https://github.com/angular-ui/ui-router/blob/master/CONTRIBUTING.md#contribute">Contribute</a> |</strong>
-					<strong><a href="http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router">Help!</a> |</strong>
-				<strong><a href="https://groups.google.com/forum/#!categories/angular-ui/router">Discuss</a></strong></p>
+				<strong><a href="http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router">Help!</a> |</strong></p>
 				<hr>
-				<p>AngularUI Router is a routing framework for <a href="http://angularjs.org">AngularJS</a>, which allows you to organize the
-					parts of your interface into a <a href="https://en.wikipedia.org/wiki/Finite-state_machine"><em>state machine</em></a>. Unlike the
-					<a href="http://docs.angularjs.org/api/ngRoute.$route"><code>$route</code> service</a> in the Angular ngRoute module, which is organized around URL
-					routes, UI-Router is organized around <a href="https://github.com/angular-ui/ui-router/wiki"><em>states</em></a>,
-				which may optionally have routes, as well as other behavior, attached.</p>
-				<p>States are bound to <em>named</em>, <em>nested</em> and <em>parallel views</em>, allowing you to powerfully manage your application&#39;s interface.</p>
-				<p>Check out the sample app: <a href="http://angular-ui.github.io/ui-router/sample/">http://angular-ui.github.io/ui-router/sample/</a></p>
-				<p>-
-				<strong>Note:</strong> <em>UI-Router is under active development. As such, while this library is well-tested, the API may change. Consider using it in production applications only if you&#39;re comfortable following a changelog and updating your usage accordingly.</em></p>
+				<p>Angular UI-Router is a client-side <a href="https://en.wikipedia.org/wiki/Single-page_application">Single Page Application</a>
+				routing framework for <a href="http://angularjs.org">AngularJS</a>.  </p>
+				<p>Routing frameworks for SPAs update the browser&#39;s URL as the user nagivates through the app.  Conversely, this allows
+					changes to the browser&#39;s URL to drive navigation through the app, thus allowing the user to create a bookmark to a
+				location deep within the SPA.</p>
+				<p>UI-Router applications are modeled as a hierarchical tree of states. UI-Router provides a
+					<a href="https://en.wikipedia.org/wiki/Finite-state_machine"><em>state machine</em></a> to manage the transitions between those
+				application states in a transaction-like manner. </p>
 				<h2 id="get-started">Get Started</h2>
-				<p><strong>(1)</strong> Get UI-Router in one of 4 ways:</p>
+				<p><strong>(1)</strong> Get UI-Router in one of the following ways:</p>
 				<ul>
 					<li>clone &amp; <a href="CONTRIBUTING.md#developing">build</a> this repository</li>
 					<li><a href="http://angular-ui.github.io/ui-router/release/angular-ui-router.js">download the release</a> (or <a href="http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js">minified</a>)</li>
-					<li>via <strong><a href="http://bower.io/">Bower</a></strong>: by running <code>$ bower install angular-ui-router</code> from your console</li>
+					<li><a href="http://cdnjs.com/libraries/angular-ui-router">link to cdn</a></li>
+					<li>via <strong><a href="http://jspm.io/">jspm</a></strong>: by running <code>$ jspm install angular-ui-router</code> from your console</li>
 					<li>or via <strong><a href="https://www.npmjs.org/">npm</a></strong>: by running <code>$ npm install angular-ui-router</code> from your console</li>
+					<li>or via <strong><a href="http://bower.io/">Bower</a></strong>: by running <code>$ bower install angular-ui-router</code> from your console</li>
 					<li>or via <strong><a href="https://github.com/component/component">Component</a></strong>: by running <code>$ component install angular-ui/ui-router</code> from your console</li>
 				</ul>
 				<p><strong>(2)</strong> Include <code>angular-ui-router.js</code> (or <code>angular-ui-router.min.js</code>) in your <code>index.html</code>, after including Angular itself (For Component users: ignore this step)</p>
@@ -337,7 +279,22 @@
 						<a href="globals.html"><em>Globals</em></a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="modules/__basedir_.html">".base<wbr>Dir"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="modules/common.html">common</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/core.html">core</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/justjs.html">justjs</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/ng1.html">ng1</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/ng2.html">ng2</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/params.html">params</a>
