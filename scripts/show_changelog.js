@@ -24,9 +24,5 @@ if(require.main === module) {
 }
 
 function showChangelog(context, gitOpts) {
-  console.log(context);
-  console.log(gitOpts);
-  conventionalChangelog(options, context, gitOpts)
-      .pipe(process.stdout);
-  
+  conventionalChangelog(options, context, gitOpts).pipe(process.stdout);
 }

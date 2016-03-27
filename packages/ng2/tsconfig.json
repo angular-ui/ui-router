@@ -11,6 +11,6 @@
     "sourceMap": true
   },
   "files": [
-    "ng2.ts"
+    "ng2.ts", "../typings/es6-shim/es6-shim.d.ts"
   ]
 }

@@ -1,4 +1,4 @@
 {
   "compilerOptions": { "rootDir": ".", "outDir": ".." },
-  "files": [ "core.ts" ]
+  "files": [ "core.ts", "../typings/es6-shim/es6-shim.d.ts" ]
 }

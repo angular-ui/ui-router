@@ -29,6 +29,7 @@ function prepPackage(pkgName) {
   let files = {};
   files.sources = path.resolve(paths.pkgsrc, "sources.json");
   files.pkgfile = path.resolve(paths.pkgsrc, "package.json");
+  files.bowerfile = path.resolve(paths.pkgsrc, "bower.json");
   files.tsconfig = path.resolve(paths.pkgsrc, "tsconfig.json");
   files.webpack = path.resolve(paths.pkgsrc, "webpack.config.js");
 
@@ -66,6 +67,21 @@ function prepPackage(pkgName) {
     fs.writeFileSync(packageJsonDest, asJson(packageJson));
   }
 
+  // If the package definition contains a bower.json, merge it with specific fields from the package.json in
+  // the project root, and write it to the package build dir
+  if (test('-f', files.bowerfile)) {
+    let bowerJsonDest = `${paths.build}/bower.json`;
+    let pkg = require('../package.json');
+
+    echo(`Merging ${files.bowerfile} with ${paths.basedir}/package.json ...`);
+    echo(`... and writing to ${bowerJsonDest}`);
+
+    let packageJson = JSON.parse(fs.readFileSync(files.bowerfile, 'utf8'));
+    packageJson.version = pkg.version;
+    packageJson.homepage = pkg.homepage;
+    fs.writeFileSync(bowerJsonDest, asJson(packageJson));
+  }
+
   echo(`Copying typescript sources to ${paths.srcCopy}`);
   cp('-R', `${paths.basedir}/src/`, paths.srcCopy);
   console.log("Excludes: " + sources.excludes);
@@ -83,7 +99,7 @@ function prepPackage(pkgName) {
 
   // Copy any of these files from the packages dir
   // Override any baseFiles with the copy from the package dir.
-  let pkgFiles = ['bower.json', '.gitignore', '.npmignore'];
+  let pkgFiles = ['.gitignore', '.npmignore'];
   baseFiles.concat(pkgFiles).filter(file => test('-f', `${paths.pkgsrc}/${file}`))
       .forEach(file => cp(`${paths.pkgsrc}/${file}`, paths.build));
 
