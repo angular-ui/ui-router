@@ -363,6 +363,17 @@ describe('uiView', function () {
       expect(_scope.$resolve.user).toBe('joeschmoe')
     }));
 
+    it('should provide the resolved data on the $scope even if there is no controller', inject(function ($state, $q, $timeout) {
+      var state = angular.extend({}, _state, { template: '{{$resolve.user}}' });
+      $stateProvider.state(state);
+      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+      expect(elem.text()).toBe('');
+
+      $state.transitionTo('resolve'); $q.flush(); $timeout.flush();
+      expect(elem.text()).toBe('joeschmoe');
+      expect(scope.$resolve).toBeDefined();
+    }));
+
     it('should put the resolved data on the resolveAs variable', inject(function ($state, $q, $timeout) {
       var state = angular.extend({}, _state, { template: '{{$$$resolve.user}}', resolveAs: '$$$resolve', controller: controller });
       $stateProvider.state(state);
