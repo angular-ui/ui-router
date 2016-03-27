@@ -123,6 +123,23 @@ describe('transition', function () {
         expect(result.get().reject.message).toEqual("transition failed");
       }));
 
+      it('$transition$.promise should reject on error in synchronous hooks', inject(function($transitions, $q) {
+        var result = new PromiseResult();
+
+        transitionProvider.onBefore({ from: "*", to: "third" }, function($transition$) {
+          result.setPromise($transition$.promise);
+          throw new Error("transition failed");
+        });
+
+        try {
+          makeTransition("", "third").run();
+        } catch (e) {}
+        $q.flush();
+
+        expect(result.called()).toEqual({ resolve: false, reject: true, complete: true });
+        expect(result.get().reject.detail.message).toEqual("transition failed");
+      }));
+
       it('should inject $transition$', inject(function($transitions, $q) {
         var t = null;
 

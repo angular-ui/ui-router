@@ -93,7 +93,7 @@ export class TransitionHook {
       try {
         results.push(hooks[i].invokeStep(locals));
       } catch (exception) {
-        if (!swallowExceptions) throw exception;
+        if (!swallowExceptions) return REJECT.aborted(exception);
         console.log("Swallowed exception during synchronous hook handler: " + exception); // TODO: What to do here?
       }
     }
