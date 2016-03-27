@@ -32,7 +32,7 @@ export class State {
   public navigable: State;
   public path: State[];
   public data: any;
-  public includes: (name: string) => boolean;
+  public includes: { [name: string] : boolean };
 
   constructor(config?: StateDeclaration) {
     extend(this, config);

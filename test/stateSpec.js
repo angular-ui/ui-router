@@ -2095,14 +2095,21 @@ describe('otherwise and state redirects', function() {
 });
 
 
-describe('hook redirects from .otherwise()', function() {
-  var log;
+describe('hook redirects', function() {
+  var log, resolvelog;
   beforeEach(module(function ($stateProvider, $urlRouterProvider) {
-    log = "";
+    log = resolvelog = "";
     $urlRouterProvider.otherwise('/home');
-    $stateProvider
-        .state('home', { url: '/home', template: 'home', controller: function() { log += "homeCtrl;"; } })
-        .state('loginPage', { url: '/login', template: 'login' });
+    $stateProvider.state('home', {
+          url: '/home',
+          template: 'home <ui-view></ui-view>',
+          controller: function () { log += "homeCtrl;"; },
+          resolve: {
+            foo: function () { resolvelog += "fooResolve;"; return "foo"; }
+          }
+        })
+        .state('home.foo', {url: '/foo', template: 'foo'})
+        .state('loginPage', {url: '/login', template: 'login'});
   }));
 
   beforeEach(inject(function($compile, $rootScope) {
@@ -2111,7 +2118,7 @@ describe('hook redirects from .otherwise()', function() {
   }));
 
   // Test for #2455
-  it("should go to the redirect-to target state and url", inject(function($transitions, $q, $state, $location) {
+  it("from .otherwise() should go to the redirect-to target state and url", inject(function($transitions, $q, $state, $location) {
     $transitions.onBefore({ to: 'home' }, function() {
       return $state.target('loginPage', {}, { location: true });
     });
@@ -2132,7 +2139,7 @@ describe('hook redirects from .otherwise()', function() {
 
     $transitions.onBefore({ to: 'home' }, function($state, $transition$) {
       var options = $transition$.options();
-      if (!options.reload && count++ < 2) {
+      if (!options.reload && count++ < 5) {
         return $state.target($transition$.to(), $transition$.params("to"), extend({}, options, {reload: true}));
       }
     });
@@ -2141,5 +2148,29 @@ describe('hook redirects from .otherwise()', function() {
 
     expect($state.current.name).toBe("home");
     expect(log).toBe("homeCtrl;homeCtrl;");
+  }));
+
+  // Test for #2539
+  it("should re-resolve when reloading during a redirect", inject(function($transitions, $q, $state, $trace) {
+    var count = 0;
+    $q.flush();
+
+    expect($state.current.name).toBe("home");
+    expect(resolvelog).toBe("fooResolve;");
+
+    $state.go('home.foo'); $q.flush();
+    expect(resolvelog).toBe("fooResolve;");
+
+    $transitions.onStart({ to: 'home' }, function($transition$, $state) {
+      if (!$transition$.options().reload && count++ < 5) {
+        console.log("forcing re-enter (reload) of home state ");
+        var options = $transition$.options();
+        return $state.target($transition$.to(), $transition$.params("to"), extend({}, options, {reload: true}));
+      }
+    });
+
+    $state.go('home'); $q.flush();
+    expect($state.current.name).toBe("home");
+    expect(resolvelog).toBe("fooResolve;fooResolve;");
   }));
 });

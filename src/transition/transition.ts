@@ -295,14 +295,16 @@ export class Transition implements IHookRegistry {
     targetState = new TargetState(targetState.identifier(), targetState.$state(), targetState.params(), newOptions);
 
     let redirectTo = new Transition(this._treeChanges.from, targetState, this._transitionService);
+    let reloadState = targetState.options().reloadState;
 
     // If the current transition has already resolved any resolvables which are also in the redirected "to path", then
     // add those resolvables to the redirected transition.  Allows you to define a resolve at a parent level, wait for
     // the resolve, then redirect to a child state based on the result, and not have to re-fetch the resolve.
     let redirectedPath = this.treeChanges().to;
-    let matching: Node[] = Node.matching(redirectTo.treeChanges().to, redirectedPath);
+    let copyResolvesFor: Node[] = Node.matching(redirectTo.treeChanges().to, redirectedPath)
+        .filter(node => !reloadState || !reloadState.includes[node.state.name]);
     const includeResolve = (resolve, key) => ['$stateParams', '$transition$'].indexOf(key) === -1;
-    matching.forEach((node, idx) => extend(node.resolves, filter(redirectedPath[idx].resolves, includeResolve)));
+    copyResolvesFor.forEach((node, idx) => extend(node.resolves, filter(redirectedPath[idx].resolves, includeResolve)));
 
     return redirectTo;
   }
