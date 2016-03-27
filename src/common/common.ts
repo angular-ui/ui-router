@@ -1,11 +1,11 @@
 /** @module common */ /** for typedoc */
 
 import {isFunction, isString, isArray, isRegExp, isDate} from "./predicates";
-import { all, pattern, any, not, prop, curry, val } from "./hof";
+import { all, any, not, prop, curry } from "./hof";
 
 let angular = (<any> window).angular || {};
-export const fromJson = angular.fromJson || _fromJson;
-export const toJson = angular.toJson || _toJson;
+export const fromJson = angular.fromJson || JSON.parse.bind(JSON);
+export const toJson = angular.toJson || JSON.stringify.bind(JSON);
 export const copy = angular.copy || _copy;
 export const forEach = angular.forEach || _forEach;
 export const extend = angular.extend || _extend;
@@ -467,52 +467,9 @@ export function applyPairs(memo: TypedMap<any>, keyValTuple: any[]) {
   return memo;
 }
 
-export function fnToString(fn: IInjectable) {
-  let _fn = isArray(fn) ? fn.slice(-1)[0] : fn;
-  return _fn && _fn.toString() || "undefined";
-}
-
-/**
- * Returns a string shortened to a maximum length
- *
- * If the string is already less than the `max` length, return the string.
- * Else return the string, shortened to `max - 3` and append three dots ("...").
- *
- * @param max the maximum length of the string to return
- * @param str the input string
- */
-export function maxLength(max: number, str: string) {
-  if (str.length <= max) return str;
-  return str.substr(0, max - 3) + "...";
-}
-
-/**
- * Returns a string, with spaces added to the end, up to a desired str length
- *
- * If the string is already longer than the desired length, return the string.
- * Else returns the string, with extra spaces on the end, such that it reaches `length` characters.
- *
- * @param length the desired length of the string to return
- * @param str the input string
- */
-export function padString(length: number, str: string) {
-  while (str.length < length) str += " ";
-  return str;
-}
-
 /** Get the last element of an array */
 export function tail<T>(arr: T[]): T {
   return arr.length && arr[arr.length - 1] || undefined;
-}
-
-export const kebobString = (camelCase: string) => camelCase.replace(/([A-Z])/g, $1 => "-"+$1.toLowerCase());
-
-function _toJson(obj) {
-  return JSON.stringify(obj);
-}
-
-function _fromJson(json) {
-  return isString(json) ? JSON.parse(json) : json;
 }
 
 /**

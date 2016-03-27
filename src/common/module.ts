@@ -5,4 +5,5 @@ export * from "./glob";
 export * from "./hof";
 export * from "./predicates";
 export * from "./queue";
+export * from "./strings";
 export * from "./trace";

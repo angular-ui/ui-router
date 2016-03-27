@@ -1,4 +1,4 @@
-/** @module path */ /** for typedoc */
+/** @module resolve */ /** for typedoc */
 import {map} from "../common/common";
 
 import {Resolvable} from "./resolvable";

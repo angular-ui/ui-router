@@ -1,6 +1,7 @@
 /** @module transition */ /** for typedoc */
 import {TransitionHookOptions} from "./interface";
-import {IInjectable, defaults, extend, noop, fnToString, maxLength, Predicate} from "../common/common";
+import {IInjectable, defaults, extend, noop, Predicate} from "../common/common";
+import {fnToString, maxLength} from "../common/strings";
 import {isDefined, isPromise } from "../common/predicates";
 import {not, pattern, val, eq, is, parse } from "../common/hof";
 import {trace} from "../common/trace";

@@ -2,6 +2,7 @@
 "use strict";
 import {extend} from "../common/common";
 import {services} from "../common/coreservices";
+import {stringify} from "../common/strings";
 
 export enum RejectType {
   SUPERSEDED = 2, ABORTED = 3, INVALID = 4, IGNORED = 5
@@ -22,7 +23,7 @@ export class TransitionRejection {
   }
 
   toString() {
-    const detailString = d => d && d.toString !== Object.prototype.toString ? d.toString() : JSON.stringify(d);
+    const detailString = d => d && d.toString !== Object.prototype.toString ? d.toString() : stringify(d);
     let type = this.type, message = this.message, detail = detailString(this.detail);
     return `TransitionRejection(type: ${type}, message: ${message}, detail: ${detail})`;
   }

@@ -1,22 +1,9 @@
 /** @module common */ /** for typedoc */
-import {fnToString, maxLength, padString, identity} from "../common/common";
-import {is, invoke, not, val, pattern, parse} from "../common/hof";
-import {isNull, isPromise, isNumber, isInjectable, isDefined} from "../common/predicates";
-import {Resolvable}  from "../resolve/resolvable";
+import {parse} from "../common/hof";
+import {isNumber} from "../common/predicates";
 import {Transition}  from "../transition/transition";
-import {TransitionRejection}  from "../transition/rejectFactory";
 import {ActiveUIView, ViewConfig}  from "../view/interface";
-
-function promiseToString(p) {
-  if (is(TransitionRejection)(p.reason)) return p.reason.toString();
-  return `Promise(${JSON.stringify(p)})`;
-}
-
-function functionToString(fn) {
-  let fnStr = fnToString(fn);
-  let namedFunctionMatch = fnStr.match(/^(function [^ ]+\([^)]*\))/);
-  return namedFunctionMatch ? namedFunctionMatch[1] : fnStr;
-}
+import {stringify, functionToString, maxLength, padString} from "./strings";
 
 function uiViewString (viewData) {
     if (!viewData) return 'ui-view (defunct)';
@@ -30,19 +17,6 @@ function normalizedCat(input: Category): string {
   return isNumber(input) ? Category[input] : Category[Category[input]];
 }
 
-function stringify(o) {
-  let format = pattern([
-    [not(isDefined),            val("undefined")],
-    [isNull,                    val("null")],
-    [isPromise,                 promiseToString],
-    [is(Transition),            invoke("toString")],
-    [is(Resolvable),            invoke("toString")],
-    [isInjectable,              functionToString],
-    [val(true),                 identity]
-  ]);
-
-  return JSON.stringify(o, (key, val) => format(val)).replace(/\\"/g, '"');
-}
 
 export enum Category {
   RESOLVE, TRANSITION, HOOK, INVOKE, UIVIEW, VIEWCONFIG

@@ -1,6 +1,6 @@
 /** @module view */ /** for typedoc */
 "use strict";
-import {extend, map, unnestR, filter, kebobString} from "../common/common";
+import {extend, map, unnestR, filter} from "../common/common";
 import {isDefined, isFunction} from "../common/predicates";
 import {trace} from "../common/trace";
 import {ActiveUIView} from "../view/interface";
@@ -12,6 +12,7 @@ import {ResolveContext} from "../resolve/resolveContext";
 import {Transition} from "../transition/transition";
 import {Node} from "../path/node";
 import {Param} from "../params/param";
+import {kebobString} from "../common/strings";
 
 export type UIViewData = {
   $cfg: Ng1ViewConfig;

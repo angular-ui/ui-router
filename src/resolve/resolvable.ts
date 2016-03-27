@@ -1,4 +1,4 @@
-/** @module path */ /** for typedoc */
+/** @module resolve */ /** for typedoc */
 import {extend, pick, map, filter} from "../common/common";
 import {not} from "../common/hof";
 import {isInjectable} from "../common/predicates";

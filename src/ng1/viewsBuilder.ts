@@ -1,6 +1,7 @@
 /** @module ng1 */ /** */
 import {State} from "../state/stateObject";
-import {pick, forEach, anyTrueR, unnestR, kebobString} from "../common/common";
+import {pick, forEach, anyTrueR, unnestR} from "../common/common";
+import {kebobString} from "../common/strings";
 import {ViewConfig, ViewContext} from "../view/interface";
 import {Ng1ViewDeclaration} from "./interface";
 import {ViewService} from "../view/view";

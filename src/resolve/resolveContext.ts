@@ -1,4 +1,4 @@
-/** @module path */ /** for typedoc */
+/** @module resolve */ /** for typedoc */
 import {IInjectable, find, filter, map, tail, defaults, extend, pick, omit} from "../common/common";
 import {prop, propEq} from "../common/hof";
 import {isString, isObject} from "../common/predicates";
