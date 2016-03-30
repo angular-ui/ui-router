@@ -419,6 +419,8 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
  *
  */
 export interface Ng1Controller {
+  /** @hidden */
+  $onInit();
   /**
    * This callback is called when parameter values have changed.
    * 
@@ -439,13 +441,13 @@ export interface Ng1Controller {
    * ```js
    *
    * angular.module('foo').controller('FancyCtrl', function() {
-   *   this.uiOnParamsUpdated = function(newParams) {
+   *   this.uiOnParamsChanged = function(newParams) {
    *     console.log("new params: ", newParams);
    *   }
    * });
    * ```
    */
-  uiOnParamsUpdated(newValues: any, $transition$: Transition);
+  uiOnParamsChanged(newValues: any, $transition$: Transition);
 
   /**
    * This callback is called when the view's state is about to be exited.

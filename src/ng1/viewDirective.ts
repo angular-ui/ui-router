@@ -14,6 +14,7 @@ import {Node} from "../path/node";
 import {Param} from "../params/param";
 import {kebobString} from "../common/strings";
 import {HookRegOptions} from "../transition/interface";
+import {Ng1Controller} from "./interface";
 
 export type UIViewData = {
   $cfg: Ng1ViewConfig;
@@ -381,7 +382,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,
 }
 
 // TODO: move these callbacks to $view and/or `/hooks/components.ts` or something
-function registerControllerCallbacks($transitions: TransitionService, controllerInstance, $scope, cfg: Ng1ViewConfig) {
+function registerControllerCallbacks($transitions: TransitionService, controllerInstance: Ng1Controller, $scope, cfg: Ng1ViewConfig) {
   // Call $onInit() ASAP
   if (isFunction(controllerInstance.$onInit)) controllerInstance.$onInit();
 
