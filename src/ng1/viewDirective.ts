@@ -381,10 +381,12 @@ function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,
   };
 }
 
+let hasComponentImpl = typeof angular.module('ui.router')['component'] === 'function';
+
 // TODO: move these callbacks to $view and/or `/hooks/components.ts` or something
 function registerControllerCallbacks($transitions: TransitionService, controllerInstance: Ng1Controller, $scope, cfg: Ng1ViewConfig) {
   // Call $onInit() ASAP
-  if (isFunction(controllerInstance.$onInit)) controllerInstance.$onInit();
+  if (isFunction(controllerInstance.$onInit) && !(cfg.viewDecl.component && hasComponentImpl)) controllerInstance.$onInit();
 
   var hookOptions: HookRegOptions = { bind: controllerInstance };
   // Add component-level hook for onParamsChange

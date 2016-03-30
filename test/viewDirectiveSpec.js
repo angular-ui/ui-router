@@ -778,7 +778,11 @@ describe('angular 1.5+ style .component()', function() {
       return {
         scope: { data: '=' },
         templateUrl: '/comp_tpl.html',
-        controller: function() {},
+        controller: function() {
+          this.$onInit = function () {
+            log += "onInit;"
+          }
+        },
         bindToController: true,
         controllerAs: '$ctrl'
       }
@@ -832,8 +836,7 @@ describe('angular 1.5+ style .component()', function() {
       $httpBackend.expectGET('/state_tpl.html').respond('x<ng12-directive data="$resolve.data"></ng12-directive>x');
       $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
 
-      $state.transitionTo('cmp_tpl');
-      $q.flush();
+      $state.transitionTo('cmp_tpl'); $q.flush();
 
       // Template has not yet been fetched
       var directiveEl = el[0].querySelector('div ui-view ng12-directive');
@@ -857,9 +860,7 @@ describe('angular 1.5+ style .component()', function() {
         $httpBackend.expectGET('/state_tpl.html').respond('x<ng13-directive data="$resolve.data"></ng13-directive>x');
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
 
-        $state.transitionTo('cmp_tpl');
-        $q.flush();
-        $httpBackend.flush();
+        $state.transitionTo('cmp_tpl'); $q.flush(); $httpBackend.flush();
 
         directiveEl = el[0].querySelector('div ui-view ng13-directive');
         expect(directiveEl).toBeDefined();
@@ -877,9 +878,7 @@ describe('angular 1.5+ style .component()', function() {
         $httpBackend.expectGET('/state_tpl.html').respond('x<ng-component data="$resolve.data"></ng-component>x');
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
 
-        $state.transitionTo('cmp_tpl');
-        $q.flush();
-        $httpBackend.flush();
+        $state.transitionTo('cmp_tpl'); $q.flush(); $httpBackend.flush();
 
         directiveEl = el[0].querySelector('div ui-view ng-component');
         expect(directiveEl).toBeDefined();
@@ -918,10 +917,8 @@ describe('angular 1.5+ style .component()', function() {
 
       var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
-      $state.transitionTo('route2cmp');
       $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
-      $q.flush();
-      $httpBackend.flush();
+      $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
 
       directiveEl = el[0].querySelector('div ui-view ng12-directive');
       expect(directiveEl).toBeDefined();
@@ -939,15 +936,28 @@ describe('angular 1.5+ style .component()', function() {
 
         var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
-        $state.transitionTo('route2cmp');
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
-        $q.flush();
-        $httpBackend.flush();
+        $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
 
         directiveEl = el[0].querySelector('div ui-view ng13-directive');
         expect(directiveEl).toBeDefined();
         expect($state.current.name).toBe('route2cmp');
         expect(el.text()).toBe('-DATA!-');
+      });
+
+      it('should call $onInit() once', function () {
+        $stateProvider.state('route2cmp', {
+          url: '/route2cmp',
+          component: 'ng13Directive',
+          resolve: { data: function() { return "DATA!"; } }
+        });
+
+        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+        $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
+        $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
+
+        expect(log).toBe('onInit;');
       });
     }
 
@@ -961,15 +971,27 @@ describe('angular 1.5+ style .component()', function() {
 
         var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
-        $state.transitionTo('route2cmp');
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
-        $q.flush();
-        $httpBackend.flush();
+        $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
 
         directiveEl = el[0].querySelector('div ui-view ng-component');
         expect(directiveEl).toBeDefined();
         expect($state.current.name).toBe('route2cmp');
         expect(el.text()).toBe('-DATA!-');
+      });
+
+      it('should only call $onInit() once', function () {
+        $stateProvider.state('route2cmp', {
+          component: 'ngComponent',
+          resolve: { data: function() { return "DATA!"; } }
+        });
+
+        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+        $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
+        $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
+
+        expect(log).toBe('onInit;');
       });
     }
   });
@@ -1007,10 +1029,9 @@ describe('angular 1.5+ style .component()', function() {
         $stateProvider.state('route2cmp', stateDef);
         var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
-        $state.transitionTo('route2cmp');
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
-        $q.flush();
-        $httpBackend.flush();
+        $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
+
         var header = el[0].querySelector('[ui-view=header]');
         var content = el[0].querySelector('[ui-view=content]');
 
@@ -1030,10 +1051,9 @@ describe('angular 1.5+ style .component()', function() {
         $stateProvider.state('route2cmp', stateDef);
         var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
-        $state.transitionTo('route2cmp');
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
-        $q.flush();
-        $httpBackend.flush();
+        $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
+
         var header = el[0].querySelector('[ui-view=header]');
         var content = el[0].querySelector('[ui-view=content]');
 
@@ -1054,10 +1074,8 @@ describe('angular 1.5+ style .component()', function() {
 
       var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
-      $state.transitionTo('route2cmp');
       $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
-      $q.flush();
-      $httpBackend.flush();
+      $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
 
       directiveEl = el[0].querySelector('div ui-view ng12-directive');
       expect(directiveEl).toBeDefined();
@@ -1079,10 +1097,8 @@ describe('angular 1.5+ style .component()', function() {
 
         var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
-        $state.transitionTo('route2cmp');
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}.{{ $ctrl.data2 }}-');
-        $q.flush();
-        $httpBackend.flush();
+        $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
 
         directiveEl = el[0].querySelector('div ui-view ng-component');
         expect(directiveEl).toBeDefined();
