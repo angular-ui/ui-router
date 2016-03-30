@@ -13,12 +13,13 @@ import {ResolveContext} from "../resolve/module";
 
 let REJECT = new RejectFactory();
 
-let defaultOptions = {
+let defaultOptions: TransitionHookOptions = {
   async: true,
   rejectIfSuperseded: true,
   current: noop,
   transition: null,
-  traceData: {}
+  traceData: {},
+  bind: null
 };
 
 export class TransitionHook {

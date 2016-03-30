@@ -64,7 +64,7 @@
     "jsdoc": "git://github.com/jsdoc3/jsdoc.git#v3.2.2",
     "karma": "~0.12.0",
     "karma-chrome-launcher": "~0.1.0",
-    "karma-jasmine": "~0.3.6",
+    "karma-jasmine": "^0.3.8",
     "karma-phantomjs-launcher": "~0.1.0",
     "karma-script-launcher": "~0.1.0",
     "karma-systemjs": "^0.7.2",

@@ -4,7 +4,7 @@ import {isString, isFunction} from "../common/predicates";
 import {val} from "../common/hof";
 import {Node} from "../path/node";
 
-import {IMatchCriteria, IStateMatch, IEventHook, IHookRegistry, IHookRegistration, TreeChanges, MatchCriterion, IMatchingNodes} from "./interface";
+import {HookRegOptions, HookMatchCriteria, IStateMatch, IEventHook, IHookRegistry, IHookRegistration, TreeChanges, HookMatchCriterion, IMatchingNodes} from "./interface";
 import {Glob} from "../common/glob";
 import {State} from "../state/stateObject";
 
@@ -18,7 +18,7 @@ import {State} from "../state/stateObject";
  * - If a function, matchState calls the function with the state and returns true if the function's result is truthy.
  * @returns {boolean}
  */
-export function matchState(state: State, criterion: MatchCriterion) {
+export function matchState(state: State, criterion: HookMatchCriterion) {
   let toMatch = isString(criterion) ? [criterion] : criterion;
 
   function matchGlobs(_state) {
@@ -40,16 +40,18 @@ export function matchState(state: State, criterion: MatchCriterion) {
 
 export class EventHook implements IEventHook {
   callback: IInjectable;
-  matchCriteria: IMatchCriteria;
+  matchCriteria: HookMatchCriteria;
   priority: number;
+  bind: any;
 
-  constructor(matchCriteria: IMatchCriteria, callback: IInjectable, options: { priority?: number } = <any>{}) {
+  constructor(matchCriteria: HookMatchCriteria, callback: IInjectable, options: HookRegOptions = <any>{}) {
     this.callback = callback;
     this.matchCriteria = extend({ to: true, from: true, exiting: true, retained: true, entering: true }, matchCriteria);
     this.priority = options.priority || 0;
+    this.bind = options.bind || null;
   }
 
-  private static _matchingNodes(nodes: Node[], criterion: MatchCriterion): Node[] {
+  private static _matchingNodes(nodes: Node[], criterion: HookMatchCriterion): Node[] {
     if (criterion === true) return nodes;
     let matching = nodes.filter(node => matchState(node.state, criterion));
     return matching.length ? matching : null;
@@ -59,7 +61,7 @@ export class EventHook implements IEventHook {
    * Determines if this hook's [[matchCriteria]] match the given [[TreeChanges]]
    *
    * @returns an IMatchingNodes object, or null. If an IMatchingNodes object is returned, its values
-   * are the matching [[Node]]s for each [[MatchCriterion]] (to, from, exiting, retained, entering)
+   * are the matching [[Node]]s for each [[HookMatchCriterion]] (to, from, exiting, retained, entering)
    */
   matches(treeChanges: TreeChanges): IMatchingNodes {
     let mc = this.matchCriteria, _matchingNodes = EventHook._matchingNodes;

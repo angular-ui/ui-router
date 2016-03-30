@@ -70,13 +70,13 @@ export function ng1ViewsBuilder(state: State) {
 }
 
 // for ng 1.2 style, process the scope: { input: "=foo" } object
-const scopeBindings = bindingsObj => Object.keys(bindingsObj)
+const scopeBindings = bindingsObj => Object.keys(bindingsObj || {})
       .map(key => [key, /^[=<](.*)/.exec(bindingsObj[key])])
       .filter(tuple => isDefined(tuple[1]))
       .map(tuple => tuple[1][1] || tuple[0]);
 
 // for ng 1.3+ bindToController or 1.5 component style, process a $$bindings object
-const bindToCtrlBindings = bindingsObj => Object.keys(bindingsObj)
+const bindToCtrlBindings = bindingsObj => Object.keys(bindingsObj || {})
       .filter(key => !!/[=<]/.exec(bindingsObj[key].mode))
       .map(key => bindingsObj[key].attrName);
 

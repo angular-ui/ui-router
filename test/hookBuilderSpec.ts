@@ -66,7 +66,7 @@ describe('HookBuilder:', function() {
   });
 
 
-  describe('MatchCriteria', function() {
+  describe('HookMatchCriteria', function() {
 
     describe('.to', function() {
       it("should match a transition with same to state", function() {

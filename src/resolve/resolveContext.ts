@@ -164,7 +164,7 @@ export class ResolveContext {
     let resolvables = this.getResolvablesForFn(fn);
     trace.tracePathElementInvoke(tail(this._path), fn, Object.keys(resolvables), extend({when: "Now  "}, options));
     let resolvedLocals = map(resolvables, prop("data"));
-    return services.$injector.invoke(<Function> fn, null, extend({}, locals, resolvedLocals));
+    return services.$injector.invoke(<Function> fn, options.bind || null, extend({}, locals, resolvedLocals));
   }
 }
 

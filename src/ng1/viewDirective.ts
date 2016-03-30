@@ -13,6 +13,7 @@ import {Transition} from "../transition/transition";
 import {Node} from "../path/node";
 import {Param} from "../params/param";
 import {kebobString} from "../common/strings";
+import {HookRegOptions} from "../transition/interface";
 
 export type UIViewData = {
   $cfg: Ng1ViewConfig;
@@ -384,6 +385,7 @@ function registerControllerCallbacks($transitions: TransitionService, controller
   // Call $onInit() ASAP
   if (isFunction(controllerInstance.$onInit)) controllerInstance.$onInit();
 
+  var hookOptions: HookRegOptions = { bind: controllerInstance };
   // Add component-level hook for onParamsChange
   if (isFunction(controllerInstance.uiOnParamsChanged)) {
     // Fire callback on any successful transition
@@ -412,18 +414,19 @@ function registerControllerCallbacks($transitions: TransitionService, controller
         controllerInstance.uiOnParamsChanged(filter(toParams, (val, key) => changedKeys.indexOf(key) !== -1), $transition$);
       }
     };
-    $scope.$on('$destroy', $transitions.onSuccess({}, ['$transition$', paramsUpdated]));
+    $scope.$on('$destroy', $transitions.onSuccess({}, ['$transition$', paramsUpdated]), hookOptions);
 
     // Fire callback on any IGNORED transition
     let onDynamic = ($error$, $transition$) => {
       if ($error$.type === RejectType.IGNORED) paramsUpdated($transition$);
     };
-    $scope.$on('$destroy', $transitions.onError({}, ['$error$', '$transition$', onDynamic]));
+    $scope.$on('$destroy', $transitions.onError({}, ['$error$', '$transition$', onDynamic]), hookOptions);
   }
 
   // Add component-level hook for uiCanExit
   if (isFunction(controllerInstance.uiCanExit)) {
-    $scope.$on('$destroy', $transitions.onBefore({exiting: cfg.node.state.name}, controllerInstance.uiCanExit.bind(controllerInstance)));
+    var criteria = {exiting: cfg.node.state.name};
+    $scope.$on('$destroy', $transitions.onBefore(criteria, controllerInstance.uiCanExit, hookOptions));
   }
 }
 

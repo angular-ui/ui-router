@@ -88,6 +88,7 @@ export interface TransitionHookOptions {
   hookType            ?: string;
   target              ?: any;
   traceData           ?: any;
+  bind                ?: any;
 }
 
 /**
@@ -151,7 +152,27 @@ export interface ITransitionService extends IHookRegistry {
 }
 
 export type IHookGetter = (hookName: string) => IEventHook[];
-export type IHookRegistration = (matchCriteria: IMatchCriteria, callback: IInjectable, options?) => Function;
+export type IHookRegistration = (matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions) => Function;
+
+/**
+ * These options may be provided when registering a Transition Hook (such as `onStart`)
+ */
+export interface HookRegOptions {
+  /**
+   * Sets the priority of the registered hook
+   *
+   * Hooks of the same type (onBefore, onStart, etc) are invoked in priority order.  A hook with a higher priority
+   * is invoked before a hook with a lower priority.
+   *
+   * The default hook priority is 0
+   */
+  priority?: number;
+
+  /**
+   * Specifies what `this` is bound to during hook invocation.
+   */
+  bind?: any;
+}
 
 /**
  * This interface specifies the api for registering Transition Hooks.  Both the
@@ -255,7 +276,7 @@ export interface IHookRegistry {
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onBefore(matchCriteria: IMatchCriteria, callback: IInjectable, options?): Function;
+  onBefore(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
 
   /**
    * Registers a callback function as an `onStart` Transition Hook.
@@ -325,7 +346,7 @@ export interface IHookRegistry {
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onStart(matchCriteria: IMatchCriteria, callback: IInjectable, options?): Function;
+  onStart(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
 
   /**
    * Registers a callback function as an `onEnter` Transition+State Hook.
@@ -394,7 +415,7 @@ export interface IHookRegistry {
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onEnter(matchCriteria: IMatchCriteria, callback: IInjectable, options?): Function;
+  onEnter(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
 
   /**
    * Registers a callback function as an `onRetain` Transition+State Hook.
@@ -432,7 +453,7 @@ export interface IHookRegistry {
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onRetain(matchCriteria: IMatchCriteria, callback: IInjectable, options?): Function;
+  onRetain(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
 
   /**
    * Registers a callback function as an `onExit` Transition+State Hook.
@@ -471,7 +492,7 @@ export interface IHookRegistry {
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onExit(matchCriteria: IMatchCriteria, callback: IInjectable, options?): Function;
+  onExit(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
 
   /**
    * Registers a callback function as an `onFinish` Transition Hook.
@@ -504,7 +525,7 @@ export interface IHookRegistry {
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onFinish(matchCriteria: IMatchCriteria, callback: IInjectable, options?): Function;
+  onFinish(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
 
   /**
    * Registers a callback function as an `onSuccess` Transition Hook.
@@ -531,7 +552,7 @@ export interface IHookRegistry {
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onSuccess(matchCriteria: IMatchCriteria, callback: IInjectable, options?): Function;
+  onSuccess(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
 
   /**
    * Registers a callback function as an `onError` Transition Hook.
@@ -557,7 +578,7 @@ export interface IHookRegistry {
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onError(matchCriteria: IMatchCriteria, callback: IInjectable, options?): Function;
+  onError(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
 
   /**
    * Returns all the registered hooks of a given `hookName` type
@@ -571,13 +592,14 @@ export interface IHookRegistry {
   getHooks(hookName: string): IEventHook[];
 }
 
+/** A predicate type which takes a [[State]] and returns a boolean */
 export type IStateMatch = Predicate<State>
 /**
  * This object is used to configure whether or not a Transition Hook is invoked for a particular transition,
  * based on the Transition's "to state" and "from state".
  *
  * Each property (`to`, `from`, `exiting`, `retained`, and `entering`) can be state globs, a function that takes a
- * state, or a boolean (see [[MatchCriterion]])
+ * state, or a boolean (see [[HookMatchCriterion]])
  *
  * All properties are optional.  If any property is omitted, it is replaced with the value `true`, and always matches.
  *
@@ -631,17 +653,17 @@ export type IStateMatch = Predicate<State>
  * }
  * ```
  */
-export interface IMatchCriteria {
-  /** A [[MatchCriterion]] to match the destination state */
-  to?: MatchCriterion;
-  /** A [[MatchCriterion]] to match the original (from) state */
-  from?: MatchCriterion;
-  /** A [[MatchCriterion]] to match any state that would be exiting */
-  exiting?: MatchCriterion;
-  /** A [[MatchCriterion]] to match any state that would be retained */
-  retained?: MatchCriterion;
-  /** A [[MatchCriterion]] to match any state that would be entering */
-  entering?: MatchCriterion;
+export interface HookMatchCriteria {
+  /** A [[HookMatchCriterion]] to match the destination state */
+  to?: HookMatchCriterion;
+  /** A [[HookMatchCriterion]] to match the original (from) state */
+  from?: HookMatchCriterion;
+  /** A [[HookMatchCriterion]] to match any state that would be exiting */
+  exiting?: HookMatchCriterion;
+  /** A [[HookMatchCriterion]] to match any state that would be retained */
+  retained?: HookMatchCriterion;
+  /** A [[HookMatchCriterion]] to match any state that would be entering */
+  entering?: HookMatchCriterion;
 }
 
 export interface IMatchingNodes {
@@ -658,10 +680,11 @@ export interface IMatchingNodes {
  * which should return a boolean to indicate if a state matches.
  * Or, `true` to match anything
  */
-export type MatchCriterion = (string|IStateMatch|boolean)
+export type HookMatchCriterion = (string|IStateMatch|boolean)
 
 export interface IEventHook {
   callback: IInjectable;
   priority: number;
+  bind: any;
   matches:  (treeChanges: TreeChanges) => IMatchingNodes;
 }

@@ -48,8 +48,8 @@ export class HookBuilder {
   getOnRetainHooks  = () => this._buildNodeHooks("onRetain",  "retained", tupleSort(), (node) => ({ $state$: node.state }));
   getOnEnterHooks   = () => this._buildNodeHooks("onEnter",   "entering", tupleSort(), (node) => ({ $state$: node.state }));
   getOnFinishHooks  = () => this._buildNodeHooks("onFinish",  "to",       tupleSort(), (node) => ({ $treeChanges$: this.treeChanges }));
-  getOnSuccessHooks = () => this._buildNodeHooks("onSuccess", "to",       tupleSort(), undefined, {async: false, rejectIfSuperseded: false});
-  getOnErrorHooks   = () => this._buildNodeHooks("onError",   "to",     tupleSort(), undefined, {async: false, rejectIfSuperseded: false});
+  getOnSuccessHooks = () => this._buildNodeHooks("onSuccess", "to",       tupleSort(), undefined, { async: false, rejectIfSuperseded: false });
+  getOnErrorHooks   = () => this._buildNodeHooks("onError",   "to",       tupleSort(), undefined, { async: false, rejectIfSuperseded: false });
 
   asyncHooks() {
     let onStartHooks    = this.getOnStartHooks();
@@ -79,7 +79,7 @@ export class HookBuilder {
                           matchingNodesProp: string,
                           sortHooksFn: (l: HookTuple, r: HookTuple) => number,
                           getLocals: (node: Node) => any = (node) => ({}),
-                          options: TransitionHookOptions = {}): TransitionHook[] {
+                          options?: TransitionHookOptions): TransitionHook[] {
 
     // Find all the matching registered hooks for a given hook type
     let matchingHooks = this._matchingHooks(hookType, this.treeChanges);
@@ -93,7 +93,7 @@ export class HookBuilder {
 
       // Return an array of HookTuples
       return nodes.map(node => {
-        let _options = extend({ traceData: { hookType, context: node} }, this.baseHookOptions, options);
+        let _options = extend({ bind: hook.bind, traceData: { hookType, context: node} }, this.baseHookOptions, options);
         let transitionHook = new TransitionHook(hook.callback, getLocals(node), node.resolveContext, _options);
         return <HookTuple> { hook, node, transitionHook };
       });
