@@ -9,4 +9,5 @@ import "./justjs";
 
 export * from "./ng2/providers";
 export * from "./ng2/directives";
+export * from "./ng2/uiRouterConfig";
 

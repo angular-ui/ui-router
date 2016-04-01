@@ -10,18 +10,29 @@ import {ViewService} from "../view/view";
 import {UiView} from "./uiView";
 import {ng2ViewsBuilder, Ng2ViewConfig} from "./viewsBuilder";
 import {Ng2ViewDeclaration} from "./interface";
+import {UIRouterConfig} from "./uiRouterConfig";
+
+let uiRouterFactory = (routerConfig: UIRouterConfig) => {
+  let router = new UIRouter();
+
+  router.viewService.viewConfigFactory("ng2", (node: Node, config: Ng2ViewDeclaration) => new Ng2ViewConfig(node, config));
+  router.stateRegistry.decorator('views', ng2ViewsBuilder);
+
+  router.stateRegistry.stateQueue.autoFlush(router.stateService);
+
+  routerConfig.configure(router);
+
+  if (!router.urlRouterProvider.interceptDeferred) {
+    router.urlRouter.listen();
+    router.urlRouter.sync();
+  }
+
+  return router;
+};
 
 export const UIROUTER_PROVIDERS: Provider[] = [
 
-  provide(UIRouter, { useFactory: () => {
-    let router = new UIRouter();
-
-    router.viewService.viewConfigFactory("ng2", (node: Node, config: Ng2ViewDeclaration) => new Ng2ViewConfig(node, config));
-    router.stateRegistry.decorator('views', ng2ViewsBuilder);
-    router.stateRegistry.stateQueue.autoFlush(router.stateService);
-
-    return router;
-  } }),
+  provide(UIRouter, { useFactory: uiRouterFactory, deps: [UIRouterConfig] }),
 
   provide(StateService, { useFactory: (r: UIRouter) => { return r.stateService; }, deps: [UIRouter]}),
 

@@ -76,9 +76,12 @@ function update(rules: Function[], otherwiseFn: Function, evt?: any) {
  * in your module config.
  */
 export class UrlRouterProvider {
+  /** @hidden */
   rules = [];
+  /** @hidden */
   otherwiseFn: Function = null;
-  private interceptDeferred = false;
+  /** @hidden */
+  interceptDeferred = false;
 
   constructor(private $urlMatcherFactory: UrlMatcherFactory, private $stateParams: StateParams) {
 
