@@ -34,6 +34,7 @@ export class ViewService {
 
   createViewConfig(node: Node, decl: _ViewDeclaration): ViewConfig {
     let cfgFactory = this._viewConfigFactories[decl.$type];
+    if (!cfgFactory) throw new Error("ViewService: No view config factory registered for type " + decl.$type);
     return cfgFactory(node, decl);
   }
   

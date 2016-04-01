@@ -6,6 +6,7 @@ export * from "./hooks/transitionManager";
 export * from "./stateObject";
 export * from "./stateMatcher";
 export * from "./stateQueueManager";
+export * from "./stateRegistry";
 export * from "./stateService";
 export * from "./targetState";
 

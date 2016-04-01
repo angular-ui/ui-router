@@ -41,7 +41,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "angular2": "^2.0.0-beta.1",
+    "angular2": "^2.0.0-beta.12",
     "babel-core": "^5.8.14",
     "conventional-changelog": "^1.1.0",
     "conventional-changelog-cli": "^1.1.1",

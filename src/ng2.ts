@@ -5,10 +5,8 @@
 /** for typedoc */
 
 export * from "./core";
-
 import "./justjs";
 
-export * from "./ng2/uiView";
-export * from "./ng2/uiSref";
-export * from "./ng2/uiSrefActive";
+export * from "./ng2/providers";
+export * from "./ng2/directives";
 
