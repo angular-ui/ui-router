@@ -63,7 +63,7 @@ export class UIRouterGlobals {
 
       const clearCurrentTransition = () => { if (this.transition === $transition$) this.transition = null; };
 
-      $transition$.promise.finally(clearCurrentTransition)
+      $transition$.promise.then(clearCurrentTransition, clearCurrentTransition);
 
     };
 

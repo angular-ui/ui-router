@@ -1,52 +1,20 @@
-/** @module ng2 */ /** */
-import {UIRouter} from "../router";
-import {Directive} from "angular2/core";
-import {UiSref} from "./uiSref";
 
-@Directive({
-  selector: '[uiSrefClass]',
-  inputs: ['uiSrefClass']
-})
-export class UiSrefClass {
-  // current statuses of the bound uiSref directive
-  active = false;
-  exact = false;
-  entering = false;
-  exiting = false;
-  inactive = true;
+import {Directive, Input, ElementRef, Host, Renderer} from "angular2/core";
+import {UiSrefStatus, SrefStatus} from "./uiSrefStatus";
 
-  patterns: any;
-  classes: string;
-  sref: UiSref;
+@Directive({ selector: '[uiSrefActive],[uiSrefActiveEq]' })
+export class UiSrefActive {
+  private _classes: string[] = [];
+  @Input('uiSrefActive') set active(val) { this._classes = val.split("\s+")};
 
-  //constructor($transitions: TransitionService, public router: UIRouter) {
-  constructor(public router: UIRouter) {
-    this.ngOnDestroy = <any> router.transitionService.onSuccess({}, this._update.bind(this));
-  }
+  private _classesEq: string[] = [];
+  @Input('uiSrefActiveEq') set activeEq(val) { this._classesEq = val.split("\s+")};
 
-  ngOnDestroy() {}
-
-  /**
-   * e.g.
-   *  {
-   *    active: 'active && !exiting',
-   *    loading: 'entering',
-   *    active: matches('admin.*')
-   *  }
-   */
-  set uiSrefClass(val) {
-    console.log(val); // [uiSrefClass]="{active: isActive}" logs as "{active: undefined}"
-    this.patterns = val;
-  }
-
-  public provideUiSref(sref: UiSref) {
-    this.sref = sref;
-    this._update();
-  }
-
-  private _update() {
-    if (!this.sref) return;
-    // update classes
+  constructor(uiSrefStatus: UiSrefStatus, rnd: Renderer, @Host() host: ElementRef) {
+    uiSrefStatus.uiSrefStatus.subscribe((next: SrefStatus) => {
+      this._classes.forEach(cls => rnd.setElementClass(host.nativeElement, cls, next.active));
+      this._classesEq.forEach(cls => rnd.setElementClass(host.nativeElement, cls, next.exact));
+    });
   }
 }
 

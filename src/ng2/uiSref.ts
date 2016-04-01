@@ -29,7 +29,6 @@ export class UiSref {
       @Optional() private _anchorUiSref: AnchorUiSref
   ) { }
 
-  set "ui-sref"(val) { this.state = val; this.update(); }
   set "uiSref"(val) { this.state = val; this.update(); }
   set "uiParams"(val) { this.params = val; this.update(); }
   set "uiOptions"(val) { this.options = val; this.update(); }
@@ -42,7 +41,6 @@ export class UiSref {
     if (this._anchorUiSref) {
       this._anchorUiSref.update(this._router.stateService.href(this.state, this.params));
     }
-    // TODO: process ui-sref-active
   }
 
   go() {

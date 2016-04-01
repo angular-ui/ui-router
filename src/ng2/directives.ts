@@ -1,9 +1,11 @@
-
 import {UiSref} from "../ng2/uiSref";
-import {UiSrefClass} from "../ng2/uiSrefActive";
+import {UiSrefActive} from "../ng2/uiSrefActive";
 import {UiView} from "../ng2/uiView";
-export * from "./uiSref";
-export * from "./uiSrefActive";
-export * from "./uiView";
+import {UiSrefStatus} from "./uiSrefStatus";
 
-export let UIROUTER_DIRECTIVES = [UiSref, UiSrefClass, UiView];
+export * from "./uiView";
+export * from "./uiSref";
+export * from "./uiSrefStatus";
+export * from "./uiSrefActive";
+
+export let UIROUTER_DIRECTIVES = [UiSref, UiView, UiSrefActive, UiSrefStatus];

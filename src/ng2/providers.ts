@@ -11,6 +11,7 @@ import {UiView} from "./uiView";
 import {ng2ViewsBuilder, Ng2ViewConfig} from "./viewsBuilder";
 import {Ng2ViewDeclaration} from "./interface";
 import {UIRouterConfig} from "./uiRouterConfig";
+import {UIRouterGlobals} from "../globals";
 
 let uiRouterFactory = (routerConfig: UIRouterConfig) => {
   let router = new UIRouter();
@@ -45,6 +46,8 @@ export const UIROUTER_PROVIDERS: Provider[] = [
   provide(ViewService, { useFactory: (r: UIRouter) => { return r.viewService; }, deps: [UIRouter]}),
 
   provide(StateRegistry, { useFactory: (r: UIRouter) => { return r.stateRegistry; }, deps: [UIRouter]}),
+
+  provide(UIRouterGlobals, { useFactory: (r: UIRouter) => { return r.globals; }, deps: [UIRouter]}),
 
   provide(UiView.INJECT.context, { useFactory: (r: StateRegistry) => { console.log(r); return r.root(); }, deps: [StateRegistry]} ),
 

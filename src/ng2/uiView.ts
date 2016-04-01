@@ -30,16 +30,17 @@ const getProviders = (injector) => {
       color: grey;
     }`
   ],
-  template: `
-  <div style="padding: 1em; border: 1px solid lightgrey;">
-
-    <div #content style="color: lightgrey; font-size: smaller;">
-      <div>ui-view #{{uiViewData.id}} created by '{{ parentContext.name || "(root)" }}' state</div>
-      <div>name: (absolute) '{{uiViewData.fqn}}' (contextual) '{{uiViewData.name}}@{{parentContext.name}}' </div>
-      <div>currently filled by: '{{(uiViewData.config && uiViewData.config.context) || 'empty...'}}'</div>
-    </div>
-
-  </div>`
+  template: `<div #content></div>`,
+  // debugtemplate: `
+  // <div style="padding: 1em; border: 1px solid lightgrey;">
+  //
+  //   <div #content style="color: lightgrey; font-size: smaller;">
+  //     <div>ui-view #{{uiViewData.id}} created by '{{ parentContext.name || "(root)" }}' state</div>
+  //     <div>name: (absolute) '{{uiViewData.fqn}}' (contextual) '{{uiViewData.name}}@{{parentContext.name}}' </div>
+  //     <div>currently filled by: '{{(uiViewData.config && uiViewData.config.context) || 'empty...'}}'</div>
+  //   </div>
+  //
+  // </div>`
 })
 export class UiView {
   @Input() name: string;
