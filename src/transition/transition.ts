@@ -32,6 +32,7 @@ const stateSelf: (_state: State) => StateDeclaration = prop("self");
  */
 export class Transition implements IHookRegistry {
   $id: number;
+  success: boolean;
 
   private _deferred = services.$q.defer();
   /**
@@ -139,7 +140,7 @@ export class Transition implements IHookRegistry {
   }
 
   $from() {
-    return  tail(this._treeChanges.from).state;
+    return tail(this._treeChanges.from).state;
   }
 
   $to() {
@@ -395,11 +396,13 @@ export class Transition implements IHookRegistry {
 
     // When the chain is complete, then resolve or reject the deferred
     const resolve = () => {
+      this.success = true;
       this._deferred.resolve(this);
       trace.traceSuccess(this.$to(), this);
     };
 
     const reject = (error) => {
+      this.success = false;
       this._deferred.reject(error);
       trace.traceError(error, this);
       return services.$q.reject(error);

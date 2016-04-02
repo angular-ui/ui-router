@@ -2,12 +2,12 @@
 import {UrlMatcherFactory} from "./url/urlMatcherFactory";
 import {UrlRouterProvider} from "./url/urlRouter";
 import {StateProvider} from "./state/state";
-import {stateParamsFactory, StateParams} from "./params/stateParams";
 import {UrlRouter} from "./url/urlRouter";
 import {TransitionService} from "./transition/transitionService";
 import {ViewService} from "./view/view";
 import {StateRegistry} from "./state/stateRegistry";
 import {StateService} from "./state/stateService";
+import {UIRouterGlobals} from "./globals";
 
 /**
  * The master class used to instantiate an instance of UI-Router.
@@ -19,27 +19,29 @@ import {StateService} from "./state/stateService";
  * the URL by calling `urlRouter.listen()` ([[URLRouter.listen]])
  */
 export class UIRouter {
-
-  stateParams: StateParams = stateParamsFactory();
-
-  urlMatcherFactory: UrlMatcherFactory = new UrlMatcherFactory();
-
-  urlRouterProvider: UrlRouterProvider = new UrlRouterProvider(this.urlMatcherFactory, this.stateParams);
-
-  urlRouter: UrlRouter = new UrlRouter(this.urlRouterProvider);
-
   viewService = new ViewService();
 
   transitionService: TransitionService = new TransitionService(this.viewService);
 
+  globals: UIRouterGlobals = new UIRouterGlobals(this.transitionService);
+
+  urlMatcherFactory: UrlMatcherFactory = new UrlMatcherFactory();
+
+  urlRouterProvider: UrlRouterProvider = new UrlRouterProvider(this.urlMatcherFactory, this.globals.params);
+
+  urlRouter: UrlRouter = new UrlRouter(this.urlRouterProvider);
+
   stateRegistry: StateRegistry = new StateRegistry(this.urlMatcherFactory, this.urlRouterProvider);
 
-  // TODO: move this to ng1.ts
+  /** @hidden TODO: move this to ng1.ts */
   stateProvider = new StateProvider(this.stateRegistry);
 
-  stateService = new StateService(this.viewService, this.stateParams, this.urlRouter, this.transitionService, this.stateRegistry, this.stateProvider);
+  stateService = new StateService(this.viewService, this.urlRouter, this.transitionService, this.stateRegistry, this.stateProvider, this.globals);
 
   constructor() {
     this.viewService.rootContext(this.stateRegistry.root());
+    this.globals.$current = this.stateRegistry.root();
+    this.globals.current = this.globals.$current.self;
   }
 }
+

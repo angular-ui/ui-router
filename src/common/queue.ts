@@ -1,10 +1,12 @@
 /** @module common */ /** for typedoc */
 
 export class Queue<T> {
-  constructor(private _items: T[] = []) { }
+  constructor(private _items: T[] = [], private _limit: number = null) { }
 
   enqueue(item: T) {
-    this._items.push(item);
+    let items = this._items;
+    items.push(item);
+    if (this._limit && items.length > this._limit) items.shift();
     return item;
   }
 

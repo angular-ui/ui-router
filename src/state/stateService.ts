@@ -13,7 +13,7 @@ import {StateParams} from "../params/stateParams";
 
 import {UrlRouter} from "../url/urlRouter";
 
-import {TransitionOptions, TreeChanges} from "../transition/interface";
+import {TransitionOptions} from "../transition/interface";
 import {TransitionService, defaultTransOpts} from "../transition/transitionService";
 import {RejectFactory} from "../transition/rejectFactory";
 import {Transition} from "../transition/transition";
@@ -32,43 +32,37 @@ import {equalForKeys} from "../common/common";
 import {HrefOptions} from "./interface";
 import {StateProvider} from "./state";
 import {bindFunctions} from "../common/common";
+import {UIRouterGlobals} from "../globals";
 
 export class StateService {
-  private transQueue = new Queue<Transition>();
-  private treeChangesQueue = new Queue<TreeChanges>();
+  get transition()  { return this.globals.transition; }
+  get params()      { return this.globals.params; }
+  get current()     { return this.globals.current; }
+  get $current()    { return this.globals.$current; }
+
   private rejectFactory = new RejectFactory();
-  public params = new StateParams();
-  public current: StateDeclaration;
-  public $current: State;
-  public transition: Transition;
 
   constructor(private $view: ViewService,
-              private $stateParams: StateParams,
               private $urlRouter: UrlRouter,
               private $transitions: TransitionService,
               private stateRegistry: StateRegistry,
-              private stateProvider: StateProvider) {
-    bindFunctions(StateService.prototype, this, this);
-
-    let root = stateRegistry.root();
-    extend(this, {
-      params: new StateParams(),
-      current: root.self,
-      $current: root,
-      transition: null
-    });
+              private stateProvider: StateProvider,
+              private globals: UIRouterGlobals) {
+    let getters = ['current', '$current', 'params', 'transition'];
+    let boundFns = Object.keys(StateService.prototype).filter(key => getters.indexOf(key) === -1);
+    bindFunctions(StateService.prototype, this, this, boundFns);
   }
 
   /**
    * Invokes the onInvalid callbacks, in natural order.  Each callback's return value is checked in sequence
-   * until one of them returns an instance of ITargetState.   The results of the callbacks are wrapped
+   * until one of them returns an instance of TargetState.   The results of the callbacks are wrapped
    * in $q.when(), so the callbacks may return promises.
    *
-   * If a callback returns an ITargetState, then it is used as arguments to $state.transitionTo() and
+   * If a callback returns an TargetState, then it is used as arguments to $state.transitionTo() and
    * the result returned.
    */
   private _handleInvalidTargetState(fromPath: Node[], $to$: TargetState) {
-    const latestThing = () => this.transQueue.peekTail() || this.treeChangesQueue.peekTail();
+    const latestThing = () => this.globals.transitionHistory.peekTail();
     let latest = latestThing();
     let $from$ = PathFactory.makeTargetState(fromPath);
     let callbackQueue = new Queue<Function>([].concat(this.stateProvider.invalidCallbacks));
@@ -146,7 +140,7 @@ export class StateService {
    * {@link ui.router.state.$state#methods_go $state.go}.
    */
   reload(reloadState: StateOrName): Promise<State> {
-    return this.transitionTo(this.current, this.$stateParams, {
+    return this.transitionTo(this.current, this.params, {
       reload: isDefined(reloadState) ? reloadState : true,
       inherit: false,
       notify: false
@@ -278,14 +272,14 @@ export class StateService {
    * {@link ui.router.state.$state#methods_go $state.go}.
    */
   transitionTo(to: StateOrName, toParams: RawParams = {}, options: TransitionOptions = {}): Promise<State> {
-    let {transQueue, treeChangesQueue} = this;
+    let transHistory = this.globals.transitionHistory;
     options = defaults(options, defaultTransOpts);
-    options = extend(options, { current: transQueue.peekTail.bind(transQueue)});
+    options = extend(options, { current: transHistory.peekTail.bind(transHistory)});
 
     let ref: TargetState = this.target(to, toParams, options);
-    let latestTreeChanges: TreeChanges = treeChangesQueue.peekTail();
+    let latestSuccess: Transition = this.globals.successfulTransitions.peekTail();
     const rootPath = () => PathFactory.bindTransNodesToPath([new Node(this.stateRegistry.root())]);
-    let currentPath: Node[] = latestTreeChanges ? latestTreeChanges.to : rootPath();
+    let currentPath: Node[] = latestSuccess ? latestSuccess.treeChanges().to : rootPath();
 
     if (!ref.exists())
       return this._handleInvalidTargetState(currentPath, ref);
@@ -293,7 +287,7 @@ export class StateService {
       return services.$q.reject(ref.error());
 
     let transition = this.$transitions.create(currentPath, ref);
-    let tMgr = new TransitionManager(transition, this.$transitions, this.$urlRouter, this.$view, <StateService> this, this.$stateParams, services.$q, transQueue, treeChangesQueue);
+    let tMgr = new TransitionManager(transition, this.$transitions, this.$urlRouter, this.$view, <StateService> this, this.globals);
     let transitionPromise = tMgr.runTransition();
     // Return a promise for the transition, which also has the transition object on it.
     return extend(transitionPromise, { transition });
@@ -338,7 +332,7 @@ export class StateService {
     let state = this.stateRegistry.matcher.find(stateOrName, options.relative);
     if (!isDefined(state)) return undefined;
     if (this.$current !== state) return false;
-    return isDefined(params) && params !== null ? Param.equals(state.parameters(), this.$stateParams, params) : true;
+    return isDefined(params) && params !== null ? Param.equals(state.parameters(), this.params, params) : true;
   };
 
   /**
@@ -405,7 +399,7 @@ export class StateService {
     if (!isDefined(state)) return undefined;
     if (!isDefined(include[state.name])) return false;
     // @TODO Replace with Param.equals() ?
-    return params ? equalForKeys(Param.values(state.parameters(), params), this.$stateParams, Object.keys(params)) : true;
+    return params ? equalForKeys(Param.values(state.parameters(), params), this.params, Object.keys(params)) : true;
   };
 
 
@@ -448,7 +442,7 @@ export class StateService {
     let state = this.stateRegistry.matcher.find(stateOrName, options.relative);
 
     if (!isDefined(state)) return null;
-    if (options.inherit) params = <any> this.$stateParams.$inherit(params || {}, this.$current, state);
+    if (options.inherit) params = <any> this.params.$inherit(params || {}, this.$current, state);
 
     let nav = (state && options.lossy) ? state.navigable : state;
 

@@ -1,7 +1,5 @@
 /** @module state */ /** for typedoc */
-import {copy} from "../../common/common";
 import {prop} from "../../common/hof";
-import {Queue} from "../../common/queue";
 import {Param} from "../../params/param";
 
 import {TreeChanges} from "../../transition/interface";
@@ -15,6 +13,8 @@ import {ViewHooks} from "./viewHooks";
 import {EnterExitHooks} from "./enterExitHooks";
 import {ResolveHooks} from "./resolveHooks";
 import {UrlRouter} from "../../url/urlRouter";
+import {services} from "../../common/coreservices";
+import {UIRouterGlobals} from "../../globals";
 
 /**
  * This class:
@@ -38,6 +38,7 @@ export class TransitionManager {
   private enterExitHooks: EnterExitHooks;
   private viewHooks: ViewHooks;
   private resolveHooks: ResolveHooks;
+  private $q;
 
   constructor(
       private transition: Transition,
@@ -45,11 +46,9 @@ export class TransitionManager {
       private $urlRouter: UrlRouter,
       private $view, // service
       private $state: StateService,
-      private $stateParams, // service/obj
-      private $q, // TODO: get from runtime.$q
-      private activeTransQ: Queue<Transition>,
-      private changeHistory: Queue<TreeChanges>
+      private globals: UIRouterGlobals
   ) {
+    this.$q = services.$q;
     this.viewHooks = new ViewHooks(transition, $view);
     this.enterExitHooks = new EnterExitHooks(transition);
     this.resolveHooks = new ResolveHooks(transition);
@@ -63,45 +62,26 @@ export class TransitionManager {
   }
 
   runTransition(): Promise<any> {
-    this.activeTransQ.clear();  // TODO: nuke this
-    this.activeTransQ.enqueue(this.transition);
-    this.$state.transition = this.transition;
-    let promise = this.transition.run()
+    this.globals.transitionHistory.enqueue(this.transition);
+    return this.transition.run()
         .then((trans: Transition) => trans.to()) // resolve to the final state (TODO: good? bad?)
         .catch(error => this.transRejected(error)); // if rejected, handle dynamic and redirect
-
-    let always = () => {
-      this.activeTransQ.remove(this.transition);
-      if (this.$state.transition === this.transition) this.transition = null;
-    };
-
-    promise.then(always, always);
-
-    return promise;
   }
 
   registerUpdateGlobalState() {
-    this.transition.onFinish({}, this.updateGlobalState.bind(this), {priority: -10000});
-  }
-
-  updateGlobalState() {
-    let {treeChanges, transition, $state, changeHistory} = this;
-    // Update globals in $state
-    $state.$current = transition.$to();
-    $state.current = $state.$current.self;
-    changeHistory.enqueue(treeChanges);
-    this.updateStateParams();
+    // After globals.current is updated at priority: 10000
+    this.transition.onSuccess({}, this.updateUrl.bind(this), {priority: 9999});
   }
 
   transRejected(error): (StateDeclaration|Promise<any>) {
-    let {transition, $state, $stateParams, $q} = this;
+    let {transition, $state, $q} = this;
     // Handle redirect and abort
     if (error instanceof TransitionRejection) {
       if (error.type === RejectType.IGNORED) {
         // Update $stateParmas/$state.params/$location.url if transition ignored, but dynamic params have changed.
         let dynamic = $state.$current.parameters().filter(prop('dynamic'));
-        if (!Param.equals(dynamic, $stateParams, transition.params())) {
-          this.updateStateParams();
+        if (!Param.equals(dynamic, $state.params, transition.params())) {
+          this.updateUrl();
         }
         return $state.current;
       }
@@ -120,22 +100,20 @@ export class TransitionManager {
     return $q.reject(error);
   }
 
-  updateStateParams() {
+  updateUrl() {
     let transition = this.transition;
-    let {$urlRouter, $state, $stateParams} = this;
+    let {$urlRouter, $state} = this;
     let options = transition.options();
-    copy(transition.params(), $state.params);
-    copy($state.params, $stateParams);
+    var toState = transition.$to();
 
     if (options.location && $state.$current.navigable) {
-      $urlRouter.push($state.$current.navigable.url, $stateParams, { replace: options.location === 'replace' });
+      $urlRouter.push($state.$current.navigable.url, $state.params, { replace: options.location === 'replace' });
     }
-
     $urlRouter.update(true);
   }
 
   private _redirectMgr(redirect: Transition): TransitionManager {
-    let {$transitions, $urlRouter, $view, $state, $stateParams, $q, activeTransQ, changeHistory} = this;
-    return new TransitionManager(redirect, $transitions, $urlRouter, $view, $state, $stateParams, $q, activeTransQ, changeHistory);
+    let {$transitions, $urlRouter, $view, $state, globals} = this;
+    return new TransitionManager(redirect, $transitions, $urlRouter, $view, $state, globals);
   }
 }

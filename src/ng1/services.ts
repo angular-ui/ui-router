@@ -226,8 +226,8 @@ const resolveFactory = () => ({
   }
 });
 
-function $stateParamsFactory(ng1UIRouter, $rootScope) {
-  return router.stateParams;
+function $stateParamsFactory(ng1UIRouter) {
+  return ng1UIRouter.globals.params;
 }
 
 // The 'ui.router' ng1 module depends on 'ui.router.init' module.
@@ -265,7 +265,8 @@ angular.module('ui.router.state').provider('$state', ['ng1UIRouterProvider', get
 angular.module('ui.router.state').run(['$state', function($state) { }]);
 
 // $stateParams service
-angular.module('ui.router.state').factory('$stateParams', ['ng1UIRouter', '$rootScope', $stateParamsFactory]);
+angular.module('ui.router.state').factory('$stateParams', ['ng1UIRouter', (ng1UIRouter) =>
+    ng1UIRouter.globals.params]);
 
 // $transitions service and $transitionsProvider
 function getTransitionsProvider() {

@@ -32,6 +32,3 @@ export class StateParams {
   };
 }
 
-export function stateParamsFactory() {
-  return new StateParams();
-}
