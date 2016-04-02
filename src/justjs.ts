@@ -6,7 +6,7 @@
 export * from "./core";
 import {services} from "./common/coreservices";
 import {isDefined, isFunction, isArray, isObject, isInjectable} from "./common/predicates";
-import {extend, assertPredicate, forEach} from "./common/common";
+import {extend, assertPredicate, forEach, applyPairs} from "./common/common";
 
 /** $q-like promise api */
 services.$q = (executor: (resolve, reject) => void) => new Promise(executor);
@@ -26,22 +26,24 @@ services.$q.all = function (promises: { [key: string]: Promise<any> } | Promise<
   if (isArray(promises)) {
     return new Promise((resolve, reject) => {
       let results = [];
-      promises.reduce((memo, promise) => {
-        if (!isDefined(memo)) return promise;
-        return memo.then(val => results.push(val)).then(() => promise);
-      }).then(() => resolve(results), reject);
+      promises.reduce((wait4, promise) => wait4.then(() => promise.then(val => results.push(val))), services.$q.when())
+          .then(() => { resolve(results); }, reject);
     });
   }
 
   if (isObject(promises)) {
-    let results = {};
-    return new Promise((resolve, reject) => {
-      let chain = services.$q.when();
-      forEach(promises, (promise: Promise<any>, key: string) => {
-        promise.then(val => results[key] = val);
-        chain = chain.then(() => promise);
-      });
-      chain.then(resolve, reject);
+    // console.log("$q.all({}) Input:", promises);
+
+    // Convert promises map to promises array.
+    // When each promise resolves, map it to a tuple { key: key, val: val }
+    let chain = Object.keys(promises)
+        .map(key => promises[key].then(val => ({key, val})));
+    // Then wait for all promises to resolve, and convert them back to an object
+    return services.$q.all(chain).then(values => {
+      let value = values.reduce((acc, tuple) => { acc[tuple.key] = tuple.val; return acc; }, {});
+
+      // console.log("$q.all({}) Output:", value);
+      return value;
     });
   }
 };
