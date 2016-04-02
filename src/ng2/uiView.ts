@@ -67,7 +67,6 @@ export class UiView {
   ngOnInit() {
     let parentFqn = this.parentFqn;
     let name = this.name || '$default';
-    console.log(`parentFqn: ${parentFqn}`);
 
     this.uiViewData = {
       id: id++,
