@@ -44,6 +44,9 @@ describe('HookBuilder:', function() {
 
   let trans, trans2, hb, hb2, callback;
   beforeEach(function() {
+    // Clean out the default UiRouter onBefore hooks
+    uiRouter.transitionService.getHooks("onBefore").length = 0;
+
     // Transition from 'A' to 'A.B.C'
     let A = $state.target('A', null).$state();
     let path = [new Node(root), new Node(A)];
