@@ -1,4 +1,4 @@
-/** @module ng2 */ /** */
+/** @module ng2_directives */ /** */
 import {Component, ElementRef, DynamicComponentLoader} from 'angular2/core';
 import {Injector} from "angular2/core";
 import {provide} from "angular2/core";
@@ -12,6 +12,7 @@ import {Inject} from "angular2/core";
 import {ViewContext, ViewConfig} from "../view/interface";
 import {Ng2ViewDeclaration} from "./interface";
 
+/** @hidden */
 let id = 0;
 
 const getProviders = (injector) => {
@@ -22,6 +23,54 @@ const getProviders = (injector) => {
   return providers;
 };
 
+/**
+ * A UI-Router viewport directive, which is filled in by a view (component) on a state.
+ *
+ * ### Selector
+ *
+ * A `ui-view` directive can be created as an element: `<ui-view></ui-view>` or as an attribute: `<div ui-view></div>`.
+ *
+ * ### Purpose
+ *
+ * This directive is used in a Component template (or as the root component) to create a viewport.  The viewport
+ * is filled in by a view (as defined by a [[Ng2ViewDeclaration]] inside a [[Ng2StateDeclaration]]) when the view's
+ * state has been activated.
+ *
+ * @example
+ * ```js
+ *
+ * // This app has two states, 'foo' and 'bar'
+ * stateRegistry.register({ name: 'foo', url: '/foo', component: FooComponent });
+ * stateRegistry.register({ name: 'bar', url: '/bar', component: BarComponent });
+ * ```
+ * ```html
+ * <!-- This ui-view will be filled in by the foo state's component or
+ *      the bar state's component when the foo or bar state is activated -->
+ * <ui-view></ui-view>
+ * ```
+ *
+ * ### Named ui-views
+ *
+ * A `ui-view` may optionally be given a name via the attribute value: `<div ui-view='header'></div>`.  *Note:
+ * an unnamed `ui-view` is internally named `$default`*.   When a `ui-view` has a name, it will be filled in
+ * by a matching named view.
+ *
+ * @example
+ * ```js
+ *
+ * stateRegistry.register({
+ *   name: 'foo',
+ *   url: '/foo',
+ *   views: { header: HeaderComponent, $default: FooComponent });
+ * ```
+ * ```html
+ * <!-- When 'foo' state is active, filled by HeaderComponent -->
+ * <div ui-view="header"></div>
+ *
+ * <!-- When 'foo' state is active, filled by FooComponent -->
+ * <ui-view></ui-view>
+ * ```
+ */
 @Component({
   selector: 'ui-view, [ui-view]',
   styles: [`

@@ -1,4 +1,4 @@
-/** @module core */ /** */
+/** @module common */ /** */
 
 export * from "./common/module";
 export * from "./params/module";

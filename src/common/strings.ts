@@ -1,4 +1,4 @@
-/** @module common */ /** */
+/** @module common_strings */ /** */
 
 import {isString, isArray, isDefined, isNull, isPromise, isInjectable, isObject} from "./predicates";
 import {TransitionRejection} from "../transition/rejectFactory";

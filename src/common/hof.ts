@@ -1,7 +1,7 @@
 /**
  * Higher order functions
  *
- * @module common
+ * @module common_hof
  */
 
 /**

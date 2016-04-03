@@ -14,10 +14,8 @@
  * angular.module("myApplication", ['ui.router', 'ui.router.state.events']
  * ```
  *
- * @module ng1/state_events
- */
-
-/** for typedoc */
+ * @module ng1_state_events
+ */ /** */
 import {IServiceProviderFactory} from "angular";
 import {TargetState, StateService, StateProvider} from "../state/module";
 import {Transition} from "../transition/transition";

@@ -26,6 +26,49 @@ import {Transition} from "../transition/transition";
  *   }
  * }
  * ```
+ *
+ * Since this interface extends [[Ng1ViewDeclaration]], any view declaration properties can be set directly
+ * on the state declaration and they will be applied to the view with the name `$default`.  For example:
+ *
+ * ```js
+ * var state = {
+ *   name: 'foo',
+ *   url: '/foo',
+ *   template: '<h1>foo</h1>',
+ *   controller: 'FooController'
+ * }
+ * ```
+ *
+ * is simply syntactic sugar for:
+ *
+ * ```js
+ * var state = {
+ *   name: 'foo',
+ *   url: '/foo',
+ *   views: {
+ *     $default: {
+ *       template: '<h1>foo</h1>',
+ *       controller: 'FooController
+ *     }
+ *   }
+ * }
+ * ```
+ *
+ * If a state definition contains a `views:` object, any view properties set directly on the state are ignored.
+ * Thus, this is an invalid state defintion:
+ *
+ * ```js
+ * var state = {
+ *   name: 'foo',
+ *   url: '/foo',
+ *   controller: 'FooController, // invalid because views: exists
+ *   views: {
+ *     header: {
+ *       template: '<h1>header</h1>'
+ *     }
+ *   }
+ * }
+ * ```
  */
 export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaration {
   /**

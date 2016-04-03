@@ -1,4 +1,4 @@
-/** @module view */ /** for typedoc */
+/** @module ng1_directives */ /** for typedoc */
 "use strict";
 import {extend, map, unnestR, filter} from "../common/common";
 import {isDefined, isFunction} from "../common/predicates";
@@ -16,6 +16,7 @@ import {kebobString} from "../common/strings";
 import {HookRegOptions} from "../transition/interface";
 import {Ng1Controller} from "./interface";
 
+/** @hidden */
 export type UIViewData = {
   $cfg: Ng1ViewConfig;
   $uiView: ActiveUIView;
@@ -26,20 +27,7 @@ export type UIViewData = {
 }
 
 /**
- * @ngdoc directive
- * @name ui.router.state.directive:ui-view
- *
- * @requires ui.router.state.$view
- * @requires $compile
- * @requires $interpolate
- * @requires $controller
- * @requires $animate
- * @requires ui.router.state.$uiViewScroll
- *
- * @restrict ECA
- *
- * @description
- * The ui-view directive tells $state where to place your templates.
+ * `ui-view`: A viewport directive which is filled in by a view from the active state.
  *
  * @param {string=} name A view name. The name should be unique amongst the other views in the
  * same state. You can have views of the same name that live in different states.
@@ -54,28 +42,31 @@ export type UIViewData = {
  *
  * @param {string=} onload Expression to evaluate whenever the view updates.
  *
- * @example
  * A view can be unnamed or named.
- * <pre>
+ * @example
+ * ```html
+ *
  * <!-- Unnamed -->
  * <div ui-view></div>
  *
  * <!-- Named -->
  * <div ui-view="viewName"></div>
- * </pre>
+ * ```
  *
  * You can only have one unnamed view within any template (or root html). If you are only using a
  * single view and it is unnamed then you can populate it like so:
- * <pre>
+ * ```
+ *
  * <div ui-view></div>
  * $stateProvider.state("home", {
  *   template: "<h1>HELLO!</h1>"
  * })
- * </pre>
+ * ```
  *
  * The above is a convenient shortcut equivalent to specifying your view explicitly with the {@link ui.router.state.$stateProvider#views `views`}
  * config property, by name, in this case an empty name:
- * <pre>
+ * ```js
+ *
  * $stateProvider.state("home", {
  *   views: {
  *     "": {
@@ -83,15 +74,19 @@ export type UIViewData = {
  *     }
  *   }
  * })
- * </pre>
+ * ```
  *
  * But typically you'll only use the views property if you name your view or have more than one view
  * in the same template. There's not really a compelling reason to name a view if its the only one,
  * but you could if you wanted, like so:
- * <pre>
+ *
+ * ```html
+ *
  * <div ui-view="main"></div>
- * </pre>
- * <pre>
+ * ```
+ *
+ * ```js
+ *
  * $stateProvider.state("home", {
  *   views: {
  *     "main": {
@@ -99,16 +94,17 @@ export type UIViewData = {
  *     }
  *   }
  * })
- * </pre>
+ * ```
  *
  * Really though, you'll use views to set up multiple views:
- * <pre>
+ * ```html
+ *
  * <div ui-view></div>
  * <div ui-view="chart"></div>
  * <div ui-view="data"></div>
- * </pre>
+ * ```
  *
- * <pre>
+ * ```js
  * $stateProvider.state("home", {
  *   views: {
  *     "": {
@@ -122,11 +118,12 @@ export type UIViewData = {
  *     }
  *   }
  * })
- * </pre>
+ * ```
  *
  * Examples for `autoscroll`:
  *
- * <pre>
+ * ```html
+ *
  * <!-- If autoscroll present with no expression,
  *      then scroll ui-view into view -->
  * <ui-view autoscroll/>
@@ -136,7 +133,7 @@ export type UIViewData = {
  * <ui-view autoscroll='true'/>
  * <ui-view autoscroll='false'/>
  * <ui-view autoscroll='scopeVariable'/>
- * </pre>
+ * ```
  *
  * Resolve data:
  *
@@ -148,7 +145,7 @@ export type UIViewData = {
  * depends on `$resolve` data.
  *
  * @example
- * ```
+ * ```js
  *
  * $stateProvider.state('home', {
  *   template: '<my-component user="$resolve.user"></my-component>',
@@ -158,7 +155,7 @@ export type UIViewData = {
  * });
  * ```
  */
-$ViewDirective.$inject = ['$view', '$animate', '$uiViewScroll', '$interpolate', '$q'];
+let uiViewNg1 = ['$view', '$animate', '$uiViewScroll', '$interpolate', '$q',
 function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,   $q) {
 
   function getRenderer(attrs, scope) {
@@ -309,9 +306,10 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
   };
 
   return directive;
-}
+}];
 
 $ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view', '$timeout'];
+/** @hidden */
 function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,   $timeout) {
   const getControllerAs = parse('viewDecl.controllerAs');
   const getResolveAs = parse('viewDecl.resolveAs');
@@ -381,9 +379,10 @@ function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,
   };
 }
 
+/** @hidden */
 let hasComponentImpl = typeof angular.module('ui.router')['component'] === 'function';
 
-// TODO: move these callbacks to $view and/or `/hooks/components.ts` or something
+/** @hidden TODO: move these callbacks to $view and/or `/hooks/components.ts` or something */
 function registerControllerCallbacks($transitions: TransitionService, controllerInstance: Ng1Controller, $scope, cfg: Ng1ViewConfig) {
   // Call $onInit() ASAP
   if (isFunction(controllerInstance.$onInit) && !(cfg.viewDecl.component && hasComponentImpl)) controllerInstance.$onInit();
@@ -433,5 +432,5 @@ function registerControllerCallbacks($transitions: TransitionService, controller
   }
 }
 
-angular.module('ui.router.state').directive('uiView', $ViewDirective);
+angular.module('ui.router.state').directive('uiView', uiViewNg1);
 angular.module('ui.router.state').directive('uiView', $ViewDirectiveFill);

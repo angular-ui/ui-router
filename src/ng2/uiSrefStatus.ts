@@ -1,3 +1,4 @@
+/** @module ng2_directives */ /** */
 import {Directive, Output, EventEmitter} from "angular2/core";
 import {StateService} from "../state/stateService";
 import {UiSref} from "./uiSref";
@@ -28,6 +29,8 @@ export interface SrefStatus {
 
 /**
  * A directive (which pairs with a [[UiSref]]) and emits events when the UiSref status changes.
+ *
+ * This directive is used by the [[UiSrefActive]] directive.
  * 
  * The event emitted is of type [[SrefStatus]], and has boolean values for `active`, `exact`, `entering`, and `exiting`
  * 

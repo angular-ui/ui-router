@@ -1,9 +1,16 @@
-/** @module state */ /** for typedoc */
+/**
+ * These are the UI-Router angular 1 directives.
+ *
+ * These directives are used in templates to create viewports and navigate to states
+ *
+ * @preferred @module ng1_directives
+ */ /** for typedoc */
 import {extend, forEach, toJson} from "../common/common";
 import {isString, isObject} from "../common/predicates";
 import {UIViewData} from "./viewDirective";
 import {parse} from "../common/hof";
 
+/** @hidden */
 function parseStateRef(ref, current) {
   let preparsed = ref.match(/^\s*({[^}]*})\s*$/), parsed;
   if (preparsed) ref = current + '(' + preparsed[1] + ')';
@@ -12,12 +19,14 @@ function parseStateRef(ref, current) {
   return { state: parsed[1], paramExpr: parsed[3] || null };
 }
 
+/** @hidden */
 function stateContext(el) {
   let $uiView: UIViewData = el.parent().inheritedData('$uiView');
   let context = parse('$cfg.node.state')($uiView);
   return context && context.name ? context : undefined;
 }
 
+/** @hidden */
 function getTypeInfo(el) {
   // SVGAElement does not use the href attribute, but rather the 'xlinkHref' attribute.
   var isSvg = Object.prototype.toString.call(el.prop('href')) === '[object SVGAnimatedString]';
@@ -30,6 +39,7 @@ function getTypeInfo(el) {
   };
 }
 
+/** @hidden */
 function clickHook(el, $state, $timeout, type, current) {
   return function(e) {
     var button = e.which || e.button, target = current();
@@ -51,20 +61,14 @@ function clickHook(el, $state, $timeout, type, current) {
   };
 }
 
+/** @hidden */
 function defaultOpts(el, $state) {
   return { relative: stateContext(el) || $state.$current, inherit: true };
 }
 
 /**
- * @ngdoc directive
- * @name ui.router.state.directive:ui-sref
+ * `ui-sref`: A directive for linking to a state
  *
- * @requires ui.router.state.$state
- * @requires $timeout
- *
- * @restrict A
- *
- * @description
  * A directive that binds a link (`<a>` tag) to a state. If the state has an associated
  * URL, the directive will automatically generate & update the `href` attribute via
  * the {@link ui.router.state.$state#methods_href $state.href()} method. Clicking
@@ -82,9 +86,12 @@ function defaultOpts(el, $state) {
  * using the `ui-sref-opts` attribute. Options are restricted to `location`, `inherit`,
  * and `reload`.
  *
- * @example
  * Here's an example of how you'd use ui-sref and how it would compile. If you have the
  * following template:
+ *
+ * @example
+ * ```html
+ *
  * <pre>
  * <a ui-sref="home">Home</a> | <a ui-sref="about">About</a> | <a ui-sref="{page: 2}">Next page</a>
  *
@@ -94,8 +101,12 @@ function defaultOpts(el, $state) {
  *     </li>
  * </ul>
  * </pre>
+ * ```
  *
  * Then the compiled html would be (assuming Html5Mode is off and current state is contacts):
+ *
+ * ```html
+ *
  * <pre>
  * <a href="#/home" ui-sref="home">Home</a> | <a href="#/about" ui-sref="about">About</a> | <a href="#/contacts?page=2" ui-sref="{page: 2}">Next page</a>
  *
@@ -113,11 +124,12 @@ function defaultOpts(el, $state) {
  *
  * <a ui-sref="home" ui-sref-opts="{reload: true}">Home</a>
  * </pre>
+ * ```
  *
  * @param {string} ui-sref 'stateName' can be any valid absolute or relative state
- * @param {Object} ui-sref-opts options to pass to {@link ui.router.state.$state#go $state.go()}
+ * @param {Object} ui-sref-opts options to pass to [[StateService.go]]
  */
-$StateRefDirective.$inject = ['$state', '$timeout'];
+let uiSrefNg1 = ['$state', '$timeout',
 function $StateRefDirective($state, $timeout) {
   return {
     restrict: 'A',
@@ -150,25 +162,26 @@ function $StateRefDirective($state, $timeout) {
       element.bind("click", clickHook(element, $state, $timeout, type, function() { return def; }));
     }
   };
-}
+}];
 
 /**
- * @ngdoc directive
- * @name ui.router.state.directive:ui-state
+ * `ui-state`: A dynamic version of `ui-sref`
  *
- * @requires ui.router.state.uiSref
- *
- * @restrict A
- *
- * @description
  * Much like ui-sref, but will accept named $scope properties to evaluate for a state definition,
  * params and override options.
  *
+ * @example
+ * ```html
+ *
+ * <li ng-repeat="nav in navlinks">
+ *   <a ui-state="nav.statename">{{nav.description}}</a>
+ * </li>
+ *
  * @param {string} ui-state 'stateName' can be any valid absolute or relative state
- * @param {Object} ui-state-params params to pass to {@link ui.router.state.$state#href $state.href()}
- * @param {Object} ui-state-opts options to pass to {@link ui.router.state.$state#go $state.go()}
+ * @param {Object} ui-state-params params to pass to [[StateService.href]]
+ * @param {Object} ui-state-opts options to pass to [[StateService.go]]
  */
-$StateRefDynamicDirective.$inject = ['$state', '$timeout'];
+let uiStateNg1 = ['$state', '$timeout',
 function $StateRefDynamicDirective($state, $timeout) {
   return {
     restrict: 'A',
@@ -197,20 +210,12 @@ function $StateRefDynamicDirective($state, $timeout) {
       element.bind("click", clickHook(element, $state, $timeout, type, function() { return def; }));
     }
   };
-}
+}];
 
 
 /**
- * @ngdoc directive
- * @name ui.router.state.directive:ui-sref-active
+ * `ui-sref-active` and `ui-sref-active-eq`: A directive that adds a CSS class when a `ui-sref` is active
  *
- * @requires ui.router.state.$state
- * @requires ui.router.state.$stateParams
- * @requires $interpolate
- *
- * @restrict A
- *
- * @description
  * A directive working alongside ui-sref to add classes to an element when the
  * related ui-sref directive's state is active, and removing them when it is inactive.
  * The primary use-case is to simplify the special appearance of navigation menus
@@ -222,11 +227,12 @@ function $StateRefDynamicDirective($state, $timeout) {
  *
  * Will activate when the ui-sref's target state or any child state is active. If you
  * need to activate only when the ui-sref target state is active and *not* any of
- * it's children, then you will use
- * {@link ui.router.state.directive:ui-sref-active-eq ui-sref-active-eq}
+ * it's children, then you will use ui-sref-active-eq
  *
- * @example
  * Given the following template:
+ * @example
+ * ```html
+ *
  * <pre>
  * <ul>
  *   <li ui-sref-active="active" class="item">
@@ -234,10 +240,14 @@ function $StateRefDynamicDirective($state, $timeout) {
  *   </li>
  * </ul>
  * </pre>
+ * ```
  *
  *
  * When the app state is "app.user" (or any children states), and contains the state parameter "user" with value "bilbobaggins",
  * the resulting HTML will appear as (note the 'active' class):
+ *
+ * ```html
+ *
  * <pre>
  * <ul>
  *   <li ui-sref-active="active" class="item active">
@@ -245,11 +255,14 @@ function $StateRefDynamicDirective($state, $timeout) {
  *   </li>
  * </ul>
  * </pre>
+ * ```
  *
  * The class name is interpolated **once** during the directives link time (any further changes to the
  * interpolated value are ignored).
  *
  * Multiple classes may be specified in a space-separated format:
+ *
+ * ```html
  * <pre>
  * <ul>
  *   <li ui-sref-active='class1 class2 class3'>
@@ -257,6 +270,7 @@ function $StateRefDynamicDirective($state, $timeout) {
  *   </li>
  * </ul>
  * </pre>
+ * ```
  *
  * It is also possible to pass ui-sref-active an expression that evaluates
  * to an object hash, whose keys represent active class names and whose
@@ -264,35 +278,22 @@ function $StateRefDynamicDirective($state, $timeout) {
  * ui-sref-active will match if the current active state **includes** any of
  * the specified state names/globs, even the abstract ones.
  *
- * @Example
  * Given the following template, with "admin" being an abstract state:
+ * @example
+ * ```html
+ *
  * <pre>
  * <div ui-sref-active="{'active': 'admin.*'}">
  *   <a ui-sref-active="active" ui-sref="admin.roles">Roles</a>
  * </div>
  * </pre>
+ * ```
  *
  * When the current state is "admin.roles" the "active" class will be applied
  * to both the <div> and <a> elements. It is important to note that the state
  * names/globs passed to ui-sref-active shadow the state provided by ui-sref.
  */
-
-/**
- * @ngdoc directive
- * @name ui.router.state.directive:ui-sref-active-eq
- *
- * @requires ui.router.state.$state
- * @requires ui.router.state.$stateParams
- * @requires $interpolate
- *
- * @restrict A
- *
- * @description
- * The same as {@link ui.router.state.directive:ui-sref-active ui-sref-active} but will only activate
- * when the exact target state used in the `ui-sref` is active; no child states.
- *
- */
-$StateRefActiveDirective.$inject = ['$state', '$stateParams', '$interpolate', '$transitions'];
+let uiSrefActiveNg1 = ['$state', '$stateParams', '$interpolate', '$transitions',
 function $StateRefActiveDirective($state, $stateParams, $interpolate, $transitions) {
   return  {
     restrict: "A",
@@ -400,10 +401,10 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate, $transitio
       update();
     }]
   };
-}
+}];
 
 angular.module('ui.router.state')
-    .directive('uiSref', $StateRefDirective)
-    .directive('uiSrefActive', $StateRefActiveDirective)
-    .directive('uiSrefActiveEq', $StateRefActiveDirective)
-    .directive('uiState', $StateRefDynamicDirective);
+    .directive('uiSref', uiSrefNg1)
+    .directive('uiSrefActive', uiSrefActiveNg1)
+    .directive('uiSrefActiveEq', uiSrefActiveNg1)
+    .directive('uiState', uiStateNg1);

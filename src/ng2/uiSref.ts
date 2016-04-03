@@ -1,4 +1,4 @@
-/** @module ng2 */ /** */
+/** @module ng2_directives */ /** */
 import {UIRouter} from "../router";
 import {Directive, Inject, Input} from "angular2/core";
 import {Optional} from "angular2/core";
@@ -18,15 +18,28 @@ export class AnchorUiSref {
 }
 
 /**
- * A directive which, when clicked, begins a [[Transition]] to a [[TargetState]].
+ * A directive when clicked, initiates a [[Transition]] to a [[TargetState]].
  *
- * Has three inputs:
+ * ### Purpose
  *
- * @Input uiSref the target state name
+ * This directive is applied to anchor tags (`<a>`) or any other clickable element.  It is a state reference (or sref --
+ * similar to an href).  When clicked, the directive will transition to that state by calling [[StateService.go]], 
+ * and optionally supply state parameter values and transition options.
  *
- * @Input uiParams target state parameters
+ * When this directive is on an anchor tag, it will also add an `href` attribute to the anchor.
  *
- * @Input uiOptions transition options
+ * ### Selector
+ *
+ * - `[uiSref]`: The directive is created as an attribute on an element, e.g., `<a uiSref></a>`
+ * 
+ * ### Inputs
+ * 
+ * - `uiSref`: the target state's name, e.g., `uiSref="foostate"`.  If a component template uses a relative `uiSref`,
+ * e.g., `uiSref=".child"`, the reference is relative to that component's state.
+ *
+ * - `uiParams`: any target state parameter values, as an object, e.g., `[uiParams]="{ fooId: bar.fooId }"`
+ *
+ * - `uiOptions`: [[TransitionOptions]], e.g., `[uiOptions]="{ inherit: false }"`
  *
  * @example
  * ```html
@@ -40,6 +53,9 @@ export class AnchorUiSref {
  *
  * <!-- Targets "bar" state and supplies parameter value -->
  * <a uiSref="bar" [uiParams]="{ barId: foo.barId }">Bar {{foo.barId}}</a>
+ *
+ * <!-- Targets "bar" state and parameter, doesn't inherit existing parameters-->
+ * <a uiSref="bar" [uiParams]="{ barId: foo.barId }" [uiOptions]="{ inherit: false }">Bar {{foo.barId}}</a>
  * ```
  */
 @Directive({

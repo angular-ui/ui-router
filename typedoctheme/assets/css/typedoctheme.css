@@ -23,3 +23,7 @@ ul.tsd-parameters li > * > p { display: inline; }
 
 /* Draw a separator line under each h4/h5 header in a comment section */
 .tsd-comment h4, .tsd-comment h5 { border-bottom: 1px solid #AAA; }
+
+/* It seems that once we hit an @example, the rest of the markup is captured inside that tsd-comment-tags.
+   Clear some styles that look especially weird when that happens */
+dl.tsd-comment-tags p { margin: 1em 0; }

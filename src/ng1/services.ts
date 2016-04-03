@@ -1,5 +1,5 @@
 /**
- * Angular 1 plugin:
+ * # UI-Router for Angular 1
  *
  * - Provides an implementation for the [[CoreServices]] API, based on angular 1 services.
  * - Also registers some services with the angular 1 injector.

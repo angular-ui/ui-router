@@ -1,4 +1,4 @@
-/** @module common */ /** */
+/** @module core */ /** */
 import {StateParams} from "./params/stateParams";
 import {StateDeclaration} from "./state/interface";
 import {State} from "./state/stateObject";
@@ -9,6 +9,9 @@ import {copy} from "./common/common";
 
 /**
  * Global mutable state
+ *
+ * This is where we hold the global mutable state such as current state, current
+ * params, current transition, last successful transition, last attempted transition, etc.
  */
 export class UIRouterGlobals {
   /**

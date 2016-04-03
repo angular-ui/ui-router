@@ -1,4 +1,8 @@
-/** @module common */ /** for typedoc */
+/**
+ * Random utility functions used in the UI-Router code
+ *
+ * @preferred @module common
+ */ /** for typedoc */
 
 import {isFunction, isString, isArray, isRegExp, isDate} from "./predicates";
 import { all, any, not, prop, curry } from "./hof";

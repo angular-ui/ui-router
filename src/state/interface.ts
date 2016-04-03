@@ -92,6 +92,8 @@ export interface _ViewDeclaration {
  */
 export interface StateDeclaration {
   /**
+   * The state name
+   *
    * A unique state name, e.g. `"home"`, `"about"`, `"contacts"`.
    * To create a parent/child state use a dot, e.g. `"about.sales"`, `"home.newest"`.
    *
@@ -102,15 +104,22 @@ export interface StateDeclaration {
   name?: string;
 
   /**
+   * abstract state indicator
+   *
    * An abstract state can never be directly activated.  Use an abstract state to provide inherited
    * properties (url, resolve, data, etc) to children states.
    */
   abstract?: boolean;
 
   /**
-   * The parent state of this state can be specified using the [[name]] of the state, e.g., `"parentstate.childstate"`.
+   * The parent state
+   *
+   * Normally, a state's parent is implied from the state's [[name]], e.g., `"parentstate.childstate"`.
+   *
    * Alternatively, you can explicitly set the parent state using this property.  This allows shorter state
    * names, e.g., `<a ui-sref="childstate">Child</a>` instead of `<a ui-sref="parentstate.childstate">Child</a>
+   *
+   * When using this property, the state's name should not have any dots in it.
    *
    * @example
    * ```js
@@ -136,7 +145,7 @@ export interface StateDeclaration {
   $$state?: () => State;
 
   /**
-   * A property of [[StateDeclaration]]:
+   * Resolve - a mechanism to fetch data, which participates in the transition lifecycle
    *
    * An object which defines dynamic dependencies/data that can then be injected into this state (or its children)
    * during a Transition.
@@ -210,13 +219,19 @@ export interface StateDeclaration {
    * ```
    */
   resolve?: { [key: string]: Function; };
+
   /**
-   * @TODO document this ;)
+   * Sets the resolve policy for the state
+   *
+   * This can be either "EAGER" or "LAZY".  When "EAGER", the state's resolves are fetched before any states
+   * are entered.  When "LAZY", the resolves are fetched when the state is being entered.
+   *
+   * The default is "LAZY".
    */
   resolvePolicy?: (string|Object);
 
   /**
-   * A property of [[StateDeclaration]]:
+   * The url fragment for the state
    *
    * A URL fragment (with optional parameters) which is used to match the browser location with this state.
    *
@@ -246,7 +261,7 @@ export interface StateDeclaration {
   url?: string;
 
   /**
-   * A property of [[StateDeclaration]]:
+   * Params configuration
    *
    * An object which optionally configures parameters declared in the url, or defines additional non-url
    * parameters. For each parameter being configured, add a [[ParamDeclaration]] keyed to the name of the parameter.
@@ -267,10 +282,11 @@ export interface StateDeclaration {
    * ```
    */
   params?: { [key: string]: (ParamDeclaration|any); };
+
   /**
-   * A property of [[StateDeclaration]]:
+   * Named views
    *
-   * An optional object which defines multiple views, or explicitly targets specific ui-views.
+   * An optional object which defines multiple views, or explicitly targets specific named ui-views.
    *
    * - What is a view config
    * - What is a ui-view
@@ -314,9 +330,21 @@ export interface StateDeclaration {
    * ```
    */
   views?: { [key: string]: _ViewDeclaration; };
+
+  /**
+   * An inherited property to store state data
+   *
+   * This is a spot for you to store inherited state metadata.  Child states' `data` object will
+   * prototypically inherit from the parent state .
+   *
+   * This is a good spot to put metadata such as `requiresAuth`.
+   */
   data?: any;
+  /**  A Transition Hook called with the state is being entered.  See: [[IHookRegistry.onEnter]]*/
   onEnter?: Function;
+  /**  A Transition Hook called with the state is being retained. See: [[IHookRegistry.onRetain]] */
   onRetain?: Function;
+  /**  A Transition Hook called with the state is being exited. See: [[IHookRegistry.onExit]] */
   onExit?: Function;
 
   /**

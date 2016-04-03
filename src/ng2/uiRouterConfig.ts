@@ -1,3 +1,4 @@
+/** @module ng2 */ /** */
 import {UIRouter} from "../router";
 /**
  * Provides states configuration to UI-Router during application bootstrap.

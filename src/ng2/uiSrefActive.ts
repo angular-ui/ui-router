@@ -1,13 +1,24 @@
+/** @module ng2_directives */ /** */
 import {Directive, Input, ElementRef, Host, Renderer} from "angular2/core";
 import {UiSrefStatus, SrefStatus} from "./uiSrefStatus";
 
 /**
- * A directive that pairs with a [[UiSref]] and adds a CSS classes when the state which the UiSref targets  (or any
- * child state) is currently active.
+ * A directive that adds a CSS class when a `uiSref` is active.
  *
- * If the `uiSrefActiveEq` selector is used instead, the class is not added when a child state is active.
+ * ### Purpose
  *
- * @selector [uiSrefActive],[uiSrefActiveEq]
+ * This directive should be paired with a [[UiSref]], and is used to apply a CSS class to the element when
+ * the state that the `uiSref` targets is active.
+ *
+ * ### Selectors
+ *
+ * - `[uiSrefActive]`: When this selector is used, the class is added when the target state or any
+ * child of the target state is active
+ * - `[uiSrefActiveEq]`: When this selector is used, the class is added when the target state is directly active
+ *
+ * ### Inputs
+ *
+ * - `uiSrefActive`/`uiSrefActiveEq`: one or more CSS classes to add to the element, when active
  *
  * @example
  * ```html
