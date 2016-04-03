@@ -273,7 +273,10 @@ function getTransitionsProvider() {
   loadAllControllerLocals.$inject = ['$transition$'];
   function loadAllControllerLocals($transition$) {
     const loadLocals = (vc: Ng1ViewConfig) => {
-      let resolveCtx = (<Node> find($transition$.treeChanges().to, propEq('state', vc.viewDecl.$context))).resolveContext;
+      let node = (<Node> find($transition$.treeChanges().to, propEq('state', vc.viewDecl.$context)));
+      // Temporary fix; This whole callback should be nuked when fixing #2662
+      if (!node) return services.$q.when();
+      let resolveCtx = node.resolveContext;
       let controllerDeps = annotateController(vc.controller);
       let resolvables = resolveCtx.getResolvables();
 
