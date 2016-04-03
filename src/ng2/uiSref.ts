@@ -1,6 +1,6 @@
 /** @module ng2 */ /** */
 import {UIRouter} from "../router";
-import {Directive, Inject} from "angular2/core";
+import {Directive, Inject, Input} from "angular2/core";
 import {Optional} from "angular2/core";
 import {ElementRef} from "angular2/core";
 import {Renderer} from "angular2/core";
@@ -8,6 +8,7 @@ import {UiView} from "./uiView";
 import {ViewContext} from "../view/interface";
 import {extend} from "../common/common";
 
+/** @hidden */
 @Directive({ selector: 'a[uiSref]' })
 export class AnchorUiSref {
   constructor(public _el: ElementRef, public _renderer: Renderer) { }
@@ -16,15 +17,39 @@ export class AnchorUiSref {
   }
 }
 
+/**
+ * A directive which, when clicked, begins a [[Transition]] to a [[TargetState]].
+ *
+ * Has three inputs:
+ *
+ * @Input uiSref the target state name
+ *
+ * @Input uiParams target state parameters
+ *
+ * @Input uiOptions transition options
+ *
+ * @example
+ * ```html
+ *
+ * <!-- Targets bar state' -->
+ * <a uiSref="bar">Bar</a>
+ *
+ * <!-- Assume this component's state is "foo".
+ *      Relatively targets "foo.child" -->
+ * <a uiSref=".child">Foo Child</a>
+ *
+ * <!-- Targets "bar" state and supplies parameter value -->
+ * <a uiSref="bar" [uiParams]="{ barId: foo.barId }">Bar {{foo.barId}}</a>
+ * ```
+ */
 @Directive({
   selector: '[uiSref]',
-  inputs: ['uiSref', 'uiParams', 'uiOptions'],
   host: { '(click)': 'go()' }
 })
 export class UiSref {
-  state: string;
-  params: any;
-  options: any;
+  @Input('uiSref') state: string;
+  @Input('uiParams') params: any;
+  @Input('uiOptions') options: any;
 
   constructor(
       private _router: UIRouter,

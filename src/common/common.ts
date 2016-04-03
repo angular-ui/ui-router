@@ -401,9 +401,11 @@ export const flatten   = (arr: any[]) => arr.reduce(flattenR, []);
  * oneString.filter(assertPredicate(isNumber, "Not all numbers")); // throws Error(""Not all numbers"");
  * ```
  */
-export function assertPredicate<T>(fn: Predicate<T>, errMsg: (string|Function) = "assert failure"): Predicate<T> {
+export function assertPredicate<T>(predicate: Predicate<T>, errMsg: (string|Function) = "assert failure"): Predicate<T> {
   return (obj: T) => {
-    if (!fn(obj)) throw new Error(isFunction(errMsg) ? (<Function> errMsg)(obj) : errMsg);
+    if (!predicate(obj)) {
+      throw new Error(isFunction(errMsg) ? (<Function> errMsg)(obj) : errMsg);
+    }
     return true;
   };
 }

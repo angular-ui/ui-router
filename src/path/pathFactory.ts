@@ -25,12 +25,17 @@ export class PathFactory {
     return new TargetState(state, state, path.map(prop("paramValues")).reduce(mergeR, {}));
   }
 
+  static buildPath(targetState: TargetState) {
+    let toParams = targetState.params();
+    return targetState.$state().path.map(state => new Node(state).applyRawParams(toParams));
+  }
+
   /** Given a fromPath: Node[] and a TargetState, builds a toPath: Node[] */
   static buildToPath(fromPath: Node[], targetState: TargetState): Node[] {
-    let toParams = targetState.params();
-    let toPath: Node[] = targetState.$state().path.map(state => new Node(state).applyRawParams(toParams));
-
-    if (targetState.options().inherit) toPath = PathFactory.inheritParams(fromPath, toPath, Object.keys(toParams));
+    let toPath: Node[] = PathFactory.buildPath(targetState);
+    if (targetState.options().inherit) {
+      return PathFactory.inheritParams(fromPath, toPath, Object.keys(targetState.params()));
+    }
     return toPath;
   }
   
@@ -159,4 +164,7 @@ export class PathFactory {
     if (elementIdx === -1) throw new Error("The path does not contain the state: " + state);
     return path.slice(0, elementIdx + 1);
   }
+
+  /** Gets the raw parameter values from a path */
+  static paramValues = (path: Node[]) => path.reduce((acc, node) => extend(acc, node.paramValues), {});
 }

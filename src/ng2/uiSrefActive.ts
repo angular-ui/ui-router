@@ -1,9 +1,26 @@
-
 import {Directive, Input, ElementRef, Host, Renderer} from "angular2/core";
 import {UiSrefStatus, SrefStatus} from "./uiSrefStatus";
 
-@Directive({ selector: '[uiSrefActive],[uiSrefActiveEq]' })
+/**
+ * A directive that pairs with a [[UiSref]] and adds a CSS classes when the state which the UiSref targets  (or any
+ * child state) is currently active.
+ *
+ * If the `uiSrefActiveEq` selector is used instead, the class is not added when a child state is active.
+ *
+ * @selector [uiSrefActive],[uiSrefActiveEq]
+ *
+ * @example
+ * ```html
+ *
+ * <a uiSref="foo" uiSrefActive="active">Foo</a>
+ * <a uiSref="foo.bar" [uiParams]="{ id: bar.id }" uiSrefActive="active">Foo Bar #{{bar.id}}</a>
+ * ```
+ */
+@Directive({
+  selector: '[uiSrefActive],[uiSrefActiveEq]'
+})
 export class UiSrefActive {
+
   private _classes: string[] = [];
   @Input('uiSrefActive') set active(val) { this._classes = val.split("\s+")};
 
@@ -17,4 +34,3 @@ export class UiSrefActive {
     });
   }
 }
-
