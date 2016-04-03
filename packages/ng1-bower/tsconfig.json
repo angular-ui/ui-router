@@ -1,0 +1,9 @@
+{
+  "compilerOptions": { "rootDir": ".", "outDir": "../commonjs" },
+  "files": [ 
+    "ng1.ts", 
+    "ng1/stateEvents.ts", 
+    "../typings/es6-shim/es6-shim.d.ts" ,
+    "../typings/angularjs/angular.d.ts" 
+  ]
+}

@@ -99,9 +99,9 @@ function prepPackage(pkgName) {
 
   // Copy any of these files from the packages dir
   // Override any baseFiles with the copy from the package dir.
-  let pkgFiles = ['.gitignore', '.npmignore'];
+  let pkgFiles = ['gitignore', 'npmignore'];
   baseFiles.concat(pkgFiles).filter(file => test('-f', `${paths.pkgsrc}/${file}`))
-      .forEach(file => cp(`${paths.pkgsrc}/${file}`, paths.build));
+      .forEach(file => cp(`${paths.pkgsrc}/${file}`, `${paths.build}/.${file}`));
 
   cp(files.webpack, paths.srcCopy);
 
