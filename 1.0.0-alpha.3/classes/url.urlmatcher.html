@@ -1,0 +1,1102 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>UrlMatcher | UI-Router</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
+	<script src="../assets/js/modernizr.js"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">UI-Router</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/url.html">url</a>
+				</li>
+				<li>
+					<a href="url.urlmatcher.html">UrlMatcher</a>
+				</li>
+			</ul>
+			<h1>Class UrlMatcher</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<dl class="tsd-comment-tags">
+						<dt>ngdoc</dt>
+						<dd><p>object</p>
+						</dd>
+						<dt>name</dt>
+						<dd><p>ui.router.util.type:UrlMatcher</p>
+						</dd>
+						<dt>description</dt>
+						<dd><p>Matches URLs against patterns and extracts named parameters from the path or the search
+								part of the URL. A URL pattern consists of a path pattern, optionally followed by &#39;?&#39; and a list
+								of search parameters. Multiple search parameter names are separated by &#39;&amp;&#39;. Search parameters
+								do not influence whether or not a URL is matched, but their values are passed through into
+							the matched parameters returned by {@link ui.router.util.type:UrlMatcher#methods_exec exec}.</p>
+							<p>Path parameter placeholders can be specified using simple colon/catch-all syntax or curly brace
+							syntax, which optionally allows a regular expression for the parameter to be specified:</p>
+							<ul>
+								<li><code>&#39;:&#39;</code> name - colon placeholder</li>
+								<li><code>&#39;*&#39;</code> name - catch-all placeholder</li>
+								<li><code>&#39;{&#39; name &#39;}&#39;</code> - curly placeholder</li>
+								<li><code>&#39;{&#39; name &#39;:&#39; regexp|type &#39;}&#39;</code> - curly placeholder with regexp or type name. Should the
+								regexp itself contain curly braces, they must be in matched pairs or escaped with a backslash.</li>
+							</ul>
+							<p>Parameter names may contain only word characters (latin letters, digits, and underscore) and
+								must be unique within the pattern (across both path and search parameters). For colon
+								placeholders or curly placeholders without an explicit regexp, a path parameter matches any
+								number of characters other than &#39;/&#39;. For catch-all placeholders the path parameter matches
+							any number of characters.</p>
+							<p>Examples:</p>
+							<ul>
+								<li><code>&#39;/hello/&#39;</code> - Matches only if the path is exactly &#39;/hello/&#39;. There is no special treatment for
+								trailing slashes, and patterns have to match the entire path, not just a prefix.</li>
+								<li><code>&#39;/user/:id&#39;</code> - Matches &#39;/user/bob&#39; or &#39;/user/1234!!!&#39; or even &#39;/user/&#39; but not &#39;/user&#39; or
+								&#39;/user/bob/details&#39;. The second path segment will be captured as the parameter &#39;id&#39;.</li>
+								<li><code>&#39;/user/{id}&#39;</code> - Same as the previous example, but using curly brace syntax.</li>
+								<li><code>&#39;/user/{id:[^/]*}&#39;</code> - Same as the previous example.</li>
+								<li><code>&#39;/user/{id:[0-9a-fA-F]{1,8}}&#39;</code> - Similar to the previous example, but only matches if the id
+								parameter consists of 1 to 8 hex digits.</li>
+								<li><code>&#39;/files/{path:.*}&#39;</code> - Matches any URL starting with &#39;/files/&#39; and captures the rest of the
+								path into the parameter &#39;path&#39;.</li>
+								<li><code>&#39;/files/*path&#39;</code> - ditto.</li>
+								<li><code>&#39;/calendar/{start:date}&#39;</code> - Matches &quot;/calendar/2014-11-12&quot; (because the pattern defined
+								in the built-in  <code>date</code> Type matches <code>2014-11-12</code>) and provides a Date object in $stateParams.start</li>
+							</ul>
+						</dd>
+						<dt>param</dt>
+						<dd><p>The pattern to compile into a matcher.</p>
+						</dd>
+						<dt>param</dt>
+						<dd><p>A configuration object hash</p>
+							<ul>
+								<li><code>caseInsensitive</code> - <code>true</code> if URL matching should be case insensitive, otherwise <code>false</code>, the default value (for backward compatibility) is <code>false</code>.</li>
+								<li><code>strict</code> - <code>false</code> if matching against a URL with a trailing slash should be treated as equivalent to a URL without a trailing slash, the default value is <code>true</code>.</li>
+							</ul>
+						</dd>
+						<dt>property</dt>
+						<dd><p>{string} prefix  A static prefix of this pattern. The matcher guarantees that any
+								URL matching this matcher (i.e. any string for which {@link ui.router.util.type:UrlMatcher#methods_exec exec()} returns
+							non-null) will start with this prefix.</p>
+						</dd>
+						<dt>property</dt>
+						<dd><p>{string} pattern  The pattern that was passed into the constructor</p>
+						</dd>
+						<dt>returns</dt>
+						<dd><p>New <code>UrlMatcher</code> object</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">UrlMatcher</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="url.urlmatcher.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="url.urlmatcher.html#_children" class="tsd-kind-icon">_children</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="url.urlmatcher.html#_compiled" class="tsd-kind-icon">_compiled</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="url.urlmatcher.html#_params" class="tsd-kind-icon">_params</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="url.urlmatcher.html#_segments" class="tsd-kind-icon">_segments</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="url.urlmatcher.html#config" class="tsd-kind-icon">config</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="url.urlmatcher.html#pattern" class="tsd-kind-icon">pattern</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="url.urlmatcher.html#prefix" class="tsd-kind-icon">prefix</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="url.urlmatcher.html#namevalidator" class="tsd-kind-icon">name<wbr>Validator</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="url.urlmatcher.html#append" class="tsd-kind-icon">append</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="url.urlmatcher.html#exec" class="tsd-kind-icon">exec</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="url.urlmatcher.html#format" class="tsd-kind-icon">format</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="url.urlmatcher.html#isroot" class="tsd-kind-icon">is<wbr>Root</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="url.urlmatcher.html#parameter" class="tsd-kind-icon">parameter</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="url.urlmatcher.html#parameters" class="tsd-kind-icon">parameters</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="url.urlmatcher.html#tostring" class="tsd-kind-icon">to<wbr>String</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="url.urlmatcher.html#validates" class="tsd-kind-icon">validates</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="url.urlmatcher.html#encodedashes" class="tsd-kind-icon">encode<wbr>Dashes</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="url.urlmatcher.html#pathsegmentsandparams" class="tsd-kind-icon">path<wbr>Segments<wbr>And<wbr>Params</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="url.urlmatcher.html#queryparams" class="tsd-kind-icon">query<wbr>Params</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
+							<h3>Object literals</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-object-literal tsd-parent-kind-class tsd-is-private"><a href="url.urlmatcher.html#_cache" class="tsd-kind-icon">_cache</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>constructor</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Url<wbr>Matcher<span class="tsd-signature-symbol">(</span>pattern<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="url.urlmatcher.html" class="tsd-signature-type">UrlMatcher</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>pattern: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>config: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="url.urlmatcher.html" class="tsd-signature-type">UrlMatcher</a></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L102">url/urlMatcher.ts:102</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="_children" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> _children</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">_children<span class="tsd-signature-symbol">:</span> <a href="url.urlmatcher.html" class="tsd-signature-type">UrlMatcher</a><span class="tsd-signature-symbol">[]</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L97">url/urlMatcher.ts:97</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="_compiled" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> _compiled</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">_compiled<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L100">url/urlMatcher.ts:100</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="_params" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> _params</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">_params<span class="tsd-signature-symbol">:</span> <a href="params.param.html" class="tsd-signature-type">Param</a><span class="tsd-signature-symbol">[]</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L98">url/urlMatcher.ts:98</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="_segments" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> _segments</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">_segments<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L99">url/urlMatcher.ts:99</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="config" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>config</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">config<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L104">url/urlMatcher.ts:104</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="pattern" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>pattern</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">pattern<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L104">url/urlMatcher.ts:104</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="prefix" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>prefix</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">prefix<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L102">url/urlMatcher.ts:102</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
+					<a name="namevalidator" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagStatic">Static</span> name<wbr>Validator</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">name<wbr>Validator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">RegExp</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L94">url/urlMatcher.ts:94</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="append" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>append</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">append<span class="tsd-signature-symbol">(</span>url<span class="tsd-signature-symbol">: </span><a href="url.urlmatcher.html" class="tsd-signature-type">UrlMatcher</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="url.urlmatcher.html" class="tsd-signature-type">UrlMatcher</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>ngdoc</dt>
+									<dd><p>function</p>
+									</dd>
+									<dt>name</dt>
+									<dd><p>ui.router.util.type:UrlMatcher#append</p>
+									</dd>
+									<dt>methodof</dt>
+									<dd><p>ui.router.util.type:UrlMatcher</p>
+									</dd>
+									<dt>description</dt>
+									<dd></dd>
+									<dt>todo</dt>
+									<dd></dd>
+									<dt>example</dt>
+									<dd></dd>
+									<dt>todo</dt>
+									<dd></dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>url: <a href="url.urlmatcher.html" class="tsd-signature-type">UrlMatcher</a></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>A <code>UrlMatcher</code> instance to append as a child of the current <code>UrlMatcher</code>.</p>
+									</div>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="url.urlmatcher.html" class="tsd-signature-type">UrlMatcher</a></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L208">url/urlMatcher.ts:208</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="exec" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>exec</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">exec<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, search<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, hash<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>ngdoc</dt>
+									<dd><p>function</p>
+									</dd>
+									<dt>name</dt>
+									<dd><p>ui.router.util.type:UrlMatcher#exec</p>
+									</dd>
+									<dt>methodof</dt>
+									<dd><p>ui.router.util.type:UrlMatcher</p>
+									</dd>
+									<dt>description</dt>
+									<dd><p>Tests the specified path against this matcher, and returns an object containing the captured
+											parameter values, or null if the path does not match. The returned object contains the values
+											of any search parameters that are mentioned in the pattern, but their value may be null if
+											they are not present in <code>search</code>. This means that search parameters are always treated
+										as optional.</p>
+									</dd>
+									<dt>example</dt>
+									<dd><pre>
+new UrlMatcher('/user/{id}?q&r').exec('/user/bob', {
+  x: '1', q: 'hello'
+});
+// returns { id: 'bob', q: 'hello', r: null }
+</pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>path: <span class="tsd-signature-type">string</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>The URL path to match, e.g. <code>$location.path()</code>.</p>
+									</div>
+								</li>
+								<li>
+									<h5>search <span class="tsd-flag ts-flagDefault value">Default value</span>: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>URL search parameters, e.g. <code>$location.search()</code>.</p>
+									</div>
+								</li>
+								<li>
+									<h5>hash <span class="tsd-flag ts-flagOptional">Optional</span>: <span class="tsd-signature-type">string</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>URL hash e.g. <code>$location.hash()</code>.</p>
+									</div>
+								</li>
+								<li>
+									<h5>options <span class="tsd-flag ts-flagDefault value">Default value</span>: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+									:
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+								: <p>The captured parameter values.</p>
+								<ul class="tsd-parameters">
+								</ul>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L249">url/urlMatcher.ts:249</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="format" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>format</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">format<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>ngdoc</dt>
+									<dd><p>function</p>
+									</dd>
+									<dt>name</dt>
+									<dd><p>ui.router.util.type:UrlMatcher#format</p>
+									</dd>
+									<dt>methodof</dt>
+									<dd><p>ui.router.util.type:UrlMatcher</p>
+									</dd>
+									<dt>description</dt>
+									<dd><p>Creates a URL that matches this pattern by substituting the specified values
+											for the path and search parameters. Null values for path parameters are
+										treated as empty strings.</p>
+									</dd>
+									<dt>example</dt>
+									<dd><pre>
+new UrlMatcher('/user/{id}?q').format({ id:'bob', q:'yes' });
+// returns '/user/bob?q=yes'
+</pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>values <span class="tsd-flag ts-flagDefault value">Default value</span>: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>the values to substitute for the parameters in this pattern.</p>
+									</div>
+									<ul class="tsd-parameters">
+									</ul>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+								: <p>the formatted URL (path and optionally search part).</p>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L369">url/urlMatcher.ts:369</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="isroot" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>is<wbr>Root</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Root<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L215">url/urlMatcher.ts:215</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="parameter" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>parameter</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">parameter<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, opts<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="params.param.html" class="tsd-signature-type">Param</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>id: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>opts <span class="tsd-flag ts-flagDefault value">Default value</span>: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="params.param.html" class="tsd-signature-type">Param</a></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L323">url/urlMatcher.ts:323</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="parameters" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>parameters</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">parameters<span class="tsd-signature-symbol">(</span>opts<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="params.param.html" class="tsd-signature-type">Param</a><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>ngdoc</dt>
+									<dd><p>function</p>
+									</dd>
+									<dt>name</dt>
+									<dd><p>ui.router.util.type:UrlMatcher#parameters</p>
+									</dd>
+									<dt>methodof</dt>
+									<dd><p>ui.router.util.type:UrlMatcher</p>
+									</dd>
+									<dt>description</dt>
+									<dd><p>Returns the names of all path and search parameters of this pattern in order of appearance.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>opts <span class="tsd-flag ts-flagDefault value">Default value</span>: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="params.param.html" class="tsd-signature-type">Param</a><span class="tsd-signature-symbol">[]</span></h4>
+								: <p>An array of <a href="params.param.html">Param</a> objects. Must be treated as read-only. If the
+								pattern has no parameters, an empty array is returned.</p>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L318">url/urlMatcher.ts:318</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="tostring" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>to<wbr>String</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">to<wbr>String<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L219">url/urlMatcher.ts:219</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="validates" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>validates</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">validates<span class="tsd-signature-symbol">(</span>params<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>ngdoc</dt>
+									<dd><p>function</p>
+									</dd>
+									<dt>name</dt>
+									<dd><p>ui.router.util.type:UrlMatcher#validates</p>
+									</dd>
+									<dt>methodof</dt>
+									<dd><p>ui.router.util.type:UrlMatcher</p>
+									</dd>
+									<dt>description</dt>
+									<dd><p>Checks an object hash of parameters to validate their correctness according to the parameter
+										types of this <code>UrlMatcher</code>.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>params: <span class="tsd-signature-type">any</span></h5>
+									:         <div class="tsd-comment tsd-typography">
+										<p>The object hash of parameters to validate.</p>
+									</div>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+								: <p>Returns <code>true</code> if <code>params</code> validates, otherwise <code>false</code>.</p>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L345">url/urlMatcher.ts:345</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="encodedashes" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagStatic">Static</span> encode<wbr>Dashes</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">encode<wbr>Dashes<span class="tsd-signature-symbol">(</span>str<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>str: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L437">url/urlMatcher.ts:437</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="pathsegmentsandparams" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagStatic">Static</span> path<wbr>Segments<wbr>And<wbr>Params</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">path<wbr>Segments<wbr>And<wbr>Params<span class="tsd-signature-symbol">(</span>matcher<span class="tsd-signature-symbol">: </span><a href="url.urlmatcher.html" class="tsd-signature-type">UrlMatcher</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-header">
+							<p> Given a matcher, return an array with the matcher&#39;s path segments and path params, in order </p>
+						</li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Given a matcher, return an array with the matcher&#39;s path segments and path params, in order</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>matcher: <a href="url.urlmatcher.html" class="tsd-signature-type">UrlMatcher</a></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L442">url/urlMatcher.ts:442</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="queryparams" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagStatic">Static</span> query<wbr>Params</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">query<wbr>Params<span class="tsd-signature-symbol">(</span>matcher<span class="tsd-signature-symbol">: </span><a href="url.urlmatcher.html" class="tsd-signature-type">UrlMatcher</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="params.param.html" class="tsd-signature-type">Param</a><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-header">
+							<p> Given a matcher, return an array with the matcher&#39;s query params </p>
+						</li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Given a matcher, return an array with the matcher&#39;s query params</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>matcher: <a href="url.urlmatcher.html" class="tsd-signature-type">UrlMatcher</a></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="params.param.html" class="tsd-signature-type">Param</a><span class="tsd-signature-symbol">[]</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L449">url/urlMatcher.ts:449</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
+				<h2>Object literals</h2>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-class tsd-is-private">
+					<a name="_cache" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> _cache</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">_cache<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L96">url/urlMatcher.ts:96</a></li>
+						</ul>
+					</aside>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="_cache.path" class="tsd-anchor"></a>
+						<!---->
+						<!--<h3>path</h3>-->
+						<!---->
+						<div class="tsd-signature tsd-kind-icon">path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></div>
+						<div class="tsd-declaration">
+						</div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L96">url/urlMatcher.ts:96</a></li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="_cache.pattern-1" class="tsd-anchor"></a>
+						<!---->
+						<!--<h3>pattern</h3>-->
+						<!---->
+						<div class="tsd-signature tsd-kind-icon">pattern<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">null</span></div>
+						<div class="tsd-declaration">
+						</div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/url/urlMatcher.ts#L96">url/urlMatcher.ts:96</a></li>
+							</ul>
+						</aside>
+					</section>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common.html">common</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common_hof.html">common_<wbr>hof</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common_predicates.html">common_<wbr>predicates</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common_strings.html">common_<wbr>strings</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/core.html">core</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/justjs.html">justjs</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1.html">ng1</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1_directives.html">ng1_<wbr>directives</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1_state_events.html">ng1_<wbr>state_<wbr>events</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng2.html">ng2</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng2_directives.html">ng2_<wbr>directives</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/params.html">params</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/path.html">path</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/resolve.html">resolve</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/state.html">state</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/trace.html">trace</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/transition.html">transition</a>
+					</li>
+					<li class="current tsd-kind-external-module">
+						<a href="../modules/url.html">url</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/view.html">view</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="url.matcherconfig.html" class="tsd-kind-icon">Matcher<wbr>Config</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-external-module">
+						<a href="url.urlmatcher.html" class="tsd-kind-icon">Url<wbr>Matcher</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="url.urlmatcher.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="url.urlmatcher.html#_children" class="tsd-kind-icon">_children</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="url.urlmatcher.html#_compiled" class="tsd-kind-icon">_compiled</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="url.urlmatcher.html#_params" class="tsd-kind-icon">_params</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="url.urlmatcher.html#_segments" class="tsd-kind-icon">_segments</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="url.urlmatcher.html#config" class="tsd-kind-icon">config</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="url.urlmatcher.html#pattern" class="tsd-kind-icon">pattern</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="url.urlmatcher.html#prefix" class="tsd-kind-icon">prefix</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
+								<a href="url.urlmatcher.html#namevalidator" class="tsd-kind-icon">name<wbr>Validator</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="url.urlmatcher.html#append" class="tsd-kind-icon">append</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="url.urlmatcher.html#exec" class="tsd-kind-icon">exec</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="url.urlmatcher.html#format" class="tsd-kind-icon">format</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="url.urlmatcher.html#isroot" class="tsd-kind-icon">is<wbr>Root</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="url.urlmatcher.html#parameter" class="tsd-kind-icon">parameter</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="url.urlmatcher.html#parameters" class="tsd-kind-icon">parameters</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="url.urlmatcher.html#tostring" class="tsd-kind-icon">to<wbr>String</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="url.urlmatcher.html#validates" class="tsd-kind-icon">validates</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="url.urlmatcher.html#encodedashes" class="tsd-kind-icon">encode<wbr>Dashes</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="url.urlmatcher.html#pathsegmentsandparams" class="tsd-kind-icon">path<wbr>Segments<wbr>And<wbr>Params</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="url.urlmatcher.html#queryparams" class="tsd-kind-icon">query<wbr>Params</a>
+							</li>
+							<li class=" tsd-kind-object-literal tsd-parent-kind-class tsd-is-private">
+								<a href="url.urlmatcher.html#_cache" class="tsd-kind-icon">_cache</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="url.urlmatcherfactory.html" class="tsd-kind-icon">Url<wbr>Matcher<wbr>Factory</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="url.urlrouter.html" class="tsd-kind-icon">Url<wbr>Router</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="url.urlrouterprovider.html" class="tsd-kind-icon">Url<wbr>Router<wbr>Provider</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../interfaces/url.paramdetails.html" class="tsd-kind-icon">Param<wbr>Details</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../interfaces/url.params.html" class="tsd-kind-icon">params</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/url.html#_location" class="tsd-kind-icon">$location</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module">
+						<a href="../modules/url.html#matcherconfig-1" class="tsd-kind-icon">matcher<wbr>Config</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/url.html#appendbasepath" class="tsd-kind-icon">append<wbr>Base<wbr>Path</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/url.html#getdefaultconfig" class="tsd-kind-icon">get<wbr>Default<wbr>Config</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/url.html#handleifmatch" class="tsd-kind-icon">handle<wbr>IfMatch</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/url.html#interpolate" class="tsd-kind-icon">interpolate</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/url.html#memoizeto" class="tsd-kind-icon">memoize<wbr>To</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/url.html#quoteregexp" class="tsd-kind-icon">quote<wbr>Reg<wbr>Exp</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/url.html#regexpprefix" class="tsd-kind-icon">reg<wbr>Exp<wbr>Prefix</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/url.html#update" class="tsd-kind-icon">update</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.io" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>ViewConfig | UI-Router</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
+	<script src="../assets/js/modernizr.js"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">UI-Router</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/view.html">view</a>
+				</li>
+				<li>
+					<a href="view.viewconfig.html">ViewConfig</a>
+				</li>
+			</ul>
+			<h1>Interface ViewConfig</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>This interface represents a [[ViewDeclaration]] that is bound to a <a href="../classes/path.node.html">Node</a>.</p>
+					</div>
+					<p>A <code>ViewConfig</code> is the runtime definition of a single view.</p>
+					<p>During a transition, <code>ViewConfig</code>s are created for each [[ViewDeclaration]] defined on each &quot;entering&quot; <a href="../classes/state.state-1.html">State</a>.
+						Then, the <a href="../classes/view.viewservice.html">ViewService</a> finds any matching <code>ui-view</code>(s) in the DOM, and supplies the ui-view
+					with the <code>ViewConfig</code>.  The <code>ui-view</code> then loads itself using the information found in the <code>ViewConfig</code>.</p>
+					<p>A <code>ViewConfig</code> if matched with a <code>ui-view</code> by finding all <code>ui-view</code>s which were created in the
+						context named by the <code>uiViewContextAnchor</code>, and finding the <code>ui-view</code> or child <code>ui-view</code> that matches
+					the <code>uiViewName</code> address.</p>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">ViewConfig</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel">
+				<h3>Implemented by</h3>
+				<ul class="tsd-hierarchy">
+					<li><a href="../classes/ng1.ng1viewconfig.html" class="tsd-signature-type">Ng1ViewConfig</a></li>
+					<li><a href="../classes/ng2.ng2viewconfig.html" class="tsd-signature-type">Ng2ViewConfig</a></li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="view.viewconfig.html#loaded" class="tsd-kind-icon">loaded</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="view.viewconfig.html#node" class="tsd-kind-icon">node</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="view.viewconfig.html#viewdecl" class="tsd-kind-icon">view<wbr>Decl</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="view.viewconfig.html#load" class="tsd-kind-icon">load</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="loaded" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>loaded</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">loaded<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/view/interface.ts#L47">view/interface.ts:47</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="node" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>node</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">node<span class="tsd-signature-symbol">:</span> <a href="../classes/path.node.html" class="tsd-signature-type">Node</a>        <div class="tsd-header">
+							<p> The node the ViewConfig is bound to </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>The node the ViewConfig is bound to</p>
+							</div>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/view/interface.ts#L42">view/interface.ts:42</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="viewdecl" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>view<wbr>Decl</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">view<wbr>Decl<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">_ViewDeclaration</span>        <div class="tsd-header">
+							<p> The normalized view declaration from <a href="../classes/state.state-1.html#views">State.views</a> </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>The normalized view declaration from <a href="../classes/state.state-1.html#views">State.views</a></p>
+							</div>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/view/interface.ts#L39">view/interface.ts:39</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="load" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>load</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">load<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="view.viewconfig.html" class="tsd-signature-type">ViewConfig</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-header">
+							<p> Fetches templates, runs dynamic (controller|template)Provider code, lazy loads Components, etc </p>
+						</li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Fetches templates, runs dynamic (controller|template)Provider code, lazy loads Components, etc</p>
+								</div>
+							</div>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="view.viewconfig.html" class="tsd-signature-type">ViewConfig</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/view/interface.ts#L45">view/interface.ts:45</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common.html">common</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common_hof.html">common_<wbr>hof</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common_predicates.html">common_<wbr>predicates</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common_strings.html">common_<wbr>strings</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/core.html">core</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/justjs.html">justjs</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1.html">ng1</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1_directives.html">ng1_<wbr>directives</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1_state_events.html">ng1_<wbr>state_<wbr>events</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng2.html">ng2</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng2_directives.html">ng2_<wbr>directives</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/params.html">params</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/path.html">path</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/resolve.html">resolve</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/state.html">state</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/trace.html">trace</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/transition.html">transition</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/url.html">url</a>
+					</li>
+					<li class="current tsd-kind-external-module">
+						<a href="../modules/view.html">view</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="../classes/view.templatefactory.html" class="tsd-kind-icon">Template<wbr>Factory</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="../classes/view.viewservice.html" class="tsd-kind-icon">View<wbr>Service</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="view.viewconfig.html" class="tsd-kind-icon">View<wbr>Config</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="view.viewconfig.html#loaded" class="tsd-kind-icon">loaded</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="view.viewconfig.html#node" class="tsd-kind-icon">node</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="view.viewconfig.html#viewdecl" class="tsd-kind-icon">view<wbr>Decl</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="view.viewconfig.html#load" class="tsd-kind-icon">load</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="view.viewcontext.html" class="tsd-kind-icon">View<wbr>Context</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/view.html#viewconfigfactory" class="tsd-kind-icon">View<wbr>Config<wbr>Factory</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/view.html#match" class="tsd-kind-icon">match</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.io" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

@@ -1,0 +1,614 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>UiSrefStatus | UI-Router</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
+	<script src="../assets/js/modernizr.js"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">UI-Router</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/ng2_directives.html">ng2_directives</a>
+				</li>
+				<li>
+					<a href="ng2_directives.uisrefstatus.html">UiSrefStatus</a>
+				</li>
+			</ul>
+			<h1>Class UiSrefStatus</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>A directive (which pairs with a <a href="ng2_directives.uisref.html">UiSref</a>) and emits events when the UiSref status changes.</p>
+					</div>
+					<p>This directive is used by the <a href="ng2_directives.uisrefactive.html">UiSrefActive</a> directive.</p>
+					<p>The event emitted is of type <a href="../interfaces/ng2_directives.srefstatus.html">SrefStatus</a>, and has boolean values for <code>active</code>, <code>exact</code>, <code>entering</code>, and <code>exiting</code></p>
+					<p>The values from this event can be captured and stored on a component, then applied (perhaps using ngClass).</p>
+					<p>This API is subject to change.</p>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">UiSrefStatus</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="ng2_directives.uisrefstatus.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="ng2_directives.uisrefstatus.html#_deregisterhook" class="tsd-kind-icon">_deregister<wbr>Hook</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="ng2_directives.uisrefstatus.html#_globals" class="tsd-kind-icon">_globals</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="ng2_directives.uisrefstatus.html#_stateservice" class="tsd-kind-icon">_state<wbr>Service</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="ng2_directives.uisrefstatus.html#sref" class="tsd-kind-icon">sref</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="ng2_directives.uisrefstatus.html#uisrefstatus" class="tsd-kind-icon">ui<wbr>Sref<wbr>Status</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="ng2_directives.uisrefstatus.html#_setstatus" class="tsd-kind-icon">_set<wbr>Status</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="ng2_directives.uisrefstatus.html#ngondestroy" class="tsd-kind-icon">ng<wbr>OnDestroy</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="ng2_directives.uisrefstatus.html#ngoninit" class="tsd-kind-icon">ng<wbr>OnInit</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="ng2_directives.uisrefstatus.html#processtransition" class="tsd-kind-icon">process<wbr>Transition</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Object literals</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-object-literal tsd-parent-kind-class"><a href="ng2_directives.uisrefstatus.html#status" class="tsd-kind-icon">status</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>constructor</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>UiSref<wbr>Status<span class="tsd-signature-symbol">(</span>transitionService<span class="tsd-signature-symbol">: </span><a href="transition.transitionservice.html" class="tsd-signature-type">TransitionService</a>, _globals<span class="tsd-signature-symbol">: </span><a href="core.uirouterglobals.html" class="tsd-signature-type">UIRouterGlobals</a>, _stateService<span class="tsd-signature-symbol">: </span><a href="state.stateservice.html" class="tsd-signature-type">StateService</a>, sref<span class="tsd-signature-symbol">: </span><a href="ng2_directives.uisref.html" class="tsd-signature-type">UiSref</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="ng2_directives.uisrefstatus.html" class="tsd-signature-type">UiSrefStatus</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>transitionService: <a href="transition.transitionservice.html" class="tsd-signature-type">TransitionService</a></h5>
+								</li>
+								<li>
+									<h5>_globals: <a href="core.uirouterglobals.html" class="tsd-signature-type">UIRouterGlobals</a></h5>
+								</li>
+								<li>
+									<h5>_stateService: <a href="state.stateservice.html" class="tsd-signature-type">StateService</a></h5>
+								</li>
+								<li>
+									<h5>sref: <a href="ng2_directives.uisref.html" class="tsd-signature-type">UiSref</a></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <a href="ng2_directives.uisrefstatus.html" class="tsd-signature-type">UiSrefStatus</a></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L53">ng2/uiSrefStatus.ts:53</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="_deregisterhook" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> _deregister<wbr>Hook</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">_deregister<wbr>Hook<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L43">ng2/uiSrefStatus.ts:43</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="_globals" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> _globals</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">_globals<span class="tsd-signature-symbol">:</span> <a href="core.uirouterglobals.html" class="tsd-signature-type">UIRouterGlobals</a></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L56">ng2/uiSrefStatus.ts:56</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="_stateservice" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> _state<wbr>Service</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">_state<wbr>Service<span class="tsd-signature-symbol">:</span> <a href="state.stateservice.html" class="tsd-signature-type">StateService</a></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L57">ng2/uiSrefStatus.ts:57</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="sref" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>sref</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">sref<span class="tsd-signature-symbol">:</span> <a href="ng2_directives.uisref.html" class="tsd-signature-type">UiSref</a></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L58">ng2/uiSrefStatus.ts:58</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="uisrefstatus" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>ui<wbr>Sref<wbr>Status</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">ui<wbr>Sref<wbr>Status<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">EventEmitter</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ng2_directives.srefstatus.html" class="tsd-signature-type">SrefStatus</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L46">ng2/uiSrefStatus.ts:46</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_setstatus" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> _set<wbr>Status</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_set<wbr>Status<span class="tsd-signature-symbol">(</span>status<span class="tsd-signature-symbol">: </span><a href="../interfaces/ng2_directives.srefstatus.html" class="tsd-signature-type">SrefStatus</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>status: <a href="../interfaces/ng2_directives.srefstatus.html" class="tsd-signature-type">SrefStatus</a></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L76">ng2/uiSrefStatus.ts:76</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="ngondestroy" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>ng<wbr>OnDestroy</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">ng<wbr>OnDestroy<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L69">ng2/uiSrefStatus.ts:69</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="ngoninit" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>ng<wbr>OnInit</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">ng<wbr>OnInit<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L62">ng2/uiSrefStatus.ts:62</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="processtransition" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagPrivate">Private</span> process<wbr>Transition</h3>-->
+					<!---->
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">process<wbr>Transition<span class="tsd-signature-symbol">(</span>$transition$<span class="tsd-signature-symbol">: </span><a href="transition.transition-1.html" class="tsd-signature-type">Transition</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>$transition$: <a href="transition.transition-1.html" class="tsd-signature-type">Transition</a></h5>
+								</li>
+							</ul>
+							<div class="tsd-returns">
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							</div>
+							<hr>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L81">ng2/uiSrefStatus.ts:81</a></li>
+								</ul>
+						</aside>        </li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Object literals</h2>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-class">
+					<a name="status" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3>status</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">status<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<div class="tsd-declaration">
+					</div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L48">ng2/uiSrefStatus.ts:48</a></li>
+						</ul>
+					</aside>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="status.active" class="tsd-anchor"></a>
+						<!---->
+						<!--<h3>active</h3>-->
+						<!---->
+						<div class="tsd-signature tsd-kind-icon">active<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+						<div class="tsd-declaration">
+						</div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L49">ng2/uiSrefStatus.ts:49</a></li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="status.entering" class="tsd-anchor"></a>
+						<!---->
+						<!--<h3>entering</h3>-->
+						<!---->
+						<div class="tsd-signature tsd-kind-icon">entering<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+						<div class="tsd-declaration">
+						</div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L51">ng2/uiSrefStatus.ts:51</a></li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="status.exact" class="tsd-anchor"></a>
+						<!---->
+						<!--<h3>exact</h3>-->
+						<!---->
+						<div class="tsd-signature tsd-kind-icon">exact<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+						<div class="tsd-declaration">
+						</div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L50">ng2/uiSrefStatus.ts:50</a></li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="status.exiting" class="tsd-anchor"></a>
+						<!---->
+						<!--<h3>exiting</h3>-->
+						<!---->
+						<div class="tsd-signature tsd-kind-icon">exiting<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+						<div class="tsd-declaration">
+						</div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/uiSrefStatus.ts#L52">ng2/uiSrefStatus.ts:52</a></li>
+							</ul>
+						</aside>
+					</section>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common.html">common</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common_hof.html">common_<wbr>hof</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common_predicates.html">common_<wbr>predicates</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common_strings.html">common_<wbr>strings</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/core.html">core</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/justjs.html">justjs</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1.html">ng1</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1_directives.html">ng1_<wbr>directives</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1_state_events.html">ng1_<wbr>state_<wbr>events</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng2.html">ng2</a>
+					</li>
+					<li class="current tsd-kind-external-module">
+						<a href="../modules/ng2_directives.html">ng2_<wbr>directives</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/params.html">params</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/path.html">path</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/resolve.html">resolve</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/state.html">state</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/trace.html">trace</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/transition.html">transition</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/url.html">url</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/view.html">view</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="ng2_directives.uisref.html" class="tsd-kind-icon">Ui<wbr>Sref</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="ng2_directives.uisrefactive.html" class="tsd-kind-icon">Ui<wbr>Sref<wbr>Active</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-external-module">
+						<a href="ng2_directives.uisrefstatus.html" class="tsd-kind-icon">Ui<wbr>Sref<wbr>Status</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="ng2_directives.uisrefstatus.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="ng2_directives.uisrefstatus.html#_deregisterhook" class="tsd-kind-icon">_deregister<wbr>Hook</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="ng2_directives.uisrefstatus.html#_globals" class="tsd-kind-icon">_globals</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="ng2_directives.uisrefstatus.html#_stateservice" class="tsd-kind-icon">_state<wbr>Service</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="ng2_directives.uisrefstatus.html#sref" class="tsd-kind-icon">sref</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="ng2_directives.uisrefstatus.html#uisrefstatus" class="tsd-kind-icon">ui<wbr>Sref<wbr>Status</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="ng2_directives.uisrefstatus.html#_setstatus" class="tsd-kind-icon">_set<wbr>Status</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="ng2_directives.uisrefstatus.html#ngondestroy" class="tsd-kind-icon">ng<wbr>OnDestroy</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="ng2_directives.uisrefstatus.html#ngoninit" class="tsd-kind-icon">ng<wbr>OnInit</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="ng2_directives.uisrefstatus.html#processtransition" class="tsd-kind-icon">process<wbr>Transition</a>
+							</li>
+							<li class=" tsd-kind-object-literal tsd-parent-kind-class">
+								<a href="ng2_directives.uisrefstatus.html#status" class="tsd-kind-icon">status</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="ng2_directives.uiview.html" class="tsd-kind-icon">Ui<wbr>View</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="../interfaces/ng2_directives.srefstatus.html" class="tsd-kind-icon">Sref<wbr>Status</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module">
+						<a href="../modules/ng2_directives.html#uirouter_directives" class="tsd-kind-icon">UIROUTER_<wbr>DIRECTIVES</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/ng2_directives.html#getproviders" class="tsd-kind-icon">get<wbr>Providers</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.io" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

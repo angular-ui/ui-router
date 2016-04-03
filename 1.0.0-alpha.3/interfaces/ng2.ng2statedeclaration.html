@@ -1,0 +1,960 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Ng2StateDeclaration | UI-Router</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/typedoctheme.css">
+	<script src="../assets/js/modernizr.js"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">UI-Router</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/ng2.html">ng2</a>
+				</li>
+				<li>
+					<a href="ng2.ng2statedeclaration.html">Ng2StateDeclaration</a>
+				</li>
+			</ul>
+			<h1>Interface Ng2StateDeclaration</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>The StateDeclaration object is used to define a state or nested state.
+						It should be registered with the <a href="../classes/state.stateregistry.html">StateRegistry</a>.</p>
+					</div>
+					<dl class="tsd-comment-tags">
+						<dt>example</dt>
+						<dd><pre><code class="lang-js">
+<span class="hljs-keyword">import</span> {FoldersComponent} <span class="hljs-keyword">from</span> <span class="hljs-string">"./folders"</span>;
+
+<span class="hljs-comment">// StateDeclaration object</span>
+<span class="hljs-keyword">var</span> foldersState = {
+  name: <span class="hljs-string">'folders'</span>,
+  url: <span class="hljs-string">'/folders'</span>,
+  component: FoldersComponent,
+  resolve: {
+    allfolders: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">FolderService</span>) </span>{
+      <span class="hljs-keyword">return</span> FolderService.list();
+    }
+  }
+}
+</code></pre>
+						</dd>
+					</dl>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<a href="state.statedeclaration.html" class="tsd-signature-type">StateDeclaration</a>
+					</li>
+					<li>
+						<a href="ng2.ng2viewdeclaration.html" class="tsd-signature-type">Ng2ViewDeclaration</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">Ng2StateDeclaration</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ng2.ng2statedeclaration.html#abstract" class="tsd-kind-icon">abstract</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ng2.ng2statedeclaration.html#component" class="tsd-kind-icon">component</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ng2.ng2statedeclaration.html#data" class="tsd-kind-icon">data</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ng2.ng2statedeclaration.html#name" class="tsd-kind-icon">name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ng2.ng2statedeclaration.html#onenter" class="tsd-kind-icon">on<wbr>Enter</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ng2.ng2statedeclaration.html#onexit" class="tsd-kind-icon">on<wbr>Exit</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ng2.ng2statedeclaration.html#onretain" class="tsd-kind-icon">on<wbr>Retain</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ng2.ng2statedeclaration.html#params" class="tsd-kind-icon">params</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ng2.ng2statedeclaration.html#parent" class="tsd-kind-icon">parent</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ng2.ng2statedeclaration.html#reloadonsearch" class="tsd-kind-icon">reload<wbr>OnSearch</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ng2.ng2statedeclaration.html#resolve" class="tsd-kind-icon">resolve</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ng2.ng2statedeclaration.html#resolvepolicy" class="tsd-kind-icon">resolve<wbr>Policy</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ng2.ng2statedeclaration.html#url" class="tsd-kind-icon">url</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="ng2.ng2statedeclaration.html#views" class="tsd-kind-icon">views</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="abstract" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> abstract</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">abstract<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span>        <div class="tsd-header">
+							<p> abstract state indicator </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>abstract state indicator</p>
+							</div>
+							<p>An abstract state can never be directly activated.  Use an abstract state to provide inherited
+							properties (url, resolve, data, etc) to children states.</p>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="state.statedeclaration.html">StateDeclaration</a>.<a href="state.statedeclaration.html#abstract">abstract</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/interface.ts#L112">state/interface.ts:112</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="component" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> component</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">component<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Type</span>        <div class="tsd-header">
+							<p> The class of the <code>Component</code> to use for this view. </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>The class of the <code>Component</code> to use for this view.</p>
+							</div>
+							<p>A property of <a href="ng2.ng2statedeclaration.html">Ng2StateDeclaration</a> or <a href="ng2.ng2viewdeclaration.html">Ng2ViewDeclaration</a>:</p>
+							<p>The component class which will be used for this view.</p>
+							<p>Resolve data can be provided to the component using Dependency Injection.  Currently, resolves must be injected
+							into the component using <code>@Inject(&#39;key&#39;)</code>, where <code>key</code> is the name of the resolve.</p>
+							<p>TODO: document ng2 shorthand, like ng1&#39;s shorthand: inside a &quot;views:&quot; block, a bare string <code>&quot;foo&quot;</code> is shorthand for <code>{ component: &quot;foo&quot; }</code></p>
+							<dl class="tsd-comment-tags">
+								<dt>example</dt>
+								<dd><pre><code class="lang-js">
+.state(<span class="hljs-string">'profile'</span>, {
+  <span class="hljs-comment">// Use the &lt;my-profile&gt;&lt;/my-profile&gt; component for the Unnamed view</span>
+  component: MyProfileComponent,
+}
+
+.state(<span class="hljs-string">'messages'</span>, {
+  <span class="hljs-comment">// use the &lt;nav-bar&gt;&lt;/nav-bar&gt; component for the view named 'header'</span>
+  <span class="hljs-comment">// use the &lt;message-list&gt;&lt;/message-list&gt; component for the view named 'content'</span>
+  views: {
+    header: { component: NavBar },
+    content: { component: MessageList }
+  }
+}
+
+.state(<span class="hljs-string">'contacts'</span>, {
+  <span class="hljs-comment">// Inside a "views:" block, supplying only a Component class is shorthand for { component: NavBar }</span>
+  <span class="hljs-comment">// use the &lt;nav-bar&gt;&lt;/nav-bar&gt; component for the view named 'header'</span>
+  <span class="hljs-comment">// use the &lt;contact-list&gt;&lt;/contact-list&gt; component for the view named 'content'</span>
+  views: {
+    header: NavBar,
+    content: ContactList
+  }
+}
+</code></pre>
+								</dd>
+							</dl>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="ng2.ng2viewdeclaration.html">Ng2ViewDeclaration</a>.<a href="ng2.ng2viewdeclaration.html#component">component</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/interface.ts#L184">ng2/interface.ts:184</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="data" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> data</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span>        <div class="tsd-header">
+							<p> An inherited property to store state data </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>An inherited property to store state data</p>
+							</div>
+							<p>This is a spot for you to store inherited state metadata.  Child states&#39; <code>data</code> object will
+							prototypically inherit from the parent state .</p>
+							<p>This is a good spot to put metadata such as <code>requiresAuth</code>.</p>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="state.statedeclaration.html">StateDeclaration</a>.<a href="state.statedeclaration.html#data">data</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/interface.ts#L342">state/interface.ts:342</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="name" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> name</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span>        <div class="tsd-header">
+							<p> The state name </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>The state name</p>
+							</div>
+							<p>A unique state name, e.g. <code>&quot;home&quot;</code>, <code>&quot;about&quot;</code>, <code>&quot;contacts&quot;</code>.
+							To create a parent/child state use a dot, e.g. <code>&quot;about.sales&quot;</code>, <code>&quot;home.newest&quot;</code>.</p>
+							<p>Note: States require unique names.  If you omit this property, you must provide
+							the state name when you register it with the [[$stateProvider]].</p>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="state.statedeclaration.html">StateDeclaration</a>.<a href="state.statedeclaration.html#name">name</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/interface.ts#L104">state/interface.ts:104</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="onenter" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Enter</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Enter<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Function</span>        <div class="tsd-header">
+							<p> A Transition Hook called with the state is being entered.  See: <a href="transition.ihookregistry.html#onenter">IHookRegistry.onEnter</a> </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>A Transition Hook called with the state is being entered.  See: <a href="transition.ihookregistry.html#onenter">IHookRegistry.onEnter</a></p>
+							</div>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="state.statedeclaration.html">StateDeclaration</a>.<a href="state.statedeclaration.html#onenter">onEnter</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/interface.ts#L344">state/interface.ts:344</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="onexit" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Exit</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Exit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Function</span>        <div class="tsd-header">
+							<p> A Transition Hook called with the state is being exited. See: <a href="transition.ihookregistry.html#onexit">IHookRegistry.onExit</a> </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>A Transition Hook called with the state is being exited. See: <a href="transition.ihookregistry.html#onexit">IHookRegistry.onExit</a></p>
+							</div>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="state.statedeclaration.html">StateDeclaration</a>.<a href="state.statedeclaration.html#onexit">onExit</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/interface.ts#L348">state/interface.ts:348</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="onretain" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Retain</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Retain<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Function</span>        <div class="tsd-header">
+							<p> A Transition Hook called with the state is being retained. See: <a href="transition.ihookregistry.html#onretain">IHookRegistry.onRetain</a> </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>A Transition Hook called with the state is being retained. See: <a href="transition.ihookregistry.html#onretain">IHookRegistry.onRetain</a></p>
+							</div>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="state.statedeclaration.html">StateDeclaration</a>.<a href="state.statedeclaration.html#onretain">onRetain</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/interface.ts#L346">state/interface.ts:346</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="params" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> params</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">params<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span>        <div class="tsd-header">
+							<p> Params configuration </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Params configuration</p>
+							</div>
+							<p>An object which optionally configures parameters declared in the url, or defines additional non-url
+							parameters. For each parameter being configured, add a <a href="params.paramdeclaration.html">ParamDeclaration</a> keyed to the name of the parameter.</p>
+							<dl class="tsd-comment-tags">
+								<dt>example</dt>
+								<dd><pre><code class="lang-js">
+params: {
+  param1: {
+   type: <span class="hljs-string">"int"</span>,
+   array: <span class="hljs-literal">true</span>,
+   value: []
+  },
+  param2: {
+    value: <span class="hljs-string">"index"</span>
+  }
+}
+</code></pre>
+								</dd>
+							</dl>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="state.statedeclaration.html">StateDeclaration</a>.<a href="state.statedeclaration.html#params">params</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/interface.ts#L284">state/interface.ts:284</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="parent" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> parent</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">parent<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="state.statedeclaration.html" class="tsd-signature-type">StateDeclaration</a>        <div class="tsd-header">
+							<p> The parent state </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>The parent state</p>
+							</div>
+							<p>Normally, a state&#39;s parent is implied from the state&#39;s <a href="ng2.ng2statedeclaration.html#name">name</a>, e.g., <code>&quot;parentstate.childstate&quot;</code>.</p>
+							<p>Alternatively, you can explicitly set the parent state using this property.  This allows shorter state
+							names, e.g., <code>&lt;a ui-sref=&quot;childstate&quot;&gt;Child&lt;/a&gt;</code> instead of `<a ui-sref="parentstate.childstate">Child</a></p>
+							<p>When using this property, the state&#39;s name should not have any dots in it.</p>
+							<dl class="tsd-comment-tags">
+								<dt>example</dt>
+								<dd><pre><code class="lang-js">
+<span class="hljs-keyword">var</span> parentstate = {
+  name: <span class="hljs-string">'parentstate'</span>
+}
+<span class="hljs-keyword">var</span> childstate = {
+  name: <span class="hljs-string">'childstate'</span>,
+  parent: <span class="hljs-string">'parentstate'</span>
+  <span class="hljs-comment">// or use a JS var which is the parent StateDeclaration, i.e.:</span>
+  <span class="hljs-comment">// parent: parentstate</span>
+}
+</code></pre>
+								</dd>
+							</dl>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="state.statedeclaration.html">StateDeclaration</a>.<a href="state.statedeclaration.html#parent">parent</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/interface.ts#L138">state/interface.ts:138</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="reloadonsearch" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> reload<wbr>OnSearch</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">reload<wbr>OnSearch<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<dl class="tsd-comment-tags">
+								<dt>deprecated</dt>
+								<dd><p>define individual parameters as <a href="params.paramdeclaration.html#dynamic">ParamDeclaration.dynamic</a></p>
+								</dd>
+							</dl>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="state.statedeclaration.html">StateDeclaration</a>.<a href="state.statedeclaration.html#reloadonsearch">reloadOnSearch</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/interface.ts#L353">state/interface.ts:353</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="resolve" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> resolve</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">resolve<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span>        <div class="tsd-header">
+							<p> Resolve - a mechanism to fetch data, which participates in the transition lifecycle </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Resolve - a mechanism to fetch data, which participates in the transition lifecycle</p>
+							</div>
+							<p>An object which defines dynamic dependencies/data that can then be injected into this state (or its children)
+							during a Transition.</p>
+							<p>Define a new dependency by adding a key/value to the <code>resolve</code> property of the <a href="state.statedeclaration.html">StateDeclaration</a>.</p>
+							<ul>
+								<li>The key (string) is the name of the dependency.</li>
+								<li>The value (function) is an injectable function which returns the dependency, or a promise for the dependency.</li>
+							</ul>
+							<dl class="tsd-comment-tags">
+								<dt>example</dt>
+								<dd><pre><code class="lang-js">
+resolve: {
+  <span class="hljs-comment">// If you inject `myStateDependency` into a controller, you'll get "abc"</span>
+  myStateDependency: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"abc"</span>;
+  },
+  myAsyncData: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">$http</span>) </span>{
+    <span class="hljs-comment">// Return a promise (async) for the data</span>
+    <span class="hljs-keyword">return</span> $http.get(<span class="hljs-string">"/api/v1/data"</span>);
+  }
+}
+</code></pre>
+									<h3 id="lifecycle">Lifecycle</h3>
+									<p>Since a resolve function can return a promise, the router will delay entering the state until the  promises
+									are ready.  If any of the promises are rejected, the Transition is aborted with an Error.</p>
+									<p>By default, resolves for a state are fetched just before that state is entered. Note that only states
+										which are being <em>entered</em> have their resolves fetched.  States that are &quot;retained&quot; do not have their resolves
+										re-fetched.  If you are currently in a parent state <code>A</code> and are transitioning to a child state <code>A.B</code>, the
+									previously resolved data for state <code>A</code> can be injected into <code>A.B</code> without delay.</p>
+									<p>Any resolved data for <code>A.B</code> is retained until <code>A.B</code> is exited, e.g., by transitioning back to the parent state <code>A</code>.</p>
+									<p>Because of this, resolves are a great place to fetch your application&#39;s primary data.</p>
+									<h3 id="injecting-resolves-into-other-things">Injecting resolves into other things</h3>
+									<p>During a transition, Resolve data can be injected into:</p>
+									<ul>
+										<li>Transition Hooks, e.g., $transitions.onStart/onEnter</li>
+										<li>ui-view Controllers</li>
+										<li>TemplateProviders and ControllerProviders</li>
+										<li>Other resolves</li>
+									</ul>
+									<h3 id="injecting-other-things-into-resolves">Injecting other things into resolves</h3>
+									<p>Since resolve functions are injected, a common pattern is to inject a custom service such as <code>UserService</code>
+									and delegate to a custom service method, such as <code>UserService.list()</code>;</p>
+									<p>A resolve function can inject some special values:</p>
+									<ul>
+										<li><code>$transition$</code>: The current <a href="../classes/transition.transition-1.html">Transition</a> object; information and API about the current transition, such as
+										&quot;to&quot; and &quot;from&quot; State Parameters and transition options.</li>
+										<li>Other resolves: This resolve can depend on another resolve, either from the same state, or from any parent state.</li>
+										<li><code>$stateParams</code>: (deprecated) The parameters for the current state (Note: these parameter values are</li>
+									</ul>
+								</dd>
+								<dt>example</dt>
+								<dd><pre><code class="lang-js">
+resolve: {
+  <span class="hljs-comment">// Define a resolve 'allusers' which delegates to the UserService</span>
+  allusers: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">UserService</span>) </span>{
+    <span class="hljs-keyword">return</span> UserService.list(); <span class="hljs-comment">// list() returns a promise (async) for all the users</span>
+  },
+  <span class="hljs-comment">// Define a resolve 'user' which depends on the allusers resolve.</span>
+  <span class="hljs-comment">// This resolve function is not called until 'allusers' is ready.</span>
+  user: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">allusers, $transition$</span>) </span>{
+    <span class="hljs-keyword">return</span> _.find(allusers, $transition$.params().userId);
+  }
+}
+</code></pre>
+								</dd>
+							</dl>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="state.statedeclaration.html">StateDeclaration</a>.<a href="state.statedeclaration.html#resolve">resolve</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/interface.ts#L221">state/interface.ts:221</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">Function</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="resolvepolicy" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> resolve<wbr>Policy</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">resolve<wbr>Policy<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Object</span>        <div class="tsd-header">
+							<p> Sets the resolve policy for the state </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Sets the resolve policy for the state</p>
+							</div>
+							<p>This can be either &quot;EAGER&quot; or &quot;LAZY&quot;.  When &quot;EAGER&quot;, the state&#39;s resolves are fetched before any states
+							are entered.  When &quot;LAZY&quot;, the resolves are fetched when the state is being entered.</p>
+							<p>The default is &quot;LAZY&quot;.</p>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="state.statedeclaration.html">StateDeclaration</a>.<a href="state.statedeclaration.html#resolvepolicy">resolvePolicy</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/interface.ts#L231">state/interface.ts:231</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="url" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> url</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">url<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span>        <div class="tsd-header">
+							<p> The url fragment for the state </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>The url fragment for the state</p>
+							</div>
+							<p>A URL fragment (with optional parameters) which is used to match the browser location with this state.</p>
+							<p>This fragment will be appended to the parent state&#39;s URL in order to build up the overall URL for this state.
+							See <a href="../classes/url.urlmatcher.html">UrlMatcher</a> for details on acceptable patterns.</p>
+							<dl class="tsd-comment-tags">
+								<dt>examples</dt>
+								<dd><pre><code class="lang-js">
+url: <span class="hljs-string">"/home"</span>
+<span class="hljs-comment">// Define a parameter named 'userid'</span>
+url: <span class="hljs-string">"/users/:userid"</span>
+<span class="hljs-comment">// param 'bookid' has a custom regexp</span>
+url: <span class="hljs-string">"/books/{bookid:[a-zA-Z_-]}"</span>
+<span class="hljs-comment">// param 'categoryid' is of type 'int'</span>
+url: <span class="hljs-string">"/books/{categoryid:int}"</span>
+<span class="hljs-comment">// two parameters for this state</span>
+url: <span class="hljs-string">"/books/{publishername:string}/{categoryid:int}"</span>
+<span class="hljs-comment">// Query parameters</span>
+url: <span class="hljs-string">"/messages?before&amp;after"</span>
+<span class="hljs-comment">// Query parameters of type 'date'</span>
+url: <span class="hljs-string">"/messages?{before:date}&amp;{after:date}"</span>
+<span class="hljs-comment">// Path and query parameters</span>
+url: <span class="hljs-string">"/messages/:mailboxid?{before:date}&amp;{after:date}"</span>
+</code></pre>
+								</dd>
+							</dl>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="state.statedeclaration.html">StateDeclaration</a>.<a href="state.statedeclaration.html#url">url</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/state/interface.ts#L261">state/interface.ts:261</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="views" class="tsd-anchor"></a>
+					<!---->
+					<!--<h3><span class="tsd-flag ts-flagOptional">Optional</span> views</h3>-->
+					<!---->
+					<div class="tsd-signature tsd-kind-icon">views<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span>        <div class="tsd-header">
+							<p> An optional object used to define multiple named views. </p>
+						</div>
+					</div>
+					<div class="tsd-declaration">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>An optional object used to define multiple named views.</p>
+							</div>
+							<p>Each key is the name of a view, and each value is a <a href="ng2.ng2viewdeclaration.html">Ng2ViewDeclaration</a>.
+							Unnamed views are internally renamed to <code>$default</code>.</p>
+							<p>A view&#39;s name is used to match an active <code>&lt;ui-view&gt;</code> directive in the DOM.  When the state
+							is entered, the state&#39;s views are activated and then matched with active <code>&lt;ui-view&gt;</code> directives:</p>
+							<ul>
+								<li><p>The view&#39;s name is processed into a ui-view target:</p>
+									<ul>
+										<li>ui-view address: an address to a ui-view</li>
+										<li>state anchor: the state to anchor the address to</li>
+									</ul>
+									<p>Examples:</p>
+									<p>Targets three named ui-views in the parent state&#39;s template</p>
+								</li>
+							</ul>
+							<dl class="tsd-comment-tags">
+								<dt>example</dt>
+								<dd><pre><code class="lang-js">
+views: {
+  header: HeaderComponent,
+  body: BodyComponent,
+  footer: FooterComponent
+}
+</code></pre>
+								</dd>
+								<dt>example</dt>
+								<dd><pre><code class="lang-js">
+<span class="hljs-comment">// Targets named ui-view="header" in the template of the ancestor state 'top'</span>
+<span class="hljs-comment">// and the named `ui-view="body" from the parent state's template.</span>
+views: {
+  <span class="hljs-string">'header@top'</span>: MsgHeaderComponent,
+  <span class="hljs-string">'body'</span>: MessagesComponent
+}
+</code></pre>
+									<h2 id="view-targeting-details">View targeting details</h2>
+									<p>There are a few styles of view addressing/targeting.  The most common is a simple <code>ui-view</code> name</p>
+									<h4 id="simple-ui-view-name">Simple ui-view name</h4>
+									<p>Addresses without an <code>@</code> are anchored to the parent state.</p>
+								</dd>
+								<dt>example</dt>
+								<dd><pre><code class="lang-js">
+<span class="hljs-comment">// target the `&lt;div ui-view='foo'&gt;&lt;/div&gt;` created in the parent state's view</span>
+views: { foo: {...} }
+</code></pre>
+									<h4 id="view-name-anchored-to-a-state">View name anchored to a state</h4>
+									<p>You can anchor the <code>ui-view</code> name to a specific state by including an <code>@</code></p>
+								</dd>
+								<dt>example</dt>
+								<dd><pre><code class="lang-js">
+<span class="hljs-comment">// target the `&lt;div ui-view='foo'&gt;&lt;/div&gt;` which was created in a</span>
+<span class="hljs-comment">// view owned by the state `bar.baz`</span>
+views: { <span class="hljs-string">'foo@bar.baz'</span>: {...} }
+</code></pre>
+									<h4 id="absolute-addressing">Absolute addressing</h4>
+									<p>You can address a <code>ui-view</code> absolutely, using dotted notation, by prefixing the address with a <code>!</code>.  Dotted
+									addresses map to the hierarchy of <code>ui-view</code>s active in the DOM:</p>
+								</dd>
+								<dt>example</dt>
+								<dd><pre><code class="lang-js">
+<span class="hljs-comment">// absolutely target the `&lt;div ui-view='nested'&gt;&lt;/div&gt;`... which was created</span>
+<span class="hljs-comment">// in the unnamed/$default root `&lt;ui-view&gt;&lt;/ui-view&gt;`</span>
+views: { <span class="hljs-string">'!$default.nested'</span>: {...} }
+</code></pre>
+									<h4 id="relative-addressing">Relative addressing</h4>
+									<p>Absolute addressing is actually relative addressing, only anchored to the unnamed root state.  You can also use
+									relative addressing anchored to any state, in order to target a target deeply nested <code>ui-views</code>:</p>
+								</dd>
+								<dt>example</dt>
+								<dd><pre><code class="lang-js">
+
+<span class="hljs-comment">// target the `&lt;div ui-view='bar'&gt;&lt;/div&gt;`... which was created inside the</span>
+<span class="hljs-comment">// `&lt;div ui-view='bar'&gt;&lt;/div&gt;`... which was created inside the parent state's template.</span>
+views: { <span class="hljs-string">'foo.bar'</span>: {...} }
+</code></pre>
+								</dd>
+								<dt>example</dt>
+								<dd><p>```js</p>
+									<p>// target the <code>&lt;div ui-view=&#39;bar&#39;&gt;&lt;/div&gt;</code>...  which was created in
+										// <code>&lt;div ui-view=&#39;foo&#39;&gt;&lt;/div&gt;</code>... which was created in a template crom the state <code>baz.qux</code>
+									views: { &#39;foo.bar@baz.qux&#39;: {...} }</p>
+									<hr>
+									<h2 id="state-component-and-views-incompatiblity">State <code>component:</code> and <code>views:</code> incompatiblity</h2>
+									<p>If a state has a <code>views</code> object, the state-level <code>component:</code> property is ignored.  Therefore,
+										if <em>any view</em> for a state is declared in the <code>views</code> object, then <em>all of the state&#39;s views</em> must be defined in
+									the <code>views</code> object.</p>
+								</dd>
+							</dl>
+						</div>
+					</div>
+					<aside class="tsd-sources">
+						<p>Overwrites <a href="state.statedeclaration.html">StateDeclaration</a>.<a href="state.statedeclaration.html#views">views</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/angular-ui/ui-router/blob/master/src/ng2/interface.ts#L140">ng2/interface.ts:140</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="ng2.ng2viewdeclaration.html" class="tsd-signature-type">Ng2ViewDeclaration</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common.html">common</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common_hof.html">common_<wbr>hof</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common_predicates.html">common_<wbr>predicates</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/common_strings.html">common_<wbr>strings</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/core.html">core</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/justjs.html">justjs</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1.html">ng1</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1_directives.html">ng1_<wbr>directives</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng1_state_events.html">ng1_<wbr>state_<wbr>events</a>
+					</li>
+					<li class="current tsd-kind-external-module">
+						<a href="../modules/ng2.html">ng2</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/ng2_directives.html">ng2_<wbr>directives</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/params.html">params</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/path.html">path</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/resolve.html">resolve</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/state.html">state</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/trace.html">trace</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/transition.html">transition</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/url.html">url</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/view.html">view</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="../classes/ng2.ng2viewconfig.html" class="tsd-kind-icon">Ng2<wbr>View<wbr>Config</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="../classes/ng2.uirouterconfig.html" class="tsd-kind-icon">UIRouter<wbr>Config</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="ng2.ng2component.html" class="tsd-kind-icon">Ng2<wbr>Component</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="ng2.ng2statedeclaration.html" class="tsd-kind-icon">Ng2<wbr>State<wbr>Declaration</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ng2.ng2statedeclaration.html#abstract" class="tsd-kind-icon">abstract</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ng2.ng2statedeclaration.html#component" class="tsd-kind-icon">component</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ng2.ng2statedeclaration.html#data" class="tsd-kind-icon">data</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ng2.ng2statedeclaration.html#name" class="tsd-kind-icon">name</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ng2.ng2statedeclaration.html#onenter" class="tsd-kind-icon">on<wbr>Enter</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ng2.ng2statedeclaration.html#onexit" class="tsd-kind-icon">on<wbr>Exit</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ng2.ng2statedeclaration.html#onretain" class="tsd-kind-icon">on<wbr>Retain</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ng2.ng2statedeclaration.html#params" class="tsd-kind-icon">params</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ng2.ng2statedeclaration.html#parent" class="tsd-kind-icon">parent</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ng2.ng2statedeclaration.html#reloadonsearch" class="tsd-kind-icon">reload<wbr>OnSearch</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ng2.ng2statedeclaration.html#resolve" class="tsd-kind-icon">resolve</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ng2.ng2statedeclaration.html#resolvepolicy" class="tsd-kind-icon">resolve<wbr>Policy</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ng2.ng2statedeclaration.html#url" class="tsd-kind-icon">url</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="ng2.ng2statedeclaration.html#views" class="tsd-kind-icon">views</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="ng2.ng2viewdeclaration.html" class="tsd-kind-icon">Ng2<wbr>View<wbr>Declaration</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module">
+						<a href="../modules/ng2.html#uirouter_providers" class="tsd-kind-icon">UIROUTER_<wbr>PROVIDERS</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="../modules/ng2.html#ng2viewsbuilder" class="tsd-kind-icon">ng2<wbr>Views<wbr>Builder</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/ng2.html#uirouterfactory" class="tsd-kind-icon">ui<wbr>Router<wbr>Factory</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.io" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

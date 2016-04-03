@@ -1,0 +1,413 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>UI-Router</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<link rel="stylesheet" href="assets/css/typedoctheme.css">
+	<script src="assets/js/modernizr.js"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">UI-Router</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1> UI-Router</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<h1 id="angularui-router-nbsp-build-status-https-travis-ci-org-angular-ui-ui-router-svg-branch-master-https-travis-ci-org-angular-ui-ui-router-">AngularUI Router &nbsp;<a href="https://travis-ci.org/angular-ui/ui-router"><img src="https://travis-ci.org/angular-ui/ui-router.svg?branch=master" alt="Build Status"></a></h1>
+				<p><strong>Note: this is the Angular 1.x source for UI-Router version 1.0 alpha.  If you are looking for the source for UI-Router
+				version 0.2.x, it can be found <a href="https://github.com/angular-ui/ui-router/tree/legacy">here</a></strong></p>
+				<hr>
+				<h4 id="the-de-facto-solution-to-flexible-routing-in-angular">The de-facto solution to flexible routing in angular</h4>
+				<hr>
+				<p><strong><a href="http://angular-ui.github.io/ui-router/release/angular-ui-router.js">Download stable</a></strong> (or <strong><a href="http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js">Minified</a></strong>) <strong>|</strong>
+					<strong><a href="https://github.com/angular-ui/ui-router/wiki">Guide</a> |</strong>
+					<strong><a href="http://angular-ui.github.io/ui-router/site">API</a> |</strong>
+					<strong><a href="http://ui-router.github.io/sample-app/#/mymessages">Sample</a> (<a href="https://github.com/ui-router/sample-app">Src</a>) |</strong>
+					<strong><a href="https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions">FAQ</a> |</strong>
+					<strong><a href="#resources">Resources</a> |</strong>
+					<strong><a href="https://github.com/angular-ui/ui-router/blob/master/CONTRIBUTING.md#report-an-issue">Report an Issue</a> |</strong>
+					<strong><a href="https://github.com/angular-ui/ui-router/blob/master/CONTRIBUTING.md#contribute">Contribute</a> |</strong>
+				<strong><a href="http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router">Help!</a> |</strong></p>
+				<hr>
+				<p>Angular UI-Router is a client-side <a href="https://en.wikipedia.org/wiki/Single-page_application">Single Page Application</a>
+				routing framework for <a href="http://angularjs.org">AngularJS</a>.  </p>
+				<p>Routing frameworks for SPAs update the browser&#39;s URL as the user nagivates through the app.  Conversely, this allows
+					changes to the browser&#39;s URL to drive navigation through the app, thus allowing the user to create a bookmark to a
+				location deep within the SPA.</p>
+				<p>UI-Router applications are modeled as a hierarchical tree of states. UI-Router provides a
+					<a href="https://en.wikipedia.org/wiki/Finite-state_machine"><em>state machine</em></a> to manage the transitions between those
+				application states in a transaction-like manner. </p>
+				<h2 id="get-started">Get Started</h2>
+				<p><strong>(1)</strong> Get UI-Router in one of the following ways:</p>
+				<ul>
+					<li>clone &amp; <a href="CONTRIBUTING.md#developing">build</a> this repository</li>
+					<li><a href="http://angular-ui.github.io/ui-router/release/angular-ui-router.js">download the release</a> (or <a href="http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js">minified</a>)</li>
+					<li><a href="http://cdnjs.com/libraries/angular-ui-router">link to cdn</a></li>
+					<li>via <strong><a href="http://jspm.io/">jspm</a></strong>: by running <code>$ jspm install angular-ui-router</code> from your console</li>
+					<li>or via <strong><a href="https://www.npmjs.org/">npm</a></strong>: by running <code>$ npm install angular-ui-router</code> from your console</li>
+					<li>or via <strong><a href="http://bower.io/">Bower</a></strong>: by running <code>$ bower install angular-ui-router</code> from your console</li>
+					<li>or via <strong><a href="https://github.com/component/component">Component</a></strong>: by running <code>$ component install angular-ui/ui-router</code> from your console</li>
+				</ul>
+				<p><strong>(2)</strong> Include <code>angular-ui-router.js</code> (or <code>angular-ui-router.min.js</code>) in your <code>index.html</code>, after including Angular itself (For Component users: ignore this step)</p>
+				<p><strong>(3)</strong> Add <code>&#39;ui.router&#39;</code> to your main module&#39;s list of dependencies (For Component users: replace <code>&#39;ui.router&#39;</code> with <code>require(&#39;angular-ui-router&#39;)</code>)</p>
+				<p>When you&#39;re done, your setup should look similar to the following:</p>
+				<p>&gt;</p>
+				<pre><code class="lang-html"><span class="hljs-doctype">&lt;!doctype html&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">html</span> <span class="hljs-attribute">ng-app</span>=<span class="hljs-value">"myApp"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"js/angular-ui-router.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span>&gt;</span><span class="actionscript">
+        <span class="hljs-keyword">var</span> myApp = angular.module(<span class="hljs-string">'myApp'</span>, [<span class="hljs-string">'ui.router'</span>]);
+        <span class="hljs-comment">// For Component users, it should look like this:</span>
+        <span class="hljs-comment">// var myApp = angular.module('myApp', [require('angular-ui-router')]);</span>
+    </span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+    ...
+<span class="hljs-tag">&lt;/<span class="hljs-title">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">body</span>&gt;</span>
+    ...
+<span class="hljs-tag">&lt;/<span class="hljs-title">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">html</span>&gt;</span>
+</code></pre>
+				<h3 id="-nested-states-views-http-plnkr-co-edit-u18kqc-p-preview-"><a href="http://plnkr.co/edit/u18KQc?p=preview">Nested States &amp; Views</a></h3>
+				<p>The majority of UI-Router&#39;s power is in its ability to nest states &amp; views.</p>
+				<p><strong>(1)</strong> First, follow the <a href="#get-started">setup</a> instructions detailed above.</p>
+				<p><strong>(2)</strong> Then, add a <a href="https://github.com/angular-ui/ui-router/wiki/Quick-Reference#ui-view"><code>ui-view</code> directive</a> to the <code>&lt;body /&gt;</code> of your app.</p>
+				<p>&gt;</p>
+				<pre><code class="lang-html"><span class="hljs-comment">&lt;!-- index.html --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">ui-view</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+    <span class="hljs-comment">&lt;!-- We'll also add some navigation: --&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">a</span> <span class="hljs-attribute">ui-sref</span>=<span class="hljs-value">"state1"</span>&gt;</span>State 1<span class="hljs-tag">&lt;/<span class="hljs-title">a</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">a</span> <span class="hljs-attribute">ui-sref</span>=<span class="hljs-value">"state2"</span>&gt;</span>State 2<span class="hljs-tag">&lt;/<span class="hljs-title">a</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">body</span>&gt;</span>
+</code></pre>
+				<p><strong>(3)</strong> You&#39;ll notice we also added some links with <a href="https://github.com/angular-ui/ui-router/wiki/Quick-Reference#ui-sref"><code>ui-sref</code> directives</a>. In addition to managing state transitions, this directive auto-generates the <code>href</code> attribute of the <code>&lt;a /&gt;</code> element it&#39;s attached to, if the corresponding state has a URL. Next we&#39;ll add some templates. These will plug into the <code>ui-view</code> within <code>index.html</code>. Notice that they have their own <code>ui-view</code> as well! That is the key to nesting states and views.</p>
+				<p>&gt;</p>
+				<pre><code class="lang-html"><span class="hljs-comment">&lt;!-- partials/state1.html --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">h1</span>&gt;</span>State 1<span class="hljs-tag">&lt;/<span class="hljs-title">h1</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">hr</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">a</span> <span class="hljs-attribute">ui-sref</span>=<span class="hljs-value">"state1.list"</span>&gt;</span>Show List<span class="hljs-tag">&lt;/<span class="hljs-title">a</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">ui-view</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+</code></pre>
+				<pre><code class="lang-html"><span class="hljs-comment">&lt;!-- partials/state2.html --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">h1</span>&gt;</span>State 2<span class="hljs-tag">&lt;/<span class="hljs-title">h1</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">hr</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">a</span> <span class="hljs-attribute">ui-sref</span>=<span class="hljs-value">"state2.list"</span>&gt;</span>Show List<span class="hljs-tag">&lt;/<span class="hljs-title">a</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">ui-view</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+</code></pre>
+				<p><strong>(4)</strong> Next, we&#39;ll add some child templates. <em>These</em> will get plugged into the <code>ui-view</code> of their parent state templates.</p>
+				<p>&gt;</p>
+				<pre><code class="lang-html"><span class="hljs-comment">&lt;!-- partials/state1.list.html --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">h3</span>&gt;</span>List of State 1 Items<span class="hljs-tag">&lt;/<span class="hljs-title">h3</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">ul</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">li</span> <span class="hljs-attribute">ng-repeat</span>=<span class="hljs-value">"item in items"</span>&gt;</span>{{ item }}<span class="hljs-tag">&lt;/<span class="hljs-title">li</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">ul</span>&gt;</span>
+</code></pre>
+				<p>&gt;</p>
+				<pre><code class="lang-html"><span class="hljs-comment">&lt;!-- partials/state2.list.html --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">h3</span>&gt;</span>List of State 2 Things<span class="hljs-tag">&lt;/<span class="hljs-title">h3</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">ul</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">li</span> <span class="hljs-attribute">ng-repeat</span>=<span class="hljs-value">"thing in things"</span>&gt;</span>{{ thing }}<span class="hljs-tag">&lt;/<span class="hljs-title">li</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">ul</span>&gt;</span>
+</code></pre>
+				<p><strong>(5)</strong> Finally, we&#39;ll wire it all up with <code>$stateProvider</code>. Set up your states in the module config, as in the following:</p>
+				<p>&gt;</p>
+				<pre><code class="lang-javascript">myApp.config(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">$stateProvider, $urlRouterProvider</span>) </span>{
+  <span class="hljs-comment">//</span>
+  <span class="hljs-comment">// For any unmatched url, redirect to /state1</span>
+  $urlRouterProvider.otherwise(<span class="hljs-string">"/state1"</span>);
+  <span class="hljs-comment">//</span>
+  <span class="hljs-comment">// Now set up the states</span>
+  $stateProvider
+    .state(<span class="hljs-string">'state1'</span>, {
+      url: <span class="hljs-string">"/state1"</span>,
+      templateUrl: <span class="hljs-string">"partials/state1.html"</span>
+    })
+    .state(<span class="hljs-string">'state1.list'</span>, {
+      url: <span class="hljs-string">"/list"</span>,
+      templateUrl: <span class="hljs-string">"partials/state1.list.html"</span>,
+      controller: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">$scope</span>) </span>{
+        $scope.items = [<span class="hljs-string">"A"</span>, <span class="hljs-string">"List"</span>, <span class="hljs-string">"Of"</span>, <span class="hljs-string">"Items"</span>];
+      }
+    })
+    .state(<span class="hljs-string">'state2'</span>, {
+      url: <span class="hljs-string">"/state2"</span>,
+      templateUrl: <span class="hljs-string">"partials/state2.html"</span>
+    })
+    .state(<span class="hljs-string">'state2.list'</span>, {
+      url: <span class="hljs-string">"/list"</span>,
+      templateUrl: <span class="hljs-string">"partials/state2.list.html"</span>,
+      controller: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">$scope</span>) </span>{
+        $scope.things = [<span class="hljs-string">"A"</span>, <span class="hljs-string">"Set"</span>, <span class="hljs-string">"Of"</span>, <span class="hljs-string">"Things"</span>];
+      }
+    });
+});
+</code></pre>
+				<p><strong>(6)</strong> See this quick start example in action.</p>
+				<blockquote>
+					<p><strong><a href="http://plnkr.co/edit/u18KQc?p=preview">Go to Quick Start Plunker for Nested States &amp; Views</a></strong></p>
+				</blockquote>
+				<p><strong>(7)</strong> This only scratches the surface</p>
+				<blockquote>
+					<p><strong><a href="https://github.com/angular-ui/ui-router/wiki">Dive Deeper!</a></strong></p>
+				</blockquote>
+				<h3 id="-multiple-named-views-http-plnkr-co-edit-sdocgs-p-preview-"><a href="http://plnkr.co/edit/SDOcGS?p=preview">Multiple &amp; Named Views</a></h3>
+				<p>Another great feature is the ability to have multiple <code>ui-view</code>s view per template.</p>
+				<p><strong>Pro Tip:</strong> <em>While multiple parallel views are a powerful feature, you&#39;ll often be able to manage your
+				interfaces more effectively by nesting your views, and pairing those views with nested states.</em></p>
+				<p><strong>(1)</strong> Follow the <a href="#get-started">setup</a> instructions detailed above.</p>
+				<p><strong>(2)</strong> Add one or more <code>ui-view</code> to your app, give them names.
+				&gt;</p>
+				<pre><code class="lang-html"><span class="hljs-comment">&lt;!-- index.html --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">ui-view</span>=<span class="hljs-value">"viewA"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">ui-view</span>=<span class="hljs-value">"viewB"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+    <span class="hljs-comment">&lt;!-- Also a way to navigate --&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">a</span> <span class="hljs-attribute">ui-sref</span>=<span class="hljs-value">"route1"</span>&gt;</span>Route 1<span class="hljs-tag">&lt;/<span class="hljs-title">a</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">a</span> <span class="hljs-attribute">ui-sref</span>=<span class="hljs-value">"route2"</span>&gt;</span>Route 2<span class="hljs-tag">&lt;/<span class="hljs-title">a</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">body</span>&gt;</span>
+</code></pre>
+				<p><strong>(3)</strong> Set up your states in the module config:
+				&gt;</p>
+				<pre><code class="lang-javascript">myApp.config(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">$stateProvider</span>) </span>{
+  $stateProvider
+    .state(<span class="hljs-string">'index'</span>, {
+      url: <span class="hljs-string">""</span>,
+      views: {
+        <span class="hljs-string">"viewA"</span>: { template: <span class="hljs-string">"index.viewA"</span> },
+        <span class="hljs-string">"viewB"</span>: { template: <span class="hljs-string">"index.viewB"</span> }
+      }
+    })
+    .state(<span class="hljs-string">'route1'</span>, {
+      url: <span class="hljs-string">"/route1"</span>,
+      views: {
+        <span class="hljs-string">"viewA"</span>: { template: <span class="hljs-string">"route1.viewA"</span> },
+        <span class="hljs-string">"viewB"</span>: { template: <span class="hljs-string">"route1.viewB"</span> }
+      }
+    })
+    .state(<span class="hljs-string">'route2'</span>, {
+      url: <span class="hljs-string">"/route2"</span>,
+      views: {
+        <span class="hljs-string">"viewA"</span>: { template: <span class="hljs-string">"route2.viewA"</span> },
+        <span class="hljs-string">"viewB"</span>: { template: <span class="hljs-string">"route2.viewB"</span> }
+      }
+    })
+});
+</code></pre>
+				<p><strong>(4)</strong> See this quick start example in action.</p>
+				<blockquote>
+					<p><strong><a href="http://plnkr.co/edit/SDOcGS?p=preview">Go to Quick Start Plunker for Multiple &amp; Named Views</a></strong></p>
+				</blockquote>
+				<h2 id="resources">Resources</h2>
+				<ul>
+					<li><a href="https://github.com/angular-ui/ui-router/wiki">In-Depth Guide</a></li>
+					<li><a href="http://angular-ui.github.io/ui-router/site">API Reference</a></li>
+					<li><a href="http://angular-ui.github.com/ui-router/sample/">Sample App</a> (<a href="https://github.com/angular-ui/ui-router/tree/gh-pages/sample">Source</a>)</li>
+					<li><a href="https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions">FAQ</a></li>
+					<li><a href="http://slid.es/timkindberg/ui-router#/">Slides comparing ngRoute to ui-router</a></li>
+					<li><a href="http://christopherthielen.github.io/ui-router-extras/#/home">UI-Router Extras / Addons</a> (@christopherthielen)</li>
+				</ul>
+				<h3 id="videos">Videos</h3>
+				<ul>
+					<li><a href="https://egghead.io/lessons/angularjs-introduction-ui-router">Introduction Video</a> (egghead.io)</li>
+					<li><a href="https://www.youtube.com/watch?v=lBqiZSemrqg">Tim Kindberg on Angular UI-Router</a></li>
+					<li><a href="https://egghead.io/lessons/angularjs-ui-router-activating-states">Activating States</a> (egghead.io)</li>
+					<li><a href="http://youtu.be/QETUuZ27N0w">Learn Angular.js using UI-Router</a> (LearnCode.academy)</li>
+				</ul>
+				<h2 id="reporting-issues-and-contributing">Reporting issues and Contributing</h2>
+				<p>Please read our <a href="CONTRIBUTING.md">Contributor guidelines</a> before reporting an issue or creating a pull request.</p>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/common.html">common</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/common_hof.html">common_<wbr>hof</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/common_predicates.html">common_<wbr>predicates</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/common_strings.html">common_<wbr>strings</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/core.html">core</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/justjs.html">justjs</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/ng1.html">ng1</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/ng1_directives.html">ng1_<wbr>directives</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/ng1_state_events.html">ng1_<wbr>state_<wbr>events</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/ng2.html">ng2</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/ng2_directives.html">ng2_<wbr>directives</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/params.html">params</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/path.html">path</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/resolve.html">resolve</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/state.html">state</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/trace.html">trace</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/transition.html">transition</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/url.html">url</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/view.html">view</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.io" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>
