@@ -23,6 +23,12 @@ const getProviders = (injector) => {
   return providers;
 };
 
+// These are provide()d as the string UiView.PARENT_INJECT
+export interface ParentUiViewInject {
+  context: ViewContext;
+  fqn: string;
+}
+
 /**
  * A UI-Router viewport directive, which is filled in by a view (component) on a state.
  *
@@ -99,29 +105,25 @@ export class UiView {
   deregister: Function;
   uiViewData: any = {};
 
-  static INJECT = {
-    fqn: "UiView.parentFQN",
-    context: "UiView.parentContext"
-  };
+  static PARENT_INJECT = "UiView.PARENT_INJECT";
 
   constructor(
       public router: UIRouter,
-      @Inject(UiView.INJECT.context) public parentContext: ViewContext,
-      @Inject(UiView.INJECT.fqn) public parentFqn: string,
+      @Inject(UiView.PARENT_INJECT) public parent: ParentUiViewInject,
       public dcl: DynamicComponentLoader,
       public elementRef: ElementRef,
       public injector: Injector
   ) { }
 
   ngOnInit() {
-    let parentFqn = this.parentFqn;
+    let parentFqn = this.parent.fqn;
     let name = this.name || '$default';
 
     this.uiViewData = {
       id: id++,
       name: name,
       fqn: parentFqn ? parentFqn + "." + name : name,
-      creationContext: this.parentContext,
+      creationContext: this.parent.context,
       configUpdated: this.viewConfigUpdated.bind(this),
       config: undefined
     };
@@ -131,10 +133,11 @@ export class UiView {
 
   disposeLast() {
     if (this.componentRef) this.componentRef.dispose();
+    this.componentRef = null;
   }
 
   ngOnDestroy() {
-    this.deregister();
+    if (this.deregister) this.deregister();
     this.disposeLast();
   }
 
@@ -159,11 +162,10 @@ export class UiView {
     let rc = config.node.resolveContext;
     let resolvables = rc.getResolvables();
     let rawProviders = Object.keys(resolvables).map(key => provide(key, { useValue: resolvables[key].data }));
-    rawProviders.push(provide(UiView.INJECT.context, { useValue: config.viewDecl.$context }));
-    rawProviders.push(provide(UiView.INJECT.fqn, { useValue: uiViewData.fqn }));
+    rawProviders.push(provide(UiView.PARENT_INJECT, { useValue: { context: config.viewDecl.$context, fqn: uiViewData.fqn } }));
     let providers = Injector.resolve(rawProviders);
 
-    let exclusions = [UiView.INJECT.context, UiView.INJECT.fqn];
+    let exclusions = [UiView.PARENT_INJECT];
     providers = getProviders(injector).filter(x => exclusions.indexOf(x.key.displayName) === -1).concat(providers);
 
     // The 'controller' should be a Component class

@@ -4,8 +4,7 @@ import {Directive, Inject, Input} from "angular2/core";
 import {Optional} from "angular2/core";
 import {ElementRef} from "angular2/core";
 import {Renderer} from "angular2/core";
-import {UiView} from "./uiView";
-import {ViewContext} from "../view/interface";
+import {UiView, ParentUiViewInject} from "./uiView";
 import {extend} from "../common/common";
 
 /** @hidden */
@@ -69,7 +68,7 @@ export class UiSref {
 
   constructor(
       private _router: UIRouter,
-      @Inject(UiView.INJECT.context) public context: ViewContext,
+      @Inject(UiView.PARENT_INJECT) public parent: ParentUiViewInject,
       @Optional() private _anchorUiSref: AnchorUiSref
   ) { }
 
@@ -88,7 +87,7 @@ export class UiSref {
   }
 
   getOptions() {
-    let defOpts = { relative: this.context.name, inherit: true };
+    let defOpts = { relative: this.parent && this.parent.context && this.parent.context.name, inherit: true };
     return extend(defOpts, this.options || {});
   }
 
