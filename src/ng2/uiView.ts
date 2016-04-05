@@ -11,6 +11,7 @@ import {trace} from "../common/trace";
 import {Inject} from "angular2/core";
 import {ViewContext, ViewConfig} from "../view/interface";
 import {Ng2ViewDeclaration} from "./interface";
+import {ng2ComponentInputs} from "./componentUtil";
 
 /** @hidden */
 let id = 0;
@@ -168,10 +169,20 @@ export class UiView {
     let exclusions = [UiView.PARENT_INJECT];
     providers = getProviders(injector).filter(x => exclusions.indexOf(x.key.displayName) === -1).concat(providers);
 
-    // The 'controller' should be a Component class
-    // TODO: pull from 'component' declaration, do not require template.
     let component = <Type> viewDecl.component;
-    dcl.loadIntoLocation(component, elementRef, "content", providers).then(ref => this.componentRef = ref);
+    dcl.loadIntoLocation(component, elementRef, "content", providers).then(ref => {
+      this.componentRef = ref;
+
+      // TODO: wire uiCanExit and uiOnParamsChanged callbacks
+
+      // Set resolve data to matching @Input("prop")
+      let inputs = ng2ComponentInputs(component);
+      let bindings = viewDecl['bindings'] || {};
+
+      inputs.map(tuple => ({ prop: tuple.prop, resolve: bindings[tuple.prop] || tuple.resolve }))
+          .filter(tuple => resolvables[tuple.resolve] !== undefined)
+          .forEach(tuple => { ref.instance[tuple.prop] = resolvables[tuple.resolve].data });
+    });
   }
 }
 
