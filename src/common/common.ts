@@ -7,7 +7,8 @@
 import {isFunction, isString, isArray, isRegExp, isDate} from "./predicates";
 import { all, any, not, prop, curry } from "./hof";
 
-let angular = (<any> window).angular || {};
+let w: any = typeof window === 'undefined' ? {} : window;
+let angular = w.angular || {};
 export const fromJson = angular.fromJson || JSON.parse.bind(JSON);
 export const toJson = angular.toJson || JSON.stringify.bind(JSON);
 export const copy = angular.copy || _copy;
