@@ -1,3 +1,18 @@
+<a name="1.0.0-alpha.4"></a>
+# [1.0.0-alpha.4](https://github.com/angular-ui/ui-router/compare/1.0.0-alpha.3...v1.0.0-alpha.4) (2016-04-06)
+
+### Bug Fixes
+
+* **ng2.uiView:** Fix "Invalid left-hand in assignment" ([3f711a1](https://github.com/angular-ui/ui-router/commit/3f711a1))
+* **view:** only run ng1 route-to-component code if component: is a string ([ec1c534](https://github.com/angular-ui/ui-router/commit/ec1c534))
+
+### Features
+
+* **uiView:** add support for hybrid ng1/ng2 ui-router apps via ng-upgrade and http://github.com/ui-router/ng1-to-ng2
+* **ng2.uiView:** bind resolve data to input[] and @Input(), process bindings: ([f6dae28](https://github.com/angular-ui/ui-router/commit/f6dae28))
+
+
+
 <a name="1.0.0-alpha.2"></a>
 # [1.0.0-alpha.2](https://github.com/angular-ui/ui-router/compare/1.0.0-alpha.1...v1.0.0-alpha.2) (2016-04-03)
 
