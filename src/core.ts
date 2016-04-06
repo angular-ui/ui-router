@@ -8,5 +8,6 @@ export * from "./state/module";
 export * from "./transition/module";
 export * from "./url/module";
 export * from "./view/module";
+export * from "./globals";
 
 export { UIRouter } from "./router";

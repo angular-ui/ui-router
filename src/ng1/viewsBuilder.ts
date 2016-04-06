@@ -49,7 +49,8 @@ export function ng1ViewsBuilder(state: State) {
       config.templateProvider = ['$injector', function($injector) {
         const resolveFor = key => config.bindings && config.bindings[key] || key;
         const prefix = angular.version.minor >= 3 ? "::" : "";
-        let attrs = getComponentInputs($injector, config.component).map(key => `${kebobString(key)}='${prefix}$resolve.${resolveFor(key)}'`).join(" ");
+        let attrs = getComponentInputs($injector, config.component)
+            .map(key => `${kebobString(key)}='${prefix}$resolve.${resolveFor(key)}'`).join(" ");
         let kebobName = kebobString(config.component);
         return `<${kebobName} ${attrs}></${kebobName}>`;
       }];

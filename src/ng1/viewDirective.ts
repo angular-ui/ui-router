@@ -1,7 +1,7 @@
 /** @module ng1_directives */ /** for typedoc */
 "use strict";
 import {extend, map, unnestR, filter} from "../common/common";
-import {isDefined, isFunction} from "../common/predicates";
+import {isDefined, isFunction, isString} from "../common/predicates";
 import {trace} from "../common/trace";
 import {ActiveUIView} from "../view/interface";
 import {Ng1ViewConfig} from "./viewsBuilder";
@@ -357,7 +357,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,
         }
 
         // Wait for the component to appear in the DOM
-        if (cfg.viewDecl.component) {
+        if (isString(cfg.viewDecl.component)) {
           let cmp = cfg.viewDecl.component;
           let kebobName = kebobString(cmp);
           let getComponentController = () => {

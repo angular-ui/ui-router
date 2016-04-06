@@ -110,9 +110,7 @@ export const UIROUTER_PROVIDERS: Provider[] = [
 
   provide(UIRouterGlobals, { useFactory: (r: UIRouter) => { return r.globals; }, deps: [UIRouter]}),
 
-  provide(UiView.INJECT.context, { useFactory: (r: StateRegistry) => { return r.root(); }, deps: [StateRegistry]} ),
-
-  provide(UiView.INJECT.fqn, { useValue: null })
+  provide(UiView.PARENT_INJECT, { useFactory: (r: StateRegistry) => { return { fqn: null, context: r.root() } }, deps: [StateRegistry]} )
 
 ];
 

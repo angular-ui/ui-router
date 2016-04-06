@@ -11,6 +11,7 @@ import {trace} from "../common/trace";
 import {Inject} from "angular2/core";
 import {ViewContext, ViewConfig} from "../view/interface";
 import {Ng2ViewDeclaration} from "./interface";
+import {ng2ComponentInputs} from "./componentUtil";
 
 /** @hidden */
 let id = 0;
@@ -22,6 +23,12 @@ const getProviders = (injector) => {
   }
   return providers;
 };
+
+// These are provide()d as the string UiView.PARENT_INJECT
+export interface ParentUiViewInject {
+  context: ViewContext;
+  fqn: string;
+}
 
 /**
  * A UI-Router viewport directive, which is filled in by a view (component) on a state.
@@ -84,44 +91,39 @@ const getProviders = (injector) => {
   // <div style="padding: 1em; border: 1px solid lightgrey;">
   //
   //   <div #content style="color: lightgrey; font-size: smaller;">
-  //     <div>ui-view #{{uiViewData.id}} created by '{{ parentContext.name || "(root)" }}' state</div>
-  //     <div>name: (absolute) '{{uiViewData.fqn}}' (contextual) '{{uiViewData.name}}@{{parentContext.name}}' </div>
-  //     <div>currently filled by: '{{(uiViewData.config && uiViewData.config.viewDecl.$context) || 'empty...'}}'</div>
+  //     <div>ui-view #{{uiViewData?.id}} created by '{{ parentContext?.name || "(root)" }}' state</div>
+  //     <div>name: (absolute) '{{uiViewData?.fqn}}' (contextual) '{{uiViewData?.name}}@{{parentContext?.name}}' </div>
+  //     <div>currently filled by: '{{(uiViewData?.config && uiViewData?.config?.viewDecl?.$context) || 'empty...'}}'</div>
   //   </div>
   //
   // </div>`
 })
 export class UiView {
   @Input() name: string;
-  @Input() set 'ui-view'(val) { this.name = val; }
-
+  @Input('ui-view') set _name(val) { this.name = val; }
   componentRef: ComponentRef;
   deregister: Function;
   uiViewData: any = {};
 
-  static INJECT = {
-    fqn: "UiView.parentFQN",
-    context: "UiView.parentContext"
-  };
+  static PARENT_INJECT = "UiView.PARENT_INJECT";
 
   constructor(
       public router: UIRouter,
-      @Inject(UiView.INJECT.context) public parentContext: ViewContext,
-      @Inject(UiView.INJECT.fqn) public parentFqn: string,
+      @Inject(UiView.PARENT_INJECT) public parent: ParentUiViewInject,
       public dcl: DynamicComponentLoader,
       public elementRef: ElementRef,
       public injector: Injector
   ) { }
 
   ngOnInit() {
-    let parentFqn = this.parentFqn;
+    let parentFqn = this.parent.fqn;
     let name = this.name || '$default';
 
     this.uiViewData = {
       id: id++,
       name: name,
       fqn: parentFqn ? parentFqn + "." + name : name,
-      creationContext: this.parentContext,
+      creationContext: this.parent.context,
       configUpdated: this.viewConfigUpdated.bind(this),
       config: undefined
     };
@@ -131,10 +133,11 @@ export class UiView {
 
   disposeLast() {
     if (this.componentRef) this.componentRef.dispose();
+    this.componentRef = null;
   }
 
   ngOnDestroy() {
-    this.deregister();
+    if (this.deregister) this.deregister();
     this.disposeLast();
   }
 
@@ -159,17 +162,26 @@ export class UiView {
     let rc = config.node.resolveContext;
     let resolvables = rc.getResolvables();
     let rawProviders = Object.keys(resolvables).map(key => provide(key, { useValue: resolvables[key].data }));
-    rawProviders.push(provide(UiView.INJECT.context, { useValue: config.viewDecl.$context }));
-    rawProviders.push(provide(UiView.INJECT.fqn, { useValue: uiViewData.fqn }));
+    rawProviders.push(provide(UiView.PARENT_INJECT, { useValue: { context: config.viewDecl.$context, fqn: uiViewData.fqn } }));
     let providers = Injector.resolve(rawProviders);
 
-    let exclusions = [UiView.INJECT.context, UiView.INJECT.fqn];
+    let exclusions = [UiView.PARENT_INJECT];
     providers = getProviders(injector).filter(x => exclusions.indexOf(x.key.displayName) === -1).concat(providers);
 
-    // The 'controller' should be a Component class
-    // TODO: pull from 'component' declaration, do not require template.
     let component = <Type> viewDecl.component;
-    dcl.loadIntoLocation(component, elementRef, "content", providers).then(ref => this.componentRef = ref);
+    dcl.loadIntoLocation(component, elementRef, "content", providers).then(ref => {
+      this.componentRef = ref;
+
+      // TODO: wire uiCanExit and uiOnParamsChanged callbacks
+
+      // Set resolve data to matching @Input("prop")
+      let inputs = ng2ComponentInputs(component);
+      let bindings = viewDecl['bindings'] || {};
+
+      inputs.map(tuple => ({ prop: tuple.prop, resolve: bindings[tuple.prop] || tuple.resolve }))
+          .filter(tuple => resolvables[tuple.resolve] !== undefined)
+          .forEach(tuple => { ref.instance[tuple.prop] = resolvables[tuple.resolve].data });
+    });
   }
 }
 
