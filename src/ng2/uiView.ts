@@ -91,17 +91,16 @@ export interface ParentUiViewInject {
   // <div style="padding: 1em; border: 1px solid lightgrey;">
   //
   //   <div #content style="color: lightgrey; font-size: smaller;">
-  //     <div>ui-view #{{uiViewData.id}} created by '{{ parentContext.name || "(root)" }}' state</div>
-  //     <div>name: (absolute) '{{uiViewData.fqn}}' (contextual) '{{uiViewData.name}}@{{parentContext.name}}' </div>
-  //     <div>currently filled by: '{{(uiViewData.config && uiViewData.config.viewDecl.$context) || 'empty...'}}'</div>
+  //     <div>ui-view #{{uiViewData?.id}} created by '{{ parentContext?.name || "(root)" }}' state</div>
+  //     <div>name: (absolute) '{{uiViewData?.fqn}}' (contextual) '{{uiViewData?.name}}@{{parentContext?.name}}' </div>
+  //     <div>currently filled by: '{{(uiViewData?.config && uiViewData?.config?.viewDecl?.$context) || 'empty...'}}'</div>
   //   </div>
   //
   // </div>`
 })
 export class UiView {
   @Input() name: string;
-  @Input() set 'ui-view'(val) { this.name = val; }
-
+  @Input('ui-view') set _name(val) { this.name = val; }
   componentRef: ComponentRef;
   deregister: Function;
   uiViewData: any = {};
