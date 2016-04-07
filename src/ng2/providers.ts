@@ -60,9 +60,12 @@ import {ng2ViewsBuilder, Ng2ViewConfig} from "./viewsBuilder";
 import {Ng2ViewDeclaration} from "./interface";
 import {UIRouterConfig} from "./uiRouterConfig";
 import {UIRouterGlobals} from "../globals";
+import {UIRouterLocation} from "./location";
 
-let uiRouterFactory = (routerConfig: UIRouterConfig) => {
+let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation) => {
   let router = new UIRouter();
+
+  location.init();
 
   router.viewService.viewConfigFactory("ng2", (node: Node, config: Ng2ViewDeclaration) => new Ng2ViewConfig(node, config));
   router.stateRegistry.decorator('views', ng2ViewsBuilder);
@@ -93,8 +96,9 @@ let uiRouterFactory = (routerConfig: UIRouterConfig) => {
  * ```
  */
 export const UIROUTER_PROVIDERS: Provider[] = [
+  provide(UIRouter, { useFactory: uiRouterFactory, deps: [UIRouterConfig, UIRouterLocation] }),
 
-  provide(UIRouter, { useFactory: uiRouterFactory, deps: [UIRouterConfig] }),
+  provide(UIRouterLocation, { useClass: UIRouterLocation }),
 
   provide(StateService, { useFactory: (r: UIRouter) => { return r.stateService; }, deps: [UIRouter]}),
 
@@ -111,6 +115,5 @@ export const UIROUTER_PROVIDERS: Provider[] = [
   provide(UIRouterGlobals, { useFactory: (r: UIRouter) => { return r.globals; }, deps: [UIRouter]}),
 
   provide(UiView.PARENT_INJECT, { useFactory: (r: StateRegistry) => { return { fqn: null, context: r.root() } }, deps: [StateRegistry]} )
-
 ];
 

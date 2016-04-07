@@ -89,3 +89,10 @@ export function stringify(o) {
   return JSON.stringify(o, (key, val) => format(val)).replace(/\\"/g, '"');
 }
 
+/** Returns a function that splits a string on a character or substring */
+export const beforeAfterSubstr = char => str => {
+  if (!str) return ["", ""];
+  let idx = str.indexOf(char);
+  if (idx === -1) return [str, ""];
+  return [str.substr(0, idx), str.substr(idx + 1)];
+};
