@@ -10,8 +10,8 @@ import {extend, assertPredicate, forEach, applyPairs} from "./common/common";
 
 /** $q-like promise api */
 services.$q = (executor: (resolve, reject) => void) => new Promise(executor);
-services.$q.when = (val) => new Promise((resolve, reject) => resolve(val));
-services.$q.reject = (val) => new Promise((resolve, reject) => { reject(val); });
+services.$q.when = (val) => Promise.resolve(val);
+services.$q.reject = (val) => Promise.reject(val);
 services.$q.defer = function() {
   let deferred: any = {};
   deferred.promise = new Promise((resolve, reject) => {
@@ -24,11 +24,7 @@ services.$q.defer = function() {
 
 services.$q.all = function (promises: { [key: string]: Promise<any> } | Promise<any>[]) {
   if (isArray(promises)) {
-    return new Promise((resolve, reject) => {
-      let results = [];
-      promises.reduce((wait4, promise) => wait4.then(() => promise.then(val => results.push(val))), services.$q.when())
-          .then(() => { resolve(results); }, reject);
-    });
+    return Promise.all(promises);
   }
 
   if (isObject(promises)) {
@@ -38,6 +34,7 @@ services.$q.all = function (promises: { [key: string]: Promise<any> } | Promise<
     // When each promise resolves, map it to a tuple { key: key, val: val }
     let chain = Object.keys(promises)
         .map(key => promises[key].then(val => ({key, val})));
+
     // Then wait for all promises to resolve, and convert them back to an object
     return services.$q.all(chain).then(values => {
       let value = values.reduce((acc, tuple) => { acc[tuple.key] = tuple.val; return acc; }, {});
