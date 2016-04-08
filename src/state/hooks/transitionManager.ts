@@ -4,7 +4,7 @@ import {Param} from "../../params/param";
 
 import {TreeChanges} from "../../transition/interface";
 import {Transition} from "../../transition/transition";
-import {TransitionRejection, RejectType} from "../../transition/rejectFactory";
+import {Rejection, RejectType} from "../../transition/rejectFactory";
 
 import {StateDeclaration} from "../interface";
 import {StateService} from "../stateService";
@@ -76,7 +76,7 @@ export class TransitionManager {
   transRejected(error): (StateDeclaration|Promise<any>) {
     let {transition, $state, $q} = this;
     // Handle redirect and abort
-    if (error instanceof TransitionRejection) {
+    if (error instanceof Rejection) {
       if (error.type === RejectType.IGNORED) {
         // Update $stateParmas/$state.params/$location.url if transition ignored, but dynamic params have changed.
         let dynamic = $state.$current.parameters().filter(prop('dynamic'));

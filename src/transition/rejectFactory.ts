@@ -8,18 +8,16 @@ export enum RejectType {
   SUPERSEDED = 2, ABORTED = 3, INVALID = 4, IGNORED = 5
 }
 
-export class TransitionRejection {
+export class Rejection {
   type: number;
   message: string;
   detail: string;
   redirected: boolean;
 
-  constructor(type, message, detail) {
-    extend(this, {
-      type: type,
-      message: message,
-      detail: detail
-    });
+  constructor(type, message?, detail?) {
+    this.type = type;
+    this.message = message;
+    this.detail = detail;
   }
 
   toString() {
@@ -27,40 +25,47 @@ export class TransitionRejection {
     let type = this.type, message = this.message, detail = detailString(this.detail);
     return `TransitionRejection(type: ${type}, message: ${message}, detail: ${detail})`;
   }
-}
 
+  toPromise() {
+    return extend(services.$q.reject(this), { _transitionRejection: this });
+  }
 
-export class RejectFactory {
-  constructor() {}
-  superseded(detail?: any, options?: any) {
+  /** Returns true if the obj is a rejected promise created from the `asPromise` factory */
+  static isTransitionRejectionPromise(obj) {
+    return obj && (typeof obj.then === 'function') && obj._transitionRejection instanceof Rejection;
+  }
+
+  /** Returns a TransitionRejection due to transition superseded */
+  static superseded(detail?: any, options?: any) {
     let message = "The transition has been superseded by a different transition (see detail).";
-    let reason = new TransitionRejection(RejectType.SUPERSEDED, message, detail);
+    let rejection = new Rejection(RejectType.SUPERSEDED, message, detail);
     if (options && options.redirected) {
-      reason.redirected = true;
+      rejection.redirected = true;
     }
-    return extend(services.$q.reject(reason), {reason: reason});
+    return rejection;
   }
 
-  redirected(detail?: any) {
-    return this.superseded(detail, {redirected: true});
+  /** Returns a TransitionRejection due to redirected transition */
+  static redirected(detail?: any) {
+    return Rejection.superseded(detail, {redirected: true});
   }
 
-  invalid(detail?: any) {
+  /** Returns a TransitionRejection due to invalid transition */
+  static invalid(detail?: any) {
     let message = "This transition is invalid (see detail)";
-    let reason = new TransitionRejection(RejectType.INVALID, message, detail);
-    return extend(services.$q.reject(reason), {reason: reason});
+    return new Rejection(RejectType.INVALID, message, detail);
   }
 
-  ignored(detail?: any) {
+  /** Returns a TransitionRejection due to ignored transition */
+  static ignored(detail?: any) {
     let message = "The transition was ignored.";
-    let reason = new TransitionRejection(RejectType.IGNORED, message, detail);
-    return extend(services.$q.reject(reason), {reason: reason});
+    return new Rejection(RejectType.IGNORED, message, detail);
   }
 
-  aborted(detail?: any) {
+  /** Returns a TransitionRejection due to aborted transition */
+  static aborted(detail?: any) {
     // TODO think about how to encapsulate an Error() object
     let message = "The transition has been aborted.";
-    let reason = new TransitionRejection(RejectType.ABORTED, message, detail);
-    return extend(services.$q.reject(reason), {reason: reason});
+    return new Rejection(RejectType.ABORTED, message, detail);
   }
 }

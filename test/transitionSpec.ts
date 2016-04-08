@@ -1,15 +1,14 @@
 import {Node} from "../src/path/node";
 var module = angular.mock.module;
 import { UIRouter } from "../src/core";
-import { RejectType } from "../src/transition/rejectFactory";
+import { RejectType, Rejection } from "../src/transition/rejectFactory";
 import { extend, forEach, map, omit, pick, pluck } from "../src/common/common";
 import {PathFactory} from "../src/path/pathFactory";
 import {StateMatcher} from "../src/state/stateMatcher";
 import {StateBuilder} from "../src/state/stateBuilder";
 import {TargetState} from "../src/state/targetState";
 import {StateQueueManager} from "../src/state/stateQueueManager";
-import {TransitionRejection} from "../src/transition/rejectFactory";
-import {val} from "../src/common/hof";
+import {Rejection} from "../src/transition/rejectFactory";
 
 describe('transition', function () {
 
@@ -363,8 +362,7 @@ describe('transition', function () {
         $q.flush();
 
         expect(pluck(states, 'name')).toEqual([ 'B', 'C', 'G' ]);
-        // TODO: change back to instanceof check after imports/exports is cleaned up
-        expect(rejection.constructor.name).toBe('TransitionRejection');
+        expect(rejection instanceof Rejection).toBeTruthy();
         expect(rejection.type).toEqual(RejectType.SUPERSEDED);
         expect(rejection.detail.to().name).toEqual("G");
         expect(rejection.detail.from().name).toEqual("A");

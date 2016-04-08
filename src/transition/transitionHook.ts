@@ -7,11 +7,9 @@ import {not, pattern, val, eq, is, parse } from "../common/hof";
 import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 
-import {TransitionRejection, RejectFactory} from "./rejectFactory";
+import {Rejection} from "./rejectFactory";
 import {TargetState} from "../state/module";
 import {ResolveContext} from "../resolve/module";
-
-let REJECT = new RejectFactory();
 
 let defaultOptions: TransitionHookOptions = {
   async: true,
@@ -32,28 +30,12 @@ export class TransitionHook {
 
   private isSuperseded = () => this.options.current() !== this.options.transition;
 
-  /**
-   * Handles transition abort and transition redirect. Also adds any returned resolvables
-   * to the pathContext for the current pathElement.  If the transition is rejected, then a rejected
-   * promise is returned here, otherwise undefined is returned.
-   */
-  mapHookResult: Function = pattern([
-    // Transition is no longer current
-    [this.isSuperseded, () => REJECT.superseded(this.options.current())],
-    // If the hook returns false, abort the current Transition
-    [eq(false),         () => REJECT.aborted("Hook aborted transition")],
-    // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
-    [is(TargetState),   (target) => REJECT.redirected(target)],
-    // A promise was returned, wait for the promise and then chain another hookHandler
-    [isPromise,         (promise) => promise.then(this.handleHookResult.bind(this))]
-  ]);
-
-  invokeStep = (moreLocals) => { // bind to this
+  invokeHook(moreLocals) {
     let { options, fn, resolveContext } = this;
     let locals = extend({}, this.locals, moreLocals);
     trace.traceHookInvocation(this, options);
     if (options.rejectIfSuperseded && this.isSuperseded()) {
-      return REJECT.superseded(options.current());
+      return Rejection.superseded(options.current()).toPromise();
     }
 
     // TODO: Need better integration of returned promises in synchronous code.
@@ -61,14 +43,32 @@ export class TransitionHook {
       let hookResult = resolveContext.invokeNow(fn, locals, options);
       return this.handleHookResult(hookResult);
     }
-    return resolveContext.invokeLater(fn, locals, options).then(this.handleHookResult.bind(this));
+    return resolveContext.invokeLater(fn, locals, options).then(val => this.handleHookResult(val));
   };
 
-  handleHookResult(hookResult) {
+  /**
+   * This method handles the return value of a Transition Hook.
+   *
+   * A hook can return false, a redirect (TargetState), or a promise (which may resolve to false or a redirect)
+   */
+  handleHookResult(hookResult): Promise<any> {
     if (!isDefined(hookResult)) return undefined;
-    trace.traceHookResult(hookResult, undefined, this.options);
 
-    let transitionResult = this.mapHookResult(hookResult);
+    /**
+     * Handles transition superseded, transition aborted and transition redirect.
+     */
+    const mapHookResult = pattern([
+      // Transition is no longer current
+      [this.isSuperseded, () => Rejection.superseded(this.options.current()).toPromise()],
+      // If the hook returns false, abort the current Transition
+      [eq(false),         () => Rejection.aborted("Hook aborted transition").toPromise()],
+      // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
+      [is(TargetState),   (target) => Rejection.redirected(target).toPromise()],
+      // A promise was returned, wait for the promise and then chain another hookHandler
+      [isPromise,         (promise) => promise.then(this.handleHookResult.bind(this))]
+    ]);
+
+    let transitionResult = mapHookResult(hookResult);
     if (transitionResult) trace.traceHookResult(hookResult, transitionResult, this.options);
 
     return transitionResult;
@@ -92,24 +92,21 @@ export class TransitionHook {
     let results = [];
     for (let i = 0; i < hooks.length; i++) {
       try {
-        results.push(hooks[i].invokeStep(locals));
+        results.push(hooks[i].invokeHook(locals));
       } catch (exception) {
-        if (!swallowExceptions) return REJECT.aborted(exception);
-        console.log("Swallowed exception during synchronous hook handler: " + exception); // TODO: What to do here?
+        if (!swallowExceptions) {
+          return Rejection.aborted(exception).toPromise();
+        }
+
+        console.error("Swallowed exception during synchronous hook handler: " + exception); // TODO: What to do here?
       }
     }
 
-    let rejections = results.filter(TransitionHook.isRejection);
+    let rejections = results.filter(Rejection.isTransitionRejectionPromise);
     if (rejections.length) return rejections[0];
 
     return results
-        .filter(not(TransitionHook.isRejection))
         .filter(<Predicate<any>> isPromise)
         .reduce((chain, promise) => chain.then(val(promise)), services.$q.when());
-  }
-
-
-  static isRejection(hookResult) {
-    return hookResult && hookResult.reason instanceof TransitionRejection && hookResult;
   }
 }

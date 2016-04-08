@@ -2,8 +2,8 @@
 import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 import {
-    map, find, extend, filter, mergeR, unnest, tail,
-    omit, toJson, abstractKey, arrayTuples, allTrueR, unnestR, identity, anyTrueR
+    map, find, extend, filter, mergeR,  tail,
+    omit, toJson, abstractKey, arrayTuples, unnestR, identity, anyTrueR
 } from "../common/common";
 import { isObject } from "../common/predicates";
 import { not, prop, propEq, val } from "../common/hof";
@@ -11,7 +11,7 @@ import { not, prop, propEq, val } from "../common/hof";
 import {StateDeclaration, StateOrName} from "../state/interface";
 import {TransitionOptions, TransitionHookOptions, TreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";
 
-import {TransitionHook, HookRegistry, matchState, HookBuilder, RejectFactory} from "./module";
+import {TransitionHook, HookRegistry, matchState, HookBuilder} from "./module";
 import {Node} from "../path/node";
 import {PathFactory} from "../path/pathFactory";
 import {State, TargetState} from "../state/module";
@@ -19,9 +19,10 @@ import {Param} from "../params/module";
 import {Resolvable} from "../resolve/module";
 import {TransitionService} from "./transitionService";
 import {ViewConfig} from "../view/interface";
+import {Rejection} from "./rejectFactory";
 
 
-let transitionCount = 0, REJECT = new RejectFactory();
+let transitionCount = 0;
 const stateSelf: (_state: State) => StateDeclaration = prop("self");
 
 /**
@@ -375,8 +376,9 @@ export class Transition implements IHookRegistry {
 
     let syncResult = runSynchronousHooks(hookBuilder.getOnBeforeHooks());
 
-    if (TransitionHook.isRejection(syncResult)) {
-      let rejectReason = (<any> syncResult).reason;
+    if (Rejection.isTransitionRejectionPromise(syncResult)) {
+      syncResult.catch(() => 0); // issue #2676
+      let rejectReason = (<any> syncResult)._transitionRejection;
       this._deferred.reject(rejectReason);
       return this.promise;
     }
@@ -389,8 +391,7 @@ export class Transition implements IHookRegistry {
 
     if (this.ignored()) {
       trace.traceTransitionIgnored(this);
-      let ignored = REJECT.ignored();
-      this._deferred.reject(ignored.reason);
+      this._deferred.reject(Rejection.ignored());
       return this.promise;
     }
 
@@ -410,7 +411,7 @@ export class Transition implements IHookRegistry {
 
     trace.traceTransitionStart(this);
 
-    let chain = hookBuilder.asyncHooks().reduce((_chain, step) => _chain.then(step.invokeStep), syncResult);
+    let chain = hookBuilder.asyncHooks().reduce((_chain, step) => _chain.then(step.invokeHook.bind(step)), syncResult);
     chain.then(resolve, reject);
 
     return this.promise;
