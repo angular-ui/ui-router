@@ -1,5 +1,5 @@
 {
-  "name": "ui-router",
+  "name": "angular-ui-router",
   "description": "State-based routing for Javascript",
   "version": "1.0.0-alpha.3",
   "scripts": {},
