@@ -1,7 +1,7 @@
 /** @module view */ /** for typedoc */
 import {equals, applyPairs, removeFrom, TypedMap} from "../common/common";
 import {curry, prop} from "../common/hof";
-import {isString} from "../common/predicates";
+import {isString, isArray} from "../common/predicates";
 import {trace} from "../common/module";
 import {Node} from "../path/node";
 
@@ -11,7 +11,7 @@ import {_ViewDeclaration} from "../state/interface";
 const match = (obj1, ...keys) =>
     (obj2) => keys.reduce((memo, key) => memo && obj1[key] === obj2[key], true);
 
-export type ViewConfigFactory = (node: Node, decl: _ViewDeclaration) => ViewConfig;
+export type ViewConfigFactory = (node: Node, decl: _ViewDeclaration) => ViewConfig|ViewConfig[];
 
 /**
  * The View service
@@ -32,10 +32,11 @@ export class ViewService {
     this._viewConfigFactories[viewType] = factory;
   }
 
-  createViewConfig(node: Node, decl: _ViewDeclaration): ViewConfig {
+  createViewConfig(node: Node, decl: _ViewDeclaration): ViewConfig[] {
     let cfgFactory = this._viewConfigFactories[decl.$type];
     if (!cfgFactory) throw new Error("ViewService: No view config factory registered for type " + decl.$type);
-    return cfgFactory(node, decl);
+    let cfgs = cfgFactory(node, decl);
+    return isArray(cfgs) ? cfgs : [cfgs];
   }
   
   /**
@@ -65,6 +66,8 @@ export class ViewService {
      *
      * A ViewConfig has a target ui-view name and a context anchor.  The ui-view name can be a simple name, or
      * can be a segmented ui-view path, describing a portion of a ui-view fqn.
+     *
+     * In order for a ui-view to match ViewConfig, ui-view's $type must match the ViewConfig's $type
      *
      * If the ViewConfig's target ui-view name is a simple name (no dots), then a ui-view matches if:
      * - the ui-view's name matches the ViewConfig's target name
@@ -111,6 +114,9 @@ export class ViewService {
      *   the tail of the ui-view's fqn "default.bar"
      */
     const matches = (uiView: ActiveUIView) => (viewConfig: ViewConfig) => {
+      // Don't supply an ng1 ui-view with an ng2 ViewConfig, etc
+      if (uiView.$type !== viewConfig.viewDecl.$type) return false;
+
       // Split names apart from both viewConfig and uiView into segments
       let vc = viewConfig.viewDecl;
       let vcSegments = vc.$uiViewName.split(".");

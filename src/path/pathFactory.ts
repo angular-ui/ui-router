@@ -1,6 +1,6 @@
 /** @module path */ /** for typedoc */
 
-import {extend, find, pick, omit, tail, mergeR, map, values} from "../common/common";
+import {extend, find, pick, omit, tail, mergeR, values, unnestR} from "../common/common";
 import {prop, propEq, not, curry} from "../common/hof";
 
 import {RawParams} from "../params/interface";
@@ -40,9 +40,11 @@ export class PathFactory {
   }
   
   static applyViewConfigs($view: ViewService, path: Node[]) {
-    return path.map(node =>
-        extend(node, { views: values(node.state.views || {}).map(view => $view.createViewConfig(node, view))})
-    );
+    return path.map(node => {
+      let viewDecls = values(node.state.views || {});
+      let viewConfigs = viewDecls.map(view => $view.createViewConfig(node, view)).reduce(unnestR, []);
+      return extend(node, {views: viewConfigs})
+    });
   }
 
   /**

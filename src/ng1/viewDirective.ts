@@ -204,6 +204,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
             name          = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default';
 
         let activeUIView: ActiveUIView = {
+          $type: 'ng1',
           id: directive.count++,                                   // Global sequential ID for ui-view tags added to DOM
           name: name,                                              // ui-view name (<div ui-view="name"></div>
           fqn: inherited.$uiView.fqn ? inherited.$uiView.fqn + "." + name : name, // fully qualified name, describes location in DOM
@@ -217,6 +218,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
         trace.traceUiViewEvent("Linking", activeUIView);
 
         function configUpdatedCallback(config?: Ng1ViewConfig) {
+          if (config && !(config instanceof Ng1ViewConfig)) return;
           if (configsEqual(viewConfig, config)) return;
           trace.traceUiViewConfigUpdated(activeUIView, config && config.viewDecl && config.viewDecl.$context);
 

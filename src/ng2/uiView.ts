@@ -12,6 +12,7 @@ import {Inject} from "angular2/core";
 import {ViewContext, ViewConfig} from "../view/interface";
 import {Ng2ViewDeclaration} from "./interface";
 import {ng2ComponentInputs} from "./componentUtil";
+import {Ng2ViewConfig} from "./viewsBuilder";
 
 /** @hidden */
 let id = 0;
@@ -120,6 +121,7 @@ export class UiView {
     let name = this.name || '$default';
 
     this.uiViewData = {
+      $type: 'ng2',
       id: id++,
       name: name,
       fqn: parentFqn ? parentFqn + "." + name : name,
@@ -142,9 +144,8 @@ export class UiView {
   }
 
   viewConfigUpdated(config: ViewConfig) {
-    if (!config) {
-      return this.disposeLast();
-    }
+    if (!config) return this.disposeLast();
+    if (!(config instanceof Ng2ViewConfig)) return;
 
     let {uiViewData, injector, dcl, elementRef} = this;
     let viewDecl = <Ng2ViewDeclaration> config.viewDecl;
