@@ -43,7 +43,7 @@ export class UiSrefStatus {
   private _deregisterHook;
 
   // current statuses of the state/params the uiSref directive is linking to
-  @Output("uiSrefStatus") uiSrefStatus = new EventEmitter<SrefStatus>();
+  @Output("uiSrefStatus") uiSrefStatus = new EventEmitter<SrefStatus>(false);
 
   status: SrefStatus = {
     active: false,
