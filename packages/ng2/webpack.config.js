@@ -43,6 +43,6 @@ module.exports = {
   },
  
   externals: {
-    "angular2/core": { root: 'angular2/core', commonjs2: 'angular2/core', commonjs: 'angular2/core' }
+    "angular2/core": { root: 'angular2/core', amd: 'angular2/core', commonjs2: 'angular2/core', commonjs: 'angular2/core' }
   }
 };
