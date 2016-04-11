@@ -3,7 +3,7 @@ angular.module('uiRouterSample', [
   'uiRouterSample.contacts',
   'uiRouterSample.contacts.service',
   'uiRouterSample.utils.service',
-  'ui.router', 
+  'ui.router',
   'ngAnimate'
 ])
 
@@ -82,11 +82,12 @@ angular.module('uiRouterSample', [
             function (        $timeout) {
               return $timeout(function () {
                 return '<p class="lead">UI-Router Resources</p><ul>' +
-                         '<li><a href="https://github.com/angular-ui/ui-router/tree/master/sample">Source for this Sample</a></li>' +
+                         '<li><a href="https://github.com/angular-ui/ui-router/tree/legacy/sample">Source for this Sample</a></li>' +
                          '<li><a href="https://github.com/angular-ui/ui-router">GitHub Main Page</a></li>' +
                          '<li><a href="https://github.com/angular-ui/ui-router#quick-start">Quick Start</a></li>' +
                          '<li><a href="https://github.com/angular-ui/ui-router/wiki">In-Depth Guide</a></li>' +
-                         '<li><a href="https://github.com/angular-ui/ui-router/wiki/Quick-Reference">API Reference</a></li>' +
+                         '<li><a href="https://github.com/angular-ui/ui-router/wiki/Quick-Reference">API Reference(old)</a></li>' +
+                         '<li><a href="http://angular-ui.github.io/ui-router/site">Documentation</a></li>'+
                        '</ul>';
               }, 100);
             }]
