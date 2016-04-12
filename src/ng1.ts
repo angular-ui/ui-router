@@ -8,6 +8,7 @@ export * from "./core";
 
 export * from "./ng1/services";
 export * from "./ng1/viewsBuilder";
+export * from "./ng1/resolvesBuilder";
 
 import "./ng1/stateDirectives";
 import "./ng1/stateFilters";

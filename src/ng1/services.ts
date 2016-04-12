@@ -21,6 +21,7 @@ import {State} from "../state/module";
 import {trace} from "../common/trace";
 import {ng1ViewsBuilder, ng1ViewConfigFactory, Ng1ViewConfig} from "./viewsBuilder";
 import {TemplateFactory} from "./templateFactory";
+import {ng1ResolveBuilder} from "./resolvesBuilder";
 
 /** @hidden */
 let app = angular.module("ui.router.angular1", []);
@@ -160,6 +161,7 @@ function ng1UIRouter($locationProvider) {
   
   // Apply ng1 `views` builder to the StateBuilder
   router.stateRegistry.decorator("views", ng1ViewsBuilder);
+  router.stateRegistry.decorator("resolve", ng1ResolveBuilder);
 
   router.viewService.viewConfigFactory('ng1', ng1ViewConfigFactory);
 

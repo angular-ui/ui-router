@@ -88,6 +88,7 @@ describe('state helpers', function() {
       matcher = new StateMatcher(states);
       builder = new StateBuilder(matcher, urlMatcherFactoryProvider);
       builder.builder('views', uiRouter.ng1ViewsBuilder);
+      builder.builder('resolve', uiRouter.ng1ResolveBuilder);
     });
 
     describe('interface', function() {
@@ -177,7 +178,7 @@ describe('state helpers', function() {
         expect(urlMatcherFactoryProvider.isMatcher).toHaveBeenCalledWith({ foo: "bar" });
       });
 
-      it('should return a new views object, and copy keys, if no `views` is defined in the state def', function() {
+      it('should return a new views object, and copy keys from state def, if no `views` is defined in the state def', function() {
         var parent = { name: "" };
         var config = { url: "/foo", templateUrl: "/foo.html", controller: "FooController", parent: parent };
         var built = builder.builder('views')(config);
@@ -191,6 +192,14 @@ describe('state helpers', function() {
         var config = { a: { foo: "bar", controller: "FooController" } };
         expect(builder.builder('views')({ parent: parent, views: config })).toEqual(config);
       });
+
+      it("should replace a resolve: string value with a function that injects the service of the same name", inject(function($injector) {
+        var config = { resolve: { foo: "bar" } };
+        var locals = { "bar": 123 };
+        expect(builder.builder('resolve')).toBeDefined();
+        var built = builder.builder('resolve')(config);
+        expect($injector.invoke(built.foo, null, locals)).toBe(123);
+      }));
     });
   });
 
