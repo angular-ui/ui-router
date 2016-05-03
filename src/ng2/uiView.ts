@@ -1,6 +1,8 @@
 /** @module ng2_directives */ /** */
-import {Component, ElementRef, DynamicComponentLoader} from 'angular2/core';
-import {Injector} from "angular2/core";
+import {
+    Component, ComponentResolver, ComponentFactory,
+    ViewContainerRef, ReflectiveInjector
+} from 'angular2/core';
 import {provide} from "angular2/core";
 import {Input} from "angular2/core";
 import {ComponentRef} from "angular2/core";
@@ -16,14 +18,6 @@ import {Ng2ViewConfig} from "./viewsBuilder";
 
 /** @hidden */
 let id = 0;
-
-const getProviders = (injector) => {
-  let providers = [], parentInj = injector.parent;
-  for (let i = 0; i < parentInj._proto.numberOfProviders; i++) {
-    providers.push(parentInj._proto.getProviderAtIndex(i));
-  }
-  return providers;
-};
 
 // These are provide()d as the string UiView.PARENT_INJECT
 export interface ParentUiViewInject {
@@ -81,13 +75,13 @@ export interface ParentUiViewInject {
  */
 @Component({
   selector: 'ui-view, [ui-view]',
-  styles: [`
-    .done-true {
-      text-decoration: line-through;
-      color: grey;
-    }`
-  ],
-  template: `<div #content></div>`,
+  template: ''
+  // styles: [`
+  //   .done-true {
+  //     text-decoration: line-through;
+  //     color: grey;
+  //   }`
+  // ],
   // template: `
   // <div style="padding: 1em; border: 1px solid lightgrey;">
   //
@@ -100,7 +94,7 @@ export interface ParentUiViewInject {
   // </div>`
 })
 export class UiView {
-  @Input() name: string;
+  @Input('name') name: string;
   @Input('ui-view') set _name(val) { this.name = val; }
   componentRef: ComponentRef;
   deregister: Function;
@@ -111,9 +105,8 @@ export class UiView {
   constructor(
       public router: UIRouter,
       @Inject(UiView.PARENT_INJECT) public parent: ParentUiViewInject,
-      public dcl: DynamicComponentLoader,
-      public elementRef: ElementRef,
-      public injector: Injector
+      public compResolver: ComponentResolver,
+      public viewContainerRef: ViewContainerRef
   ) { }
 
   ngOnInit() {
@@ -134,7 +127,7 @@ export class UiView {
   }
 
   disposeLast() {
-    if (this.componentRef) this.componentRef.dispose();
+    if (this.componentRef) this.componentRef.destroy();
     this.componentRef = null;
   }
 
@@ -147,7 +140,7 @@ export class UiView {
     if (!config) return this.disposeLast();
     if (!(config instanceof Ng2ViewConfig)) return;
 
-    let {uiViewData, injector, dcl, elementRef} = this;
+    let uiViewData = this.uiViewData;
     let viewDecl = <Ng2ViewDeclaration> config.viewDecl;
 
     // The "new" viewconfig is already applied, so exit early
@@ -159,30 +152,32 @@ export class UiView {
     // The config may be undefined if there is nothing state currently targeting this UiView.
     if (!config) return;
 
-    // Do some magic
+    // Map resolves to "useValue providers"
     let rc = config.node.resolveContext;
     let resolvables = rc.getResolvables();
     let rawProviders = Object.keys(resolvables).map(key => provide(key, { useValue: resolvables[key].data }));
     rawProviders.push(provide(UiView.PARENT_INJECT, { useValue: { context: config.viewDecl.$context, fqn: uiViewData.fqn } }));
-    let providers = Injector.resolve(rawProviders);
 
-    let exclusions = [UiView.PARENT_INJECT];
-    providers = getProviders(injector).filter(x => exclusions.indexOf(x.key.displayName) === -1).concat(providers);
+    // Get the component class from the view declaration. TODO: allow promises?
+    let componentType = <Type> viewDecl.component;
 
-    let component = <Type> viewDecl.component;
-    dcl.loadIntoLocation(component, elementRef, "content", providers).then(ref => {
-      this.componentRef = ref;
+    let createComponent = (factory: ComponentFactory) => {
+      let parentInjector = this.viewContainerRef.injector;
+      let childInjector = ReflectiveInjector.resolveAndCreate(rawProviders, parentInjector);
+      let ref = this.componentRef = this.viewContainerRef.createComponent(factory, undefined, childInjector);
 
       // TODO: wire uiCanExit and uiOnParamsChanged callbacks
 
-      // Set resolve data to matching @Input("prop")
-      let inputs = ng2ComponentInputs(component);
+      // Supply resolve data to matching @Input('prop') or inputs: ['prop']
+      let inputs = ng2ComponentInputs(componentType);
       let bindings = viewDecl['bindings'] || {};
 
       inputs.map(tuple => ({ prop: tuple.prop, resolve: bindings[tuple.prop] || tuple.resolve }))
           .filter(tuple => resolvables[tuple.resolve] !== undefined)
           .forEach(tuple => { ref.instance[tuple.prop] = resolvables[tuple.resolve].data });
-    });
+    };
+
+    this.compResolver.resolveComponent(componentType).then(createComponent);
   }
 }
 

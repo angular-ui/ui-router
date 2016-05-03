@@ -41,7 +41,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "angular2": "^2.0.0-beta.13",
+    "angular2": "^2.0.0-beta.17",
     "babel-core": "^5.8.14",
     "conventional-changelog": "^1.1.0",
     "conventional-changelog-cli": "^1.1.1",
@@ -83,5 +83,9 @@
     "webpack-dev-server": "1.x",
     "yargs": "^4.2.0",
     "zone.js": "^0.6.6"
+  },
+  "dependencies": {
+    "rxjs": "^5.0.0-beta.6",
+    "zone.js": "^0.6.12"
   }
 }
