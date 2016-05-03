@@ -38,12 +38,12 @@ import {stringify, functionToString, maxLength, padString} from "./strings";
 /** @hidden */
 function uiViewString (viewData) {
     if (!viewData) return 'ui-view (defunct)';
-    return `ui-view id#${viewData.id}, contextual name '${viewData.name}@${viewData.creationContext}', fqn: '${viewData.fqn}'`;
+    return `[ui-view#${viewData.id} tag in template from '${viewData.creationContext.name || '(root)'}' state]: fqn: '${viewData.fqn}', name: '${viewData.name}@${viewData.creationContext}')`;
 }
 
 /** @hidden */
 const viewConfigString = (viewConfig: ViewConfig) =>
-    `ViewConfig targeting ui-view: '${viewConfig.viewDecl.$uiViewName}@${viewConfig.viewDecl.$uiViewContextAnchor}', context: '${viewConfig.viewDecl.$context.name}'`;
+    `[ViewConfig from '${viewConfig.viewDecl.$context.name || '(root)'}' state]: target ui-view: '${viewConfig.viewDecl.$uiViewName}@${viewConfig.viewDecl.$uiViewContextAnchor}'`;
 
 /** @hidden */
 function normalizedCat(input: Category): string {
@@ -263,13 +263,13 @@ export class Trace {
   /** called by ui-router code */
   traceViewServiceEvent(event: string, viewConfig: ViewConfig) {
     if (!this.enabled(Category.VIEWCONFIG)) return;
-    console.log(`$view.ViewConfig: ${event} ${viewConfigString(viewConfig)}`);
+    console.log(`VIEWCONFIG: ${event} ${viewConfigString(viewConfig)}`);
   }
 
   /** called by ui-router code */
   traceViewServiceUiViewEvent(event: string, viewData: ActiveUIView) {
     if (!this.enabled(Category.VIEWCONFIG)) return;
-    console.log(`$view.ViewConfig: ${event} ${uiViewString(viewData)}`);
+    console.log(`VIEWCONFIG: ${event} ${uiViewString(viewData)}`);
   }
 }
 

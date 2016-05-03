@@ -1,12 +1,9 @@
 /** @module state */ /** for typedoc */
-import {TransitionOptions} from "../transition/interface";
-import {ParamDeclaration, RawParams, ParamsOrArray} from "../params/interface";
+import {ParamDeclaration} from "../params/interface";
 
-import {Node} from "../path/node";
 import {State} from "./stateObject";
-import {TargetState} from "./targetState";
 import {ViewContext} from "../view/interface";
-import {Transition} from "../transition/module";
+import {IInjectable} from "../common/common";
 
 export type StateOrName = (string|StateDeclaration|State);
 
@@ -218,7 +215,7 @@ export interface StateDeclaration {
    * }
    * ```
    */
-  resolve?: { [key: string]: Function; };
+  resolve?: { [key: string]: IInjectable; };
 
   /**
    * Sets the resolve policy for the state
