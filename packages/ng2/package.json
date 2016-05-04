@@ -2,7 +2,7 @@
   "name": "ui-router-ng2",
   "description": "State-based routing for Angular 2",
   "peerDependencies": {
-    "angular2": ">2.0.0-alpha.12"
+    "@angular/core": ">=2.0.0-rc.1"
   },
   "main": "ng2.js",
   "typings": "ng2.d.ts"

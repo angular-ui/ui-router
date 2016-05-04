@@ -1,4 +1,4 @@
-import {InputMetadata, ComponentMetadata} from "angular2/core";
+import {InputMetadata, ComponentMetadata} from "@angular/core";
 
 export const ng2ComponentInputs = (ng2CompClass) => {
   /** Get "@Input('foo') _foo" inputs */

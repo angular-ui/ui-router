@@ -1,7 +1,7 @@
 {
   "name": "ui-router",
   "description": "State-based routing for Javascript",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "scripts": {},
   "homepage": "http://angular-ui.github.com/ui-router",
   "contributors": [
@@ -41,7 +41,13 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "angular2": "^2.0.0-beta.17",
+    "@angular/common": "^2.0.0-rc.1",
+    "@angular/compiler": "^2.0.0-rc.1",
+    "@angular/core": "^2.0.0-rc.1",
+    "@angular/platform-browser": "^2.0.0-rc.1",
+    "@angular/platform-browser-dynamic": "^2.0.0-rc.1",
+    "rxjs": "^5.0.0-beta.6",
+    "zone.js": "^0.6.12",
     "babel-core": "^5.8.14",
     "conventional-changelog": "^1.1.0",
     "conventional-changelog-cli": "^1.1.1",
@@ -72,7 +78,6 @@
     "lodash": "^4.5.1",
     "phantomjs-polyfill": "0.0.1",
     "reflect-metadata": "=0.1.2",
-    "rxjs": "=5.0.0-beta.2",
     "shelljs": "~0.6.0",
     "systemjs": "^0.18.4",
     "ts-loader": "^0.8.1",
@@ -81,11 +86,6 @@
     "typescript": "~1.8.0",
     "webpack": "1.x",
     "webpack-dev-server": "1.x",
-    "yargs": "^4.2.0",
-    "zone.js": "^0.6.6"
-  },
-  "dependencies": {
-    "rxjs": "^5.0.0-beta.6",
-    "zone.js": "^0.6.12"
+    "yargs": "^4.2.0"
   }
 }

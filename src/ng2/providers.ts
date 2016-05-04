@@ -33,7 +33,7 @@
  * - When bootstrapping: include the [[UIROUTER_PROVIDERS]] and define a provider for your [[UIRouterConfig]]
  *
  * ```js
- * import {provide} from "angular2/core";
+ * import {provide} from "@angular/core";
  * import {bootstrap} from 'angular2/platform/browser';
  * import {UIRouterConfig, UiView, UIROUTER_PROVIDERS} from "ui-router-ng2";
  * import {MyUIRouterConfig} from "./router.config";
@@ -46,7 +46,7 @@
  *
  * @preferred @module ng2
  */ /** */
-import {Provider, provide} from "angular2/core";
+import {Provider, provide} from "@angular/core";
 import {UIRouter} from "../router";
 import {Node} from "../path/node";
 import {StateRegistry} from "../state/stateRegistry";

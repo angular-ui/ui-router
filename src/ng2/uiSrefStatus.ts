@@ -1,5 +1,5 @@
 /** @module ng2_directives */ /** */
-import {Directive, Output, EventEmitter} from "angular2/core";
+import {Directive, Output, EventEmitter} from "@angular/core";
 import {StateService} from "../state/stateService";
 import {UiSref} from "./uiSref";
 import {Node} from "../path/node";

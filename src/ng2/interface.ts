@@ -3,7 +3,7 @@ import {StateDeclaration, _ViewDeclaration} from "../state/interface";
 import {ParamDeclaration} from "../params/interface";
 import {IInjectable} from "../common/common";
 import {Transition} from "../transition/transition";
-import {Type} from "angular2/core";
+import {Type} from "@angular/core";
 
 /**
  * The StateDeclaration object is used to define a state or nested state.

@@ -2,15 +2,15 @@
 import {
     Component, ComponentResolver, ComponentFactory,
     ViewContainerRef, ReflectiveInjector
-} from 'angular2/core';
-import {provide} from "angular2/core";
-import {Input} from "angular2/core";
-import {ComponentRef} from "angular2/core";
-import {Type} from "angular2/core";
+} from '@angular/core';
+import {provide} from "@angular/core";
+import {Input} from "@angular/core";
+import {ComponentRef} from "@angular/core";
+import {Type} from "@angular/core";
 
 import {UIRouter} from "../router";
 import {trace} from "../common/trace";
-import {Inject} from "angular2/core";
+import {Inject} from "@angular/core";
 import {ViewContext, ViewConfig} from "../view/interface";
 import {Ng2ViewDeclaration} from "./interface";
 import {ng2ComponentInputs} from "./componentUtil";
@@ -96,7 +96,7 @@ export interface ParentUiViewInject {
 export class UiView {
   @Input('name') name: string;
   @Input('ui-view') set _name(val) { this.name = val; }
-  componentRef: ComponentRef;
+  componentRef: ComponentRef<any>;
   deregister: Function;
   uiViewData: any = {};
 
@@ -161,7 +161,7 @@ export class UiView {
     // Get the component class from the view declaration. TODO: allow promises?
     let componentType = <Type> viewDecl.component;
 
-    let createComponent = (factory: ComponentFactory) => {
+    let createComponent = (factory: ComponentFactory<any>) => {
       let parentInjector = this.viewContainerRef.injector;
       let childInjector = ReflectiveInjector.resolveAndCreate(rawProviders, parentInjector);
       let ref = this.componentRef = this.viewContainerRef.createComponent(factory, undefined, childInjector);

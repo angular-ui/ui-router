@@ -1,5 +1,5 @@
 /** @module ng2_directives */ /** */
-import {Directive, Input, ElementRef, Host, Renderer} from "angular2/core";
+import {Directive, Input, ElementRef, Host, Renderer} from "@angular/core";
 import {UiSrefStatus, SrefStatus} from "./uiSrefStatus";
 
 /**
