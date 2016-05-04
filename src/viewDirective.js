@@ -154,25 +154,45 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate,
   function getRenderer(attrs, scope) {
     var statics = function() {
       return {
-        enter: function (element, target, cb) { target.after(element); cb(); },
-        leave: function (element, cb) { element.remove(); cb(); }
+        enter: function (element, target) {
+          target.after(element);
+
+          return $q.when();
+        },
+        leave: function (element) {
+          element.remove();
+
+          return $q.when();
+        }
       };
     };
 
     if ($animate) {
       return {
-        enter: function(element, target, cb) {
+        enter: function(element, target) {
           if (angular.version.minor > 2) {
-            $animate.enter(element, null, target).then(cb);
+            return $animate.enter(element, null, target);
           } else {
-            $animate.enter(element, null, target, cb);
+            var defer = $q.defer();
+
+            $animate.enter(element, null, target, function() {
+              defer.resolve();
+            });
+
+            return defer.promise;
           }
         },
-        leave: function(element, cb) {
+        leave: function(element) {
           if (angular.version.minor > 2) {
-            $animate.leave(element).then(cb);
+            return $animate.leave(element);
           } else {
-            $animate.leave(element, cb);
+            var defer = $q.defer();
+
+            $animate.leave(element, function() {
+              defer.resolve();
+            });
+
+            return defer.promise;
           }
         }
       };
@@ -182,8 +202,16 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate,
       var animate = $animator && $animator(scope, attrs);
 
       return {
-        enter: function(element, target, cb) {animate.enter(element, null, target); cb(); },
-        leave: function(element, cb) { animate.leave(element); cb(); }
+        enter: function(element, target) {
+          animate.enter(element, null, target);
+
+          return $q.when();
+        },
+        leave: function(element) {
+          animate.leave(element);
+
+          return $q.when();
+        }
       };
     }
 
@@ -197,7 +225,7 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate,
     transclude: 'element',
     compile: function (tElement, tAttrs, $transclude) {
       return function (scope, $element, attrs) {
-        var previousEl, currentEl, currentScope, latestLocals,
+        var currentEl, currentScope, latestLocals,
             onloadExp     = attrs.onload || '',
             autoScrollExp = attrs.autoscroll,
             renderer      = getRenderer(attrs, scope),
@@ -208,29 +236,6 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate,
         });
 
         updateView(true);
-
-        function cleanupLastView() {
-          if (previousEl) {
-            previousEl.remove();
-            previousEl = null;
-          }
-
-          if (currentScope) {
-            currentScope.$destroy();
-            currentScope = null;
-          }
-
-          if (currentEl) {
-            var $uiViewData = currentEl.data('$uiView');
-            renderer.leave(currentEl, function() {
-              $uiViewData.$$animLeave.resolve();
-              previousEl = null;
-            });
-
-            previousEl = currentEl;
-            currentEl = null;
-          }
-        }
 
         function updateView(firstTime) {
           var newScope,
@@ -264,8 +269,9 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate,
               $$animLeave: animLeave
             };
 
-            renderer.enter(clone.data('$uiView', viewData), $element, function onUiViewEnter() {
+            renderer.enter(clone.data('$uiView', viewData), $element).then(function onUiViewEnter() {
               animEnter.resolve();
+
               if(currentScope) {
                 currentScope.$emit('$viewContentAnimationEnded');
               }
@@ -274,7 +280,16 @@ function $ViewDirective(   $state,   $injector,   $uiViewScroll,   $interpolate,
                 $uiViewScroll(clone);
               }
             });
-            cleanupLastView();
+
+            if(currentEl) {
+              var $uiViewData = currentEl.data('$uiView');
+
+              renderer.leave(currentEl).then(function() {
+                $uiViewData.$$animLeave.resolve();
+              });
+
+              currentScope.$destroy();
+            }
           });
 
           currentEl = clone;

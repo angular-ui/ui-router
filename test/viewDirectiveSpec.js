@@ -288,6 +288,7 @@ describe('uiView', function () {
       $q.flush();
 
       animateFlush($animate);
+      $q.flush();
 
       expect($uiViewScroll).toHaveBeenCalledWith(elem.find('span').parent());
     }));
@@ -309,6 +310,7 @@ describe('uiView', function () {
       $q.flush();
 
       animateFlush($animate);
+      $q.flush();
 
       var target,
           index   = -1,
