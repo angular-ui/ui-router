@@ -61,7 +61,8 @@ export class StateQueueManager {
       previousQueueLength[state.name] = queue.length;
       if (orphanIdx >= 0 && prev === queue.length) {
         // Wait until two consecutive iterations where no additional states were dequeued successfully.
-        throw new Error(`Cannot register orphaned state '${state.name}'`);
+        // throw new Error(`Cannot register orphaned state '${state.name}'`);
+        return states;
       } else if (orphanIdx < 0) {
         orphans.push(state);
       }
