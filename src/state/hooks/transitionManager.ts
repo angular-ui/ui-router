@@ -78,11 +78,7 @@ export class TransitionManager {
     // Handle redirect and abort
     if (error instanceof Rejection) {
       if (error.type === RejectType.IGNORED) {
-        // Update $stateParmas/$state.params/$location.url if transition ignored, but dynamic params have changed.
-        let dynamic = $state.$current.parameters().filter(prop('dynamic'));
-        if (!Param.equals(dynamic, $state.params, transition.params())) {
-          this.updateUrl();
-        }
+        this.$urlRouter.update();
         return $state.current;
       }
 
@@ -104,7 +100,6 @@ export class TransitionManager {
     let transition = this.transition;
     let {$urlRouter, $state} = this;
     let options = transition.options();
-    var toState = transition.$to();
 
     if (options.location && $state.$current.navigable) {
       $urlRouter.push($state.$current.navigable.url, $state.params, { replace: options.location === 'replace' });
