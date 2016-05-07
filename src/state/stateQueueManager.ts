@@ -83,7 +83,7 @@ export class StateQueueManager {
 
     $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
       if ($state.$current.navigable !== state || !equalForKeys($match, $stateParams)) {
-        $state.transitionTo(state, $match, { inherit: true });
+        $state.transitionTo(state, $match, { inherit: true, location: false });
       }
     }]);
   }
