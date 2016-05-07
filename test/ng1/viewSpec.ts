@@ -1,19 +1,19 @@
-/// <reference path='../typings/angularjs/angular.d.ts' />
-/// <reference path='../typings/angularjs/angular-mocks.d.ts' />
-/// <reference path='../typings/jasmine/jasmine.d.ts' />
+/// <reference path='../../typings/angularjs/angular.d.ts' />
+/// <reference path='../../typings/angularjs/angular-mocks.d.ts' />
+/// <reference path='../../typings/jasmine/jasmine.d.ts' />
 
 var module = angular.mock.module;
 
-import {inherit, extend, tail} from "../src/common/common";
-import {curry} from "../src/common/hof";
-import {Node} from "../src/path/module";
-import {ResolveContext} from "../src/resolve/module";
-import {PathFactory} from "../src/path/module";
-import {ng1ViewsBuilder, ng1ViewConfigFactory} from "../src/ng1/viewsBuilder";
-import {ViewService} from "../src/view/view";
-import {StateMatcher, StateBuilder} from "../src/state/module";
+import {inherit, extend, tail} from "../../src/common/common";
+import {curry} from "../../src/common/hof";
+import {Node} from "../../src/path/module";
+import {ResolveContext} from "../../src/resolve/module";
+import {PathFactory} from "../../src/path/module";
+import {ng1ViewsBuilder, ng1ViewConfigFactory} from "../../src/ng1/viewsBuilder";
+import {ViewService} from "../../src/view/view";
+import {StateMatcher, StateBuilder} from "../../src/state/module";
 
-import {State} from "../src/state/module";
+import {State} from "../../src/state/module";
 
 describe('view', function() {
   var scope, $compile, $injector, elem, $controllerProvider, $urlMatcherFactoryProvider;

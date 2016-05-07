@@ -20,17 +20,28 @@ routerFiles = {
 
   // Returns necessary files for a specific version of angular
   angular: function(version) {
-    return [
-      'lib/angular-' + version + '/angular.js',
-      'lib/angular-' + version + '/angular-mocks.js',
-      'lib/angular-' + version + '/angular-animate.js'
-    ];
+    if (version && version[0] === '1') {
+      return [
+        'lib/angular-' + version + '/angular.js',
+        'lib/angular-' + version + '/angular-mocks.js',
+        'lib/angular-' + version + '/angular-animate.js'
+      ];
+    }
+
+    return [];
   },
 
-  // This returns a Karma 'files configuration' for the files served by the Karma web server
-  // http://karma-runner.github.io/0.8/config/files.html
-  karmaServedFiles: function(version) {
-    return routerFiles.angular(version).map(function (pattern) {
+  /**
+   * This returns a Karma 'files configuration'.
+   * http://karma-runner.github.io/0.8/config/files.html
+   * 
+   * Specifies which files can be served by the Karma web server
+   *
+   * included: true -- files that are always served to the browser (like <script> tag)
+   * included: false -- files *available to be served* by karma, for instance via require()
+   */
+  karmaServedFiles: function(ngVersion) {
+    return routerFiles.angular(ngVersion).map(function (pattern) {
       return { watched: false, included: true, nocache: true, pattern: pattern };
     }).concat([
       { watched: true, included: false, nocache: true, pattern: 'src/**/*.ts' },

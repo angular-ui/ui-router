@@ -2,7 +2,22 @@
   "name": "ui-router",
   "description": "State-based routing for Javascript",
   "version": "1.0.0-alpha.5",
-  "scripts": {},
+  "scripts": {
+    "test": "npm run test:core && npm run test:ng1",
+    "test:watch": "node_modules/watch/cli.js 'npm run test' src test",
+
+    "test:core": "karma start config/karma.core.js",
+    "test:core:debug": "karma start config/karma.core.js --singleRun=false --browsers=Chrome --autoWatch=true --autoWatchInterval=1",
+
+    "test:ng1": "karma start config/karma.ng15.js",
+    "test:ng1:debug": "karma start config/karma.ng15.js --singleRun=false --browsers=Chrome --autoWatch=true --autoWatchInterval=1",
+
+    "test:ng12": "karma start config/karma.ng12.js",
+    "test:ng13": "karma start config/karma.ng13.js",
+    "test:ng14": "karma start config/karma.ng14.js",
+    "test:ng15": "karma start config/karma.ng15.js",
+    "test:integrate": "npm run test:core && npm run test:ng12 && npm run test:ng13 && npm run test:ng14 && npm run test:ng15"
+  },
   "homepage": "http://angular-ui.github.com/ui-router",
   "contributors": [
     {
@@ -46,9 +61,8 @@
     "@angular/core": "=2.0.0-rc.1",
     "@angular/platform-browser": "=2.0.0-rc.1",
     "@angular/platform-browser-dynamic": "=2.0.0-rc.1",
-    "rxjs": "=5.0.0-beta.6",
-    "zone.js": "=0.6.12",
     "babel-core": "^5.8.14",
+    "clone": "^1.0.2",
     "conventional-changelog": "^1.1.0",
     "conventional-changelog-cli": "^1.1.1",
     "es6-module-loader": "^0.17.3",
@@ -70,22 +84,28 @@
     "jsdoc": "git://github.com/jsdoc3/jsdoc.git#v3.2.2",
     "karma": "~0.12.0",
     "karma-chrome-launcher": "~0.1.0",
+    "karma-coverage": "^0.5.3",
     "karma-jasmine": "^0.3.8",
     "karma-phantomjs-launcher": "~0.1.0",
     "karma-script-launcher": "~0.1.0",
     "karma-systemjs": "^0.7.2",
     "load-grunt-tasks": "~0.4.0",
     "lodash": "^4.5.1",
+    "parallelshell": "^2.0.0",
     "phantomjs-polyfill": "0.0.1",
     "reflect-metadata": "=0.1.2",
+    "remap-istanbul": "^0.6.3",
+    "rxjs": "=5.0.0-beta.6",
     "shelljs": "~0.6.0",
     "systemjs": "^0.18.4",
     "ts-loader": "^0.8.1",
     "tslint": "=2.5.0",
     "typedoc": "git://github.com/christopherthielen/typedoc.git#v0.3-uirouter",
     "typescript": "~1.8.0",
+    "watch": "^0.18.0",
     "webpack": "1.x",
     "webpack-dev-server": "1.x",
-    "yargs": "^4.2.0"
+    "yargs": "^4.2.0",
+    "zone.js": "=0.6.12"
   }
 }

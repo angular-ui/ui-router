@@ -18,7 +18,7 @@ import {TransitionService, defaultTransOpts} from "../transition/transitionServi
 import {Rejection} from "../transition/rejectFactory";
 import {Transition} from "../transition/transition";
 
-import {StateOrName, StateDeclaration} from "./interface";
+import {StateOrName, StateDeclaration, TransitionPromise} from "./interface";
 import {StateRegistry} from "./stateRegistry";
 import {State} from "./stateObject";
 import {TargetState} from "./targetState";
@@ -210,14 +210,14 @@ export class StateService {
    * - *resolve error* - when an error has occurred with a `resolve`
    *
    */
-  go(to: StateOrName, params: RawParams, options: TransitionOptions): Promise<State> {
+  go(to: StateOrName, params?: RawParams, options?: TransitionOptions): TransitionPromise {
     let defautGoOpts = { relative: this.$current, inherit: true };
     let transOpts = defaults(options, defautGoOpts, defaultTransOpts);
     return this.transitionTo(to, params, transOpts);
   };
 
   /** Factory method for creating a TargetState */
-  target(identifier: StateOrName, params: ParamsOrArray, options: TransitionOptions = {}): TargetState {
+  target(identifier: StateOrName, params?: ParamsOrArray, options: TransitionOptions = {}): TargetState {
     // If we're reloading, find the state object to reload from
     if (isObject(options.reload) && !(<any>options.reload).name)
       throw new Error('Invalid reload state object');
@@ -268,7 +268,7 @@ export class StateService {
    * @returns {promise} A promise representing the state of the new transition. See
    * {@link ui.router.state.$state#methods_go $state.go}.
    */
-  transitionTo(to: StateOrName, toParams: RawParams = {}, options: TransitionOptions = {}): Promise<State> {
+  transitionTo(to: StateOrName, toParams: RawParams = {}, options: TransitionOptions = {}): TransitionPromise {
     let transHistory = this.globals.transitionHistory;
     options = defaults(options, defaultTransOpts);
     options = extend(options, { current: transHistory.peekTail.bind(transHistory)});

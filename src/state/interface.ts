@@ -4,9 +4,13 @@ import {ParamDeclaration} from "../params/interface";
 import {State} from "./stateObject";
 import {ViewContext} from "../view/interface";
 import {IInjectable} from "../common/common";
+import {Transition} from "../transition/transition";
 
 export type StateOrName = (string|StateDeclaration|State);
 
+export interface TransitionPromise extends Promise<State> {
+  transition: Transition;
+}
 
 /**
  * Base interface for [[Ng1ViewDeclaration]] and [[Ng2ViewDeclaration]]

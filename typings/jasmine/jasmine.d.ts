@@ -498,6 +498,7 @@ declare module jasmine {
 // UI-Router custom
 declare module jasmine {
   export interface Matchers {
+    toBeResolved(): boolean
     toEqualData(expected: any): boolean
     toHaveClass(expected: any): boolean
   }

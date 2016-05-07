@@ -1,4 +1,4 @@
-import {ParamTypes} from "../src/core";
+import {ParamTypes} from "../../src/core";
 
 describe('parameters', () => {
   let types;

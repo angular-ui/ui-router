@@ -1,14 +1,14 @@
-import {Node} from "../src/path/node";
+import {Node} from "../../src/path/node";
 var module = angular.mock.module;
-import { UIRouter } from "../src/core";
-import { RejectType, Rejection } from "../src/transition/rejectFactory";
-import { extend, forEach, map, omit, pick, pluck } from "../src/common/common";
-import {PathFactory} from "../src/path/pathFactory";
-import {StateMatcher} from "../src/state/stateMatcher";
-import {StateBuilder} from "../src/state/stateBuilder";
-import {TargetState} from "../src/state/targetState";
-import {StateQueueManager} from "../src/state/stateQueueManager";
-import {Rejection} from "../src/transition/rejectFactory";
+import { UIRouter } from "../../src/core";
+import { RejectType, Rejection } from "../../src/transition/rejectFactory";
+import { extend, forEach, map, omit, pick, pluck } from "../../src/common/common";
+import {PathFactory} from "../../src/path/pathFactory";
+import {StateMatcher} from "../../src/state/stateMatcher";
+import {StateBuilder} from "../../src/state/stateBuilder";
+import {TargetState} from "../../src/state/targetState";
+import {StateQueueManager} from "../../src/state/stateQueueManager";
+import {Rejection} from "../../src/transition/rejectFactory";
 
 describe('transition', function () {
 
@@ -46,7 +46,7 @@ describe('transition', function () {
     matcher = new StateMatcher(statesMap = {});
     pathFactory = new PathFactory();
     var builder = new StateBuilder(matcher, $urlMatcherFactoryProvider);
-    queue = new StateQueueManager(statesMap, builder, { when: function() {} }, null);
+    queue = new StateQueueManager(statesMap, builder, { when: function() {} });
     var root = queue.register({ name: '', url: '^', views: null, 'abstract': true});
     root.navigable = null;
 

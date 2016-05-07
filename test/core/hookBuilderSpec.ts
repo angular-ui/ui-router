@@ -1,13 +1,9 @@
-import {UIRouter} from "../src/core";
-import {TransitionService} from "../src/transition/transitionService";
-import {tree2Array} from "./stateHelper.ts";
-import {StateService} from "../src/state/stateService";
+import {
+    UIRouter, TransitionService, StateService, State, Node, tail, PathFactory
+} from "../../src/core";
 
-import "../src/justjs";
-import {State} from "../src/state/stateObject";
-import {Node} from "../src/path/node";
-import {tail} from "../src/common/common";
-import {PathFactory} from "../src/path/pathFactory";
+import {tree2Array} from "../stateHelper.ts";
+import "../../src/justjs";
 
 describe('HookBuilder:', function() {
   let uiRouter: UIRouter = null;
@@ -68,32 +64,33 @@ describe('HookBuilder:', function() {
     expect(typeof callback).toBe('function')
   });
 
+  const getFn = x => x['fn'];
 
   describe('HookMatchCriteria', function() {
 
     describe('.to', function() {
       it("should match a transition with same to state", function() {
         trans.onBefore({to: "A.B.C"}, callback);
-        expect(hb.getOnBeforeHooks().map(x => x.fn)).toEqual([callback]);
+        expect(hb.getOnBeforeHooks().map(getFn)).toEqual([callback]);
       });
 
       it("should not match a transition with a different to state", function() {
         trans.onBefore({to: "A.B"}, callback);
         trans.onBefore({to: "A.B.C.D"}, callback);
-        expect(hb.getOnBeforeHooks().map(x => x.fn)).toEqual([]);
+        expect(hb.getOnBeforeHooks().map(getFn)).toEqual([]);
       });
 
       it("should match a transition using a glob", function() {
         trans.onBefore({to: "A.B.*"}, callback);
-        expect(hb.getOnBeforeHooks().map(x => x.fn)).toEqual([callback]);
+        expect(hb.getOnBeforeHooks().map(getFn)).toEqual([callback]);
       });
 
       it("should match a transition using a function", function() {
         let deregister = trans.onBefore({to: (state) => state.name === 'A.B'}, callback);
-        expect(hb.getOnBeforeHooks().map(x => x.fn)).toEqual([]);
+        expect(hb.getOnBeforeHooks().map(getFn)).toEqual([]);
 
         trans.onBefore({to: (state) => state.name === 'A.B.C'}, callback);
-        expect(hb.getOnBeforeHooks().map(x => x.fn)).toEqual([callback]);
+        expect(hb.getOnBeforeHooks().map(getFn)).toEqual([callback]);
       });
     });
 
@@ -101,20 +98,20 @@ describe('HookBuilder:', function() {
     describe('.from', function() {
       it("should match a transition with same from state", function() {
         trans.onBefore({from: "A"}, callback);
-        expect(hb.getOnBeforeHooks().map(x => x.fn)).toEqual([callback]);
+        expect(hb.getOnBeforeHooks().map(getFn)).toEqual([callback]);
       });
 
       it("should not match a transition with a different from state", function() {
         trans.onBefore({from: "A.B"}, callback);
-        expect(hb.getOnBeforeHooks().map(x => x.fn)).toEqual([]);
+        expect(hb.getOnBeforeHooks().map(getFn)).toEqual([]);
       });
 
       it("should match a transition using a function", function() {
         let deregister = trans.onBefore({from: (state) => state.name === 'A.B'}, callback);
-        expect(hb.getOnBeforeHooks().map(x => x.fn)).toEqual([]);
+        expect(hb.getOnBeforeHooks().map(getFn)).toEqual([]);
 
         trans.onBefore({from: (state) => state.name === 'A'}, callback);
-        expect(hb.getOnBeforeHooks().map(x => x.fn)).toEqual([callback]);
+        expect(hb.getOnBeforeHooks().map(getFn)).toEqual([callback]);
       });
     });
 
@@ -122,12 +119,12 @@ describe('HookBuilder:', function() {
     describe('.to and .from', function() {
       it("should match a transition with same to and from state", function() {
         trans.onBefore({from: "A", to: "A.B.C"}, callback);
-        expect(hb.getOnBeforeHooks().map(x => x.fn)).toEqual([callback]);
+        expect(hb.getOnBeforeHooks().map(getFn)).toEqual([callback]);
       });
 
       it("should not match a transition with a different to or from state", function() {
         trans.onBefore({from: "A", to: "A.B.C.D"}, callback);
-        expect(hb.getOnBeforeHooks().map(x => x.fn)).toEqual([]);
+        expect(hb.getOnBeforeHooks().map(getFn)).toEqual([]);
       });
     });
 
@@ -135,7 +132,7 @@ describe('HookBuilder:', function() {
     describe('.entering', function() {
       it("should match a transition that will enter the 'entering' state", function() {
         trans.onBefore({entering: "A.B.C"}, callback);
-        expect(hb.getOnBeforeHooks().map(x => x.fn)).toEqual([callback]);
+        expect(hb.getOnBeforeHooks().map(getFn)).toEqual([callback]);
       });
     });
 
@@ -143,12 +140,12 @@ describe('HookBuilder:', function() {
     describe('.retained', function() {
       it("should match a transition where the state is already entered, and will not exit", function() {
         trans.onBefore({retained: "A"}, callback);
-        expect(hb.getOnBeforeHooks().map(x => x.fn)).toEqual([callback]);
+        expect(hb.getOnBeforeHooks().map(getFn)).toEqual([callback]);
       });
 
       it("should not match a transition that will not retain the state", function() {
         trans.onBefore({retained: "A.B"}, callback);
-        expect(hb.getOnBeforeHooks().map(x => x.fn)).toEqual([]);
+        expect(hb.getOnBeforeHooks().map(getFn)).toEqual([]);
       });
     });
 
@@ -156,7 +153,7 @@ describe('HookBuilder:', function() {
     describe('.exiting', function() {
       it("should match a transition that will exit the 'exiting' state", function() {
         trans2.onBefore({exiting: "A.B.C"}, callback);
-        expect(hb2.getOnBeforeHooks().map(x => x.fn)).toEqual([callback]);
+        expect(hb2.getOnBeforeHooks().map(getFn)).toEqual([callback]);
       });
     });
   });
