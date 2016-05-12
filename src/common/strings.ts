@@ -35,7 +35,11 @@ export function padString(length: number, str: string) {
   return str;
 }
 
-export const kebobString = (camelCase: string) => camelCase.replace(/([A-Z])/g, $1 => "-"+$1.toLowerCase());
+export function kebobString(camelCase: string) {
+  return camelCase
+      .replace(/^([A-Z])/, $1 => $1.toLowerCase()) // replace first char
+      .replace(/([A-Z])/g, $1 => "-" + $1.toLowerCase()); // replace rest
+}
 
 function _toJson(obj) {
   return JSON.stringify(obj);

@@ -804,6 +804,16 @@ describe('angular 1.5+ style .component()', function() {
         bindings: { status: '<' },
         template: '#{{ $ctrl.status }}#'
       });
+
+      app.component('bindingTypes', {
+        bindings: { oneway: '<oneway', twoway: '=', attribute: '@attr' },
+        template: '-{{ $ctrl.oneway }},{{ $ctrl.twoway }},{{ $ctrl.attribute }}-'
+      });
+
+      app.component('optionalBindingTypes', {
+        bindings: { oneway: '<?oneway', twoway: '=?', attribute: '@?attr' },
+        template: '-{{ $ctrl.oneway }},{{ $ctrl.twoway }},{{ $ctrl.attribute }}-'
+      });
     }
   }));
 
@@ -992,6 +1002,42 @@ describe('angular 1.5+ style .component()', function() {
         $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
 
         expect(log).toBe('onInit;');
+      });
+
+      it('should supply resolve data to "<", "=", "@" bindings', function () {
+        $stateProvider.state('bindingtypes', {
+          component: 'bindingTypes',
+          resolve: {
+            oneway: function () { return "ONEWAY"; },
+            twoway: function () { return "TWOWAY"; },
+            attribute: function () { return "ATTRIBUTE"; }
+          },
+          bindings: { attr: 'attribute' }
+        });
+
+        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+        $state.transitionTo('bindingtypes'); $q.flush();
+
+        expect(el.text()).toBe('-ONEWAY,TWOWAY,ATTRIBUTE-');
+      });
+
+      it('should supply resolve data to optional "<?", "=?", "@?" bindings', function () {
+        $stateProvider.state('optionalbindingtypes', {
+          component: 'optionalBindingTypes',
+          resolve: {
+            oneway: function () { return "ONEWAY"; },
+            twoway: function () { return "TWOWAY"; },
+            attribute: function () { return "ATTRIBUTE"; }
+          },
+          bindings: { attr: 'attribute' }
+        });
+
+        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+        $state.transitionTo('optionalbindingtypes'); $q.flush();
+
+        expect(el.text()).toBe('-ONEWAY,TWOWAY,ATTRIBUTE-');
       });
     }
   });

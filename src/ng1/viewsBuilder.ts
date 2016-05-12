@@ -45,12 +45,19 @@ export function ng1ViewsBuilder(state: State) {
         throw new Error(`Cannot combine: ${compKeys.join("|")} with: ${nonCompKeys.join("|")} in stateview: 'name@${state.name}'`);
       }
 
-      // Dynamically build a template like "<component-name input1='$resolve.foo'></component-name>"
+      // Dynamically build a template like "<component-name input1='::$resolve.foo'></component-name>"
       config.templateProvider = ['$injector', function($injector) {
         const resolveFor = key => config.bindings && config.bindings[key] || key;
         const prefix = angular.version.minor >= 3 ? "::" : "";
-        let attrs = getComponentInputs($injector, config.component)
-            .map(key => `${kebobString(key)}='${prefix}$resolve.${resolveFor(key)}'`).join(" ");
+        const attributeTpl = input => {
+          var attrName = kebobString(input.name);
+          var resolveName = resolveFor(input.name);
+          if (input.type === '@')
+            return `${attrName}='{{${prefix}$resolve.${resolveName}}}'`;
+          return `${attrName}='${prefix}$resolve.${resolveName}'`;
+        };
+
+        let attrs = getComponentInputs($injector, config.component).map(attributeTpl).join(" ");
         let kebobName = kebobString(config.component);
         return `<${kebobName} ${attrs}></${kebobName}>`;
       }];
@@ -70,27 +77,21 @@ export function ng1ViewsBuilder(state: State) {
   return views;
 }
 
-// for ng 1.2 style, process the scope: { input: "=foo" } object
+// for ng 1.2 style, process the scope: { input: "=foo" }
+// for ng 1.3 through ng 1.5, process the component's bindToController: { input: "=foo" } object
 const scopeBindings = bindingsObj => Object.keys(bindingsObj || {})
-      .map(key => [key, /^[=<](.*)/.exec(bindingsObj[key])])
-      .filter(tuple => isDefined(tuple[1]))
-      .map(tuple => tuple[1][1] || tuple[0]);
-
-// for ng 1.3+ bindToController or 1.5 component style, process a $$bindings object
-const bindToCtrlBindings = bindingsObj => Object.keys(bindingsObj || {})
-      .filter(key => !!/[=<]/.exec(bindingsObj[key].mode))
-      .map(key => bindingsObj[key].attrName);
+      .map(key => [key, /^([=<@])[?]?(.*)/.exec(bindingsObj[key])])        // [ 'input', [ '=foo', '=', 'foo' ] ]
+      .filter(tuple => isDefined(tuple) && isDefined(tuple[1]))             // skip malformed values
+      .map(tuple => ({ name: tuple[1][2] || tuple[0], type: tuple[1][1] }));// { name: ('foo' || 'input'), type: '=' }
 
 // Given a directive definition, find its object input attributes
 // Use different properties, depending on the type of directive (component, bindToController, normal)
 const getBindings = def => {
   if (isObject(def.bindToController)) return scopeBindings(def.bindToController);
-  if (def.$$bindings && def.$$bindings.bindToController) return bindToCtrlBindings(def.$$bindings.bindToController);
-  if (def.$$isolateBindings) return bindToCtrlBindings(def.$$isolateBindings);
   return <any> scopeBindings(def.scope);
 };
 
-// Gets all the directive(s)' inputs ('=' and '<')
+// Gets all the directive(s)' inputs ('@', '=', and '<')
 function getComponentInputs($injector, name) {
   let cmpDefs = $injector.get(name + "Directive"); // could be multiple
   if (!cmpDefs || !cmpDefs.length) throw new Error(`Unable to find component named '${name}'`);
