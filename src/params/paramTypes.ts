@@ -23,7 +23,7 @@ export class ParamTypes {
       decode: valFromString,
       is: is(String),
       pattern: /.*/,
-      equals: val(true)
+      equals: (a, b) => a == b // allow coersion for null/undefined/""
     },
     "string": {
       encode: valToString,

@@ -663,6 +663,21 @@ describe('state', function () {
       expect($location.hash()).toBe('frag');
     }));
 
+    it('runs a transition when the location #fragment is updated', inject(function ($state, $q, $location, $transitions) {
+      var transitionCount = 0;
+      $transitions.onSuccess({}, function() { transitionCount++; });
+
+      $state.transitionTo('home.item', {id: 'world', '#': 'frag'});
+      $q.flush();
+      expect($location.hash()).toBe('frag');
+      expect(transitionCount).toBe(1);
+
+      $state.transitionTo('home.item', {id: 'world', '#': 'blarg'});
+      $q.flush();
+      expect($location.hash()).toBe('blarg');
+      expect(transitionCount).toBe(2);
+    }));
+
     it('injects $transition$ into resolves', inject(function ($state, $q) {
       $state.transitionTo('home'); $q.flush();
       $state.transitionTo('about'); $q.flush();

@@ -27,7 +27,7 @@ export class StateRegistry {
       url: '^',
       views: null,
       params: {
-        '#': { value: null, type: 'hash' }
+        '#': { value: null, type: 'hash', dynamic: true }
       },
       abstract: true
     };
