@@ -27,15 +27,20 @@ export class UIRouterLocation {
     let locSt = this.locationStrategy;
 
     if (this.isHashBang) {
+      loc.path = () =>
+          splitOnHash(splitOnQuestionMark(locSt.path())[0])[0];
       loc.hash = () =>
           splitOnHash(splitOnHash(this.platformLocation.hash)[1])[1];
     } else {
+      let basepath = locSt.getBaseHref();
+      let basepathRegExp = new RegExp("^" + basepath);
+      let replace = (basepath[basepath.length - 1] === '/') ? "/" : "";
+      loc.path = () =>
+          splitOnHash(splitOnQuestionMark(locSt.path())[0])[0].replace(basepathRegExp, replace);
       loc.hash = () =>
           splitOnHash(this.platformLocation.hash)[1];
     }
 
-    loc.path = () =>
-        splitOnHash(splitOnQuestionMark(locSt.path())[0])[0];
 
     loc.search = () => {
       let queryString = splitOnHash(splitOnQuestionMark(locSt.path())[1])[0];
