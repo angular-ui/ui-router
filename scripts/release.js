@@ -38,19 +38,21 @@ projects = projects.reduce((memo, key) => { memo[key] = true; return memo; }, {}
 echo('--> Checking working copy status...');
 _exec(`node ${rootDir}/scripts/ensure_clean_master.js ${argv.branch || 'master'}`);
 
+commands.push(``);
+commands.push(``);
+commands.push(`################# To perform the release ################# `);
+  commands.push(``);
+
 if (!argv['no-changelog']) {
   echo('--> Updating CHANGELOG...');
   _exec(`node ${rootDir}/scripts/update_changelog.js`);
   
   echo('--> Committing changelog...');
-  commands.push(``);
-  commands.push(``);
-  commands.push(`################# To perform the release ################# `);
-  commands.push(``);
   commands.push(`git commit -m "chore(*): Release prep - Update CHANGELOG" CHANGELOG.md`);
-  commands.push(`git tag ${version}`);
-  commands.push(`git push origin ${version}`);
 }
+
+commands.push(`git tag ${version}`);
+commands.push(`git push origin ${version}`);
 
 
 Object.keys(projects).map(project => {
