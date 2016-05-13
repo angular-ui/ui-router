@@ -42,5 +42,11 @@ module.exports = {
     loaders: [
       { test: /\.ts$/, loader: "ts-loader" }
     ]
+  },
+
+  ts: {
+    compilerOptions: {
+      declaration: false
+    }
   }
 };

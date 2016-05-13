@@ -41,6 +41,12 @@ module.exports = {
       { test: /\.ts$/, loader: "ts-loader" }
     ]
   },
+
+  ts: {
+    compilerOptions: {
+      declaration: false
+    }
+  },
  
   externals: {
     "@angular/core": { root: '@angular/core', amd: '@angular/core', commonjs2: '@angular/core', commonjs: '@angular/core' },
