@@ -2,11 +2,11 @@ describe('state', function () {
 
   var stateProvider, locationProvider, templateParams, ctrlName, template;
 
-  angular.module('ui.router').constant("$noAutoInjectStateService", true);
-  beforeEach(module('ui.router', function($locationProvider) {
+  beforeEach(module('ui.router', ['$locationProvider', '$state.runtime', function($locationProvider, runtime) {
     locationProvider = $locationProvider;
     $locationProvider.html5Mode(false);
-  }));
+    runtime.autoinject = false;
+  }]));
 
   var log, logEvents, logEnterExit;
   function eventLogger(event, to, toParams, from, fromParams) {

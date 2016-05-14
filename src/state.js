@@ -1469,11 +1469,12 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
 angular.module('ui.router.state')
   .factory('$stateParams', function () { return {}; })
+  .constant("$state.runtime", { autoinject: true })
   .provider('$state', $StateProvider)
   // Inject $state to initialize when entering runtime. #2574
   .run(['$injector', function ($injector) {
     // Allow tests (stateSpec.js) to turn this off by defining this constant
-    if (!$injector.get("$noAutoInjectStateService")) {
+    if ($injector.get("$state.runtime").autoinject) {
       $injector.get('$state');
     }
   }]);
