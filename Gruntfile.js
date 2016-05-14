@@ -232,7 +232,7 @@ module.exports = function (grunt) {
 
   function ensureCleanMaster() {
     return exec('git symbolic-ref HEAD').then(function (result) {
-      if (result.stdout.trim() !== 'refs/heads/master') throw new Error('Not on master branch, aborting');
+      if (result.stdout.trim() !== 'refs/heads/legacy') throw new Error('Not on legacy branch, aborting');
       return exec('git status --porcelain');
     }).then(function (result) {
       if (result.stdout.trim() !== '') throw new Error('Working copy is dirty, aborting');
