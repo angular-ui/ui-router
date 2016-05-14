@@ -2,6 +2,7 @@ describe('state', function () {
 
   var stateProvider, locationProvider, templateParams, ctrlName, template;
 
+  angular.module('ui.router').constant("$noAutoInjectStateService", true);
   beforeEach(module('ui.router', function($locationProvider) {
     locationProvider = $locationProvider;
     $locationProvider.html5Mode(false);
