@@ -5,6 +5,7 @@ import {isObject, isDefined, isFunction} from "../common/predicates";
 import {UrlMatcher, matcherConfig} from "./module";
 import {Param, paramTypes, Type} from "../params/module";
 
+/** @hidden */
 function getDefaultConfig() {
   return {
     strict: matcherConfig.strictMode(),

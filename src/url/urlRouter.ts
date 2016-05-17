@@ -1,33 +1,36 @@
 /** @module url */ /** for typedoc */
-import {extend, bindFunctions} from "../common/common";
+import {extend, bindFunctions, IInjectable} from "../common/common";
 import {isFunction, isString, isDefined, isArray} from "../common/predicates";
 import {UrlMatcher} from "./module";
 import {services} from "../common/coreservices";
 import {UrlMatcherFactory} from "./urlMatcherFactory";
 import {StateParams} from "../params/stateParams";
 
+/** @hidden */
 let $location = services.location;
 
-// Returns a string that is a prefix of all strings matching the RegExp
+/** @hidden Returns a string that is a prefix of all strings matching the RegExp */
 function regExpPrefix(re) {
   let prefix = /^\^((?:\\[^a-zA-Z0-9]|[^\\\[\]\^$*+?.()|{}]+)*)/.exec(re.source);
   return (prefix != null) ? prefix[1].replace(/\\(.)/g, "$1") : '';
 }
 
-// Interpolates matched values into a String.replace()-style pattern
+/** @hidden Interpolates matched values into a String.replace()-style pattern */
 function interpolate(pattern, match) {
   return pattern.replace(/\$(\$|\d{1,2})/, function (m, what) {
     return match[what === '$' ? 0 : Number(what)];
   });
 }
 
+/** @hidden */
 function handleIfMatch($injector, $stateParams, handler, match) {
   if (!match) return false;
   let result = $injector.invoke(handler, handler, { $match: match, $stateParams: $stateParams });
   return isDefined(result) ? result : true;
 }
 
-function appendBasePath(url, isHtml5, absolute) {
+/** @hidden */
+function appendBasePath(url: string, isHtml5: boolean, absolute: boolean): string {
   let baseHref = services.locationConfig.baseHref();
   if (baseHref === '/') return url;
   if (isHtml5) return baseHref.slice(0, -1) + url;
@@ -36,6 +39,7 @@ function appendBasePath(url, isHtml5, absolute) {
 }
 
 // TODO: Optimize groups of rules with non-empty prefix into some sort of decision tree
+/** @hidden */
 function update(rules: Function[], otherwiseFn: Function, evt?: any) {
   if (evt && evt.defaultPrevented) return;
 
@@ -60,44 +64,39 @@ function update(rules: Function[], otherwiseFn: Function, evt?: any) {
 
 
 /**
- * @ngdoc object
- * @name ui.router.router.$urlRouterProvider
+ * Manages rules for client-side URL
  *
- * @requires ui.router.util.$urlMatcherFactoryProvider
- * @requires $locationProvider
- *
- * @description
- * `$urlRouterProvider` has the responsibility of watching `$location`.
- * When `$location` changes it runs through a list of rules one by one until a
- * match is found. `$urlRouterProvider` is used behind the scenes anytime you specify
- * a url in a state configuration. All urls are compiled into a UrlMatcher object.
- *
- * There are several methods on `$urlRouterProvider` that make it useful to use directly
- * in your module config.
+ * This class manages the router rules for what to do when the URL changes.
  */
 export class UrlRouterProvider {
   /** @hidden */
   rules = [];
   /** @hidden */
-  otherwiseFn: Function = null;
+  otherwiseFn: ($injector, $location) => string;
   /** @hidden */
   interceptDeferred = false;
 
-  constructor(private $urlMatcherFactory: UrlMatcherFactory, private $stateParams: StateParams) {
+  /** @hidden */
+  private $urlMatcherFactory: UrlMatcherFactory;
+  /** @hidden */
+  private $stateParams: StateParams;
 
+  constructor($urlMatcherFactory: UrlMatcherFactory, $stateParams: StateParams) {
+    this.$urlMatcherFactory = $urlMatcherFactory;
+    this.$stateParams = $stateParams;
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.router.$urlRouterProvider#rule
-   * @methodOf ui.router.router.$urlRouterProvider
+   * Registers a url handler function.
    *
-   * @description
-   * Defines rules that are used by `$urlRouterProvider` to find matches for
-   * specific URLs.
+   * Registers a low level url handler (a `rule`). A rule detects specific URL patterns and returns
+   * a redirect, or performs some action.
+   *
+   * If a rule returns a string, the URL is replaced with the string, and all rules are fired again.
    *
    * @example
-   * <pre>
+   * ```js
+   *
    * var app = angular.module('app', ['ui.router.router']);
    *
    * app.config(function ($urlRouterProvider) {
@@ -111,29 +110,26 @@ export class UrlRouterProvider {
    *     }
    *   });
    * });
-   * </pre>
+   * ```
    *
-   * @param {function} rule Handler function that takes `$injector` and `$location`
-   * services as arguments. You can use them to return a valid path as a string.
+   * @param rule
+   * Handler function that takes `$injector` and `$location` services as arguments.
+   * You can use them to detect a url and return a different url as a string.
    *
-   * @return {object} `$urlRouterProvider` - `$urlRouterProvider` instance
+   * @return [[$urlRouterProvider]] (`this`)
    */
-  rule(rule) {
+  rule(rule: ($injector, $location) => string): UrlRouterProvider {
     if (!isFunction(rule)) throw new Error("'rule' must be a function");
     this.rules.push(rule);
     return this;
   };
 
   /**
-   * @ngdoc object
-   * @name ui.router.router.$urlRouterProvider#otherwise
-   * @methodOf ui.router.router.$urlRouterProvider
-   *
-   * @description
-   * Defines a path that is used when an invalid route is requested.
+   * Defines the path or behavior to use when no url can be matched.
    *
    * @example
-   * <pre>
+   * ```js
+   *
    * var app = angular.module('app', ['ui.router.router']);
    *
    * app.config(function ($urlRouterProvider) {
@@ -147,34 +143,30 @@ export class UrlRouterProvider {
    *     return '/a/valid/url';
    *   });
    * });
-   * </pre>
+   * ```
    *
-   * @param {string|function} rule The url path you want to redirect to or a function
-   * rule that returns the url path. The function version is passed two params:
-   * `$injector` and `$location` services, and must return a url string.
+   * @param rule 
+   * The url path you want to redirect to or a function rule that returns the url path or performs a `$state.go()`. 
+   * The function version is passed two params: `$injector` and `$location` services, and should return a url string.
    *
    * @return {object} `$urlRouterProvider` - `$urlRouterProvider` instance
    */
-  otherwise(rule) {
+  otherwise(rule: string | (($injector, $location) => string)): UrlRouterProvider {
     if (!isFunction(rule) && !isString(rule)) throw new Error("'rule' must be a string or function");
     this.otherwiseFn = isString(rule) ? () => rule : rule;
     return this;
   };
 
   /**
-   * @ngdoc function
-   * @name ui.router.router.$urlRouterProvider#when
-   * @methodOf ui.router.router.$urlRouterProvider
-   *
-   * @description
    * Registers a handler for a given url matching. 
    * 
    * If the handler is a string, it is
    * treated as a redirect, and is interpolated according to the syntax of match
    * (i.e. like `String.replace()` for `RegExp`, or like a `UrlMatcher` pattern otherwise).
    *
-   * If the handler is a function, it is injectable. It gets invoked if `$location`
-   * matches. You have the option of inject the match object as `$match`.
+   * If the handler is a function, it is injectable.
+   * It gets invoked if `$location` matches.
+   * You have the option of inject the match object as `$match`.
    *
    * The handler can return
    *
@@ -184,7 +176,8 @@ export class UrlRouterProvider {
    * - **void** or any **truthy** value tells `$urlRouter` that the url was handled.
    *
    * @example
-   * <pre>
+   * ```js
+   * 
    * var app = angular.module('app', ['ui.router.router']);
    *
    * app.config(function ($urlRouterProvider) {
@@ -195,17 +188,19 @@ export class UrlRouterProvider {
    *     }
    *   });
    * });
-   * </pre>
+   * ```
    *
-   * @param {string|object} what The incoming path that you want to redirect.
-   * @param {string|function} handler The path you want to redirect your user to.
+   * @param what A pattern string to match, compiled as a [[UrlMatcher]].
+   * @param handler The path (or function that returns a path) that you want to redirect your user to.
+   *
+   * Note: the handler may also invoke arbitrary code, such as `$state.go()`
    */
-  when(what, handler) {
+  when(what: (RegExp|UrlMatcher|string), handler: string|IInjectable) {
     let {$urlMatcherFactory, $stateParams} = this;
     let redirect, handlerIsString = isString(handler);
 
     // @todo Queue this
-    if (isString(what)) what = $urlMatcherFactory.compile(what);
+    if (isString(what)) what = $urlMatcherFactory.compile(<string> what);
 
     if (!handlerIsString && !isFunction(handler) && !isArray(handler))
       throw new Error("invalid 'handler' in when()");
@@ -250,51 +245,34 @@ export class UrlRouterProvider {
   };
 
   /**
-   * @ngdoc function
-   * @name ui.router.router.$urlRouterProvider#deferIntercept
-   * @methodOf ui.router.router.$urlRouterProvider
+   * Disables monitoring of the URL.
    *
-   * @description
-   * Disables (or enables) deferring location change interception.
+   * Call this method before UI-Router has bootstrapped.
+   * It will stop UI-Router from performing the initial url sync.
    *
-   * If you wish to customize the behavior of syncing the URL (for example, if you wish to
-   * defer a transition but maintain the current URL), call this method at configuration time.
-   * Then, at run time, call `$urlRouter.listen()` after you have configured your own
-   * `$locationChangeSuccess` event handler.
+   * This can be useful to perform some asynchronous initialization before the router starts.
+   * Once the initialization is complete, call [[listen]] to tell UI-Router to start watching and synchronizing the URL.
    *
    * @example
-   * <pre>
-   * var app = angular.module('app', ['ui.router.router']);
+   * ```js
+   *
+   * var app = angular.module('app', ['ui.router']);
    *
    * app.config(function ($urlRouterProvider) {
-   *
    *   // Prevent $urlRouter from automatically intercepting URL changes;
-   *   // this allows you to configure custom behavior in between
-   *   // location changes and route synchronization:
    *   $urlRouterProvider.deferIntercept();
+   * })
    *
-   * }).run(function ($rootScope, $urlRouter, UserService) {
-   *
-   *   $rootScope.$on('$locationChangeSuccess', function(e) {
-   *     // UserService is an example service for managing user state
-   *     if (UserService.isLoggedIn()) return;
-   *
-   *     // Prevent $urlRouter's default handler from firing
-   *     e.preventDefault();
-   *
-   *     UserService.handleLogin().then(function() {
-   *       // Once the user has logged in, sync the current URL
-   *       // to the router:
-   *       $urlRouter.sync();
-   *     });
+   * app.run(function (MyService, $urlRouter, $http) {
+   *   $http.get("/stuff").then(function(resp) {
+   *     MyService.doStuff(resp.data);
+   *     $urlRouter.listen();
+   *     $urlRouter.sync();
    *   });
-   *
-   *   // Configures $urlRouter's listener *after* your custom listener
-   *   $urlRouter.listen();
    * });
-   * </pre>
+   * ```
    *
-   * @param {boolean} defer Indicates whether to defer location change interception. Passing
+   * @param defer Indicates whether to defer location change interception. Passing
    *        no parameter is equivalent to `true`.
    */
   deferIntercept(defer) {
@@ -304,26 +282,31 @@ export class UrlRouterProvider {
 }
 
 export class UrlRouter {
+  /** @hidden */
   private location: string;
+  /** @hidden */
   private listener: Function;
+  /** @hidden */
+  private urlRouterProvider: UrlRouterProvider;
 
-  constructor(private urlRouterProvider: UrlRouterProvider) {
+
+  /** @hidden */
+  constructor(urlRouterProvider: UrlRouterProvider) {
+    this.urlRouterProvider = urlRouterProvider;
     bindFunctions(UrlRouter.prototype, this, this);
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.router.$urlRouter#sync
-   * @methodOf ui.router.router.$urlRouter
+   * Checks the current URL for a matching rule
    *
-   * @description
    * Triggers an update; the same update that happens when the address bar url changes, aka `$locationChangeSuccess`.
    * This method is useful when you need to use `preventDefault()` on the `$locationChangeSuccess` event,
    * perform some custom logic (route protection, auth, config, redirection, etc) and then finally proceed
    * with the transition by calling `$urlRouter.sync()`.
    *
    * @example
-   * <pre>
+   * ```js
+   *
    * angular.module('app', ['ui.router'])
    *   .run(function($rootScope, $urlRouter) {
    *     $rootScope.$on('$locationChangeSuccess', function(evt) {
@@ -335,16 +318,25 @@ export class UrlRouter {
    *       if (meetsRequirement) $urlRouter.sync();
    *     });
    * });
-   * </pre>
+   * ```
    */
   sync() {
     update(this.urlRouterProvider.rules, this.urlRouterProvider.otherwiseFn);
   }
 
-  listen() {
+  /**
+   * Starts listening for URL changes
+   *
+   * Call this sometime after calling [[deferIntercept]] to start monitoring the url.
+   * This causes [[UrlRouter]] to start listening for changes to the URL, if it wasn't already listening.
+   */
+  listen(): Function {
     return this.listener = this.listener || $location.onChange(evt => update(this.urlRouterProvider.rules, this.urlRouterProvider.otherwiseFn, evt));
   }
 
+  /**
+   * Internal API.
+   */
   update(read?) {
     if (read) {
       this.location = $location.url();
@@ -356,41 +348,45 @@ export class UrlRouter {
     $location.replace();
   }
 
-  push(urlMatcher, params, options) {
+  /**
+   * Internal API.
+   *
+   * Pushes a new location to the browser history.
+   *
+   * @param urlMatcher
+   * @param params
+   * @param options
+   */
+  push(urlMatcher: UrlMatcher, params: StateParams, options: { replace?: (string|boolean) }) {
     $location.url(urlMatcher.format(params || {}));
     if (options && options.replace) $location.replace();
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.router.$urlRouter#href
-   * @methodOf ui.router.router.$urlRouter
-   *
-   * @description
-   * A URL generation method that returns the compiled URL for a given
-   * {@link ui.router.util.type:UrlMatcher `UrlMatcher`}, populated with the provided parameters.
+   * Builds and returns a URL with interpolated parameters
    *
    * @example
-   * <pre>
+   * ```js
+   *
    * $bob = $urlRouter.href(new UrlMatcher("/about/:person"), {
    *   person: "bob"
    * });
    * // $bob == "/about/bob";
-   * </pre>
+   * ```
    *
-   * @param {UrlMatcher} urlMatcher The `UrlMatcher` object which is used as the template of the URL to generate.
-   * @param {object=} params An object of parameter values to fill the matcher's required parameters.
-   * @param {object=} options Options object. The options are:
+   * @param urlMatcher The [[UrlMatcher]] object which is used as the template of the URL to generate.
+   * @param params An object of parameter values to fill the matcher's required parameters.
+   * @param options Options object. The options are:
    *
    * - **`absolute`** - {boolean=false},  If true will generate an absolute url, e.g. "http://www.example.com/fullurl".
    *
-   * @returns {string} Returns the fully compiled URL, or `null` if `params` fail validation against `urlMatcher`
+   * @returns Returns the fully compiled URL, or `null` if `params` fail validation against `urlMatcher`
    */
-  href(urlMatcher: UrlMatcher, params: any, options: any): string {
+  href(urlMatcher: UrlMatcher, params: any, options: { absolute: boolean }): string {
     if (!urlMatcher.validates(params)) return null;
 
     let url = urlMatcher.format(params);
-    options = options || {};
+    options = options || { absolute: false };
 
     let cfg = services.locationConfig;
     let isHtml5 = cfg.html5Mode();

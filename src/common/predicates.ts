@@ -6,13 +6,13 @@ const tis = (t) => (x) => typeof(x) === t;
 export const isUndefined = tis('undefined');
 export const isDefined = not(isUndefined);
 export const isNull = o => o === null;
-export const isFunction = tis('function');
-export const isNumber = tis('number');
-export const isString = tis('string');
+export const isFunction: (x) => x is Function = <any> tis('function');
+export const isNumber: (x) => x is number = <any> tis('number');
+export const isString = <(x) => x is string> tis('string');
 export const isObject = (x) => x !== null && typeof x === 'object';
 export const isArray = Array.isArray;
-export const isDate = (x) => toStr.call(x) === '[object Date]';
-export const isRegExp = (x) => toStr.call(x) === '[object RegExp]';
+export const isDate: (x) => x is Date = <any> ((x) => toStr.call(x) === '[object Date]');
+export const isRegExp: (x) => x is RegExp = <any> ((x) => toStr.call(x) === '[object RegExp]');
 
 /**
  * Predicate which checks if a value is injectable

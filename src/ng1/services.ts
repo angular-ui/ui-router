@@ -22,6 +22,12 @@ import {trace} from "../common/trace";
 import {ng1ViewsBuilder, ng1ViewConfigFactory, Ng1ViewConfig} from "./viewsBuilder";
 import {TemplateFactory} from "./templateFactory";
 import {ng1ResolveBuilder} from "./resolvesBuilder";
+import {StateParams} from "../params/stateParams";
+import {TransitionService} from "../transition/transitionService";
+import {StateService} from "../state/stateService";
+import {StateProvider} from "../state/state";
+import {UrlRouterProvider, UrlRouter} from "../url/urlRouter";
+import {UrlMatcherFactory} from "../url/urlMatcherFactory";
 
 /** @hidden */
 let app = angular.module("ui.router.angular1", []);
@@ -316,3 +322,115 @@ export function watchDigests($rootScope) {
   $rootScope.$watch(function() { trace.approximateDigests++; });
 }
 angular.module("ui.router").run(watchDigests);
+
+
+/** Injectable services */
+
+/**
+ * An injectable service object which has the current state parameters
+ *
+ * This angular service (singleton object) holds the current state parameters.
+ * The values in `$stateParams` are not updated until *after* a [[Transition]] successfully completes.
+ *
+ * This object can be injected into other services.
+ *
+ * @example
+ * ```js
+ *
+ * SomeService.$inject = ['$http', '$stateParams'];
+ * function SomeService($http, $stateParams) {
+ *   return {
+ *     getUser: function() {
+ *       return $http.get('/api/users/' + $stateParams.username);
+ *     }
+ *   }
+ * };
+ * angular.service('SomeService', SomeService);
+ * ```
+ *
+ * ### Deprecation warning:
+ *
+ * When `$stateParams` is injected into transition hooks, resolves and view controllers, they receive a different
+ * object than this global service object.  In those cases, the injected object has the parameter values for the
+ * *pending* Transition.
+ *
+ * Because of these confusing details, this service is deprecated.
+ *
+ * @deprecated Instead of using `$stateParams, inject the current [[Transition]] as `$transition$` and use [[Transition.params]]
+ * ```js
+ * MyController.$inject = ['$transition$'];
+ * function MyController($transition$) {
+ *   var username = $transition$.params().username;
+ *   // .. do something with username
+ * }
+ * ```
+ */
+var $stateParams: StateParams;
+
+/**
+ * An injectable service primarily used to register transition hooks
+ *
+ * This angular service exposes the [[TransitionService]] singleton, which is primarily used to add transition hooks.
+ *
+ * The same object is also exposed as [[$transitionsProvider]] for injection during angular config time.
+ */
+var $transitions: TransitionService;
+
+/**
+ * A config-time injectable provider primarily used to register transition hooks
+ *
+ * This angular provider exposes the [[TransitionService]] singleton, which is primarily used to add transition hooks.
+ *
+ * The same object is also exposed as [[$transitions]] for injection at runtime.
+ */
+var $transitionsProvider: TransitionService;
+
+/**
+ * An injectable service used to query for current state information.
+ *
+ * This angular service exposes the [[StateService]] singleton.
+ */
+var $state: StateService;
+
+/**
+ * A config-time injectable provider used to register states.
+ *
+ * This angular service exposes the [[StateProvider]] singleton.
+ */
+var $stateProvider: StateProvider;
+
+/**
+ * A config-time injectable provider used to manage the URL.
+ *
+ * This angular service exposes the [[UrlRouterProvider]] singleton.
+ */
+var $urlRouterProvider: UrlRouterProvider;
+
+/**
+ * An injectable service used to configure URL redirects.
+ *
+ * This angular service exposes the [[UrlRouter]] singleton.
+ */
+var $urlRouter: UrlRouter;
+
+/**
+ * An injectable service used to configure the URL.
+ *
+ * This service is used to set url mapping options, and create [[UrlMatcher]] objects.
+ *
+ * This angular service exposes the [[UrlMatcherFactory]] singleton.
+ * The singleton is also exposed at config-time as the [[$urlMatcherFactoryProvider]].
+ */
+var $urlMatcherFactory: UrlMatcherFactory;
+
+/**
+ * An injectable service used to configure the URL.
+ * 
+ * This service is used to set url mapping options, and create [[UrlMatcher]] objects.
+ *
+ * This angular service exposes the [[UrlMatcherFactory]] singleton at config-time.
+ * The singleton is also exposed at runtime as the [[$urlMatcherFactory]].
+ */
+var $urlMatcherFactoryProvider: UrlMatcherFactory;
+
+

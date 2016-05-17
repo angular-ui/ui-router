@@ -10,11 +10,9 @@ import {isDefined} from "../common/predicates";
 import {DefType} from "../params/param";
 import {unnestR} from "../common/common";
 import {arrayTuples} from "../common/common";
+import {RawParams} from "../params/interface";
 
-interface params {
-  $$validates: (params: string) => Array<string>;
-}
-
+/** @hidden */
 function quoteRegExp(string: any, param?: any) {
   let surroundPattern = ['', ''], result = string.replace(/[\\\[\]\^$*+?.()|{}]/g, "\\$&");
   if (!param) return result;
@@ -32,33 +30,40 @@ function quoteRegExp(string: any, param?: any) {
   return result + surroundPattern[0] + param.type.pattern.source + surroundPattern[1];
 }
 
+/** @hidden */
 const memoizeTo = (obj, prop, fn) => obj[prop] = obj[prop] || fn();
 
 /**
- * @ngdoc object
- * @name ui.router.util.type:UrlMatcher
+ * Matches URLs against patterns.
  *
- * @description
  * Matches URLs against patterns and extracts named parameters from the path or the search
- * part of the URL. A URL pattern consists of a path pattern, optionally followed by '?' and a list
- * of search parameters. Multiple search parameter names are separated by '&'. Search parameters
+ * part of the URL.
+ *
+ * A URL pattern consists of a path pattern, optionally followed by '?' and a list of search (query)
+ * parameters. Multiple search parameter names are separated by '&'. Search parameters
  * do not influence whether or not a URL is matched, but their values are passed through into
- * the matched parameters returned by {@link ui.router.util.type:UrlMatcher#methods_exec exec}.
+ * the matched parameters returned by [[UrlMatcher.exec]].
  *
- * Path parameter placeholders can be specified using simple colon/catch-all syntax or curly brace
- * syntax, which optionally allows a regular expression for the parameter to be specified:
+ * - *Path parameters* are defined using curly brace placeholders (`/somepath/{param}`)
+ * or colon placeholders (`/somePath/:param`).
  *
- * * `':'` name - colon placeholder
- * * `'*'` name - catch-all placeholder
- * * `'{' name '}'` - curly placeholder
- * * `'{' name ':' regexp|type '}'` - curly placeholder with regexp or type name. Should the
- *   regexp itself contain curly braces, they must be in matched pairs or escaped with a backslash.
+ * - *A parameter RegExp* may be defined for a param after a colon
+ * (`/somePath/{param:[a-zA-Z0-9]+}`) in a curly brace placeholder.
+ * The regexp must match for the url to be matched.
+ * Should the regexp itself contain curly braces, they must be in matched pairs or escaped with a backslash.
+ *
+ * - *Custom parameter types* may also be specified after a colon (`/somePath/{param:int}`)
+ * in curly brace parameters.  See [[UrlMatcherFactory.type]] for more information.
+ *
+ * - *Catch-all parameters* are defined using an asterisk placeholder (`/somepath/*catchallparam`).  A catch-all
+ * parameter value will contain the remainder of the URL.
+ *
+ * ---
  *
  * Parameter names may contain only word characters (latin letters, digits, and underscore) and
- * must be unique within the pattern (across both path and search parameters). For colon
- * placeholders or curly placeholders without an explicit regexp, a path parameter matches any
- * number of characters other than '/'. For catch-all placeholders the path parameter matches
- * any number of characters.
+ * must be unique within the pattern (across both path and search parameters).
+ * A path parameter matches any number of characters other than '/'. For catch-all
+ * placeholders the path parameter matches any number of characters.
  *
  * Examples:
  *
@@ -76,32 +81,43 @@ const memoizeTo = (obj, prop, fn) => obj[prop] = obj[prop] || fn();
  * * `'/calendar/{start:date}'` - Matches "/calendar/2014-11-12" (because the pattern defined
  *   in the built-in  `date` Type matches `2014-11-12`) and provides a Date object in $stateParams.start
  *
- * @param {string} pattern  The pattern to compile into a matcher.
- * @param {Object} config  A configuration object hash
- * * `caseInsensitive` - `true` if URL matching should be case insensitive, otherwise `false`, the default value (for backward compatibility) is `false`.
- * * `strict` - `false` if matching against a URL with a trailing slash should be treated as equivalent to a URL without a trailing slash, the default value is `true`.
- *
- * @property {string} prefix  A static prefix of this pattern. The matcher guarantees that any
- *   URL matching this matcher (i.e. any string for which {@link ui.router.util.type:UrlMatcher#methods_exec exec()} returns
- *   non-null) will start with this prefix.
- *
- * @property {string} pattern  The pattern that was passed into the constructor
- *
- * @returns {Object}  New `UrlMatcher` object
  */
 export class UrlMatcher {
-
+  /** @hidden */
   static nameValidator: RegExp = /^\w+([-.]+\w+)*(?:\[\])?$/;
 
+  /** @hidden */
   private _cache: { path: UrlMatcher[], pattern?: RegExp } = { path: [], pattern: null };
+  /** @hidden */
   private _children: UrlMatcher[] = [];
+  /** @hidden */
   private _params:   Param[]      = [];
+  /** @hidden */
   private _segments: string[]     = [];
+  /** @hidden */
   private _compiled: string[]     = [];
 
+  /**
+   * A static prefix of this pattern.
+   *
+   * The matcher guarantees that any
+   *   URL matching this matcher (i.e. any string for which {@link ui.router.util.type:UrlMatcher#methods_exec exec()} returns
+   *   non-null) will start with this prefix.
+   */
   public prefix: string;
+  /** The pattern that was passed into the constructor */
+  public pattern: string;
 
-  constructor(public pattern: string, public config: any) {
+  /**
+   * @param pattern The pattern to compile into a matcher.
+   * @param config  A configuration object hash
+   * * `caseInsensitive` - `true` if URL matching should be case insensitive, otherwise `false`, the default value (for backward compatibility) is `false`.
+   * * `strict` - `false` if matching against a URL with a trailing slash should be treated as equivalent to a URL without a trailing slash, the default value is `true`.
+   *
+   * @property {string} pattern  The pattern that was passed into the constructor
+   */
+  constructor(pattern: string, public config: any) {
+    this.pattern = pattern;
     this.config = defaults(this.config, {
       params: {},
       strict: true,
@@ -193,17 +209,11 @@ export class UrlMatcher {
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.util.type:UrlMatcher#append
-   * @methodOf ui.router.util.type:UrlMatcher
+   * Creates a new concatenated UrlMatcher
    *
-   * @description
-   * @TODO
+   * Builds a new UrlMatcher by appending another UrlMatcher to this one.
    *
-   * @example
-   * @TODO
-   *
-   * @param {UrlMatcher} url A `UrlMatcher` instance to append as a child of the current `UrlMatcher`.
+   * @param url A `UrlMatcher` instance to append as a child of the current `UrlMatcher`.
    */
   append(url: UrlMatcher): UrlMatcher {
     this._children.push(url);
@@ -212,41 +222,44 @@ export class UrlMatcher {
     return url;
   }
 
+  /** @hidden */
   isRoot(): boolean {
     return this._cache.path.length === 0;
   }
 
+  /** Returns the input pattern string */
   toString(): string {
     return this.pattern;
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.util.type:UrlMatcher#exec
-   * @methodOf ui.router.util.type:UrlMatcher
+   * Tests the specified url/path against this matcher.
    *
-   * @description
-   * Tests the specified path against this matcher, and returns an object containing the captured
-   * parameter values, or null if the path does not match. The returned object contains the values
+   * Tests if the given url matches this matcher's pattern, and returns an object containing the captured
+   * parameter values.  Returns null if the path does not match.
+   *
+   * The returned object contains the values
    * of any search parameters that are mentioned in the pattern, but their value may be null if
    * they are not present in `search`. This means that search parameters are always treated
    * as optional.
    *
    * @example
-   * <pre>
+   * ```js
+   *
    * new UrlMatcher('/user/{id}?q&r').exec('/user/bob', {
    *   x: '1', q: 'hello'
    * });
    * // returns { id: 'bob', q: 'hello', r: null }
-   * </pre>
+   * ```
    *
-   * @param {string} path  The URL path to match, e.g. `$location.path()`.
-   * @param {Object} search  URL search parameters, e.g. `$location.search()`.
-   * @param {string} hash  URL hash e.g. `$location.hash()`.
-   * @param {Object} options
-   * @returns {Object}  The captured parameter values.
+   * @param path    The URL path to match, e.g. `$location.path()`.
+   * @param search  URL search parameters, e.g. `$location.search()`.
+   * @param hash    URL hash e.g. `$location.hash()`.
+   * @param options
+   *
+   * @returns The captured parameter values.
    */
-  exec(path: string, search: any = {}, hash?: string, options: any = {}) {
+  exec(path: string, search: any = {}, hash?: string, options: any = {}): RawParams {
     let match = memoizeTo(this._cache, 'pattern', () => {
       return new RegExp([
         '^',
@@ -305,12 +318,8 @@ export class UrlMatcher {
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.util.type:UrlMatcher#parameters
-   * @methodOf ui.router.util.type:UrlMatcher
-   *
-   * @description
-   * Returns the names of all path and search parameters of this pattern in order of appearance.
+   * @hidden
+   * Returns all the [[Param]] objects of all path and search parameters of this pattern in order of appearance.
    *
    * @returns {Array.<Param>}  An array of [[Param]] objects. Must be treated as read-only. If the
    *    pattern has no parameters, an empty array is returned.
@@ -320,6 +329,14 @@ export class UrlMatcher {
     return unnest(this._cache.path.concat(this).map(prop('_params')));
   }
 
+  /**
+   * @hidden
+   * Returns a single parameter from this UrlMatcher by id
+   *
+   * @param id
+   * @param opts
+   * @returns {T|Param|any|boolean|UrlMatcher|null}
+   */
   parameter(id: string, opts: any = {}): Param {
     const parent = tail(this._cache.path);
 
@@ -331,40 +348,34 @@ export class UrlMatcher {
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.util.type:UrlMatcher#validates
-   * @methodOf ui.router.util.type:UrlMatcher
+   * Validates the input parameter values against this UrlMatcher
    *
-   * @description
    * Checks an object hash of parameters to validate their correctness according to the parameter
    * types of this `UrlMatcher`.
    *
-   * @param {Object} params The object hash of parameters to validate.
-   * @returns {boolean} Returns `true` if `params` validates, otherwise `false`.
+   * @param params The object hash of parameters to validate.
+   * @returns Returns `true` if `params` validates, otherwise `false`.
    */
-  validates(params): boolean {
+  validates(params: RawParams): boolean {
     const validParamVal = (param: Param, val) => !param || param.validates(val);
     return pairs(params || {}).map(([key, val]) => validParamVal(this.parameter(key), val)).reduce(allTrueR, true);
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.util.type:UrlMatcher#format
-   * @methodOf ui.router.util.type:UrlMatcher
+   * Given a set of parameter values, creates a URL from this UrlMatcher.
    *
-   * @description
    * Creates a URL that matches this pattern by substituting the specified values
-   * for the path and search parameters. Null values for path parameters are
-   * treated as empty strings.
+   * for the path and search parameters.
    *
    * @example
-   * <pre>
+   * ```js
+   *
    * new UrlMatcher('/user/{id}?q').format({ id:'bob', q:'yes' });
    * // returns '/user/bob?q=yes'
-   * </pre>
+   * ```
    *
-   * @param {Object} values  the values to substitute for the parameters in this pattern.
-   * @returns {string}  the formatted URL (path and optionally search part).
+   * @param values  the values to substitute for the parameters in this pattern.
+   * @returns the formatted URL (path and optionally search part).
    */
   format(values = {}) {
     if (!this.validates(values)) return null;
@@ -434,23 +445,25 @@ export class UrlMatcher {
     return pathString + (queryString ? `?${queryString}` : "") + (values["#"] ? "#" + values["#"] : "");
   }
 
+  /** @hidden */
   static encodeDashes(str) { // Replace dashes with encoded "\-"
     return encodeURIComponent(str).replace(/-/g, c => `%5C%${c.charCodeAt(0).toString(16).toUpperCase()}`);
   }
 
-  /** Given a matcher, return an array with the matcher's path segments and path params, in order */
+  /** @hidden Given a matcher, return an array with the matcher's path segments and path params, in order */
   static pathSegmentsAndParams(matcher: UrlMatcher) {
     let staticSegments = matcher._segments;
     let pathParams = matcher._params.filter(p => p.location === DefType.PATH);
     return arrayTuples(staticSegments, pathParams.concat(undefined)).reduce(unnestR, []).filter(x => x !== "" && isDefined(x));
   }
 
-  /** Given a matcher, return an array with the matcher's query params */
+  /** @hidden Given a matcher, return an array with the matcher's query params */
   static queryParams(matcher: UrlMatcher): Param[] {
     return matcher._params.filter(p => p.location === DefType.SEARCH);
   }
 }
 
+/** @hidden */
 interface ParamDetails {
   param: Param;
   value: any;

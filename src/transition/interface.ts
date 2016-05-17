@@ -146,11 +146,6 @@ export interface TreeChanges {
 
 export type IErrorHandler = (error: Error) => void;
 
-export interface ITransitionService extends IHookRegistry {
-  create: (fromPath: Node[], targetState: TargetState) => Transition;
-  defaultErrorHandler: (handler?: IErrorHandler) => IErrorHandler;
-}
-
 export type IHookGetter = (hookName: string) => IEventHook[];
 export type IHookRegistration = (matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions) => Function;
 

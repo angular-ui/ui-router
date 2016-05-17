@@ -3,11 +3,12 @@
 import {IInjectable, extend, tail, assertPredicate, unnestR, flatten, identity} from "../common/common";
 import {isArray} from "../common/predicates";
 
-import {TransitionOptions, TransitionHookOptions, IHookRegistry, TreeChanges, IEventHook, ITransitionService, IMatchingNodes} from "./interface";
+import {TransitionOptions, TransitionHookOptions, IHookRegistry, TreeChanges, IEventHook, IMatchingNodes} from "./interface";
 
 import {Transition, TransitionHook} from "./module";
 import {State} from "../state/module";
 import {Node} from "../path/module";
+import {TransitionService} from "./transitionService";
 
 /**
  * This class returns applicable TransitionHooks for a specific Transition instance.
@@ -31,7 +32,7 @@ export class HookBuilder {
   toState: State;
   fromState: State;
 
-  constructor(private $transitions: ITransitionService, private transition: Transition, private baseHookOptions: TransitionHookOptions) {
+  constructor(private $transitions: TransitionService, private transition: Transition, private baseHookOptions: TransitionHookOptions) {
     this.treeChanges        = transition.treeChanges();
     this.toState            = tail(this.treeChanges.to).state;
     this.fromState          = tail(this.treeChanges.from).state;

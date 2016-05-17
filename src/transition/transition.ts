@@ -26,10 +26,12 @@ let transitionCount = 0;
 const stateSelf: (_state: State) => StateDeclaration = prop("self");
 
 /**
- * The representation of a transition between two states.
+ * Represents a transition between two states.
  *
- * Contains all contextual information about the to/from states, parameters, resolves, as well as the
- * list of states being entered and exited as a result of this transition.
+ * When navigating to a state, we are transitioning **from** the current state **to** the new state.
+ *
+ * This object contains all contextual information about the to/from states, parameters, resolves.
+ * It has information about all states being entered and exited as a result of the transition.
  */
 export class Transition implements IHookRegistry {
   $id: number;
