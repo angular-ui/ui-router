@@ -4,7 +4,7 @@ import {prop, propEq} from "../common/hof";
 import {State} from "../state/module";
 import {RawParams} from "../params/interface";
 import {Param} from "../params/module";
-import {Resolvable, ResolveContext, ResolveInjector} from "../resolve/module";
+import {Resolvable, ResolveContext} from "../resolve/module";
 import {ViewConfig} from "../view/interface";
 import {Resolvables} from "../resolve/interface";
 
@@ -15,7 +15,6 @@ export class Node {
   public resolves: Resolvables;
   public views: ViewConfig[];
   public resolveContext: ResolveContext;
-  public resolveInjector: ResolveInjector;
 
   constructor(state: Node);
   constructor(state: State);
@@ -28,7 +27,6 @@ export class Node {
       this.resolves = extend({}, node.resolves);
       this.views = node.views && node.views.slice();
       this.resolveContext = node.resolveContext;
-      this.resolveInjector = node.resolveInjector;
     } else {
       this.state = state;
       this.paramSchema = state.parameters({ inherit: false });

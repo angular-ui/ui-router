@@ -8,7 +8,7 @@ import {TreeChanges} from "../transition/interface";
 
 import {State, TargetState} from "../state/module";
 import {Node} from "../path/node";
-import {ResolveContext, Resolvable, ResolveInjector} from "../resolve/module";
+import {ResolveContext, Resolvable} from "../resolve/module";
 import {Transition} from "../transition/module";
 import {ViewService} from "../view/view";
 
@@ -97,7 +97,6 @@ export class PathFactory {
     // Attach views to each node
     resolvePath.forEach((node: Node) => {
       node.resolveContext = resolveContext.isolateRootTo(node.state);
-      node.resolveInjector = new ResolveInjector(node.resolveContext, node.state);
       node.resolves['$stateParams'] = new Resolvable("$stateParams", () => node.paramValues, node.paramValues);
     });
 
