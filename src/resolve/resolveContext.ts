@@ -20,8 +20,8 @@ interface Promises { [key: string]: Promise<any>; }
 
 export class ResolveContext {
 
-  private _nodeFor: Function;
-  private _pathTo: Function;
+  private _nodeFor: (s: State) => Node;
+  private _pathTo: (s: State) => Node[];
 
   constructor(private _path: Node[]) {
     extend(this, {
@@ -62,9 +62,13 @@ export class ResolveContext {
     const path = (state ?  this._pathTo(state) : this._path);
     const last = tail(path);
 
-    return path.reduce((memo, node) => {
+    return path.reduce((memo, node: Node) => {
       let omitProps = (node === last) ? options.omitOwnLocals : [];
-      let filteredResolvables = omit(node.resolves, omitProps);
+
+      let filteredResolvables = node.resolvables
+          .filter(r => omitProps.indexOf(r.name) === -1)
+          .reduce((acc, r) => { acc[r.name] = r; return acc; }, {});
+
       return extend(memo, filteredResolvables);
     }, <Resolvables> {});
   }
@@ -79,13 +83,16 @@ export class ResolveContext {
     return new ResolveContext(this._pathTo(state));
   }
   
-  addResolvables(resolvables: Resolvables, state: State) {
-    extend(this._nodeFor(state).resolves, resolvables);
+  addResolvables(newResolvables: Resolvable[], state: State) {
+    var node = this._nodeFor(state);
+    var keys = newResolvables.map(r => r.name);
+    node.resolvables = node.resolvables.filter(r => keys.indexOf(r.name) === -1).concat(newResolvables);
   }
   
   /** Gets the resolvables declared on a particular state */
   getOwnResolvables(state: State): Resolvables {
-    return extend({}, this._nodeFor(state).resolves);
+    return this._nodeFor(state).resolvables
+        .reduce((acc, r) => { acc[r.name] = r; return acc; }, <Resolvables>{});
   }
    
   // Returns a promise for an array of resolved path Element promises

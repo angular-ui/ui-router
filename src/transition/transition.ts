@@ -2,11 +2,11 @@
 import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 import {
-    map, find, extend, filter, mergeR,  tail,
+    map, find, extend, mergeR,  tail,
     omit, toJson, abstractKey, arrayTuples, unnestR, identity, anyTrueR
 } from "../common/common";
 import { isObject } from "../common/predicates";
-import { not, prop, propEq, val } from "../common/hof";
+import { prop, propEq, val, not } from "../common/hof";
 
 import {StateDeclaration, StateOrName} from "../state/interface";
 import {TransitionOptions, TransitionHookOptions, TreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";
@@ -20,7 +20,6 @@ import {Resolvable} from "../resolve/module";
 import {TransitionService} from "./transitionService";
 import {ViewConfig} from "../view/interface";
 import {Rejection} from "./rejectFactory";
-import {Resolvables} from "../resolve/interface";
 
 
 let transitionCount = 0;
@@ -143,10 +142,10 @@ export class Transition implements IHookRegistry {
     
     PathFactory.bindResolveContexts(this._treeChanges.to);
 
-    let rootResolvables: Resolvables = {
-      "$transition$": new Resolvable('$transition$', () => this, this),
-      "$stateParams": new Resolvable('$stateParams', () => this.params(), this.params())
-    };
+    let rootResolvables: Resolvable[] = [
+      new Resolvable('$transition$', () => this, this),
+      new Resolvable('$stateParams', () => this.params(), this.params())
+    ];
     let rootNode: Node = this._treeChanges.to[0];
     rootNode.resolveContext.addResolvables(rootResolvables, rootNode.state)
   }
@@ -292,34 +291,45 @@ export class Transition implements IHookRegistry {
   treeChanges = () => this._treeChanges;
 
   /**
-   * @ngdoc function
-   * @name ui.router.state.type:Transition#redirect
-   * @methodOf ui.router.state.type:Transition
+   * Creates a new transition that is a redirection of the current one.
    *
-   * @description
-   * Creates a new transition that is a redirection of the current one. This transition can
-   * be returned from a `$transitionsProvider` hook, `$state` event, or other method, to
+   * This transition can be returned from a [[TransitionService]] hook to
    * redirect a transition to a new state and/or set of parameters.
    *
-   * @returns {Transition} Returns a new `Transition` instance.
+   * @returns Returns a new [[Transition]] instance.
    */
   redirect(targetState: TargetState): Transition {
     let newOptions = extend({}, this.options(), targetState.options(), { previous: this });
     targetState = new TargetState(targetState.identifier(), targetState.$state(), targetState.params(), newOptions);
 
-    let redirectTo = new Transition(this._treeChanges.from, targetState, this._transitionService);
-    let reloadState = targetState.options().reloadState;
+    let newTransition = new Transition(this._treeChanges.from, targetState, this._transitionService);
+    let originalEnteringNodes = this.treeChanges().entering;
+    let redirectEnteringNodes = newTransition.treeChanges().entering;
 
-    // If the current transition has already resolved any resolvables which are also in the redirected "to path", then
-    // add those resolvables to the redirected transition.  Allows you to define a resolve at a parent level, wait for
-    // the resolve, then redirect to a child state based on the result, and not have to re-fetch the resolve.
-    let redirectedPath = this.treeChanges().to;
-    let copyResolvesFor: Node[] = Node.matching(redirectTo.treeChanges().to, redirectedPath)
-        .filter(node => !reloadState || !reloadState.includes[node.state.name]);
-    const includeResolve = (resolve, key) => ['$stateParams', '$transition$'].indexOf(key) === -1;
-    copyResolvesFor.forEach((node, idx) => extend(node.resolves, filter(redirectedPath[idx].resolves, includeResolve)));
+    // --- Re-use resolve data from original transition ---
+    // When redirecting from a parent state to a child state where the parent parameter values haven't changed
+    // (because of the redirect), the resolves fetched by the original transition are still valid in the
+    // redirected transition.
+    //
+    // This allows you to define a redirect on a parent state which depends on an async resolve value.
+    // You can wait for the resolve, then redirect to a child state based on the result.
+    // The redirected transition does not have to re-fetch the resolve.
+    // ---------------------------------------------------------
 
-    return redirectTo;
+    const nodeIsReloading = (reloadState: State) => (node: Node) => {
+      return reloadState && reloadState.includes[node.state.name];
+    };
+
+    // Find any "entering" nodes in the redirect path that match the original path and aren't being reloaded
+    let matchingEnteringNodes: Node[] = Node.matching(redirectEnteringNodes, originalEnteringNodes)
+        .filter(not(nodeIsReloading(targetState.options().reloadState)));
+
+    // Use the existing (possibly pre-resolved) resolvables for the matching entering nodes.
+    matchingEnteringNodes.forEach((node, idx) => {
+      node.resolvables = originalEnteringNodes[idx].resolvables;
+    });
+
+    return newTransition;
   }
 
   /** @hidden If a transition doesn't exit/enter any states, returns any [[Param]] whose value changed */

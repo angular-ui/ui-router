@@ -1474,19 +1474,6 @@ describe('state', function () {
     }));
   });
 
-  describe('default properties', function() {
-    it('should always have a name', inject(function ($state, $q) {
-      $state.transitionTo(A);
-      $q.flush();
-      expect($state.$current.name).toBe('A');
-      expect($state.$current.toString()).toBe('A');
-    }));
-
-    it('should always have a resolve object', inject(function ($state) {
-      expect($state.$current.resolve).toEqual({});
-    }));
-  });
-
   describe('"data" property inheritance/override', function () {
     it('should stay immutable for if state doesn\'t have parent', inject(function ($state) {
       initStateTo(H);
@@ -1554,7 +1541,8 @@ describe('state', function () {
     }));
 
     it('should always have a resolve object', inject(function ($state) {
-      expect($state.$current.resolve).toEqual({});
+      expect($state.$current.resolve).toBeDefined();
+      expect(typeof $state.$current.resolve).toBe('object');
     }));
 
     it('should include itself and parent states', inject(function ($state, $q) {

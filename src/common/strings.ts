@@ -67,17 +67,22 @@ export function fnToString(fn: IInjectable) {
 
 const isTransitionRejectionPromise = Rejection.isTransitionRejectionPromise;
 
-let stringifyPattern = pattern([
-  [not(isDefined),                  val("undefined")],
-  [isNull,                          val("null")],
-  [isPromise,                       promiseToString],
-  [isTransitionRejectionPromise,    (x: any) => x._transitionRejection.toString()],
-  [is(Rejection),                   invoke("toString")],
-  [is(Transition),                  invoke("toString")],
-  [is(Resolvable),                  invoke("toString")],
-  [isInjectable,                    functionToString],
-  [val(true),                       identity]
-]);
+let stringifyPatternFn = null;
+let stringifyPattern = function(val) {
+  stringifyPatternFn = stringifyPatternFn || pattern([
+    [not(isDefined),                  val("undefined")],
+    [isNull,                          val("null")],
+    [isPromise,                       val("[Promise]")],
+    [isTransitionRejectionPromise,    (x: any) => x._transitionRejection.toString()],
+    [is(Rejection),                   invoke("toString")],
+    [is(Transition),                  invoke("toString")],
+    [is(Resolvable),                  invoke("toString")],
+    [isInjectable,                    functionToString],
+    [val(true),                       identity]
+  ]);
+
+  return stringifyPatternFn(val);
+};
 
 export function stringify(o: Object) {
   var seen: any[] = [];

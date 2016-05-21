@@ -43,7 +43,7 @@ export class ResolveHooks {
       // Resolve all the LAZY resolves, then resolve the `$resolve$` object, then add `$resolve$` to the context
       return context.resolvePathElement(node.state, options)
           .then(() => $resolve$.resolveResolvable(context))
-          .then(() => context.addResolvables({$resolve$}, node.state));
+          .then(() => context.addResolvables([$resolve$], node.state));
     }
 
     // Resolve eager resolvables before when the transition starts

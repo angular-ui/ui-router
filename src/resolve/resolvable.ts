@@ -22,21 +22,19 @@ import {ResolveContext} from "./resolveContext";
  * parameter to those fns.
  */
 export class Resolvable {
-  constructor(name: string, resolveFn: Function, preResolvedData?: any) {
-    extend(this, {
-     name, 
-     resolveFn, 
-     deps: services.$injector.annotate(resolveFn, services.$injector.strictDi), 
-     data: preResolvedData 
-   });
-  }
-
   name: string;
   resolveFn: Function;
   deps: string[];
 
   promise: Promise<any> = undefined;
   data: any;
+  
+  constructor(name: string, resolveFn: Function, preResolvedData?: any) {
+    this.name = name;
+    this.resolveFn = resolveFn;
+    this.deps = services.$injector.annotate(resolveFn, services.$injector.strictDi);
+    this.data = preResolvedData;
+  }
 
   // synchronous part:
   // - sets up the Resolvable's promise
@@ -92,13 +90,13 @@ export class Resolvable {
   }
 
   /**
-   * Validates the result map as a "resolve:" style object, then transforms the resolves into Resolvables
+   * Validates the result map as a "resolve:" style object, then transforms the resolves into Resolvable[]
    */
-  static makeResolvables(resolves: { [key: string]: Function; }): Resolvables {
+  static makeResolvables(resolves: { [key: string]: Function; }): Resolvable[] {
     // If a hook result is an object, it should be a map of strings to functions.
     let invalid = filter(resolves, not(isInjectable)), keys = Object.keys(invalid);
     if (keys.length)
       throw new Error(`Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}`);
-    return map(resolves, (fn, name: string) => new Resolvable(name, fn));
+    return Object.keys(resolves).map(key => new Resolvable(key, resolves[key]));
   }
 }
