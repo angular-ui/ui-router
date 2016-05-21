@@ -84,7 +84,7 @@ beforeEach(function () {
 
 function makePath(names: string[]): Node[] {
   let nodes = map(names, name => new Node(statesMap[name]));
-  return PathFactory.bindTransNodesToPath(nodes);
+  return PathFactory.bindResolveContexts(nodes);
 }
 
 function getResolvedData(pathContext: ResolveContext) {
@@ -135,7 +135,7 @@ describe('Resolvables system:', function () {
       let ctx = new ResolveContext(path);
       let resolvableLocals = ctx.getResolvables(statesMap["C"]);
       let keys = Object.keys(resolvableLocals).sort();
-      expect(keys).toEqual( ["$stateParams", "_A", "_A2", "_B", "_B2", "_C", "_C2" ] );
+      expect(keys).toEqual( [ "_A", "_A2", "_B", "_B2", "_C", "_C2" ] );
     });
   });
 

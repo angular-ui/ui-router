@@ -1,15 +1,16 @@
 /** @module path */ /** for typedoc */
 
 import {extend, find, pick, omit, tail, mergeR, values, unnestR} from "../common/common";
-import {prop, propEq, not, curry} from "../common/hof";
+import {prop, propEq, not} from "../common/hof";
 
 import {RawParams} from "../params/interface";
 import {TreeChanges} from "../transition/interface";
+import {ViewConfig} from "../view/interface";
+import {_ViewDeclaration} from "../state/interface";
 
 import {State, TargetState} from "../state/module";
 import {Node} from "../path/node";
-import {ResolveContext, Resolvable} from "../resolve/module";
-import {Transition} from "../transition/module";
+import {ResolveContext} from "../resolve/module";
 import {ViewService} from "../view/view";
 
 /**
@@ -38,12 +39,18 @@ export class PathFactory {
     }
     return toPath;
   }
-  
+
+  /**
+   * Creates ViewConfig objects and adds to nodes.
+   *
+   * On each Node, creates ViewConfig objects from the views: property of the node's state
+   */
   static applyViewConfigs($view: ViewService, path: Node[]) {
     return path.map(node => {
-      let viewDecls = values(node.state.views || {});
-      let viewConfigs = viewDecls.map(view => $view.createViewConfig(node, view)).reduce(unnestR, []);
-      return extend(node, {views: viewConfigs})
+      let viewDecls: _ViewDeclaration[] = values(node.state.views || {});
+      let viewConfigs: ViewConfig[][] = viewDecls.map(view => $view.createViewConfig(node, view));
+      node.views = viewConfigs.reduce(unnestR, []);
+      return node;
     });
   }
 
@@ -68,39 +75,32 @@ export class PathFactory {
      * Given an Node "toNode", return a new Node with param values inherited from the
      * matching node in fromPath.  Only inherit keys that aren't found in "toKeys" from the node in "fromPath""
      */
-    let makeInheritedParamsNode = curry(function(_fromPath: Node[], _toKeys: string[], toNode: Node): Node {
+    function makeInheritedParamsNode(toNode: Node): Node {
       // All param values for the node (may include default key/vals, when key was not found in toParams)
       let toParamVals = extend({}, toNode && toNode.paramValues);
       // limited to only those keys found in toParams
-      let incomingParamVals = pick(toParamVals, _toKeys);
-      toParamVals = omit(toParamVals, _toKeys);
-      let fromParamVals = nodeParamVals(_fromPath, toNode.state) || {};
+      let incomingParamVals = pick(toParamVals, toKeys);
+      toParamVals = omit(toParamVals, toKeys);
+      let fromParamVals = nodeParamVals(fromPath, toNode.state) || {};
       // extend toParamVals with any fromParamVals, then override any of those those with incomingParamVals
       let ownParamVals: RawParams = extend(toParamVals, fromParamVals, incomingParamVals);
       return new Node(toNode.state).applyRawParams(ownParamVals);
-    });
+    }
 
     // The param keys specified by the incoming toParams
-    return <Node[]> toPath.map(makeInheritedParamsNode(fromPath, toKeys));
+    return <Node[]> toPath.map(makeInheritedParamsNode);
   }
 
   /**
-   * Given a path, upgrades the path to a Node[].  Each node is assigned a ResolveContext
-   * and ParamValues object which is bound to the whole path, but closes over the subpath from root to the node.
-   * The views are also added to the node.
+   * Given a path of nodes, creates and binds a ResolveContext to each node.
+   * The ResolveContext is used to inject functions from the proper scoping in the resolve tree.
    */
-  static bindTransNodesToPath(resolvePath: Node[]): Node[] {
+  static bindResolveContexts(resolvePath: Node[]): Node[] {
     let resolveContext = new ResolveContext(resolvePath);
-    // let paramValues = new ParamValues(resolvePath);
-
-    // Attach bound resolveContext and paramValues to each node
-    // Attach views to each node
-    resolvePath.forEach((node: Node) => {
+    return resolvePath.map((node: Node) => {
       node.resolveContext = resolveContext.isolateRootTo(node.state);
-      node.resolves['$stateParams'] = new Resolvable("$stateParams", () => node.paramValues, node.paramValues);
+      return node;
     });
-
-    return resolvePath;
   }
 
   /**
@@ -123,31 +123,17 @@ export class PathFactory {
     }
 
     let from: Node[], retained: Node[], exiting: Node[], entering: Node[], to: Node[];
-    // intermediate vars
-    let retainedWithToParams: Node[], enteringResolvePath: Node[], toResolvePath: Node[];
 
     from                  = fromPath;
     retained              = from.slice(0, keep);
     exiting               = from.slice(keep);
 
     // Create a new retained path (with shallow copies of nodes) which have the params of the toPath mapped
-    retainedWithToParams  = retained.map(applyToParams);
-    enteringResolvePath   = toPath.slice(keep);
-    // "toResolvePath" is "retainedWithToParams" concat "enteringResolvePath".
-    toResolvePath         = (retainedWithToParams).concat(enteringResolvePath);
-
-    // "to: is "toResolvePath" with ParamValues/ResolveContext added to each node and bound to the path context
-    to                    = PathFactory.bindTransNodesToPath(toResolvePath);
-
-    // "entering" is the tail of "to"
-    entering              = to.slice(keep);
+    let retainedWithToParams  = retained.map(applyToParams);
+    entering              = toPath.slice(keep);
+    to                    = (retainedWithToParams).concat(entering);
 
     return { from, to, retained, exiting, entering };
-  }
-
-  static bindTransitionResolve(treeChanges: TreeChanges, transition: Transition) {
-    let rootNode = treeChanges.to[0];
-    rootNode.resolves['$transition$'] = new Resolvable('$transition$', () => transition, transition);
   }
 
   /**

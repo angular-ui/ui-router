@@ -20,6 +20,7 @@ import {Resolvable} from "../resolve/module";
 import {TransitionService} from "./transitionService";
 import {ViewConfig} from "../view/interface";
 import {Rejection} from "./rejectFactory";
+import {Resolvables} from "../resolve/interface";
 
 
 let transitionCount = 0;
@@ -139,7 +140,15 @@ export class Transition implements IHookRegistry {
     let toPath = PathFactory.buildToPath(fromPath, targetState);
     toPath = PathFactory.applyViewConfigs(_transitionService.$view, toPath);
     this._treeChanges = PathFactory.treeChanges(fromPath, toPath, this._options.reloadState);
-    PathFactory.bindTransitionResolve(this._treeChanges, this);
+    
+    PathFactory.bindResolveContexts(this._treeChanges.to);
+
+    let rootResolvables: Resolvables = {
+      "$transition$": new Resolvable('$transition$', () => this, this),
+      "$stateParams": new Resolvable('$stateParams', () => this.params(), this.params())
+    };
+    let rootNode: Node = this._treeChanges.to[0];
+    rootNode.resolveContext.addResolvables(rootResolvables, rootNode.state)
   }
 
   $from() {

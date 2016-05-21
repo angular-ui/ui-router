@@ -66,7 +66,7 @@ describe('view', function() {
       let $view = new ViewService();
       $view.viewConfigFactory("ng1", ng1ViewConfigFactory);
       
-      path = PathFactory.bindTransNodesToPath([root, state].map(_state => new Node(_state, {})));
+      path = PathFactory.bindResolveContexts([root, state].map(_state => new Node(_state, {})));
       path = PathFactory.applyViewConfigs($view, path);
 
       ctx = new ResolveContext(path);

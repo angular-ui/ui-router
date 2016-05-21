@@ -81,7 +81,7 @@ beforeEach(function () {
 
 function makePath(names: string[]): Node[] {
   let nodes = map(names, name => new Node(statesMap[name]));
-  return PathFactory.bindTransNodesToPath(nodes);
+  return PathFactory.bindResolveContexts(nodes);
 }
 
 function getResolvedData(pathContext: ResolveContext) {
