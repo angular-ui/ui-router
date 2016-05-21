@@ -38,7 +38,10 @@ import {stringify, functionToString, maxLength, padString} from "./strings";
 /** @hidden */
 function uiViewString (viewData) {
     if (!viewData) return 'ui-view (defunct)';
-    return `[ui-view#${viewData.id} tag in template from '${viewData.creationContext.name || '(root)'}' state]: fqn: '${viewData.fqn}', name: '${viewData.name}@${viewData.creationContext}')`;
+    return `[ui-view#${viewData.id} tag ` +
+        `in template from '${viewData.creationContext && viewData.creationContext.name || '(root)'}' state]: ` +
+        `fqn: '${viewData.fqn}', ` +
+        `name: '${viewData.name}@${viewData.creationContext}')`;
 }
 
 /** @hidden */
