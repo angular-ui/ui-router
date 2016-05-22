@@ -4,8 +4,9 @@ import {isDefined, isFunction, isString} from "../common/predicates";
 import {prop} from "../common/hof";
 import {StateDeclaration} from "./interface";
 
-import {State, StateMatcher} from "./module";
-import {Param} from "../params/module";
+import {State} from "./stateObject";
+import {StateMatcher} from "./stateMatcher";
+import {Param} from "../params/param";
 import {UrlMatcherFactory} from "../url/urlMatcherFactory";
 import {UrlMatcher} from "../url/urlMatcher";
 

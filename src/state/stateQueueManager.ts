@@ -2,7 +2,7 @@
 import {extend, inherit, pluck, equalForKeys, abstractKey} from "../common/common";
 import {isString} from "../common/predicates";
 import {StateDeclaration} from "./interface";
-import {State} from "./module";
+import {State} from "./stateObject";
 import {StateBuilder} from "./stateBuilder";
 import {StateService} from "./stateService";
 

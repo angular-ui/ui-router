@@ -1,7 +1,7 @@
 /** @module url */ /** for typedoc */
 import {extend, bindFunctions, IInjectable} from "../common/common";
 import {isFunction, isString, isDefined, isArray} from "../common/predicates";
-import {UrlMatcher} from "./module";
+import {UrlMatcher} from "./urlMatcher";
 import {services} from "../common/coreservices";
 import {UrlMatcherFactory} from "./urlMatcherFactory";
 import {StateParams} from "../params/stateParams";

@@ -2,7 +2,7 @@
 import {equals, applyPairs, removeFrom, TypedMap} from "../common/common";
 import {curry, prop} from "../common/hof";
 import {isString, isArray} from "../common/predicates";
-import {trace} from "../common/module";
+import {trace} from "../common/trace";
 import {Node} from "../path/node";
 
 import {ActiveUIView, ViewContext, ViewConfig} from "./interface";

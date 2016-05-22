@@ -6,9 +6,9 @@ import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 import {Resolvables, ResolvePolicy, IOptions1} from "./interface";
 
-import {Node} from "../path/module";
+import {Node} from "../path/node";
 import {Resolvable} from "./resolvable";
-import {State} from "../state/module";
+import {State} from "../state/stateObject";
 import {mergeR} from "../common/common";
 import {PathFactory} from "../path/pathFactory";
 

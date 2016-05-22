@@ -3,8 +3,8 @@
 import {StateDeclaration, _ViewDeclaration} from "./interface";
 import {extend, defaults, values, find} from "../common/common";
 import {propEq} from "../common/hof";
-import {Param} from "../params/module";
-import {UrlMatcher} from "../url/module";
+import {Param} from "../params/param";
+import {UrlMatcher} from "../url/urlMatcher";
 
 /**
  * @ngdoc object

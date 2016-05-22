@@ -4,7 +4,7 @@ import {StateDeclaration, StateOrName} from "./interface";
 import {ParamsOrArray} from "../params/interface";
 import {TransitionOptions} from "../transition/interface";
 
-import {State} from "./module";
+import {State} from "./stateObject";
 
 /**
  * @ngdoc object

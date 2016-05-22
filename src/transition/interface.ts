@@ -2,9 +2,9 @@
 import {StateDeclaration} from "../state/interface";
 import {IInjectable, Predicate} from "../common/common";
 
-import {Transition} from "./module";
-import {State, TargetState} from "../state/module";
-import {Node} from "../path/module";
+import {Transition} from "./transition";
+import {State} from "../state/stateObject";
+import {Node} from "../path/node";
 
 /**
  * The TransitionOptions object can be used to change the behavior of a transition.

@@ -8,9 +8,10 @@ import {TreeChanges} from "../transition/interface";
 import {ViewConfig} from "../view/interface";
 import {_ViewDeclaration} from "../state/interface";
 
-import {State, TargetState} from "../state/module";
+import {State} from "../state/stateObject";
+import {TargetState} from "../state/targetState";
 import {Node} from "../path/node";
-import {ResolveContext} from "../resolve/module";
+import {ResolveContext} from "../resolve/resolveContext";
 import {ViewService} from "../view/view";
 
 /**

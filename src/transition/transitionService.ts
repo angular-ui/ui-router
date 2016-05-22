@@ -3,8 +3,8 @@ import { IHookRegistry, TransitionOptions, HookMatchCriteria, HookRegOptions } f
 
 import {Transition} from "./transition";
 import {HookRegistry} from "./hookRegistry";
-import {TargetState} from "../state/module";
-import {Node} from "../path/module";
+import {TargetState} from "../state/targetState";
+import {Node} from "../path/node";
 import {IEventHook} from "./interface";
 import {ViewService} from "../view/view";
 import {IInjectable} from "../common/common";

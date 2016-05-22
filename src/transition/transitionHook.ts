@@ -8,8 +8,8 @@ import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 
 import {Rejection} from "./rejectFactory";
-import {TargetState} from "../state/module";
-import {ResolveContext} from "../resolve/module";
+import {TargetState} from "../state/targetState";
+import {ResolveContext} from "../resolve/resolveContext";
 
 let defaultOptions: TransitionHookOptions = {
   async: true,

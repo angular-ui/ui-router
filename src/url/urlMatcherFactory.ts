@@ -2,8 +2,11 @@
 import {forEach, extend} from "../common/common";
 import {isObject, isDefined, isFunction} from "../common/predicates";
 
-import {UrlMatcher, matcherConfig} from "./module";
-import {Param, paramTypes, Type} from "../params/module";
+import {UrlMatcher} from "./urlMatcher";
+import {matcherConfig} from "./urlMatcherConfig";
+import {Param} from "../params/param";
+import {paramTypes} from "../params/paramTypes";
+import {Type} from "../params/type";
 
 /** @hidden */
 function getDefaultConfig() {

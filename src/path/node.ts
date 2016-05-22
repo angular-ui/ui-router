@@ -1,10 +1,11 @@
 /** @module path */ /** for typedoc */
 import {extend, applyPairs, find, allTrueR} from "../common/common";
 import {prop, propEq} from "../common/hof";
-import {State} from "../state/module";
+import {State} from "../state/stateObject";
 import {RawParams} from "../params/interface";
-import {Param} from "../params/module";
-import {Resolvable, ResolveContext} from "../resolve/module";
+import {Param} from "../params/param";
+import {Resolvable} from "../resolve/resolvable";
+import {ResolveContext} from "../resolve/resolveContext";
 import {ViewConfig} from "../view/interface";
 
 export class Node {

@@ -5,7 +5,8 @@ import {
 } from "../common/common";
 import {prop, propEq } from "../common/hof";
 import {isArray, isString} from "../common/predicates";
-import {Param, paramTypes} from "../params/module";
+import {Param} from "../params/param";
+import {paramTypes} from "../params/paramTypes";
 import {isDefined} from "../common/predicates";
 import {DefType} from "../params/param";
 import {unnestR} from "../common/common";
