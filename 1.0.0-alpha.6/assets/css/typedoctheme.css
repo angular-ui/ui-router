@@ -1,0 +1,29 @@
+/* Change the member layout to a grey box */
+.tsd-panel.tsd-member { padding-top: 0; }
+.tsd-panel .tsd-signature, .tsd-panel .tsd-signatures { background-color: #eee; }
+
+.tsd-signature .tsd-header { margin: 1em 0 }
+.tsd-signature .tsd-header p { margin: 0 }
+
+/* The short text, one line description of a member */
+.tsd-header { list-style: none; margin: 0 2em; font-weight: bold; }
+.tsd-header p { margin-top : 0; }
+
+/* We added the short text in the .tsd-header, so don't display it in the main comment block */
+.tsd-member .tsd-description .lead { display: none; }
+.tsd-member .tsd-declaration .lead { display: none; }
+
+/* Display the parameters list and returns block as inline */
+ul.tsd-parameters li { margin-top: 1em; }
+ul.tsd-parameters li > * { display: inline; }
+ul.tsd-parameters li > * > p { display: inline; }
+
+.tsd-returns { margin-top: 1em; }
+.tsd-returns > * { display: inline; }
+
+/* Draw a separator line under each h4/h5 header in a comment section */
+.tsd-comment h4, .tsd-comment h5 { border-bottom: 1px solid #AAA; }
+
+/* It seems that once we hit an @example, the rest of the markup is captured inside that tsd-comment-tags.
+   Clear some styles that look especially weird when that happens */
+dl.tsd-comment-tags p { margin: 1em 0; }
