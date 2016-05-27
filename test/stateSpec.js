@@ -120,6 +120,11 @@ describe('state', function () {
         },
         controller: function() { log += "controller;"}
       })
+      .state('onEnterFail', {
+        onEnter: function() {
+          throw new Error('negative onEnter');
+        }
+      })
       .state('badParam', {
         url: "/bad/{param:int}"
       })
@@ -549,6 +554,20 @@ describe('state', function () {
         'DD.onExit;' +
         'D.onExit;' +
         'A.onEnter;');
+    }));
+
+    it('sends $stateChangeError for exceptions in onEnter', inject(function ($state, $q, $rootScope) {
+      var called;
+      $rootScope.$on('$stateChangeError', function (ev, to, toParams, from, fromParams, options) {
+        called = true;
+      });
+
+      initStateTo(A);
+      $state.transitionTo('onEnterFail');
+      $q.flush();
+
+      expect(called).toBeTruthy();
+      expect($state.current.name).toEqual(A.name);
     }));
 
     it('doesn\'t transition to parent state when child has no URL', inject(function ($state, $q) {
@@ -1044,6 +1063,7 @@ describe('state', function () {
         'logA',
         'logA.logB',
         'logA.logB.logC',
+        'onEnterFail',
         'resolveFail',
         'resolveTimeout',
         'root',
