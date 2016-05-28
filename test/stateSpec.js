@@ -37,10 +37,7 @@ describe('state', function () {
       ISS2101 = { params: { bar: { squash: false, value: 'qux'}}, url: '/2101/{bar:string}' };
       AppInjectable = {};
 
-  beforeEach(module(function ($stateProvider, $provide, $exceptionHandlerProvider) {
-    var x = this;
-    var foo = jasmine;
-    $exceptionHandlerProvider.mode('log')
+  beforeEach(module(function ($stateProvider, $provide) {
     angular.forEach([ A, B, C, D, DD, E, H, HH, HHH ], function (state) {
       state.onEnter = callbackLogger('onEnter');
       state.onExit = callbackLogger('onExit');
@@ -1667,6 +1664,7 @@ describe('exceptions in onEnter', function() {
         });
   }));
 
+  // Test for #2772
   it('sends $stateChangeError for exceptions in onEnter', inject(function ($state, $q, $rootScope) {
     var called;
     $rootScope.$on('$stateChangeError', function (ev, to, toParams, from, fromParams, options) {
