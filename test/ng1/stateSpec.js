@@ -1838,6 +1838,37 @@ describe('.onInvalid()', function() {
   }));
 });
 
+describe('exceptions in onEnter', function() {
+  beforeEach(module(function ($stateProvider, $exceptionHandlerProvider) {
+    $exceptionHandlerProvider.mode('log');
+    $stateProvider
+        .state('A', { })
+        .state('onEnterFail', {
+          onEnter: function() {
+            throw new Error('negative onEnter');
+          }
+        });
+  }));
+
+  // Test for #2772
+  it('trigger transition.onError', inject(function ($state, $q, $transitions) {
+    var called;
+    $transitions.defaultErrorHandler(function() { });
+    $transitions.onError({}, function($error$) {
+      called = true;
+    });
+
+    $state.go('A'); $q.flush();
+    expect($state.current.name).toEqual('A');
+
+    $state.transitionTo('onEnterFail');
+    $q.flush();
+
+    expect(called).toBeTruthy();
+    expect($state.current.name).toEqual('A');
+  }))
+});
+
 describe('$stateParams', function () {
   beforeEach(module('ui.router.state'));
 
