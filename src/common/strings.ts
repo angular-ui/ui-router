@@ -41,20 +41,20 @@ export function kebobString(camelCase: string) {
       .replace(/([A-Z])/g, $1 => "-" + $1.toLowerCase()); // replace rest
 }
 
-function _toJson(obj) {
+function _toJson(obj: Object) {
   return JSON.stringify(obj);
 }
 
-function _fromJson(json) {
+function _fromJson(json: string) {
   return isString(json) ? JSON.parse(json) : json;
 }
 
 
-function promiseToString(p) {
+function promiseToString(p: Promise<any>) {
   return `Promise(${JSON.stringify(p)})`;
 }
 
-export function functionToString(fn) {
+export function functionToString(fn: Function) {
   let fnStr = fnToString(fn);
   let namedFunctionMatch = fnStr.match(/^(function [^ ]+\([^)]*\))/);
   return namedFunctionMatch ? namedFunctionMatch[1] : fnStr;
@@ -71,7 +71,7 @@ let stringifyPattern = pattern([
   [not(isDefined),                  val("undefined")],
   [isNull,                          val("null")],
   [isPromise,                       promiseToString],
-  [isTransitionRejectionPromise,    x => x._transitionRejection.toString()],
+  [isTransitionRejectionPromise,    (x: any) => x._transitionRejection.toString()],
   [is(Rejection),                   invoke("toString")],
   [is(Transition),                  invoke("toString")],
   [is(Resolvable),                  invoke("toString")],
@@ -79,10 +79,10 @@ let stringifyPattern = pattern([
   [val(true),                       identity]
 ]);
 
-export function stringify(o) {
-  var seen = [];
+export function stringify(o: Object) {
+  var seen: any[] = [];
 
-  function format(val) {
+  function format(val: any) {
     if (isObject(val)) {
       if (seen.indexOf(val) !== -1) return '[circular ref]';
       seen.push(val);
@@ -94,7 +94,7 @@ export function stringify(o) {
 }
 
 /** Returns a function that splits a string on a character or substring */
-export const beforeAfterSubstr = char => str => {
+export const beforeAfterSubstr = (char: string) => (str: string) => {
   if (!str) return ["", ""];
   let idx = str.indexOf(char);
   if (idx === -1) return [str, ""];
