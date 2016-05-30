@@ -120,6 +120,7 @@ export const parse = (name: string) => pipe.apply(null, name.split(".").map(prop
  * Given a function that returns a truthy or falsey value, returns a
  * function that returns the opposite (falsey or truthy) value given the same inputs
  */
+export const not = (fn: Function) => (...args: any[]) => !fn.apply(null, args);
 
 export type FunctionThatReturnsBoolean = (...args: any[]) => boolean;
 
@@ -145,6 +146,8 @@ export function or(fn1: FunctionThatReturnsBoolean, fn2: FunctionThatReturnsBool
  * @param fn1 a predicate function `fn1`
  * @returns a function which takes an array and returns true if `fn1` is true for all elements of the array
  */
+export const all = <T>(fn1: (item: T) => boolean) => (arr: T[]) => arr.reduce((b, x) => b && !!fn1(x), true);
+export const any = <T>(fn1: (item: T) => boolean) => (arr: T[]) => arr.reduce((b, x) => b || !!fn1(x), false);
 export const none: Function = not(any);
 
 /** Given a class, returns a Predicate function that returns true if the object is of that class */
