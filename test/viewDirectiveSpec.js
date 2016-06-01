@@ -112,7 +112,7 @@ describe('uiView', function () {
   nState = {
     template: 'nState',
     controller: function ($scope, $element) {
-      var data = $element.data('$uiView');
+      var data = $element.data('$uiViewAnim');
       $scope.$on("$destroy", function() { log += 'destroy;'});
       data.$animEnter.then(function() { log += "animEnter;"});
       data.$animLeave.then(function() {
@@ -714,4 +714,22 @@ describe('uiView', function () {
     }));
 
   });
+});
+
+describe("UiView", function() {
+  beforeEach(module('ui.router'));
+  beforeEach(module(function($stateProvider) {
+    $stateProvider
+        .state('main', { abstract: true, views: { main: {} } })
+        .state('main.home', { views: { content: { template: 'home.html' } } });
+  }));
+
+  it("shouldn't puke on weird view setups", inject(function($compile, $rootScope, $q, $state) {
+    $compile('<div ui-view="main"><div ui-view="content"></div></div>')($rootScope);
+
+    $state.go('main.home');
+    $q.flush();
+
+    expect($state.current.name).toBe('main.home');
+  }));
 });
