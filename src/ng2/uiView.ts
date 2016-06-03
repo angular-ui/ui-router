@@ -175,6 +175,9 @@ export class UiView {
       inputs.map(tuple => ({ prop: tuple.prop, resolve: bindings[tuple.prop] || tuple.resolve }))
           .filter(tuple => resolvables[tuple.resolve] !== undefined)
           .forEach(tuple => { ref.instance[tuple.prop] = resolvables[tuple.resolve].data });
+          
+      // Initiate change detection for the newly created component
+      ref.changeDetectorRef.detectChanges();
     };
 
     this.compResolver.resolveComponent(componentType).then(createComponent);
