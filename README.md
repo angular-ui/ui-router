@@ -26,7 +26,7 @@ Angular UI-Router is a client-side [Single Page Application](https://en.wikipedi
 routing framework for [AngularJS](http://angularjs.org).  
   
 Routing frameworks for SPAs update the browser's URL as the user nagivates through the app.  Conversely, this allows 
-changes to the browser's URL to drive navigation through the app, thus allowing the user to create a bookmark to a 
+changes to the browser's URL to drive navigation through the app, this allowing the user to create a bookmark to a 
 location deep within the SPA.
 
 UI-Router applications are modeled as a hierarchical tree of states. UI-Router provides a 
