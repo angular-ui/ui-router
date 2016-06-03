@@ -723,13 +723,14 @@ describe("UiView", function() {
         .state('main', { abstract: true, views: { main: {} } })
         .state('main.home', { views: { content: { template: 'home.html' } } });
   }));
+  if (angular.version.minor >= 2) {
+    it("shouldn't puke on weird view setups", inject(function ($compile, $rootScope, $q, $state) {
+      $compile('<div ui-view="main"><div ui-view="content"></div></div>')($rootScope);
 
-  it("shouldn't puke on weird view setups", inject(function($compile, $rootScope, $q, $state) {
-    $compile('<div ui-view="main"><div ui-view="content"></div></div>')($rootScope);
+      $state.go('main.home');
+      $q.flush();
 
-    $state.go('main.home');
-    $q.flush();
-
-    expect($state.current.name).toBe('main.home');
-  }));
+      expect($state.current.name).toBe('main.home');
+    }));
+  }
 });
