@@ -7,6 +7,8 @@ import {
 } from "../../src/ng1";
 
 import Spy = jasmine.Spy;
+import {tail} from "../../src/common/common";
+import {Node} from "../../src/path/node";
 
 let module = angular.mock.module;
 ///////////////////////////////////////////////
@@ -509,7 +511,8 @@ describe("State transitions with resolves", function() {
     expect(counts).toEqualData(expectCounts);
   }));
 
-  it("should invoke jit resolves during a transition that are injected in a hook like onEnter", inject(function() {
+  // TODO: remove JIT resolve feature
+  xit("should invoke jit resolves during a transition that are injected in a hook like onEnter", inject(function() {
     stateDefs.J.onEnter = function onEnter(_J) {};
     testGo("J");
     expectCounts._J++;
@@ -542,9 +545,13 @@ describe("Integration: Resolvables system", () => {
 
 
   it("should not re-resolve data, when redirecting to a child", () => {
-    $transitions.onStart({to: "J"}, ($transition$, _J) => {
-      expect(counts._J).toEqualData(1);
-      return $state.target("K");
+    $transitions.onStart({to: "J"}, ($transition$) => {
+      // TODO: use lazy resolve for test, not JIT resolve
+      var ctx = tail($transition$.treeChanges().to).resolveContext;
+      return ctx.invokeLater(function (_J) {}).then(function() {
+        expect(counts._J).toEqualData(1);
+        return $state.target("K");
+      });
     });
     $state.go("J");
     $rootScope.$digest();

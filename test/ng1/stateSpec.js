@@ -8,11 +8,13 @@ var UrlMatcher = uiRouter.UrlMatcher;
 
 describe('state', function () {
 
-  var $injector, $stateProvider, locationProvider, templateParams, template, ctrlName;
+  var $injector, $stateProvider, locationProvider, templateParams, template, ctrlName, errors;
 
-  beforeEach(module('ui.router', function($locationProvider) {
+  beforeEach(module('ui.router', function($locationProvider, $transitionsProvider) {
+    errors = [];
     locationProvider = $locationProvider;
     $locationProvider.html5Mode(false);
+    $transitionsProvider.defaultErrorHandler(function(error) { errors.push(error); } );
   }));
 
   var log, logEvents, logEnterExit;
@@ -284,8 +286,8 @@ describe('state', function () {
         $stateProvider.state(childWithParam);
         $stateProvider.state(childNoParam);
 
-        $transitions.onEnter({}, function ($state$) { dynlog += "enter:"+$state$.name+";" });
-        $transitions.onExit({}, function ($state$) { dynlog += "exit:"+$state$.name+";" });
+        $transitions.onEnter({}, function (trans, inj, state) { dynlog += "enter:"+state.name+";" });
+        $transitions.onExit({}, function (trans, inj, state) { dynlog += "exit:"+state.name+";" });
         $transitions.onSuccess({}, function () { dynlog += "success;"; });
 
         $compile('<div><ui-view></ui-view></div>')($rootScope.$new());
@@ -1101,9 +1103,9 @@ describe('state', function () {
   });
 
   describe('optional parameters', function() {
-    it("should be populated during transition, if unspecified", inject(function($state, $q) {
+    it("should be populated during transition, if unspecified", inject(function($state, $transitions, $q) {
       var stateParams;
-      $state.get("OPT").onEnter = function($stateParams) { stateParams = $stateParams; };
+      $transitions.onEnter({ entering: 'OPT' }, function(trans) { stateParams = trans.params() });
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
       expect(obj($state.params)).toEqual({ param: "100" });
@@ -1128,19 +1130,19 @@ describe('state', function () {
       expect(obj($state.params)).toEqual({ x: 100, y: { foo: 'bar' } });
     }));
 
-    it("should be populated during primary transition, if unspecified", inject(function($state, $q) {
+    it("should be populated during primary transition, if unspecified", inject(function($state, $transitions, $q) {
       var count = 0;
-      $state.get("OPT").onEnter = function($stateParams) { count++; };
+      $transitions.onEnter({ entering: 'OPT' }, function() { count++ });
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
       expect(obj($state.params)).toEqual({ param: "100" });
       expect(count).toEqual(1);
     }));
 
-    it("should allow mixed URL and config params", inject(function($state, $q) {
+    it("should allow mixed URL and config params", inject(function($state, $transitions, $q) {
       var count = 0;
-      $state.get("OPT").onEnter =      function($stateParams) { count++; };
-      $state.get("OPT.OPT2").onEnter = function($stateParams) { count++; };
+      $transitions.onEnter({ entering: 'OPT' }, function() { count++ });
+      $transitions.onEnter({ entering: 'OPT.OPT2' }, function() { count++ });
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
       expect(obj($state.params)).toEqual({ param: "100" });
@@ -1155,10 +1157,10 @@ describe('state', function () {
 
   // TODO: Enforce by default in next major release (1.0.0)
   describe('non-optional parameters', function() {
-    it("should cause transition failure, when unspecified.", inject(function($state, $q) {
+    it("should cause transition failure, when unspecified.", inject(function($state, $transitions, $q) {
       var count = 0;
-      $state.get("OPT").onEnter =      function() { count++; };
-      $state.get("OPT.OPT2").onEnter = function() { count++; };
+      $transitions.onEnter({ entering: 'OPT' }, function() { count++ });
+      $transitions.onEnter({ entering: 'OPT.OPT2' }, function() { count++ });
       $state.go("OPT"); $q.flush();
       expect($state.current.name).toBe("OPT");
       expect(obj($state.params)).toEqual({ param: "100" });
@@ -1854,7 +1856,7 @@ describe('exceptions in onEnter', function() {
   it('trigger transition.onError', inject(function ($state, $q, $transitions) {
     var called;
     $transitions.defaultErrorHandler(function() { });
-    $transitions.onError({}, function($error$) {
+    $transitions.onError({}, function() {
       called = true;
     });
 
@@ -1959,7 +1961,7 @@ describe('transition hook', function() {
     $state.go('.'); $q.flush();
     expect(log).toBe("homeCtrl;");
 
-    $transitions.onBefore({ to: 'home' }, function($state, $transition$) {
+    $transitions.onBefore({ to: 'home' }, function($transition$) {
       var options = $transition$.options();
       if (!options.reload && count++ < 5) {
         return $state.target($transition$.to(), $transition$.params("to"), extend({}, options, {reload: true}));
@@ -1983,7 +1985,7 @@ describe('transition hook', function() {
     $state.go('home.foo'); $q.flush();
     expect(resolvelog).toBe("fooResolve;");
 
-    $transitions.onStart({ to: 'home' }, function($transition$, $state) {
+    $transitions.onStart({ to: 'home' }, function($transition$) {
       if (!$transition$.options().reload && count++ < 5) {
         console.log("forcing re-enter (reload) of home state ");
         var options = $transition$.options();

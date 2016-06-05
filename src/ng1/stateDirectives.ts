@@ -334,9 +334,7 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate, $transitio
       };
 
       $scope.$on('$stateChangeSuccess', update);
-      let updateAfterTransition = ['$transition$', function($transition$) { $transition$.promise.then(update); }];
-      let deregisterFn = $transitions.onStart({}, updateAfterTransition);
-      $scope.$on('$destroy', deregisterFn);
+      $scope.$on('$destroy', $transitions.onStart({}, (trans) => trans.promise.then(update) && null));
 
       function addState(stateName, stateParams, activeClass) {
         var state = $state.get(stateName, stateContext($element));

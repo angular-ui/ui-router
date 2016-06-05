@@ -47,9 +47,9 @@ import {UIRouter} from "../router";
  *
  * // hooks.ts
  * export function registerAuthHook(transitionService: TransitionService) {
- *   let requireAuthentication = ($state, AuthService) {
- *     if (!AuthService.isAuthenticated()) {
- *       return $state.target('login');
+ *   let requireAuthentication = (transition: Transition, injector: Injector) {
+ *     if (!Injector.get(AuthService).isAuthenticated()) {
+ *       return Injector.get(StateService).target('login');
  *     }
  *   }
  *   transitionService.onBefore({ to: (state) => state.requiresAuth }, requireAuthentication);

@@ -4,8 +4,7 @@ import {extend, map, unnestR, filter} from "../common/common";
 import {isDefined, isFunction, isString} from "../common/predicates";
 import {trace} from "../common/trace";
 import {ActiveUIView} from "../view/interface";
-import {Ng1ViewConfig} from "./viewsBuilder";
-import {RejectType} from "../transition/rejectFactory";
+import {Ng1ViewConfig} from "./statebuilders/views";
 import {TransitionService} from "../transition/transitionService";
 import {parse} from "../common/hof";
 import {ResolveContext} from "../resolve/resolveContext";
@@ -418,13 +417,7 @@ function registerControllerCallbacks($transitions: TransitionService, controller
         controllerInstance.uiOnParamsChanged(filter(toParams, (val, key) => changedKeys.indexOf(key) !== -1), $transition$);
       }
     };
-    $scope.$on('$destroy', $transitions.onSuccess({}, ['$transition$', paramsUpdated]), hookOptions);
-
-    // Fire callback on any IGNORED transition
-    let onDynamic = ($error$, $transition$) => {
-      if ($error$.type === RejectType.IGNORED) paramsUpdated($transition$);
-    };
-    $scope.$on('$destroy', $transitions.onError({}, ['$error$', '$transition$', onDynamic]), hookOptions);
+    $scope.$on('$destroy', $transitions.onSuccess({}, paramsUpdated, hookOptions));
   }
 
   // Add component-level hook for uiCanExit

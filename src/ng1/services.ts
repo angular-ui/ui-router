@@ -20,15 +20,17 @@ import {Resolvable} from "../resolve/resolvable";
 import {ResolveContext} from "../resolve/resolveContext";
 import {State} from "../state/stateObject";
 import {trace} from "../common/trace";
-import {ng1ViewsBuilder, ng1ViewConfigFactory, Ng1ViewConfig} from "./viewsBuilder";
+import {ng1ViewsBuilder, ng1ViewConfigFactory, Ng1ViewConfig} from "./statebuilders/views";
 import {TemplateFactory} from "./templateFactory";
-import {ng1ResolveBuilder} from "./resolvesBuilder";
+import {ng1ResolveBuilder} from "./statebuilders/resolve";
 import {StateParams} from "../params/stateParams";
 import {TransitionService} from "../transition/transitionService";
 import {StateService} from "../state/stateService";
 import {StateProvider} from "../state/state";
 import {UrlRouterProvider, UrlRouter} from "../url/urlRouter";
 import {UrlMatcherFactory} from "../url/urlMatcherFactory";
+import {Transition} from "../transition/transition";
+import {getStateHookBuilder} from "./statebuilders/onEnterExitRetain";
 
 /** @hidden */
 let app = angular.module("ui.router.angular1", []);
@@ -166,9 +168,12 @@ function ng1UIRouter($locationProvider) {
   // Create a new instance of the Router when the ng1UIRouterProvider is initialized
   router = new UIRouter();
   
-  // Apply ng1 `views` builder to the StateBuilder
+  // Apply ng1 specific StateBuilder code for `views`, `resolve`, and `onExit/Retain/Enter` properties
   router.stateRegistry.decorator("views", ng1ViewsBuilder);
   router.stateRegistry.decorator("resolve", ng1ResolveBuilder);
+  router.stateRegistry.decorator("onExit", getStateHookBuilder("onExit"));
+  router.stateRegistry.decorator("onRetain", getStateHookBuilder("onRetain"));
+  router.stateRegistry.decorator("onEnter", getStateHookBuilder("onEnter"));
 
   router.viewService.viewConfigFactory('ng1', ng1ViewConfigFactory);
 
@@ -279,8 +284,8 @@ angular.module('ui.router.state').factory('$stateParams', ['ng1UIRouter', (ng1UI
 
 // $transitions service and $transitionsProvider
 function getTransitionsProvider() {
-  loadAllControllerLocals.$inject = ['$transition$'];
-  function loadAllControllerLocals($transition$) {
+  // TODO: check if we can remove loadAllControllerLocals.  Shouldn't be necessary without JIT resolve policy
+  function loadAllControllerLocals($transition$: Transition) {
     const loadLocals = (vc: Ng1ViewConfig) => {
       let node = (<Node> find($transition$.treeChanges().to, propEq('state', vc.viewDecl.$context)));
       // Temporary fix; This whole callback should be nuked when fixing #2662
@@ -297,7 +302,7 @@ function getTransitionsProvider() {
           .then(() => vc.locals = map(resolvables, res => res.data));
     };
 
-    let loadAllLocals = $transition$.views("entering").filter(vc => !!vc.controller).map(loadLocals);
+    let loadAllLocals = $transition$.views("entering").filter(vc => !!(<Ng1ViewConfig>vc).controller).map(loadLocals);
     return services.$q.all(loadAllLocals).then(noop);
   }
   router.transitionService.onFinish({}, loadAllControllerLocals);

@@ -88,8 +88,9 @@ describe("view hooks", () => {
     });
 
     it("can redirect the transition", () => {
-      ctrl.prototype.uiCanExit = function($state, $transition$) {
+      ctrl.prototype.uiCanExit = function($transition$, injector) {
         log += "canexit;";
+        var $state = injector.get('$state');
         if ($transition$.to().name !== 'baz')  {
           return $state.target('baz');
         }
@@ -101,14 +102,14 @@ describe("view hooks", () => {
       expect($state.current.name).toBe('baz');
     });
 
-    it("can cancel the transition by returning a rejected promise", () => {
-      ctrl.prototype.uiCanExit = function($q) { log += "canexit;"; return $q.reject('nope'); };
+    it("can cancel the transition by returning a rejected promise", inject(($q) => {
+      ctrl.prototype.uiCanExit = function() { log += "canexit;"; return $q.reject('nope'); };
       initial();
 
       $state.go('bar'); $q.flush(); $timeout.flush();
       expect(log).toBe('canexit;');
       expect($state.current.name).toBe('foo');
-    });
+    }));
 
     it("can wait for a promise and then reject the transition", inject(($timeout) => {
       ctrl.prototype.uiCanExit = function() {
@@ -143,12 +144,13 @@ describe("view hooks", () => {
       expect($state.current.name).toBe('bar');
     });
 
-    it("is injectable", () => {
+    it("receives the new Transition and an Injector as parameters", () => {
       let _state = $state;
-      ctrl.prototype.uiCanExit = function($state, $transition$) {
+      ctrl.prototype.uiCanExit = function(trans, inj) {
         log += "canexit;";
-        expect($state === _state).toBe(true);
-        expect(typeof $transition$.treeChanges).toBe("function");
+        expect(typeof trans.treeChanges).toBe("function");
+        expect(typeof inj.get).toBe("function");
+        expect(inj.get('$state')).toBe(_state)
       };
       initial();
 

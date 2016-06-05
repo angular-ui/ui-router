@@ -50,7 +50,7 @@ export class UIRouterGlobals {
   successfulTransitions = new Queue<Transition>([], 1);
 
   constructor(transitionService: TransitionService) {
-    const beforeNewTransition = ($transition$) => {
+    const beforeNewTransition = ($transition$: Transition) => {
 
       this.transition = $transition$;
       this.transitionHistory.enqueue($transition$);
@@ -70,6 +70,6 @@ export class UIRouterGlobals {
 
     };
 
-    transitionService.onBefore({}, ['$transition$', beforeNewTransition]);
+    transitionService.onBefore({}, beforeNewTransition);
   }
 }

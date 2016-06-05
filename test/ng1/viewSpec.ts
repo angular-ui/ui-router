@@ -9,7 +9,7 @@ import {curry} from "../../src/common/hof";
 import {Node} from "../../src/path/module";
 import {ResolveContext} from "../../src/resolve/module";
 import {PathFactory} from "../../src/path/module";
-import {ng1ViewsBuilder, ng1ViewConfigFactory} from "../../src/ng1/viewsBuilder";
+import {ng1ViewsBuilder, ng1ViewConfigFactory} from "../../src/ng1/statebuilders/views";
 import {ViewService} from "../../src/view/view";
 import {StateMatcher, StateBuilder} from "../../src/state/module";
 

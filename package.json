@@ -11,6 +11,7 @@
 
     "test:ng1": "karma start config/karma.ng15.js",
     "test:ng1:debug": "karma start config/karma.ng15.js --singleRun=false --browsers=Chrome --autoWatch=true --autoWatchInterval=1",
+    "test:ng1:watch": "node_modules/watch/cli.js 'npm run test:ng1' src test",
 
     "test:ng12": "karma start config/karma.ng12.js",
     "test:ng13": "karma start config/karma.ng13.js",

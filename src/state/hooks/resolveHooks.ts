@@ -7,6 +7,7 @@ import {ResolvePolicy} from "../../resolve/interface";
 import {Transition} from "../../transition/transition";
 import {val} from "../../common/hof";
 import {Resolvable} from "../../resolve/resolvable";
+import {State} from "../stateObject";
 
 
 let LAZY = ResolvePolicy[ResolvePolicy.LAZY];
@@ -25,23 +26,22 @@ export class ResolveHooks {
     let treeChanges = this.transition.treeChanges();
 
     /** a function which resolves any EAGER Resolvables for a Path */
-    (<any> $eagerResolvePath).$inject = ['$transition$'];
-    function $eagerResolvePath($transition$) {
+    function $eagerResolvePath($transition$: Transition) {
       return tail(<any[]> treeChanges.to).resolveContext.resolvePath(extend({ transition: $transition$ }, { resolvePolicy: EAGER }));
     }
 
     /** Returns a function which pre-resolves any LAZY Resolvables for a Node in a Path */
-    (<any> $lazyResolveEnteringState).$inject = ['$state$', '$transition$'];
-    function $lazyResolveEnteringState($state$, $transition$) {
-      let node = find(<any[]> treeChanges.entering, propEq('state', $state$));
+    function $lazyResolveEnteringState(transition: Transition, injector, state: State) {
+      let node = find(<any[]> treeChanges.entering, propEq('state', state));
 
       // A new Resolvable contains all the resolved data in this context as a single object, for injection as `$resolve$`
       let context = node.resolveContext;
       let $resolve$ = new Resolvable("$resolve$", () => map(context.getResolvables(), (r: Resolvable) => r.data));
-      var options = extend({transition: $transition$}, { resolvePolicy: LAZY });
+      var options = extend({ transition: transition }, { resolvePolicy: LAZY });
 
       // Resolve all the LAZY resolves, then resolve the `$resolve$` object, then add `$resolve$` to the context
-      return context.resolvePathElement(node.state, options)
+      // return context.resolvePathElement(node.state, options)
+      return context.resolvePath(options)
           .then(() => $resolve$.resolveResolvable(context))
           .then(() => context.addResolvables([$resolve$], node.state));
     }

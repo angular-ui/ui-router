@@ -40,18 +40,14 @@ export class HookBuilder {
     this.transitionOptions  = transition.options();
   }
 
-  // TODO: These get* methods are returning different cardinalities of hooks
-  // onBefore/onStart/onFinish/onSuccess/onError returns an array of hooks
-  // onExit/onRetain/onEnter returns an array of arrays of hooks
-
-  getOnBeforeHooks  = () => this._buildNodeHooks("onBefore",  "to",       tupleSort(), undefined, { async: false });
+  getOnBeforeHooks  = () => this._buildNodeHooks("onBefore",  "to",       tupleSort(), { async: false });
   getOnStartHooks   = () => this._buildNodeHooks("onStart",   "to",       tupleSort());
-  getOnExitHooks    = () => this._buildNodeHooks("onExit",    "exiting",  tupleSort(true), (node) => ({ $state$: node.state }));
-  getOnRetainHooks  = () => this._buildNodeHooks("onRetain",  "retained", tupleSort(), (node) => ({ $state$: node.state }));
-  getOnEnterHooks   = () => this._buildNodeHooks("onEnter",   "entering", tupleSort(), (node) => ({ $state$: node.state }));
-  getOnFinishHooks  = () => this._buildNodeHooks("onFinish",  "to",       tupleSort(), (node) => ({ $treeChanges$: this.treeChanges }));
-  getOnSuccessHooks = () => this._buildNodeHooks("onSuccess", "to",       tupleSort(), undefined, { async: false, rejectIfSuperseded: false });
-  getOnErrorHooks   = () => this._buildNodeHooks("onError",   "to",       tupleSort(), undefined, { async: false, rejectIfSuperseded: false });
+  getOnExitHooks    = () => this._buildNodeHooks("onExit",    "exiting",  tupleSort(true),  { stateHook: true });
+  getOnRetainHooks  = () => this._buildNodeHooks("onRetain",  "retained", tupleSort(false), { stateHook: true });
+  getOnEnterHooks   = () => this._buildNodeHooks("onEnter",   "entering", tupleSort(false), { stateHook: true });
+  getOnFinishHooks  = () => this._buildNodeHooks("onFinish",  "to",       tupleSort());
+  getOnSuccessHooks = () => this._buildNodeHooks("onSuccess", "to",       tupleSort(), { async: false, rejectIfSuperseded: false });
+  getOnErrorHooks   = () => this._buildNodeHooks("onError",   "to",       tupleSort(), { async: false, rejectIfSuperseded: false });
 
   asyncHooks() {
     let onStartHooks    = this.getOnStartHooks();
@@ -80,7 +76,6 @@ export class HookBuilder {
   private _buildNodeHooks(hookType: string,
                           matchingNodesProp: string,
                           sortHooksFn: (l: HookTuple, r: HookTuple) => number,
-                          getLocals: (node: Node) => any = (node) => ({}),
                           options?: TransitionHookOptions): TransitionHook[] {
 
     // Find all the matching registered hooks for a given hook type
@@ -96,7 +91,8 @@ export class HookBuilder {
       // Return an array of HookTuples
       return nodes.map(node => {
         let _options = extend({ bind: hook.bind, traceData: { hookType, context: node} }, this.baseHookOptions, options);
-        let transitionHook = new TransitionHook(hook.callback, getLocals(node), node.resolveContext, _options);
+        let stateContext = _options.stateHook ? node.state : null;
+        let transitionHook = new TransitionHook(this.transition, stateContext, hook.callback, node.resolveContext, _options);
         return <HookTuple> { hook, node, transitionHook };
       });
     };

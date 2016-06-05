@@ -5,6 +5,7 @@ import {State} from "./stateObject";
 import {ViewContext} from "../view/interface";
 import {IInjectable} from "../common/common";
 import {Transition} from "../transition/transition";
+import {TransitionStateHookFn} from "../transition/interface";
 
 export type StateOrName = (string|StateDeclaration|State);
 
@@ -187,7 +188,6 @@ export interface StateDeclaration {
    * ### Injecting resolves into other things
    *
    * During a transition, Resolve data can be injected into:
-   * - Transition Hooks, e.g., $transitions.onStart/onEnter
    * - ui-view Controllers
    * - TemplateProviders and ControllerProviders
    * - Other resolves
@@ -341,12 +341,69 @@ export interface StateDeclaration {
    * This is a good spot to put metadata such as `requiresAuth`.
    */
   data?: any;
-  /**  A Transition Hook called with the state is being entered.  See: [[IHookRegistry.onEnter]]*/
-  onEnter?: Function;
-  /**  A Transition Hook called with the state is being retained. See: [[IHookRegistry.onRetain]] */
-  onRetain?: Function;
-  /**  A Transition Hook called with the state is being exited. See: [[IHookRegistry.onExit]] */
-  onExit?: Function;
+  /**
+   * A Transition Hook called with the state is being entered.  See: [[IHookRegistry.onEnter]]
+   *
+   * @example
+   * ```js
+   *
+   * .state({
+   *   name: 'mystate',
+   *   onEnter: function(trans, state) {
+   *     console.log("Entering " + state.name);
+   *   }
+   * });
+   * ```
+   *
+   * Note: The above `onEnter` on the state declaration is effectively sugar for:
+   * ```
+   * transitionService.onEnter({ entering: 'mystate' }, function(trans, state) {
+   *   console.log("Entering " + state.name);
+   * });
+   */
+  onEnter?: TransitionStateHookFn;
+  /**
+   * A [[TransitionStateHook]] called with the state is being retained/kept. See: [[IHookRegistry.onRetain]]
+   *
+   * @example
+   * ```js
+   *
+   * .state({
+   *   name: 'mystate',
+   *   onRetain: function(trans, state) {
+   *     console.log(state.name + " is still active!");
+   *   }
+   * });
+   * ```
+   *
+   * Note: The above `onRetain` on the state declaration is effectively sugar for:
+   * ```
+   * transitionService.onRetain({ retained: 'mystate' }, function(trans, state) {
+   *   console.log(state.name + " is still active!");
+   * });
+   */
+  onRetain?: TransitionStateHookFn;
+  /**
+   * A Transition Hook called with the state is being exited. See: [[IHookRegistry.onExit]]
+   *
+   * @example
+   * ```js
+   *
+   * .state({
+   *   name: 'mystate',
+   *   onExit: function(trans, state) {
+   *     console.log("Leaving " + state.name);
+   *   }
+   * });
+   * ```
+   *
+   * Note: The above `onRetain` on the state declaration is effectively sugar for:
+   * ```
+   * transitionService.onExit({ exiting: 'mystate' }, function(trans, state) {
+   *   console.log("Leaving " + state.name);
+   * });
+   */
+  onExit?: TransitionStateHookFn;
 
   /**
    * @deprecated define individual parameters as [[ParamDeclaration.dynamic]]

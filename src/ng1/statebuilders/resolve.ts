@@ -1,7 +1,7 @@
 /** @module ng1 */ /** */
-import {State} from "../state/stateObject";
-import {forEach} from "../common/common";
-import {isString} from "../common/predicates";
+import {State} from "../../state/stateObject";
+import {forEach} from "../../common/common";
+import {isString} from "../../common/predicates";
 
 /**
  * This is a [[StateBuilder.builder]] function for angular1 `resolve:` block on a [[Ng1StateDeclaration]].

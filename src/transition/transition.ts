@@ -55,7 +55,8 @@ export class Transition implements IHookRegistry {
   /**
    * Registers a callback function as an `onBefore` Transition Hook
    *
-   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onBefore]]
+   * The hook is only registered for this specific `Transition`.
+   * For global hooks, use [[TransitionService.onBefore]]
    *
    * See [[IHookRegistry.onBefore]]
    */
@@ -63,7 +64,8 @@ export class Transition implements IHookRegistry {
   /**
    * Registers a callback function as an `onStart` Transition Hook
    *
-   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onStart]]
+   * The hook is only registered for this specific `Transition`.
+   * For global hooks, use [[TransitionService.onStart]]
    *
    * See [[IHookRegistry.onStart]]
    */
@@ -71,7 +73,8 @@ export class Transition implements IHookRegistry {
   /**
    * Registers a callback function as an `onEnter` State Hook
    *
-   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onEnter]]
+   * The hook is only registered for this specific `Transition`.
+   * For global hooks, use [[TransitionService.onEnter]]
    *
    * See [[IHookRegistry.onEnter]]
    */
@@ -79,7 +82,8 @@ export class Transition implements IHookRegistry {
   /**
    * Registers a callback function as an `onRetain` State Hook
    *
-   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onRetain]]
+   * The hook is only registered for this specific `Transition`.
+   * For global hooks, use [[TransitionService.onRetain]]
    *
    * See [[IHookRegistry.onRetain]]
    */
@@ -87,7 +91,8 @@ export class Transition implements IHookRegistry {
   /**
    * Registers a callback function as an `onExit` State Hook
    *
-   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onExit]]
+   * The hook is only registered for this specific `Transition`.
+   * For global hooks, use [[TransitionService.onExit]]
    *
    * See [[IHookRegistry.onExit]]
    */
@@ -95,7 +100,8 @@ export class Transition implements IHookRegistry {
   /**
    * Registers a callback function as an `onFinish` Transition Hook
    *
-   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onFinish]]
+   * The hook is only registered for this specific `Transition`.
+   * For global hooks, use [[TransitionService.onFinish]]
    *
    * See [[IHookRegistry.onFinish]]
    */
@@ -103,7 +109,8 @@ export class Transition implements IHookRegistry {
   /**
    * Registers a callback function as an `onSuccess` Transition Hook
    *
-   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onSuccess]]
+   * The hook is only registered for this specific `Transition`.
+   * For global hooks, use [[TransitionService.onSuccess]]
    *
    * See [[IHookRegistry.onSuccess]]
    */
@@ -111,7 +118,8 @@ export class Transition implements IHookRegistry {
   /**
    * Registers a callback function as an `onError` Transition Hook
    *
-   * The hook is only registered for this specific `Transition`.  For global hooks, use [[TransitionService.onError]]
+   * The hook is only registered for this specific `Transition`.
+   * For global hooks, use [[TransitionService.onError]]
    *
    * See [[IHookRegistry.onError]]
    */
@@ -391,10 +399,10 @@ export class Transition implements IHookRegistry {
   run (): Promise<any> {
     let hookBuilder = this.hookBuilder();
     let runSynchronousHooks = TransitionHook.runSynchronousHooks;
-    // TODO: nuke these in favor of chaining off the promise, i.e.,
+    // TODO: nuke these in favor of chaining off the promise? i.e.,
     // $transitions.onBefore({}, $transition$ => {$transition$.promise.then()}
-    const runSuccessHooks = () => runSynchronousHooks(hookBuilder.getOnSuccessHooks(), {}, true);
-    const runErrorHooks = ($error$) => runSynchronousHooks(hookBuilder.getOnErrorHooks(), { $error$ }, true);
+    const runSuccessHooks = () => runSynchronousHooks(hookBuilder.getOnSuccessHooks(), true);
+    const runErrorHooks = ($error$) => runSynchronousHooks(hookBuilder.getOnErrorHooks(), true);
     // Run the success/error hooks *after* the Transition promise is settled.
     this.promise.then(runSuccessHooks, runErrorHooks);
 

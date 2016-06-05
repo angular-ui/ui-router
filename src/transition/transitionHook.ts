@@ -1,15 +1,17 @@
 /** @module transition */ /** for typedoc */
-import {TransitionHookOptions} from "./interface";
-import {IInjectable, defaults, extend, noop, Predicate} from "../common/common";
+import {TransitionHookOptions, TransitionStateHookFn, HookFn, TransitionHookFn} from "./interface";
+import {defaults, noop, Predicate} from "../common/common";
 import {fnToString, maxLength} from "../common/strings";
 import {isDefined, isPromise } from "../common/predicates";
-import {not, pattern, val, eq, is, parse } from "../common/hof";
+import {pattern, val, eq, is, parse } from "../common/hof";
 import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 
 import {Rejection} from "./rejectFactory";
 import {TargetState} from "../state/targetState";
 import {ResolveContext} from "../resolve/resolveContext";
+import {Transition} from "./transition";
+import {State} from "../state/stateObject";
 
 let defaultOptions: TransitionHookOptions = {
   async: true,
@@ -20,9 +22,11 @@ let defaultOptions: TransitionHookOptions = {
   bind: null
 };
 
+/** @hidden */
 export class TransitionHook {
-  constructor(private fn: IInjectable,
-              private locals: any,
+  constructor(private transition: Transition,
+              private stateContext: State,
+              private hookFn: HookFn,
               private resolveContext: ResolveContext,
               private options: TransitionHookOptions) {
     this.options = defaults(options, defaultOptions);
@@ -30,21 +34,21 @@ export class TransitionHook {
 
   private isSuperseded = () => this.options.current() !== this.options.transition;
 
-  invokeHook(moreLocals) {
-    let { options, fn, resolveContext } = this;
-    let locals = extend({}, this.locals, moreLocals);
+  invokeHook(rethrow = false): Promise<any> {
+    let { options, hookFn, resolveContext } = this;
     trace.traceHookInvocation(this, options);
     if (options.rejectIfSuperseded && this.isSuperseded()) {
       return Rejection.superseded(options.current()).toPromise();
     }
 
-    // TODO: Need better integration of returned promises in synchronous code.
-    if (!options.async) {
-      let hookResult = resolveContext.invokeNow(fn, locals, options);
+    try {
+      var hookResult = hookFn.call(options.bind, this.transition, resolveContext.injector(), this.stateContext);
       return this.handleHookResult(hookResult);
+    } catch (error) {
+      if (rethrow) throw error;
+      return services.$q.reject(error);
     }
-    return resolveContext.invokeLater(fn, locals, options).then(val => this.handleHookResult(val));
-  };
+  }
 
   /**
    * This method handles the return value of a Transition Hook.
@@ -75,10 +79,10 @@ export class TransitionHook {
   }
 
   toString() {
-    let { options, fn } = this;
+    let { options, hookFn } = this;
     let event = parse("traceData.hookType")(options) || "internal",
         context = parse("traceData.context.state.name")(options) || parse("traceData.context")(options) || "unknown",
-        name = fnToString(fn);
+        name = fnToString(hookFn);
     return `${event} context: ${context}, ${maxLength(200, name)}`;
   }
 
@@ -88,11 +92,11 @@ export class TransitionHook {
    *
    * Returns a promise chain composed of any promises returned from each hook.invokeStep() call
    */
-  static runSynchronousHooks(hooks: TransitionHook[], locals = {}, swallowExceptions: boolean = false): Promise<any> {
+  static runSynchronousHooks(hooks: TransitionHook[], swallowExceptions: boolean = false): Promise<any> {
     let results = [];
     for (let i = 0; i < hooks.length; i++) {
       try {
-        results.push(hooks[i].invokeHook(locals));
+        results.push(hooks[i].invokeHook(true));
       } catch (exception) {
         if (!swallowExceptions) {
           return Rejection.aborted(exception).toPromise();

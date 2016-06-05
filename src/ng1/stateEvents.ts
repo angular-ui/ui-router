@@ -153,10 +153,14 @@ var $stateNotFound;
     return memo;
   }
 
-  stateChangeStartHandler.$inject = ['$transition$', '$stateEvents', '$rootScope', '$state', '$urlRouter'];
-  function stateChangeStartHandler($transition$: Transition, $stateEvents, $rootScope, $state, $urlRouter) {
+  function stateChangeStartHandler($transition$: Transition, $injector) {
     if (!$transition$.options().notify || !$transition$.valid() || $transition$.ignored())
       return;
+
+    let $stateEvents = $injector.get('$stateEvents');
+    let $rootScope = $injector.get('$rootScope');
+    let $state = $injector.get('$state');
+    let $urlRouter = $injector.get('$urlRouter');
 
     let enabledEvents = $stateEvents.provider.enabled();
 

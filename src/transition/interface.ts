@@ -1,10 +1,13 @@
 /** @module transition */ /** for typedoc */
 import {StateDeclaration} from "../state/interface";
-import {IInjectable, Predicate} from "../common/common";
+import {Predicate} from "../common/common";
 
 import {Transition} from "./transition";
 import {State} from "../state/stateObject";
 import {Node} from "../path/node";
+import {TargetState} from "../state/targetState";
+import IInjectorService = angular.auto.IInjectorService;
+import {Injector} from "@angular/core";
 
 /**
  * The TransitionOptions object can be used to change the behavior of a transition.
@@ -79,7 +82,7 @@ export interface TransitionOptions {
   current     ?: () => Transition;
 }
 
-/** @internal */
+/** @hidden @internal */
 export interface TransitionHookOptions {
   async               ?: boolean;
   rejectIfSuperseded  ?: boolean;
@@ -89,6 +92,7 @@ export interface TransitionHookOptions {
   target              ?: any;
   traceData           ?: any;
   bind                ?: any;
+  stateHook           ?: boolean;
 }
 
 /**
@@ -120,13 +124,17 @@ export interface TreeChanges {
   to: Node[];
 
   /**
-   * The path of active nodes that the transition is retaining. These nodes are neither exited, nor entered.
+   * The path of active nodes that the transition is retaining.
+   *
+   * These nodes are neither exited, nor entered.
    * Before and after the transition is successful, these nodes are active.
    */
   retained: Node[];
 
   /**
-   * The path of nodes that the transition is exiting. After the Transition is successful, these nodes are no longer active.
+   * The path of previously active nodes that the transition is exiting.
+   *
+   * After the Transition is successful, these nodes are no longer active.
    *
    * Note that a state that is being reloaded (due to parameter values changing, or `reload: true`) may be in both the
    * `exiting` and `entering` paths.
@@ -134,9 +142,11 @@ export interface TreeChanges {
   exiting: Node[];
 
   /**
-   * The path of nodes that the transition is entering. After the Transition is successful, these nodes will be active.
-   * Because they are entering, they have their resolves fetched, onEnter hooks run, and their views
-   * (controller+templates) refreshed.
+   * The path of nodes that the transition is entering.
+   *
+   * After the Transition is successful, these nodes will be active.
+   * Because they are entering, they have their resolves fetched, `onEnter` hooks run, and their views
+   * (component(s) or controller(s)+template(s)) refreshed.
    *
    * Note that a state that is reloaded (due to parameter values changing, or `reload: true`) may be in both the
    * `exiting` and `entering` paths.
@@ -147,7 +157,75 @@ export interface TreeChanges {
 export type IErrorHandler = (error: Error) => void;
 
 export type IHookGetter = (hookName: string) => IEventHook[];
-export type IHookRegistration = (matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions) => Function;
+export type IHookRegistration = (matchCriteria: HookMatchCriteria, callback: HookFn, options?: HookRegOptions) => Function;
+
+/**
+ * The signature for Transition Hooks.
+ *
+ * Transition hooks are callback functions that hook into the lifecycle of transitions.
+ * As a transition runs, it reaches certain lifecycle events.
+ * As each event occurs, the hooks which are registered for the event are called (in priority order).
+ *
+ * A transition hook may alter a Transition by returning a [[HookResult]].
+ *
+ * @param transition the current [[Transition]]
+ * @param injector (for ng1 or ng2 only) the injector service
+ *
+ * @returns a [[HookResult]] which may alter the transition
+ *
+ * @see
+ *
+ * - [[IHookRegistry.onBefore]]
+ * - [[IHookRegistry.onStart]]
+ * - [[IHookRegistry.onFinish]]
+ * - [[IHookRegistry.onSuccess]]
+ * - [[IHookRegistry.onError]]
+ */
+export interface TransitionHookFn {
+  (transition: Transition, injector: (IInjectorService | Injector)) : HookResult
+}
+
+/**
+ * The signature for Transition State Hooks.
+ *
+ * A [[TransitionHook]] which is applied to a lifecycle event for a specific state.
+ *
+ * Transition State Hooks are callback functions that hook into the lifecycle events of specific states during a transition.
+ * As a transition runs, it may exit some states, retain (keep) states, and enter states.
+ * As each lifecycle event occurs, the hooks which are registered for the event and that state are called (in priority order).
+ *
+ * @param transition the current [[Transition]]
+ * @param state the [[State]] that the hook is bound to
+ * @param injector (for ng1 or ng2 only) the injector service
+ *
+ * @returns a [[HookResult]] which may alter the transition
+ *
+ * @see
+ *
+ * - [[IHookRegistry.onExit]]
+ * - [[IHookRegistry.onRetain]]
+ * - [[IHookRegistry.onExit]]
+ */
+export interface TransitionStateHookFn {
+  (transition: Transition, injector: (IInjectorService | Injector), state: State) : HookResult
+}
+
+export type HookFn = (TransitionHookFn|TransitionStateHookFn);
+
+/**
+ * The return value of a [[TransitionHook]] or [[TransitionStateHook]]
+ *
+ * When returned from a [[TransitionHook]] or [[TransitionStateHook]], these values alter the running [[Transition]]:
+ *
+ * - `false`: the transition will be cancelled.
+ * - [[TargetState]]: the transition will be redirected to the new target state (see: [[StateService.target]])
+ * - `Promise`: the transition will wait for the promise to resolve or reject
+ *    - If the promise is rejected (or resolves to `false`), the transition will be cancelled
+ *    - If the promise resolves to a [[TargetState]], the transition will be redirected
+ *    - If the promise resolves to anything else, the transition will resume
+ * - Anything else: the transition will resume
+ */
+export type HookResult = (boolean | TargetState | void | Promise<boolean|TargetState|void>);
 
 /**
  * These options may be provided when registering a Transition Hook (such as `onStart`)
@@ -176,37 +254,35 @@ export interface HookRegOptions {
  */
 export interface IHookRegistry {
   /**
-   * Registers a callback function as an `onBefore` Transition Hook.
+   * Registers a [[TransitionHook]], called *before a transition starts*.
    *
-   * The `matchCriteria` is used to determine which Transitions the hook should be invoked during.
+   * Registers a transition lifecycle hook, which is invoked before a transition even begins.
+   * This hook can be useful to implement logic which prevents a transition from even starting, such
+   * as authentication, redirection
+   *
+   * See [[TransitionHook]] for the signature of the function.
+   *
+   * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    *
    * ### Lifecycle
    *
-   * `onBefore` hooks are injected and invoked *before* a Transition starts.  No resolves have been fetched yet.
-   * Each `onBefore` hook is invoked synchronously, in priority order, and are typically invoked in the same call
-   * stack as [[StateService.transitionTo]].
+   * `onBefore` hooks are invoked *before a Transition starts*.
+   * No resolves have been fetched yet.
+   * Each `onBefore` hook is invoked synchronously, in the same call stack as [[StateService.transitionTo]].
+   * The registered `onBefore` hooks are invoked in priority order.
    *
-   * During the `onBefore` phase, the [[Transition]] additional hooks can be registered "on-the-fly" using, for example,
-   * `$transition$.onStart()` or `$transition$.onFinish()`.
-   *
-   * ### Special injectables
-   *
-   * The current [[Transition]] can be injected as `$transition$`.
+   * Note: during the `onBefore` phase, additional hooks can be added to the specific [[Transition]] instance.
+   * These "on-the-fly" hooks only affect the currently running transition..
    *
    * ### Return value
    *
-   * The hook's return value can be used to modify the current Transition:
-   * - `false`: this will abort the current transition
-   * - a [[TargetState]]: The Transition will be redirected to the new target state (created from the
-   *   [[StateService.target]] factory).
-   * - A promise: The Transition waits for this promise to settle before entering the [[onStart]] phase.
-   *   - As above, the promise's _resolved value_ may be `false` or a [[TargetState]]
-   *   - If the promise is _rejected_, the Transition is aborted.  The promise's rejection reason is used to reject
-   *     the overall Transition promise.
+   * The hook's return value can be used to pause, cancel, or redirect the current Transition.
+   * See [[HookResult]] for more information.
    *
-   * If any hook modifies the transition synchronously (by returning `false` or a [[TargetState]]), the remainder
-   * of the hooks do not get invoked.  If any hook returns a promise, the remainder of the `onBefore` hooks are still
-   * invoked. Any promises are then handled asynchronously, during the `onStart` phase of the Transition.
+   * If any hook modifies the transition *synchronously* (by throwing, returning `false`, or returning
+   * a [[TargetState]]), the remainder of the hooks are skipped.
+   * If a hook returns a promise, the remainder of the `onBefore` hooks are still invoked synchronously.
+   * All promises are resolved, and processed asynchronously before the `onStart` phase of the Transition.
    *
    * ### Examples
    *
@@ -214,14 +290,13 @@ export interface IHookRegistry {
    *
    * This example redirects any transition from 'home' to 'home.dashboard'.  This is commonly referred to as a
    * "default substate".
-   * @example
+   * @example (ng2)
    * ```
    *
-   * $transitions.onBefore({ to: 'home' }, function($state) {
-   *   return $state.target("home.dashboard");
+   * transitionService.onBefore({ to: 'home' }, function(trans: Transition, injector: Injector) {
+   *   return injector.get('$state').target("home.dashboard");
    * });
    * ```
-   *
    *
    * #### Data Driven Default Substate
    *
@@ -229,7 +304,7 @@ export interface IHookRegistry {
    * which has `defaultSubstate: "some.sub.state"` defined.  See: [[Transition.to]] which returns the "to state"
    * definition.
    *
-   * @example
+   * @example (ng1)
    * ```
    *
    * // state declaration
@@ -244,8 +319,8 @@ export interface IHookRegistry {
    *     return state.defaultSubstate != null;
    *   }
    * }
-   * $transitions.onBefore(criteria, function($transition$, $state) {
-   *   return $state.target($transition$.to().defaultSubstate);
+   * $transitions.onBefore(criteria, function(trans: Transition, $injector) {
+   *   return $injector.get("$state").target(trans.to().defaultSubstate);
    * });
    * ```
    *
@@ -256,51 +331,47 @@ export interface IHookRegistry {
    * not currently authenticated.
    *
    * This example assumes a state tree where all states which require authentication are children of
-   * a parent `'auth'` state. This example assumes `MyAuthService` synchronously returns a boolean from
+   * a parent `'requireauth'` state. This example assumes `MyAuthService` synchronously returns a boolean from
    * `isAuthenticated()`.
-   * @example
+   * @example (ng1)
    * ```
    *
-   * $transitions.onBefore( { to: 'auth.*', from: '*' }, function(MyAuthService) {
-   *   // If isAuthenticated is false, the transition is cancelled.
-   *   return MyAuthService.isAuthenticated();
+   * $transitions.onBefore( { to: 'requireauth.*', from: '*' }, function(trans, $inj) {
+   *   var myAuthService = $inj.get('MyAuthService');
+   *   // If isAuthenticated returns false, the transition is cancelled.
+   *   return myAuthService.isAuthenticated();
    * });
    * ```
    *
    * @param matchCriteria defines which Transitions the Hook should be invoked for.
-   * @param callback the hook function which will be injected and invoked.
+   * @param callback the hook function which will be invoked.
    * @returns a function which deregisters the hook.
    */
-  onBefore(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
+  onBefore(matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions): Function;
 
   /**
-   * Registers a callback function as an `onStart` Transition Hook.
+   * Registers a [[TransitionHook]], called when a transition starts.
    *
-   * The `matchCriteria` is used to determine which Transitions the hook should be invoked during.
+   * Registers a transition lifecycle hook, which is invoked as a transition starts running.
+   * This hook can be useful to perform some asynchronous action before completing a transition.
+   *
+   * See [[TransitionHook]] for the signature of the function.
+   *
+   * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    *
    * ### Lifecycle
    *
-   * `onStart` hooks are invoked asynchronously, in priority order, when the Transition starts running.
-   * At this point, the Transition has not exited nor entered any states yet.
+   * `onStart` hooks are invoked asynchronously when the Transition starts running.
+   * This happens after the `onBefore` phase is complete.
+   * At this point, the Transition has not yet exited nor entered any states.
+   * The registered `onStart` hooks are invoked in priority order.
    *
-   * Note: a high priority `onStart` hook will fetch any Eager Resolves in the "to path", which were not already fetched.
-   *
-   * ### Special injectables
-   *
-   * The current [[Transition]] can be injected as `$transition$`.
-   *
-   * Any resolves which the target state has access to may be injected.
+   * Note: A built-in `onStart` hook with high priority is used to fetch any eager resolve data.
    *
    * ### Return value
    *
-   * The hook's return value can be used to modify the current Transition:
-   * - `false`: this will abort the current transition
-   * - a [[TargetState]]: The Transition will be redirected to the new target state (created from the
-   *   [[StateService.target]] factory).
-   * - A promise: The Transition waits for this promise to settle before invoking the next hook.
-   *   - As above, the promise's _resolved value_ may be `false` or a [[TargetState]]
-   *   - If the promise is _rejected_, the Transition is aborted.  The promise's rejection reason is used to reject
-   *     the overall Transition promise.
+   * The hook's return value can be used to pause, cancel, or redirect the current Transition.
+   * See [[HookResult]] for more information.
    *
    * ### Example
    *
@@ -317,10 +388,12 @@ export interface IHookRegistry {
    * - `MyAuthService.authenticate()` presents a login dialog, and returns a promise which is resolved
    *   or rejected, whether or not the login attempt was successful.
    *
-   * @example
+   * @example (ng1)
    * ```
    *
-   * $transitions.onStart( { to: 'auth.*' }, function(MyAuthService, $state) {
+   * $transitions.onStart( { to: 'auth.*' }, function(trans, $injector) {
+   *   var $state = $injector.get('$state');
+   *   var MyAuthService = $injector.get('MyAuthService');
    *
    *   // If the user is not authenticated
    *   if (!MyAuthService.isAuthenticated()) {
@@ -330,7 +403,8 @@ export interface IHookRegistry {
    *
    *     return MyAuthService.authenticate().catch(function() {
    *
-   *       // Redirect to a state that we know doesn't require auth.
+   *       // If the authenticate() method failed for whatever reason,
+   *       // redirect to a 'guest' state which doesn't require auth.
    *       return $state.target("guest");
    *     });
    *   }
@@ -341,43 +415,44 @@ export interface IHookRegistry {
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onStart(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
+  onStart(matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions): Function;
 
   /**
-   * Registers a callback function as an `onEnter` Transition+State Hook.
+   * Registers a [[TransitionStateHook]], called when a specific state is entered.
+   *
+   * Registers a lifecycle hook, which is invoked (during a transition) when a specific state is being entered.
+   *
+   * Since this hook is run only when the specific state is being *entered*, it can be useful for
+   * performing tasks when entering a submodule/feature area such as initializing a stateful service, 
+   * or for guarding access to a submodule/feature area.
+   *
+   * See [[TransitionStateHook]] for the signature of the function.
+   *
+   * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
+   * `onEnter` hooks generally specify `{ entering: 'somestate' }`.
    *
    * The `matchCriteria` is used to determine which Transitions the hook should be invoked during.
    * Note: for `onEnter` hooks, the `to` in the `matchCriteria` matches the entering state, not the Transition "to state".
    *
    * ### Lifecycle
    *
-   * `onEnter` hooks are invoked asynchronously, in priority order, when the Transition is entering a state.  States
-   * are entered after the `onRetain` hooks.
+   * `onEnter` hooks are invoked when the Transition is entering a state.
+   * States are entered after the `onRetain` phase is complete.
+   * If more than one state is being entered, the parent state is entered first.
+   * The registered `onEnter` hooks for a state are invoked in priority order.
    *
-   * Note: a high priority `onEnter` hook fetches any Lazy Resolves defined for the state being entered.
-   *
-   * ### Special injectables
-   *
-   * The current [[Transition]] can be injected as `$transition$`.
-   *
-   * Any resolves which the entering state has access to may be injected.
+   * Note: A built-in `onEnter` hook with high priority is used to fetch lazy resolve data for states being entered.
    *
    * ### Return value
    *
-   * The hook's return value can be used to modify the current Transition:
-   * - `false`: this will abort the current transition
-   * - a [[TargetState]]: The Transition will be redirected to the new target state (created from the
-   *   [[StateService.target]] factory).
-   * - A promise: The Transition waits for this promise to settle before invoking the next hook.
-   *   - As above, the promise's _resolved value_ may be `false` or a [[TargetState]]
-   *   - If the promise is _rejected_, the Transition is aborted.  The promise's rejection reason is used to reject
-   *     the overall Transition promise.
+   * The hook's return value can be used to pause, cancel, or redirect the current Transition.
+   * See [[HookResult]] for more information.
    *
    * ### Inside a state declaration
    *
-   * State hooks can be registered using `$transitions` ([[TransitionService]]), as an `onBefore` "on-the-fly" registration
-   * using `$transition$` (the [[Transition]] instance), or as part of a state declaration.
-   *
+   * Instead of registering `onEnter` hooks using the [[TransitionService]], you may define an `onEnter` hook
+   * directly on a state declaration (see: [[StateDeclaration.onEnter]]).
+   * 
    *
    * ### Examples
    *
@@ -388,8 +463,9 @@ export interface IHookRegistry {
    * @example
    * ```
    *
-   * $transitions.onEnter({ to: 'admin' }, function(AuditService, $state$, $transition$) {
-   *   AuditService.log("Entered admin module while transitioning to " + $transition$.to().name);
+   * $transitions.onEnter({ entering: 'admin' }, function(transition, injector, state) {
+   *   var AuditService = injector.get('AuditService');
+   *   AuditService.log("Entered " + state.name + " module while transitioning to " + transition.to().name);
    * }
    * ```
    *
@@ -400,8 +476,9 @@ export interface IHookRegistry {
    * {
    *   name: 'admin',
    *   template: '<div ui-view/>',
-   *   onEnter: function(AuditService, $state$, $transition$) {
-   *     AuditService.log("Entered admin module while transitioning to " + $transition$.to().name);
+   *   onEnter: function(transition, injector, state) {
+   *     var AuditService = injector.get('AuditService');
+   *     AuditService.log("Entered " + state.name + " module while transitioning to " + transition.to().name);
    *   }
    * }
    * ```
@@ -410,134 +487,126 @@ export interface IHookRegistry {
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onEnter(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
+  onEnter(matchCriteria: HookMatchCriteria, callback: TransitionStateHookFn, options?: HookRegOptions): Function;
 
   /**
-   * Registers a callback function as an `onRetain` Transition+State Hook.
+   * Registers a [[TransitionStateHook]], called when a specific state is retained/kept.
+   *
+   * Registers a lifecycle hook, which is invoked (during a transition) for
+   * a specific state that was previously active and is not being entered nor exited.
+   * 
+   * Since this hook is invoked when a transition is when the state is kept, it means the transition
+   * is coming *from* a substate of the kept state *to* a substate of the kept state.  
+   * This hook can be used to perform actions when the user moves from one substate to another, such as
+   * between steps in a wizard.
    *
    * The `matchCriteria` is used to determine which Transitions the hook should be invoked during.
-   * Note: for `onRetain` hooks, the `to` in the `matchCriteria` matches the retained state, not the Transition "to state".
+   * `onRetain` hooks generally specify `{ retained: 'somestate' }`.
    *
    * ### Lifecycle
    *
-   * `onRetain` hooks are invoked asynchronously, in priority order, after `onExit` hooks.
-   *
-   * ### Special injectables
-   *
-   * The current [[Transition]] can be injected as `$transition$`.
-   *
-   * Any resolves which the retained state has access to may be injected.
+   * `onRetain` hooks are invoked after any `onExit` hooks have been fired.
+   * If more than one state is retained, the child states' `onRetain` hooks are invoked first.
+   * The registered `onRetain` hooks for a state are invoked in priority order.
    *
    * ### Return value
    *
-   * The hook's return value can be used to modify the current Transition:
-   * - `false`: this will abort the current transition
-   * - a [[TargetState]]: The Transition will be redirected to the new target state (created from the
-   *   [[StateService.target]] factory).
-   * - A promise: The Transition waits for this promise to settle before invoking the next hook.
-   *   - As above, the promise's _resolved value_ may be `false` or a [[TargetState]]
-   *   - If the promise is _rejected_, the Transition is aborted.  The promise's rejection reason is used to reject
-   *     the overall Transition promise.
+   * The hook's return value can be used to pause, cancel, or redirect the current Transition.
+   * See [[HookResult]] for more information.
    *
    * ### Inside a state declaration
    *
-   * State hooks can be registered using `$transitions` ([[TransitionService]]), as an `onBefore` "on-the-fly" registration
-   * using `$transition$` (the [[Transition]] instance), or as part of a state declaration.
+   * Instead of registering `onRetain` hooks using the [[TransitionService]], you may define an `onRetain` hook
+   * directly on a state declaration (see: [[StateDeclaration.onRetain]]).
+   *
    *
    * @param matchCriteria defines which Transitions the Hook should be invoked for.
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onRetain(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
+  onRetain(matchCriteria: HookMatchCriteria, callback: TransitionStateHookFn, options?: HookRegOptions): Function;
 
   /**
-   * Registers a callback function as an `onExit` Transition+State Hook.
+   * Registers a [[TransitionStateHook]], called when a specific state is exited.
    *
-   * The `matchCriteria` is used to determine which Transitions the hook should be invoked during.
-   * Note: for `onExit` hooks, the `from` in the `matchCriteria` matches the exiting state, not the Transition "from state".
+   * Registers a lifecycle hook, which is invoked (during a transition) when a specific state is being exited.
+   *
+   * Since this hook is run only when the specific state is being *exited*, it can be useful for
+   * performing tasks when leaving a submodule/feature area such as cleaning up a stateful service, 
+   * or for preventing the user from leaving a state or submodule until some criteria is satisfied.
+   *
+   * See [[TransitionStateHook]] for the signature of the function.
+   *
+   * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
+   * `onExit` hooks generally specify `{ exiting: 'somestate' }`.
    *
    * ### Lifecycle
    *
-   * `onExit` hooks are invoked asynchronously, in priority order, when the Transition is exiting a state.  States
-   * are exited after the Transition's `onStart` phase is complete.
-   *
-   * ### Special injectables
-   *
-   * The current [[Transition]] can be injected as `$transition$`.
-   *
-   * Any resolves which the exiting state has access to may be injected.
+   * `onExit` hooks are invoked when the Transition is exiting a state.
+   * States are exited after any `onStart` phase is complete.
+   * If more than one state is being exited, the child states are exited first.
+   * The registered `onExit` hooks for a state are invoked in priority order.
    *
    * ### Return value
    *
-   * The hook's return value can be used to modify the current Transition:
-   * - `false`: this will abort the current transition
-   * - a [[TargetState]]: The Transition will be redirected to the new target state (created from the
-   *   [[StateService.target]] factory).
-   * - A promise: The Transition waits for this promise to settle before invoking the next hook.
-   *   - As above, the promise's _resolved value_ may be `false` or a [[TargetState]]
-   *   - If the promise is _rejected_, the Transition is aborted.  The promise's rejection reason is used to reject
-   *     the overall Transition promise.
+   * The hook's return value can be used to pause, cancel, or redirect the current Transition.
+   * See [[HookResult]] for more information.
    *
    * ### Inside a state declaration
    *
-   * State hooks can be registered using `$transitions` ([[TransitionService]]), as an `onBefore` "on-the-fly" registration
-   * using `$transition$` (the [[Transition]] instance), or as part of a state declaration.
+   * Instead of registering `onExit` hooks using the [[TransitionService]], you may define an `onExit` hook
+   * directly on a state declaration (see: [[StateDeclaration.onExit]]).
    *
    * @param matchCriteria defines which Transitions the Hook should be invoked for.
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onExit(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
+  onExit(matchCriteria: HookMatchCriteria, callback: TransitionStateHookFn, options?: HookRegOptions): Function;
 
   /**
-   * Registers a callback function as an `onFinish` Transition Hook.
+   * Registers a [[TransitionHook]], called *just before a transition finishes*.
    *
-   * The `matchCriteria` is used to determine which Transitions the hook should be invoked during.
+   * Registers a transition lifecycle hook, which is invoked just before a transition finishes.
+   * This hook is a last chance to cancel or redirect a transition.
+   *
+   * See [[TransitionHook]] for the signature of the function.
+   *
+   * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    *
    * ### Lifecycle
    *
    * `onFinish` hooks are invoked asynchronously, in priority order, just before the Transition completes, after
    * all states are entered and exited.
-   *
-   * ### Special injectables
-   *
-   * The current [[Transition]] can be injected as `$transition$`.
-   *
-   * Any resolves which the "to state" has access to may be injected.
+   * `onFinish` hooks are invoked after the `onEnter` phase is complete.
+   * These hooks are invoked just before the transition is "committed".
+   * The registered `onFinish` hooks are invoked in priority order.
    *
    * ### Return value
    *
-   * The hook's return value can be used to modify the current Transition:
-   * - `false`: this will abort the current transition
-   * - a [[TargetState]]: The Transition will be redirected to the new target state (created from the
-   *   [[StateService.target]] factory).
-   * - A promise: The Transition waits for this promise to settle before invoking the next hook.
-   *   - As above, the promise's _resolved value_ may be `false` or a [[TargetState]]
-   *   - If the promise is _rejected_, the Transition is aborted.  The promise's rejection reason is used to reject
-   *     the overall Transition promise.
+   * The hook's return value can be used to pause, cancel, or redirect the current Transition.
+   * See [[HookResult]] for more information.
    *
    * @param matchCriteria defines which Transitions the Hook should be invoked for.
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onFinish(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
+  onFinish(matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions): Function;
 
   /**
-   * Registers a callback function as an `onSuccess` Transition Hook.
+   * Registers a [[TransitionHook]], called after a successful transition completed.
    *
-   * The `matchCriteria` is used to determine which Transitions the hook should be invoked during.
+   * Registers a transition lifecycle hook, which is invoked after a transition successfully completes.
+   *
+   * See [[TransitionHook]] for the signature of the function.
+   *
+   * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    *
    * ### Lifecycle
    *
-   * `onSuccess` hooks are chained off the Transition's promise.  If the Transition is successful, the promise
-   * is resolved, and the `onSuccess` hooks are then invoked.
-   *
-   * ### Special injectables
-   *
-   * The successful [[Transition]] can be injected as `$transition$`.
-   *
-   * Any previously fetched resolves which the "to state" has access to may be injected.  These hooks will not
-   * trigger/wait for any unfetched resolves to fetch.
+   * `onSuccess` hooks are chained off the Transition's promise (see [[Transition.promise]]).
+   * If the Transition is successful and its promise is resolved, then the `onSuccess` hooks are invoked.
+   * Since these hooks are run after the transition is over, their return value is ignored.
+   * The `onSuccess` hooks are invoked in priority order.
    *
    * ### Return value
    *
@@ -547,23 +616,23 @@ export interface IHookRegistry {
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onSuccess(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
+  onSuccess(matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions): Function;
 
   /**
-   * Registers a callback function as an `onError` Transition Hook.
+   * Registers a [[TransitionHook]], called after a successful transition completed.
    *
-   * The `matchCriteria` is used to determine which Transitions the hook should be invoked during.
+   * Registers a transition lifecycle hook, which is invoked after a transition successfully completes.
+   *
+   * See [[TransitionHook]] for the signature of the function.
+   *
+   * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    *
    * ### Lifecycle
    *
-   * `onError` hooks are chained off the Transition's promise.  If the Transition fails, the promise
-   * is rejected, and the `onError` hooks are then invoked.
-   *
-   * ### Special injectables
-   *
-   * The failed [[Transition]] can be injected as `$transition$`.
-   *
-   * The transition rejection reason can be injected as `$error$`
+   * `onError` hooks are chained off the Transition's promise (see [[Transition.promise]]).
+   * If the Transition fails and its promise is rejected, then the `onError` hooks are invoked.
+   * Since these hooks are run after the transition is over, their return value is ignored.
+   * The `onError` hooks are invoked in priority order.
    *
    * ### Return value
    *
@@ -573,7 +642,7 @@ export interface IHookRegistry {
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
    */
-  onError(matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions): Function;
+  onError(matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions): Function;
 
   /**
    * Returns all the registered hooks of a given `hookName` type
@@ -670,16 +739,20 @@ export interface IMatchingNodes {
 }
 
 /**
- * A glob string that matches the name of a state
+ * Hook Criterion used to match a transition.
+ *
+ * A [[Glob]] string that matches the name of a state.
+ *
  * Or, a function with the signature `function(state) { return matches; }`
  * which should return a boolean to indicate if a state matches.
+ *
  * Or, `true` to match anything
  */
 export type HookMatchCriterion = (string|IStateMatch|boolean)
 
 export interface IEventHook {
-  callback: IInjectable;
-  priority: number;
-  bind: any;
+  callback: HookFn;
+  priority?: number;
+  bind?: any;
   matches:  (treeChanges: TreeChanges) => IMatchingNodes;
 }

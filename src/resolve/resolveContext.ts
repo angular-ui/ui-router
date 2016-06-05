@@ -173,6 +173,19 @@ export class ResolveContext {
     let resolvedLocals = map(resolvables, prop("data"));
     return services.$injector.invoke(<Function> fn, options.bind || null, extend({}, locals, resolvedLocals));
   }
+
+  injector(): { get(any): any } {
+    
+    let get = (token: any) => {
+      var resolvables = this.getResolvables();
+      if (resolvables.hasOwnProperty(token)) {
+        return resolvables[token].data;
+      }
+      return services.$injector.get(token);
+    };
+    
+    return {get};
+  }
 }
 
 /**

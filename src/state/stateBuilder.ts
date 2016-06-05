@@ -101,7 +101,7 @@ export class StateBuilder {
       }],
 
       // Each framework-specific ui-router implementation should define its own `views` builder
-      // e.g., src/ng1/viewsBuilder.ts
+      // e.g., src/ng1/statebuilders/views.ts
       views: [],
 
       // Keep a full path from the root down to this state as this is needed for state activation.
