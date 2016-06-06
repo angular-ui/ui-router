@@ -15,7 +15,7 @@ import {services} from "../common/coreservices";
 import {map, bindFunctions, removeFrom, find, noop} from "../common/common";
 import {prop, propEq} from "../common/hof";
 import {isObject} from "../common/predicates";
-import {Node} from "../path/node";
+import {PathNode} from "../path/node";
 import {resolveFactory} from "./legacy/resolveService";
 import {trace} from "../common/trace";
 import {ng1ViewsBuilder, ng1ViewConfigFactory, Ng1ViewConfig} from "./statebuilders/views";
@@ -260,7 +260,7 @@ function getTransitionsProvider() {
   // TODO: check if we can remove loadAllControllerLocals.  Shouldn't be necessary without JIT resolve policy
   function loadAllControllerLocals($transition$: Transition) {
     const loadLocals = (vc: Ng1ViewConfig) => {
-      let node = (<Node> find($transition$.treeChanges().to, propEq('state', vc.viewDecl.$context)));
+      let node = (<PathNode> find($transition$.treeChanges().to, propEq('state', vc.viewDecl.$context)));
       // Temporary fix; This whole callback should be nuked when fixing #2662
       if (!node) return services.$q.when();
       let resolveCtx = node.resolveContext;

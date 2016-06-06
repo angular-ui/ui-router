@@ -2,7 +2,7 @@
 import {Directive, Output, EventEmitter} from "@angular/core";
 import {StateService} from "../../state/stateService";
 import {UiSref} from "./uiSref";
-import {Node} from "../../path/node";
+import {PathNode} from "../../path/node";
 import {TransitionService} from "../../transition/transitionService";
 import {Transition} from "../../transition/transition";
 import {TargetState} from "../../state/targetState";
@@ -95,18 +95,18 @@ export class UiSrefStatus {
 
 
     /**
-     * Returns a Predicate<Node[]> that returns true when the target state (and any param values)
+     * Returns a Predicate<PathNode[]> that returns true when the target state (and any param values)
      * match the (tail of) the path, and the path's param values
      */
     const pathMatches = (target: TargetState) => {
       let state: State = target.$state();
       let targetParamVals = target.params();
-      let targetPath: Node[] = PathFactory.buildPath(target);
+      let targetPath: PathNode[] = PathFactory.buildPath(target);
       let paramSchema: Param[] = targetPath.map(node => node.paramSchema)
           .reduce(unnestR, [])
           .filter((param: Param) => targetParamVals.hasOwnProperty(param.id));
 
-      return (path: Node[]) => {
+      return (path: PathNode[]) => {
         let tailNode = tail(path);
         if (!tailNode || tailNode.state !== state) return false;
         var paramValues = PathFactory.paramValues(path);
@@ -121,7 +121,7 @@ export class UiSrefStatus {
      * Expands the path to [c], [c, d]
      * Then appends each to [a,b,] and returns: [a, b, c], [a, b, c, d]
      */
-    function spreadToSubPaths (path: Node[], appendTo: Node[] = []): Node[][] {
+    function spreadToSubPaths (path: PathNode[], appendTo: PathNode[] = []): PathNode[][] {
       return path.map(node => appendTo.concat(PathFactory.subPath(path, node.state)));
     }
 
@@ -135,7 +135,7 @@ export class UiSrefStatus {
       this._setStatus(status);
     }
 
-    let update = (currentPath: Node[]) => () => {
+    let update = (currentPath: PathNode[]) => () => {
       if (this._deregisterHook == null) return; // destroyed
       if (!$transition$.isActive()) return; // superseded
       status.active = spreadToSubPaths(currentPath).map(isTarget).reduce(anyTrueR, false);

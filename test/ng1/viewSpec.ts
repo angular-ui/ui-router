@@ -6,7 +6,7 @@ var module = angular.mock.module;
 
 import {inherit, extend, tail} from "../../src/common/common";
 import {curry} from "../../src/common/hof";
-import {Node} from "../../src/path/module";
+import {PathNode} from "../../src/path/module";
 import {ResolveContext} from "../../src/resolve/module";
 import {PathFactory} from "../../src/path/module";
 import {ng1ViewsBuilder, ng1ViewConfigFactory} from "../../src/ng1/statebuilders/views";
@@ -66,7 +66,7 @@ describe('view', function() {
       let $view = new ViewService();
       $view.viewConfigFactory("ng1", ng1ViewConfigFactory);
       
-      path = PathFactory.bindResolveContexts([root, state].map(_state => new Node(_state, {})));
+      path = PathFactory.bindResolveContexts([root, state].map(_state => new PathNode(_state, {})));
       path = PathFactory.applyViewConfigs($view, path);
 
       ctx = new ResolveContext(path);

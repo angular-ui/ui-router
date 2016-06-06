@@ -14,7 +14,7 @@ import {TransitionOptions, TransitionHookOptions, TreeChanges, IHookRegistry, IH
 import {TransitionHook} from "./transitionHook";
 import {HookRegistry, matchState} from "./hookRegistry";
 import {HookBuilder} from "./hookBuilder";
-import {Node} from "../path/node";
+import {PathNode} from "../path/node";
 import {PathFactory} from "../path/pathFactory";
 import {State} from "../state/stateObject";
 import {TargetState} from "../state/targetState";
@@ -131,12 +131,12 @@ export class Transition implements IHookRegistry {
    *
    * If the target state is not valid, an error is thrown.
    *
-   * @param fromPath The path of [[Node]]s from which the transition is leaving.  The last node in the `fromPath`
+   * @param fromPath The path of [[PathNode]]s from which the transition is leaving.  The last node in the `fromPath`
    *        encapsulates the "from state".
    * @param targetState The target state and parameters being transitioned to (also, the transition options)
    * @param _transitionService The Transition Service instance
    */
-  constructor(fromPath: Node[], targetState: TargetState, private _transitionService: TransitionService) {
+  constructor(fromPath: PathNode[], targetState: TargetState, private _transitionService: TransitionService) {
     if (!targetState.valid()) {
       throw new Error(targetState.error());
     }
@@ -157,7 +157,7 @@ export class Transition implements IHookRegistry {
       new Resolvable('$transition$', () => this, this),
       new Resolvable('$stateParams', () => this.params(), this.params())
     ];
-    let rootNode: Node = this._treeChanges.to[0];
+    let rootNode: PathNode = this._treeChanges.to[0];
     rootNode.resolveContext.addResolvables(rootResolvables, rootNode.state)
   }
 
@@ -327,12 +327,12 @@ export class Transition implements IHookRegistry {
     // The redirected transition does not have to re-fetch the resolve.
     // ---------------------------------------------------------
 
-    const nodeIsReloading = (reloadState: State) => (node: Node) => {
+    const nodeIsReloading = (reloadState: State) => (node: PathNode) => {
       return reloadState && reloadState.includes[node.state.name];
     };
 
     // Find any "entering" nodes in the redirect path that match the original path and aren't being reloaded
-    let matchingEnteringNodes: Node[] = Node.matching(redirectEnteringNodes, originalEnteringNodes)
+    let matchingEnteringNodes: PathNode[] = PathNode.matching(redirectEnteringNodes, originalEnteringNodes)
         .filter(not(nodeIsReloading(targetState.options().reloadState)));
 
     // Use the existing (possibly pre-resolved) resolvables for the matching entering nodes.
@@ -348,7 +348,7 @@ export class Transition implements IHookRegistry {
     let {to, from} = this._treeChanges;
     if (this._options.reload || tail(to).state !== tail(from).state) return undefined;
 
-    let nodeSchemas: Param[][] = to.map((node: Node) => node.paramSchema);
+    let nodeSchemas: Param[][] = to.map((node: PathNode) => node.paramSchema);
     let [toValues, fromValues] = [to, from].map(path => path.map(x => x.paramValues));
     let tuples = arrayTuples(nodeSchemas, toValues, fromValues);
 

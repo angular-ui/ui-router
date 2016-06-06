@@ -1,6 +1,6 @@
 /** @module ng2 */ /** */
 import {State} from "../../state/stateObject";
-import {Node} from "../../path/node";
+import {PathNode} from "../../path/node";
 import {pick, forEach} from "../../common/common";
 import {ViewConfig} from "../../view/interface";
 import {Ng2ViewDeclaration} from "../interface";
@@ -39,7 +39,7 @@ export function ng2ViewsBuilder(state: State) {
 export class Ng2ViewConfig implements ViewConfig {
   loaded: boolean = true;
 
-  constructor(public node: Node, public viewDecl: Ng2ViewDeclaration) { }
+  constructor(public node: PathNode, public viewDecl: Ng2ViewDeclaration) { }
 
   load() {
     return services.$q.when(this);

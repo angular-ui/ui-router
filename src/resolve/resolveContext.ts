@@ -6,7 +6,7 @@ import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 import {Resolvables, ResolvePolicy, IOptions1} from "./interface";
 
-import {Node} from "../path/node";
+import {PathNode} from "../path/node";
 import {Resolvable} from "./resolvable";
 import {State} from "../state/stateObject";
 import {mergeR} from "../common/common";
@@ -20,15 +20,15 @@ interface Promises { [key: string]: Promise<any>; }
 
 export class ResolveContext {
 
-  private _nodeFor: (s: State) => Node;
-  private _pathTo: (s: State) => Node[];
+  private _nodeFor: (s: State) => PathNode;
+  private _pathTo: (s: State) => PathNode[];
 
-  constructor(private _path: Node[]) {
+  constructor(private _path: PathNode[]) {
     extend(this, {
-      _nodeFor(state: State): Node {
-        return <Node> find(this._path, propEq('state', state));
+      _nodeFor(state: State): PathNode {
+        return <PathNode> find(this._path, propEq('state', state));
       },
-      _pathTo(state: State): Node[] {
+      _pathTo(state: State): PathNode[] {
         return PathFactory.subPath(this._path, state);
       }
     });
@@ -62,7 +62,7 @@ export class ResolveContext {
     const path = (state ?  this._pathTo(state) : this._path);
     const last = tail(path);
 
-    return path.reduce((memo, node: Node) => {
+    return path.reduce((memo, node: PathNode) => {
       let omitProps = (node === last) ? options.omitOwnLocals : [];
 
       let filteredResolvables = node.resolvables
@@ -98,7 +98,7 @@ export class ResolveContext {
   // Returns a promise for an array of resolved path Element promises
   resolvePath(options: IOptions1 = {}): Promise<any> {
     trace.traceResolvePath(this._path, options);
-    const promiseForNode = (node: Node) => this.resolvePathElement(node.state, options);
+    const promiseForNode = (node: PathNode) => this.resolvePathElement(node.state, options);
     return services.$q.all(<any> map(this._path, promiseForNode)).then(all => all.reduce(mergeR, {}));
   }
 

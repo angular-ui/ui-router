@@ -1,4 +1,4 @@
-import {Node} from "../../src/path/node";
+import {PathNode} from "../../src/path/node";
 var module = angular.mock.module;
 import { UIRouter } from "../../src/core";
 import { RejectType, Rejection } from "../../src/transition/rejectFactory";
@@ -75,7 +75,7 @@ describe('transition', function () {
     queue.flush($state);
     makeTransition = function makeTransition(from, to, options) {
       let fromState = targetState(from).$state();
-      let fromPath = PathFactory.bindResolveContexts(fromState.path.map(state => new Node(state)));
+      let fromPath = PathFactory.bindResolveContexts(fromState.path.map(state => new PathNode(state)));
       return $transitions.create(fromPath, targetState(to, null, options));
     };
   }));

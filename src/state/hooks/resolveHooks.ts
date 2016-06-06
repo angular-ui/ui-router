@@ -30,7 +30,7 @@ export class ResolveHooks {
       return tail(<any[]> treeChanges.to).resolveContext.resolvePath(extend({ transition: $transition$ }, { resolvePolicy: EAGER }));
     }
 
-    /** Returns a function which pre-resolves any LAZY Resolvables for a Node in a Path */
+    /** Returns a function which pre-resolves any LAZY Resolvables for a [[PathNode]] in a Path */
     function $lazyResolveEnteringState(transition: Transition, injector, state: State) {
       let node = find(<any[]> treeChanges.entering, propEq('state', state));
 

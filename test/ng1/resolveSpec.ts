@@ -2,13 +2,12 @@ import "../testUtilsNg1.js";
 import "../matchers.ts";
 
 import {
-    ResolveContext, State, StateDeclaration, Node, PathFactory,
+    ResolveContext, State, StateDeclaration, PathNode, PathFactory,
     omit, map, pick, extend, forEach, prop, copy
 } from "../../src/ng1";
 
 import Spy = jasmine.Spy;
 import {tail} from "../../src/common/common";
-import {Node} from "../../src/path/node";
 
 let module = angular.mock.module;
 ///////////////////////////////////////////////
@@ -81,8 +80,8 @@ beforeEach(function () {
   }
 });
 
-function makePath(names: string[]): Node[] {
-  let nodes = map(names, name => new Node(statesMap[name]));
+function makePath(names: string[]): PathNode[] {
+  let nodes = map(names, name => new PathNode(statesMap[name]));
   return PathFactory.bindResolveContexts(nodes);
 }
 

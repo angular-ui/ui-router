@@ -8,19 +8,34 @@ import {Resolvable} from "../resolve/resolvable";
 import {ResolveContext} from "../resolve/resolveContext";
 import {ViewConfig} from "../view/interface";
 
-export class Node {
+/**
+ * A node in a [[TreeChanges]] path
+ *
+ * For a [[TreeChanges]] path, this class holds the stateful information for a single node in the path.
+ * Each PathNode corresponds to a state being entered, exited, or retained.
+ * The stateful information includes parameter values and resolve data.
+ */
+export class PathNode {
+  /** The state being entered, exited, or retained */
   public state: State;
+  /** The parameters declared on the state */
   public paramSchema: Param[];
+  /** The parameter values that belong to the state */
   public paramValues: { [key: string]: any };
-  public resolvables: Resolvable[];
-  public views: ViewConfig[];
+  /** A context object used in conjunction with [[resolvables]] to manage resolves */
   public resolveContext: ResolveContext;
+  /** The individual (stateful) resolvable objects that belong to the state */
+  public resolvables: Resolvable[];
+  /** The state's declared view configuration objects */
+  public views: ViewConfig[];
 
-  constructor(state: Node);
+  /** Creates a copy of a PathNode */
+  constructor(state: PathNode);
+  /** Creates a new (empty) PathNode for a State */
   constructor(state: State);
   constructor(state) {
-    if (state instanceof Node) {
-      let node: Node = state;
+    if (state instanceof PathNode) {
+      let node: PathNode = state;
       this.state = node.state;
       this.paramSchema = node.paramSchema.slice();
       this.paramValues = extend({}, node.paramValues);
@@ -35,23 +50,30 @@ export class Node {
     }
   }
 
-  applyRawParams(params: RawParams): Node {
+  /** Sets [[paramValues]] for the node, from the values of an object hash */
+  applyRawParams(params: RawParams): PathNode {
     const getParamVal = (paramDef: Param) => [ paramDef.id, paramDef.value(params[paramDef.id]) ];
     this.paramValues = this.paramSchema.reduce((memo, pDef) => applyPairs(memo, getParamVal(pDef)), {});
     return this;
   }
 
+  /** Gets a specific [[Param]] metadata that belongs to the node */
   parameter(name: string): Param {
     return find(this.paramSchema, propEq("id", name));
   }
 
-  equals(node: Node, keys = this.paramSchema.map(prop('id'))): boolean {
+  /**
+   * @returns true if the state and parameter values for another PathNode are
+   * equal to the state and param values for this PathNode
+   */
+  equals(node: PathNode, keys = this.paramSchema.map(prop('id'))): boolean {
     const paramValsEq = key => this.parameter(key).type.equals(this.paramValues[key], node.paramValues[key]);
     return this.state === node.state && keys.map(paramValsEq).reduce(allTrueR, true);
   }
 
-  static clone(node: Node) {
-    return new Node(node);
+  /** Returns a clone of the PathNode */
+  static clone(node: PathNode) {
+    return new PathNode(node);
   }
 
   /**
@@ -60,17 +82,17 @@ export class Node {
    * The new path starts from root and contains any nodes that match the nodes in the second path.
    * Nodes are compared using their state property and parameter values.
    */
-  static matching(pathA: Node[], pathB: Node[]): Node[] {
+  static matching(pathA: PathNode[], pathB: PathNode[]): PathNode[] {
     let matching = [];
-    
+
     for (let i = 0; i < pathA.length && i < pathB.length; i++) {
       let a = pathA[i], b = pathB[i];
-      
+
       if (a.state !== b.state) break;
       if (!Param.equals(a.paramSchema, a.paramValues, b.paramValues)) break;
       matching.push(a);
     }
-    
+
     return matching
   }
 }

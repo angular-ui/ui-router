@@ -1,5 +1,5 @@
 import {
-    UIRouter, TransitionService, StateService, State, Node, tail, PathFactory
+    UIRouter, TransitionService, StateService, State, PathNode, tail, PathFactory
 } from "../../src/core";
 
 import {tree2Array} from "../stateHelper.ts";
@@ -45,7 +45,7 @@ describe('HookBuilder:', function() {
 
     // Transition from 'A' to 'A.B.C'
     let A = $state.target('A', null).$state();
-    let path = [new Node(root), new Node(A)];
+    let path = [new PathNode(root), new PathNode(A)];
     path = PathFactory.bindResolveContexts(path);
     trans = $trans.create(path, $state.target("A.B.C", null));
     hb = trans.hookBuilder();
@@ -55,7 +55,7 @@ describe('HookBuilder:', function() {
     let A = $state.target('A', null).$state();
     let B = $state.target('A.B', null).$state();
     let C = $state.target('A.B.C', null).$state();
-    let fromPath = [new Node(root), new Node(A), new Node(B), new Node(C)];
+    let fromPath = [new PathNode(root), new PathNode(A), new PathNode(B), new PathNode(C)];
     fromPath = PathFactory.bindResolveContexts(fromPath);
     trans2 = $trans.create(fromPath, $state.target("A", null));
     hb2 = trans2.hookBuilder();

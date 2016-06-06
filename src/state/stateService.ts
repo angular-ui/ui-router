@@ -5,7 +5,7 @@ import {Queue} from "../common/queue";
 import {services} from "../common/coreservices";
 
 import {PathFactory} from "../path/pathFactory";
-import {Node} from "../path/node";
+import {PathNode} from "../path/node";
 
 import {ViewService} from "../view/view";
 
@@ -59,7 +59,7 @@ export class StateService {
    * If a callback returns an TargetState, then it is used as arguments to $state.transitionTo() and
    * the result returned.
    */
-  private _handleInvalidTargetState(fromPath: Node[], $to$: TargetState) {
+  private _handleInvalidTargetState(fromPath: PathNode[], $to$: TargetState) {
     const latestThing = () => this.globals.transitionHistory.peekTail();
     let latest = latestThing();
     let $from$ = PathFactory.makeTargetState(fromPath);
@@ -275,8 +275,8 @@ export class StateService {
 
     let ref: TargetState = this.target(to, toParams, options);
     let latestSuccess: Transition = this.globals.successfulTransitions.peekTail();
-    const rootPath = () => PathFactory.bindResolveContexts([new Node(this.stateRegistry.root())]);
-    let currentPath: Node[] = latestSuccess ? latestSuccess.treeChanges().to : rootPath();
+    const rootPath = () => PathFactory.bindResolveContexts([new PathNode(this.stateRegistry.root())]);
+    let currentPath: PathNode[] = latestSuccess ? latestSuccess.treeChanges().to : rootPath();
 
     if (!ref.exists())
       return this._handleInvalidTargetState(currentPath, ref);

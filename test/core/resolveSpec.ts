@@ -3,7 +3,7 @@
 import "../matchers.ts"
 
 import {
-    ResolveContext, State, Node, PathFactory
+    ResolveContext, State, PathNode, PathFactory
 } from "../../src/core";
 
 import {
@@ -82,8 +82,8 @@ beforeEach(function () {
   }
 });
 
-function makePath(names: string[]): Node[] {
-  let nodes = map(names, name => new Node(statesMap[name]));
+function makePath(names: string[]): PathNode[] {
+  let nodes = map(names, name => new PathNode(statesMap[name]));
   return PathFactory.bindResolveContexts(nodes);
 }
 

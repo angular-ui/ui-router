@@ -1,7 +1,7 @@
 /** @module transition */ /** for typedoc */
 import {extend, removeFrom, allTrueR, tail} from "../common/common";
 import {isString, isFunction} from "../common/predicates";
-import {Node} from "../path/node";
+import {PathNode} from "../path/node";
 import {TransitionStateHookFn, TransitionHookFn} from "./interface";
 
 import {
@@ -54,7 +54,7 @@ export class EventHook implements IEventHook {
     this.bind = options.bind || null;
   }
 
-  private static _matchingNodes(nodes: Node[], criterion: HookMatchCriterion): Node[] {
+  private static _matchingNodes(nodes: PathNode[], criterion: HookMatchCriterion): PathNode[] {
     if (criterion === true) return nodes;
     let matching = nodes.filter(node => matchState(node.state, criterion));
     return matching.length ? matching : null;
@@ -64,7 +64,7 @@ export class EventHook implements IEventHook {
    * Determines if this hook's [[matchCriteria]] match the given [[TreeChanges]]
    *
    * @returns an IMatchingNodes object, or null. If an IMatchingNodes object is returned, its values
-   * are the matching [[Node]]s for each [[HookMatchCriterion]] (to, from, exiting, retained, entering)
+   * are the matching [[PathNode]]s for each [[HookMatchCriterion]] (to, from, exiting, retained, entering)
    */
   matches(treeChanges: TreeChanges): IMatchingNodes {
     let mc = this.matchCriteria, _matchingNodes = EventHook._matchingNodes;

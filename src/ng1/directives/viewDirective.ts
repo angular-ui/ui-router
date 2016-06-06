@@ -9,7 +9,7 @@ import {TransitionService} from "../../transition/transitionService";
 import {parse} from "../../common/hof";
 import {ResolveContext} from "../../resolve/resolveContext";
 import {Transition} from "../../transition/transition";
-import {Node} from "../../path/node";
+import {PathNode} from "../../path/node";
 import {Param} from "../../params/param";
 import {kebobString} from "../../common/strings";
 import {HookRegOptions} from "../../transition/interface";
@@ -401,8 +401,8 @@ function registerControllerCallbacks($transitions: TransitionService, controller
 
       let toParams = $transition$.params("to");
       let fromParams = $transition$.params("from");
-      let toSchema: Param[] = $transition$.treeChanges().to.map((node: Node) => node.paramSchema).reduce(unnestR, []);
-      let fromSchema: Param[] = $transition$.treeChanges().from.map((node: Node) => node.paramSchema).reduce(unnestR, []);
+      let toSchema: Param[] = $transition$.treeChanges().to.map((node: PathNode) => node.paramSchema).reduce(unnestR, []);
+      let fromSchema: Param[] = $transition$.treeChanges().from.map((node: PathNode) => node.paramSchema).reduce(unnestR, []);
 
       // Find the to params that have different values than the from params
       let changedToParams = toSchema.filter((param: Param) => {

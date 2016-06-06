@@ -4,7 +4,7 @@ import {Predicate} from "../common/common";
 
 import {Transition} from "./transition";
 import {State} from "../state/stateObject";
-import {Node} from "../path/node";
+import {PathNode} from "../path/node";
 import {TargetState} from "../state/targetState";
 import {UIRInjector} from "../common/interface";
 
@@ -97,15 +97,17 @@ export interface TransitionHookOptions {
 /**
  * TreeChanges encapsulates the various Paths that are involved in a Transition.
  *
+ * Get a TreeChanges object using [[Transition.treeChanges]]
+ *
  * A UI-Router Transition is from one Path in a State Tree to another Path.  For a given Transition,
  * this object stores the "to" and "from" paths, as well as subsets of those: the "retained",
  * "exiting" and "entering" paths.
  *
- * Each path in TreeChanges is an array of [[Node]] objects. Each Node in the array corresponds to a portion
+ * Each path in TreeChanges is an array of [[PathNode]] objects. Each PathNode in the array corresponds to a portion
  * of a nested state.
  *
  * For example, if you had a nested state named `foo.bar.baz`, it would have three
- * portions, `foo, bar, baz`.  If you transitioned **to** `foo.bar.baz` and inspected the TreeChanges.to
+ * portions, `foo, bar, baz`.  If you transitioned **to** `foo.bar.baz` and inspected the [[TreeChanges.to]]
  * Path, you would find a node in the array for each portion: `foo`, `bar`, and `baz`.
  *
  * ---
@@ -114,13 +116,13 @@ export interface TransitionHookOptions {
  */
 export interface TreeChanges {
   /** @nodoc */
-  [key: string]: Node[];
+  [key: string]: PathNode[];
 
   /** The path of nodes in the state tree that the transition is coming *from* */
-  from: Node[];
+  from: PathNode[];
 
   /** The path of nodes in the state tree that the transition is going *to* */
-  to: Node[];
+  to: PathNode[];
 
   /**
    * The path of active nodes that the transition is retaining.
@@ -128,7 +130,7 @@ export interface TreeChanges {
    * These nodes are neither exited, nor entered.
    * Before and after the transition is successful, these nodes are active.
    */
-  retained: Node[];
+  retained: PathNode[];
 
   /**
    * The path of previously active nodes that the transition is exiting.
@@ -138,7 +140,7 @@ export interface TreeChanges {
    * Note that a state that is being reloaded (due to parameter values changing, or `reload: true`) may be in both the
    * `exiting` and `entering` paths.
    */
-  exiting: Node[];
+  exiting: PathNode[];
 
   /**
    * The path of nodes that the transition is entering.
@@ -150,7 +152,7 @@ export interface TreeChanges {
    * Note that a state that is reloaded (due to parameter values changing, or `reload: true`) may be in both the
    * `exiting` and `entering` paths.
    */
-  entering: Node[];
+  entering: PathNode[];
 }
 
 export type IErrorHandler = (error: Error) => void;
@@ -730,11 +732,11 @@ export interface HookMatchCriteria {
 }
 
 export interface IMatchingNodes {
-  to: Node[];
-  from: Node[];
-  exiting: Node[];
-  retained: Node[];
-  entering: Node[];
+  to: PathNode[];
+  from: PathNode[];
+  exiting: PathNode[];
+  retained: PathNode[];
+  entering: PathNode[];
 }
 
 /**

@@ -8,7 +8,7 @@ import {TransitionOptions, TransitionHookOptions, IHookRegistry, TreeChanges, IE
 import {Transition} from "./transition";
 import {TransitionHook} from "./transitionHook";
 import {State} from "../state/stateObject";
-import {Node} from "../path/node";
+import {PathNode} from "../path/node";
 import {TransitionService} from "./transitionService";
 
 /**
@@ -64,12 +64,12 @@ export class HookBuilder {
    * Returns an array of newly built TransitionHook objects.
    *
    * - Finds all IEventHooks registered for the given `hookType` which matched the transition's [[TreeChanges]].
-   * - Finds [[Node]] (or `Node[]`) to use as the TransitionHook context(s)
-   * - For each of the [[Node]]s, creates a TransitionHook
+   * - Finds [[PathNode]] (or `PathNode[]`) to use as the TransitionHook context(s)
+   * - For each of the [[PathNode]]s, creates a TransitionHook
    *
    * @param hookType the name of the hook registration function, e.g., 'onEnter', 'onFinish'.
-   * @param matchingNodesProp selects which [[Node]]s from the [[IMatchingNodes]] object to create hooks for.
-   * @param getLocals a function which accepts a [[Node]] and returns additional locals to provide to the hook as injectables
+   * @param matchingNodesProp selects which [[PathNode]]s from the [[IMatchingNodes]] object to create hooks for.
+   * @param getLocals a function which accepts a [[PathNode]] and returns additional locals to provide to the hook as injectables
    * @param sortHooksFn a function which compares two HookTuple and returns <1, 0, or >1
    * @param options any specific Transition Hook Options
    */
@@ -85,8 +85,8 @@ export class HookBuilder {
      const makeTransitionHooks = (hook: IEventHook) => {
       // Fetch the Nodes that caused this hook to match.
       let matches: IMatchingNodes = hook.matches(this.treeChanges);
-      // Select the Node[] that will be used as TransitionHook context objects
-      let nodes: Node[] = matches[matchingNodesProp];
+      // Select the PathNode[] that will be used as TransitionHook context objects
+      let nodes: PathNode[] = matches[matchingNodesProp];
 
       // Return an array of HookTuples
       return nodes.map(node => {
@@ -123,12 +123,12 @@ export class HookBuilder {
   }
 }
 
-interface HookTuple { hook: IEventHook, node: Node, transitionHook: TransitionHook }
+interface HookTuple { hook: IEventHook, node: PathNode, transitionHook: TransitionHook }
 
 /**
  * A factory for a sort function for HookTuples.
  *
- * The sort function first compares the Node depth (how deep in the state tree a node is), then compares
+ * The sort function first compares the PathNode depth (how deep in the state tree a node is), then compares
  * the EventHook priority.
  *
  * @param reverseDepthSort a boolean, when true, reverses the sort order for the node depth

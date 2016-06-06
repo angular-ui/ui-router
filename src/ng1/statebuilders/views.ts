@@ -8,7 +8,7 @@ import {ViewService} from "../../view/view";
 import {isInjectable, isDefined, isString, isObject} from "../../common/predicates";
 import {services} from "../../common/coreservices";
 import {trace} from "../../common/trace";
-import {Node} from "../../path/node";
+import {PathNode} from "../../path/node";
 import {TemplateFactory} from "../templateFactory";
 import {ResolveContext} from "../../resolve/resolveContext";
 
@@ -104,7 +104,7 @@ export class Ng1ViewConfig implements ViewConfig {
   template: string;
   locals: any; // TODO: delete me
 
-  constructor(public node: Node, public viewDecl: Ng1ViewDeclaration) { }
+  constructor(public node: PathNode, public viewDecl: Ng1ViewDeclaration) { }
 
   load() {
     let $q = services.$q;

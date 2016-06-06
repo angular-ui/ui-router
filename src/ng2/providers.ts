@@ -48,7 +48,7 @@
  */ /** */
 import {Provider, provide} from "@angular/core";
 import {UIRouter} from "../router";
-import {Node} from "../path/node";
+import {PathNode} from "../path/node";
 import {StateRegistry} from "../state/stateRegistry";
 import {StateService} from "../state/stateService";
 import {TransitionService} from "../transition/transitionService";
@@ -67,7 +67,7 @@ let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation)
 
   location.init();
 
-  router.viewService.viewConfigFactory("ng2", (node: Node, config: Ng2ViewDeclaration) => new Ng2ViewConfig(node, config));
+  router.viewService.viewConfigFactory("ng2", (node: PathNode, config: Ng2ViewDeclaration) => new Ng2ViewConfig(node, config));
   router.stateRegistry.decorator('views', ng2ViewsBuilder);
 
   router.stateRegistry.stateQueue.autoFlush(router.stateService);

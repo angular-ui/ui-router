@@ -10,7 +10,7 @@ import {_ViewDeclaration} from "../state/interface";
 
 import {State} from "../state/stateObject";
 import {TargetState} from "../state/targetState";
-import {Node} from "../path/node";
+import {PathNode} from "../path/node";
 import {ResolveContext} from "../resolve/resolveContext";
 import {ViewService} from "../view/view";
 
@@ -21,20 +21,20 @@ export class PathFactory {
 
   constructor() { }
 
-  /** Given a Node[], create an TargetState */
-  static makeTargetState(path: Node[]): TargetState {
+  /** Given a PathNode[], create an TargetState */
+  static makeTargetState(path: PathNode[]): TargetState {
     let state = tail(path).state;
     return new TargetState(state, state, path.map(prop("paramValues")).reduce(mergeR, {}));
   }
 
   static buildPath(targetState: TargetState) {
     let toParams = targetState.params();
-    return targetState.$state().path.map(state => new Node(state).applyRawParams(toParams));
+    return targetState.$state().path.map(state => new PathNode(state).applyRawParams(toParams));
   }
 
-  /** Given a fromPath: Node[] and a TargetState, builds a toPath: Node[] */
-  static buildToPath(fromPath: Node[], targetState: TargetState): Node[] {
-    let toPath: Node[] = PathFactory.buildPath(targetState);
+  /** Given a fromPath: PathNode[] and a TargetState, builds a toPath: PathNode[] */
+  static buildToPath(fromPath: PathNode[], targetState: TargetState): PathNode[] {
+    let toPath: PathNode[] = PathFactory.buildPath(targetState);
     if (targetState.options().inherit) {
       return PathFactory.inheritParams(fromPath, toPath, Object.keys(targetState.params()));
     }
@@ -44,9 +44,9 @@ export class PathFactory {
   /**
    * Creates ViewConfig objects and adds to nodes.
    *
-   * On each Node, creates ViewConfig objects from the views: property of the node's state
+   * On each [[PathNode]], creates ViewConfig objects from the views: property of the node's state
    */
-  static applyViewConfigs($view: ViewService, path: Node[]) {
+  static applyViewConfigs($view: ViewService, path: PathNode[]) {
     return path.map(node => {
       let viewDecls: _ViewDeclaration[] = values(node.state.views || {});
       let viewConfigs: ViewConfig[][] = viewDecls.map(view => $view.createViewConfig(node, view));
@@ -66,17 +66,17 @@ export class PathFactory {
    * caller, for instance, $state.transitionTo(..., toParams).  If a key was found in toParams,
    * it is not inherited from the fromPath.
    */
-  static inheritParams(fromPath: Node[], toPath: Node[], toKeys: string[] = []): Node[] {
-    function nodeParamVals(path: Node[], state: State): RawParams {
-      let node: Node = find(path, propEq('state', state));
+  static inheritParams(fromPath: PathNode[], toPath: PathNode[], toKeys: string[] = []): PathNode[] {
+    function nodeParamVals(path: PathNode[], state: State): RawParams {
+      let node: PathNode = find(path, propEq('state', state));
       return extend({}, node && node.paramValues);
     }
 
     /**
-     * Given an Node "toNode", return a new Node with param values inherited from the
+     * Given an [[PathNode]] "toNode", return a new [[PathNode]] with param values inherited from the
      * matching node in fromPath.  Only inherit keys that aren't found in "toKeys" from the node in "fromPath""
      */
-    function makeInheritedParamsNode(toNode: Node): Node {
+    function makeInheritedParamsNode(toNode: PathNode): PathNode {
       // All param values for the node (may include default key/vals, when key was not found in toParams)
       let toParamVals = extend({}, toNode && toNode.paramValues);
       // limited to only those keys found in toParams
@@ -85,20 +85,20 @@ export class PathFactory {
       let fromParamVals = nodeParamVals(fromPath, toNode.state) || {};
       // extend toParamVals with any fromParamVals, then override any of those those with incomingParamVals
       let ownParamVals: RawParams = extend(toParamVals, fromParamVals, incomingParamVals);
-      return new Node(toNode.state).applyRawParams(ownParamVals);
+      return new PathNode(toNode.state).applyRawParams(ownParamVals);
     }
 
     // The param keys specified by the incoming toParams
-    return <Node[]> toPath.map(makeInheritedParamsNode);
+    return <PathNode[]> toPath.map(makeInheritedParamsNode);
   }
 
   /**
    * Given a path of nodes, creates and binds a ResolveContext to each node.
    * The ResolveContext is used to inject functions from the proper scoping in the resolve tree.
    */
-  static bindResolveContexts(resolvePath: Node[]): Node[] {
+  static bindResolveContexts(resolvePath: PathNode[]): PathNode[] {
     let resolveContext = new ResolveContext(resolvePath);
-    return resolvePath.map((node: Node) => {
+    return resolvePath.map((node: PathNode) => {
       node.resolveContext = resolveContext.isolateRootTo(node.state);
       return node;
     });
@@ -107,23 +107,23 @@ export class PathFactory {
   /**
    * Computes the tree changes (entering, exiting) between a fromPath and toPath.
    */
-  static treeChanges(fromPath: Node[], toPath: Node[], reloadState: State): TreeChanges {
+  static treeChanges(fromPath: PathNode[], toPath: PathNode[], reloadState: State): TreeChanges {
     let keep = 0, max = Math.min(fromPath.length, toPath.length);
     const staticParams = (state) => state.parameters({ inherit: false }).filter(not(prop('dynamic'))).map(prop('id'));
-    const nodesMatch = (node1: Node, node2: Node) => node1.equals(node2, staticParams(node1.state));
+    const nodesMatch = (node1: PathNode, node2: PathNode) => node1.equals(node2, staticParams(node1.state));
 
     while (keep < max && fromPath[keep].state !== reloadState && nodesMatch(fromPath[keep], toPath[keep])) {
       keep++;
     }
 
     /** Given a retained node, return a new node which uses the to node's param values */
-    function applyToParams(retainedNode: Node, idx: number): Node {
-      let cloned = Node.clone(retainedNode);
+    function applyToParams(retainedNode: PathNode, idx: number): PathNode {
+      let cloned = PathNode.clone(retainedNode);
       cloned.paramValues = toPath[idx].paramValues;
       return cloned;
     }
 
-    let from: Node[], retained: Node[], exiting: Node[], entering: Node[], to: Node[];
+    let from: PathNode[], retained: PathNode[], exiting: PathNode[], entering: PathNode[], to: PathNode[];
 
     from                  = fromPath;
     retained              = from.slice(0, keep);
@@ -143,10 +143,10 @@ export class PathFactory {
    * Given an array of nodes, returns a subset of the array starting from the first node, up to the
    * node whose state matches `stateName`
    *
-   * @param path a path of [[Node]]s
+   * @param path a path of [[PathNode]]s
    * @param state the [[State]] to stop at
    */
-  static subPath(path: Node[], state): Node[] {
+  static subPath(path: PathNode[], state): PathNode[] {
     let node = find(path, _node => _node.state === state);
     let elementIdx = path.indexOf(node);
     if (elementIdx === -1) throw new Error("The path does not contain the state: " + state);
@@ -154,5 +154,5 @@ export class PathFactory {
   }
 
   /** Gets the raw parameter values from a path */
-  static paramValues = (path: Node[]) => path.reduce((acc, node) => extend(acc, node.paramValues), {});
+  static paramValues = (path: PathNode[]) => path.reduce((acc, node) => extend(acc, node.paramValues), {});
 }
