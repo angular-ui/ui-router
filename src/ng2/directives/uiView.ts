@@ -1,20 +1,19 @@
 /** @module ng2_directives */ /** */
 import {
     Component, ComponentResolver, ComponentFactory,
-    ViewContainerRef, ReflectiveInjector
+    ViewContainerRef, ReflectiveInjector, InputMetadata, ComponentMetadata
 } from '@angular/core';
 import {provide} from "@angular/core";
 import {Input} from "@angular/core";
 import {ComponentRef} from "@angular/core";
 import {Type} from "@angular/core";
 
-import {UIRouter} from "../router";
-import {trace} from "../common/trace";
+import {UIRouter} from "../../router";
+import {trace} from "../../common/trace";
 import {Inject} from "@angular/core";
-import {ViewContext, ViewConfig} from "../view/interface";
-import {Ng2ViewDeclaration} from "./interface";
-import {ng2ComponentInputs} from "./componentUtil";
-import {Ng2ViewConfig} from "./viewsBuilder";
+import {ViewContext, ViewConfig} from "../../view/interface";
+import {Ng2ViewDeclaration} from "../interface";
+import {Ng2ViewConfig} from "../statebuilders/views";
 
 /** @hidden */
 let id = 0;
@@ -24,6 +23,34 @@ export interface ParentUiViewInject {
   context: ViewContext;
   fqn: string;
 }
+
+
+/** @hidden */
+const ng2ComponentInputs = (ng2CompClass) => {
+  /** Get "@Input('foo') _foo" inputs */
+  let props = Reflect['getMetadata']('propMetadata', ng2CompClass);
+  let _props = Object.keys(props || {})
+  // -> { string, anno[] } tuples
+      .map(key => ({ key, annoArr: props[key] }))
+      // -> to { string, anno } tuples
+      .reduce((acc, tuple) => acc.concat(tuple.annoArr.map(anno => ({ key: tuple.key, anno }))), [])
+      // Only Inputs
+      .filter(tuple => tuple.anno instanceof InputMetadata)
+      // If they have a bindingPropertyName, i.e. "@Input('foo') _foo", then foo, else _foo
+      .map(tuple => ({ resolve: tuple.anno.bindingPropertyName || tuple.key, prop: tuple.key }));
+
+  /** Get "inputs: ['foo']" inputs */
+  let inputs = Reflect['getMetadata']('annotations', ng2CompClass)
+  // Find the ComponentMetadata class annotation
+      .filter(x => x instanceof ComponentMetadata && !!x.inputs)
+      // Get the .inputs string array
+      .map(x => x.inputs)
+      // Flatten
+      .reduce((acc, arr) => acc.concat(arr), [])
+      .map(input => ({ resolve: input, prop: input }));
+
+  return _props.concat(inputs);
+};
 
 /**
  * A UI-Router viewport directive, which is filled in by a view (component) on a state.

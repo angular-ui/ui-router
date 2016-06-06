@@ -6,8 +6,7 @@ import {Transition} from "./transition";
 import {State} from "../state/stateObject";
 import {Node} from "../path/node";
 import {TargetState} from "../state/targetState";
-import IInjectorService = angular.auto.IInjectorService;
-import {Injector} from "@angular/core";
+import {UIRInjector} from "../common/interface";
 
 /**
  * The TransitionOptions object can be used to change the behavior of a transition.
@@ -182,7 +181,7 @@ export type IHookRegistration = (matchCriteria: HookMatchCriteria, callback: Hoo
  * - [[IHookRegistry.onError]]
  */
 export interface TransitionHookFn {
-  (transition: Transition, injector: (IInjectorService | Injector)) : HookResult
+  (transition: Transition, injector: UIRInjector) : HookResult
 }
 
 /**
@@ -207,7 +206,7 @@ export interface TransitionHookFn {
  * - [[IHookRegistry.onExit]]
  */
 export interface TransitionStateHookFn {
-  (transition: Transition, injector: (IInjectorService | Injector), state: State) : HookResult
+  (transition: Transition, injector: UIRInjector, state: State) : HookResult
 }
 
 export type HookFn = (TransitionHookFn|TransitionStateHookFn);

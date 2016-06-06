@@ -1,11 +1,11 @@
 /** @module ng2 */ /** */
-import {State} from "../state/stateObject";
-import {Node} from "../path/node";
-import {pick, forEach} from "../common/common";
-import {ViewConfig} from "../view/interface";
-import {Ng2ViewDeclaration} from "./interface";
-import {services} from "../common/coreservices";
-import {ViewService} from "../view/view";
+import {State} from "../../state/stateObject";
+import {Node} from "../../path/node";
+import {pick, forEach} from "../../common/common";
+import {ViewConfig} from "../../view/interface";
+import {Ng2ViewDeclaration} from "../interface";
+import {services} from "../../common/coreservices";
+import {ViewService} from "../../view/view";
 
 /**
  * This is a [[StateBuilder.builder]] function for angular2 `views`.

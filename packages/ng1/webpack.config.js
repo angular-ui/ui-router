@@ -12,8 +12,8 @@ module.exports = {
   entry: {
     "angular-ui-router": "./ng1.ts",
     "angular-ui-router.min": "./ng1.ts",
-    "stateEvents": "./ng1/stateEvents.ts",
-    "stateEvents.min": "./ng1/stateEvents.ts"
+    "stateEvents": "./ng1/legacy/stateEvents.ts",
+    "stateEvents.min": "./ng1/legacy/stateEvents.ts"
   },
 
   output: {

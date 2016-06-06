@@ -15,9 +15,9 @@ import {services} from "../../common/coreservices";
 export const getStateHookBuilder = (hookName) =>
 function stateHookBuilder(state: State, parentFn): TransitionStateHookFn {
   let hook = state[hookName];
-  if (!hook) return;
-  
-  return function decoratedNg1Hook(trans: Transition, inj: IInjectorService): HookResult {
-    services.$injector.invoke(hook, this, trans.resolves());
+  function decoratedNg1Hook(trans: Transition, inj: IInjectorService): HookResult {
+    return services.$injector.invoke(hook, this, trans.resolves());
   }
+
+  return hook ? decoratedNg1Hook : undefined;
 };

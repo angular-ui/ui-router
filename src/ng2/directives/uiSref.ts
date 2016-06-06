@@ -1,11 +1,11 @@
 /** @module ng2_directives */ /** */
-import {UIRouter} from "../router";
+import {UIRouter} from "../../router";
 import {Directive, Inject, Input} from "@angular/core";
 import {Optional} from "@angular/core";
 import {ElementRef} from "@angular/core";
 import {Renderer} from "@angular/core";
 import {UiView, ParentUiViewInject} from "./uiView";
-import {extend} from "../common/common";
+import {extend} from "../../common/common";
 
 /** @hidden */
 @Directive({ selector: 'a[uiSref]' })

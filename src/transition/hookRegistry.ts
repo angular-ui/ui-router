@@ -1,11 +1,11 @@
 /** @module transition */ /** for typedoc */
-import {IInjectable, extend, removeFrom, anyTrueR, allTrueR, tail} from "../common/common";
+import {extend, removeFrom, allTrueR, tail} from "../common/common";
 import {isString, isFunction} from "../common/predicates";
-import {val} from "../common/hof";
 import {Node} from "../path/node";
+import {TransitionStateHookFn, TransitionHookFn} from "./interface";
 
 import {
-    HookRegOptions, HookMatchCriteria, IStateMatch, IEventHook, IHookRegistry, IHookRegistration, TreeChanges,
+    HookRegOptions, HookMatchCriteria, IEventHook, IHookRegistry, IHookRegistration, TreeChanges,
     HookMatchCriterion, IMatchingNodes, HookFn
 } from "./interface";
 import {Glob} from "../common/glob";

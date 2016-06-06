@@ -7,9 +7,9 @@
  *
  * @preferred @module ng2_directives
  */ /** */
-import {UiSref, AnchorUiSref} from "../ng2/uiSref";
-import {UiSrefActive} from "../ng2/uiSrefActive";
-import {UiView} from "../ng2/uiView";
+import {UiSref, AnchorUiSref} from "./uiSref";
+import {UiSrefActive} from "./uiSrefActive";
+import {UiView} from "./uiView";
 import {UiSrefStatus} from "./uiSrefStatus";
 
 export * from "./uiView";

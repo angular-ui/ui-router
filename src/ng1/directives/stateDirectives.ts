@@ -5,10 +5,10 @@
  *
  * @preferred @module ng1_directives
  */ /** for typedoc */
-import {extend, forEach, toJson} from "../common/common";
-import {isString, isObject} from "../common/predicates";
+import {extend, forEach, toJson} from "../../common/common";
+import {isString, isObject} from "../../common/predicates";
 import {UIViewData} from "./viewDirective";
-import {parse} from "../common/hof";
+import {parse} from "../../common/hof";
 
 /** @hidden */
 function parseStateRef(ref, current) {

@@ -1,19 +1,19 @@
 /** @module ng1_directives */ /** for typedoc */
 "use strict";
-import {extend, map, unnestR, filter} from "../common/common";
-import {isDefined, isFunction, isString} from "../common/predicates";
-import {trace} from "../common/trace";
-import {ActiveUIView} from "../view/interface";
-import {Ng1ViewConfig} from "./statebuilders/views";
-import {TransitionService} from "../transition/transitionService";
-import {parse} from "../common/hof";
-import {ResolveContext} from "../resolve/resolveContext";
-import {Transition} from "../transition/transition";
-import {Node} from "../path/node";
-import {Param} from "../params/param";
-import {kebobString} from "../common/strings";
-import {HookRegOptions} from "../transition/interface";
-import {Ng1Controller} from "./interface";
+import {extend, map, unnestR, filter} from "../../common/common";
+import {isDefined, isFunction, isString} from "../../common/predicates";
+import {trace} from "../../common/trace";
+import {ActiveUIView} from "../../view/interface";
+import {Ng1ViewConfig} from "../statebuilders/views";
+import {TransitionService} from "../../transition/transitionService";
+import {parse} from "../../common/hof";
+import {ResolveContext} from "../../resolve/resolveContext";
+import {Transition} from "../../transition/transition";
+import {Node} from "../../path/node";
+import {Param} from "../../params/param";
+import {kebobString} from "../../common/strings";
+import {HookRegOptions} from "../../transition/interface";
+import {Ng1Controller} from "../interface";
 
 /** @hidden */
 export type UIViewData = {

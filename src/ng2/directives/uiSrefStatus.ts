@@ -1,17 +1,17 @@
 /** @module ng2_directives */ /** */
 import {Directive, Output, EventEmitter} from "@angular/core";
-import {StateService} from "../state/stateService";
+import {StateService} from "../../state/stateService";
 import {UiSref} from "./uiSref";
-import {Node} from "../path/node";
-import {TransitionService} from "../transition/transitionService";
-import {Transition} from "../transition/transition";
-import {TargetState} from "../state/targetState";
-import {TreeChanges} from "../transition/interface";
-import {State} from "../state/stateObject";
-import {anyTrueR, tail, unnestR} from "../common/common";
-import {UIRouterGlobals} from "../globals";
-import {Param} from "../params/param";
-import {PathFactory} from "../path/pathFactory";
+import {Node} from "../../path/node";
+import {TransitionService} from "../../transition/transitionService";
+import {Transition} from "../../transition/transition";
+import {TargetState} from "../../state/targetState";
+import {TreeChanges} from "../../transition/interface";
+import {State} from "../../state/stateObject";
+import {anyTrueR, tail, unnestR} from "../../common/common";
+import {UIRouterGlobals} from "../../globals";
+import {Param} from "../../params/param";
+import {PathFactory} from "../../path/pathFactory";
 
 /**
  * uiSref status booleans 
