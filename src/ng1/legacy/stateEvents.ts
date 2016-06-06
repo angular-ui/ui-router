@@ -17,10 +17,10 @@
  * @module ng1_state_events
  */ /** */
 import {IServiceProviderFactory} from "angular";
-import {TargetState} from "../state/targetState";
-import {StateService} from "../state/stateService";
-import {StateProvider} from "../state/state";
-import {Transition} from "../transition/transition";
+import {TargetState} from "../../state/targetState";
+import {StateService} from "../../state/stateService";
+import {StateProvider} from "../../state/state";
+import {Transition} from "../../transition/transition";
 
 /**
  * An event broadcast on `$rootScope` when the state transition **begins**.
