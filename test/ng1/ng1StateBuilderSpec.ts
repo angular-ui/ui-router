@@ -1,4 +1,5 @@
 import {StateBuilder, StateMatcher, ng1ResolveBuilder, ng1ViewsBuilder} from "../../src/ng1";
+import {Resolvable} from "../../src/resolve/resolvable";
 
 describe('Ng1 StateBuilder', function() {
   var builder, matcher, urlMatcherFactoryProvider: any = {
@@ -32,7 +33,7 @@ describe('Ng1 StateBuilder', function() {
     var config = { resolve: { foo: "bar" } };
     var locals = { "bar": 123 };
     expect(builder.builder('resolve')).toBeDefined();
-    var built = builder.builder('resolve')(config);
-    expect($injector.invoke(built.foo, null, locals)).toBe(123);
+    var built: Resolvable[] = builder.builder('resolve')(config);
+    expect($injector.invoke(built[0].resolveFn, null, locals)).toBe(123);
   }));
 });

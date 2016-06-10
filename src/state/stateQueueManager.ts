@@ -23,7 +23,7 @@ export class StateQueueManager {
     // @TODO: state = new State(extend({}, config, { ... }))
     let state = inherit(new State(), extend({}, config, {
       self: config,
-      resolve: config.resolve || {},
+      resolve: config.resolve || [],
       toString: () => config.name
     }));
 

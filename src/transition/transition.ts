@@ -154,8 +154,8 @@ export class Transition implements IHookRegistry {
     PathFactory.bindResolveContexts(this._treeChanges.to);
 
     let rootResolvables: Resolvable[] = [
-      new Resolvable('$transition$', () => this, this),
-      new Resolvable('$stateParams', () => this.params(), this.params())
+      new Resolvable('$transition$', () => this, [], this),
+      new Resolvable('$stateParams', () => this.params(), [], this.params())
     ];
     let rootNode: PathNode = this._treeChanges.to[0];
     rootNode.resolveContext.addResolvables(rootResolvables, rootNode.state)
@@ -223,16 +223,16 @@ export class Transition implements IHookRegistry {
   }
 
   /**
-   * Adds new resolves to this transition.
+   * Adds a new [[Resolvable]] (`resolve`) to this transition.
    *
-   * @param resolves an [[ResolveDeclarations]] object which describes the new resolves
-   * @param state the state in the "to path" which should receive the new resolves (otherwise, the root state)
+   * @param resolvable an [[Resolvable]] object
+   * @param state the state in the "to path" which should receive the new resolve (otherwise, the root state)
    */
-  addResolves(resolves: { [key: string]: Function }, state: StateOrName = ""): void {
+  addResolvable(resolvable: Resolvable, state: StateOrName = ""): void {
     let stateName: string = (typeof state === "string") ? state : state.name;
     let topath = this._treeChanges.to;
     let targetNode = find(topath, node => node.state.name === stateName);
-    tail(topath).resolveContext.addResolvables(Resolvable.makeResolvables(resolves), targetNode.state);
+    tail(topath).resolveContext.addResolvables([resolvable], targetNode.state);
   }
 
   /**

@@ -31,7 +31,7 @@ describe('view', function() {
   let registerState = curry(function(_states, stateBuilder, config) {
     let state = inherit(new State(), extend({}, config, {
       self: config,
-      resolve: config.resolve || {}
+      resolve: config.resolve || []
     }));
     let built: State  = stateBuilder.build(state);
     return _states[built.name] = built;

@@ -1,7 +1,4 @@
-import {omit} from "../src/common/common";
-import {pick} from "../src/common/common";
-import {extend} from "../src/common/common";
-import {forEach} from "../src/common/common";
+import {pick, extend, forEach, omit} from "../src/core";
 
 let stateProps = ["resolve", "resolvePolicy", "data", "template", "templateUrl", "url", "name", "params"];
 

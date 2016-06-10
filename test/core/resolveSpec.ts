@@ -3,7 +3,7 @@
 import "../matchers.ts"
 
 import {
-    ResolveContext, State, PathNode, PathFactory
+    ResolveContext, State, PathNode, PathFactory, Resolvable
 } from "../../src/core";
 
 import {
@@ -11,6 +11,7 @@ import {
 } from "../../src/core";
 
 import Spy = jasmine.Spy;
+import {services} from "../../src/common/coreservices";
 
 ///////////////////////////////////////////////
 
@@ -66,7 +67,11 @@ beforeEach(function () {
   function loadStates(parent, state, name) {
     var thisState = pick.apply(null, [state].concat(stateProps));
     var substates = omit.apply(null, [state].concat(stateProps));
+    var resolve = thisState.resolve || {};
+    var injector = services.$injector;
 
+    thisState.resolve = Object.keys(resolve)
+        .map(key => new Resolvable(key, resolve[key], injector.annotate(resolve[key])));
     thisState.template = thisState.template || "empty";
     thisState.name = name;
     thisState.parent = parent.name;

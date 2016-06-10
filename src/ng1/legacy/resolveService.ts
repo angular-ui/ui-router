@@ -1,8 +1,8 @@
 import {State} from "../../state/stateObject";
 import {PathNode} from "../../path/node";
 import {ResolveContext} from "../../resolve/resolveContext";
-import {Resolvable} from "../../resolve/resolvable";
 import {map} from "../../common/common";
+import {makeResolvables} from "../statebuilders/resolve";
 
 export const resolveFactory = () => ({
   /**
@@ -12,14 +12,14 @@ export const resolveFactory = () => ({
    * @param parent a promise for a "parent resolve"
    */
   resolve: (invocables, locals = {}, parent?) => {
-    let parentNode = new PathNode(new State(<any> { params: {} }));
-    let node = new PathNode(new State(<any> { params: {} }));
+    let parentNode = new PathNode(new State(<any> { params: {}, resolve: [] }));
+    let node = new PathNode(new State(<any> { params: {}, resolve: [] }));
     let context = new ResolveContext([parentNode, node]);
 
-    context.addResolvables(Resolvable.makeResolvables(invocables), node.state);
+    context.addResolvables(makeResolvables(invocables), node.state);
 
     const resolveData = (parentLocals) => {
-      const rewrap = _locals => Resolvable.makeResolvables(<any> map(_locals, local => () => local));
+      const rewrap = _locals => makeResolvables(<any> map(_locals, local => () => local));
       context.addResolvables(rewrap(parentLocals), parentNode.state);
       context.addResolvables(rewrap(locals), node.state);
       return context.resolvePath();

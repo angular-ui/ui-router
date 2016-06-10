@@ -66,8 +66,8 @@ export class ResolveContext {
       let omitProps = (node === last) ? options.omitOwnLocals : [];
 
       let filteredResolvables = node.resolvables
-          .filter(r => omitProps.indexOf(r.name) === -1)
-          .reduce((acc, r) => { acc[r.name] = r; return acc; }, {});
+          .filter(r => omitProps.indexOf(r.token) === -1)
+          .reduce((acc, r) => { acc[r.token] = r; return acc; }, {});
 
       return extend(memo, filteredResolvables);
     }, <Resolvables> {});
@@ -85,14 +85,14 @@ export class ResolveContext {
   
   addResolvables(newResolvables: Resolvable[], state: State) {
     var node = this._nodeFor(state);
-    var keys = newResolvables.map(r => r.name);
-    node.resolvables = node.resolvables.filter(r => keys.indexOf(r.name) === -1).concat(newResolvables);
+    var keys = newResolvables.map(r => r.token);
+    node.resolvables = node.resolvables.filter(r => keys.indexOf(r.token) === -1).concat(newResolvables);
   }
   
   /** Gets the resolvables declared on a particular state */
   getOwnResolvables(state: State): Resolvables {
     return this._nodeFor(state).resolvables
-        .reduce((acc, r) => { acc[r.name] = r; return acc; }, <Resolvables>{});
+        .reduce((acc, r) => { acc[r.token] = r; return acc; }, <Resolvables>{});
   }
    
   // Returns a promise for an array of resolved path Element promises
@@ -200,6 +200,6 @@ function getPolicy(stateResolvePolicyConf, resolvable: Resolvable): number {
   // Normalize the configuration on the state to either state-level (a string) or resolve-level (a Map of string:string)
   let stateLevelPolicy: string = <string> (isString(stateResolvePolicyConf) ? stateResolvePolicyConf : null);
   let resolveLevelPolicies: IPolicies = <any> (isObject(stateResolvePolicyConf) ? stateResolvePolicyConf : {});
-  let policyName = resolveLevelPolicies[resolvable.name] || stateLevelPolicy || defaultResolvePolicy;
+  let policyName = resolveLevelPolicies[resolvable.token] || stateLevelPolicy || defaultResolvePolicy;
   return ResolvePolicy[policyName];  
 }

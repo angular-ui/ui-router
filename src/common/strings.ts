@@ -65,10 +65,10 @@ export function fnToString(fn: IInjectable) {
   return _fn && _fn.toString() || "undefined";
 }
 
-const isTransitionRejectionPromise = Rejection.isTransitionRejectionPromise;
-
 let stringifyPatternFn = null;
 let stringifyPattern = function(value) {
+  let isTransitionRejectionPromise = Rejection.isTransitionRejectionPromise;
+
   stringifyPatternFn = stringifyPatternFn || pattern([
     [not(isDefined),                  val("undefined")],
     [isNull,                          val("null")],

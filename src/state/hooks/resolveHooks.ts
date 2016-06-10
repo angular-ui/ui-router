@@ -36,14 +36,10 @@ export class ResolveHooks {
 
       // A new Resolvable contains all the resolved data in this context as a single object, for injection as `$resolve$`
       let context = node.resolveContext;
-      let $resolve$ = new Resolvable("$resolve$", () => map(context.getResolvables(), (r: Resolvable) => r.data));
       var options = extend({ transition: transition }, { resolvePolicy: LAZY });
 
-      // Resolve all the LAZY resolves, then resolve the `$resolve$` object, then add `$resolve$` to the context
-      // return context.resolvePathElement(node.state, options)
-      return context.resolvePath(options)
-          .then(() => $resolve$.resolveResolvable(context))
-          .then(() => context.addResolvables([$resolve$], node.state));
+      // Resolve all the LAZY resolves
+      return context.resolvePath(options);
     }
 
     // Resolve eager resolvables before when the transition starts

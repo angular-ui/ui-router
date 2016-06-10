@@ -4,6 +4,7 @@
  * @module common_hof
  */
 
+import {Predicate} from "./common";
 /**
  * Returns a new function for [Partial Application](https://en.wikipedia.org/wiki/Partial_application) of the original function.
  *
@@ -126,7 +127,7 @@ export const not = (fn) => (...args) => !fn.apply(null, args);
  * Given two functions that return truthy or falsey values, returns a function that returns truthy
  * if both functions return truthy for the given arguments
  */
-export function and(fn1, fn2): Function {
+export function and(fn1, fn2): Predicate<any> {
   return (...args) => fn1.apply(null, args) && fn2.apply(null, args);
 }
 
@@ -134,7 +135,7 @@ export function and(fn1, fn2): Function {
  * Given two functions that return truthy or falsey values, returns a function that returns truthy
  * if at least one of the functions returns truthy for the given arguments
  */
-export function or(fn1, fn2): Function {
+export function or(fn1, fn2): Predicate<any> {
   return (...args) => fn1.apply(null, args) || fn2.apply(null, args);
 }
 

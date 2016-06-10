@@ -1,13 +1,12 @@
 /** @module resolve */ /** for typedoc */
-import {extend, pick, map, filter} from "../common/common";
-import {not} from "../common/hof";
-import {isInjectable} from "../common/predicates";
+import {pick, map, extend} from "../common/common";
 
 import {services} from "../common/coreservices";
 import {trace} from "../common/trace";
 import {Resolvables, IOptions1} from "./interface";
 
 import {ResolveContext} from "./resolveContext";
+import {stringify} from "../common/strings";
 
 /**
  * The basic building block for the resolve system.
@@ -22,18 +21,39 @@ import {ResolveContext} from "./resolveContext";
  * parameter to those fns.
  */
 export class Resolvable {
-  name: string;
+  token: any;
   resolveFn: Function;
   deps: string[];
 
   promise: Promise<any> = undefined;
+  resolved: boolean = false;
   data: any;
-  
-  constructor(name: string, resolveFn: Function, preResolvedData?: any) {
-    this.name = name;
-    this.resolveFn = resolveFn;
-    this.deps = services.$injector.annotate(resolveFn, services.$injector.strictDi);
-    this.data = preResolvedData;
+
+  /**
+   * This constructor creates a Resolvable copy
+   */
+  constructor(resolvable: Resolvable)
+
+  /** 
+   * This constructor creates a new `Resolvable`
+   *
+   * @param token The new resolvable's injection token, such as `"userList"` (a string) or `UserService` (a class).
+   *              When this token is used during injection, the resolved value will be injected.
+   * @param resolveFn The function that returns the resolved value, or a promise for the resolved value
+   * @param deps An array of dependencies, which will be injected into the `resolveFn`
+   * @param data Pre-resolved data. If the resolve value is already known, it may be provided here.
+   */
+  constructor(token: any, resolveFn: Function, deps?: any[], data?: any)
+  constructor(token, resolveFn?: Function, deps?: any[], data?: any) {
+    if (token instanceof Resolvable) {
+      extend(this, token);
+    } else {
+      this.token = token;
+      this.resolveFn = resolveFn;
+      this.deps = deps;
+      this.data = data;
+      this.resolved = data !== undefined;
+    }
   }
 
   // synchronous part:
@@ -48,7 +68,7 @@ export class Resolvable {
   // - store unwrapped data
   // - resolve the Resolvable's promise
   resolveResolvable(resolveContext: ResolveContext, options: IOptions1 = {}) {
-    let {name, deps, resolveFn} = this;
+    let {deps, resolveFn} = this;
     
     trace.traceResolveResolvable(this, options);
     // First, set up an overall deferred/promise for this Resolvable
@@ -56,7 +76,7 @@ export class Resolvable {
     this.promise = deferred.promise;
     // Load a map of all resolvables for this state from the context path
     // Omit the current Resolvable from the result, so we don't try to inject this into this
-    let ancestorsByName: Resolvables = resolveContext.getResolvables(null, {  omitOwnLocals: [ name ] });
+    let ancestorsByName: Resolvables = resolveContext.getResolvables(null, {  omitOwnLocals: [ this.token ] });
 
     // Limit the ancestors Resolvables map to only those that the current Resolvable fn's annotations depends on
     let depResolvables: Resolvables = <any> pick(ancestorsByName, deps);
@@ -86,17 +106,10 @@ export class Resolvable {
   }
 
   toString() {
-    return `Resolvable(name: ${this.name}, requires: [${this.deps}])`;
+    return `Resolvable(token: ${stringify(this.token)}, requires: [${this.deps.map(stringify)}])`;
   }
 
-  /**
-   * Validates the result map as a "resolve:" style object, then transforms the resolves into Resolvable[]
-   */
-  static makeResolvables(resolves: { [key: string]: Function; }): Resolvable[] {
-    // If a hook result is an object, it should be a map of strings to functions.
-    let invalid = filter(resolves, not(isInjectable)), keys = Object.keys(invalid);
-    if (keys.length)
-      throw new Error(`Invalid resolve key/value: ${keys[0]}/${invalid[keys[0]]}`);
-    return Object.keys(resolves).map(key => new Resolvable(key, resolves[key]));
+  clone(): Resolvable {
+    return new Resolvable(this);
   }
 }

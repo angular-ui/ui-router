@@ -46,7 +46,7 @@ export class PathNode {
       this.state = state;
       this.paramSchema = state.parameters({ inherit: false });
       this.paramValues = {};
-      this.resolvables = Object.keys(state.resolve || {}).map(key => new Resolvable(key, state.resolve[key]));
+      this.resolvables = state.resolve.map(res => res.clone());
     }
   }
 

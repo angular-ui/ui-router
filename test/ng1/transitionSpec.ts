@@ -10,6 +10,8 @@ import {TargetState} from "../../src/state/targetState";
 import {StateQueueManager} from "../../src/state/stateQueueManager";
 import {Rejection} from "../../src/transition/rejectFactory";
 import {ResolveHooks} from "../../src/state/hooks/resolveHooks";
+import {Resolvable} from "../../src/resolve/resolvable";
+import {Transition} from "../../src/transition/transition";
 
 describe('transition', function () {
 
@@ -444,11 +446,10 @@ describe('transition', function () {
           log.push("Entered#"+state.name);
         }, { priority: -1 });
 
-        transitionProvider.onEnter({ entering: "B" }, function addResolves($transition$) {
+        transitionProvider.onEnter({ entering: "B" }, function addResolves($transition$: Transition) {
           log.push("adding resolve");
-          $transition$.addResolves({
-            newResolve: function () { log.push("resolving"); return defer.promise; }
-          })
+          var resolveFn = function () { log.push("resolving"); return defer.promise; };
+          $transition$.addResolvable(new Resolvable('newResolve', resolveFn));
         });
 
         transitionProvider.onEnter({ entering: "C" }, function useTheNewResolve(trans, inj) {
