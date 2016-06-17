@@ -144,7 +144,8 @@ describe("$resolve", function () {
   var $r, tick;
 
   beforeEach(module('ui.router'));
-  beforeEach(module(function($provide) {
+  beforeEach(module(function($provide, $exceptionHandlerProvider) {
+    $exceptionHandlerProvider.mode('log'); // Don't rethrow from a promise
     $provide.factory('Foo', function() {
       return "Working";
     });

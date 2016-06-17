@@ -1,4 +1,4 @@
-import {StateBuilder, StateMatcher, ng1ResolveBuilder, ng1ViewsBuilder} from "../../src/ng1";
+import {StateBuilder, StateMatcher, ng1ViewsBuilder} from "../../src/ng1";
 import {Resolvable} from "../../src/resolve/resolvable";
 
 describe('Ng1 StateBuilder', function() {
@@ -11,7 +11,6 @@ describe('Ng1 StateBuilder', function() {
     matcher = new StateMatcher({});
     builder = new StateBuilder(matcher, urlMatcherFactoryProvider);
     builder.builder('views', ng1ViewsBuilder);
-    builder.builder('resolve', ng1ResolveBuilder);
   });
 
   it('should return a new views object, and copy keys from state def, if no `views` is defined in the state def', function() {
@@ -31,9 +30,8 @@ describe('Ng1 StateBuilder', function() {
 
   it("should replace a resolve: string value with a function that injects the service of the same name", inject(function($injector) {
     var config = { resolve: { foo: "bar" } };
-    var locals = { "bar": 123 };
-    expect(builder.builder('resolve')).toBeDefined();
-    var built: Resolvable[] = builder.builder('resolve')(config);
-    expect($injector.invoke(built[0].resolveFn, null, locals)).toBe(123);
+    expect(builder.builder('resolvables')).toBeDefined();
+    var built: Resolvable[] = builder.builder('resolvables')(config);
+    expect(built[0].deps).toEqual(["bar"]);
   }));
 });

@@ -1,6 +1,6 @@
 /** @module path */ /** for typedoc */
 
-import {extend, find, pick, omit, tail, mergeR, values, unnestR} from "../common/common";
+import {extend, find, pick, omit, tail, mergeR, values, unnestR, Predicate} from "../common/common";
 import {prop, propEq, not} from "../common/hof";
 
 import {RawParams} from "../params/interface";
@@ -138,18 +138,18 @@ export class PathFactory {
   }
 
   /**
-   * Find a subpath of a path that stops at the node for a given state
+   * Return a subpath of a path, which stops at the first matching node
    *
-   * Given an array of nodes, returns a subset of the array starting from the first node, up to the
-   * node whose state matches `stateName`
+   * Given an array of nodes, returns a subset of the array starting from the first node,
+   * stopping when the first node matches the predicate.
    *
    * @param path a path of [[PathNode]]s
-   * @param state the [[State]] to stop at
+   * @param predicate a [[Predicate]] fn that matches [[PathNode]]s
    */
-  static subPath(path: PathNode[], state): PathNode[] {
-    let node = find(path, _node => _node.state === state);
+  static subPath(path: PathNode[], predicate: Predicate<PathNode>): PathNode[] {
+    let node = find(path, predicate);
     let elementIdx = path.indexOf(node);
-    if (elementIdx === -1) throw new Error("The path does not contain the state: " + state);
+    if (elementIdx === -1) throw new Error("The path does not contain a PathNode matching the predicate");
     return path.slice(0, elementIdx + 1);
   }
 

@@ -122,7 +122,7 @@ export class UiSrefStatus {
      * Then appends each to [a,b,] and returns: [a, b, c], [a, b, c, d]
      */
     function spreadToSubPaths (path: PathNode[], appendTo: PathNode[] = []): PathNode[][] {
-      return path.map(node => appendTo.concat(PathFactory.subPath(path, node.state)));
+      return path.map(node => appendTo.concat(PathFactory.subPath(path, n => n.state === node.state)));
     }
 
     let tc: TreeChanges = $transition$.treeChanges();

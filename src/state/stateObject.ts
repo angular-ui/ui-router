@@ -5,6 +5,7 @@ import {extend, defaults, values, find} from "../common/common";
 import {propEq} from "../common/hof";
 import {Param} from "../params/param";
 import {UrlMatcher} from "../url/urlMatcher";
+import {Resolvable} from "../resolve/resolvable";
 
 /**
  * @ngdoc object
@@ -23,7 +24,8 @@ export class State {
   public parent: State;
   public name: string;
   public abstract: boolean;
-  public resolve: { [key: string]: Function; };
+  public resolve: ({ [key: string]: (string|any[]|Function) }|any[]);
+  public resolvables: Resolvable[];
   public resolvePolicy: any;
   public url: UrlMatcher;
   public params: { [key: string]: Param };

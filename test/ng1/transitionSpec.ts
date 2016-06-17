@@ -57,7 +57,7 @@ describe('transition', function () {
       registerStates(root, topLevelState, key);
     });
 
-    var stateProps = ["resolve", "resolvePolicy", "data", "template", "templateUrl", "url", "name", "params"];
+    var stateProps = ["resolve", "resolvables", "resolvePolicy", "data", "template", "templateUrl", "url", "name", "params"];
     function registerStates(parent, state, name) {
       var substates = omit.apply(null, [state].concat(stateProps));
       var thisState = pick.apply(null, [state].concat(stateProps));

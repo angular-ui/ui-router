@@ -1,7 +1,8 @@
 /** @module state */ /** for typedoc */
-import {map, noop, extend, inherit, pick, omit, values, applyPairs, forEach} from "../common/common";
-import {isDefined, isFunction, isString} from "../common/predicates";
-import {prop} from "../common/hof";
+import {map, omit, noop, extend, inherit, values, applyPairs, tail} from "../common/common";
+import {isDefined, isFunction, isString, isArray} from "../common/predicates";
+import {stringify} from "../common/strings";
+import {prop, pattern, is, pipe, val} from "../common/hof";
 import {StateDeclaration} from "./interface";
 
 import {State} from "./stateObject";
@@ -9,6 +10,8 @@ import {StateMatcher} from "./stateMatcher";
 import {Param} from "../params/param";
 import {UrlMatcherFactory} from "../url/urlMatcherFactory";
 import {UrlMatcher} from "../url/urlMatcher";
+import {Resolvable} from "../resolve/resolvable";
+import {services} from "../common/coreservices";
 
 const parseUrl = (url: string): any => {
   if (!isString(url)) return false;
@@ -29,6 +32,129 @@ interface Builders {
   views: BuilderFunction[];
   path: BuilderFunction[];
   includes: BuilderFunction[];
+  resolvables: BuilderFunction[];
+}
+
+
+function selfBuilder(state: State) {
+  state.self.$$state = () => state;
+  return state.self;
+}
+
+function dataBuilder(state: State) {
+  if (state.parent && state.parent.data) {
+    state.data = state.self.data = inherit(state.parent.data, state.data);
+  }
+  return state.data;
+}
+
+const getUrlBuilder = ($urlMatcherFactoryProvider, root) =>
+function urlBuilder(state: State) {
+  let stateDec: StateDeclaration = <any> state;
+  const parsed = parseUrl(stateDec.url), parent = state.parent;
+  const url = !parsed ? stateDec.url : $urlMatcherFactoryProvider.compile(parsed.val, {
+    params: state.params || {},
+    paramMap: function (paramConfig, isSearch) {
+      if (stateDec.reloadOnSearch === false && isSearch) paramConfig = extend(paramConfig || {}, {dynamic: true});
+      return paramConfig;
+    }
+  });
+
+  if (!url) return null;
+  if (!$urlMatcherFactoryProvider.isMatcher(url)) throw new Error(`Invalid url '${url}' in state '${state}'`);
+  return (parsed && parsed.root) ? url : ((parent && parent.navigable) || root()).url.append(<UrlMatcher> url);
+};
+
+const getNavigableBuilder = (isRoot) =>
+function navigableBuilder(state: State) {
+  return !isRoot(state) && state.url ? state : (state.parent ? state.parent.navigable : null);
+};
+
+function paramsBuilder(state: State): { [key: string]: Param } {
+  const makeConfigParam = (config: any, id: string) => Param.fromConfig(id, null, config);
+  let urlParams: Param[] = (state.url && state.url.parameters({inherit: false})) || [];
+  let nonUrlParams: Param[] = values(map(omit(state.params || {}, urlParams.map(prop('id'))), makeConfigParam));
+  return urlParams.concat(nonUrlParams).map(p => [p.id, p]).reduce(applyPairs, {});
+}
+
+function pathBuilder(state: State) {
+  return state.parent ? state.parent.path.concat(state) : /*root*/ [state];
+}
+
+function includesBuilder(state: State) {
+  let includes = state.parent ? extend({}, state.parent.includes) : {};
+  includes[state.name] = true;
+  return includes;
+}
+
+/**
+ * This is a [[StateBuilder.builder]] function for the `resolve:` block on a [[StateDeclaration]].
+ *
+ * When the [[StateBuilder]] builds a [[State]] object from a raw [[StateDeclaration]], this builder
+ * validates the `resolve` property and converts it to a [[Resolvable]] array.
+ *
+ * resolve: input value can be:
+ *
+ * {
+ *   // analyzed but not injected
+ *   myFooResolve: function() { return "myFooData"; },
+ *
+ *   // function.toString() parsed, "DependencyName" dep as string (not min-safe)
+ *   myBarResolve: function(DependencyName) { return DependencyName.fetchSomethingAsPromise() },
+ *
+ *   // Array split; "DependencyName" dep as string
+ *   myBazResolve: [ "DependencyName", function(dep) { return dep.fetchSomethingAsPromise() },
+ *
+ *   // Array split; DependencyType dep as token (compared using ===)
+ *   myQuxResolve: [ DependencyType, function(dep) { return dep.fetchSometingAsPromise() },
+ *
+ *   // val.$inject used as deps
+ *   // where:
+ *   //     corgeResolve.$inject = ["DependencyName"];
+ *   //     function corgeResolve(dep) { dep.fetchSometingAsPromise() }
+ *   // then "DependencyName" dep as string
+ *   myCorgeResolve: corgeResolve,
+ *
+ *  // inject service by name
+ *  // When a string is found, desugar creating a resolve that injects the named service
+ *   myGraultResolve: "SomeService"
+ * }
+ *
+ * or:
+ *
+ * [
+ *   new Resolvable("myFooResolve", function() { return "myFooData" }),
+ *   new Resolvable("myBarResolve", function(dep) { return dep.fetchSomethingAsPromise() }, [ "DependencyName" ]),
+ *   { provide: "myBazResolve", useFactory: function(dep) { dep.fetchSomethingAsPromise() }, deps: [ "DependencyName" ] }
+ * ]
+ */
+export function resolvablesBuilder(state: State): Resolvable[] {
+  const obj2Array         = obj => Object.keys(obj || {}).map(token => ({token, val: obj[token], deps: undefined}));
+  const annotate          = fn  => fn.$inject || services.$injector.annotate(fn, services.$injector.strictDi);
+  const isLikeNg2Provider = obj => obj.token && (obj.useValue || obj.useFactory || obj.useExisting || obj.useClass);
+
+  /** Given a provider, returns a Resolvable */
+  const provider2Resolvable = pattern([
+    [prop('useFactory'),  p => new Resolvable(p.token, p.useFactory, p.dependencies)],
+    [prop('useClass'),    p => new Resolvable(p.token, () => new (<any>p.useClass)(), [])],
+    [prop('useValue'),    p => new Resolvable(p.token, () => p.useValue, [], p.useValue)],
+    [prop('useExisting'), p => new Resolvable(p.token, (x) => x, [p.useExisting])],
+  ]);
+
+  const item2Resolvable = <(any) => Resolvable> pattern([
+    [is(Resolvable),                obj => obj],
+    [isLikeNg2Provider,             provider2Resolvable],
+    [pipe(prop("val"), isString),   tuple => new Resolvable(tuple.token, x => x, [ tuple.val ])],
+    [pipe(prop("val"), isArray),    tuple => new Resolvable(tuple.token, tail(<any[]> tuple.val), tuple.val.slice(0, -1))],
+    [pipe(prop("val"), isFunction), tuple => new Resolvable(tuple.token, tuple.val, annotate(tuple.val))],
+    [val(true),                     tuple => { throw new Error("Invalid resolve value: " + stringify(tuple)) }]
+  ]);
+
+  // If resolveBlock is already an array, use it as-is.
+  // Otherwise, assume it's an object and convert to an Array of tuples
+  let resolveBlock = state.resolve;
+  let items: any[] = isArray(resolveBlock) ? resolveBlock : obj2Array(resolveBlock);
+  return items.map(item2Resolvable);
 }
 
 /**
@@ -50,71 +176,31 @@ export class StateBuilder {
   constructor(private matcher: StateMatcher, $urlMatcherFactoryProvider: UrlMatcherFactory) {
     let self = this;
 
-    const isRoot = (state) => state.name === "";
     const root = () => matcher.find("");
+    const isRoot = (state) => state.name === "";
+
+    function parentBuilder(state: State) {
+      if (isRoot(state)) return null;
+      return matcher.find(self.parentName(state)) || root();
+    }
 
     this.builders = {
-      self: [function (state: State) {
-        state.self.$$state = () => state;
-        return state.self;
-      }],
-
-      parent: [function (state: State) {
-        if (isRoot(state)) return null;
-        return matcher.find(self.parentName(state)) || root();
-      }],
-
-      data: [function (state: State) {
-        if (state.parent && state.parent.data) {
-          state.data = state.self.data = inherit(state.parent.data, state.data);
-        }
-        return state.data;
-      }],
-
+      self: [ selfBuilder ],
+      parent: [ parentBuilder ],
+      data: [ dataBuilder ],
       // Build a URLMatcher if necessary, either via a relative or absolute URL
-      url: [function (state: State) {
-        let stateDec: StateDeclaration = <any> state;
-        const parsed = parseUrl(stateDec.url), parent = state.parent;
-        const url = !parsed ? stateDec.url : $urlMatcherFactoryProvider.compile(parsed.val, {
-          params: state.params || {},
-          paramMap: function (paramConfig, isSearch) {
-            if (stateDec.reloadOnSearch === false && isSearch) paramConfig = extend(paramConfig || {}, {dynamic: true});
-            return paramConfig;
-          }
-        });
-
-        if (!url) return null;
-        if (!$urlMatcherFactoryProvider.isMatcher(url)) throw new Error(`Invalid url '${url}' in state '${state}'`);
-        return (parsed && parsed.root) ? url : ((parent && parent.navigable) || root()).url.append(<UrlMatcher> url);
-      }],
-
+      url: [ getUrlBuilder($urlMatcherFactoryProvider, root) ],
       // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
-      navigable: [function (state: State) {
-        return !isRoot(state) && state.url ? state : (state.parent ? state.parent.navigable : null);
-      }],
-
-      params: [function (state: State): { [key: string]: Param } {
-        const makeConfigParam = (config: any, id: string) => Param.fromConfig(id, null, config);
-        let urlParams: Param[] = (state.url && state.url.parameters({inherit: false})) || [];
-        let nonUrlParams: Param[] = values(map(omit(state.params || {}, urlParams.map(prop('id'))), makeConfigParam));
-        return urlParams.concat(nonUrlParams).map(p => [p.id, p]).reduce(applyPairs, {});
-      }],
-
+      navigable: [ getNavigableBuilder(isRoot) ],
+      params: [ paramsBuilder ],
       // Each framework-specific ui-router implementation should define its own `views` builder
       // e.g., src/ng1/statebuilders/views.ts
       views: [],
-
       // Keep a full path from the root down to this state as this is needed for state activation.
-      path: [function (state: State) {
-        return state.parent ? state.parent.path.concat(state) : /*root*/ [state];
-      }],
-
+      path: [ pathBuilder ],
       // Speed up $state.includes() as it's used a lot
-      includes: [function (state: State) {
-        let includes = state.parent ? extend({}, state.parent.includes) : {};
-        includes[state.name] = true;
-        return includes;
-      }]
+      includes: [ includesBuilder ],
+      resolvables: [ resolvablesBuilder ]
     };
   }
 

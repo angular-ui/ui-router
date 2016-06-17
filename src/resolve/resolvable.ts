@@ -7,6 +7,7 @@ import {Resolvables, IOptions1} from "./interface";
 
 import {ResolveContext} from "./resolveContext";
 import {stringify} from "../common/strings";
+import {isFunction} from "../common/predicates";
 
 /**
  * The basic building block for the resolve system.
@@ -48,61 +49,52 @@ export class Resolvable {
     if (token instanceof Resolvable) {
       extend(this, token);
     } else {
+      if (token == null || token == undefined) throw new Error("new Resolvable(): token argument is required");
+      if (!isFunction(resolveFn)) throw new Error("new Resolvable(): resolveFn argument must be a function");
+
       this.token = token;
       this.resolveFn = resolveFn;
-      this.deps = deps;
+      this.deps = deps || [];
       this.data = data;
       this.resolved = data !== undefined;
+      this.promise = this.resolved ? services.$q.when(this.data) : undefined;
     }
   }
 
-  // synchronous part:
-  // - sets up the Resolvable's promise
-  // - retrieves dependencies' promises
-  // - returns promise for async part
-
-  // asynchronous part:
-  // - wait for dependencies promises to resolve
-  // - invoke the resolveFn
-  // - wait for resolveFn promise to resolve
-  // - store unwrapped data
-  // - resolve the Resolvable's promise
-  resolveResolvable(resolveContext: ResolveContext, options: IOptions1 = {}) {
-    let {deps, resolveFn} = this;
-    
-    trace.traceResolveResolvable(this, options);
-    // First, set up an overall deferred/promise for this Resolvable
-    let deferred = services.$q.defer();
-    this.promise = deferred.promise;
-    // Load a map of all resolvables for this state from the context path
-    // Omit the current Resolvable from the result, so we don't try to inject this into this
-    let ancestorsByName: Resolvables = resolveContext.getResolvables(null, {  omitOwnLocals: [ this.token ] });
-
-    // Limit the ancestors Resolvables map to only those that the current Resolvable fn's annotations depends on
-    let depResolvables: Resolvables = <any> pick(ancestorsByName, deps);
-
-    // Get promises (or synchronously invoke resolveFn) for deps
-    let depPromises: any = map(depResolvables, (resolvable: Resolvable) => resolvable.get(resolveContext, options));
-
-    // Return a promise chain that waits for all the deps to resolve, then invokes the resolveFn passing in the
-    // dependencies as locals, then unwraps the resulting promise's data.
-    return services.$q.all(depPromises).then(locals => {
-      try {
-        let result = services.$injector.invoke(resolveFn, null, locals);
-        deferred.resolve(result);
-      } catch (error) {
-        deferred.reject(error);
-      }
-      return this.promise;
-    }).then(data => {
-      this.data = data;
-      trace.traceResolvableResolved(this, options);
-      return this.promise;
-    });
+  /**
+   * Asynchronously resolve this Resolvable's data
+   *
+   * Given a ResolveContext that this Resolvable is found in:
+   * Wait for this Resolvable's dependencies, then invoke this Resolvable's function
+   * and update the Resolvable's state
+   */
+  resolve(resolveContext: ResolveContext, options: IOptions1 = {}) {
+    let $q = services.$q;
+    return this.promise = $q.when()
+        // Get all dependencies from ResolveContext and wait for them to be resolved
+        .then(() =>
+            $q.all(resolveContext.getDependencies(this).map(r =>
+                r.get(resolveContext, options))))
+        // Invoke the resolve function passing the resolved dependencies
+        .then(resolvedDeps =>
+            this.resolveFn.apply(null, resolvedDeps))
+        // Wait for returned promise to resolve then update the Resolvable state
+        .then(resolvedValue => {
+          this.data = resolvedValue;
+          this.resolved = true;
+          trace.traceResolvableResolved(this, options);
+          return this.data;
+        });
   }
 
+  /**
+   * Gets a promise for this Resolvable's data.
+   *
+   * Fetches the data and returns a promise.
+   * Returns the existing promise if it has already been fetched once.
+   */
   get(resolveContext: ResolveContext, options?: IOptions1): Promise<any> {
-    return this.promise || this.resolveResolvable(resolveContext, options);
+    return this.promise || this.resolve(resolveContext, options);
   }
 
   toString() {

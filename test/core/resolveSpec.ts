@@ -12,6 +12,7 @@ import {
 
 import Spy = jasmine.Spy;
 import {services} from "../../src/common/coreservices";
+import {resolvablesBuilder} from "../../src/state/stateBuilder";
 
 ///////////////////////////////////////////////
 
@@ -70,8 +71,7 @@ beforeEach(function () {
     var resolve = thisState.resolve || {};
     var injector = services.$injector;
 
-    thisState.resolve = Object.keys(resolve)
-        .map(key => new Resolvable(key, resolve[key], injector.annotate(resolve[key])));
+    thisState.resolvables = resolvablesBuilder(<any> { resolve });
     thisState.template = thisState.template || "empty";
     thisState.name = name;
     thisState.parent = parent.name;
@@ -170,11 +170,11 @@ describe('Resolvables system:', function () {
     });
   });
 
-  describe('Resolvable.resolveResolvable()', function () {
+  describe('Resolvable.resolve()', function () {
     it('should resolve one Resolvable, and its deps', done => {
       let path = makePath([ "A", "B", "C" ]);
       let ctx = new ResolveContext(path);
-      ctx.getResolvables()["_C"].resolveResolvable(ctx).then(function () {
+      ctx.getResolvables()["_C"].resolve(ctx).then(function () {
         expect(getResolvedData(ctx)).toEqualData({ _A: "A", _B: "B",_C: "ABC" });
       }).then(done);
     });
@@ -220,7 +220,7 @@ describe('Resolvables system:', function () {
 
       let cOnEnter = function (_D) {  };
       ctx.invokeLater(cOnEnter, {}).catch(function (err) {
-        expect(err.message).toContain("DI can't find injectable: '_D'");
+        expect(err.message).toContain('Could not find Dependency Injection token: "_D"');
         done();
       });
     });
@@ -286,7 +286,7 @@ describe('Resolvables system:', function () {
       let iOnEnter = function (_I) {  };
       let promise = ctx.invokeLater(iOnEnter, {});
       promise.catch(function (err) {
-        expect(err.message).toContain("DI can't find injectable: '_I'");
+        expect(err.message).toContain('Could not find Dependency Injection token: "_I"');
         done();
       });
     });

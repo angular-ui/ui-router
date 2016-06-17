@@ -11,6 +11,7 @@ import {Resolvable} from "./resolvable";
 import {State} from "../state/stateObject";
 import {mergeR} from "../common/common";
 import {PathFactory} from "../path/pathFactory";
+import {stringify} from "../common/strings";
 
 // TODO: make this configurable
 let defaultResolvePolicy = ResolvePolicy[ResolvePolicy.LAZY];
@@ -29,7 +30,7 @@ export class ResolveContext {
         return <PathNode> find(this._path, propEq('state', state));
       },
       _pathTo(state: State): PathNode[] {
-        return PathFactory.subPath(this._path, state);
+        return PathFactory.subPath(this._path, node => node.state === state);
       }
     });
   }
@@ -185,6 +186,27 @@ export class ResolveContext {
     };
     
     return {get};
+  }
+
+  getDependencies(resolvable: Resolvable): Resolvable[] {
+    // predicate that finds the node the resolvable belongs to
+    const nodeForResolvable = node => node.resolvables.indexOf(resolvable) !== -1;
+    // Find which other resolvables are "visible" to the `resolvable` argument
+    var availableResolvables: Resolvable[] = PathFactory.subPath(this._path, nodeForResolvable) // subpath stopping at resolvable's  node
+        .reduce((acc, node) => acc.concat(node.resolvables), []) //all of subpath's resolvables
+        .filter(res => res !== resolvable); // filter out the `resolvable` arg
+
+    const getDependency = token => {
+      let matching = availableResolvables.filter(r => r.token === token);
+      if (matching.length) return tail(matching);
+
+      let fromInjector = services.$injector.get(token);
+      if (!fromInjector) throw new Error("Could not find Dependency Injection token: " + stringify(token));
+
+      return new Resolvable(token, () => fromInjector, [], fromInjector);
+    };
+
+    return resolvable.deps.map(getDependency);
   }
 }
 

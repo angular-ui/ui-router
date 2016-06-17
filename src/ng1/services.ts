@@ -20,7 +20,6 @@ import {resolveFactory} from "./legacy/resolveService";
 import {trace} from "../common/trace";
 import {ng1ViewsBuilder, ng1ViewConfigFactory, Ng1ViewConfig} from "./statebuilders/views";
 import {TemplateFactory} from "./templateFactory";
-import {ng1ResolveBuilder} from "./statebuilders/resolve";
 import {StateParams} from "../params/stateParams";
 import {TransitionService} from "../transition/transitionService";
 import {StateService} from "../state/stateService";
@@ -168,7 +167,6 @@ function ng1UIRouter($locationProvider) {
   
   // Apply ng1 specific StateBuilder code for `views`, `resolve`, and `onExit/Retain/Enter` properties
   router.stateRegistry.decorator("views", ng1ViewsBuilder);
-  router.stateRegistry.decorator("resolve", ng1ResolveBuilder);
   router.stateRegistry.decorator("onExit", getStateHookBuilder("onExit"));
   router.stateRegistry.decorator("onRetain", getStateHookBuilder("onRetain"));
   router.stateRegistry.decorator("onEnter", getStateHookBuilder("onEnter"));
