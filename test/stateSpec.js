@@ -610,6 +610,56 @@ describe('state', function () {
     }));
   });
 
+
+  describe('.fromUrl()', function() {
+    it('should return an empty array with a null given', inject(function($state) {
+      var target = $state.fromUrl(null);
+      expect(target).toEqualData([]);
+    }));
+
+    it('should return an empty array with an empty string given', inject(function($state) {
+      var target = $state.fromUrl("");
+      expect(target).toEqualData([]);
+    }));
+
+    it('should return 2 states with /about/test given', inject(function($state) {
+      var expected = [
+        {
+          name: 'about.person',
+          args: {person: 'test'}
+        }, {
+          name: 'about.sidebar.item',
+          args: {item: 'test'}
+        }
+      ];
+
+      var target = $state.fromUrl("/about/test");
+      expect(target.length).toBe(2);
+      expect(target).toEqualData(expected);
+    }));
+
+    it('should return 1 state with /about/john/3', inject(function($state) {
+      var expected = [
+        {
+          name: 'about.person.item',
+          args: {
+            person: 'john',
+            id: '3'
+          }
+        }
+      ];
+
+      var target = $state.fromUrl("/about/john/3");
+      expect(target.length).toBe(1);
+      expect(target).toEqualData(expected);
+    }));
+
+    it('should return an empty array with /not-found', inject(function($state) {
+      var target = $state.fromUrl("/not-found");
+      expect(target).toEqualData([]);
+    }));
+  });
+
   describe('.go()', function () {
     it('transitions to a relative state', inject(function ($state, $q) {
       $state.transitionTo('about.person.item', { person: "bob", id: 5 }); $q.flush();
