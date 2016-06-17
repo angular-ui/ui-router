@@ -328,7 +328,7 @@ export class Transition implements IHookRegistry {
     // ---------------------------------------------------------
 
     const nodeIsReloading = (reloadState: State) => (node: PathNode) => {
-      return reloadState && reloadState.includes[node.state.name];
+      return reloadState && node.state.includes[reloadState.name];
     };
 
     // Find any "entering" nodes in the redirect path that match the original path and aren't being reloaded
