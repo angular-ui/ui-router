@@ -3038,6 +3038,56 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
     /**
      * @ngdoc function
+     * @name ui.router.state.$state#fromUrl
+     * @methodOf ui.router.state.$state
+     *
+     * @description
+     * A method to resolve a list of states and its parameters from a given URL
+     *
+     * @example
+     * <pre>
+     * var app angular.module('app', ['ui.router']);
+     *
+     * app.controller('ctrl', function ($scope, $state, somePathFromServer) {
+     *   $scope.go = function(){
+     *     var target = $state.fromUrl(somePathFromServer);
+     *     if(target.length == 0)
+     *       $state.go(target[0].name, target[0].args);
+     *   }
+     * });
+     * </pre>
+     *
+     * @param {string} url A relative URL with its parameters. Some examples:
+     *
+     * - `$state.fromUrl('/contacts/42')` - will return [{"name":"contacts.detail","args":{"contactId":"42"}}]
+     * - `$state.fromUrl('/contacts')` - will return [{"name":"contacts","args":{}},{"name":"contacts.list","args":{}}]
+     *
+     * @returns {Array} Returns a list of states that match with the given URL, or empty array if no match
+     */
+    $state.fromUrl = function(url) {
+      // Return an empty array if it's not a string or is an empty string (else it'd return the implicit root state)
+      if(!angular.isString(url) || url === "") return [];
+
+      var matchingStates = [];
+      var keys = objectKeys(states);
+      //Iterate over all states to get all the matching states
+      for(var i = 0; i < keys.length; i++) {
+        var state = states[keys[i]];
+        var stateArgs = state.url && state.url.exec(url);
+
+        if(stateArgs) {
+          matchingStates.push({
+              name: state.name,
+              args: stateArgs
+          });
+        }
+      }
+
+      return matchingStates;
+    };
+
+    /**
+     * @ngdoc function
      * @name ui.router.state.$state#go
      * @methodOf ui.router.state.$state
      *
@@ -3355,7 +3405,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         $urlRouter.update(true);
 
         return $state.current;
-      }, function (error) {
+      }).then(null, function (error) {
         if ($state.transition !== transition) return TransitionSuperseded;
 
         $state.transition = null;
