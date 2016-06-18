@@ -5,7 +5,7 @@ import {
     map, find, extend, mergeR,  tail,
     omit, toJson, abstractKey, arrayTuples, unnestR, identity, anyTrueR
 } from "../common/common";
-import { isObject } from "../common/predicates";
+import { isObject, isArray } from "../common/predicates";
 import { prop, propEq, val, not } from "../common/hof";
 
 import {StateDeclaration, StateOrName} from "../state/interface";
@@ -214,17 +214,56 @@ export class Transition implements IHookRegistry {
   }
 
   /**
-   * Get resolved data
+   * Gets all available resolve tokens (keys)
    *
-   * @returns an object (key/value pairs) where keys are resolve names and values are any settled resolve data,
-   *    or `undefined` for pending resolve data
+   * This method can be used in conjunction with [[getResolve]] to inspect the resolve values
+   * available to the Transition.
+   *
+   * The returned tokens include those defined on [[StateDeclaration.resolve]] blocks, for the states
+   * in the Transition's [[TreeChanges.to]] path.
+   *
+   * @returns an array of resolve tokens (keys)
    */
-  resolves(): { [resolveName: string]: any } {
-    return map(tail(this._treeChanges.to).resolveContext.getResolvables(), res => res.data);
+  getResolveTokens(): any[] {
+    return tail(this._treeChanges.to).resolveContext.getTokens();
+  }
+
+
+  /**
+   * Gets resolved values
+   *
+   * This method can be used in conjunction with [[getResolveTokens]] to inspect what resolve values
+   * are available to the Transition.
+   *
+   * Given a token, returns the resolved data for that token.
+   * Given an array of tokens, returns an array of resolved data for those tokens.
+   *
+   * If a resolvable hasn't yet been fetched, returns `undefined` for that token
+   * If a resolvable doesn't exist for the token, throws an error.
+   *
+   * @param token the token (or array of tokens)
+   *
+   * @returns an array of resolve tokens (keys)
+   */
+  getResolveValue(token: (any|any[])): (any|any[]) {
+    var resolveContext = tail(this._treeChanges.to).resolveContext;
+    const getData = token => {
+      var resolvable = resolveContext.getResolvable(token);
+      if (resolvable === undefined) {
+        throw new Error("Dependency Injection token not found: ${stringify(token)}");
+      }
+      return resolvable.data;
+    };
+
+    if (isArray(token)) {
+      return token.map(getData);
+    }
+
+    return getData(token);
   }
 
   /**
-   * Adds a new [[Resolvable]] (`resolve`) to this transition.
+   * Dynamically adds a new [[Resolvable]] (`resolve`) to this transition.
    *
    * @param resolvable an [[Resolvable]] object
    * @param state the state in the "to path" which should receive the new resolve (otherwise, the root state)

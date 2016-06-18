@@ -1,5 +1,7 @@
 /** @module resolve */ /** for typedoc */
-import {IInjectable, find, filter, map, tail, defaults, extend, pick, omit} from "../common/common";
+import {
+    IInjectable, find, filter, map, tail, defaults, extend, pick, uniqR, unnestR
+} from "../common/common";
 import {prop, propEq} from "../common/hof";
 import {isString, isObject} from "../common/predicates";
 import {trace} from "../common/trace";
@@ -72,6 +74,25 @@ export class ResolveContext {
 
       return extend(memo, filteredResolvables);
     }, <Resolvables> {});
+  }
+
+  /** Gets all the tokens found in the resolve context, de-duplicated */
+  getTokens() {
+    return this._path.reduce((acc, node) => acc.concat(node.resolvables.map(r => r.token)), []).reduce(uniqR, []);
+  }
+
+  /**
+   * Gets the Resolvable that matches the token
+   *
+   * Gets the last Resolvable that matches the token in this context, or undefined.
+   * Throws an error if it doesn't exist in the ResolveContext
+   */
+  getResolvable(token) {
+    var matching = this._path.map(node => node.resolvables)
+        .reduce(unnestR, [])
+        .filter((r: Resolvable) => r.token === token);
+
+    return tail(matching)
   }
 
   /** Inspects a function `fn` for its dependencies.  Returns an object containing any matching Resolvables */
