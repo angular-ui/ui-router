@@ -154,6 +154,7 @@ export class Transition implements IHookRegistry {
     PathFactory.bindResolveContexts(this._treeChanges.to);
 
     let rootResolvables: Resolvable[] = [
+      new Resolvable(Transition, () => this, [], this),
       new Resolvable('$transition$', () => this, [], this),
       new Resolvable('$stateParams', () => this.params(), [], this.params())
     ];

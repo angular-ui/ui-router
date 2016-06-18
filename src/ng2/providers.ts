@@ -46,7 +46,7 @@
  *
  * @preferred @module ng2
  */ /** */
-import {Provider, provide} from "@angular/core";
+import {Injector} from "@angular/core";
 import {UIRouter} from "../router";
 import {PathNode} from "../path/node";
 import {StateRegistry} from "../state/stateRegistry";
@@ -61,8 +61,10 @@ import {Ng2ViewDeclaration} from "./interface";
 import {UIRouterConfig} from "./uiRouterConfig";
 import {UIRouterGlobals} from "../globals";
 import {UIRouterLocation} from "./location";
+import {services} from "../common/coreservices";
 
-let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation) => {
+let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation, injector: Injector) => {
+  services.$injector.get = injector.get.bind(injector);
   let router = new UIRouter();
 
   location.init();
@@ -95,25 +97,33 @@ let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation)
  * ]);
  * ```
  */
-export const UIROUTER_PROVIDERS: Provider[] = [
-  provide(UIRouter, { useFactory: uiRouterFactory, deps: [UIRouterConfig, UIRouterLocation] }),
 
-  provide(UIRouterLocation, { useClass: UIRouterLocation }),
+export const UIROUTER_PROVIDERS: ProviderLike[] = [
+  { provide: UIRouter, useFactory: uiRouterFactory, deps: [UIRouterConfig, UIRouterLocation, Injector] },
 
-  provide(StateService, { useFactory: (r: UIRouter) => { return r.stateService; }, deps: [UIRouter]}),
+  { provide: UIRouterLocation, useClass: UIRouterLocation },
 
-  provide(TransitionService, { useFactory: (r: UIRouter) => { return r.transitionService; }, deps: [UIRouter]}),
+  { provide: StateService, useFactory: (r: UIRouter) => { return r.stateService; }, deps: [UIRouter]},
 
-  provide(UrlMatcherFactory, { useFactory: (r: UIRouter) => { return r.urlMatcherFactory; }, deps: [UIRouter]}),
+  { provide: TransitionService, useFactory: (r: UIRouter) => { return r.transitionService; }, deps: [UIRouter]},
 
-  provide(UrlRouter, { useFactory: (r: UIRouter) => { return r.urlRouter; }, deps: [UIRouter]}),
+  { provide: UrlMatcherFactory, useFactory: (r: UIRouter) => { return r.urlMatcherFactory; }, deps: [UIRouter]},
 
-  provide(ViewService, { useFactory: (r: UIRouter) => { return r.viewService; }, deps: [UIRouter]}),
+  { provide: UrlRouter, useFactory: (r: UIRouter) => { return r.urlRouter; }, deps: [UIRouter]},
 
-  provide(StateRegistry, { useFactory: (r: UIRouter) => { return r.stateRegistry; }, deps: [UIRouter]}),
+  { provide: ViewService, useFactory: (r: UIRouter) => { return r.viewService; }, deps: [UIRouter]},
 
-  provide(UIRouterGlobals, { useFactory: (r: UIRouter) => { return r.globals; }, deps: [UIRouter]}),
+  { provide: StateRegistry, useFactory: (r: UIRouter) => { return r.stateRegistry; }, deps: [UIRouter]},
 
-  provide(UiView.PARENT_INJECT, { useFactory: (r: StateRegistry) => { return { fqn: null, context: r.root() } }, deps: [StateRegistry]} )
+  { provide: UIRouterGlobals, useFactory: (r: UIRouter) => { return r.globals; }, deps: [UIRouter]},
+
+  { provide: UiView.PARENT_INJECT, useFactory: (r: StateRegistry) => { return { fqn: null, context: r.root() } }, deps: [StateRegistry]}
 ];
+
+export interface ProviderLike {
+  provide: any,
+  useClass?: any,
+  useFactory?: Function,
+  deps?: any[]
+}
 

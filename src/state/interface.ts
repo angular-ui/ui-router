@@ -147,26 +147,53 @@ export interface StateDeclaration {
   $$state?: () => State;
 
   /**
-   * Resolve - a mechanism to fetch data, which participates in the transition lifecycle
+   * Resolve - a mechanism to asynchronously fetch data, while participating in the Transition lifecycle
    *
-   * An object which defines dynamic dependencies/data that can then be injected into this state (or its children)
-   * during a Transition.
+   * The `resolve:` property defines data (or other dependencies) to be fetched asynchronously when the state
+   * is being entered.  After the data is fetched, it can be used in views, transition hooks or other resolves
+   * that belong to this state or any nested states.
    *
-   * Define a new dependency by adding a key/value to the `resolve` property of the [[StateDeclaration]].
+   * ### As an array
+   *
+   * Each array element should either be a [[Resolvable]] or an Angular 2 style
+   * [provider literal](https://angular.io/docs/ts/latest/cookbook/dependency-injection.html#!#provide).
+   *
+   * Note:
+   * ```new Resolvable('token', (http) => http.get('/'), [ Http ])```
+   * is roughly  equivalent to this provider literal:
+   * ```{ provide: "token", useFactory: (http) => http.get('/'), deps: [ Http ] }```
+   *
+   * @example
+   * ```js
+   *
+   * import {Resolvable} from "ui-router-ng2"; // or "angular-ui-router"
+   * ...
+   *
+   * // ng2 example
+   * resolve: [
+   *   // If you inject `myStateDependency` into a component, you'll get "abc"
+   *   { provide: 'myStateDependency', useFactory: () => 'abc' },
+   *   new Resolvable('myFoos', (http, trans) => http.get(`/foos/${trans.params().fooId}`), [Http, Transition])
+   * ]
+   * ```
+   *
+   * ### As an object
+   *
    * - The key (string) is the name of the dependency.
    * - The value (function) is an injectable function which returns the dependency, or a promise for the dependency.
    *
    * @example
    * ```js
    *
+   * // ng1 example
    * resolve: {
    *   // If you inject `myStateDependency` into a controller, you'll get "abc"
    *   myStateDependency: function() {
    *     return "abc";
    *   },
-   *   myAsyncData: function($http) {
+   *   myAsyncData: function($http, $transition$) {
    *     // Return a promise (async) for the data
-   *     return $http.get("/api/v1/data");
+   *     return $http.get("/foos/" + $transition$.params().foo);
    *   }
    * }
    * ```
@@ -197,25 +224,33 @@ export interface StateDeclaration {
    * Since resolve functions are injected, a common pattern is to inject a custom service such as `UserService`
    * and delegate to a custom service method, such as `UserService.list()`;
    *
-   * A resolve function can inject some special values:
+   * #### Angular 1
+   *
+   * An Angular 1 resolve function can inject some special values:
    * - `$transition$`: The current [[Transition]] object; information and API about the current transition, such as
    *    "to" and "from" State Parameters and transition options.
    * - Other resolves: This resolve can depend on another resolve, either from the same state, or from any parent state.
    * - `$stateParams`: (deprecated) The parameters for the current state (Note: these parameter values are
    *
+   * #### Angular 2
+   *
+   * An Angular 2 resolve function can inject some special values:
+   * - `Transition`: The current [[Transition]] object; information and API about the current transition, such as
+   *    "to" and "from" State Parameters and transition options.
+   * - Other resolves: This resolve can depend on another resolve, either from the same state, or from any parent state.
+   *
    * @example
    * ```js
    *
-   * resolve: {
-   *   // Define a resolve 'allusers' which delegates to the UserService
-   *   allusers: function(UserService) {
-   *     return UserService.list(); // list() returns a promise (async) for all the users
-   *   },
+   * // Injecting a resolve into another resolve
+   * resolve: [
+   *   // Define a resolve 'allusers' which delegates to the UserService.list()
+   *   // which returns a promise (async) for all the users
+   *   { provide: 'allusers', useFactory: (UserService) => UserService.list(), deps: [UserService] },
+   *
    *   // Define a resolve 'user' which depends on the allusers resolve.
    *   // This resolve function is not called until 'allusers' is ready.
-   *   user: function(allusers, $transition$) {
-   *     return _.find(allusers, $transition$.params().userId);
-   *   }
+   *   { provide: 'user', (allusers, trans) => _.find(allusers, trans.params().userId, deps: ['allusers', Transition] }
    * }
    * ```
    */

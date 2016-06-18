@@ -1,7 +1,5 @@
 /** @module ng2 */ /** */
 import {StateDeclaration, _ViewDeclaration} from "../state/interface";
-import {ParamDeclaration} from "../params/interface";
-import {IInjectable} from "../common/common";
 import {Transition} from "../transition/transition";
 import {Type} from "@angular/core";
 
@@ -142,16 +140,11 @@ export interface Ng2StateDeclaration extends StateDeclaration, Ng2ViewDeclaratio
 
 export interface Ng2ViewDeclaration extends _ViewDeclaration {
   /**
-   * The class of the `Component` to use for this view.
+   * The `Component` class to use for this view.
    *
    * A property of [[Ng2StateDeclaration]] or [[Ng2ViewDeclaration]]:
    *
-   * The component class which will be used for this view.
-   *
-   * Resolve data can be provided to the component using Dependency Injection.  Currently, resolves must be injected
-   * into the component using `@Inject('key')`, where `key` is the name of the resolve.
-   *
-   * TODO: document ng2 shorthand, like ng1's shorthand: inside a "views:" block, a bare string `"foo"` is shorthand for `{ component: "foo" }`
+   * ### The component class which will be used for this view.
    *
    * @example
    * ```js
@@ -170,8 +163,9 @@ export interface Ng2ViewDeclaration extends _ViewDeclaration {
    *   }
    * }
    *
+   * // Named views shorthand:
+   * // Inside a "views:" block, a Component class (NavBar) is shorthand for { component: NavBar }
    * .state('contacts', {
-   *   // Inside a "views:" block, supplying only a Component class is shorthand for { component: NavBar }
    *   // use the <nav-bar></nav-bar> component for the view named 'header'
    *   // use the <contact-list></contact-list> component for the view named 'content'
    *   views: {
@@ -180,17 +174,62 @@ export interface Ng2ViewDeclaration extends _ViewDeclaration {
    *   }
    * }
    * ```
+   *
+   * ### Accessing Resolve Data
+   *
+   * The component can access the Transition's [[Ng2StateDeclaration.resolve]] data in one of two ways:
+   *
+   * 1) Using Dependency Injection in the component constructor
+   *
+   * (using Typescript)
+   * ```js
+   * class MyComponent {
+   *   constructor(@Inject("myResolveData") public resolveValueA, resolveValueB: public SomeClass) {
+   *   }
+   * }
+   * ```
+   *
+   * (using ES6/7/babel)
+   * ```js
+   * class MyComponent {
+   *   static get parameters() {
+   *     return [["myResolveData"], [MyResolveClass]];
+   *   }
+   *   constructor(resolveValueA, resolveValueB) {
+   *     this.resolveValueA = resolveValueA;
+   *     this.resolveValueB = resolveValueB;
+   *   }
+   * }
+   * ```
+   *
+   * See also: https://github.com/shuhei/babel-plugin-angular2-annotations
+   *
+   * 2) Using a component input
+   *
+   * Note: To bind a resolve to a component input, the resolves must `provide:` a string value
+   *
+   * ```js
+   * @Component() {
+   *   inputs: ['resolveValueA']
+   * }
+   * class MyComponent {
+   *   myResolveValueA;
+   *   @Input() resolveValueB;
+   *   @Input("resolveValueC") resolveValueC;
+   *
+   *   constructor() {
+   *   }
+   * }
+   * ```
    */
   component?: Type;
 
   /**
-   * @hidden
-   *
-   * An object which maps `resolve`s to [[component]] `bindings`.
+   * An object which maps `resolve` keys to [[component]] `bindings`.
    *
    * A property of [[Ng2StateDeclaration]] or [[Ng2ViewDeclaration]]:
    *
-   * When using a [[component]] declaration (`component: 'myComponent'`), each input binding for the component is supplied
+   * When using a [[component]] declaration (`component: MyComponent`), each input binding for the component is supplied
    * data from a resolve of the same name, by default.  You may supply data from a different resolve name by mapping it here.
    *
    * Each key in this object is the name of one of the component's input bindings.
@@ -226,10 +265,12 @@ export interface Ng2ViewDeclaration extends _ViewDeclaration {
    * ```
    *
    */
-  // bindings?: { [key: string]: string };
+  bindings?: { [key: string]: string };
 }
 
 /**
+ * @hidden
+ *
  * The shape of a controller for a view (and/or component), defining the controller callbacks.
  *
  * A view in UI-Router is comprised of either a `component` ([[Ng2ViewDeclaration.component]]) or a combination of a

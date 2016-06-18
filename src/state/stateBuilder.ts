@@ -131,14 +131,15 @@ function includesBuilder(state: State) {
 export function resolvablesBuilder(state: State): Resolvable[] {
   const obj2Array         = obj => Object.keys(obj || {}).map(token => ({token, val: obj[token], deps: undefined}));
   const annotate          = fn  => fn.$inject || services.$injector.annotate(fn, services.$injector.strictDi);
-  const isLikeNg2Provider = obj => obj.token && (obj.useValue || obj.useFactory || obj.useExisting || obj.useClass);
+  const isLikeNg2Provider = obj => !!((obj.provide || obj.token) && (obj.useValue || obj.useFactory || obj.useExisting || obj.useClass));
+  const provideToken = p => p.provide || p.token;
 
   /** Given a provider, returns a Resolvable */
   const provider2Resolvable = pattern([
-    [prop('useFactory'),  p => new Resolvable(p.token, p.useFactory, p.dependencies)],
-    [prop('useClass'),    p => new Resolvable(p.token, () => new (<any>p.useClass)(), [])],
-    [prop('useValue'),    p => new Resolvable(p.token, () => p.useValue, [], p.useValue)],
-    [prop('useExisting'), p => new Resolvable(p.token, (x) => x, [p.useExisting])],
+    [prop('useFactory'),  p => new Resolvable(provideToken(p), p.useFactory, (p.deps || p.dependencies))],
+    [prop('useClass'),    p => new Resolvable(provideToken(p), () => new (<any>p.useClass)(), [])],
+    [prop('useValue'),    p => new Resolvable(provideToken(p), () => p.useValue, [], p.useValue)],
+    [prop('useExisting'), p => new Resolvable(provideToken(p), (x) => x, [p.useExisting])],
   ]);
 
   const item2Resolvable = <(any) => Resolvable> pattern([
