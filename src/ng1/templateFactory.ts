@@ -1,8 +1,10 @@
 /** @module view */ /** for typedoc */
-import {isDefined, isFunction} from "../common/predicates";
+import {isArray, isDefined, isFunction} from "../common/predicates";
 import {services} from "../common/coreservices";
 import {Ng1ViewDeclaration} from "./interface";
-import {IInjectable} from "../common/common";
+import {IInjectable, tail} from "../common/common";
+import {ResolveContext} from "../resolve/resolveContext";
+import {Resolvable} from "../resolve/resolvable";
 
 /**
  * Service which manages loading of templates from a ViewConfig.
@@ -16,17 +18,16 @@ export class TemplateFactory {
    * that is defined is used to create the template:
    *
    * @param params  Parameters to pass to the template function.
-   * @param injectFn Function to which an injectable function may be passed.
-   *        If templateProvider is defined, this injectFn will be used to invoke it.
+   * @param context The resolve context associated with the template's view
    *
    * @return {string|object}  The template html as a string, or a promise for 
    * that string,or `null` if no template is configured.
    */
-  fromConfig(config: Ng1ViewDeclaration, params: any, injectFn: Function) {
+  fromConfig(config: Ng1ViewDeclaration, params: any, context: ResolveContext) {
     return (
       isDefined(config.template) ? this.fromString(config.template, params) :
       isDefined(config.templateUrl) ? this.fromUrl(config.templateUrl, params) :
-      isDefined(config.templateProvider) ? this.fromProvider(config.templateProvider, params, injectFn) :
+      isDefined(config.templateProvider) ? this.fromProvider(config.templateProvider, params, context) :
       null
     );
   };
@@ -67,7 +68,10 @@ export class TemplateFactory {
    * @return {string|Promise.<string>} The template html as a string, or a promise 
    * for that string.
    */
-  fromProvider(provider: IInjectable, params: any, injectFn: Function) {
-    return injectFn(provider);
+  fromProvider(provider: IInjectable, params: any, context: ResolveContext) {
+    let deps = services.$injector.annotate(provider);
+    let providerFn = isArray(provider) ? tail(<any[]> provider) : provider;
+    let resolvable = new Resolvable("", <Function> providerFn, deps);
+    return resolvable.get(context);
   };
 }

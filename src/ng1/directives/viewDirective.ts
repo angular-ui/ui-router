@@ -1,6 +1,6 @@
 /** @module ng1_directives */ /** for typedoc */
 "use strict";
-import {extend, map, unnestR, filter} from "../../common/common";
+import {extend, unnestR, filter} from "../../common/common";
 import {isDefined, isFunction, isString} from "../../common/predicates";
 import {trace} from "../../common/trace";
 import {ActiveUIView} from "../../view/interface";
@@ -14,6 +14,7 @@ import {Param} from "../../params/param";
 import {kebobString} from "../../common/strings";
 import {HookRegOptions} from "../../transition/interface";
 import {Ng1Controller} from "../interface";
+import {getLocals} from "../services";
 
 /** @hidden */
 export type UIViewData = {
@@ -335,7 +336,8 @@ function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,
         let controllerAs: string = getControllerAs(cfg);
         let resolveAs: string = getResolveAs(cfg);
         let resolveCtx: ResolveContext = getResolveContext(cfg);
-        let locals = resolveCtx && map(resolveCtx.getResolvables(), r => r.data);
+
+        let locals = resolveCtx && getLocals(resolveCtx);
 
         scope[resolveAs] = locals;
         
@@ -394,7 +396,7 @@ function registerControllerCallbacks($transitions: TransitionService, controller
     // Fire callback on any successful transition
     const paramsUpdated = ($transition$: Transition) => {
       let ctx: ResolveContext = cfg.node.resolveContext;
-      let viewCreationTrans = ctx.getResolvables()['$transition$'].data;
+      let viewCreationTrans = ctx.getResolvable('$transition$').data;
       // Exit early if the $transition$ is the same as the view was created within.
       // Exit early if the $transition$ will exit the state the view is for.
       if ($transition$ === viewCreationTrans || $transition$.exiting().indexOf(cfg.node.state.self) !== -1) return;

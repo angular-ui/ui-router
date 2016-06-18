@@ -180,9 +180,9 @@ export class UiView {
     if (!config) return;
 
     // Map resolves to "useValue providers"
-    let rc = config.node.resolveContext;
-    let resolvables = rc.getResolvables();
-    let rawProviders = Object.keys(resolvables).map(key => provide(key, { useValue: resolvables[key].data }));
+    let context = config.node.resolveContext;
+    let resolvables = context.getTokens().map(token => context.getResolvable(token)).filter(r => r.resolved);
+    let rawProviders = resolvables.map(r => ({ provide: r.token, useValue: r.data }));
     rawProviders.push(provide(UiView.PARENT_INJECT, { useValue: { context: config.viewDecl.$context, fqn: uiViewData.fqn } }));
 
     // Get the component class from the view declaration. TODO: allow promises?

@@ -12,9 +12,9 @@
 /** for typedoc */
 import {UIRouter} from "../router";
 import {services} from "../common/coreservices";
-import {map, bindFunctions, removeFrom, find, noop} from "../common/common";
+import {bindFunctions, removeFrom, applyPairs} from "../common/common";
 import {prop, propEq} from "../common/hof";
-import {isObject} from "../common/predicates";
+import {isObject, isString} from "../common/predicates";
 import {PathNode} from "../path/node";
 import {resolveFactory} from "./legacy/resolveService";
 import {trace} from "../common/trace";
@@ -28,6 +28,7 @@ import {UrlRouterProvider, UrlRouter} from "../url/urlRouter";
 import {UrlMatcherFactory} from "../url/urlMatcherFactory";
 import {Transition} from "../transition/transition";
 import {getStateHookBuilder} from "./statebuilders/onEnterExitRetain";
+import {ResolveContext} from "../resolve/resolveContext";
 
 /** @hidden */
 let app = angular.module("ui.router.angular1", []);
@@ -255,29 +256,6 @@ angular.module('ui.router.state').factory('$stateParams', ['ng1UIRouter', (ng1UI
 
 // $transitions service and $transitionsProvider
 function getTransitionsProvider() {
-  // TODO: check if we can remove loadAllControllerLocals.  Shouldn't be necessary without JIT resolve policy
-  function loadAllControllerLocals($transition$: Transition) {
-    const loadLocals = (vc: Ng1ViewConfig) => {
-      let node = (<PathNode> find($transition$.treeChanges().to, propEq('state', vc.viewDecl.$context)));
-      // Temporary fix; This whole callback should be nuked when fixing #2662
-      if (!node) return services.$q.when();
-      let resolveCtx = node.resolveContext;
-      let controllerDeps = annotateController(vc.controller);
-      let resolvables = resolveCtx.getResolvables();
-
-      function $loadControllerLocals() { }
-      $loadControllerLocals.$inject = controllerDeps.filter(dep => resolvables.hasOwnProperty(dep));
-      // Load any controller resolves that aren't already loaded
-      return resolveCtx.invokeLater($loadControllerLocals)
-          // Then provide the view config with all the resolved data
-          .then(() => vc.locals = map(resolvables, res => res.data));
-    };
-
-    let loadAllLocals = $transition$.views("entering").filter(vc => !!(<Ng1ViewConfig>vc).controller).map(loadLocals);
-    return services.$q.all(loadAllLocals).then(noop);
-  }
-  router.transitionService.onFinish({}, loadAllControllerLocals);
-
   router.transitionService["$get"] = () => router.transitionService;
   return router.transitionService;
 }
@@ -300,6 +278,11 @@ export function watchDigests($rootScope) {
 }
 angular.module("ui.router").run(watchDigests);
 
+export const getLocals = (ctx: ResolveContext) => {
+  let tokens = ctx.getTokens().filter(isString);
+  let tuples = tokens.map(key => [ key, ctx.getResolvable(key).data ]);
+  return tuples.reduce(applyPairs, {});
+};
 
 /** Injectable services */
 

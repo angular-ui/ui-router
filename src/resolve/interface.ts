@@ -12,7 +12,6 @@ export interface IOptions1 {
 
 // Defines the available policies and their ordinals.
 export enum ResolvePolicy {
-  JIT, // JIT resolves are resolved just-in-time, right before an injected function that depends on them is invoked.
   LAZY, // Lazy resolves are resolved before their state is entered.
   EAGER // Eager resolves are resolved before the transition starts.
 }

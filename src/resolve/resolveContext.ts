@@ -37,45 +37,6 @@ export class ResolveContext {
     });
   }
 
-  /**
-   * Gets the available Resolvables for the last element of this path.
-   *
-   * @param state the State (within the ResolveContext's Path) for which to get resolvables
-   * @param options
-   *
-   * options.omitOwnLocals: array of property names
-   *   Omits those Resolvables which are found on the last element of the path.
-   *
-   *   This will hide a deepest-level resolvable (by name), potentially exposing a parent resolvable of
-   *   the same name further up the state tree.
-   *
-   *   This is used by Resolvable.resolve() in order to provide the Resolvable access to all the other
-   *   Resolvables at its own PathElement level, yet disallow that Resolvable access to its own injectable Resolvable.
-   *
-   *   This is also used to allow a state to override a parent state's resolve while also injecting
-   *   that parent state's resolve:
-   *
-   *   state({ name: 'G', resolve: { _G: function() { return "G"; } } });
-   *   state({ name: 'G.G2', resolve: { _G: function(_G) { return _G + "G2"; } } });
-   *   where injecting _G into a controller will yield "GG2"
-   */
-  getResolvables(state?: State, options?: any): Resolvables {
-    options = defaults(options, { omitOwnLocals: [] });
-
-    const path = (state ?  this._pathTo(state) : this._path);
-    const last = tail(path);
-
-    return path.reduce((memo, node: PathNode) => {
-      let omitProps = (node === last) ? options.omitOwnLocals : [];
-
-      let filteredResolvables = node.resolvables
-          .filter(r => omitProps.indexOf(r.token) === -1)
-          .reduce((acc, r) => { acc[r.token] = r; return acc; }, {});
-
-      return extend(memo, filteredResolvables);
-    }, <Resolvables> {});
-  }
-
   /** Gets all the tokens found in the resolve context, de-duplicated */
   getTokens() {
     return this._path.reduce((acc, node) => acc.concat(node.resolvables.map(r => r.token)), []).reduce(uniqR, []);
@@ -87,18 +48,17 @@ export class ResolveContext {
    * Gets the last Resolvable that matches the token in this context, or undefined.
    * Throws an error if it doesn't exist in the ResolveContext
    */
-  getResolvable(token) {
+  getResolvable(token): Resolvable {
     var matching = this._path.map(node => node.resolvables)
         .reduce(unnestR, [])
         .filter((r: Resolvable) => r.token === token);
-
-    return tail(matching)
+    return tail(matching);
   }
 
   /** Inspects a function `fn` for its dependencies.  Returns an object containing any matching Resolvables */
-  getResolvablesForFn(fn: IInjectable): { [key: string]: Resolvable } {
+  getResolvablesForFn(fn: IInjectable): Resolvable[] {
     let deps = services.$injector.annotate(<Function> fn, services.$injector.strictDi);
-    return <any> pick(this.getResolvables(), deps);
+    return deps.map(token => this.getResolvable(token));
   }
 
   isolateRootTo(state: State): ResolveContext {
@@ -146,76 +106,26 @@ export class ResolveContext {
     return services.$q.all(resolvablePromises);
   } 
   
-  
-  /**
-   * Injects a function given the Resolvables available in the path, from the first node
-   * up to the node for the given state.
-   *
-   * First it resolves all the resolvable depencies.  When they are done resolving, it invokes
-   * the function.
-   *
-   * @return a promise for the return value of the function.
-   *
-   * @param fn: the function to inject (i.e., onEnter, onExit, controller)
-   * @param locals: are the angular $injector-style locals to inject
-   * @param options: options (TODO: document)
-   */
-  invokeLater(fn: IInjectable, locals: any = {}, options: IOptions1 = {}): Promise<any> {
-    let resolvables = this.getResolvablesForFn(fn);
-    trace.tracePathElementInvoke(tail(this._path), fn, Object.keys(resolvables), extend({when: "Later"}, options));
-    const getPromise = (resolvable: Resolvable) => resolvable.get(this, options);
-    let promises: Promises = <any> map(resolvables, getPromise);
-    
-    return services.$q.all(promises).then(() => {
-      try {
-        return this.invokeNow(fn, locals, options);
-      } catch (error) {
-        return services.$q.reject(error);
-      }
-    });
-  }
-
-  /**
-   * Immediately injects a function with the dependent Resolvables available in the path, from
-   * the first node up to the node for the given state.
-   *
-   * If a Resolvable is not yet resolved, then null is injected in place of the resolvable.
-   *
-   * @return the return value of the function.
-   *
-   * @param fn: the function to inject (i.e., onEnter, onExit, controller)
-   * @param locals: are the angular $injector-style locals to inject
-   * @param options: options (TODO: document)
-   */
-  // Injects a function at this PathElement level with available Resolvables
-  // Does not wait until all Resolvables have been resolved; you must call PathElement.resolve() (or manually resolve each dep) first
-  invokeNow(fn: IInjectable, locals: any, options: any = {}) {
-    let resolvables = this.getResolvablesForFn(fn);
-    trace.tracePathElementInvoke(tail(this._path), fn, Object.keys(resolvables), extend({when: "Now  "}, options));
-    let resolvedLocals = map(resolvables, prop("data"));
-    return services.$injector.invoke(<Function> fn, options.bind || null, extend({}, locals, resolvedLocals));
-  }
-
   injector(): { get(any): any } {
     
     let get = (token: any) => {
-      var resolvables = this.getResolvables();
-      if (resolvables.hasOwnProperty(token)) {
-        return resolvables[token].data;
-      }
+      var resolvable = this.getResolvable(token);
+      if (resolvable) return resolvable.data;
       return services.$injector.get(token);
     };
     
-    return {get};
+    return { get };
   }
 
   getDependencies(resolvable: Resolvable): Resolvable[] {
     // predicate that finds the node the resolvable belongs to
     const nodeForResolvable = node => node.resolvables.indexOf(resolvable) !== -1;
     // Find which other resolvables are "visible" to the `resolvable` argument
-    var availableResolvables: Resolvable[] = PathFactory.subPath(this._path, nodeForResolvable) // subpath stopping at resolvable's  node
+    // subpath stopping at resolvable's node, or the whole path (if the resolvable isn't in the path)
+    var subPath: PathNode[] = PathFactory.subPath(this._path, nodeForResolvable) || this._path;
+    var availableResolvables: Resolvable[] = subPath
         .reduce((acc, node) => acc.concat(node.resolvables), []) //all of subpath's resolvables
-        .filter(res => res !== resolvable); // filter out the `resolvable` arg
+        .filter(res => res !== resolvable); // filter out the `resolvable` argument
 
     const getDependency = token => {
       let matching = availableResolvables.filter(r => r.token === token);

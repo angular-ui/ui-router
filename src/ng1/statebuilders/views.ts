@@ -1,16 +1,17 @@
 /** @module ng1 */ /** */
 import {State} from "../../state/stateObject";
-import {pick, forEach, anyTrueR, unnestR} from "../../common/common";
+import {pick, forEach, anyTrueR, unnestR, tail} from "../../common/common";
 import {kebobString} from "../../common/strings";
 import {ViewConfig} from "../../view/interface";
 import {Ng1ViewDeclaration} from "../interface";
 import {ViewService} from "../../view/view";
-import {isInjectable, isDefined, isString, isObject} from "../../common/predicates";
+import {isArray, isInjectable, isDefined, isString, isObject} from "../../common/predicates";
 import {services} from "../../common/coreservices";
 import {trace} from "../../common/trace";
 import {PathNode} from "../../path/node";
 import {TemplateFactory} from "../templateFactory";
 import {ResolveContext} from "../../resolve/resolveContext";
+import {Resolvable} from "../../resolve/resolvable";
 
 export const ng1ViewConfigFactory = (node, view) => new Ng1ViewConfig(node, view);
 
@@ -111,11 +112,11 @@ export class Ng1ViewConfig implements ViewConfig {
     if (!this.hasTemplate())
       throw new Error(`No template configuration specified for '${this.viewDecl.$uiViewName}@${this.viewDecl.$uiViewContextAnchor}'`);
 
-    let injector = this.node.resolveContext;
+    let context = this.node.resolveContext;
     let params = this.node.paramValues;
     let promises: any = {
-      template: $q.when(this.getTemplate(params, new TemplateFactory(), injector)),
-      controller: $q.when(this.getController(injector))
+      template: $q.when(this.getTemplate(params, new TemplateFactory(), context)),
+      controller: $q.when(this.getController(context))
     };
 
     return $q.all(promises).then((results) => {
@@ -134,8 +135,8 @@ export class Ng1ViewConfig implements ViewConfig {
     return !!(this.viewDecl.template || this.viewDecl.templateUrl || this.viewDecl.templateProvider);
   }
 
-  getTemplate(params, $factory, injector: ResolveContext) {
-    return $factory.fromConfig(this.viewDecl, params, injector.invokeLater.bind(injector));
+  getTemplate(params, $factory, context: ResolveContext) {
+    return $factory.fromConfig(this.viewDecl, params, context);
   }
 
   /**
@@ -143,9 +144,12 @@ export class Ng1ViewConfig implements ViewConfig {
    *
    * @returns {Function|Promise.<Function>} Returns a controller, or a promise that resolves to a controller.
    */
-  getController(injector: ResolveContext) {
-    //* @param {Object} locals A context object from transition.context() to invoke a function in the correct context
+  getController(context: ResolveContext): (String|Function|Promise<Function|String>) {
     let provider = this.viewDecl.controllerProvider;
-    return isInjectable(provider) ? injector.invokeLater(provider, {}) : this.viewDecl.controller;
+    if (!isInjectable(provider)) return this.viewDecl.controller;
+    let deps = services.$injector.annotate(provider);
+    let providerFn = isArray(provider) ? tail(<any> provider) : provider;
+    let resolvable = new Resolvable("", <any> providerFn, deps);
+    return resolvable.get(context);
   }
 }

@@ -145,12 +145,12 @@ export class PathFactory {
    *
    * @param path a path of [[PathNode]]s
    * @param predicate a [[Predicate]] fn that matches [[PathNode]]s
+   * @returns a subpath up to the matching node, or undefined if no match is found
    */
   static subPath(path: PathNode[], predicate: Predicate<PathNode>): PathNode[] {
     let node = find(path, predicate);
     let elementIdx = path.indexOf(node);
-    if (elementIdx === -1) throw new Error("The path does not contain a PathNode matching the predicate");
-    return path.slice(0, elementIdx + 1);
+    return elementIdx === -1 ? undefined : path.slice(0, elementIdx + 1);
   }
 
   /** Gets the raw parameter values from a path */
