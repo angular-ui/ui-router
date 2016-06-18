@@ -20,6 +20,10 @@ var states, statesTree, statesMap: { [key:string]: State } = {};
 var vals, counts, expectCounts;
 var asyncCount;
 
+function invokeLater(fn: Function, ctx: ResolveContext) {
+  return new Resolvable("", fn, services.$injector.annotate(fn)).get(ctx)
+}
+
 function getStates() {
   return {
     A: { resolve: { _A: function () { return "A"; }, _A2: function() { return "A2"; }},
@@ -36,15 +40,15 @@ function getStates() {
       },
       I: { resolve: { _I: function(_I) { return "I"; } } }
     },
-    J: { resolvePolicy: "JIT", resolve: { _J: function() { counts['_J']++; return "J"; }, _J2: function(_J) { counts['_J2']++; return _J + "J2"; } },
-      K: { resolvePolicy: "JIT", resolve: { _K: function(_J2) { counts['_K']++; return _J2 + "K"; }},
-        L: { resolvePolicy: "JIT", resolve: { _L: function(_K) { counts['_L']++; return _K + "L"; }},
-          M: { resolvePolicy: "JIT", resolve: { _M: function(_L) { counts['_M']++; return _L + "M"; }} }
+    J: { resolve: { _J: function() { counts['_J']++; return "J"; }, _J2: function(_J) { counts['_J2']++; return _J + "J2"; } },
+      K: { resolve: { _K: function(_J2) { counts['_K']++; return _J2 + "K"; }},
+        L: { resolve: { _L: function(_K) { counts['_L']++; return _K + "L"; }},
+          M: { resolve: { _M: function(_L) { counts['_M']++; return _L + "M"; }} }
         }
       },
       N: {
         resolve: { _N: function(_J) { return _J + "N"; }, _N2: function(_J) { return _J + "N2"; }, _N3: function(_J) { return _J + "N3"; } },
-        resolvePolicy: { _N: "EAGER", _N2: "LAZY", _N3: "JIT" }
+        resolvePolicy: { _N: "EAGER", _N2: "LAZY", _N3: "LAZY" }
       }
     },
     O: { resolve: { _O: function(_O2) { return _O2 + "O"; }, _O2: function(_O) { return _O + "O2"; } } },
@@ -93,7 +97,9 @@ function makePath(names: string[]): PathNode[] {
 }
 
 function getResolvedData(pathContext: ResolveContext) {
-  return map(filter(pathContext.getResolvables(), r => r.name !== '$stateParams'), prop("data"));
+  return pathContext.getTokens().filter(t => t !== '$stateParams')
+      .map(token => pathContext.getResolvable(token))
+      .reduce((acc, resolvable) => { acc[resolvable.token] = resolvable.data; return acc; }, {});
 }
 
 
@@ -113,7 +119,7 @@ describe('Resolvables system:', function () {
       let ctx = new ResolveContext(path);
       ctx.resolvePathElement(statesMap["B"]).then(function () {
         expect(getResolvedData(ctx)).toEqualData({_B: "B", _B2: "B2" });
-        expect(ctx.getResolvables()["_A"]).toBeDefined();
+        expect(ctx.getResolvable("_A")).toBeDefined();
       }).then(done);
     });
 
@@ -129,7 +135,7 @@ describe('Resolvables system:', function () {
       let path = makePath([ "J", "N" ]);
       let ctx = new ResolveContext(path);
       ctx.resolvePathElement(statesMap["N"], { resolvePolicy: "LAZY" }).then(function () {
-        expect(getResolvedData(ctx)).toEqualData({ _J: "J", _N: "JN", _N2: "JN2" });
+        expect(getResolvedData(ctx)).toEqualData({ _J: "J", _N: "JN", _N2: "JN2", _N3: "JN3"});
       }).then(done);
     });
   });
@@ -138,9 +144,8 @@ describe('Resolvables system:', function () {
     it('should return Resolvables from the deepest element and all ancestors', () => {
       let path = makePath([ "A", "B", "C" ]);
       let ctx = new ResolveContext(path);
-      let resolvableLocals = ctx.getResolvables(statesMap["C"]);
-      let keys = Object.keys(resolvableLocals).sort();
-      expect(keys).toEqual( [ "_A", "_A2", "_B", "_B2", "_C", "_C2" ] );
+      let tokens = ctx.getTokens().sort();
+      expect(tokens).toEqual( [ "_A", "_A2", "_B", "_B2", "_C", "_C2" ] );
     });
   });
 
@@ -165,7 +170,7 @@ describe('Resolvables system:', function () {
       let path = makePath([ "J", "N" ]);
       let ctx = new ResolveContext(path);
       ctx.resolvePath({ resolvePolicy: "LAZY" }).then(function () {
-        expect(getResolvedData(ctx)).toEqualData({ _J: "J", _N: "JN", _N2: "JN2"});
+        expect(getResolvedData(ctx)).toEqualData({ _J: "J", _J2: "JJ2", _N: "JN", _N2: "JN2", _N3: "JN3"});
       }).then(done);
     });
   });
@@ -174,7 +179,7 @@ describe('Resolvables system:', function () {
     it('should resolve one Resolvable, and its deps', done => {
       let path = makePath([ "A", "B", "C" ]);
       let ctx = new ResolveContext(path);
-      ctx.getResolvables()["_C"].resolve(ctx).then(function () {
+      ctx.getResolvable("_C").resolve(ctx).then(function () {
         expect(getResolvedData(ctx)).toEqualData({ _A: "A", _B: "B",_C: "ABC" });
       }).then(done);
     });
@@ -187,7 +192,7 @@ describe('Resolvables system:', function () {
       let result;
 
       let onEnter1 = function (_C2) { result = _C2; };
-      ctx.invokeLater(onEnter1, {}).then(function () {
+      invokeLater(onEnter1, ctx).then(function () {
         expect(result).toBe("C2");
         expect(getResolvedData(ctx)).toEqualData({_C2: "C2"});
       }).then(done);
@@ -203,10 +208,10 @@ describe('Resolvables system:', function () {
       let cOnEnter1 = function (_C2) { result = _C2; };
       let cOnEnter2 = function (_C) { result = _C; };
 
-      ctx.invokeLater(cOnEnter1, {}).then(() => {
+      invokeLater(cOnEnter1, ctx).then(() => {
         expect(result).toBe("C2");
         expect(getResolvedData(ctx)).toEqualData({_C2: "C2"});
-      }).then(() => ctx.invokeLater(cOnEnter2, {})).then(() => {
+      }).then(() => invokeLater(cOnEnter2, ctx)).then(() => {
         expect(result).toBe("ABC");
         expect(getResolvedData(ctx)).toEqualData({_A: "A", _B: "B", _C: "ABC", _C2: "C2"});
       }).then(done);
@@ -219,7 +224,7 @@ describe('Resolvables system:', function () {
       let ctx = new ResolveContext(path);
 
       let cOnEnter = function (_D) {  };
-      ctx.invokeLater(cOnEnter, {}).catch(function (err) {
+      invokeLater(cOnEnter, ctx).catch(function (err) {
         expect(err.message).toContain('Could not find Dependency Injection token: "_D"');
         done();
       });
@@ -237,7 +242,7 @@ describe('Resolvables system:', function () {
         result = _D;
       };
 
-      ctx.invokeLater(dOnEnter, {}).then(function () {
+      invokeLater(dOnEnter, ctx).then(function () {
         expect(result).toBe("D1D2");
         expect(getResolvedData(ctx)).toEqualData({_D: "D1D2", _D2: "D2"});
       }).then(done);
@@ -254,7 +259,7 @@ describe('Resolvables system:', function () {
         result = _F;
       };
 
-      ctx.invokeLater(fOnEnter, {}).then(function () {
+      invokeLater(fOnEnter, ctx).then(function () {
         expect(result).toBe("_EF");
       }).then(done);
     });
@@ -269,9 +274,9 @@ describe('Resolvables system:', function () {
       let result;
       let ctx = new ResolveContext(path);
 
-      ctx.getResolvables()["_G"].get(ctx).then(data => {
+      ctx.getResolvable("_G").get(ctx).then(data => {
         expect(data).toBe("G_G");
-      }).then(() => ctx.invokeLater(hOnEnter, {})).then(() => {
+      }).then(() => invokeLater(hOnEnter, ctx)).then(() => {
         expect(result).toBe("G_GH");
       }).then(done);
     });
@@ -284,7 +289,7 @@ describe('Resolvables system:', function () {
 
       // let iPathElement = path.elements[1];
       let iOnEnter = function (_I) {  };
-      let promise = ctx.invokeLater(iOnEnter, {});
+      let promise = invokeLater(iOnEnter, ctx);
       promise.catch(function (err) {
         expect(err.message).toContain('Could not find Dependency Injection token: "_I"');
         done();
@@ -298,7 +303,7 @@ describe('Resolvables system:', function () {
       let ctx = new ResolveContext(path);
 
       var iOnEnter = function (_O) {  };
-      ctx.invokeLater(iOnEnter, {}).catch(function (err) {
+      invokeLater(iOnEnter, ctx).catch(function (err) {
         expect(err.message).toContain("[$injector:unpr] Unknown provider: _IProvider ");
         done();
       });
@@ -323,9 +328,9 @@ describe('Resolvables system:', function () {
         result = _K;
         onEnterCount++;
       };
-      ctx.invokeLater(kOnEnter, {})
+      invokeLater(kOnEnter, ctx)
           .then(checkCounts)
-          .then(() => ctx.invokeLater(kOnEnter, {}))
+          .then(() => invokeLater(kOnEnter, ctx))
           .then(checkCounts)
           .then(done)
     });
@@ -341,12 +346,12 @@ describe('Resolvables system:', function () {
       expect(counts["_J"]).toBe(0);
       expect(counts["_J2"]).toBe(0);
 
-      ctx1.resolvePath({ resolvePolicy: "JIT" }).then(function () {
+      ctx1.resolvePath({ resolvePolicy: "LAZY" }).then(function () {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);
         expect(counts["_K"]).toBe(1);
         asyncCount++;
-      }).then(() => ctx2.resolvePath({ resolvePolicy: "JIT" })).then(() => {
+      }).then(() => ctx2.resolvePath({ resolvePolicy: "LAZY" })).then(() => {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);
         expect(counts["_K"]).toBe(1);
@@ -360,7 +365,7 @@ describe('Resolvables system:', function () {
     it('should create a partial path from an original path', done => {
       let path = makePath([ "J", "K", "L" ]);
       let ctx1 = new ResolveContext(path);
-      ctx1.resolvePath({ resolvePolicy: 'JIT' }).then(function () {
+      ctx1.resolvePath({ resolvePolicy: 'LAZY' }).then(function () {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);
         expect(counts["_K"]).toBe(1);
@@ -373,7 +378,7 @@ describe('Resolvables system:', function () {
       }).then(() => {
         let path2 = path.concat(makePath([ "L", "M" ]));
         let ctx2 = new ResolveContext(path2);
-        return ctx2.resolvePath({resolvePolicy: "JIT"});
+        return ctx2.resolvePath({resolvePolicy: "LAZY"});
       }).then(() => {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);

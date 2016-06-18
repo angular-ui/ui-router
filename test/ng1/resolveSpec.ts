@@ -8,6 +8,8 @@ import {
 
 import Spy = jasmine.Spy;
 import {tail} from "../../src/common/common";
+import {Resolvable} from "../../src/resolve/resolvable";
+import {services} from "../../src/common/coreservices";
 
 let module = angular.mock.module;
 ///////////////////////////////////////////////
@@ -16,6 +18,10 @@ var states, statesTree, statesMap: { [key:string]: State } = {};
 var emptyPath;
 var vals, counts, expectCounts;
 var asyncCount;
+
+function invokeLater(fn: Function, ctx: ResolveContext) {
+  return new Resolvable("", fn, services.$injector.annotate(fn)).get(ctx)
+}
 
 function getStates() {
   return {
@@ -33,15 +39,15 @@ function getStates() {
       },
       I: { resolve: { _I: function(_I) { return "I"; } } }
     },
-    J: { resolvePolicy: "JIT", resolve: { _J: function() { counts['_J']++; return "J"; }, _J2: function(_J) { counts['_J2']++; return _J + "J2"; } },
-      K: { resolvePolicy: "JIT", resolve: { _K: function(_J2) { counts['_K']++; return _J2 + "K"; }},
-        L: { resolvePolicy: "JIT", resolve: { _L: function(_K) { counts['_L']++; return _K + "L"; }},
-          M: { resolvePolicy: "JIT", resolve: { _M: function(_L) { counts['_M']++; return _L + "M"; }} }
+    J: { resolve: { _J: function() { counts['_J']++; return "J"; }, _J2: function(_J) { counts['_J2']++; return _J + "J2"; } },
+      K: { resolve: { _K: function(_J2) { counts['_K']++; return _J2 + "K"; }},
+        L: { resolve: { _L: function(_K) { counts['_L']++; return _K + "L"; }},
+          M: { resolve: { _M: function(_L) { counts['_M']++; return _L + "M"; }} }
         }
       },
       N: {
         resolve: { _N: function(_J) { return _J + "N"; }, _N2: function(_J) { return _J + "N2"; }, _N3: function(_J) { return _J + "N3"; } },
-        resolvePolicy: { _N: "EAGER", _N2: "LAZY", _N3: "JIT" }
+        resolvePolicy: { _N: "EAGER", _N2: "LAZY", _N3: "LAZY" }
       }
     },
     O: { resolve: { _O: function(_O2) { return _O2 + "O"; }, _O2: function(_O) { return _O + "O2"; } } },
@@ -84,11 +90,6 @@ function makePath(names: string[]): PathNode[] {
   let nodes = map(names, name => new PathNode(statesMap[name]));
   return PathFactory.bindResolveContexts(nodes);
 }
-
-function getResolvedData(pathContext: ResolveContext) {
-  return map(pathContext.getResolvables(), prop("data"));
-}
-
 
 describe('Resolvables system:', function () {
   beforeEach(inject(function ($transitions, $injector) {
@@ -426,102 +427,6 @@ describe("$resolve", function () {
 });
 
 
-describe("State transitions with resolves", function() {
-  var stateDefs: any = statesMap;
-  beforeEach(module(function($stateProvider) {
-    // allow tests to specify controllers after registration
-    function controllerProvider(state) {
-      return function() {
-        return stateDefs[state.name].controller || function emptyController() {}
-      }
-    }
-
-    angular.forEach(stateDefs, function(state: StateDeclaration, key) {
-      if (!key) return;
-      state.template = "<div ui-view></div> state"+key;
-      state.controllerProvider = controllerProvider(state);
-      $stateProvider.state(key, state);
-    });
-  }));
-
-  var $state, $transitions, $q, $compile, $rootScope, $scope, $timeout;
-  beforeEach(inject(function (_$transitions_, _$state_, _$q_, _$compile_, _$rootScope_, _$timeout_, $injector) {
-    $state = _$state_;
-    $transitions = _$transitions_;
-    $q = _$q_;
-    $compile = _$compile_;
-    $rootScope = _$rootScope_;
-    $timeout = _$timeout_;
-    $scope = $rootScope.$new();
-    emptyPath = [];
-    asyncCount = 0;
-    $compile(angular.element("<div ui-view></div>"))($scope);
-  }));
-
-  function flush() {
-    $q.flush();
-    $timeout.flush();
-  }
-
-  function testGo(state, params?, options?) {
-    $state.go(state, params, options);
-    $q.flush();
-    expect($state.current).toBe($state.get(state));
-  }
-
-  it("should not resolve jit resolves that are not injected anywhere", inject(function() {
-    testGo("J");
-    expect(counts).toEqualData(expectCounts);
-    testGo("K");
-    expect(counts).toEqualData(expectCounts);
-  }));
-
-  it("should invoke jit resolves when they are injected", inject(function() {
-    stateDefs.J.controller = function JController(_J) { };
-
-    testGo("J");
-    expectCounts._J++;
-    expect(counts).toEqualData(expectCounts);
-  }));
-
-  it("should invoke jit resolves only when injected", inject(function() {
-    stateDefs.K.controller = function KController(_K) { };
-
-    testGo("J");
-    expect(counts).toEqualData(expectCounts);
-
-    testGo("K");
-    expectCounts._K++;
-    expectCounts._J++;
-    expectCounts._J2++;
-    expect(counts).toEqualData(expectCounts);
-  }));
-
-  it("should not re-invoke jit resolves", inject(function() {
-    stateDefs.J.controller = function JController(_J) { };
-    stateDefs.K.controller = function KController(_K) { };
-    testGo("J");
-    expectCounts._J++;
-    expect(counts).toEqualData(expectCounts);
-
-    testGo("K");
-
-    expectCounts._K++;
-    expectCounts._J2++;
-    expect(counts).toEqualData(expectCounts);
-  }));
-
-  // TODO: remove JIT resolve feature
-  xit("should invoke jit resolves during a transition that are injected in a hook like onEnter", inject(function() {
-    stateDefs.J.onEnter = function onEnter(_J) {};
-    testGo("J");
-    expectCounts._J++;
-    expect(counts).toEqualData(expectCounts);
-  }));
-});
-
-
-
 // Integration tests
 describe("Integration: Resolvables system", () => {
   beforeEach(module(function ($stateProvider) {
@@ -548,7 +453,7 @@ describe("Integration: Resolvables system", () => {
     $transitions.onStart({to: "J"}, ($transition$) => {
       // TODO: use lazy resolve for test, not JIT resolve
       var ctx = tail($transition$.treeChanges().to).resolveContext;
-      return ctx.invokeLater(function (_J) {}).then(function() {
+      return invokeLater(function (_J) {}, ctx).then(function() {
         expect(counts._J).toEqualData(1);
         return $state.target("K");
       });
