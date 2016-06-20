@@ -38,7 +38,7 @@ const ng2ComponentInputs = (ng2CompClass) => {
       // Only Inputs
       .filter(tuple => tuple.anno instanceof InputMetadata)
       // If they have a bindingPropertyName, i.e. "@Input('foo') _foo", then foo, else _foo
-      .map(tuple => ({ resolve: tuple.anno.bindingPropertyName || tuple.key, prop: tuple.key }));
+      .map(tuple => ({ token: tuple.anno.bindingPropertyName || tuple.key, prop: tuple.key }));
 
   /** Get "inputs: ['foo']" inputs */
   let inputs = Reflect['getMetadata']('annotations', ng2CompClass)
@@ -48,7 +48,7 @@ const ng2ComponentInputs = (ng2CompClass) => {
       .map(x => x.inputs)
       // Flatten
       .reduce((acc, arr) => acc.concat(arr), [])
-      .map(input => ({ resolve: input, prop: input }));
+      .map(input => ({ token: input, prop: input }));
 
   return _props.concat(inputs);
 };
@@ -184,7 +184,7 @@ export class UiView {
     let context = new ResolveContext(config.path);
     let resolvables = context.getTokens().map(token => context.getResolvable(token)).filter(r => r.resolved);
     let rawProviders = resolvables.map(r => ({ provide: r.token, useValue: r.data }));
-    rawProviders.push(provide(UiView.PARENT_INJECT, { useValue: { context: config.viewDecl.$context, fqn: uiViewData.fqn } }));
+    rawProviders.push({ provide: UiView.PARENT_INJECT, useValue: { context: config.viewDecl.$context, fqn: uiViewData.fqn } });
 
     // Get the component class from the view declaration. TODO: allow promises?
     let componentType = <Type> viewDecl.component;
@@ -196,13 +196,17 @@ export class UiView {
 
       // TODO: wire uiCanExit and uiOnParamsChanged callbacks
 
-      // Supply resolve data to matching @Input('prop') or inputs: ['prop']
-      let inputs = ng2ComponentInputs(componentType);
       let bindings = viewDecl['bindings'] || {};
+      var addResolvable = tuple => ({
+        prop: tuple.prop,
+        resolvable: context.getResolvable(bindings[tuple.prop] || tuple.token)
+      });
 
-      inputs.map(tuple => ({ prop: tuple.prop, resolve: bindings[tuple.prop] || tuple.resolve }))
-          .filter(tuple => resolvables[tuple.resolve] !== undefined)
-          .forEach(tuple => { ref.instance[tuple.prop] = resolvables[tuple.resolve].data });
+      // Supply resolve data to matching @Input('prop') or inputs: ['prop']
+      let inputTuples = ng2ComponentInputs(componentType);
+      inputTuples.map(addResolvable)
+          .filter(tuple => tuple.resolvable && tuple.resolvable.resolved)
+          .forEach(tuple => { ref.instance[tuple.prop] = tuple.resolvable.data });
           
       // Initiate change detection for the newly created component
       ref.changeDetectorRef.detectChanges();

@@ -66,8 +66,9 @@ describe('view', function() {
       let $view = new ViewService();
       $view.viewConfigFactory("ng1", ng1ViewConfigFactory);
 
-      path = [root, state].map(_state => new PathNode(_state));
-      path = PathFactory.applyViewConfigs($view, path);
+      let states = [root, state];
+      path = states.map(_state => new PathNode(_state));
+      PathFactory.applyViewConfigs($view, path, states);
     });
 
     it('uses the controllerProvider to get controller dynamically', inject(function ($view, $q) {
