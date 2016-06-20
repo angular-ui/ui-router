@@ -1,6 +1,6 @@
 /** @module ng1 */ /** */
 import {State} from "../../state/stateObject";
-import {pick, forEach, anyTrueR, unnestR, tail} from "../../common/common";
+import {pick, forEach, anyTrueR, unnestR, tail, extend} from "../../common/common";
 import {kebobString} from "../../common/strings";
 import {ViewConfig} from "../../view/interface";
 import {Ng1ViewDeclaration} from "../interface";
@@ -13,7 +13,7 @@ import {TemplateFactory} from "../templateFactory";
 import {ResolveContext} from "../../resolve/resolveContext";
 import {Resolvable} from "../../resolve/resolvable";
 
-export const ng1ViewConfigFactory = (node, view) => new Ng1ViewConfig(node, view);
+export const ng1ViewConfigFactory = (path, view) => new Ng1ViewConfig(path, view);
 
 /**
  * This is a [[StateBuilder.builder]] function for angular1 `views`.
@@ -105,15 +105,16 @@ export class Ng1ViewConfig implements ViewConfig {
   template: string;
   locals: any; // TODO: delete me
 
-  constructor(public node: PathNode, public viewDecl: Ng1ViewDeclaration) { }
+  constructor(public path: PathNode[], public viewDecl: Ng1ViewDeclaration) { }
 
   load() {
     let $q = services.$q;
     if (!this.hasTemplate())
       throw new Error(`No template configuration specified for '${this.viewDecl.$uiViewName}@${this.viewDecl.$uiViewContextAnchor}'`);
 
-    let context = this.node.resolveContext;
-    let params = this.node.paramValues;
+    let context = new ResolveContext(this.path);
+    let params = this.path.reduce((acc, node) => extend(acc, node.paramValues), {});
+
     let promises: any = {
       template: $q.when(this.getTemplate(params, new TemplateFactory(), context)),
       controller: $q.when(this.getController(context))

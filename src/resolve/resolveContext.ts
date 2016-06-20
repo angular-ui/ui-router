@@ -11,7 +11,6 @@ import {Resolvables, ResolvePolicy, IOptions1} from "./interface";
 import {PathNode} from "../path/node";
 import {Resolvable} from "./resolvable";
 import {State} from "../state/stateObject";
-import {mergeR} from "../common/common";
 import {PathFactory} from "../path/pathFactory";
 import {stringify} from "../common/strings";
 
@@ -23,19 +22,7 @@ interface Promises { [key: string]: Promise<any>; }
 
 export class ResolveContext {
 
-  private _nodeFor: (s: State) => PathNode;
-  private _pathTo: (s: State) => PathNode[];
-
-  constructor(private _path: PathNode[]) {
-    extend(this, {
-      _nodeFor(state: State): PathNode {
-        return <PathNode> find(this._path, propEq('state', state));
-      },
-      _pathTo(state: State): PathNode[] {
-        return PathFactory.subPath(this._path, node => node.state === state);
-      }
-    });
-  }
+  constructor(private _path: PathNode[]) { }
 
   /** Gets all the tokens found in the resolve context, de-duplicated */
   getTokens() {
@@ -55,10 +42,12 @@ export class ResolveContext {
     return tail(matching);
   }
 
-  /** Inspects a function `fn` for its dependencies.  Returns an object containing any matching Resolvables */
-  getResolvablesForFn(fn: IInjectable): Resolvable[] {
-    let deps = services.$injector.annotate(<Function> fn, services.$injector.strictDi);
-    return deps.map(token => this.getResolvable(token));
+  private _nodeFor(state: State): PathNode {
+    return <PathNode> find(this._path, propEq('state', state));
+  }
+
+  private _pathTo(state: State): PathNode[] {
+    return PathFactory.subPath(this._path, node => node.state === state);
   }
 
   isolateRootTo(state: State): ResolveContext {
@@ -78,34 +67,27 @@ export class ResolveContext {
   }
    
   // Returns a promise for an array of resolved path Element promises
-  resolvePath(options: IOptions1 = {}): Promise<any> {
-    trace.traceResolvePath(this._path, options);
-    const promiseForNode = (node: PathNode) => this.resolvePathElement(node.state, options);
-    return services.$q.all(<any> map(this._path, promiseForNode)).then(all => all.reduce(mergeR, {}));
-  }
-
-  // returns a promise for all the resolvables on this PathElement
-  // options.resolvePolicy: only return promises for those Resolvables which are at 
-  // the specified policy, or above.  i.e., options.resolvePolicy === 'lazy' will
-  // resolve both 'lazy' and 'eager' resolves.
-  resolvePathElement(state: State, options: IOptions1 = {}): Promise<any> {
-    // The caller can request the path be resolved for a given policy and "below" 
+  resolvePath(options: IOptions1 = {}): Promise<{ token: any, value: any }[]> {
     let policy: string = options && options.resolvePolicy;
     let policyOrdinal: number = ResolvePolicy[policy || defaultResolvePolicy];
-    // Get path Resolvables available to this element
-    let resolvables = this.getOwnResolvables(state);
+    // get the subpath to the state argument, if provided
+    trace.traceResolvePath(this._path, options);
 
-    const matchesRequestedPolicy = resolvable => getPolicy(state.resolvePolicy, resolvable) >= policyOrdinal;
-    let matchingResolves = filter(resolvables, matchesRequestedPolicy);
+    let promises: Promise<any>[] = this._path.reduce((acc, node) => {
+      const matchesRequestedPolicy = resolvable => getPolicy(node.state.resolvePolicy, resolvable) >= policyOrdinal;
+      let nodeResolvables = node.resolvables.filter(matchesRequestedPolicy);
+      let subContext = this.isolateRootTo(node.state);
 
-    const getResolvePromise = (resolvable: Resolvable) => resolvable.get(this.isolateRootTo(state), options);
-    let resolvablePromises: Promises = <any> map(matchingResolves, getResolvePromise);
+      // For the matching Resolvables, start their async fetch process.
+      var getResult = (r: Resolvable) => r.get(subContext, options)
+          // Return a tuple that includes the Resolvable's token
+          .then(value => ({ token: r.token, value: value }));
+      return acc.concat(nodeResolvables.map(getResult));
+    }, []);
 
-    trace.traceResolvePathElement(this, matchingResolves, options);
+    return services.$q.all(promises);
+  }
 
-    return services.$q.all(resolvablePromises);
-  } 
-  
   injector(): { get(any): any } {
     
     let get = (token: any) => {
@@ -117,6 +99,11 @@ export class ResolveContext {
     return { get };
   }
 
+  /**
+   * Gets the async dependencies of a Resolvable
+   *
+   * Given a Resolvable, returns its dependencies as a Resolvable[]
+   */
   getDependencies(resolvable: Resolvable): Resolvable[] {
     // predicate that finds the node the resolvable belongs to
     const nodeForResolvable = node => node.resolvables.indexOf(resolvable) !== -1;
@@ -132,7 +119,9 @@ export class ResolveContext {
       if (matching.length) return tail(matching);
 
       let fromInjector = services.$injector.get(token);
-      if (!fromInjector) throw new Error("Could not find Dependency Injection token: " + stringify(token));
+      if (!fromInjector) {
+        throw new Error("Could not find Dependency Injection token: " + stringify(token));
+      }
 
       return new Resolvable(token, () => fromInjector, [], fromInjector);
     };

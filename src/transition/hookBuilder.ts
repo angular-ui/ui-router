@@ -10,6 +10,7 @@ import {TransitionHook} from "./transitionHook";
 import {State} from "../state/stateObject";
 import {PathNode} from "../path/node";
 import {TransitionService} from "./transitionService";
+import {ResolveContext} from "../resolve/resolveContext";
 
 /**
  * This class returns applicable TransitionHooks for a specific Transition instance.
@@ -83,18 +84,24 @@ export class HookBuilder {
     if (!matchingHooks) return [];
 
      const makeTransitionHooks = (hook: IEventHook) => {
-      // Fetch the Nodes that caused this hook to match.
-      let matches: IMatchingNodes = hook.matches(this.treeChanges);
-      // Select the PathNode[] that will be used as TransitionHook context objects
-      let nodes: PathNode[] = matches[matchingNodesProp];
+       // Fetch the Nodes that caused this hook to match.
+       let matches: IMatchingNodes = hook.matches(this.treeChanges);
+       // Select the PathNode[] that will be used as TransitionHook context objects
+       let matchingNodes: PathNode[] = matches[matchingNodesProp];
 
-      // Return an array of HookTuples
-      return nodes.map(node => {
-        let _options = extend({ bind: hook.bind, traceData: { hookType, context: node} }, this.baseHookOptions, options);
-        let stateContext = _options.stateHook ? node.state : null;
-        let transitionHook = new TransitionHook(this.transition, stateContext, hook.callback, node.resolveContext, _options);
-        return <HookTuple> { hook, node, transitionHook };
-      });
+       // When invoking 'exiting' hooks, give them the "from path" for resolve data.
+       // Everything else gets the "to path"
+       let resolvePath = matchingNodesProp === 'exiting' ? this.treeChanges.from : this.treeChanges.to;
+       let resolveContext = new ResolveContext(resolvePath);
+
+       // Return an array of HookTuples
+       return matchingNodes.map(node => {
+         let _options = extend({ bind: hook.bind, traceData: { hookType, context: node} }, this.baseHookOptions, options);
+         let state = _options.stateHook ? node.state : null;
+         let context = resolveContext.isolateRootTo(node.state);
+         let transitionHook = new TransitionHook(this.transition, state, hook.callback, context, _options);
+         return <HookTuple> { hook, node, transitionHook };
+       });
     };
 
     return matchingHooks.map(makeTransitionHooks)

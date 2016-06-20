@@ -5,10 +5,11 @@
  *
  * @preferred @module ng1_directives
  */ /** for typedoc */
-import {extend, forEach, toJson} from "../../common/common";
+import {extend, forEach, toJson, tail} from "../../common/common";
 import {isString, isObject} from "../../common/predicates";
 import {UIViewData} from "./viewDirective";
 import {parse} from "../../common/hof";
+import {PathNode} from "../../path/node";
 
 /** @hidden */
 function parseStateRef(ref, current) {
@@ -22,8 +23,8 @@ function parseStateRef(ref, current) {
 /** @hidden */
 function stateContext(el) {
   let $uiView: UIViewData = el.parent().inheritedData('$uiView');
-  let context = parse('$cfg.node.state')($uiView);
-  return context && context.name ? context : undefined;
+  let path: PathNode[] = parse('$cfg.path')($uiView);
+  return path ? tail(path).state.name : undefined;
 }
 
 /** @hidden */

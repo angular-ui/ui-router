@@ -69,7 +69,7 @@ let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation,
 
   location.init();
 
-  router.viewService.viewConfigFactory("ng2", (node: PathNode, config: Ng2ViewDeclaration) => new Ng2ViewConfig(node, config));
+  router.viewService.viewConfigFactory("ng2", (path: PathNode[], config: Ng2ViewDeclaration) => new Ng2ViewConfig(path, config));
   router.stateRegistry.decorator('views', ng2ViewsBuilder);
 
   router.stateRegistry.stateQueue.autoFlush(router.stateService);

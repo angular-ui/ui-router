@@ -1,13 +1,12 @@
 /** @module state */ /** for typedoc */
-import {extend, find, tail, map} from "../../common/common";
-import {propEq} from "../../common/hof";
+import {noop} from "../../common/common";
 
 import {ResolvePolicy} from "../../resolve/interface";
 
 import {Transition} from "../../transition/transition";
 import {val} from "../../common/hof";
-import {Resolvable} from "../../resolve/resolvable";
 import {State} from "../stateObject";
+import {ResolveContext} from "../../resolve/resolveContext";
 
 
 let LAZY = ResolvePolicy[ResolvePolicy.LAZY];
@@ -24,27 +23,27 @@ export class ResolveHooks {
 
   registerHooks() {
     let treeChanges = this.transition.treeChanges();
+    let resolveContext = new ResolveContext(treeChanges.to);
 
     /** a function which resolves any EAGER Resolvables for a Path */
     function $eagerResolvePath($transition$: Transition) {
-      return tail(<any[]> treeChanges.to).resolveContext.resolvePath(extend({ transition: $transition$ }, { resolvePolicy: EAGER }));
+      var options = { transition: $transition$, resolvePolicy: EAGER };
+      return resolveContext.resolvePath(options).then(noop);
     }
 
     /** Returns a function which pre-resolves any LAZY Resolvables for a [[PathNode]] in a Path */
     function $lazyResolveEnteringState(transition: Transition, injector, state: State) {
-      let node = find(<any[]> treeChanges.entering, propEq('state', state));
-
       // A new Resolvable contains all the resolved data in this context as a single object, for injection as `$resolve$`
-      let context = node.resolveContext;
-      var options = extend({ transition: transition }, { resolvePolicy: LAZY });
+      let context = resolveContext.isolateRootTo(state);
+      var options = { transition: transition, resolvePolicy: LAZY };
 
       // Resolve all the LAZY resolves
-      return context.resolvePath(options);
+      return context.resolvePath(options).then(noop);
     }
 
     // Resolve eager resolvables before when the transition starts
-    this.transition.onStart({}, $eagerResolvePath, { priority: 1000 });
+    this.transition.onStart({}, <any> $eagerResolvePath, { priority: 1000 });
     // Resolve lazy resolvables before each state is entered
-    this.transition.onEnter({ entering: val(true) }, $lazyResolveEnteringState, { priority: 1000 });
+    this.transition.onEnter({ entering: val(true) }, <any> $lazyResolveEnteringState, { priority: 1000 });
   }
 }

@@ -39,7 +39,7 @@ export function ng2ViewsBuilder(state: State) {
 export class Ng2ViewConfig implements ViewConfig {
   loaded: boolean = true;
 
-  constructor(public node: PathNode, public viewDecl: Ng2ViewDeclaration) { }
+  constructor(public path: PathNode[], public viewDecl: Ng2ViewDeclaration) { }
 
   load() {
     return services.$q.when(this);

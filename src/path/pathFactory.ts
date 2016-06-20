@@ -48,8 +48,9 @@ export class PathFactory {
    */
   static applyViewConfigs($view: ViewService, path: PathNode[]) {
     return path.map(node => {
+      let subPath = PathFactory.subPath(path, n => n === node);
       let viewDecls: _ViewDeclaration[] = values(node.state.views || {});
-      let viewConfigs: ViewConfig[][] = viewDecls.map(view => $view.createViewConfig(node, view));
+      let viewConfigs: ViewConfig[][] = viewDecls.map(view => $view.createViewConfig(subPath, view));
       node.views = viewConfigs.reduce(unnestR, []);
       return node;
     });
@@ -90,18 +91,6 @@ export class PathFactory {
 
     // The param keys specified by the incoming toParams
     return <PathNode[]> toPath.map(makeInheritedParamsNode);
-  }
-
-  /**
-   * Given a path of nodes, creates and binds a ResolveContext to each node.
-   * The ResolveContext is used to inject functions from the proper scoping in the resolve tree.
-   */
-  static bindResolveContexts(resolvePath: PathNode[]): PathNode[] {
-    let resolveContext = new ResolveContext(resolvePath);
-    return resolvePath.map((node: PathNode) => {
-      node.resolveContext = resolveContext.isolateRootTo(node.state);
-      return node;
-    });
   }
 
   /**

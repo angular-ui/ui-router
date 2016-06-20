@@ -14,6 +14,7 @@ import {Inject} from "@angular/core";
 import {ViewContext, ViewConfig} from "../../view/interface";
 import {Ng2ViewDeclaration} from "../interface";
 import {Ng2ViewConfig} from "../statebuilders/views";
+import {ResolveContext} from "../../resolve/resolveContext";
 
 /** @hidden */
 let id = 0;
@@ -180,7 +181,7 @@ export class UiView {
     if (!config) return;
 
     // Map resolves to "useValue providers"
-    let context = config.node.resolveContext;
+    let context = new ResolveContext(config.path);
     let resolvables = context.getTokens().map(token => context.getResolvable(token)).filter(r => r.resolved);
     let rawProviders = resolvables.map(r => ({ provide: r.token, useValue: r.data }));
     rawProviders.push(provide(UiView.PARENT_INJECT, { useValue: { context: config.viewDecl.$context, fqn: uiViewData.fqn } }));

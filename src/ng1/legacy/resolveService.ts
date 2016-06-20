@@ -22,7 +22,12 @@ export const resolveFactory = () => ({
       const rewrap = _locals => resolvablesBuilder(<any> { resolve: map(_locals, local => () => local) });
       context.addResolvables(rewrap(parentLocals), parentNode.state);
       context.addResolvables(rewrap(locals), node.state);
-      return context.resolvePath();
+
+      const tuples2ObjR = (acc, tuple) => {
+        acc[tuple.token] = tuple.value;
+        return acc;
+      };
+      return context.resolvePath().then(results => results.reduce(tuples2ObjR, {}));
     };
 
     return parent ? parent.then(resolveData) : resolveData({});

@@ -23,6 +23,7 @@ import {Resolvable} from "../resolve/resolvable";
 import {TransitionService} from "./transitionService";
 import {ViewConfig} from "../view/interface";
 import {Rejection} from "./rejectFactory";
+import {ResolveContext} from "../resolve/resolveContext";
 
 
 let transitionCount = 0;
@@ -148,18 +149,18 @@ export class Transition implements IHookRegistry {
     this._options = extend({ current: val(this) }, targetState.options());
     this.$id = transitionCount++;
     let toPath = PathFactory.buildToPath(fromPath, targetState);
-    toPath = PathFactory.applyViewConfigs(_transitionService.$view, toPath);
     this._treeChanges = PathFactory.treeChanges(fromPath, toPath, this._options.reloadState);
-    
-    PathFactory.bindResolveContexts(this._treeChanges.to);
+    PathFactory.applyViewConfigs(_transitionService.$view, this._treeChanges.to);
 
     let rootResolvables: Resolvable[] = [
       new Resolvable(Transition, () => this, [], this),
       new Resolvable('$transition$', () => this, [], this),
       new Resolvable('$stateParams', () => this.params(), [], this.params())
     ];
+
     let rootNode: PathNode = this._treeChanges.to[0];
-    rootNode.resolveContext.addResolvables(rootResolvables, rootNode.state)
+    let context = new ResolveContext(this._treeChanges.to);
+    context.addResolvables(rootResolvables, rootNode.state);
   }
 
   $from() {
@@ -225,7 +226,7 @@ export class Transition implements IHookRegistry {
    * @returns an array of resolve tokens (keys)
    */
   getResolveTokens(): any[] {
-    return tail(this._treeChanges.to).resolveContext.getTokens();
+    return new ResolveContext(this._treeChanges.to).getTokens();
   }
 
 
@@ -246,7 +247,7 @@ export class Transition implements IHookRegistry {
    * @returns an array of resolve tokens (keys)
    */
   getResolveValue(token: (any|any[])): (any|any[]) {
-    var resolveContext = tail(this._treeChanges.to).resolveContext;
+    let resolveContext = new ResolveContext(this._treeChanges.to);
     const getData = token => {
       var resolvable = resolveContext.getResolvable(token);
       if (resolvable === undefined) {
@@ -272,7 +273,8 @@ export class Transition implements IHookRegistry {
     let stateName: string = (typeof state === "string") ? state : state.name;
     let topath = this._treeChanges.to;
     let targetNode = find(topath, node => node.state.name === stateName);
-    tail(topath).resolveContext.addResolvables([resolvable], targetNode.state);
+    let resolveContext: ResolveContext = new ResolveContext(topath);
+    resolveContext.addResolvables([resolvable], targetNode.state);
   }
 
   /**

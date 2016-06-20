@@ -5,7 +5,6 @@ import {State} from "../state/stateObject";
 import {RawParams} from "../params/interface";
 import {Param} from "../params/param";
 import {Resolvable} from "../resolve/resolvable";
-import {ResolveContext} from "../resolve/resolveContext";
 import {ViewConfig} from "../view/interface";
 
 /**
@@ -22,8 +21,6 @@ export class PathNode {
   public paramSchema: Param[];
   /** The parameter values that belong to the state */
   public paramValues: { [key: string]: any };
-  /** A context object used in conjunction with [[resolvables]] to manage resolves */
-  public resolveContext: ResolveContext;
   /** The individual (stateful) resolvable objects that belong to the state */
   public resolvables: Resolvable[];
   /** The state's declared view configuration objects */
@@ -41,7 +38,6 @@ export class PathNode {
       this.paramValues = extend({}, node.paramValues);
       this.resolvables = node.resolvables.slice();
       this.views = node.views && node.views.slice();
-      this.resolveContext = node.resolveContext;
     } else {
       this.state = state;
       this.paramSchema = state.parameters({ inherit: false });

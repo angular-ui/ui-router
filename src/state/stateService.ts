@@ -275,7 +275,7 @@ export class StateService {
 
     let ref: TargetState = this.target(to, toParams, options);
     let latestSuccess: Transition = this.globals.successfulTransitions.peekTail();
-    const rootPath = () => PathFactory.bindResolveContexts([new PathNode(this.stateRegistry.root())]);
+    const rootPath = () => [ new PathNode(this.stateRegistry.root()) ];
     let currentPath: PathNode[] = latestSuccess ? latestSuccess.treeChanges().to : rootPath();
 
     if (!ref.exists())

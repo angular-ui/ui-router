@@ -2,13 +2,8 @@
 
 import "../matchers.ts"
 
-import {
-    ResolveContext, State, PathNode, PathFactory, Resolvable
-} from "../../src/core";
-
-import {
-    omit, map, filter, pick, forEach, prop, copy
-} from "../../src/core";
+import { ResolveContext, State, PathNode, Resolvable } from "../../src/core";
+import { omit, pick, forEach, copy } from "../../src/core";
 
 import Spy = jasmine.Spy;
 import {services} from "../../src/common/coreservices";
@@ -92,8 +87,7 @@ beforeEach(function () {
 });
 
 function makePath(names: string[]): PathNode[] {
-  let nodes = map(names, name => new PathNode(statesMap[name]));
-  return PathFactory.bindResolveContexts(nodes);
+  return names.map(name => new PathNode(statesMap[name]));
 }
 
 function getResolvedData(pathContext: ResolveContext) {
@@ -104,42 +98,6 @@ function getResolvedData(pathContext: ResolveContext) {
 
 
 describe('Resolvables system:', function () {
-
-  describe('ResolveContext.resolvePathElement()', function () {
-    it('should resolve all resolves in a PathElement', (done) => {
-      let path = makePath(["A"]);
-      let ctx = new ResolveContext(path);
-      ctx.resolvePathElement(statesMap["A"]).then(function () {
-        expect(getResolvedData(ctx)).toEqualData({_A: "A", _A2: "A2"});
-      }).then(done);
-    });
-
-    it('should not resolve non-dep parent PathElements', done => {
-      let path = makePath([ "A", "B" ]);
-      let ctx = new ResolveContext(path);
-      ctx.resolvePathElement(statesMap["B"]).then(function () {
-        expect(getResolvedData(ctx)).toEqualData({_B: "B", _B2: "B2" });
-        expect(ctx.getResolvable("_A")).toBeDefined();
-      }).then(done);
-    });
-
-    it('should resolve only eager resolves when run with "eager" policy', done => {
-      let path = makePath([ "J", "N" ]);
-      let ctx = new ResolveContext(path);
-      ctx.resolvePathElement(statesMap["N"], { resolvePolicy: "EAGER" }).then(function () {
-        expect(getResolvedData(ctx)).toEqualData({_J: "J", _N: "JN" });
-      }).then(done);
-    });
-
-    it('should resolve only eager and lazy resolves in PathElement when run with "lazy" policy', done => {
-      let path = makePath([ "J", "N" ]);
-      let ctx = new ResolveContext(path);
-      ctx.resolvePathElement(statesMap["N"], { resolvePolicy: "LAZY" }).then(function () {
-        expect(getResolvedData(ctx)).toEqualData({ _J: "J", _N: "JN", _N2: "JN2", _N3: "JN3"});
-      }).then(done);
-    });
-  });
-
   describe('Path.getResolvables', function () {
     it('should return Resolvables from the deepest element and all ancestors', () => {
       let path = makePath([ "A", "B", "C" ]);

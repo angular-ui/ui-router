@@ -11,7 +11,7 @@ import {_ViewDeclaration} from "../state/interface";
 const match = (obj1, ...keys) =>
     (obj2) => keys.reduce((memo, key) => memo && obj1[key] === obj2[key], true);
 
-export type ViewConfigFactory = (node: PathNode, decl: _ViewDeclaration) => ViewConfig|ViewConfig[];
+export type ViewConfigFactory = (path: PathNode[], decl: _ViewDeclaration) => ViewConfig|ViewConfig[];
 
 /**
  * The View service
@@ -32,10 +32,10 @@ export class ViewService {
     this._viewConfigFactories[viewType] = factory;
   }
 
-  createViewConfig(node: PathNode, decl: _ViewDeclaration): ViewConfig[] {
+  createViewConfig(path: PathNode[], decl: _ViewDeclaration): ViewConfig[] {
     let cfgFactory = this._viewConfigFactories[decl.$type];
     if (!cfgFactory) throw new Error("ViewService: No view config factory registered for type " + decl.$type);
-    let cfgs = cfgFactory(node, decl);
+    let cfgs = cfgFactory(path, decl);
     return isArray(cfgs) ? cfgs : [cfgs];
   }
   

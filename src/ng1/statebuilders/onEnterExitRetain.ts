@@ -5,7 +5,7 @@ import {Transition} from "../../transition/transition";
 import IInjectorService = angular.auto.IInjectorService;
 import {services} from "../../common/coreservices";
 import {getLocals} from "../services";
-import {tail} from "../../common/common";
+import {ResolveContext} from "../../resolve/resolveContext";
 
 /**
  * This is a [[StateBuilder.builder]] function for angular1 `onEnter`, `onExit`,
@@ -18,8 +18,8 @@ export const getStateHookBuilder = (hookName) =>
 function stateHookBuilder(state: State, parentFn): TransitionStateHookFn {
   let hook = state[hookName];
   function decoratedNg1Hook(trans: Transition, inj: IInjectorService): HookResult {
-    let locals = getLocals(tail(trans.treeChanges().to).resolveContext);
-    return services.$injector.invoke(hook, this, locals);
+    let resolveContext = new ResolveContext(trans.treeChanges().to);
+    return services.$injector.invoke(hook, this, getLocals(resolveContext));
   }
 
   return hook ? decoratedNg1Hook : undefined;

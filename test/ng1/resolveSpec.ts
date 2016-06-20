@@ -87,8 +87,7 @@ beforeEach(function () {
 });
 
 function makePath(names: string[]): PathNode[] {
-  let nodes = map(names, name => new PathNode(statesMap[name]));
-  return PathFactory.bindResolveContexts(nodes);
+  return names.map(name => new PathNode(statesMap[name]));
 }
 
 describe('Resolvables system:', function () {
@@ -451,8 +450,7 @@ describe("Integration: Resolvables system", () => {
 
   it("should not re-resolve data, when redirecting to a child", () => {
     $transitions.onStart({to: "J"}, ($transition$) => {
-      // TODO: use lazy resolve for test, not JIT resolve
-      var ctx = tail($transition$.treeChanges().to).resolveContext;
+      var ctx = new ResolveContext($transition$.treeChanges().to);
       return invokeLater(function (_J) {}, ctx).then(function() {
         expect(counts._J).toEqualData(1);
         return $state.target("K");

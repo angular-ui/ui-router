@@ -52,7 +52,7 @@ describe('view', function() {
   }));
 
   describe('controller handling', function() {
-    let ctx, state, path, ctrlExpression;
+    let state, path, ctrlExpression;
     beforeEach(() => {
       ctrlExpression = null;
       state = register({
@@ -65,11 +65,9 @@ describe('view', function() {
       });
       let $view = new ViewService();
       $view.viewConfigFactory("ng1", ng1ViewConfigFactory);
-      
-      path = PathFactory.bindResolveContexts([root, state].map(_state => new PathNode(_state, {})));
-      path = PathFactory.applyViewConfigs($view, path);
 
-      ctx = new ResolveContext(path);
+      path = [root, state].map(_state => new PathNode(_state));
+      path = PathFactory.applyViewConfigs($view, path);
     });
 
     it('uses the controllerProvider to get controller dynamically', inject(function ($view, $q) {

@@ -1,6 +1,6 @@
 /** @module ng1_directives */ /** for typedoc */
 "use strict";
-import {extend, unnestR, filter} from "../../common/common";
+import {extend, unnestR, filter, tail} from "../../common/common";
 import {isDefined, isFunction, isString} from "../../common/predicates";
 import {trace} from "../../common/trace";
 import {ActiveUIView} from "../../view/interface";
@@ -13,7 +13,7 @@ import {PathNode} from "../../path/node";
 import {Param} from "../../params/param";
 import {kebobString} from "../../common/strings";
 import {HookRegOptions} from "../../transition/interface";
-import {Ng1Controller} from "../interface";
+import {Ng1Controller, Ng1StateDeclaration} from "../interface";
 import {getLocals} from "../services";
 
 /** @hidden */
@@ -315,7 +315,6 @@ $ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view'
 function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,   $timeout) {
   const getControllerAs = parse('viewDecl.controllerAs');
   const getResolveAs = parse('viewDecl.resolveAs');
-  const getResolveContext = parse('node.resolveContext');
 
   return {
     restrict: 'ECA',
@@ -335,8 +334,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,
         let controller = cfg.controller;
         let controllerAs: string = getControllerAs(cfg);
         let resolveAs: string = getResolveAs(cfg);
-        let resolveCtx: ResolveContext = getResolveContext(cfg);
-
+        let resolveCtx: ResolveContext = cfg.path && new ResolveContext(cfg.path);
         let locals = resolveCtx && getLocals(resolveCtx);
 
         scope[resolveAs] = locals;
@@ -390,16 +388,19 @@ function registerControllerCallbacks($transitions: TransitionService, controller
   // Call $onInit() ASAP
   if (isFunction(controllerInstance.$onInit) && !(cfg.viewDecl.component && hasComponentImpl)) controllerInstance.$onInit();
 
+  let viewState: Ng1StateDeclaration = tail(cfg.path).state.self;
+
   var hookOptions: HookRegOptions = { bind: controllerInstance };
   // Add component-level hook for onParamsChange
   if (isFunction(controllerInstance.uiOnParamsChanged)) {
+    let resolveContext: ResolveContext = new ResolveContext(cfg.path);
+    let viewCreationTrans = resolveContext.getResolvable('$transition$').data;
+
     // Fire callback on any successful transition
     const paramsUpdated = ($transition$: Transition) => {
-      let ctx: ResolveContext = cfg.node.resolveContext;
-      let viewCreationTrans = ctx.getResolvable('$transition$').data;
       // Exit early if the $transition$ is the same as the view was created within.
       // Exit early if the $transition$ will exit the state the view is for.
-      if ($transition$ === viewCreationTrans || $transition$.exiting().indexOf(cfg.node.state.self) !== -1) return;
+      if ($transition$ === viewCreationTrans || $transition$.exiting().indexOf(viewState) !== -1) return;
 
       let toParams = $transition$.params("to");
       let fromParams = $transition$.params("from");
@@ -424,7 +425,7 @@ function registerControllerCallbacks($transitions: TransitionService, controller
 
   // Add component-level hook for uiCanExit
   if (isFunction(controllerInstance.uiCanExit)) {
-    var criteria = {exiting: cfg.node.state.name};
+    var criteria = {exiting: viewState.name};
     $scope.$on('$destroy', $transitions.onBefore(criteria, controllerInstance.uiCanExit, hookOptions));
   }
 }

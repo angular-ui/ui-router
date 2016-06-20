@@ -46,7 +46,7 @@ export interface ViewConfig {
   viewDecl: _ViewDeclaration;
 
   /** The node the ViewConfig is bound to */
-  node: PathNode;
+  path: PathNode[];
 
   /** Fetches templates, runs dynamic (controller|template)Provider code, lazy loads Components, etc */
   load(): Promise<ViewConfig>;
