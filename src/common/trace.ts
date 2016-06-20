@@ -46,7 +46,7 @@ function uiViewString (viewData) {
 
 /** @hidden */
 const viewConfigString = (viewConfig: ViewConfig) =>
-    `[ViewConfig from '${viewConfig.viewDecl.$context.name || '(root)'}' state]: target ui-view: '${viewConfig.viewDecl.$uiViewName}@${viewConfig.viewDecl.$uiViewContextAnchor}'`;
+    `[ViewConfig#${viewConfig.$id} from '${viewConfig.viewDecl.$context.name || '(root)'}' state]: target ui-view: '${viewConfig.viewDecl.$uiViewName}@${viewConfig.viewDecl.$uiViewContextAnchor}'`;
 
 /** @hidden */
 function normalizedCat(input: Category): string {

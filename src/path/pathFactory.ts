@@ -1,6 +1,6 @@
 /** @module path */ /** for typedoc */
 
-import {extend, find, pick, omit, tail, mergeR, values, unnestR, Predicate} from "../common/common";
+import {extend, find, pick, omit, tail, mergeR, values, unnestR, Predicate, inArray} from "../common/common";
 import {prop, propEq, not} from "../common/hof";
 
 import {RawParams} from "../params/interface";
@@ -11,7 +11,6 @@ import {_ViewDeclaration} from "../state/interface";
 import {State} from "../state/stateObject";
 import {TargetState} from "../state/targetState";
 import {PathNode} from "../path/node";
-import {ResolveContext} from "../resolve/resolveContext";
 import {ViewService} from "../view/view";
 
 /**
@@ -46,13 +45,13 @@ export class PathFactory {
    *
    * On each [[PathNode]], creates ViewConfig objects from the views: property of the node's state
    */
-  static applyViewConfigs($view: ViewService, path: PathNode[]) {
-    return path.map(node => {
-      let subPath = PathFactory.subPath(path, n => n === node);
+  static applyViewConfigs($view: ViewService, path: PathNode[], states: State[]) {
+    // Only apply the viewConfigs to the nodes for the given states
+    path.filter(node => inArray(states, node.state)).forEach(node => {
       let viewDecls: _ViewDeclaration[] = values(node.state.views || {});
+      let subPath = PathFactory.subPath(path, n => n === node);
       let viewConfigs: ViewConfig[][] = viewDecls.map(view => $view.createViewConfig(subPath, view));
       node.views = viewConfigs.reduce(unnestR, []);
-      return node;
     });
   }
 

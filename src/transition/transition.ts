@@ -150,7 +150,8 @@ export class Transition implements IHookRegistry {
     this.$id = transitionCount++;
     let toPath = PathFactory.buildToPath(fromPath, targetState);
     this._treeChanges = PathFactory.treeChanges(fromPath, toPath, this._options.reloadState);
-    PathFactory.applyViewConfigs(_transitionService.$view, this._treeChanges.to);
+    let enteringStates = this._treeChanges.entering.map(node => node.state)
+    PathFactory.applyViewConfigs(_transitionService.$view, this._treeChanges.to, enteringStates);
 
     let rootResolvables: Resolvable[] = [
       new Resolvable(Transition, () => this, [], this),

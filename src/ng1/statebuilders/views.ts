@@ -99,7 +99,9 @@ function getComponentInputs($injector, name) {
   return cmpDefs.map(getBindings).reduce(unnestR, []);
 }
 
+let id = 0;
 export class Ng1ViewConfig implements ViewConfig {
+  $id = id++;
   loaded: boolean = false;
   controller: Function;
   template: string;

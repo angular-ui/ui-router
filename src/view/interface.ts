@@ -42,6 +42,8 @@ export interface ActiveUIView {
  * the `uiViewName` address.
  */
 export interface ViewConfig {
+  /* The unique id for the ViewConfig instance */
+  $id: number;
   /** The normalized view declaration from [[State.views]] */
   viewDecl: _ViewDeclaration;
 
