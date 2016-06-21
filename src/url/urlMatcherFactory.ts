@@ -6,7 +6,7 @@ import {UrlMatcher} from "./urlMatcher";
 import {matcherConfig} from "./urlMatcherConfig";
 import {Param} from "../params/param";
 import {paramTypes} from "../params/paramTypes";
-import {Type} from "../params/type";
+import {ParamType} from "../params/type";
 
 /** @hidden */
 function getDefaultConfig() {
@@ -92,57 +92,21 @@ export class UrlMatcherFactory {
   };
 
   /**
-   * Registers a custom [[Type]] object that can be used to generate URLs with typed parameters.
+   * Creates and registers a custom [[ParamType]] object that can be used to generate URLs with typed parameters.
    *
    * @param name  The type name.
-   * @param definition The type definition. See [[Type]] for information on the values accepted.
+   * @param definition The type definition. See [[ParamTypeDefinition]] for information on the values accepted.
    * @param definitionFn A function that is injected before the app
    *        runtime starts.  The result of this function is merged into the existing `definition`.
-   *        See [[Type]] for information on the values accepted.
+   *        See [[ParamType]] for information on the values accepted.
    *
    * @returns - if a type was registered: the [[UrlMatcherFactory]]
-   *   - if only the `name` parameter was specified: the currently registered [[Type]] object, or undefined
-   *
-   * ---
+   *   - if only the `name` parameter was specified: the currently registered [[ParamType]] object, or undefined
    *
    * This is a simple example of a custom type that encodes and decodes items from an
    * array, using the array index as the URL-encoded value:
-   *
-   * @example
-   * ```
-   *
-   * var list = ['John', 'Paul', 'George', 'Ringo'];
-   *
-   * $urlMatcherFactoryProvider.type('listItem', {
-   *   encode: function(item) {
-   *     // Represent the list item in the URL using its corresponding index
-   *     return list.indexOf(item);
-   *   },
-   *   decode: function(item) {
-   *     // Look up the list item by index
-   *     return list[parseInt(item, 10)];
-   *   },
-   *   is: function(item) {
-   *     // Ensure the item is valid by checking to see that it appears
-   *     // in the list
-   *     return list.indexOf(item) > -1;
-   *   }
-   * });
-   *
-   * $stateProvider.state('list', {
-   *   url: "/list/{item:listItem}",
-   *   controller: function($scope, $stateParams) {
-   *     console.log($stateParams.item);
-   *   }
-   * });
-   *
-   * // ...
-   *
-   * // Changes URL to '/list/3', logs "Ringo" to the console
-   * $state.go('list', { item: "Ringo" });
-   * ```
    */
-  type(name: string, definition?: (Function|Type), definitionFn?: Function) {
+  type(name: string, definition?: (Function|ParamType), definitionFn?: Function) {
     let type = paramTypes.type(name, definition, definitionFn);
     return !isDefined(definition) ? type : this;
   };

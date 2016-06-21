@@ -3,7 +3,7 @@ import {fromJson, toJson, identity, equals, inherit, map, extend} from "../commo
 import {isDefined} from "../common/predicates";
 import {is, val} from "../common/hof";
 import {services} from "../common/coreservices";
-import {Type} from "./type";
+import {ParamType} from "./type";
 
 // Use tildes to pre-encode slashes.
 // If the slashes are simply URLEncoded, the browser can choose to pre-decode them,
@@ -81,7 +81,7 @@ export class ParamTypes {
 
   constructor() {
     // Register default types. Store them in the prototype of this.types.
-    const makeType = (definition, name) => new Type(extend({ name }, definition));
+    const makeType = (definition, name) => new ParamType(extend({ name }, definition));
     this.types = inherit(map(this.defaultTypes, makeType), {});
   }
 
@@ -89,7 +89,7 @@ export class ParamTypes {
     if (!isDefined(definition)) return this.types[name];
     if (this.types.hasOwnProperty(name)) throw new Error(`A type named '${name}' has already been defined.`);
 
-    this.types[name] = new Type(extend({ name }, definition));
+    this.types[name] = new ParamType(extend({ name }, definition));
 
     if (definitionFn) {
       this.typeQueue.push({ name, def: definitionFn });

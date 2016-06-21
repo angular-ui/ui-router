@@ -1,10 +1,10 @@
 /** @module params */ /** for typedoc */
 import {extend, filter, map} from "../common/common";
 import {isArray, isDefined} from "../common/predicates";
-import {TypeDefinition} from "./interface";
+import {ParamTypeDefinition} from "./interface";
 
 /**
- * Wraps up a `Type` object to handle array values.
+ * Wraps up a `ParamType` object to handle array values.
  */
 function ArrayType(type, mode) {
   // Wrap non-array value as array
@@ -54,11 +54,13 @@ function ArrayType(type, mode) {
 }
 
 /**
- * Implements an interface to define custom parameter types that can be decoded from and encoded to
- * string parameters matched in a URL. Used by [[UrlMatcher]]
- * objects when matching or formatting URLs, or comparing or validating parameter values.
+ * A class that implements Custom Parameter Type functionality.
  *
- * See [[UrlMatcherFactory.type]] for more information on registering custom types.
+ * This class has naive implementations for all the [[ParamTypeDefinition]] methods.
+ *
+ * An instance of this class is created when a custom [[ParamTypeDefinition]] object is registered with the [[UrlMatcherFactory.type]].
+ *
+ * Used by [[UrlMatcher]] when matching or formatting URLs, or comparing and validating parameter values.
  *
  * @example
  * ```
@@ -72,17 +74,18 @@ function ArrayType(type, mode) {
  * }
  * ```
  */
-export class Type implements TypeDefinition {
+export class ParamType implements ParamTypeDefinition {
   pattern: RegExp = /.*/;
   name: string;
   raw: boolean;
+  dynamic: boolean;
 
   /**
    * @param def  A configuration object which contains the custom type definition.  The object's
-   *        properties will override the default methods and/or pattern in `Type`'s public interface.
-   * @returns a new Type object
+   *        properties will override the default methods and/or pattern in `ParamType`'s public interface.
+   * @returns a new ParamType object
    */
-  constructor(def: TypeDefinition) {
+  constructor(def: ParamTypeDefinition) {
     extend(this, def);
   }
 
@@ -104,7 +107,7 @@ export class Type implements TypeDefinition {
   }
 
   toString() {
-    return `{Type:${this.name}}`;
+    return `{ParamType:${this.name}}`;
   }
 
   /** Given an encoded string, or a decoded object, returns a decoded object */
@@ -113,7 +116,7 @@ export class Type implements TypeDefinition {
   }
 
   /**
-   * Wraps an existing custom Type as an array of Type, depending on 'mode'.
+   * Wraps an existing custom ParamType as an array of ParamType, depending on 'mode'.
    * e.g.:
    * - urlmatcher pattern "/path?{queryParam[]:int}"
    * - url: "/path?queryParam=1&queryParam=2

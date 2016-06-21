@@ -80,7 +80,7 @@ const memoizeTo = (obj, prop, fn) => obj[prop] = obj[prop] || fn();
  *   path into the parameter 'path'.
  * * `'/files/*path'` - ditto.
  * * `'/calendar/{start:date}'` - Matches "/calendar/2014-11-12" (because the pattern defined
- *   in the built-in  `date` Type matches `2014-11-12`) and provides a Date object in $stateParams.start
+ *   in the built-in  `date` ParamType matches `2014-11-12`) and provides a Date object in $stateParams.start
  *
  */
 export class UrlMatcher {

@@ -5,7 +5,7 @@ import {isInjectable, isDefined, isString, isArray} from "../common/predicates";
 import {RawParams} from "../params/interface";
 import {services} from "../common/coreservices";
 import {matcherConfig} from "../url/urlMatcherConfig";
-import {Type} from "./type";
+import {ParamType} from "./type";
 import {paramTypes} from "./paramTypes";
 
 let hasOwn = Object.prototype.hasOwnProperty;
@@ -28,7 +28,7 @@ function getType(cfg, urlType, location, id) {
   if (cfg.type && urlType && urlType.name === 'string' && paramTypes.type(cfg.type)) return paramTypes.type(cfg.type);
   if (urlType) return urlType;
   if (!cfg.type) return (location === DefType.CONFIG ? paramTypes.type("any") : paramTypes.type("string"));
-  return cfg.type instanceof Type ? cfg.type : paramTypes.type(cfg.type);
+  return cfg.type instanceof ParamType ? cfg.type : paramTypes.type(cfg.type);
 }
 
 /**
@@ -56,7 +56,7 @@ function getReplace(config, arrayMode, isOptional, squash) {
 
 export class Param {
   id: string;
-  type: Type;
+  type: ParamType;
   location: DefType;
   array: boolean;
   squash: (boolean|string);
@@ -65,13 +65,13 @@ export class Param {
   dynamic: boolean;
   config: any;
 
-  constructor(id: string, type: Type, config: any, location: DefType) {
+  constructor(id: string, type: ParamType, config: any, location: DefType) {
     config = unwrapShorthand(config);
     type = getType(config, type, location, id);
     let arrayMode = getArrayMode();
     type = arrayMode ? type.$asArray(arrayMode, location === DefType.SEARCH) : type;
     let isOptional = config.value !== undefined;
-    let dynamic = config.dynamic === true;
+    let dynamic = isDefined(config.dynamic) ? !!config.dynamic : !!type.dynamic;
     let squash = getSquashPolicy(config, isOptional);
     let replace = getReplace(config, arrayMode, isOptional, squash);
 
@@ -101,7 +101,7 @@ export class Param {
       if (!services.$injector) throw new Error("Injectable functions cannot be called at configuration time");
       let defaultValue = services.$injector.invoke(this.config.$$fn);
       if (defaultValue !== null && defaultValue !== undefined && !this.type.is(defaultValue))
-        throw new Error(`Default value (${defaultValue}) for parameter '${this.id}' is not an instance of Type (${this.type.name})`);
+        throw new Error(`Default value (${defaultValue}) for parameter '${this.id}' is not an instance of ParamType (${this.type.name})`);
       return defaultValue;
     };
 
@@ -122,11 +122,11 @@ export class Param {
     // There was no parameter value, but the param is optional
     if ((!isDefined(value) || value === null) && this.isOptional) return true;
 
-    // The value was not of the correct Type, and could not be decoded to the correct Type
+    // The value was not of the correct ParamType, and could not be decoded to the correct ParamType
     const normalized = this.type.$normalize(value);
     if (!this.type.is(normalized)) return false;
 
-    // The value was of the correct type, but when encoded, did not match the Type's regexp
+    // The value was of the correct type, but when encoded, did not match the ParamType's regexp
     const encoded = this.type.encode(normalized);
     return !(isString(encoded) && !this.type.pattern.exec(<string> encoded));
   }
@@ -136,17 +136,17 @@ export class Param {
   }
 
   /** Creates a new [[Param]] from a CONFIG block */
-  static fromConfig(id: string, type: Type, config: any): Param {
+  static fromConfig(id: string, type: ParamType, config: any): Param {
     return new Param(id, type, config, DefType.CONFIG);
   }
 
   /** Creates a new [[Param]] from a url PATH */
-  static fromPath(id: string, type: Type, config: any): Param {
+  static fromPath(id: string, type: ParamType, config: any): Param {
     return new Param(id, type, config, DefType.PATH);
   }
 
   /** Creates a new [[Param]] from a url SEARCH */
-  static fromSearch(id: string, type: Type, config: any): Param {
+  static fromSearch(id: string, type: ParamType, config: any): Param {
     return new Param(id, type, config, DefType.SEARCH);
   }
 
