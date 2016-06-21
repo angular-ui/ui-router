@@ -1,16 +1,10 @@
 /** @module state */ /** for typedoc */
 import {noop} from "../../common/common";
 
-import {ResolvePolicy} from "../../resolve/interface";
-
 import {Transition} from "../../transition/transition";
 import {val} from "../../common/hof";
 import {State} from "../stateObject";
 import {ResolveContext} from "../../resolve/resolveContext";
-
-
-let LAZY = ResolvePolicy[ResolvePolicy.LAZY];
-let EAGER = ResolvePolicy[ResolvePolicy.EAGER];
 
 /**
  * Registers Eager and Lazy (for entering states) resolve hooks
@@ -26,19 +20,17 @@ export class ResolveHooks {
     let resolveContext = new ResolveContext(treeChanges.to);
 
     /** a function which resolves any EAGER Resolvables for a Path */
-    function $eagerResolvePath($transition$: Transition) {
-      var options = { transition: $transition$, resolvePolicy: EAGER };
-      return resolveContext.resolvePath(options).then(noop);
+    function $eagerResolvePath(trans: Transition) {
+      return resolveContext.resolvePath("EAGER", trans).then(noop);
     }
 
     /** Returns a function which pre-resolves any LAZY Resolvables for a [[PathNode]] in a Path */
-    function $lazyResolveEnteringState(transition: Transition, injector, state: State) {
+    function $lazyResolveEnteringState(trans: Transition, injector, state: State) {
       // A new Resolvable contains all the resolved data in this context as a single object, for injection as `$resolve$`
-      let context = resolveContext.isolateRootTo(state);
-      var options = { transition: transition, resolvePolicy: LAZY };
+      let context = resolveContext.subContext(state);
 
       // Resolve all the LAZY resolves
-      return context.resolvePath(options).then(noop);
+      return context.resolvePath("LAZY", trans).then(noop);
     }
 
     // Resolve eager resolvables before when the transition starts

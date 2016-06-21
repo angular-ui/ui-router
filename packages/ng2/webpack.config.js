@@ -49,6 +49,7 @@ module.exports = {
   },
  
   externals: {
+    "rxjs/Rx": { root: 'rxjs/Rx', amd: 'rxjs/Rx', commonjs2: 'rxjs/Rx', commonjs: 'rxjs/Rx' },
     "@angular/core": { root: '@angular/core', amd: '@angular/core', commonjs2: '@angular/core', commonjs: '@angular/core' },
     "@angular/common": { root: '@angular/common', amd: '@angular/common', commonjs2: '@angular/common', commonjs: '@angular/common' }
   }

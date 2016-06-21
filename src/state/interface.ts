@@ -6,6 +6,8 @@ import {ViewContext} from "../view/interface";
 import {IInjectable} from "../common/common";
 import {Transition} from "../transition/transition";
 import {TransitionStateHookFn} from "../transition/interface";
+import {ResolvePolicy, ResolvableLiteral} from "../resolve/interface";
+import {Resolvable} from "../resolve/resolvable";
 
 export type StateOrName = (string|StateDeclaration|State);
 
@@ -13,6 +15,16 @@ export interface TransitionPromise extends Promise<State> {
   transition: Transition;
 }
 
+export interface ProviderLike {
+  provide: any,
+  useClass?: any,
+  useFactory?: Function,
+  useValue?: any,
+  useExisting?: any,
+  deps?: any[]
+}
+
+export type ResolveTypes = Resolvable | ResolvableLiteral | ProviderLike;
 /**
  * Base interface for [[Ng1ViewDeclaration]] and [[Ng2ViewDeclaration]]
  *
@@ -147,21 +159,20 @@ export interface StateDeclaration {
   $$state?: () => State;
 
   /**
-   * Resolve - a mechanism to asynchronously fetch data, while participating in the Transition lifecycle
+   * Resolve - a mechanism to asynchronously fetch data, participating in the Transition lifecycle
    *
    * The `resolve:` property defines data (or other dependencies) to be fetched asynchronously when the state
    * is being entered.  After the data is fetched, it can be used in views, transition hooks or other resolves
-   * that belong to this state or any nested states.
+   * that belong to this state, or to any views or resolves that belong to nested states.
    *
    * ### As an array
    *
-   * Each array element should either be a [[Resolvable]] or an Angular 2 style
-   * [provider literal](https://angular.io/docs/ts/latest/cookbook/dependency-injection.html#!#provide).
+   * Each array element should either be:
    *
-   * Note:
-   * ```new Resolvable('token', (http) => http.get('/'), [ Http ])```
-   * is roughly  equivalent to this provider literal:
-   * ```{ provide: "token", useFactory: (http) => http.get('/'), deps: [ Http ] }```
+   * - a [[ResolvableLiteral]] object (a plain old javascript object), e.g., `{ token: 'token', resolveFn: (http) => http.get('/'), deps: [ Http ] }`
+   * - a [[Resolvable]] object, e.g., `new Resolvable('token', (http) => http.get('/'), [ Http ])`
+   * - an Angular 2 style [provider literal](https://angular.io/docs/ts/latest/cookbook/dependency-injection.html#!#provide), e.g.,
+   *   `{ provide: 'token', useFactory: (http) => http.get('/'), deps: [ Http ] }`
    *
    * @example
    * ```js
@@ -172,7 +183,7 @@ export interface StateDeclaration {
    * // ng2 example
    * resolve: [
    *   // If you inject `myStateDependency` into a component, you'll get "abc"
-   *   { provide: 'myStateDependency', useFactory: () => 'abc' },
+   *   { provide: 'myStateDependency', useFactory: () => 'abc' }, // ng2 style provide literal
    *   new Resolvable('myFoos', (http, trans) => http.get(`/foos/${trans.params().fooId}`), [Http, Transition])
    * ]
    * ```
@@ -181,6 +192,9 @@ export interface StateDeclaration {
    *
    * - The key (string) is the name of the dependency.
    * - The value (function) is an injectable function which returns the dependency, or a promise for the dependency.
+   *
+   * Note: You cannot specify a policy for each Resolvable, nor can you use non-string
+   * tokens when using the object style `resolve:` block.
    *
    * @example
    * ```js
@@ -191,10 +205,10 @@ export interface StateDeclaration {
    *   myStateDependency: function() {
    *     return "abc";
    *   },
-   *   myAsyncData: function($http, $transition$) {
+   *   myAsyncData: ['$http', '$transition$' function($http, $transition$) {
    *     // Return a promise (async) for the data
    *     return $http.get("/foos/" + $transition$.params().foo);
-   *   }
+   *   }]
    * }
    * ```
    *
@@ -254,17 +268,21 @@ export interface StateDeclaration {
    * }
    * ```
    */
-  resolve?: { [key: string]: IInjectable; };
+  resolve?: (ResolveTypes[] | { [key: string]: IInjectable; });
 
   /**
-   * Sets the resolve policy for the state
+   * Sets the resolve policy defaults for all resolves on this state
    *
-   * This can be either "EAGER" or "LAZY".  When "EAGER", the state's resolves are fetched before any states
-   * are entered.  When "LAZY", the resolves are fetched when the state is being entered.
-   *
-   * The default is "LAZY".
+   * This should be an [[ResolvePolicy]] object. 
+   * 
+   * It can contain the following optional keys/values:
+   * 
+   * - `when`: (optional) defines when the resolve is fetched. Accepted values: "LAZY" or "EAGER"
+   * - `async`: (optional) if the transition waits for the resolve. Accepted values: "WAIT", "NOWAIT", "RXWAIT"
+   * 
+   * See [[ResolvePolicy]] for more details.
    */
-  resolvePolicy?: (string|Object);
+  resolvePolicy?: ResolvePolicy
 
   /**
    * The url fragment for the state

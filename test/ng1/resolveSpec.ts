@@ -2,12 +2,10 @@ import "../testUtilsNg1.js";
 import "../matchers.ts";
 
 import {
-    ResolveContext, State, StateDeclaration, PathNode, PathFactory,
-    omit, map, pick, extend, forEach, prop, copy
+    ResolveContext, State, PathNode, omit, pick, extend, forEach
 } from "../../src/ng1";
 
 import Spy = jasmine.Spy;
-import {tail} from "../../src/common/common";
 import {Resolvable} from "../../src/resolve/resolvable";
 import {services} from "../../src/common/coreservices";
 

@@ -42,8 +42,11 @@ function getStates() {
         }
       },
       N: {
-        resolve: { _N: function(_J) { return _J + "N"; }, _N2: function(_J) { return _J + "N2"; }, _N3: function(_J) { return _J + "N3"; } },
-        resolvePolicy: { _N: "EAGER", _N2: "LAZY", _N3: "LAZY" }
+        resolve: [
+          { token: "_N", resolveFn: (_J) => _J + "N", deps: ['_J'], policy: {when: 'EAGER'} },
+          { token: "_N2", resolveFn: (_J) => _J + "N2", deps: ['_J'] },
+          { token: "_N3", resolveFn: (_J) => _J + "N3", deps: ['_J'] },
+        ]
       }
     },
     O: { resolve: { _O: function(_O2) { return _O2 + "O"; }, _O2: function(_O) { return _O + "O2"; } } },
@@ -68,7 +71,6 @@ beforeEach(function () {
     var thisState = pick.apply(null, [state].concat(stateProps));
     var substates = omit.apply(null, [state].concat(stateProps));
     var resolve = thisState.resolve || {};
-    var injector = services.$injector;
 
     thisState.resolvables = resolvablesBuilder(<any> { resolve });
     thisState.template = thisState.template || "empty";
@@ -119,7 +121,7 @@ describe('Resolvables system:', function () {
     it('should resolve only eager resolves when run with "eager" policy', done => {
       let path = makePath([ "J", "N" ]);
       let ctx = new ResolveContext(path);
-      ctx.resolvePath({ resolvePolicy: "EAGER" }).then(function () {
+      ctx.resolvePath("EAGER").then(function () {
         expect(getResolvedData(ctx)).toEqualData({ _J: "J", _N: "JN" });
       }).then(done);
     });
@@ -127,7 +129,7 @@ describe('Resolvables system:', function () {
     it('should resolve lazy and eager resolves when run with "lazy" policy', done => {
       let path = makePath([ "J", "N" ]);
       let ctx = new ResolveContext(path);
-      ctx.resolvePath({ resolvePolicy: "LAZY" }).then(function () {
+      ctx.resolvePath("LAZY").then(function () {
         expect(getResolvedData(ctx)).toEqualData({ _J: "J", _J2: "JJ2", _N: "JN", _N2: "JN2", _N3: "JN3"});
       }).then(done);
     });
@@ -181,7 +183,7 @@ describe('Resolvables system:', function () {
       let path = makePath([ "A", "B", "C" ]);
       let ctx = new ResolveContext(path);
 
-      let cOnEnter = function (_D) {  };
+      let cOnEnter = function (_D) { throw new Error("Shouldn't get here. " + _D) };
       invokeLater(cOnEnter, ctx).catch(function (err) {
         expect(err.message).toContain('Could not find Dependency Injection token: "_D"');
         done();
@@ -246,7 +248,7 @@ describe('Resolvables system:', function () {
       let ctx = new ResolveContext(path);
 
       // let iPathElement = path.elements[1];
-      let iOnEnter = function (_I) {  };
+      let iOnEnter = function (_I) { throw new Error("Shouldn't get here. " + _I)  };
       let promise = invokeLater(iOnEnter, ctx);
       promise.catch(function (err) {
         expect(err.message).toContain('Could not find Dependency Injection token: "_I"');
@@ -260,7 +262,7 @@ describe('Resolvables system:', function () {
       var path = makePath([ "O" ]);
       let ctx = new ResolveContext(path);
 
-      var iOnEnter = function (_O) {  };
+      var iOnEnter = function (_O) { throw new Error("Shouldn't get here. " + _O)  };
       invokeLater(iOnEnter, ctx).catch(function (err) {
         expect(err.message).toContain("[$injector:unpr] Unknown provider: _IProvider ");
         done();
@@ -304,12 +306,12 @@ describe('Resolvables system:', function () {
       expect(counts["_J"]).toBe(0);
       expect(counts["_J2"]).toBe(0);
 
-      ctx1.resolvePath({ resolvePolicy: "LAZY" }).then(function () {
+      ctx1.resolvePath().then(function () {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);
         expect(counts["_K"]).toBe(1);
         asyncCount++;
-      }).then(() => ctx2.resolvePath({ resolvePolicy: "LAZY" })).then(() => {
+      }).then(() => ctx2.resolvePath()).then(() => {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);
         expect(counts["_K"]).toBe(1);
@@ -323,7 +325,7 @@ describe('Resolvables system:', function () {
     it('should create a partial path from an original path', done => {
       let path = makePath([ "J", "K", "L" ]);
       let ctx1 = new ResolveContext(path);
-      ctx1.resolvePath({ resolvePolicy: 'LAZY' }).then(function () {
+      ctx1.resolvePath().then(function () {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);
         expect(counts["_K"]).toBe(1);
@@ -336,7 +338,7 @@ describe('Resolvables system:', function () {
       }).then(() => {
         let path2 = path.concat(makePath([ "L", "M" ]));
         let ctx2 = new ResolveContext(path2);
-        return ctx2.resolvePath({resolvePolicy: "LAZY"});
+        return ctx2.resolvePath();
       }).then(() => {
         expect(counts["_J"]).toBe(1);
         expect(counts["_J2"]).toBe(1);

@@ -32,7 +32,7 @@ import {equalForKeys} from "../common/common";
 import {HrefOptions} from "./interface";
 import {StateProvider} from "./state";
 import {bindFunctions} from "../common/common";
-import {UIRouterGlobals} from "../globals";
+import {UIRouterGlobals, Globals} from "../globals";
 
 export class StateService {
   get transition()  { return this.globals.transition; }
@@ -45,7 +45,7 @@ export class StateService {
               private $transitions: TransitionService,
               private stateRegistry: StateRegistry,
               private stateProvider: StateProvider,
-              private globals: UIRouterGlobals) {
+              private globals: Globals) {
     let getters = ['current', '$current', 'params', 'transition'];
     let boundFns = Object.keys(StateService.prototype).filter(key => getters.indexOf(key) === -1);
     bindFunctions(StateService.prototype, this, this, boundFns);

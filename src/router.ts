@@ -7,7 +7,7 @@ import {TransitionService} from "./transition/transitionService";
 import {ViewService} from "./view/view";
 import {StateRegistry} from "./state/stateRegistry";
 import {StateService} from "./state/stateService";
-import {UIRouterGlobals} from "./globals";
+import {UIRouterGlobals, Globals} from "./globals";
 
 /**
  * The master class used to instantiate an instance of UI-Router.
@@ -23,7 +23,7 @@ export class UIRouter {
 
   transitionService: TransitionService = new TransitionService(this.viewService);
 
-  globals: UIRouterGlobals = new UIRouterGlobals(this.transitionService);
+  globals: UIRouterGlobals = new Globals(this.transitionService);
 
   urlMatcherFactory: UrlMatcherFactory = new UrlMatcherFactory();
 
@@ -36,7 +36,7 @@ export class UIRouter {
   /** @hidden TODO: move this to ng1.ts */
   stateProvider = new StateProvider(this.stateRegistry);
 
-  stateService = new StateService(this.viewService, this.urlRouter, this.transitionService, this.stateRegistry, this.stateProvider, this.globals);
+  stateService = new StateService(this.viewService, this.urlRouter, this.transitionService, this.stateRegistry, this.stateProvider, <Globals> this.globals);
 
   constructor() {
     this.viewService.rootContext(this.stateRegistry.root());

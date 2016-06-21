@@ -210,7 +210,13 @@ export interface ParamDeclaration {
    * This is not part of the declaration; it is a calculated value depending on if a default value was specified or not.
    */
   isOptional: boolean;
-  /** @todo document this one too */
+  /**
+   * Dynamic flag
+   *
+   * When `dynamic` is `true`, changes to the parameter value will not cause the state to be entered/exited.
+   *
+   * The resolves will not be re-fetched, nor will views be recreated.
+   */
   dynamic: boolean;
 }
 

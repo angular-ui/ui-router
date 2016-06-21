@@ -59,9 +59,10 @@ import {UiView} from "./directives/uiView";
 import {ng2ViewsBuilder, Ng2ViewConfig} from "./statebuilders/views";
 import {Ng2ViewDeclaration} from "./interface";
 import {UIRouterConfig} from "./uiRouterConfig";
-import {UIRouterGlobals} from "../globals";
+import {Globals} from "../globals";
 import {UIRouterLocation} from "./location";
 import {services} from "../common/coreservices";
+import {ProviderLike} from "../state/interface";
 
 let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation, injector: Injector) => {
   services.$injector.get = injector.get.bind(injector);
@@ -117,15 +118,7 @@ export const UIROUTER_PROVIDERS: ProviderLike[] = [
 
   { provide: StateRegistry, useFactory: (r: UIRouter) => { return r.stateRegistry; }, deps: [UIRouter]},
 
-  { provide: UIRouterGlobals, useFactory: (r: UIRouter) => { return r.globals; }, deps: [UIRouter]},
+  { provide: Globals, useFactory: (r: UIRouter) => { return r.globals; }, deps: [UIRouter]},
 
   { provide: UiView.PARENT_INJECT, useFactory: (r: StateRegistry) => { return { fqn: null, context: r.root() } }, deps: [StateRegistry]}
 ];
-
-export interface ProviderLike {
-  provide: any,
-  useClass?: any,
-  useFactory?: Function,
-  deps?: any[]
-}
-

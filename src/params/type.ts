@@ -46,6 +46,7 @@ function ArrayType(type, mode) {
   });
 
   extend(this, {
+    dynamic: type.dynamic,
     name: type.name,
     pattern: type.pattern,
     is: arrayHandler(type.is.bind(type), true),

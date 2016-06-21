@@ -6,20 +6,21 @@ import {Transition} from "./transition/transition";
 import {Queue} from "./common/queue";
 import {TransitionService} from "./transition/transitionService";
 import {copy} from "./common/common";
+import {Observable} from "rxjs/Rx";
 
 /**
  * Global mutable state
  *
  * This is where we hold the global mutable state such as current state, current
- * params, current transition, last successful transition, last attempted transition, etc.
+ * params, current transition, etc.
  */
-export class UIRouterGlobals {
+export interface UIRouterGlobals {
   /**
    * Current parameter values
    *
    * The parameter values from the latest successful transition
    */
-  params: StateParams = new StateParams();
+  params: StateParams;
   /**
    * Current state
    *
@@ -36,17 +37,18 @@ export class UIRouterGlobals {
    * The current transition (in progress)
    */
   transition: Transition;
-  /**
-   * The transition history
-   *
-   * This queue's size is limited to a maximum number (default: 1)
-   */
+}
+
+
+/**
+ * Global mutable state
+ */
+export class Globals implements UIRouterGlobals {
+  params: StateParams = new StateParams();
+  current: StateDeclaration;
+  $current: State;
+  transition: Transition;
   transitionHistory = new Queue<Transition>([], 1);
-  /**
-   * The history of successful transitions
-   *
-   * This queue's size is limited to a maximum number (default: 1)
-   */
   successfulTransitions = new Queue<Transition>([], 1);
 
   constructor(transitionService: TransitionService) {

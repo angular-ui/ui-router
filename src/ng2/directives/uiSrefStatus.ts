@@ -9,7 +9,7 @@ import {TargetState} from "../../state/targetState";
 import {TreeChanges} from "../../transition/interface";
 import {State} from "../../state/stateObject";
 import {anyTrueR, tail, unnestR} from "../../common/common";
-import {UIRouterGlobals} from "../../globals";
+import {UIRouterGlobals, Globals} from "../../globals";
 import {Param} from "../../params/param";
 import {PathFactory} from "../../path/pathFactory";
 
@@ -53,7 +53,7 @@ export class UiSrefStatus {
   };
 
   constructor(transitionService: TransitionService,
-              private _globals: UIRouterGlobals,
+              private _globals: Globals,
               private _stateService: StateService,
               public sref: UiSref) {
     this._deregisterHook = transitionService.onStart({}, $transition$ => this.processTransition($transition$));

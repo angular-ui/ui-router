@@ -14,7 +14,7 @@ import {EnterExitHooks} from "./enterExitHooks";
 import {ResolveHooks} from "./resolveHooks";
 import {UrlRouter} from "../../url/urlRouter";
 import {services} from "../../common/coreservices";
-import {UIRouterGlobals} from "../../globals";
+import {UIRouterGlobals, Globals} from "../../globals";
 
 /**
  * This class:
@@ -46,7 +46,7 @@ export class TransitionManager {
       private $urlRouter: UrlRouter,
       private $view, // service
       private $state: StateService,
-      private globals: UIRouterGlobals
+      private globals: Globals
   ) {
     this.$q = services.$q;
     this.viewHooks = new ViewHooks(transition, $view);

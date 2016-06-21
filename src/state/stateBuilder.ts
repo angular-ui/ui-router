@@ -12,6 +12,7 @@ import {UrlMatcherFactory} from "../url/urlMatcherFactory";
 import {UrlMatcher} from "../url/urlMatcher";
 import {Resolvable} from "../resolve/resolvable";
 import {services} from "../common/coreservices";
+import {ResolvePolicy} from "../resolve/interface";
 
 const parseUrl = (url: string): any => {
   if (!isString(url)) return false;
@@ -129,32 +130,46 @@ function includesBuilder(state: State) {
  * ]
  */
 export function resolvablesBuilder(state: State): Resolvable[] {
-  const obj2Array         = obj => Object.keys(obj || {}).map(token => ({token, val: obj[token], deps: undefined}));
+  /** convert a resolve: {} object to an array of tuples */
+  const obj2Tuples        = obj => Object.keys(obj || {}).map(token => ({token, val: obj[token], deps: undefined}));
+  /** fetch DI annotations from a function or ng1-style array */
   const annotate          = fn  => fn.$inject || services.$injector.annotate(fn, services.$injector.strictDi);
+  /** true if the object has both `token` and `resolveFn`, and is probably a [[ResolveLiteral]] */
+  const isResolveLiteral  = obj => !!(obj.token && obj.resolveFn);
+  /** true if the object looks like a provide literal, or a ng2 Provider */
   const isLikeNg2Provider = obj => !!((obj.provide || obj.token) && (obj.useValue || obj.useFactory || obj.useExisting || obj.useClass));
-  const provideToken = p => p.provide || p.token;
+  /** true if the object looks like a tuple from obj2Tuples */
+  const isTupleFromObj    = obj => !!(obj && obj.val && (isString(obj.val) || isArray(obj.val)  || isFunction(obj.val)));
+  /** extracts the token from a Provider or provide literal */
+  const token             = p => p.provide || p.token;
 
-  /** Given a provider, returns a Resolvable */
-  const provider2Resolvable = pattern([
-    [prop('useFactory'),  p => new Resolvable(provideToken(p), p.useFactory, (p.deps || p.dependencies))],
-    [prop('useClass'),    p => new Resolvable(provideToken(p), () => new (<any>p.useClass)(), [])],
-    [prop('useValue'),    p => new Resolvable(provideToken(p), () => p.useValue, [], p.useValue)],
-    [prop('useExisting'), p => new Resolvable(provideToken(p), (x) => x, [p.useExisting])],
+  /** Given a literal resolve or provider object, returns a Resolvable */
+  const literal2Resolvable = pattern([
+    [prop('resolveFn'),   p => new Resolvable(token(p), p.resolveFn, p.deps, p.policy)],
+    [prop('useFactory'),  p => new Resolvable(token(p), p.useFactory, (p.deps || p.dependencies), p.policy)],
+    [prop('useClass'),    p => new Resolvable(token(p), () => new (<any>p.useClass)(), [], p.policy)],
+    [prop('useValue'),    p => new Resolvable(token(p), () => p.useValue, [], p.policy, p.useValue)],
+    [prop('useExisting'), p => new Resolvable(token(p), (x) => x, [p.useExisting], p.policy)],
+  ]);
+
+  const tuple2Resolvable = pattern([
+    [pipe(prop("val"), isString),   tuple => new Resolvable(tuple.token, x => x, [ tuple.val ], tuple.policy)],
+    [pipe(prop("val"), isArray),    tuple => new Resolvable(tuple.token, tail(<any[]> tuple.val), tuple.val.slice(0, -1), tuple.policy)],
+    [pipe(prop("val"), isFunction), tuple => new Resolvable(tuple.token, tuple.val, annotate(tuple.val), tuple.policy)],
   ]);
 
   const item2Resolvable = <(any) => Resolvable> pattern([
-    [is(Resolvable),                obj => obj],
-    [isLikeNg2Provider,             provider2Resolvable],
-    [pipe(prop("val"), isString),   tuple => new Resolvable(tuple.token, x => x, [ tuple.val ])],
-    [pipe(prop("val"), isArray),    tuple => new Resolvable(tuple.token, tail(<any[]> tuple.val), tuple.val.slice(0, -1))],
-    [pipe(prop("val"), isFunction), tuple => new Resolvable(tuple.token, tuple.val, annotate(tuple.val))],
+    [is(Resolvable),                (r: Resolvable) => r],
+    [isResolveLiteral,              literal2Resolvable],
+    [isLikeNg2Provider,             literal2Resolvable],
+    [isTupleFromObj,                tuple2Resolvable],
     [val(true),                     tuple => { throw new Error("Invalid resolve value: " + stringify(tuple)) }]
   ]);
 
   // If resolveBlock is already an array, use it as-is.
   // Otherwise, assume it's an object and convert to an Array of tuples
-  let resolveBlock = state.resolve;
-  let items: any[] = isArray(resolveBlock) ? resolveBlock : obj2Array(resolveBlock);
+  let decl = state.resolve;
+  let items: any[] = isArray(decl) ? decl : obj2Tuples(decl);
   return items.map(item2Resolvable);
 }
 

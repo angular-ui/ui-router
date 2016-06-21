@@ -38,6 +38,8 @@ const stateSelf: (_state: State) => StateDeclaration = prop("self");
  * It has information about all states being entered and exited as a result of the transition.
  */
 export class Transition implements IHookRegistry {
+  static diToken = Transition;
+  
   $id: number;
   success: boolean;
 
@@ -154,9 +156,9 @@ export class Transition implements IHookRegistry {
     PathFactory.applyViewConfigs(_transitionService.$view, this._treeChanges.to, enteringStates);
 
     let rootResolvables: Resolvable[] = [
-      new Resolvable(Transition, () => this, [], this),
-      new Resolvable('$transition$', () => this, [], this),
-      new Resolvable('$stateParams', () => this.params(), [], this.params())
+      new Resolvable(Transition, () => this, [], undefined, this),
+      new Resolvable('$transition$', () => this, [], undefined, this),
+      new Resolvable('$stateParams', () => this.params(), [], undefined, this.params())
     ];
 
     let rootNode: PathNode = this._treeChanges.to[0];

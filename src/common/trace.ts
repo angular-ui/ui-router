@@ -34,6 +34,9 @@ import {isNumber} from "../common/predicates";
 import {Transition}  from "../transition/transition";
 import {ActiveUIView, ViewConfig}  from "../view/interface";
 import {stringify, functionToString, maxLength, padString} from "./strings";
+import {Resolvable} from "../resolve/resolvable";
+import {PathNode} from "../path/node";
+import {PolicyWhen} from "../resolve/interface";
 
 /** @hidden */
 function uiViewString (viewData) {
@@ -140,11 +143,11 @@ export class Trace {
   }
 
   /** called by ui-router code */
-  traceTransitionIgnored(transition: Transition) {
+  traceTransitionIgnored(trans: Transition) {
     if (!this.enabled(Category.TRANSITION)) return;
-    let tid = transition.$id,
+    let tid = trans && trans.$id,
         digest = this.approximateDigests,
-        transitionStr = stringify(transition);
+        transitionStr = stringify(trans);
     console.log(`Transition #${tid} Digest #${digest}: Ignored  <> ${transitionStr}`);
   }
 
@@ -170,40 +173,18 @@ export class Trace {
   }
 
   /** called by ui-router code */
-  traceResolvePath(path, options) {
+  traceResolvePath(path: PathNode[], when: PolicyWhen, trans?: Transition) {
     if (!this.enabled(Category.RESOLVE)) return;
-    let tid = parse("transition.$id")(options),
+    let tid = trans && trans.$id,
         digest = this.approximateDigests,
-        pathStr = path && path.toString(),
-        policyStr = options && options.resolvePolicy;
-    console.log(`Transition #${tid} Digest #${digest}:         Resolving ${pathStr} (${policyStr})`);
+        pathStr = path && path.toString();
+    console.log(`Transition #${tid} Digest #${digest}:         Resolving ${pathStr} (${when})`);
   }
 
   /** called by ui-router code */
-  traceResolvePathElement(pathElement, resolvablePromises, options) {
+  traceResolvableResolved(resolvable: Resolvable, trans?: Transition) {
     if (!this.enabled(Category.RESOLVE)) return;
-    if (!resolvablePromises.length) return;
-    let tid = parse("transition.$id")(options),
-        digest = this.approximateDigests,
-        resolvablePromisesStr = Object.keys(resolvablePromises).join(", "),
-        pathElementStr = pathElement && pathElement.toString(),
-        policyStr = options && options.resolvePolicy;
-    console.log(`Transition #${tid} Digest #${digest}:         Resolve ${pathElementStr} resolvables: [${resolvablePromisesStr}] (${policyStr})`);
-  }
-
-  /** called by ui-router code */
-  traceResolveResolvable(resolvable, options) {
-    if (!this.enabled(Category.RESOLVE)) return;
-    let tid = parse("transition.$id")(options),
-        digest = this.approximateDigests,
-        resolvableStr = resolvable && resolvable.toString();
-    console.log(`Transition #${tid} Digest #${digest}:               Resolving -> ${resolvableStr}`);
-  }
-
-  /** called by ui-router code */
-  traceResolvableResolved(resolvable, options) {
-    if (!this.enabled(Category.RESOLVE)) return;
-    let tid = parse("transition.$id")(options),
+    let tid = trans && trans.$id,
         digest = this.approximateDigests,
         resolvableStr = resolvable && resolvable.toString(),
         result = stringify(resolvable.data);
@@ -211,31 +192,21 @@ export class Trace {
   }
 
   /** called by ui-router code */
-  tracePathElementInvoke(node, fn, deps, options) {
-    if (!this.enabled(Category.INVOKE)) return;
-    let tid = parse("transition.$id")(options),
-        digest = this.approximateDigests,
-        stateName = node && node.state && node.state.toString(),
-        fnName = functionToString(fn);
-    console.log(`Transition #${tid} Digest #${digest}:         Invoke ${options.when}: context: ${stateName} ${maxLength(200, fnName)}`);
-  }
-
-  /** called by ui-router code */
-  traceError(error, transition: Transition) {
+  traceError(error, trans: Transition) {
     if (!this.enabled(Category.TRANSITION)) return;
-    let tid = transition.$id,
+    let tid = trans && trans.$id,
         digest = this.approximateDigests,
-        transitionStr = stringify(transition);
+        transitionStr = stringify(trans);
     console.log(`Transition #${tid} Digest #${digest}: <- Rejected ${transitionStr}, reason: ${error}`);
   }
 
   /** called by ui-router code */
-  traceSuccess(finalState, transition: Transition) {
+  traceSuccess(finalState, trans: Transition) {
     if (!this.enabled(Category.TRANSITION)) return;
-    let tid = transition.$id,
+    let tid = trans && trans.$id,
         digest = this.approximateDigests,
         state = finalState.name,
-        transitionStr = stringify(transition);
+        transitionStr = stringify(trans);
     console.log(`Transition #${tid} Digest #${digest}: <- Success  ${transitionStr}, final state: ${state}`);
   }
 
