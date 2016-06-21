@@ -74,12 +74,14 @@ let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation,
 
   router.stateRegistry.stateQueue.autoFlush(router.stateService);
 
-  routerConfig.configure(router);
+  setTimeout(() => {
+    routerConfig.configure(router);
 
-  if (!router.urlRouterProvider.interceptDeferred) {
-    router.urlRouter.listen();
-    router.urlRouter.sync();
-  }
+    if (!router.urlRouterProvider.interceptDeferred) {
+      router.urlRouter.listen();
+      router.urlRouter.sync();
+    }
+  });
 
   return router;
 };
