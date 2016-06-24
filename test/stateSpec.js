@@ -1718,7 +1718,7 @@ describe('otherwise and state redirects', function() {
   it("should not go into an infinite loop", inject(function($location, $rootScope, $state, $urlRouter, $httpBackend) {
     $httpBackend.expectGET("login.html").respond("login page");
     $location.url("notmatched");
-    $urlRouter.update(true);
+    $$urlRouter.update('read');
     expect(function() { $rootScope.$digest(); }).not.toThrow();
     expect(function() { $httpBackend.flush(); }).not.toThrow();
     expect($state.current.name).toBe("loginPage")
