@@ -342,15 +342,19 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
         return listen();
       },
 
-      update: function(read) {
-        if (read) {
+      update: function(type) {
+        if (type === 'read') {
           location = $location.url();
           return;
         }
         if ($location.url() === location) return;
 
-        $location.url(location);
-        $location.replace();
+        if(type === 'defaultPrevented') {
+          $location.replace();
+        } else {
+          $location.replace();
+          $location.url(location);
+        }
       },
 
       push: function(urlMatcher, params, options) {

@@ -1044,7 +1044,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
           $urlRouter.push(to.navigable.url, toParams, {
             $$avoidResync: true, replace: options.location === 'replace'
           });
-          $urlRouter.update(true);
+          $urlRouter.update('read');
         }
         $state.transition = null;
         return $q.when($state.current);
@@ -1088,7 +1088,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
         if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams, options).defaultPrevented) {
           $rootScope.$broadcast('$stateChangeCancel', to.self, toParams, from.self, fromParams);
           //Don't update and resync url if there's been a new transition started. see issue #2238, #600
-          if ($state.transition == null) $urlRouter.update();
+          if ($state.transition == null) $urlRouter.update('defaultPrevented');
           return TransitionPrevented;
         }
       }
@@ -1167,7 +1167,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          */
           $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
         }
-        $urlRouter.update(true);
+        $urlRouter.update('read');
 
         return $state.current;
       }).then(null, function (error) {
