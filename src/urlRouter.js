@@ -341,7 +341,9 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
       listen: function() {
         return listen();
       },
-
+      // Update type string to separate 'read' and 'defaultPrevented' updates
+      // An update triggered by'defaultPrevented' should not set the $location.url as this breaks next navigation
+      // See issue #1525.
       update: function(type) {
         if (type === 'read') {
           location = $location.url();
