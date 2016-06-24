@@ -10,4 +10,4 @@ export * from "./url/module";
 export * from "./view/module";
 export * from "./globals";
 
-export { UIRouter } from "./router";
+export { UiRouter } from "./router";

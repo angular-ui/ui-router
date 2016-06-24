@@ -33,7 +33,7 @@ export let defaultTransOpts: TransitionOptions = {
  * - It allows the default transition error handler to be set.
  * - It also has a factory function for creating new [[Transition]] objects, (used internally by the [[StateService]]).
  *
- * At bootstrap, [[UIRouter]] creates a single instance (singleton) of this class.
+ * At bootstrap, [[UiRouter]] creates a single instance (singleton) of this class.
  */
 export class TransitionService implements IHookRegistry {
   /** @hidden */

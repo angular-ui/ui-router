@@ -7,7 +7,7 @@ import {TransitionService} from "./transition/transitionService";
 import {ViewService} from "./view/view";
 import {StateRegistry} from "./state/stateRegistry";
 import {StateService} from "./state/stateService";
-import {UIRouterGlobals, Globals} from "./globals";
+import {UiRouterGlobals, Globals} from "./globals";
 
 /**
  * The master class used to instantiate an instance of UI-Router.
@@ -18,12 +18,12 @@ import {UIRouterGlobals, Globals} from "./globals";
  * your app states with the [[stateRegistry]] (and set url options using ...).  Then, tell UI-Router to monitor
  * the URL by calling `urlRouter.listen()` ([[URLRouter.listen]])
  */
-export class UIRouter {
+export class UiRouter {
   viewService = new ViewService();
 
   transitionService: TransitionService = new TransitionService(this.viewService);
 
-  globals: UIRouterGlobals = new Globals(this.transitionService);
+  globals: UiRouterGlobals = new Globals(this.transitionService);
 
   urlMatcherFactory: UrlMatcherFactory = new UrlMatcherFactory();
 

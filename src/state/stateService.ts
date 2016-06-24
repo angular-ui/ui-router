@@ -32,7 +32,7 @@ import {equalForKeys} from "../common/common";
 import {HrefOptions} from "./interface";
 import {StateProvider} from "./state";
 import {bindFunctions} from "../common/common";
-import {UIRouterGlobals, Globals} from "../globals";
+import {UiRouterGlobals, Globals} from "../globals";
 
 export class StateService {
   get transition()  { return this.globals.transition; }

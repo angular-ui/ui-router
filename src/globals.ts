@@ -14,7 +14,7 @@ import {Observable} from "rxjs/Rx";
  * This is where we hold the global mutable state such as current state, current
  * params, current transition, etc.
  */
-export interface UIRouterGlobals {
+export interface UiRouterGlobals {
   /**
    * Current parameter values
    *
@@ -43,7 +43,7 @@ export interface UIRouterGlobals {
 /**
  * Global mutable state
  */
-export class Globals implements UIRouterGlobals {
+export class Globals implements UiRouterGlobals {
   params: StateParams = new StateParams();
   current: StateDeclaration;
   $current: State;

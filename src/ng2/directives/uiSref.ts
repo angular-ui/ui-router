@@ -1,5 +1,5 @@
 /** @module ng2_directives */ /** */
-import {UIRouter} from "../../router";
+import {UiRouter} from "../../router";
 import {Directive, Inject, Input} from "@angular/core";
 import {Optional} from "@angular/core";
 import {ElementRef} from "@angular/core";
@@ -67,7 +67,7 @@ export class UiSref {
   @Input('uiOptions') options: any;
 
   constructor(
-      private _router: UIRouter,
+      private _router: UiRouter,
       @Inject(UiView.PARENT_INJECT) public parent: ParentUiViewInject,
       @Optional() private _anchorUiSref: AnchorUiSref
   ) { }

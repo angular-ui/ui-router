@@ -1,5 +1,5 @@
 /** @module ng2 */ /** */
-import {UIRouter} from "../router";
+import {UiRouter} from "../router";
 /**
  * Provides states configuration to UI-Router during application bootstrap.
  * 
@@ -12,11 +12,11 @@ import {UIRouter} from "../router";
  *
  * bootstrap(UiView, [
  *   ...UIROUTER_PROVIDERS,
- *   provide(UIRouterConfig, { useClass: MyConfig }
+ *   provide(UiRouterConfig, { useClass: MyConfig }
  * ]);
  * ```
  *
- * The application's initial states should be registered with the [[UIRouter.stateRegistry]].
+ * The application's initial states should be registered with the [[UiRouter.stateRegistry]].
  * Any global configuration (transition hooks, parameter types, etc) should be done here.
  *
  * @example
@@ -28,7 +28,7 @@ import {UIRouter} from "../router";
  * import {registerSlugType} from "./paramtypes";
  *
  * export class MyConfig {
- *   configure(uiRouter: UIRouter) {
+ *   configure(uiRouter: UiRouter) {
  *     STATES.forEach(state => uiRouter.stateRegistry.register(state));
  *     registerAuthHook(uiRouter.transitionService);
  *     registerSlugType(uiRouter.urlMatcherFactory);
@@ -65,7 +65,7 @@ import {UIRouter} from "../router";
  * ```
  *
  */
-export class UIRouterConfig {
+export class UiRouterConfig {
   /**
    * Configures UI-Router before bootstrap
    *
@@ -74,7 +74,7 @@ export class UIRouterConfig {
    *
    * @param uiRouter the uiRouter instance being configured
    */
-  public configure(uiRouter: UIRouter) {
+  public configure(uiRouter: UiRouter) {
 
   }
 }

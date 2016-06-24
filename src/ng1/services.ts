@@ -3,14 +3,14 @@
  *
  * - Provides an implementation for the [[CoreServices]] API, based on angular 1 services.
  * - Also registers some services with the angular 1 injector.
- * - Creates and bootstraps a new [[UIRouter]] object.  Ties it to the the angular 1 lifecycle.
+ * - Creates and bootstraps a new [[UiRouter]] object.  Ties it to the the angular 1 lifecycle.
  *
  * @module ng1
  * @preferred
  */
 
 /** for typedoc */
-import {UIRouter} from "../router";
+import {UiRouter} from "../router";
 import {services} from "../common/coreservices";
 import {bindFunctions, removeFrom, applyPairs} from "../common/common";
 import {prop, propEq} from "../common/hof";
@@ -157,14 +157,14 @@ function runBlock($injector, $q) {
 
 app.run(runBlock);
 
-let router: UIRouter = null;
+let router: UiRouter = null;
 
-ng1UIRouter.$inject = ['$locationProvider'];
+ng1UiRouter.$inject = ['$locationProvider'];
 /** This angular 1 provider instantiates a Router and exposes its services via the angular injector */
-function ng1UIRouter($locationProvider) {
+function ng1UiRouter($locationProvider) {
 
-  // Create a new instance of the Router when the ng1UIRouterProvider is initialized
-  router = new UIRouter();
+  // Create a new instance of the Router when the ng1UiRouterProvider is initialized
+  router = new UiRouter();
   
   // Apply ng1 specific StateBuilder code for `views`, `resolve`, and `onExit/Retain/Enter` properties
   router.stateRegistry.decorator("views", ng1ViewsBuilder);
@@ -212,17 +212,17 @@ function ng1UIRouter($locationProvider) {
   }
 }
 
-function $stateParamsFactory(ng1UIRouter) {
-  return ng1UIRouter.globals.params;
+function $stateParamsFactory(ng1UiRouter) {
+  return ng1UiRouter.globals.params;
 }
 
 // The 'ui.router' ng1 module depends on 'ui.router.init' module.
-angular.module('ui.router.init', []).provider("ng1UIRouter", <any> ng1UIRouter);
+angular.module('ui.router.init', []).provider("ng1UiRouter", <any> ng1UiRouter);
 // This effectively calls $get() to init when we enter runtime
-angular.module('ui.router.init').run(['ng1UIRouter', function(ng1UIRouter) { }]);
+angular.module('ui.router.init').run(['ng1UiRouter', function(ng1UiRouter) { }]);
 
 // $urlMatcherFactory service and $urlMatcherFactoryProvider
-angular.module('ui.router.util').provider('$urlMatcherFactory', ['ng1UIRouterProvider', () => router.urlMatcherFactory]);
+angular.module('ui.router.util').provider('$urlMatcherFactory', ['ng1UiRouterProvider', () => router.urlMatcherFactory]);
 angular.module('ui.router.util').run(['$urlMatcherFactory', function($urlMatcherFactory) { }]);
 
 // $urlRouter service and $urlRouterProvider
@@ -234,7 +234,7 @@ function getUrlRouterProvider() {
   };
   return router.urlRouterProvider;
 }
-angular.module('ui.router.router').provider('$urlRouter', ['ng1UIRouterProvider', getUrlRouterProvider]);
+angular.module('ui.router.router').provider('$urlRouter', ['ng1UiRouterProvider', getUrlRouterProvider]);
 angular.module('ui.router.router').run(['$urlRouter', function($urlRouter) { }]);
 
 // $state service and $stateProvider
@@ -247,22 +247,22 @@ function getStateProvider() {
   };
   return router.stateProvider;
 }
-angular.module('ui.router.state').provider('$state', ['ng1UIRouterProvider', getStateProvider]);
+angular.module('ui.router.state').provider('$state', ['ng1UiRouterProvider', getStateProvider]);
 angular.module('ui.router.state').run(['$state', function($state) { }]);
 
 // $stateParams service
-angular.module('ui.router.state').factory('$stateParams', ['ng1UIRouter', (ng1UIRouter) =>
-    ng1UIRouter.globals.params]);
+angular.module('ui.router.state').factory('$stateParams', ['ng1UiRouter', (ng1UiRouter) =>
+    ng1UiRouter.globals.params]);
 
 // $transitions service and $transitionsProvider
 function getTransitionsProvider() {
   router.transitionService["$get"] = () => router.transitionService;
   return router.transitionService;
 }
-angular.module('ui.router.state').provider('$transitions', ['ng1UIRouterProvider', getTransitionsProvider]);
+angular.module('ui.router.state').provider('$transitions', ['ng1UiRouterProvider', getTransitionsProvider]);
 
 // $templateFactory service
-angular.module('ui.router.util').factory('$templateFactory', ['ng1UIRouter', () => new TemplateFactory()]);
+angular.module('ui.router.util').factory('$templateFactory', ['ng1UiRouter', () => new TemplateFactory()]);
 
 // The $view service
 angular.module('ui.router').factory('$view', () => router.viewService);

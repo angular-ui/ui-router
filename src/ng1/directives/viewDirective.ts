@@ -3,7 +3,7 @@
 import {extend, unnestR, filter, tail} from "../../common/common";
 import {isDefined, isFunction, isString} from "../../common/predicates";
 import {trace} from "../../common/trace";
-import {ActiveUIView} from "../../view/interface";
+import {ActiveUiView} from "../../view/interface";
 import {Ng1ViewConfig} from "../statebuilders/views";
 import {TransitionService} from "../../transition/transitionService";
 import {parse} from "../../common/hof";
@@ -17,9 +17,9 @@ import {Ng1Controller, Ng1StateDeclaration} from "../interface";
 import {getLocals} from "../services";
 
 /** @hidden */
-export type UIViewData = {
+export type UiViewData = {
   $cfg: Ng1ViewConfig;
-  $uiView: ActiveUIView;
+  $uiView: ActiveUiView;
 
   $animEnter: Promise<any>;
   $animLeave: Promise<any>;
@@ -203,7 +203,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
             inherited     = $element.inheritedData('$uiView') || rootData,
             name          = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default';
 
-        let activeUIView: ActiveUIView = {
+        let activeUiView: ActiveUiView = {
           $type: 'ng1',
           id: directive.count++,                                   // Global sequential ID for ui-view tags added to DOM
           name: name,                                              // ui-view name (<div ui-view="name"></div>
@@ -215,24 +215,24 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
           }
         };
 
-        trace.traceUiViewEvent("Linking", activeUIView);
+        trace.traceUiViewEvent("Linking", activeUiView);
 
         function configUpdatedCallback(config?: Ng1ViewConfig) {
           if (config && !(config instanceof Ng1ViewConfig)) return;
           if (configsEqual(viewConfig, config)) return;
-          trace.traceUiViewConfigUpdated(activeUIView, config && config.viewDecl && config.viewDecl.$context);
+          trace.traceUiViewConfigUpdated(activeUiView, config && config.viewDecl && config.viewDecl.$context);
 
           viewConfig = config;
           updateView(config);
         }
 
-        $element.data('$uiView', { $uiView: activeUIView });
+        $element.data('$uiView', { $uiView: activeUiView });
 
         updateView();
 
-        unregister = $view.registerUiView(activeUIView);
+        unregister = $view.registerUiView(activeUiView);
         scope.$on("$destroy", function() {
-          trace.traceUiViewEvent("Destroying/Unregistering", activeUIView);
+          trace.traceUiViewEvent("Destroying/Unregistering", activeUiView);
           unregister();
         });
 
@@ -244,7 +244,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
           }
 
           if (currentScope) {
-            trace.traceUiViewEvent("Destroying scope", activeUIView);
+            trace.traceUiViewEvent("Destroying scope", activeUiView);
             currentScope.$destroy();
             currentScope = null;
           }
@@ -264,12 +264,12 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
 
         function updateView(config?: Ng1ViewConfig) {
           let newScope = scope.$new();
-          trace.traceUiViewScopeCreated(activeUIView, newScope);
+          trace.traceUiViewScopeCreated(activeUiView, newScope);
           let animEnter = $q.defer(), animLeave = $q.defer();
           
-          let $uiViewData: UIViewData = {
+          let $uiViewData: UiViewData = {
             $cfg: config,
-            $uiView: activeUIView,
+            $uiView: activeUiView,
             $animEnter: animEnter.promise,
             $animLeave: animLeave.promise,
             $$animLeave: animLeave
@@ -323,7 +323,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,
       let initial = tElement.html();
 
       return function (scope, $element) {
-        let data: UIViewData = $element.data('$uiView');
+        let data: UiViewData = $element.data('$uiView');
         if (!data) return;
 
         let cfg: Ng1ViewConfig = data.$cfg || <any> { viewDecl: {} };

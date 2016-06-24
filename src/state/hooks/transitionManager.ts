@@ -14,7 +14,7 @@ import {EnterExitHooks} from "./enterExitHooks";
 import {ResolveHooks} from "./resolveHooks";
 import {UrlRouter} from "../../url/urlRouter";
 import {services} from "../../common/coreservices";
-import {UIRouterGlobals, Globals} from "../../globals";
+import {UiRouterGlobals, Globals} from "../../globals";
 
 /**
  * This class:

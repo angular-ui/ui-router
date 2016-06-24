@@ -5,7 +5,7 @@ import {isString, isArray} from "../common/predicates";
 import {trace} from "../common/trace";
 import {PathNode} from "../path/node";
 
-import {ActiveUIView, ViewContext, ViewConfig} from "./interface";
+import {ActiveUiView, ViewContext, ViewConfig} from "./interface";
 import {_ViewDeclaration} from "../state/interface";
 
 const match = (obj1, ...keys) =>
@@ -17,7 +17,7 @@ export type ViewConfigFactory = (path: PathNode[], decl: _ViewDeclaration) => Vi
  * The View service
  */
 export class ViewService {
-  private uiViews: ActiveUIView[] = [];
+  private uiViews: ActiveUiView[] = [];
   private viewConfigs: ViewConfig[] = [];
   private _rootContext;
   private _viewConfigFactories: { [key: string]: ViewConfigFactory } = {};
@@ -55,7 +55,7 @@ export class ViewService {
   };
 
   sync = () => {
-    let uiViewsByFqn: TypedMap<ActiveUIView> =
+    let uiViewsByFqn: TypedMap<ActiveUiView> =
         this.uiViews.map(uiv => [uiv.fqn, uiv]).reduce(applyPairs, <any> {});
 
     /**
@@ -113,7 +113,7 @@ export class ViewService {
      * - And the remaining segments [ "$default", "bar" ].join("."_ of the ViewConfig's target name match
      *   the tail of the ui-view's fqn "default.bar"
      */
-    const matches = (uiView: ActiveUIView) => (viewConfig: ViewConfig) => {
+    const matches = (uiView: ActiveUiView) => (viewConfig: ViewConfig) => {
       // Don't supply an ng1 ui-view with an ng2 ViewConfig, etc
       if (uiView.$type !== viewConfig.viewDecl.$type) return false;
 
@@ -136,7 +136,7 @@ export class ViewService {
     };
 
     // Return the number of dots in the fully qualified name
-    function uiViewDepth(uiView: ActiveUIView) {
+    function uiViewDepth(uiView: ActiveUiView) {
       return uiView.fqn.split(".").length;
     }
 
@@ -176,7 +176,7 @@ export class ViewService {
    *                   of the view.
    * @return {Function} Returns a de-registration function used when the view is destroyed.
    */
-  registerUiView(uiView: ActiveUIView) {
+  registerUiView(uiView: ActiveUiView) {
     trace.traceViewServiceUiViewEvent("-> Registering", uiView);
     let uiViews = this.uiViews;
     const fqnMatches = uiv => uiv.fqn === uiView.fqn;

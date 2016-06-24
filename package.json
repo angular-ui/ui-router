@@ -17,7 +17,7 @@
     "test:ng13": "karma start config/karma.ng13.js",
     "test:ng14": "karma start config/karma.ng14.js",
     "test:ng15": "karma start config/karma.ng15.js",
-    "test:integrate": "npm run test:core && npm run test:ng12 && npm run test:ng13 && npm run test:ng14 && npm run test:ng15"
+    "test:integrate": "tsc && npm run test:core && npm run test:ng12 && npm run test:ng13 && npm run test:ng14 && npm run test:ng15"
   },
   "homepage": "http://angular-ui.github.com/ui-router",
   "contributors": [

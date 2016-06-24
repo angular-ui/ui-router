@@ -8,7 +8,7 @@ import {Input} from "@angular/core";
 import {ComponentRef} from "@angular/core";
 import {Type} from "@angular/core";
 
-import {UIRouter} from "../../router";
+import {UiRouter} from "../../router";
 import {trace} from "../../common/trace";
 import {Inject} from "@angular/core";
 import {ViewContext, ViewConfig} from "../../view/interface";
@@ -131,7 +131,7 @@ export class UiView {
   static PARENT_INJECT = "UiView.PARENT_INJECT";
 
   constructor(
-      public router: UIRouter,
+      public router: UiRouter,
       @Inject(UiView.PARENT_INJECT) public parent: ParentUiViewInject,
       public compResolver: ComponentResolver,
       public viewContainerRef: ViewContainerRef

@@ -9,7 +9,7 @@ import {TargetState} from "../../state/targetState";
 import {TreeChanges} from "../../transition/interface";
 import {State} from "../../state/stateObject";
 import {anyTrueR, tail, unnestR} from "../../common/common";
-import {UIRouterGlobals, Globals} from "../../globals";
+import {UiRouterGlobals, Globals} from "../../globals";
 import {Param} from "../../params/param";
 import {PathFactory} from "../../path/pathFactory";
 

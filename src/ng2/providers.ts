@@ -15,14 +15,14 @@
  * - When defining a component, add the [[UIROUTER_DIRECTIVES]] to `directives:` array.
  * - Either bootstrap a [[UiView]] component, or add a `<ui-view></ui-view>` viewport to your root component.
  * - Create application states (as defined by [[Ng2StateDeclaration]]) which will fill in the viewports.
- * - Create a [[UIRouterConfig]], and register your states in the [[UIRouterConfig.configure]] function.
+ * - Create a [[UiRouterConfig]], and register your states in the [[UIRouterConfig.configure]] function.
  *
  * ```js
- * import {UIRouter} from "ui-router-ng2";
+ * import {UiRouter} from "ui-router-ng2";
  * import {INITIAL_STATES} from "./app.states";
  * @ Injectable()
- * export class MyUIRouterConfig {
- *   configure(uiRouter: UIRouter) {
+ * export class MyUiRouterConfig {
+ *   configure(uiRouter: UiRouter) {
  *     INITIAL_STATES.forEach(function(state) {
  *       uiRouter.stateRegistry.register(state));
  *     });
@@ -30,24 +30,24 @@
  * }
  * ```
  *
- * - When bootstrapping: include the [[UIROUTER_PROVIDERS]] and define a provider for your [[UIRouterConfig]]
+ * - When bootstrapping: include the [[UIROUTER_PROVIDERS]] and define a provider for your [[UiRouterConfig]]
  *
  * ```js
  * import {provide} from "@angular/core";
  * import {bootstrap} from 'angular2/platform/browser';
- * import {UIRouterConfig, UiView, UIROUTER_PROVIDERS} from "ui-router-ng2";
- * import {MyUIRouterConfig} from "./router.config";
+ * import {UiRouterConfig, UiView, UIROUTER_PROVIDERS} from "ui-router-ng2";
+ * import {MyUiRouterConfig} from "./router.config";
  *
  * bootstrap(UiView, [
  *     ...UIROUTER_PROVIDERS,
- *     provide(UIRouterConfig, { useClass: MyUIRouterConfig })
+ *     provide(UiRouterConfig, { useClass: MyUiRouterConfig })
  * ]);
  * ```
  *
  * @preferred @module ng2
  */ /** */
 import {Injector} from "@angular/core";
-import {UIRouter} from "../router";
+import {UiRouter} from "../router";
 import {PathNode} from "../path/node";
 import {StateRegistry} from "../state/stateRegistry";
 import {StateService} from "../state/stateService";
@@ -58,15 +58,15 @@ import {ViewService} from "../view/view";
 import {UiView} from "./directives/uiView";
 import {ng2ViewsBuilder, Ng2ViewConfig} from "./statebuilders/views";
 import {Ng2ViewDeclaration} from "./interface";
-import {UIRouterConfig} from "./uiRouterConfig";
+import {UiRouterConfig} from "./uiRouterConfig";
 import {Globals} from "../globals";
-import {UIRouterLocation} from "./location";
+import {UiRouterLocation} from "./location";
 import {services} from "../common/coreservices";
 import {ProviderLike} from "../state/interface";
 
-let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation, injector: Injector) => {
+let uiRouterFactory = (routerConfig: UiRouterConfig, location: UiRouterLocation, injector: Injector) => {
   services.$injector.get = injector.get.bind(injector);
-  let router = new UIRouter();
+  let router = new UiRouter();
 
   location.init();
 
@@ -96,29 +96,29 @@ let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation,
  * bootstrap(UiView, [
  *     ...UIROUTER_PROVIDERS,
  *     ...HTTP_PROVIDERS,
- *     provide(UIRouterConfig, { useClass: MyUIRouterConfig })
+ *     provide(UiRouterConfig, { useClass: MyUiRouterConfig })
  * ]);
  * ```
  */
 
 export const UIROUTER_PROVIDERS: ProviderLike[] = [
-  { provide: UIRouter, useFactory: uiRouterFactory, deps: [UIRouterConfig, UIRouterLocation, Injector] },
+  { provide: UiRouter, useFactory: uiRouterFactory, deps: [UiRouterConfig, UiRouterLocation, Injector] },
 
-  { provide: UIRouterLocation, useClass: UIRouterLocation },
+  { provide: UiRouterLocation, useClass: UiRouterLocation },
 
-  { provide: StateService, useFactory: (r: UIRouter) => { return r.stateService; }, deps: [UIRouter]},
+  { provide: StateService, useFactory: (r: UiRouter) => { return r.stateService; }, deps: [UiRouter]},
 
-  { provide: TransitionService, useFactory: (r: UIRouter) => { return r.transitionService; }, deps: [UIRouter]},
+  { provide: TransitionService, useFactory: (r: UiRouter) => { return r.transitionService; }, deps: [UiRouter]},
 
-  { provide: UrlMatcherFactory, useFactory: (r: UIRouter) => { return r.urlMatcherFactory; }, deps: [UIRouter]},
+  { provide: UrlMatcherFactory, useFactory: (r: UiRouter) => { return r.urlMatcherFactory; }, deps: [UiRouter]},
 
-  { provide: UrlRouter, useFactory: (r: UIRouter) => { return r.urlRouter; }, deps: [UIRouter]},
+  { provide: UrlRouter, useFactory: (r: UiRouter) => { return r.urlRouter; }, deps: [UiRouter]},
 
-  { provide: ViewService, useFactory: (r: UIRouter) => { return r.viewService; }, deps: [UIRouter]},
+  { provide: ViewService, useFactory: (r: UiRouter) => { return r.viewService; }, deps: [UiRouter]},
 
-  { provide: StateRegistry, useFactory: (r: UIRouter) => { return r.stateRegistry; }, deps: [UIRouter]},
+  { provide: StateRegistry, useFactory: (r: UiRouter) => { return r.stateRegistry; }, deps: [UiRouter]},
 
-  { provide: Globals, useFactory: (r: UIRouter) => { return r.globals; }, deps: [UIRouter]},
+  { provide: Globals, useFactory: (r: UiRouter) => { return r.globals; }, deps: [UiRouter]},
 
   { provide: UiView.PARENT_INJECT, useFactory: (r: StateRegistry) => { return { fqn: null, context: r.root() } }, deps: [StateRegistry]}
 ];

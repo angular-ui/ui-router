@@ -11,7 +11,7 @@ const splitOnEquals = beforeAfterSubstr("=");
 const splitOnQuestionMark = beforeAfterSubstr("?");
 
 @Injectable()
-export class UIRouterLocation {
+export class UiRouterLocation {
   isHashBang: boolean;
   hashPrefix: string = "";
 
