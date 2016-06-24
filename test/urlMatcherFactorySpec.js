@@ -138,7 +138,7 @@ describe("UrlMatcher", function () {
       err = "Invalid parameter name 'periods.' in pattern '/users/?from&to&periods.'";
       expect(function() { new UrlMatcher('/users/?from&to&periods.'); }).toThrow(err);
     });
-  });  
+  });
 
   describe(".exec()", function() {
     it("should capture parameter values", function () {
@@ -196,6 +196,11 @@ describe("UrlMatcher", function () {
       expect(new UrlMatcher('/users/:id').format({ id:'100%'})).toEqual('/users/100%25');
     });
 
+    it("should not encode URL parameters", function () {
+      provider.type("unencodedUrlType", { urlEncode: false });
+      expect(new UrlMatcher('/users/{id:unencodedUrlType}').format({ id:'100%'})).toEqual('/users/100%');
+    });
+
     it("encodes URL parameters with hashes", function () {
       var m = new UrlMatcher('/users/:id#:section'),
           params = { id: 'bob', section: 'contact-details' };
@@ -234,7 +239,7 @@ describe("UrlMatcher", function () {
       provider.strictMode(false);
       m = m.concat("foo");
       expect(m.exec("/foo")).toEqual({});
-      expect(m.exec("/foo/")).toEqual({})
+      expect(m.exec("/foo/")).toEqual({});
     });
 
     it("should respect $urlMatcherFactoryProvider.caseInsensitive", function() {
@@ -387,7 +392,7 @@ describe("UrlMatcher", function () {
         "param5": []
       };
 
-      expect(parsed).toEqualData(expected)
+      expect(parsed).toEqualData(expected);
       expect(m.params.$$values(parsed)).toEqualData(expected);
     }));
 
@@ -673,7 +678,7 @@ describe("urlMatcherFactory", function () {
         expect(m.exec($location.path(), $location.search())).toEqual( { fooid: 5, bar: [ 1, 2, 3 ] } );
       expect(m.format({ fooid: 5, bar: [ 1, 2, 3 ] })).toEqual("/foo/5?bar=1&bar=2&bar=3");
 
-      m.format()
+      m.format();
     }));
 
     it("should allow custom types to handle multiple search param values manually", inject(function($location) {

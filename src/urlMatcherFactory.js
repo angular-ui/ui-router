@@ -342,8 +342,8 @@ UrlMatcher.prototype.format = function (values) {
 
   var i, search = false, nPath = segments.length - 1, nTotal = params.length, result = segments[0];
 
-  function encodeDashes(str) { // Replace dashes with encoded "\-"
-    return encodeURIComponent(str).replace(/-/g, function(c) { return '%5C%' + c.charCodeAt(0).toString(16).toUpperCase(); });
+  function encodeDashes(urlEncode, str) { // Replace dashes with encoded "\-"
+    return (urlEncode ? encodeURIComponent(str) : str).replace(/-/g, function(c) { return '%5C%' + c.charCodeAt(0).toString(16).toUpperCase(); });
   }
 
   for (i = 0; i < nTotal; i++) {
@@ -352,6 +352,7 @@ UrlMatcher.prototype.format = function (values) {
     var isDefaultValue = param.isOptional && param.type.equals(param.value(), value);
     var squash = isDefaultValue ? param.squash : false;
     var encoded = param.type.encode(value);
+    var urlEncode = param.type.urlEncode === undefined || param.type.urlEncode === null ? true : urlEncode;
 
     if (isPathParam) {
       var nextSegment = segments[i + 1];
@@ -360,9 +361,9 @@ UrlMatcher.prototype.format = function (values) {
       if (squash === false) {
         if (encoded != null) {
           if (isArray(encoded)) {
-            result += map(encoded, encodeDashes).join("-");
+            result += map(encoded, encodeDashes.bind(null, urlEncode)).join("-");
           } else {
-            result += encodeURIComponent(encoded);
+            result += urlEncode ? encodeURIComponent(encoded) : encoded;
           }
         }
         result += nextSegment;
