@@ -7,45 +7,33 @@ import {services} from "../common/coreservices";
 import {PathFactory} from "../path/pathFactory";
 import {PathNode} from "../path/node";
 
-import {ViewService} from "../view/view";
-
-import {StateParams} from "../params/stateParams";
-
-import {UrlRouter} from "../url/urlRouter";
-
 import {TransitionOptions} from "../transition/interface";
-import {TransitionService, defaultTransOpts} from "../transition/transitionService";
-import {Rejection} from "../transition/rejectFactory";
+import {defaultTransOpts} from "../transition/transitionService";
+import {Rejection, RejectType} from "../transition/rejectFactory";
 import {Transition} from "../transition/transition";
 
 import {StateOrName, StateDeclaration, TransitionPromise} from "./interface";
-import {StateRegistry} from "./stateRegistry";
 import {State} from "./stateObject";
 import {TargetState} from "./targetState";
 
 import {RawParams} from "../params/interface";
 import {ParamsOrArray} from "../params/interface";
-import {TransitionManager} from "../hooks/transitionManager";
 import {Param} from "../params/param";
 import {Glob} from "../common/glob";
 import {equalForKeys} from "../common/common";
 import {HrefOptions} from "./interface";
-import {StateProvider} from "./state";
 import {bindFunctions} from "../common/common";
-import {UiRouterGlobals, Globals} from "../globals";
+import {Globals} from "../globals";
+import {UiRouter} from "../router";
+import {StateParams} from "../params/stateParams"; // for params() return type
 
 export class StateService {
-  get transition()  { return this.globals.transition; }
-  get params()      { return this.globals.params; }
-  get current()     { return this.globals.current; }
-  get $current()    { return this.globals.$current; }
+  get transition()  { return this.router.globals.transition; }
+  get params()      { return this.router.globals.params; }
+  get current()     { return this.router.globals.current; }
+  get $current()    { return this.router.globals.$current; }
 
-  constructor(private $view: ViewService,
-              private $urlRouter: UrlRouter,
-              private $transitions: TransitionService,
-              private stateRegistry: StateRegistry,
-              private stateProvider: StateProvider,
-              private globals: Globals) {
+  constructor(private router: UiRouter) {
     let getters = ['current', '$current', 'params', 'transition'];
     let boundFns = Object.keys(StateService.prototype).filter(key => getters.indexOf(key) === -1);
     bindFunctions(StateService.prototype, this, this, boundFns);
@@ -60,10 +48,11 @@ export class StateService {
    * the result returned.
    */
   private _handleInvalidTargetState(fromPath: PathNode[], $to$: TargetState) {
-    const latestThing = () => this.globals.transitionHistory.peekTail();
+    let globals = <Globals> this.router.globals;
+    const latestThing = () => globals.transitionHistory.peekTail();
     let latest = latestThing();
     let $from$ = PathFactory.makeTargetState(fromPath);
-    let callbackQueue = new Queue<Function>([].concat(this.stateProvider.invalidCallbacks));
+    let callbackQueue = new Queue<Function>([].concat(this.router.stateProvider.invalidCallbacks));
     let {$q, $injector} = services;
 
     const invokeCallback = (callback: Function) => $q.when($injector.invoke(callback, null, { $to$, $from$ }));
@@ -221,12 +210,13 @@ export class StateService {
     // If we're reloading, find the state object to reload from
     if (isObject(options.reload) && !(<any>options.reload).name)
       throw new Error('Invalid reload state object');
-    options.reloadState = options.reload === true ? this.stateRegistry.root() : this.stateRegistry.matcher.find(<any> options.reload, options.relative);
+    let reg = this.router.stateRegistry;
+    options.reloadState = options.reload === true ? reg.root() : reg.matcher.find(<any> options.reload, options.relative);
 
     if (options.reload && !options.reloadState)
       throw new Error(`No such reload state '${(isString(options.reload) ? options.reload : (<any>options.reload).name)}'`);
 
-    let stateDefinition = this.stateRegistry.matcher.find(identifier, options.relative);
+    let stateDefinition = reg.matcher.find(identifier, options.relative);
     return new TargetState(identifier, stateDefinition, params, options);
   };
 
@@ -269,25 +259,56 @@ export class StateService {
    * {@link ui.router.state.$state#methods_go $state.go}.
    */
   transitionTo(to: StateOrName, toParams: RawParams = {}, options: TransitionOptions = {}): TransitionPromise {
-    let transHistory = this.globals.transitionHistory;
+    let router = this.router;
+    let globals = <Globals> router.globals;
+    let transHistory = globals.transitionHistory;
     options = defaults(options, defaultTransOpts);
     options = extend(options, { current: transHistory.peekTail.bind(transHistory)});
 
     let ref: TargetState = this.target(to, toParams, options);
-    let latestSuccess: Transition = this.globals.successfulTransitions.peekTail();
-    const rootPath = () => [ new PathNode(this.stateRegistry.root()) ];
+    let latestSuccess: Transition = globals.successfulTransitions.peekTail();
+    const rootPath = () => [ new PathNode(this.router.stateRegistry.root()) ];
     let currentPath: PathNode[] = latestSuccess ? latestSuccess.treeChanges().to : rootPath();
 
     if (!ref.exists())
       return this._handleInvalidTargetState(currentPath, ref);
+
     if (!ref.valid())
       return services.$q.reject(ref.error());
 
-    let transition = this.$transitions.create(currentPath, ref);
-    let tMgr = new TransitionManager(transition, this.$transitions, this.$urlRouter, this.$view, <StateService> this, this.globals);
-    let transitionPromise = tMgr.runTransition();
+    /**
+     * Special handling for Ignored, Aborted, and Redirected transitions
+     *
+     * The semantics for the transition.run() promise and the StateService.transitionTo()
+     * promise differ. For instance, the run() promise may be rejected because it was
+     * IGNORED, but the transitionTo() promise is resolved because from the user perspective
+     * no error occurred.  Likewise, the transition.run() promise may be rejected because of
+     * a Redirect, but the transitionTo() promise is chained to the new Transition's promise.
+     */
+    const rejectedTransitionHandler = (transition) => (error) => {
+      if (error instanceof Rejection) {
+        if (error.type === RejectType.IGNORED) {
+          router.urlRouter.update();
+          return globals.current;
+        }
+
+        if (error.type === RejectType.SUPERSEDED && error.redirected && error.detail instanceof TargetState) {
+          let redirect: Transition = transition.redirect(error.detail);
+          return redirect.run().catch(rejectedTransitionHandler(redirect));
+        }
+
+        if (error.type === RejectType.ABORTED) {
+          router.urlRouter.update();
+        }
+      }
+
+      return services.$q.reject(error);
+    };
+
+    let transition = this.router.transitionService.create(currentPath, ref);
+    let transitionToPromise = transition.run().catch(rejectedTransitionHandler(transition));
     // Return a promise for the transition, which also has the transition object on it.
-    return extend(transitionPromise, { transition });
+    return extend(transitionToPromise, { transition });
   };
 
   /**
@@ -326,7 +347,7 @@ export class StateService {
    */
   is(stateOrName: StateOrName, params?: RawParams, options?: TransitionOptions): boolean {
     options = defaults(options, { relative: this.$current });
-    let state = this.stateRegistry.matcher.find(stateOrName, options.relative);
+    let state = this.router.stateRegistry.matcher.find(stateOrName, options.relative);
     if (!isDefined(state)) return undefined;
     if (this.$current !== state) return false;
     return isDefined(params) && params !== null ? Param.equals(state.parameters(), this.params, params) : true;
@@ -391,7 +412,7 @@ export class StateService {
       if (!glob.matches(this.$current.name)) return false;
       stateOrName = this.$current.name;
     }
-    let state = this.stateRegistry.matcher.find(stateOrName, options.relative), include = this.$current.includes;
+    let state = this.router.stateRegistry.matcher.find(stateOrName, options.relative), include = this.$current.includes;
 
     if (!isDefined(state)) return undefined;
     if (!isDefined(include[state.name])) return false;
@@ -436,7 +457,7 @@ export class StateService {
     };
     options = defaults(options, defaultHrefOpts);
 
-    let state = this.stateRegistry.matcher.find(stateOrName, options.relative);
+    let state = this.router.stateRegistry.matcher.find(stateOrName, options.relative);
 
     if (!isDefined(state)) return null;
     if (options.inherit) params = <any> this.params.$inherit(params || {}, this.$current, state);
@@ -446,7 +467,7 @@ export class StateService {
     if (!nav || nav.url === undefined || nav.url === null) {
       return null;
     }
-    return this.$urlRouter.href(nav.url, Param.values(state.parameters(), params), {
+    return this.router.urlRouter.href(nav.url, Param.values(state.parameters(), params), {
       absolute: options.absolute
     });
   };
@@ -468,7 +489,8 @@ export class StateService {
   get(stateOrName: StateOrName): StateDeclaration;
   get(stateOrName: StateOrName, base: StateOrName): StateDeclaration;
   get(stateOrName?: StateOrName, base?: StateOrName): any {
-    if (arguments.length === 0) return this.stateRegistry.get();
-    return this.stateRegistry.get(stateOrName, base || this.$current);
+    let reg = this.router.stateRegistry;
+    if (arguments.length === 0) return reg.get();
+    return reg.get(stateOrName, base || this.$current);
   }
 }

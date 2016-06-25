@@ -20,11 +20,11 @@ import {State} from "../state/stateObject";
 import {TargetState} from "../state/targetState";
 import {Param} from "../params/param";
 import {Resolvable} from "../resolve/resolvable";
-import {TransitionService} from "./transitionService";
 import {ViewConfig} from "../view/interface";
 import {Rejection} from "./rejectFactory";
 import {ResolveContext} from "../resolve/resolveContext";
 import {UiRouter} from "../router";
+import {Globals} from "../globals";
 
 
 let transitionCount = 0;
@@ -138,9 +138,9 @@ export class Transition implements IHookRegistry {
    * @param fromPath The path of [[PathNode]]s from which the transition is leaving.  The last node in the `fromPath`
    *        encapsulates the "from state".
    * @param targetState The target state and parameters being transitioned to (also, the transition options)
-   * @param _router The [[UiRouter]] instance
+   * @param router The [[UiRouter]] instance
    */
-  constructor(fromPath: PathNode[], targetState: TargetState, private _router: UiRouter) {
+  constructor(fromPath: PathNode[], targetState: TargetState, private router: UiRouter) {
     if (!targetState.valid()) {
       throw new Error(targetState.error());
     }
@@ -154,10 +154,10 @@ export class Transition implements IHookRegistry {
     let toPath = PathFactory.buildToPath(fromPath, targetState);
     this._treeChanges = PathFactory.treeChanges(fromPath, toPath, this._options.reloadState);
     let enteringStates = this._treeChanges.entering.map(node => node.state);
-    PathFactory.applyViewConfigs(_router.transitionService.$view, this._treeChanges.to, enteringStates);
+    PathFactory.applyViewConfigs(router.transitionService.$view, this._treeChanges.to, enteringStates);
 
     let rootResolvables: Resolvable[] = [
-      new Resolvable(UiRouter, () => _router, [], undefined, _router),
+      new Resolvable(UiRouter, () => router, [], undefined, router),
       new Resolvable(Transition, () => this, [], undefined, this),
       new Resolvable('$transition$', () => this, [], undefined, this),
       new Resolvable('$stateParams', () => this.params(), [], undefined, this.params())
@@ -360,7 +360,7 @@ export class Transition implements IHookRegistry {
     let newOptions = extend({}, this.options(), targetState.options(), { previous: this });
     targetState = new TargetState(targetState.identifier(), targetState.$state(), targetState.params(), newOptions);
 
-    let newTransition = this._router.transitionService.create(this._treeChanges.from, targetState);
+    let newTransition = this.router.transitionService.create(this._treeChanges.from, targetState);
     let originalEnteringNodes = this.treeChanges().entering;
     let redirectEnteringNodes = newTransition.treeChanges().entering;
 
@@ -430,7 +430,7 @@ export class Transition implements IHookRegistry {
    * @hidden
    */
   hookBuilder(): HookBuilder {
-    return new HookBuilder(this._router.transitionService, this, <TransitionHookOptions> {
+    return new HookBuilder(this.router.transitionService, this, <TransitionHookOptions> {
       transition: this,
       current: this._options.current
     });
@@ -444,14 +444,10 @@ export class Transition implements IHookRegistry {
    * @returns a promise for a successful transition.
    */
   run (): Promise<any> {
-    let hookBuilder = this.hookBuilder();
     let runSynchronousHooks = TransitionHook.runSynchronousHooks;
-    // TODO: nuke these in favor of chaining off the promise? i.e.,
-    // $transitions.onBefore({}, $transition$ => {$transition$.promise.then()}
-    const runSuccessHooks = () => runSynchronousHooks(hookBuilder.getOnSuccessHooks(), true);
-    const runErrorHooks = ($error$) => runSynchronousHooks(hookBuilder.getOnErrorHooks(), true);
-    // Run the success/error hooks *after* the Transition promise is settled.
-    this.promise.then(runSuccessHooks, runErrorHooks);
+    let hookBuilder = this.hookBuilder();
+    let globals = <Globals> this.router.globals;
+    globals.transitionHistory.enqueue(this);
 
     let syncResult = runSynchronousHooks(hookBuilder.getOnBeforeHooks());
 
@@ -475,23 +471,26 @@ export class Transition implements IHookRegistry {
     }
 
     // When the chain is complete, then resolve or reject the deferred
-    const resolve = () => {
-      this.success = true;
-      this._deferred.resolve(this);
+    const transitionSuccess = () => {
       trace.traceSuccess(this.$to(), this);
+      this.success = true;
+      this._deferred.resolve(this.to());
+      runSynchronousHooks(hookBuilder.getOnSuccessHooks(), true);
     };
 
-    const reject = (error) => {
+    const transitionError = (error) => {
+      trace.traceError(error, this);
       this.success = false;
       this._deferred.reject(error);
-      trace.traceError(error, this);
-      return services.$q.reject(error);
+      runSynchronousHooks(hookBuilder.getOnErrorHooks(), true);
     };
 
     trace.traceTransitionStart(this);
 
-    let chain = hookBuilder.asyncHooks().reduce((_chain, step) => _chain.then(step.invokeHook.bind(step)), syncResult);
-    chain.then(resolve, reject);
+    // Run the hooks, then resolve or reject the overall deferred in the .then() handler
+    hookBuilder.asyncHooks()
+        .reduce((_chain, step) => _chain.then(step.invokeHook.bind(step)), syncResult)
+        .then(transitionSuccess, transitionError);
 
     return this.promise;
   }

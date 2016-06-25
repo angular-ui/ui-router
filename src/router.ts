@@ -36,7 +36,7 @@ export class UiRouter {
   /** @hidden TODO: move this to ng1.ts */
   stateProvider = new StateProvider(this.stateRegistry);
 
-  stateService = new StateService(this.viewService, this.urlRouter, this.transitionService, this.stateRegistry, this.stateProvider, <Globals> this.globals);
+  stateService = new StateService(this);
 
   constructor() {
     this.viewService.rootContext(this.stateRegistry.root());
