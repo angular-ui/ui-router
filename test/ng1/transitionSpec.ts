@@ -9,7 +9,6 @@ import {StateBuilder} from "../../src/state/stateBuilder";
 import {TargetState} from "../../src/state/targetState";
 import {StateQueueManager} from "../../src/state/stateQueueManager";
 import {Rejection} from "../../src/transition/rejectFactory";
-import {ResolveHooks} from "../../src/state/hooks/resolveHooks";
 import {Resolvable} from "../../src/resolve/resolvable";
 import {Transition} from "../../src/transition/transition";
 
@@ -439,7 +438,6 @@ describe('transition', function () {
 
       it("hooks can add resolves to a $transition$ and they will be available to be injected elsewhere", inject(function($transitions, $q, $timeout) {
         var log = [], transition = makeTransition("A", "D");
-        new ResolveHooks(transition).registerHooks();
         var defer = $q.defer();
 
         transitionProvider.onEnter({ entering: '**'}, function logEnter(trans, inj, state) {

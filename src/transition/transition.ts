@@ -24,6 +24,7 @@ import {TransitionService} from "./transitionService";
 import {ViewConfig} from "../view/interface";
 import {Rejection} from "./rejectFactory";
 import {ResolveContext} from "../resolve/resolveContext";
+import {UiRouter} from "../router";
 
 
 let transitionCount = 0;
@@ -137,9 +138,9 @@ export class Transition implements IHookRegistry {
    * @param fromPath The path of [[PathNode]]s from which the transition is leaving.  The last node in the `fromPath`
    *        encapsulates the "from state".
    * @param targetState The target state and parameters being transitioned to (also, the transition options)
-   * @param _transitionService The Transition Service instance
+   * @param _router The [[UiRouter]] instance
    */
-  constructor(fromPath: PathNode[], targetState: TargetState, private _transitionService: TransitionService) {
+  constructor(fromPath: PathNode[], targetState: TargetState, private _router: UiRouter) {
     if (!targetState.valid()) {
       throw new Error(targetState.error());
     }
@@ -152,10 +153,11 @@ export class Transition implements IHookRegistry {
     this.$id = transitionCount++;
     let toPath = PathFactory.buildToPath(fromPath, targetState);
     this._treeChanges = PathFactory.treeChanges(fromPath, toPath, this._options.reloadState);
-    let enteringStates = this._treeChanges.entering.map(node => node.state)
-    PathFactory.applyViewConfigs(_transitionService.$view, this._treeChanges.to, enteringStates);
+    let enteringStates = this._treeChanges.entering.map(node => node.state);
+    PathFactory.applyViewConfigs(_router.transitionService.$view, this._treeChanges.to, enteringStates);
 
     let rootResolvables: Resolvable[] = [
+      new Resolvable(UiRouter, () => _router, [], undefined, _router),
       new Resolvable(Transition, () => this, [], undefined, this),
       new Resolvable('$transition$', () => this, [], undefined, this),
       new Resolvable('$stateParams', () => this.params(), [], undefined, this.params())
@@ -358,7 +360,7 @@ export class Transition implements IHookRegistry {
     let newOptions = extend({}, this.options(), targetState.options(), { previous: this });
     targetState = new TargetState(targetState.identifier(), targetState.$state(), targetState.params(), newOptions);
 
-    let newTransition = new Transition(this._treeChanges.from, targetState, this._transitionService);
+    let newTransition = this._router.transitionService.create(this._treeChanges.from, targetState);
     let originalEnteringNodes = this.treeChanges().entering;
     let redirectEnteringNodes = newTransition.treeChanges().entering;
 
@@ -428,7 +430,7 @@ export class Transition implements IHookRegistry {
    * @hidden
    */
   hookBuilder(): HookBuilder {
-    return new HookBuilder(this._transitionService, this, <TransitionHookOptions> {
+    return new HookBuilder(this._router.transitionService, this, <TransitionHookOptions> {
       transition: this,
       current: this._options.current
     });

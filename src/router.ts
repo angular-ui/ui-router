@@ -21,7 +21,7 @@ import {UiRouterGlobals, Globals} from "./globals";
 export class UiRouter {
   viewService = new ViewService();
 
-  transitionService: TransitionService = new TransitionService(this.viewService);
+  transitionService: TransitionService = new TransitionService(this);
 
   globals: UiRouterGlobals = new Globals(this.transitionService);
 

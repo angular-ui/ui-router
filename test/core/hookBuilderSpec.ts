@@ -157,6 +157,11 @@ describe('HookBuilder:', function() {
   });
 
   describe('built TransitionHooks', function() {
+    beforeEach(function() {
+      // Deregister all built-in TransitionService hooks for clean slate for these tests
+      Object.keys($trans._deregisterHookFns).forEach(key => $trans._deregisterHookFns[key]());
+    });
+
     describe('should be bound to the correct context', function() {
       const context = hook =>
           tail(hook.resolveContext['_path']).state.name;

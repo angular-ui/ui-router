@@ -751,6 +751,7 @@ export interface IMatchingNodes {
  */
 export type HookMatchCriterion = (string|IStateMatch|boolean)
 
+/** @hidden */
 export interface IEventHook {
   callback: HookFn;
   priority?: number;

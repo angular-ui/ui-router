@@ -25,7 +25,7 @@ import {TargetState} from "./targetState";
 
 import {RawParams} from "../params/interface";
 import {ParamsOrArray} from "../params/interface";
-import {TransitionManager} from "./hooks/transitionManager";
+import {TransitionManager} from "../hooks/transitionManager";
 import {Param} from "../params/param";
 import {Glob} from "../common/glob";
 import {equalForKeys} from "../common/common";

@@ -13,6 +13,9 @@ import {State} from "../state/stateObject";
 
 /**
  * Determines if the given state matches the matchCriteria
+ *
+ * @hidden
+ *
  * @param state a State Object to test against
  * @param criterion
  * - If a string, matchState uses the string as a glob-matcher against the state name
@@ -40,7 +43,7 @@ export function matchState(state: State, criterion: HookMatchCriterion) {
   return !!matchFn(state);
 }
 
-
+/** @hidden */
 export class EventHook implements IEventHook {
   callback: HookFn;
   matchCriteria: HookMatchCriteria;
@@ -89,7 +92,7 @@ export class EventHook implements IEventHook {
 /** @hidden */
 interface ITransitionEvents { [key: string]: IEventHook[]; }
 
-// Return a registration function of the requested type.
+/** @hidden Return a registration function of the requested type. */
 function makeHookRegistrationFn(hooks: ITransitionEvents, name: string): IHookRegistration {
   return function (matchObject, callback, options = {}) {
     let eventHook = new EventHook(matchObject, callback, options);
@@ -101,6 +104,21 @@ function makeHookRegistrationFn(hooks: ITransitionEvents, name: string): IHookRe
   };
 }
 
+/**
+ * Mixin class acts as a Transition Hook registry.
+ *
+ * Holds the registered [[HookFn]] objects.
+ * Exposes functions to register new hooks.
+ *
+ * This is a Mixin class which can be applied to other objects.
+ *
+ * The hook registration functions are [[onBefore]], [[onStart]], [[onEnter]], [[onRetain]], [[onExit]], [[onFinish]], [[onSuccess]], [[onError]].
+ *
+ * This class is mixed into both the [[TransitionService]] and every [[Transition]] object.
+ * Global hooks are added to the [[TransitionService]].
+ * Since each [[Transition]] is itself a `HookRegistry`, hooks can also be added to individual Transitions
+ * (note: the hook criteria still must match the Transition).
+ */
 export class HookRegistry implements IHookRegistry {
   static mixin(source: HookRegistry, target: IHookRegistry) {
     Object.keys(source._transitionEvents).concat(["getHooks"]).forEach(key => target[key] = source[key]);

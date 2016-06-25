@@ -8,6 +8,12 @@ import {PathNode} from "../path/node";
 import {IEventHook} from "./interface";
 import {ViewService} from "../view/view";
 import {IInjectable} from "../common/common";
+import {makeEnterExitRetainHook} from "../hooks/onEnterExitRetain";
+import {$eagerResolvePath, $lazyResolveState} from "../hooks/resolve";
+import {loadEnteringViews, activateViews} from "../hooks/views";
+import {UiRouter} from "../router";
+import {val} from "../common/hof";
+import {updateUrl} from "../hooks/url";
 
 /**
  * The default [[Transition]] options.
@@ -38,9 +44,42 @@ export let defaultTransOpts: TransitionOptions = {
 export class TransitionService implements IHookRegistry {
   /** @hidden */
   public $view: ViewService;
-  constructor($view: ViewService) {
-    this.$view = $view;
+
+  _deregisterHookFns: {
+    onExit: Function;
+    onRetain: Function;
+    onEnter: Function;
+    eagerResolve: Function;
+    lazyResolve: Function;
+    loadViews: Function;
+    activateViews: Function;
+    updateUrl: Function;
+  };
+
+  constructor(private _router: UiRouter) {
+    this.$view = _router.viewService;
     HookRegistry.mixin(new HookRegistry(), this);
+    this._deregisterHookFns = <any> {};
+    this.registerTransitionHooks();
+  }
+  
+  private registerTransitionHooks() {
+    let fns = this._deregisterHookFns;
+    
+    // Wire up onExit/Retain/Enter state hooks
+    fns.onExit        = this.onExit({exiting: state => !!state.onExit}, makeEnterExitRetainHook('onExit'));
+    fns.onRetain      = this.onRetain({retained: state => !!state.onRetain}, makeEnterExitRetainHook('onRetain'));
+    fns.onEnter       = this.onEnter({entering: state => !!state.onEnter}, makeEnterExitRetainHook('onEnter'));
+
+    // Wire up Resolve hooks
+    fns.eagerResolve  = this.onStart({}, $eagerResolvePath, {priority: 1000});
+    fns.lazyResolve   = this.onEnter({ entering: val(true) }, $lazyResolveState, {priority: 1000});
+
+    fns.loadViews     = this.onStart({}, loadEnteringViews);
+    fns.activateViews = this.onSuccess({}, activateViews);
+
+    // After globals.current is updated at priority: 10000
+    fns.updateUrl     = this.onSuccess({}, updateUrl, {priority: 9999});
   }
 
   /** @inheritdoc */
@@ -82,7 +121,7 @@ export class TransitionService implements IHookRegistry {
    * @param handler a global error handler function
    * @returns the current global error handler
    */
-  defaultErrorHandler(handler?: (error) => void) {
+  defaultErrorHandler(handler?: (error) => void): (error) => void {
     return this._defaultErrorHandler = handler || this._defaultErrorHandler;
   }
 
@@ -96,7 +135,7 @@ export class TransitionService implements IHookRegistry {
    * @param targetState the target state (destination)
    * @returns a Transition
    */
-  create(fromPath: PathNode[], targetState: TargetState) {
-    return new Transition(fromPath, targetState, this);
+  create(fromPath: PathNode[], targetState: TargetState): Transition {
+    return new Transition(fromPath, targetState, this._router);
   }
 }
