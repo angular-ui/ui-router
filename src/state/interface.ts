@@ -8,6 +8,8 @@ import {Transition} from "../transition/transition";
 import {TransitionStateHookFn} from "../transition/interface";
 import {ResolvePolicy, ResolvableLiteral} from "../resolve/interface";
 import {Resolvable} from "../resolve/resolvable";
+import {UIRInjector} from "../common/interface";
+import {TargetState} from "./targetState";
 
 export type StateOrName = (string|StateDeclaration|State);
 
@@ -388,12 +390,73 @@ export interface StateDeclaration {
   /**
    * An inherited property to store state data
    *
-   * This is a spot for you to store inherited state metadata.  Child states' `data` object will
-   * prototypically inherit from the parent state .
+   * This is a spot for you to store inherited state metadata.
+   * Child states' `data` object will prototypally inherit from their parent state.
    *
    * This is a good spot to put metadata such as `requiresAuth`.
+   *
+   * Note: because prototypal inheritance is used, changes to parent `data` objects reflect in the child `data` objects.
+   * Care should be taken if you are using `hasOwnProperty` on the `data` object.
+   * Properties from parent objects will return false for `hasOwnProperty`.
    */
   data?: any;
+
+  /**
+   * Synchronously or asynchronously redirects Transitions to a different state/params
+   *
+   * If this property is defined, a Transition directly to this state will be redirected based on the property's value.
+   *
+   * - If the value is a `string`, the Transition is redirected to the state named by the string.
+   *
+   * - If the property is an object with a `state` and/or `params` property,
+   *   the Transition is redirected to the named `state` and/or `params`.
+   *
+   * - If the value is a [[TargetState]] the Transition is redirected to the `TargetState`
+   *
+   * - If the property is a function:
+   *   - The function is called with two parameters:
+   *     - The current [[Transition]]
+   *     - An injector which can be used to get dependencies using [[UIRInjector.get]]
+   *   - The return value is processed using the previously mentioned rules.
+   *   - If the return value is a promise, the promise is waited for, then the resolved async value is processed using the same rules.
+   *
+   * @example
+   * ```js
+   *
+   * // a string
+   * .state('A', {
+   *   redirectTo: 'A.B'
+   * })
+   * // a {state, params} object
+   * .state('C', {
+   *   redirectTo: { state: 'C.D', params: { foo: 'index' } }
+   * })
+   * // a fn
+   * .state('E', {
+   *   redirectTo: () => "A"
+   * })
+   * // a fn conditionally returning a {state, params}
+   * .state('F', {
+   *   redirectTo: (trans) => {
+   *     if (trans.params().foo < 10)
+   *       return { state: 'F', params: { foo: 10 } };
+   *   }
+   * })
+   * // a fn returning a promise for a redirect
+   * .state('G', {
+   *   redirectTo: (trans, injector) => {
+   *     let svc = injector.get('SomeService')
+   *     let promise = svc.getAsyncRedirect(trans.params.foo);
+   *     return promise;
+   *   }
+   * })
+   */
+  redirectTo?: (
+      ($transition$: Transition, $injector: UIRInjector) => TargetState |
+      { state: (string|StateDeclaration), params: { [key: string]: any }} |
+      string
+  )
+
   /**
    * A Transition Hook called with the state is being entered.  See: [[IHookRegistry.onEnter]]
    *

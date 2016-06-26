@@ -14,6 +14,7 @@ import {loadEnteringViews, activateViews} from "../hooks/views";
 import {UiRouter} from "../router";
 import {val} from "../common/hof";
 import {updateUrl} from "../hooks/url";
+import {redirectToHook} from "../hooks/redirectTo";
 
 /**
  * The default [[Transition]] options.
@@ -54,6 +55,7 @@ export class TransitionService implements IHookRegistry {
     loadViews: Function;
     activateViews: Function;
     updateUrl: Function;
+    redirectTo: Function;
   };
 
   constructor(private _router: UiRouter) {
@@ -65,6 +67,9 @@ export class TransitionService implements IHookRegistry {
   
   private registerTransitionHooks() {
     let fns = this._deregisterHookFns;
+
+    // Wire up redirectTo hook
+    fns.redirectTo    = this.onStart({to: (state) => !!state.redirectTo}, redirectToHook);
     
     // Wire up onExit/Retain/Enter state hooks
     fns.onExit        = this.onExit({exiting: state => !!state.onExit}, makeEnterExitRetainHook('onExit'));
@@ -75,6 +80,7 @@ export class TransitionService implements IHookRegistry {
     fns.eagerResolve  = this.onStart({}, $eagerResolvePath, {priority: 1000});
     fns.lazyResolve   = this.onEnter({ entering: val(true) }, $lazyResolveState, {priority: 1000});
 
+    // Wire up the View management hooks
     fns.loadViews     = this.onStart({}, loadEnteringViews);
     fns.activateViews = this.onSuccess({}, activateViews);
 
