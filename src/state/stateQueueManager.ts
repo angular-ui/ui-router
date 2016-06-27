@@ -13,7 +13,7 @@ export class StateQueueManager {
   constructor(
       public states: { [key: string]: State; },
       public builder: StateBuilder,
-      public $urlRouterProvider) {
+      public $urlRouterProvider: any) {
     this.queue = [];
   }
 
@@ -39,9 +39,9 @@ export class StateQueueManager {
     return state;
   }
 
-  flush($state) {
+  flush($state: any) {
     let {queue, states, builder} = this;
-    let result, state, orphans = [], orphanIdx, previousQueueLength = {};
+    let result: any, state: any, orphans: any[] = [], orphanIdx: any, previousQueueLength: { [key: string]: any; } = {};
 
     while (queue.length > 0) {
       state = queue.shift();
@@ -72,16 +72,16 @@ export class StateQueueManager {
     return states;
   }
 
-  autoFlush($state) {
+  autoFlush($state: any) {
     this.$state = $state;
     this.flush($state);
   }
 
-  attachRoute($state, state) {
+  attachRoute($state: any, state: any) {
     let {$urlRouterProvider} = this;
     if (state[abstractKey] || !state.url) return;
 
-    $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
+    $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match: any, $stateParams: any) {
       if ($state.$current.navigable !== state || !equalForKeys($match, $stateParams)) {
         $state.transitionTo(state, $match, { inherit: true, location: false });
       }

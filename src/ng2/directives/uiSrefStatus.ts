@@ -40,7 +40,7 @@ export interface SrefStatus {
  */
 @Directive({ selector: '[uiSrefStatus],[uiSrefActive],[uiSrefActiveEq]' })
 export class UiSrefStatus {
-  private _deregisterHook;
+  private _deregisterHook: any;
 
   // current statuses of the state/params the uiSref directive is linking to
   @Output("uiSrefStatus") uiSrefStatus = new EventEmitter<SrefStatus>(false);
@@ -56,7 +56,7 @@ export class UiSrefStatus {
               private _globals: Globals,
               private _stateService: StateService,
               public sref: UiSref) {
-    this._deregisterHook = transitionService.onStart({}, $transition$ => this.processTransition($transition$));
+    this._deregisterHook = transitionService.onStart({}, ($transition$: any) => this.processTransition($transition$));
   }
 
   ngOnInit() {

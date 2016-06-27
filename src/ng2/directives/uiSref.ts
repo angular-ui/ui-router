@@ -11,7 +11,7 @@ import {extend} from "../../common/common";
 @Directive({ selector: 'a[uiSref]' })
 export class AnchorUiSref {
   constructor(public _el: ElementRef, public _renderer: Renderer) { }
-  update(href) {
+  update(href: any) {
     this._renderer.setElementProperty(this._el.nativeElement, 'href', href);
   }
 }
@@ -72,9 +72,9 @@ export class UiSref {
       @Optional() private _anchorUiSref: AnchorUiSref
   ) { }
 
-  set "uiSref"(val) { this.state = val; this.update(); }
-  set "uiParams"(val) { this.params = val; this.update(); }
-  set "uiOptions"(val) { this.options = val; this.update(); }
+  set "uiSref"(val: any) { this.state = val; this.update(); }
+  set "uiParams"(val: any) { this.params = val; this.update(); }
+  set "uiOptions"(val: any) { this.options = val; this.update(); }
 
   ngOnInit() {
     this.update();

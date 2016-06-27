@@ -9,8 +9,8 @@ import {ParamType} from "./type";
 // If the slashes are simply URLEncoded, the browser can choose to pre-decode them,
 // and bidirectional encoding/decoding fails.
 // Tilde was chosen because it's not a RFC 3986 section 2.2 Reserved Character
-function valToString(val) { return val != null ? val.toString().replace(/~/g, "~~").replace(/\//g, "~2F") : val; }
-function valFromString(val) { return val != null ? val.toString().replace(/~2F/g, "/").replace(/~~/g, "~") : val; }
+function valToString(val: any) { return val != null ? val.toString().replace(/~/g, "~~").replace(/\//g, "~2F") : val; }
+function valFromString(val: any) { return val != null ? val.toString().replace(/~2F/g, "/").replace(/~~/g, "~") : val; }
 
 export class ParamTypes {
   types: any;
@@ -23,7 +23,7 @@ export class ParamTypes {
       decode: valFromString,
       is: is(String),
       pattern: /.*/,
-      equals: (a, b) => a == b // allow coersion for null/undefined/""
+      equals: (a: any, b: any) => a == b // allow coersion for null/undefined/""
     },
     "string": {
       encode: valToString,
@@ -33,31 +33,31 @@ export class ParamTypes {
     },
     "int": {
       encode: valToString,
-      decode(val) { return parseInt(val, 10); },
-      is(val) { return isDefined(val) && this.decode(val.toString()) === val; },
+      decode(val: any) { return parseInt(val, 10); },
+      is(val: any) { return isDefined(val) && this.decode(val.toString()) === val; },
       pattern: /-?\d+/
     },
     "bool": {
-      encode: val => val && 1 || 0,
-      decode: val => parseInt(val, 10) !== 0,
+      encode: (val: any) => val && 1 || 0,
+      decode: (val: any) => parseInt(val, 10) !== 0,
       is: is(Boolean),
       pattern: /0|1/
     },
     "date": {
-      encode(val) {
+      encode(val: any) {
         return !this.is(val) ? undefined : [
           val.getFullYear(),
           ('0' + (val.getMonth() + 1)).slice(-2),
           ('0' + val.getDate()).slice(-2)
         ].join("-");
       },
-      decode(val) {
+      decode(val: any) {
         if (this.is(val)) return val;
         let match = this.capture.exec(val);
         return match ? new Date(match[1], match[2] - 1, match[3]) : undefined;
       },
-      is: (val) => val instanceof Date && !isNaN(val.valueOf()),
-      equals(l, r) {
+      is: (val: any) => val instanceof Date && !isNaN(val.valueOf()),
+      equals(l: any, r: any) {
         return ['getFullYear', 'getMonth', 'getDate']
             .reduce((acc, fn) => acc && l[fn]() === r[fn](), true)
       },
@@ -81,11 +81,11 @@ export class ParamTypes {
 
   constructor() {
     // Register default types. Store them in the prototype of this.types.
-    const makeType = (definition, name) => new ParamType(extend({ name }, definition));
+    const makeType = (definition: any, name: any) => new ParamType(extend({ name }, definition));
     this.types = inherit(map(this.defaultTypes, makeType), {});
   }
 
-  type(name, definition?: any, definitionFn?: Function) {
+  type(name: any, definition?: any, definitionFn?: Function) {
     if (!isDefined(definition)) return this.types[name];
     if (this.types.hasOwnProperty(name)) throw new Error(`A type named '${name}' has already been defined.`);
 

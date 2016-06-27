@@ -52,7 +52,7 @@ export function curry(fn: Function): Function {
   let initial_args = [].slice.apply(arguments, [1]);
   let func_args_length = fn.length;
 
-  function curried(args) {
+  function curried(args: any) {
     if (args.length >= func_args_length)
       return fn.apply(null, args);
     return function () {
@@ -121,22 +121,22 @@ export const parse = (name: string) => pipe.apply(null, name.split(".").map(prop
  * Given a function that returns a truthy or falsey value, returns a
  * function that returns the opposite (falsey or truthy) value given the same inputs
  */
-export const not = (fn) => (...args) => !fn.apply(null, args);
+export const not = (fn: any) => (...args: any[]) => !fn.apply(null, args);
 
 /**
  * Given two functions that return truthy or falsey values, returns a function that returns truthy
  * if both functions return truthy for the given arguments
  */
-export function and(fn1, fn2): Predicate<any> {
-  return (...args) => fn1.apply(null, args) && fn2.apply(null, args);
+export function and(fn1: any, fn2: any): Predicate<any> {
+  return (...args: any[]) => fn1.apply(null, args) && fn2.apply(null, args);
 }
 
 /**
  * Given two functions that return truthy or falsey values, returns a function that returns truthy
  * if at least one of the functions returns truthy for the given arguments
  */
-export function or(fn1, fn2): Predicate<any> {
-  return (...args) => fn1.apply(null, args) || fn2.apply(null, args);
+export function or(fn1: any, fn2: any): Predicate<any> {
+  return (...args: any[]) => fn1.apply(null, args) || fn2.apply(null, args);
 }
 
 /**
@@ -145,16 +145,16 @@ export function or(fn1, fn2): Predicate<any> {
  * @param fn1 a predicate function `fn1`
  * @returns a function which takes an array and returns true if `fn1` is true for all elements of the array
  */
-export const all = (fn1) => (arr: any[]) => arr.reduce((b, x) => b && !!fn1(x), true);
-export const any = (fn1) => (arr: any[]) => arr.reduce((b, x) => b || !!fn1(x), false);
+export const all = (fn1: any) => (arr: any[]) => arr.reduce((b, x) => b && !!fn1(x), true);
+export const any = (fn1: any) => (arr: any[]) => arr.reduce((b, x) => b || !!fn1(x), false);
 export const none: Function = not(any);
 
 /** Given a class, returns a Predicate function that returns true if the object is of that class */
-export const is: (ctor) => (x) => boolean =
+export const is: (ctor: any) => (x: any) => boolean =
     ctor => obj => (obj != null && obj.constructor === ctor || obj instanceof ctor);
 
 /** Given a value, returns a Predicate function that returns true if another value is === equal to the original value */
-export const eq: (comp) => (x) => boolean =
+export const eq: (comp: any) => (x: any) => boolean =
     (val) => (other) => val === other;
 
 /** Given a value, returns a function which returns the value */
@@ -164,7 +164,7 @@ export const val = <T> (v: T) => () => v;
 
 export function invoke(fnName: string): Function;
 export function invoke(fnName: string, args: any[]): Function;
-export function invoke(fnName: string, args?): Function {
+export function invoke(fnName: string, args?: any): Function {
   return (obj: any) => obj[fnName].apply(obj, args);
 }
 
@@ -209,7 +209,7 @@ export function invoke(fnName: string, args?): Function {
  * @returns {function(any): *}
  */
 export function pattern(struct: Function[][]): Function {
-  return function(x) {
+  return function(x: any) {
     for (var i = 0; i < struct.length; i++) {
       if (struct[i][0](x)) return struct[i][1](x);
     }

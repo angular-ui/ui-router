@@ -57,7 +57,7 @@ export class StateService {
 
     const invokeCallback = (callback: Function) => $q.when($injector.invoke(callback, null, { $to$, $from$ }));
 
-    const checkForRedirect = (result) => {
+    const checkForRedirect = (result: any) => {
       if (!(result instanceof TargetState)) {
         return;
       }
@@ -74,7 +74,7 @@ export class StateService {
     function invokeNextCallback() {
       let nextCallback = callbackQueue.dequeue();
       if (nextCallback === undefined) return Rejection.invalid($to$.error()).toPromise();
-      return invokeCallback(nextCallback).then(checkForRedirect).then(result => result || invokeNextCallback());
+      return invokeCallback(nextCallback).then(checkForRedirect).then((result: any) => result || invokeNextCallback());
     }
 
     return invokeNextCallback();
@@ -285,7 +285,7 @@ export class StateService {
      * no error occurred.  Likewise, the transition.run() promise may be rejected because of
      * a Redirect, but the transitionTo() promise is chained to the new Transition's promise.
      */
-    const rejectedTransitionHandler = (transition) => (error) => {
+    const rejectedTransitionHandler: (transition: any) => (error: any) => any = (transition: any) => (error: any) => {
       if (error instanceof Rejection) {
         if (error.type === RejectType.IGNORED) {
           router.urlRouter.update();

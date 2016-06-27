@@ -15,10 +15,10 @@ import {extend} from "../../common/common";
  * When the [[StateBuilder]] builds a [[State]] object from a raw [[StateDeclaration]], this builder
  * ensures that those hooks are injectable for angular-ui-router (ng1).
  */
-export const getStateHookBuilder = (hookName) =>
-function stateHookBuilder(state: State, parentFn): TransitionStateHookFn {
+export const getStateHookBuilder = (hookName: any) =>
+function stateHookBuilder(state: State, parentFn: any): TransitionStateHookFn {
   let hook = state[hookName];
-  function decoratedNg1Hook(trans: Transition, inj: IInjectorService, state): HookResult {
+  function decoratedNg1Hook(trans: Transition, inj: IInjectorService, state: any): HookResult {
     let resolveContext = new ResolveContext(trans.treeChanges().to);
     return services.$injector.invoke(hook, this, extend({ $state$: state }, getLocals(resolveContext)));
   }

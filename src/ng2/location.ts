@@ -47,7 +47,7 @@ export class UiRouterLocation {
       return queryString.split("&").map(kv => splitOnEquals(kv)).reduce(applyPairs, {});
     };
 
-    loc.url = (url) => {
+    loc.url = (url: any) => {
       if(isDefined(url)) {
         let split = splitOnQuestionMark(url);
         locSt.pushState(null, null, split[0], split[1]);
@@ -59,13 +59,13 @@ export class UiRouterLocation {
       console.log(new Error('$location.replace() not impl'))
     };
 
-    loc.onChange = cb => locSt.onPopState(cb);
+    loc.onChange = (cb: any) => locSt.onPopState(cb);
 
     let locCfg = <any> services.locationConfig;
 
-    locCfg.port = () => null;
-    locCfg.protocol = () => null;
-    locCfg.host = () => null;
+    locCfg.port = () => null as any;
+    locCfg.protocol = () => null as any;
+    locCfg.host = () => null as any;
     locCfg.baseHref = () => locSt.getBaseHref();
     locCfg.html5Mode = () => !this.isHashBang;
     locCfg.hashPrefix = (newprefix: string): string => {

@@ -446,6 +446,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    */
   templateProvider?: IInjectable;
 
+  [key: string]: any;
 }
 
 /**
@@ -463,7 +464,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
  */
 export interface Ng1Controller {
   /** @hidden */
-  $onInit();
+  $onInit(): any;
   /**
    * This callback is called when parameter values have changed.
    * 
@@ -490,7 +491,7 @@ export interface Ng1Controller {
    * });
    * ```
    */
-  uiOnParamsChanged(newValues: any, $transition$: Transition);
+  uiOnParamsChanged(newValues: any, $transition$: Transition): any;
 
   /**
    * This callback is called when the view's state is about to be exited.
@@ -517,5 +518,5 @@ export interface Ng1Controller {
    *
    * @return a value, or a promise for a value.
    */
-  uiCanExit();
+  uiCanExit(): any;
 }

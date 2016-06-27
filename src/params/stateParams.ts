@@ -14,8 +14,8 @@ export class StateParams {
    * @param {Object} $current Internal definition of object representing the current state.
    * @param {Object} $to Internal definition of object representing state to transition to.
    */
-  $inherit(newParams, $current, $to) {
-    let parents = ancestors($current, $to), parentParams, inherited = {}, inheritList = [];
+  $inherit(newParams: any, $current: any, $to: any) {
+    let parents = ancestors($current, $to), parentParams: any, inherited: { [key: string]: any; } = {}, inheritList: any[] = [];
 
     for (let i in parents) {
       if (!parents[i] || !parents[i].params) continue;
@@ -30,5 +30,7 @@ export class StateParams {
     }
     return extend({}, inherited, newParams);
   };
+
+  [key: string]: any;
 }
 

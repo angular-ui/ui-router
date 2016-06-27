@@ -27,7 +27,7 @@ import {State} from "../state/stateObject";
 export function matchState(state: State, criterion: HookMatchCriterion) {
   let toMatch = isString(criterion) ? [criterion] : criterion;
 
-  function matchGlobs(_state) {
+  function matchGlobs(_state: any) {
     let globStrings = <string[]> toMatch;
     for (let i = 0; i < globStrings.length; i++) {
       let glob = Glob.fromString(globStrings[i]);
@@ -72,7 +72,7 @@ export class EventHook implements IEventHook {
   matches(treeChanges: TreeChanges): IMatchingNodes {
     let mc = this.matchCriteria, _matchingNodes = EventHook._matchingNodes;
 
-    let matches = {
+    let matches: { [key: string]: PathNode[]; } = {
       to: _matchingNodes([tail(treeChanges.to)], mc.to),
       from: _matchingNodes([tail(treeChanges.from)], mc.from),
       exiting: _matchingNodes(treeChanges.exiting, mc.exiting),
@@ -85,7 +85,7 @@ export class EventHook implements IEventHook {
         .map(prop => matches[prop])
         .reduce(allTrueR, true);
 
-    return allMatched ? matches : null;
+    return allMatched ? (matches as any) : null;
   }
 }
 
@@ -146,4 +146,6 @@ export class HookRegistry implements IHookRegistry {
   onSuccess = makeHookRegistrationFn(this._transitionEvents, "onSuccess");
   /** @inheritdoc */
   onError   = makeHookRegistrationFn(this._transitionEvents, "onError");
+
+  [key: string]: any;
 }

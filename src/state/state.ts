@@ -261,7 +261,7 @@ export class StateProvider {
    * To create a parent/child state use a dot, e.g. "about.sales", "home.newest".
    * @param {object} definition State configuration object.
    */
-  state(name, definition) {
+  state(name: any, definition: any) {
     if (isObject(name)) {
       definition = name;
     } else {
@@ -293,4 +293,6 @@ export class StateProvider {
   onInvalid(callback: Function) {
     this.invalidCallbacks.push(callback);
   }
+
+  [key: string]: any;
 }

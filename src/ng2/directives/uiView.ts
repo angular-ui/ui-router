@@ -27,28 +27,28 @@ export interface ParentUiViewInject {
 
 
 /** @hidden */
-const ng2ComponentInputs = (ng2CompClass) => {
+const ng2ComponentInputs = (ng2CompClass: any) => {
   /** Get "@Input('foo') _foo" inputs */
-  let props = Reflect['getMetadata']('propMetadata', ng2CompClass);
+  let props = (<any>Reflect)['getMetadata']('propMetadata', ng2CompClass);
   let _props = Object.keys(props || {})
   // -> { string, anno[] } tuples
       .map(key => ({ key, annoArr: props[key] }))
       // -> to { string, anno } tuples
-      .reduce((acc, tuple) => acc.concat(tuple.annoArr.map(anno => ({ key: tuple.key, anno }))), [])
+      .reduce((acc, tuple) => acc.concat(tuple.annoArr.map((anno: any) => ({ key: tuple.key, anno }))), [])
       // Only Inputs
       .filter(tuple => tuple.anno instanceof InputMetadata)
       // If they have a bindingPropertyName, i.e. "@Input('foo') _foo", then foo, else _foo
       .map(tuple => ({ token: tuple.anno.bindingPropertyName || tuple.key, prop: tuple.key }));
 
   /** Get "inputs: ['foo']" inputs */
-  let inputs = Reflect['getMetadata']('annotations', ng2CompClass)
+  let inputs = (<any>Reflect)['getMetadata']('annotations', ng2CompClass)
   // Find the ComponentMetadata class annotation
-      .filter(x => x instanceof ComponentMetadata && !!x.inputs)
+      .filter((x: any) => x instanceof ComponentMetadata && !!x.inputs)
       // Get the .inputs string array
-      .map(x => x.inputs)
+      .map((x: any) => x.inputs)
       // Flatten
-      .reduce((acc, arr) => acc.concat(arr), [])
-      .map(input => ({ token: input, prop: input }));
+      .reduce((acc: any, arr: any) => acc.concat(arr), [])
+      .map((input: any) => ({ token: input, prop: input }));
 
   return _props.concat(inputs);
 };
@@ -123,7 +123,7 @@ const ng2ComponentInputs = (ng2CompClass) => {
 })
 export class UiView {
   @Input('name') name: string;
-  @Input('ui-view') set _name(val) { this.name = val; }
+  @Input('ui-view') set _name(val: any) { this.name = val; }
   componentRef: ComponentRef<any>;
   deregister: Function;
   uiViewData: any = {};
@@ -182,8 +182,8 @@ export class UiView {
 
     // Map resolves to "useValue providers"
     let context = new ResolveContext(config.path);
-    let resolvables = context.getTokens().map(token => context.getResolvable(token)).filter(r => r.resolved);
-    let rawProviders = resolvables.map(r => ({ provide: r.token, useValue: r.data }));
+    let resolvables = context.getTokens().map((token: any) => context.getResolvable(token)).filter((r: any) => r.resolved);
+    let rawProviders = resolvables.map((r: any) => ({ provide: r.token, useValue: r.data }));
     rawProviders.push({ provide: UiView.PARENT_INJECT, useValue: { context: config.viewDecl.$context, fqn: uiViewData.fqn } });
 
     // Get the component class from the view declaration. TODO: allow promises?
@@ -197,7 +197,7 @@ export class UiView {
       // TODO: wire uiCanExit and uiOnParamsChanged callbacks
 
       let bindings = viewDecl['bindings'] || {};
-      var addResolvable = tuple => ({
+      var addResolvable = (tuple: any) => ({
         prop: tuple.prop,
         resolvable: context.getResolvable(bindings[tuple.prop] || tuple.token)
       });

@@ -22,7 +22,7 @@ export const redirectToHook = (transition: Transition, $injector: UIRInjector) =
 
   return handleResult(redirect);
 
-  function handleResult(result) {
+  function handleResult(result: any) {
     if (result instanceof TargetState) return result;
     if (isString(result)) return $state.target(<any> result, transition.params(), transition.options());
     if (result['state'] || result['params'])

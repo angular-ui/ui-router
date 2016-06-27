@@ -10,7 +10,8 @@
     "target": "es5",
     "outDir": "build/es5",
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "noImplicitAny": true
   },
   "files": [
     "src/ng2.ts",

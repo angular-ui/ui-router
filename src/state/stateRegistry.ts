@@ -17,7 +17,7 @@ export class StateRegistry {
   private builder: StateBuilder;
   stateQueue: StateQueueManager;
 
-  constructor(urlMatcherFactory: UrlMatcherFactory, urlRouterProvider) {
+  constructor(urlMatcherFactory: UrlMatcherFactory, urlRouterProvider: any) {
     this.matcher = new StateMatcher(this.states);
     this.builder = new StateBuilder(this.matcher, urlMatcherFactory);
     this.stateQueue = new StateQueueManager(this.states, this.builder, urlRouterProvider);

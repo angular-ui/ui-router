@@ -10,20 +10,20 @@ import {StateParams} from "../params/stateParams";
 let $location = services.location;
 
 /** @hidden Returns a string that is a prefix of all strings matching the RegExp */
-function regExpPrefix(re) {
+function regExpPrefix(re: any) {
   let prefix = /^\^((?:\\[^a-zA-Z0-9]|[^\\\[\]\^$*+?.()|{}]+)*)/.exec(re.source);
   return (prefix != null) ? prefix[1].replace(/\\(.)/g, "$1") : '';
 }
 
 /** @hidden Interpolates matched values into a String.replace()-style pattern */
-function interpolate(pattern, match) {
-  return pattern.replace(/\$(\$|\d{1,2})/, function (m, what) {
+function interpolate(pattern: any, match: any) {
+  return pattern.replace(/\$(\$|\d{1,2})/, function (m: any, what: any) {
     return match[what === '$' ? 0 : Number(what)];
   });
 }
 
 /** @hidden */
-function handleIfMatch($injector, $stateParams, handler, match) {
+function handleIfMatch($injector: any, $stateParams: any, handler: any, match: any) {
   if (!match) return false;
   let result = $injector.invoke(handler, handler, { $match: match, $stateParams: $stateParams });
   return isDefined(result) ? result : true;
@@ -43,7 +43,7 @@ function appendBasePath(url: string, isHtml5: boolean, absolute: boolean): strin
 function update(rules: Function[], otherwiseFn: Function, evt?: any) {
   if (evt && evt.defaultPrevented) return;
 
-  function check(rule) {
+  function check(rule: any) {
     let handled = rule(services.$injector, $location);
 
     if (!handled) return false;
@@ -53,7 +53,7 @@ function update(rules: Function[], otherwiseFn: Function, evt?: any) {
     }
     return true;
   }
-  let n = rules.length, i;
+  let n = rules.length, i: any;
 
   for (i = 0; i < n; i++) {
     if (check(rules[i])) return;
@@ -70,9 +70,9 @@ function update(rules: Function[], otherwiseFn: Function, evt?: any) {
  */
 export class UrlRouterProvider {
   /** @hidden */
-  rules = [];
+  rules: any[] = [];
   /** @hidden */
-  otherwiseFn: ($injector, $location) => string;
+  otherwiseFn: ($injector: any, $location: any) => string;
   /** @hidden */
   interceptDeferred = false;
 
@@ -118,7 +118,7 @@ export class UrlRouterProvider {
    *
    * @return [[$urlRouterProvider]] (`this`)
    */
-  rule(rule: ($injector, $location) => string): UrlRouterProvider {
+  rule(rule: ($injector: any, $location: any) => string): UrlRouterProvider {
     if (!isFunction(rule)) throw new Error("'rule' must be a function");
     this.rules.push(rule);
     return this;
@@ -151,7 +151,7 @@ export class UrlRouterProvider {
    *
    * @return {object} `$urlRouterProvider` - `$urlRouterProvider` instance
    */
-  otherwise(rule: string | (($injector, $location) => string)): UrlRouterProvider {
+  otherwise(rule: string | (($injector: any, $location: any) => string)): UrlRouterProvider {
     if (!isFunction(rule) && !isString(rule)) throw new Error("'rule' must be a string or function");
     this.otherwiseFn = isString(rule) ? () => rule : rule;
     return this;
@@ -197,7 +197,7 @@ export class UrlRouterProvider {
    */
   when(what: (RegExp|UrlMatcher|string), handler: string|IInjectable) {
     let {$urlMatcherFactory, $stateParams} = this;
-    let redirect, handlerIsString = isString(handler);
+    let redirect: any, handlerIsString = isString(handler);
 
     // @todo Queue this
     if (isString(what)) what = $urlMatcherFactory.compile(<string> what);
@@ -205,8 +205,8 @@ export class UrlRouterProvider {
     if (!handlerIsString && !isFunction(handler) && !isArray(handler))
       throw new Error("invalid 'handler' in when()");
 
-    let strategies = {
-      matcher: function (_what, _handler) {
+    let strategies: { [key: string]: any } = {
+      matcher: function (_what: any, _handler: any) {
         if (handlerIsString) {
           redirect = $urlMatcherFactory.compile(_handler);
           _handler = ['$match', redirect.format.bind(redirect)];
@@ -217,12 +217,12 @@ export class UrlRouterProvider {
           prefix: isString(_what.prefix) ? _what.prefix : ''
         });
       },
-      regex: function (_what, _handler) {
+      regex: function (_what: any, _handler: any) {
         if (_what.global || _what.sticky) throw new Error("when() RegExp must not be global or sticky");
 
         if (handlerIsString) {
           redirect = _handler;
-          _handler = ['$match', ($match) => interpolate(redirect, $match)];
+          _handler = ['$match', ($match: any) => interpolate(redirect, $match)];
         }
         return extend(function () {
           return handleIfMatch(services.$injector, $stateParams, _handler, _what.exec($location.path()));
@@ -232,7 +232,7 @@ export class UrlRouterProvider {
       }
     };
 
-    let check = {
+    let check: { [key: string]: any } = {
       matcher: $urlMatcherFactory.isMatcher(what),
       regex: what instanceof RegExp
     };
@@ -275,10 +275,12 @@ export class UrlRouterProvider {
    * @param defer Indicates whether to defer location change interception. Passing
    *        no parameter is equivalent to `true`.
    */
-  deferIntercept(defer) {
+  deferIntercept(defer: any) {
     if (defer === undefined) defer = true;
     this.interceptDeferred = defer;
   };
+
+  [key: string]: any;
 }
 
 export class UrlRouter {
@@ -331,13 +333,13 @@ export class UrlRouter {
    * This causes [[UrlRouter]] to start listening for changes to the URL, if it wasn't already listening.
    */
   listen(): Function {
-    return this.listener = this.listener || $location.onChange(evt => update(this.urlRouterProvider.rules, this.urlRouterProvider.otherwiseFn, evt));
+    return this.listener = this.listener || $location.onChange((evt: any) => update(this.urlRouterProvider.rules, this.urlRouterProvider.otherwiseFn, evt));
   }
 
   /**
    * Internal API.
    */
-  update(read?) {
+  update(read?: any) {
     if (read) {
       this.location = $location.url();
       return;

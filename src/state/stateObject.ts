@@ -89,7 +89,7 @@ export class State {
     return this.parent && this.parent.root() || this;
   }
 
-  parameters(opts?): Param[] {
+  parameters(opts?: any): Param[] {
     opts = defaults(opts, { inherit: true });
     let inherited = opts.inherit && this.parent && this.parent.parameters() || [];
     return inherited.concat(values(this.params));
@@ -106,4 +106,6 @@ export class State {
   toString() {
     return this.fqn();
   }
+
+  [key: string]: any;
 }

@@ -655,6 +655,8 @@ export interface IHookRegistry {
    * ```
    */
   getHooks(hookName: string): IEventHook[];
+
+  [key: string]: any;
 }
 
 /** A predicate type which takes a [[State]] and returns a boolean */
@@ -737,6 +739,7 @@ export interface IMatchingNodes {
   exiting: PathNode[];
   retained: PathNode[];
   entering: PathNode[];
+  [key: string]: PathNode[];
 }
 
 /**

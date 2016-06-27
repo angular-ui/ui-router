@@ -15,12 +15,12 @@ export const copy = angular.copy || _copy;
 export const forEach = angular.forEach || _forEach;
 export const extend = angular.extend || _extend;
 export const equals = angular.equals || _equals;
-export const identity = (x) => x;
-export const noop = () => undefined;
+export const identity = (x: any) => x;
+export const noop = () => undefined as any;
 
 export type Mapper<X, T> = (x: X, key?: (string|number)) => T;
 export interface TypedMap<T> { [key: string]: T; }
-export type Predicate<X> = (X) => boolean;
+export type Predicate<X> = (X: any) => boolean;
 export type IInjectable = (Function|any[]);
 
 export var abstractKey = 'abstract';
@@ -80,7 +80,7 @@ export var abstractKey = 'abstract';
  * @param bindTo The object which the functions will be bound to
  * @param fnNames The function names which will be bound (Defaults to all the functions found on the 'from' object)
  */
-export function bindFunctions(from, to, bindTo, fnNames: string[] = Object.keys(from)) {
+export function bindFunctions(from: any, to: any, bindTo: any, fnNames: string[] = Object.keys(from)) {
   return fnNames.filter(name => typeof from[name] === 'function')
       .forEach(name => to[name] = from[name].bind(bindTo));
 }
@@ -90,7 +90,7 @@ export function bindFunctions(from, to, bindTo, fnNames: string[] = Object.keys(
  * prototypal inheritance helper.
  * Creates a new object which has `parent` object as its prototype, and then copies the properties from `extra` onto it
  */
-export const inherit = (parent, extra) =>
+export const inherit = (parent: any, extra: any) =>
     extend(new (extend(function() {}, { prototype: parent }))(), extra);
 
 /**
@@ -116,13 +116,13 @@ export const inherit = (parent, extra) =>
  *        pick(obj, "foo", "bar");   // returns { foo: 1, bar: 2 }
  *        pick(obj, ["foo", "bar"]); // returns { foo: 1, bar: 2 }
  */
-const restArgs = (args, idx = 0) => Array.prototype.concat.apply(Array.prototype, Array.prototype.slice.call(args, idx));
+const restArgs = (args: any, idx = 0) => Array.prototype.concat.apply(Array.prototype, Array.prototype.slice.call(args, idx));
 
 /** Given an array, returns true if the object is found in the array, (using indexOf) */
 export const inArray = (array: any[], obj: any) => array.indexOf(obj) !== -1;
 
 /** Given an array, and an item, if the item is found in the array, it removes it (in-place).  The same array is returned */
-export const removeFrom = curry((array: any[], obj) => {
+export const removeFrom = curry((array: any[], obj: any) => {
   let idx = array.indexOf(obj);
   if (idx >= 0) array.splice(idx, 1);
   return array;
@@ -133,7 +133,7 @@ export const removeFrom = curry((array: any[], obj) => {
  * to only those properties of the objects in the defaultsList.
  * Earlier objects in the defaultsList take precedence when applying defaults.
  */
-export function defaults(opts = {}, ...defaultsList) {
+export function defaults(opts = {}, ...defaultsList: any[]) {
   let defaults = merge.apply(null, [{}].concat(defaultsList));
   return extend({}, defaults, pick(opts || {}, Object.keys(defaults)));
 }
@@ -142,9 +142,9 @@ export function defaults(opts = {}, ...defaultsList) {
  * Merges properties from the list of objects to the destination object.
  * If a property already exists in the destination object, then it is not overwritten.
  */
-export function merge(dst, ...objs: Object[]) {
-  forEach(objs, function(obj) {
-    forEach(obj, function(value, key) {
+export function merge(dst: any, ...objs: Object[]) {
+  forEach(objs, function(obj: any) {
+    forEach(obj, function(value: any, key: any) {
       if (!dst.hasOwnProperty(key)) dst[key] = value;
     });
   });
@@ -152,7 +152,7 @@ export function merge(dst, ...objs: Object[]) {
 }
 
 /** Reduce function that merges each element of the list into a single object, using extend */
-export const mergeR = (memo, item) => extend(memo, item);
+export const mergeR = (memo: any, item: any) => extend(memo, item);
 
 /**
  * Finds the common ancestor path between two states.
@@ -161,8 +161,8 @@ export const mergeR = (memo, item) => extend(memo, item);
  * @param {Object} second The second state.
  * @return {Array} Returns an array of state names in descending order, not including the root.
  */
-export function ancestors(first, second) {
-  let path = [];
+export function ancestors(first: any, second: any) {
+  let path: any[] = [];
 
   for (var n in first.path) {
     if (first.path[n] !== second.path[n]) break;
@@ -180,7 +180,7 @@ export function ancestors(first, second) {
  *                     it defaults to the list of keys in `a`.
  * @return {Boolean} Returns `true` if the keys match, otherwise `false`.
  */
-export function equalForKeys(a, b, keys: string[] = Object.keys(a)) {
+export function equalForKeys(a: any, b: any, keys: string[] = Object.keys(a)) {
   for (var i = 0; i < keys.length; i++) {
     let k = keys[i];
     if (a[k] != b[k]) return false; // Not '===', values aren't necessarily normalized
@@ -188,9 +188,9 @@ export function equalForKeys(a, b, keys: string[] = Object.keys(a)) {
   return true;
 }
 
-type PickOmitPredicate = (keys: string[], key) => boolean;
-function pickOmitImpl(predicate: PickOmitPredicate, obj) {
-  let objCopy = {}, keys = restArgs(arguments, 2);
+type PickOmitPredicate = (keys: string[], key: any) => boolean;
+function pickOmitImpl(predicate: PickOmitPredicate, obj: any) {
+  let objCopy: { [key:string]: any; } = {}, keys = restArgs(arguments, 2);
   for (var key in obj) {
     if (predicate(keys, key)) objCopy[key] = obj[key];
   }
@@ -207,7 +207,7 @@ function pickOmitImpl(predicate: PickOmitPredicate, obj) {
  * @param obj the source object
  * @param propNames an Array of strings, which are the whitelisted property names
  */
-export function pick(obj, propNames: string[]): Object;
+export function pick(obj: any, propNames: string[]): Object;
 /**
  * @example
  * ```
@@ -218,9 +218,9 @@ export function pick(obj, propNames: string[]): Object;
  * @param obj the source object
  * @param propNames 1..n strings, which are the whitelisted property names
  */
-export function pick(obj, ...propNames: string[]): Object;
+export function pick(obj: any, ...propNames: string[]): Object;
 /** Return a copy of the object only containing the whitelisted properties. */
-export function pick(obj) { return pickOmitImpl.apply(null, [inArray].concat(restArgs(arguments))); }
+export function pick(obj: any) { return pickOmitImpl.apply(null, [inArray].concat(restArgs(arguments))); }
 
 /**
  * @example
@@ -232,7 +232,7 @@ export function pick(obj) { return pickOmitImpl.apply(null, [inArray].concat(res
  * @param obj the source object
  * @param propNames an Array of strings, which are the blacklisted property names
  */
-export function omit(obj, propNames: string[]): Object;
+export function omit(obj: any, propNames: string[]): Object;
 /**
  * @example
  * ```
@@ -243,9 +243,9 @@ export function omit(obj, propNames: string[]): Object;
  * @param obj the source object
  * @param propNames 1..n strings, which are the blacklisted property names
  */
-export function omit(obj, ...propNames: string[]): Object;
+export function omit(obj: any, ...propNames: string[]): Object;
 /** Return a copy of the object omitting the blacklisted properties. */
-export function omit(obj) { return pickOmitImpl.apply(null, [not(inArray)].concat(restArgs(arguments))); }
+export function omit(obj: any) { return pickOmitImpl.apply(null, [not(inArray)].concat(restArgs(arguments))); }
 
 
 /** Given an array of objects, maps each element to a named property of the element. */
@@ -255,20 +255,20 @@ export function pluck(collection: { [key: string]: any }, propName: string): { [
 /**
  * Maps an array, or object to a property (by name)
  */
-export function pluck(collection, propName): any {
+export function pluck(collection: any, propName: any): any {
   return map(collection, <Mapper<any, string>> prop(propName));
 }
 
 
 /** Given an array of objects, returns a new array containing only the elements which passed the callback predicate */
-export function filter<T>(collection: T[], callback: (T, key?) => boolean): T[];
+export function filter<T>(collection: T[], callback: (T: any, key?: any) => boolean): T[];
 /** Given an object, returns a new object with only those properties that passed the callback predicate */
-export function filter<T>(collection: TypedMap<T>, callback: (T, key?) => boolean): TypedMap<T>;
+export function filter<T>(collection: TypedMap<T>, callback: (T: any, key?: any) => boolean): TypedMap<T>;
 /** Filters an Array or an Object's properties based on a predicate */
 export function filter<T>(collection: T, callback: Function): T {
   let arr = isArray(collection), result: any = arr ? [] : {};
-  let accept = arr ? x => result.push(x) : (x, key) => result[key] = x;
-  forEach(collection, function(item, i) {
+  let accept = arr ? (x: any) => result.push(x) : (x: any, key: any) => result[key] = x;
+  forEach(collection, function(item: any, i: any) {
     if (callback(item, i)) accept(item, i);
   });
   return <T>result;
@@ -280,10 +280,10 @@ export function find<T>(collection: TypedMap<T>, callback: Predicate<T>): T;
 /** Given an array of objects, returns the first object which passed the callback predicate */
 export function find<T>(collection: T[], callback: Predicate<T>): T;
 /** Finds an object from an array, or a property of an object, that matches a predicate */
-export function find(collection, callback) {
-  let result;
+export function find(collection: any, callback: any) {
+  let result: any;
 
-  forEach(collection, function(item, i) {
+  forEach(collection, function(item: any, i: any) {
     if (result) return;
     if (callback(item, i)) result = item;
   });
@@ -298,8 +298,8 @@ export function map<T, U>(collection: T[], callback: Mapper<T, U>): U[];
 export function map<T, U>(collection: { [key: string]: T }, callback: Mapper<T, U>): { [key: string]: U }
 /** Maps an array or object properties using a callback function */
 export function map(collection: any, callback: any): any {
-  let result = isArray(collection) ? [] : {};
-  forEach(collection, (item, i) => result[i] = callback(item, i));
+  let result: any = isArray(collection) ? [] : {};
+  forEach(collection, (item: any, i: any) => result[i] = callback(item, i));
   return result;
 }
 
@@ -313,7 +313,7 @@ export function map(collection: any, callback: any): any {
  * let vals = values(foo); // [ 1, 2, 3 ]
  * ```
  */
-export const values: (<T> (obj: TypedMap<T>) => T[]) = (obj) => Object.keys(obj).map(key => obj[key]);
+export const values: (<T> (obj: TypedMap<T>) => T[]) = (obj: any) => Object.keys(obj).map(key => obj[key]);
 
 /**
  * Reduce function that returns true if all of the values are truthy.
@@ -328,7 +328,7 @@ export const values: (<T> (obj: TypedMap<T>) => T[]) = (obj) => Object.keys(obj)
  * vals.reduce(allTrueR, true); // false
  * ```
  */
-export const allTrueR  = (memo: boolean, elem) => memo && elem;
+export const allTrueR  = (memo: boolean, elem: any) => memo && elem;
 
 /**
  * Reduce function that returns true if any of the values are truthy.
@@ -343,7 +343,7 @@ export const allTrueR  = (memo: boolean, elem) => memo && elem;
  * vals.reduce(anyTrueR, true); // true
  * ```
  */
-export const anyTrueR  = (memo: boolean, elem) => memo || elem;
+export const anyTrueR  = (memo: boolean, elem: any) => memo || elem;
 
 /**
  * Reduce function which un-nests a single level of arrays
@@ -354,7 +354,7 @@ export const anyTrueR  = (memo: boolean, elem) => memo || elem;
  * input.reduce(unnestR, []) // [ "a", "b", "c", "d", [ "double, "nested" ] ]
  * ```
  */
-export const unnestR   = (memo: any[], elem) => memo.concat(elem);
+export const unnestR   = (memo: any[], elem: any) => memo.concat(elem);
 
 /**
  * Reduce function which recursively un-nests all arrays
@@ -366,12 +366,12 @@ export const unnestR   = (memo: any[], elem) => memo.concat(elem);
  * input.reduce(unnestR, []) // [ "a", "b", "c", "d", "double, "nested" ]
  * ```
  */
-export const flattenR  = (memo: any[], elem) => isArray(elem) ? memo.concat(elem.reduce(flattenR, [])) : pushR(memo, elem);
+export const flattenR  = (memo: any[], elem: any) => isArray(elem) ? memo.concat(elem.reduce(flattenR, [])) : pushR(memo, elem);
 /** Reduce function that pushes an object to an array, then returns the array.  Mostly just for [[flattenR]] */
-export function pushR(arr: any[], obj) { arr.push(obj); return arr; }
+export function pushR(arr: any[], obj: any) { arr.push(obj); return arr; }
 
 /** Reduce function that filters out duplicates */
-export const uniqR = (acc, token) => inArray(acc, token) ? acc : pushR(acc, token);
+export const uniqR = (acc: any, token: any) => inArray(acc, token) ? acc : pushR(acc, token);
 
 /**
  * Return a new array with a single level of arrays unnested.
@@ -427,7 +427,7 @@ export function assertPredicate<T>(predicate: Predicate<T>, errMsg: (string|Func
  * pairs({ foo: "FOO", bar: "BAR }) // [ [ "foo", "FOO" ], [ "bar": "BAR" ] ]
  * ```
  */
-export const pairs = (object) => Object.keys(object).map(key => [ key, object[key]] );
+export const pairs = (object: any) => Object.keys(object).map(key => [ key, object[key]] );
 
 /**
  * Given two or more parallel arrays, returns an array of tuples where
@@ -446,7 +446,7 @@ export const pairs = (object) => Object.keys(object).map(key => [ key, object[ke
 export function arrayTuples(...arrayArgs: any[]): any[] {
   if (arrayArgs.length === 0) return [];
   let length = arrayArgs.reduce((min, arr) => Math.min(arr.length, min), 9007199254740991); // aka 2^53 − 1 aka Number.MAX_SAFE_INTEGER
-  return Array.apply(null, Array(length)).map((ignored, idx) => arrayArgs.map(arr => arr[idx]));
+  return Array.apply(null, Array(length)).map((ignored: any, idx: any) => arrayArgs.map(arr => arr[idx]));
 }
 
 /**
@@ -470,7 +470,7 @@ export function arrayTuples(...arrayArgs: any[]): any[] {
  * ```
  */
 export function applyPairs(memo: TypedMap<any>, keyValTuple: any[]) {
-  let key, value;
+  let key: any, value: any;
   if (isArray(keyValTuple)) [key, value] = keyValTuple;
   if (!isString(key)) throw new Error("invalid parameters to applyPairs");
   memo[key] = value;
@@ -488,25 +488,25 @@ export function tail<T>(arr: T[]): T {
  * note: This is a shallow copy, while angular.copy is a deep copy.
  * ui-router uses `copy` only to make copies of state parameters.
  */
-function _copy(src, dest) {
+function _copy(src: any, dest: any) {
   if (dest) Object.keys(dest).forEach(key => delete dest[key]);
   if (!dest) dest = {};
   return extend(dest, src);
 }
 
-function _forEach(obj: (any[]|any), cb, _this) {
+function _forEach(obj: (any[]|any), cb: any, _this: any) {
   if (isArray(obj)) return obj.forEach(cb, _this);
   Object.keys(obj).forEach(key => cb(obj[key], key));
 }
 
-function _copyProps(to, from) { Object.keys(from).forEach(key => to[key] = from[key]); return to; }
-function _extend(toObj, fromObj);
-function _extend(toObj, ...fromObj);
-function _extend(toObj, rest) {
+function _copyProps(to: any, from: any) { Object.keys(from).forEach(key => to[key] = from[key]); return to; }
+function _extend(toObj: any, fromObj: any): any;
+function _extend(toObj: any, ...fromObj: any[]): any;
+function _extend(toObj: any, rest: any) {
   return restArgs(arguments, 1).filter(identity).reduce(_copyProps, toObj);
 }
 
-function _equals(o1, o2) {
+function _equals(o1: any, o2: any): any {
   if (o1 === o2) return true;
   if (o1 === null || o2 === null) return false;
   if (o1 !== o1 && o2 !== o2) return true; // NaN === NaN
@@ -522,7 +522,7 @@ function _equals(o1, o2) {
   let predicates = [isFunction, isArray, isDate, isRegExp];
   if (predicates.map(any).reduce((b, fn) => b || !!fn(tup), false)) return false;
 
-  let key, keys = {};
+  let key: any, keys: any = {};
   for (key in o1) {
     if (!_equals(o1[key], o2[key])) return false;
     keys[key] = true;
@@ -534,7 +534,7 @@ function _equals(o1, o2) {
   return true;
 }
 
-function _arraysEq(a1, a2) {
+function _arraysEq(a1: any, a2: any) {
   if (a1.length !== a2.length) return false;
   return arrayTuples(a1, a2).reduce((b, t) => b && _equals(t[0], t[1]), true);
 }

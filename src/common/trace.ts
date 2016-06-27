@@ -39,7 +39,7 @@ import {PathNode} from "../path/node";
 import {PolicyWhen} from "../resolve/interface";
 
 /** @hidden */
-function uiViewString (viewData) {
+function uiViewString (viewData: any) {
     if (!viewData) return 'ui-view (defunct)';
     return `[ui-view#${viewData.id} tag ` +
         `in template from '${viewData.creationContext && viewData.creationContext.name || '(root)'}' state]: ` +
@@ -53,7 +53,7 @@ const viewConfigString = (viewConfig: ViewConfig) =>
 
 /** @hidden */
 function normalizedCat(input: Category): string {
-  return isNumber(input) ? Category[input] : Category[Category[input]];
+  return isNumber(input) ? Category[input] : Category[Category[input] as any];
 }
 
 
@@ -92,7 +92,7 @@ export class Trace {
     if (!categories.length) {
       categories = Object.keys(Category)
           .filter(k => isNaN(parseInt(k, 10)))
-          .map(key => Category[key]);
+          .map(key => (<Category>(<any>Category[key as any])));
     }
     categories.map(normalizedCat).forEach(category => this._enabled[category] = enabled);
   }
@@ -152,7 +152,7 @@ export class Trace {
   }
 
   /** called by ui-router code */
-  traceHookInvocation(step, options) {
+  traceHookInvocation(step: any, options: any) {
     if (!this.enabled(Category.HOOK)) return;
     let tid = parse("transition.$id")(options),
         digest = this.approximateDigests,
@@ -163,7 +163,7 @@ export class Trace {
   }
 
   /** called by ui-router code */
-  traceHookResult(hookResult, transitionResult, transitionOptions) {
+  traceHookResult(hookResult: any, transitionResult: any, transitionOptions: any) {
     if (!this.enabled(Category.HOOK)) return;
     let tid = parse("transition.$id")(transitionOptions),
         digest = this.approximateDigests,
@@ -192,7 +192,7 @@ export class Trace {
   }
 
   /** called by ui-router code */
-  traceError(error, trans: Transition) {
+  traceError(error: any, trans: Transition) {
     if (!this.enabled(Category.TRANSITION)) return;
     let tid = trans && trans.$id,
         digest = this.approximateDigests,
@@ -201,7 +201,7 @@ export class Trace {
   }
 
   /** called by ui-router code */
-  traceSuccess(finalState, trans: Transition) {
+  traceSuccess(finalState: any, trans: Transition) {
     if (!this.enabled(Category.TRANSITION)) return;
     let tid = trans && trans.$id,
         digest = this.approximateDigests,
@@ -217,19 +217,19 @@ export class Trace {
   }
 
   /** called by ui-router code */
-  traceUiViewConfigUpdated(viewData: ActiveUiView, context) {
+  traceUiViewConfigUpdated(viewData: ActiveUiView, context: any) {
     if (!this.enabled(Category.UIVIEW)) return;
     this.traceUiViewEvent("Updating", viewData, ` with ViewConfig from context='${context}'`);
   }
 
   /** called by ui-router code */
-  traceUiViewScopeCreated(viewData: ActiveUiView, newScope) {
+  traceUiViewScopeCreated(viewData: ActiveUiView, newScope: any) {
     if (!this.enabled(Category.UIVIEW)) return;
     this.traceUiViewEvent("Created scope for", viewData, `, scope #${newScope.$id}`);
   }
 
   /** called by ui-router code */
-  traceUiViewFill(viewData: ActiveUiView, html) {
+  traceUiViewFill(viewData: ActiveUiView, html: any) {
     if (!this.enabled(Category.UIVIEW)) return;
     this.traceUiViewEvent("Fill", viewData, ` with: ${maxLength(200, html)}`);
   }

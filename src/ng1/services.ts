@@ -129,14 +129,14 @@ angular.module('ui.router.compat', ['ui.router']);
  * returns an array of strings, which are the arguments of the controller expression
  */
 
-export function annotateController(controllerExpression): string[] {
+export function annotateController(controllerExpression: any): string[] {
   let $injector = services.$injector;
   let $controller = $injector.get("$controller");
   let oldInstantiate = $injector.instantiate;
   try {
-    let deps;
+    let deps: any;
 
-    $injector.instantiate = function fakeInstantiate(constructorFunction) {
+    $injector.instantiate = function fakeInstantiate(constructorFunction: any) {
       $injector.instantiate = oldInstantiate; // Un-decorate ASAP
       deps = $injector.annotate(constructorFunction);
     };
@@ -150,7 +150,7 @@ export function annotateController(controllerExpression): string[] {
 }
 
 runBlock.$inject = ['$injector', '$q'];
-function runBlock($injector, $q) {
+function runBlock($injector: any, $q: any) {
   services.$injector = $injector;
   services.$q = $q;
 }
@@ -161,7 +161,7 @@ let router: UiRouter = null;
 
 ng1UiRouter.$inject = ['$locationProvider'];
 /** This angular 1 provider instantiates a Router and exposes its services via the angular injector */
-function ng1UiRouter($locationProvider) {
+function ng1UiRouter($locationProvider: any) {
 
   // Create a new instance of the Router when the ng1UiRouterProvider is initialized
   router = new UiRouter();
@@ -186,10 +186,10 @@ function ng1UiRouter($locationProvider) {
 
   this.$get = $get;
   $get.$inject = ['$location', '$browser', '$sniffer', '$rootScope', '$http', '$templateCache'];
-  function $get($location, $browser, $sniffer, $rootScope, $http, $templateCache) {
+  function $get($location: any, $browser: any, $sniffer: any, $rootScope: any, $http: any, $templateCache: any) {
 
     // Bind $locationChangeSuccess to the listeners registered in LocationService.onChange
-    $rootScope.$on("$locationChangeSuccess", evt => urlListeners.forEach(fn => fn(evt)));
+    $rootScope.$on("$locationChangeSuccess", (evt: any) => urlListeners.forEach(fn => fn(evt)));
 
     // Bind LocationConfig.html5Mode to $locationProvider.html5Mode and $sniffer.history
     services.locationConfig.html5Mode = function() {
@@ -212,18 +212,18 @@ function ng1UiRouter($locationProvider) {
   }
 }
 
-function $stateParamsFactory(ng1UiRouter) {
+function $stateParamsFactory(ng1UiRouter: any) {
   return ng1UiRouter.globals.params;
 }
 
 // The 'ui.router' ng1 module depends on 'ui.router.init' module.
 angular.module('ui.router.init', []).provider("ng1UiRouter", <any> ng1UiRouter);
 // This effectively calls $get() to init when we enter runtime
-angular.module('ui.router.init').run(['ng1UiRouter', function(ng1UiRouter) { }]);
+angular.module('ui.router.init').run(['ng1UiRouter', function(ng1UiRouter: any) { }]);
 
 // $urlMatcherFactory service and $urlMatcherFactoryProvider
 angular.module('ui.router.util').provider('$urlMatcherFactory', ['ng1UiRouterProvider', () => router.urlMatcherFactory]);
-angular.module('ui.router.util').run(['$urlMatcherFactory', function($urlMatcherFactory) { }]);
+angular.module('ui.router.util').run(['$urlMatcherFactory', function($urlMatcherFactory: any) { }]);
 
 // $urlRouter service and $urlRouterProvider
 function getUrlRouterProvider() {
@@ -235,7 +235,7 @@ function getUrlRouterProvider() {
   return router.urlRouterProvider;
 }
 angular.module('ui.router.router').provider('$urlRouter', ['ng1UiRouterProvider', getUrlRouterProvider]);
-angular.module('ui.router.router').run(['$urlRouter', function($urlRouter) { }]);
+angular.module('ui.router.router').run(['$urlRouter', function($urlRouter: any) { }]);
 
 // $state service and $stateProvider
 // $urlRouter service and $urlRouterProvider
@@ -248,10 +248,10 @@ function getStateProvider() {
   return router.stateProvider;
 }
 angular.module('ui.router.state').provider('$state', ['ng1UiRouterProvider', getStateProvider]);
-angular.module('ui.router.state').run(['$state', function($state) { }]);
+angular.module('ui.router.state').run(['$state', function($state: any) { }]);
 
 // $stateParams service
-angular.module('ui.router.state').factory('$stateParams', ['ng1UiRouter', (ng1UiRouter) =>
+angular.module('ui.router.state').factory('$stateParams', ['ng1UiRouter', (ng1UiRouter: any) =>
     ng1UiRouter.globals.params]);
 
 // $transitions service and $transitionsProvider
@@ -273,14 +273,14 @@ angular.module('ui.router').factory('$resolve', <any> resolveFactory);
 // $trace service
 angular.module("ui.router").service("$trace", () => trace);
 watchDigests.$inject = ['$rootScope'];
-export function watchDigests($rootScope) {
+export function watchDigests($rootScope: any) {
   $rootScope.$watch(function() { trace.approximateDigests++; });
 }
 angular.module("ui.router").run(watchDigests);
 
 export const getLocals = (ctx: ResolveContext) => {
   let tokens = ctx.getTokens().filter(isString);
-  let tuples = tokens.map(key => [ key, ctx.getResolvable(key).data ]);
+  let tuples = tokens.map((key: any) => [ key, ctx.getResolvable(key).data ]);
   return tuples.reduce(applyPairs, {});
 };
 
