@@ -85,7 +85,7 @@ export class UrlMatcherFactory {
     if (!isObject(object)) return false;
     let result = true;
 
-    forEach(UrlMatcher.prototype, (val, name) => {
+    forEach(UrlMatcher.prototype, (val: any, name: any) => {
       if (isFunction(val)) result = result && (isDefined(object[name]) && isFunction(object[name]));
     });
     return result;

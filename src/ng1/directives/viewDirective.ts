@@ -23,7 +23,7 @@ export type UiViewData = {
 
   $animEnter: Promise<any>;
   $animLeave: Promise<any>;
-  $$animLeave: { resolve(); } // "deferred"
+  $$animLeave: { resolve(): any; } // "deferred"
 }
 
 /**
@@ -156,18 +156,18 @@ export type UiViewData = {
  * ```
  */
 let uiViewNg1 = ['$view', '$animate', '$uiViewScroll', '$interpolate', '$q',
-function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,   $q) {
+function $ViewDirective($view: any, $animate: any, $uiViewScroll: any, $interpolate: any, $q: any) {
 
-  function getRenderer(attrs, scope) {
+  function getRenderer(attrs: any, scope: any) {
     return {
-      enter: function(element, target, cb) {
+      enter: function(element: any, target: any, cb: any) {
         if (angular.version.minor > 2) {
           $animate.enter(element, null, target).then(cb);
         } else {
           $animate.enter(element, null, target, cb);
         }
       },
-      leave: function(element, cb) {
+      leave: function(element: any, cb: any) {
         if (angular.version.minor > 2) {
           $animate.leave(element).then(cb);
         } else {
@@ -177,7 +177,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
     };
   }
 
-  function configsEqual(config1, config2) {
+  function configsEqual(config1: any, config2: any) {
     return config1 === config2;
   }
 
@@ -192,14 +192,14 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
     terminal: true,
     priority: 400,
     transclude: 'element',
-    compile: function (tElement, tAttrs, $transclude) {
+    compile: function (tElement: any, tAttrs: any, $transclude: any) {
 
-      return function (scope, $element, attrs) {
-        let previousEl, currentEl, currentScope, unregister,
+      return function (scope: any, $element: any, attrs: any) {
+        let previousEl: any, currentEl: any, currentScope: any, unregister: any,
             onloadExp     = attrs.onload || '',
             autoScrollExp = attrs.autoscroll,
             renderer      = getRenderer(attrs, scope),
-            viewConfig    = undefined,
+            viewConfig    = undefined as any,
             inherited     = $element.inheritedData('$uiView') || rootData,
             name          = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default';
 
@@ -275,7 +275,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
             $$animLeave: animLeave
           };
 
-          let cloned = $transclude(newScope, function(clone) {
+          let cloned = $transclude(newScope, function(clone: any) {
             renderer.enter(clone.data('$uiView', $uiViewData), $element, function onUiViewEnter() {
               animEnter.resolve();
               if (currentScope) currentScope.$emit('$viewContentAnimationEnded');
@@ -312,17 +312,17 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
 
 $ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view', '$timeout'];
 /** @hidden */
-function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,   $timeout) {
+function $ViewDirectiveFill ($compile: any, $controller: any, $transitions: any, $view: any, $timeout: any) {
   const getControllerAs = parse('viewDecl.controllerAs');
   const getResolveAs = parse('viewDecl.resolveAs');
 
   return {
     restrict: 'ECA',
     priority: -400,
-    compile: function (tElement) {
+    compile: function (tElement: any) {
       let initial = tElement.html();
 
-      return function (scope, $element) {
+      return function (scope: any, $element: any) {
         let data: UiViewData = $element.data('$uiView');
         if (!data) return;
 
@@ -363,11 +363,11 @@ function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,
           let kebobName = kebobString(cmp);
           let getComponentController = () => {
             let directiveEl = [].slice.call($element[0].children)
-                .filter(el => el && el.tagName && el.tagName.toLowerCase() === kebobName) ;
+                .filter((el: any) => el && el.tagName && el.tagName.toLowerCase() === kebobName) ;
             return directiveEl && angular.element(directiveEl).data(`$${cmp}Controller`);
           };
 
-          let deregisterWatch = scope.$watch(getComponentController, function(ctrlInstance) {
+          let deregisterWatch = scope.$watch(getComponentController, function(ctrlInstance: any) {
             if (!ctrlInstance) return;
             registerControllerCallbacks($transitions, ctrlInstance, scope, cfg);
             deregisterWatch();
@@ -381,10 +381,10 @@ function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,
 }
 
 /** @hidden */
-let hasComponentImpl = typeof angular.module('ui.router')['component'] === 'function';
+let hasComponentImpl = typeof (<any>angular.module)('ui.router')['component'] === 'function';
 
 /** @hidden TODO: move these callbacks to $view and/or `/hooks/components.ts` or something */
-function registerControllerCallbacks($transitions: TransitionService, controllerInstance: Ng1Controller, $scope, cfg: Ng1ViewConfig) {
+function registerControllerCallbacks($transitions: TransitionService, controllerInstance: Ng1Controller, $scope: any, cfg: Ng1ViewConfig) {
   // Call $onInit() ASAP
   if (isFunction(controllerInstance.$onInit) && !(cfg.viewDecl.component && hasComponentImpl)) controllerInstance.$onInit();
 

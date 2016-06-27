@@ -110,7 +110,7 @@ export class TransitionService implements IHookRegistry {
   getHooks  : (hookName: string) => IEventHook[];
 
   /** @hidden */
-  private _defaultErrorHandler: ((_error) => void) = function $defaultErrorHandler($error$) {
+  private _defaultErrorHandler: ((_error: any) => void) = function $defaultErrorHandler($error$) {
     if ($error$ instanceof Error) {
       console.error($error$);
     }
@@ -127,7 +127,7 @@ export class TransitionService implements IHookRegistry {
    * @param handler a global error handler function
    * @returns the current global error handler
    */
-  defaultErrorHandler(handler?: (error) => void): (error) => void {
+  defaultErrorHandler(handler?: (error: any) => void): (error: any) => void {
     return this._defaultErrorHandler = handler || this._defaultErrorHandler;
   }
 
@@ -144,4 +144,6 @@ export class TransitionService implements IHookRegistry {
   create(fromPath: PathNode[], targetState: TargetState): Transition {
     return new Transition(fromPath, targetState, this._router);
   }
+
+  [key: string]: any;
 }

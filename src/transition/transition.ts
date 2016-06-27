@@ -253,7 +253,7 @@ export class Transition implements IHookRegistry {
    */
   getResolveValue(token: (any|any[])): (any|any[]) {
     let resolveContext = new ResolveContext(this._treeChanges.to);
-    const getData = token => {
+    const getData = (token: any) => {
       var resolvable = resolveContext.getResolvable(token);
       if (resolvable === undefined) {
         throw new Error("Dependency Injection token not found: ${stringify(token)}");
@@ -478,7 +478,7 @@ export class Transition implements IHookRegistry {
       runSynchronousHooks(hookBuilder.getOnSuccessHooks(), true);
     };
 
-    const transitionError = (error) => {
+    const transitionError = (error: any) => {
       trace.traceError(error, this);
       this.success = false;
       this._deferred.reject(error);
@@ -529,7 +529,7 @@ export class Transition implements IHookRegistry {
     let fromStateOrName = this.from();
     let toStateOrName = this.to();
 
-    const avoidEmptyHash = (params) =>
+    const avoidEmptyHash = (params: any) =>
       (params["#"] !== null && params["#"] !== undefined) ? params : omit(params, "#");
 
     // (X) means the to state is invalid.

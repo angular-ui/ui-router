@@ -525,6 +525,8 @@ export interface StateDeclaration {
    * @deprecated define individual parameters as [[ParamDeclaration.dynamic]]
    */
   reloadOnSearch?: boolean;
+
+  [key: string]: any;
 }
 
 export interface HrefOptions {

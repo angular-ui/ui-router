@@ -41,7 +41,7 @@ export class TemplateFactory {
    * @return {string|object} The template html as a string, or a promise for that 
    * string.
    */
-  fromString(template: (string|Function), params?) {
+  fromString(template: (string|Function), params?: any) {
     return isFunction(template) ? (<any> template)(params) : template;
   };
 

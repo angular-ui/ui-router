@@ -11,19 +11,19 @@ export const resolveFactory = () => ({
    * @param locals key/value pre-resolved data (locals)
    * @param parent a promise for a "parent resolve"
    */
-  resolve: (invocables, locals = {}, parent?) => {
+  resolve: (invocables: any, locals = {}, parent?: any) => {
     let parentNode = new PathNode(new State(<any> { params: {}, resolvables: [] }));
     let node = new PathNode(new State(<any> { params: {}, resolvables: [] }));
     let context = new ResolveContext([parentNode, node]);
 
     context.addResolvables(resolvablesBuilder(<any> { resolve: invocables }), node.state);
 
-    const resolveData = (parentLocals) => {
-      const rewrap = _locals => resolvablesBuilder(<any> { resolve: map(_locals, local => () => local) });
+    const resolveData = (parentLocals: any) => {
+      const rewrap = (_locals: any) => resolvablesBuilder(<any> { resolve: map(_locals, local => () => local) });
       context.addResolvables(rewrap(parentLocals), parentNode.state);
       context.addResolvables(rewrap(locals), node.state);
 
-      const tuples2ObjR = (acc, tuple) => {
+      const tuples2ObjR = (acc: any, tuple: any) => {
         acc[tuple.token] = tuple.value;
         return acc;
       };

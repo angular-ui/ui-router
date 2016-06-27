@@ -311,7 +311,7 @@ export interface Ng2Component {
    * });
    * ```
    */
-  uiOnParamsChanged(newValues: any, $transition$: Transition);
+  uiOnParamsChanged(newValues: any, $transition$: Transition): any;
 
   /**
    * This callback is called when the view's state is about to be exited.
@@ -338,5 +338,5 @@ export interface Ng2Component {
    *
    * @return a value, or a promise for a value.
    */
-  uiCanExit();
+  uiCanExit(): any;
 }

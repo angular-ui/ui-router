@@ -10,10 +10,10 @@ import {UiRouter} from "../router";
 
 
 /** Allows the views to do async work [.load()] before the transition continues */
-export function loadEnteringViews(transition) {
+export function loadEnteringViews(transition: any) {
   let enteringViews = transition.views("entering");
   if (!enteringViews.length) return;
-  return services.$q.all(enteringViews.map(view => view.load())).then(noop);
+  return services.$q.all(enteringViews.map((view: any) => view.load())).then(noop);
 }
 
 export function activateViews(transition: Transition, injector: UIRInjector) {

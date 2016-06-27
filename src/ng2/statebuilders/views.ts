@@ -17,9 +17,9 @@ import {ViewService} from "../../view/view";
  * applies the state-level configuration to a view named `$default`.
  */
 export function ng2ViewsBuilder(state: State) {
-  let views = {}, viewsObject = state.views || {"$default": pick(state, "component")};
+  let views: { [key: string]: any; } = {}, viewsObject = state.views || {"$default": pick(state, "component")};
 
-  forEach(viewsObject, function (config, name) {
+  forEach(viewsObject, function (config: any, name: any) {
     name = name || "$default"; // Account for views: { "": { template... } }
     if (Object.keys(config).length == 0) return;
 

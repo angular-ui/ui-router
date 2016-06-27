@@ -50,7 +50,7 @@ import {Transition} from "../../transition/transition";
  * @deprecated use [[TransitionService.onStart]]
  * @event $stateChangeStart
  */
-var $stateChangeStart;
+var $stateChangeStart: any;
 
 /**
  * An event broadcast on `$rootScope` if a transition is **cancelled**.
@@ -66,7 +66,7 @@ var $stateChangeStart;
  * @deprecated
  * @event $stateChangeCancel
  */
-var $stateChangeCancel;
+var $stateChangeCancel: any;
 
 /**
  *
@@ -83,7 +83,7 @@ var $stateChangeCancel;
  * @deprecated use [[TransitionService.onStart]] and [[Transition.promise]], or [[Transition.onSuccess]]
  * @event $stateChangeSuccess
  */
-var $stateChangeSuccess;
+var $stateChangeSuccess: any;
 
 /**
  * An event broadcast on `$rootScope` when an **error occurs** during transition.
@@ -105,7 +105,7 @@ var $stateChangeSuccess;
  * @deprecated use [[TransitionService.onStart]] and [[Transition.promise]], or [[Transition.onError]]
  * @event $stateChangeError
  */
-var $stateChangeError;
+var $stateChangeError: any;
 
 /**
  * An event broadcast on `$rootScope` when a requested state **cannot be found** using the provided state name.
@@ -139,21 +139,21 @@ var $stateChangeError;
  * @deprecated use [[StateProvider.onInvalid]] // TODO: Move to [[StateService.onInvalid]]
  * @event $stateNotFound
  */
-var $stateNotFound;
+var $stateNotFound: any;
 
 
 (function() {
   let {isFunction, isString} = angular;
 
-  function applyPairs(memo, keyValTuple: any[]) {
-    let key, value;
+  function applyPairs(memo: any, keyValTuple: any[]) {
+    let key: any, value: any;
     if (Array.isArray(keyValTuple)) [key, value] = keyValTuple;
     if (!isString(key)) throw new Error("invalid parameters to applyPairs");
     memo[key] = value;
     return memo;
   }
 
-  function stateChangeStartHandler($transition$: Transition, $injector) {
+  function stateChangeStartHandler($transition$: Transition, $injector: any) {
     if (!$transition$.options().notify || !$transition$.valid() || $transition$.ignored())
       return;
 
@@ -201,7 +201,7 @@ var $stateNotFound;
   }
 
   stateNotFoundHandler.$inject = ['$to$', '$from$', '$state', '$rootScope', '$urlRouter'];
-  function stateNotFoundHandler($to$: TargetState, $from$: TargetState, $state: StateService, $rootScope, $urlRouter) {
+  function stateNotFoundHandler($to$: TargetState, $from$: TargetState, $state: StateService, $rootScope: any, $urlRouter: any) {
     let redirect = {to: $to$.identifier(), toParams: $to$.params(), options: $to$.options()};
     let e = $rootScope.$broadcast('$stateNotFound', redirect, $from$.state(), $from$.params());
 
@@ -232,7 +232,7 @@ var $stateNotFound;
 
     let runtime = false;
     let allEvents = ['$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError'];
-    let enabledStateEvents = <IEventsToggle> allEvents.map(e => [e, true]).reduce(applyPairs, {});
+    let enabledStateEvents: { [key: string]: any; } = <IEventsToggle> allEvents.map(e => [e, true]).reduce(applyPairs, {});
 
     function assertNotRuntime() {
       if (runtime) throw new Error("Cannot enable events at runtime (use $stateEventsProvider");
@@ -262,12 +262,12 @@ var $stateNotFound;
 
     this.$get = $get;
     $get.$inject = ['$transitions'];
-    function $get($transitions) {
+    function $get($transitions: any) {
       runtime = true;
 
       if (enabledStateEvents["$stateNotFound"])
         $stateProvider.onInvalid(stateNotFoundHandler);
-      if (enabledStateEvents.$stateChangeStart)
+      if (enabledStateEvents["$stateChangeStart"])
         $transitions.onBefore({}, stateChangeStartHandler, {priority: 1000});
 
       return {
@@ -279,6 +279,6 @@ var $stateNotFound;
 
   angular.module('ui.router.state.events', ['ui.router.state'])
       .provider("$stateEvents", <IServiceProviderFactory> $StateEventsProvider)
-      .run(['$stateEvents', function ($stateEvents) { /* Invokes $get() */
+      .run(['$stateEvents', function ($stateEvents: any) { /* Invokes $get() */
       }]);
 })();

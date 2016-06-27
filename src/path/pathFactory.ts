@@ -97,7 +97,7 @@ export class PathFactory {
    */
   static treeChanges(fromPath: PathNode[], toPath: PathNode[], reloadState: State): TreeChanges {
     let keep = 0, max = Math.min(fromPath.length, toPath.length);
-    const staticParams = (state) => state.parameters({ inherit: false }).filter(not(prop('dynamic'))).map(prop('id'));
+    const staticParams = (state: any) => state.parameters({ inherit: false }).filter(not(prop('dynamic'))).map(prop('id'));
     const nodesMatch = (node1: PathNode, node2: PathNode) => node1.equals(node2, staticParams(node1.state));
 
     while (keep < max && fromPath[keep].state !== reloadState && nodesMatch(fromPath[keep], toPath[keep])) {

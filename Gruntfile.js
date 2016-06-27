@@ -33,7 +33,7 @@ module.exports = function (grunt) {
         files: {
           '<%= builddir %>/ui-router-ng2.min.js': ['<banner:meta.banner>', '<%= builddir %>/ui-router-ng2.js'],
           '<%= builddir %>/angular-ui-router.min.js': ['<banner:meta.banner>', '<%= builddir %>/angular-ui-router.js'],
-          '<%= builddir %>/ng1/stateEvents.min.js': ['<banner:meta.banner>', '<%= builddir %>/ng1/stateEvents.js']
+          '<%= builddir %>/ng1/legacy/stateEvents.min.js': ['<banner:meta.banner>', '<%= builddir %>/ng1/legacy/stateEvents.js']
         }
       }
     },
@@ -180,7 +180,7 @@ module.exports = function (grunt) {
     grunt.task.run(['webpack']);
 
     ['stateEvents.js', 'stateEvents.js.map'].forEach(function(file) {
-      grunt.file.copy(builddir + "/es5/ng1/" + file, builddir + "/ng1/" + file);
+      grunt.file.copy(builddir + "/es5/ng1/legacy/" + file, builddir + "/ng1/legacy/" + file);
     })
   });
 

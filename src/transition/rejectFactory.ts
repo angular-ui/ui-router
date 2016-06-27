@@ -14,14 +14,14 @@ export class Rejection {
   detail: string;
   redirected: boolean;
 
-  constructor(type, message?, detail?) {
+  constructor(type: any, message?: any, detail?: any) {
     this.type = type;
     this.message = message;
     this.detail = detail;
   }
 
   toString() {
-    const detailString = d => d && d.toString !== Object.prototype.toString ? d.toString() : stringify(d);
+    const detailString = (d: any) => d && d.toString !== Object.prototype.toString ? d.toString() : stringify(d);
     let type = this.type, message = this.message, detail = detailString(this.detail);
     return `TransitionRejection(type: ${type}, message: ${message}, detail: ${detail})`;
   }
@@ -31,7 +31,7 @@ export class Rejection {
   }
 
   /** Returns true if the obj is a rejected promise created from the `asPromise` factory */
-  static isTransitionRejectionPromise(obj) {
+  static isTransitionRejectionPromise(obj: any) {
     return obj && (typeof obj.then === 'function') && obj._transitionRejection instanceof Rejection;
   }
 

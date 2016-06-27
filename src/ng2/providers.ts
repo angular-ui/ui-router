@@ -120,5 +120,5 @@ export const UIROUTER_PROVIDERS: ProviderLike[] = [
 
   { provide: Globals, useFactory: (r: UiRouter) => { return r.globals; }, deps: [UiRouter]},
 
-  { provide: UiView.PARENT_INJECT, useFactory: (r: StateRegistry) => { return { fqn: null, context: r.root() } }, deps: [StateRegistry]}
+  { provide: UiView.PARENT_INJECT, useFactory: (r: StateRegistry) => { return { fqn: null as any, context: r.root() } }, deps: [StateRegistry]}
 ];

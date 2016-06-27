@@ -30,7 +30,7 @@ export class PathNode {
   constructor(state: PathNode);
   /** Creates a new (empty) PathNode for a State */
   constructor(state: State);
-  constructor(state) {
+  constructor(state: any) {
     if (state instanceof PathNode) {
       let node: PathNode = state;
       this.state = node.state;
@@ -42,7 +42,7 @@ export class PathNode {
       this.state = state;
       this.paramSchema = state.parameters({ inherit: false });
       this.paramValues = {};
-      this.resolvables = state.resolvables.map(res => res.clone());
+      this.resolvables = state.resolvables.map((res: any) => res.clone());
     }
   }
 
@@ -63,7 +63,7 @@ export class PathNode {
    * equal to the state and param values for this PathNode
    */
   equals(node: PathNode, keys = this.paramSchema.map(prop('id'))): boolean {
-    const paramValsEq = key => this.parameter(key).type.equals(this.paramValues[key], node.paramValues[key]);
+    const paramValsEq = (key: any) => this.parameter(key).type.equals(this.paramValues[key], node.paramValues[key]);
     return this.state === node.state && keys.map(paramValsEq).reduce(allTrueR, true);
   }
 
@@ -79,7 +79,7 @@ export class PathNode {
    * Nodes are compared using their state property and parameter values.
    */
   static matching(pathA: PathNode[], pathB: PathNode[]): PathNode[] {
-    let matching = [];
+    let matching: any[] = [];
 
     for (let i = 0; i < pathA.length && i < pathB.length; i++) {
       let a = pathA[i], b = pathB[i];

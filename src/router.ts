@@ -43,5 +43,7 @@ export class UiRouter {
     this.globals.$current = this.stateRegistry.root();
     this.globals.current = this.globals.$current.self;
   }
+  
+  [key: string]: any;
 }
 

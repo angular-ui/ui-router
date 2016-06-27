@@ -8,8 +8,8 @@ import {PathNode} from "../path/node";
 import {ActiveUiView, ViewContext, ViewConfig} from "./interface";
 import {_ViewDeclaration} from "../state/interface";
 
-const match = (obj1, ...keys) =>
-    (obj2) => keys.reduce((memo, key) => memo && obj1[key] === obj2[key], true);
+const match = (obj1: any, ...keys: any[]) =>
+    (obj2: any) => keys.reduce((memo, key) => memo && obj1[key] === obj2[key], true);
 
 export type ViewConfigFactory = (path: PathNode[], decl: _ViewDeclaration) => ViewConfig|ViewConfig[];
 
@@ -19,12 +19,12 @@ export type ViewConfigFactory = (path: PathNode[], decl: _ViewDeclaration) => Vi
 export class ViewService {
   private uiViews: ActiveUiView[] = [];
   private viewConfigs: ViewConfig[] = [];
-  private _rootContext;
+  private _rootContext: any;
   private _viewConfigFactories: { [key: string]: ViewConfigFactory } = {};
 
   constructor() { }
 
-  rootContext(context) {
+  rootContext(context: any) {
     return this._rootContext = context || this._rootContext;
   };
 
@@ -148,9 +148,9 @@ export class ViewService {
     }
 
     // Given a depth function, returns a compare function which can return either ascending or descending order
-    const depthCompare = curry((depthFn, posNeg, left, right) => posNeg * (depthFn(left) - depthFn(right)));
+    const depthCompare = curry((depthFn: any, posNeg: any, left: any, right: any) => posNeg * (depthFn(left) - depthFn(right)));
 
-    const matchingConfigPair = uiView => {
+    const matchingConfigPair = (uiView: any) => {
       let matchingConfigs = this.viewConfigs.filter(matches(uiView));
       if (matchingConfigs.length > 1)
         matchingConfigs.sort(depthCompare(viewConfigDepth, -1)); // descending
@@ -179,7 +179,7 @@ export class ViewService {
   registerUiView(uiView: ActiveUiView) {
     trace.traceViewServiceUiViewEvent("-> Registering", uiView);
     let uiViews = this.uiViews;
-    const fqnMatches = uiv => uiv.fqn === uiView.fqn;
+    const fqnMatches = (uiv: any) => uiv.fqn === uiView.fqn;
     if (uiViews.filter(fqnMatches).length)
       trace.traceViewServiceUiViewEvent("!!!! duplicate uiView named:", uiView);
 

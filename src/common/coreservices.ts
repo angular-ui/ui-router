@@ -9,7 +9,7 @@
 //import {IQService} from "angular";
 //import {IInjectorService} from "angular";
 
-let notImplemented = (fnname) => () => {
+let notImplemented = (fnname: any) => () => {
   throw new Error(`${fnname}(): No coreservices implementation for UI-Router is loaded. You should include one of: ['angular1.js']`);
 };
 
@@ -22,14 +22,14 @@ let services: CoreServices = {
 };
 
 ["replace", "url", "path", "search", "hash", "onChange"]
-    .forEach(key => services.location[key] = notImplemented(key));
+    .forEach(key => (<any>services.location)[key] = notImplemented(key));
 
 ["port", "protocol", "host", "baseHref", "html5Mode", "hashPrefix" ]
-    .forEach(key => services.locationConfig[key] = notImplemented(key));
+    .forEach(key => (<any>services.locationConfig)[key] = notImplemented(key));
 
 export interface CoreServices {
-  $q; // : IQService;
-  $injector; // : IInjectorService;
+  $q: any; // : IQService;
+  $injector: any; // : IInjectorService;
   /** Services related to getting or setting the browser location (url) */
   location: LocationServices;
   /** Retrieves configuration for how to construct a URL. */
