@@ -6,7 +6,7 @@ import {Transition} from "./transition";
 import {State} from "../state/stateObject";
 import {PathNode} from "../path/node";
 import {TargetState} from "../state/targetState";
-import {UIRInjector} from "../common/interface";
+import {UiInjector} from "../common/interface";
 
 /**
  * The TransitionOptions object can be used to change the behavior of a transition.
@@ -183,7 +183,7 @@ export type IHookRegistration = (matchCriteria: HookMatchCriteria, callback: Hoo
  * - [[IHookRegistry.onError]]
  */
 export interface TransitionHookFn {
-  (transition: Transition, injector: UIRInjector) : HookResult
+  (transition: Transition, injector: UiInjector) : HookResult
 }
 
 /**
@@ -208,7 +208,7 @@ export interface TransitionHookFn {
  * - [[IHookRegistry.onExit]]
  */
 export interface TransitionStateHookFn {
-  (transition: Transition, injector: UIRInjector, state: State) : HookResult
+  (transition: Transition, injector: UiInjector, state: State) : HookResult
 }
 
 export type HookFn = (TransitionHookFn|TransitionStateHookFn);

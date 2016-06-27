@@ -5,7 +5,7 @@ import {Transition} from "../transition/transition";
 import {ViewService} from "../view/view";
 import {ViewConfig} from "../view/interface";
 import {TransitionService} from "../transition/transitionService";
-import {UIRInjector} from "../common/interface";
+import {UiInjector} from "../common/interface";
 import {UiRouter} from "../router";
 
 
@@ -16,7 +16,7 @@ export function loadEnteringViews(transition) {
   return services.$q.all(enteringViews.map(view => view.load())).then(noop);
 }
 
-export function activateViews(transition: Transition, injector: UIRInjector) {
+export function activateViews(transition: Transition, injector: UiInjector) {
   let enteringViews = transition.views("entering");
   let exitingViews = transition.views("exiting");
   if (!enteringViews.length && !exitingViews.length) return;

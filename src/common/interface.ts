@@ -1,7 +1,7 @@
 /**
  * An interface for getting values from dependency injection.
  */
-export interface UIRInjector {
+export interface UiInjector {
   /**
    * Gets a value from the injector
    *
@@ -28,4 +28,23 @@ export interface UIRInjector {
    * @return the Dependency Injection value that matches the key
    */
   get(key: any): any;
+
+  /**
+   * Asynchronously gets a value from the injector
+   *
+   * Returns a promise for a value from the injector.
+   * Returns resolve values and/or values from the native injector (ng1/ng2).
+   *
+   * @example
+   * ```js
+   *
+   * return injector.getAsync('myResolve').then(value => {
+   *   if (value === 'declined') return false;
+   * });
+   * ```
+   *
+   * @param key the key for the value to get.  May be a string or arbitrary object.
+   * @return a Promise for the Dependency Injection value that matches the key
+   */
+  getAsync(key: any): any;
 }

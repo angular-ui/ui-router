@@ -25,6 +25,7 @@ import {Rejection} from "./rejectFactory";
 import {ResolveContext} from "../resolve/resolveContext";
 import {UiRouter} from "../router";
 import {Globals} from "../globals";
+import {UiInjector} from "../common/interface";
 
 
 let transitionCount = 0;
@@ -44,6 +45,14 @@ export class Transition implements IHookRegistry {
   $id: number;
   success: boolean;
 
+  /**
+   * A reference to the [[UiRouter]] instance
+   *
+   * This reference can be used to access the router services, such as the [[StateService]]
+   */
+  router: UiRouter;
+
+  /** @hidden */
   private _deferred = services.$q.defer();
   /**
    * This promise is resolved or rejected based on the outcome of the Transition.
@@ -140,7 +149,8 @@ export class Transition implements IHookRegistry {
    * @param targetState The target state and parameters being transitioned to (also, the transition options)
    * @param router The [[UiRouter]] instance
    */
-  constructor(fromPath: PathNode[], targetState: TargetState, private router: UiRouter) {
+  constructor(fromPath: PathNode[], targetState: TargetState, router: UiRouter) {
+    this.router = router;
     if (!targetState.valid()) {
       throw new Error(targetState.error());
     }
@@ -217,6 +227,26 @@ export class Transition implements IHookRegistry {
    */
   params(pathname: string = "to"): { [key: string]: any } {
     return this._treeChanges[pathname].map(prop("paramValues")).reduce(mergeR, {});
+  }
+
+
+  /**
+   * Creates a [[UiInjector]] Dependency Injector
+   *
+   * Returns a Dependency Injector for the Transition's target state (to state).
+   * The injector provides resolve values which the target state has access to.
+   *
+   * The `UiInjector` can also provide values from the native root/global injector (ng1/ng2).
+   *
+   * If a `state` is provided, the injector that is returned will be limited to resolve values that the provided state has access to.
+   *
+   * @param state Limits the resolves provided to only the resolves the provided state has access to.
+   * @returns a [[UiInjector]]
+   */
+  injector(state?: StateOrName): UiInjector {
+    let path: PathNode[] = this.treeChanges().to;
+    if (state) path = PathFactory.subPath(path, node => node.state === state || node.state.name === state);
+    return new ResolveContext(path).injector();
   }
 
   /**

@@ -8,7 +8,7 @@ import {Transition} from "../transition/transition";
 import {TransitionStateHookFn} from "../transition/interface";
 import {ResolvePolicy, ResolvableLiteral} from "../resolve/interface";
 import {Resolvable} from "../resolve/resolvable";
-import {UIRInjector} from "../common/interface";
+import {UiInjector} from "../common/interface";
 import {TargetState} from "./targetState";
 
 export type StateOrName = (string|StateDeclaration|State);
@@ -452,7 +452,7 @@ export interface StateDeclaration {
    * })
    */
   redirectTo?: (
-      ($transition$: Transition, $injector: UIRInjector) => TargetState |
+      ($transition$: Transition, $injector: UiInjector) => TargetState |
       { state: (string|StateDeclaration), params: { [key: string]: any }} |
       string
   )

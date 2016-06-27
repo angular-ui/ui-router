@@ -1,5 +1,5 @@
 import {isString, isFunction} from "../common/predicates"
-import {UIRInjector} from "../common/interface";
+import {UiInjector} from "../common/interface";
 import {Transition} from "../transition/transition";
 import {UiRouter} from "../router";
 import {services} from "../common/coreservices";
@@ -10,7 +10,7 @@ import {TargetState} from "../state/targetState";
  *
  * See [[StateDeclaration.redirectTo]]
  */
-export const redirectToHook = (transition: Transition, $injector: UIRInjector) => {
+export const redirectToHook = (transition: Transition, $injector: UiInjector) => {
   let redirect = transition.to().redirectTo;
   if (!redirect) return;
 

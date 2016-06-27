@@ -11,6 +11,7 @@ import {State} from "../state/stateObject";
 import {PathFactory} from "../path/pathFactory";
 import {stringify} from "../common/strings";
 import {Transition} from "../transition/transition";
+import {UiInjector} from "../common/interface";
 
 var when = resolvePolicies.when;
 const ALL_WHENS = [when.EAGER, when.LAZY];
@@ -129,15 +130,8 @@ export class ResolveContext {
     return services.$q.all(promises);
   }
 
-  injector(): { get(any): any } {
-    
-    let get = (token: any) => {
-      var resolvable = this.getResolvable(token);
-      if (resolvable) return resolvable.data;
-      return services.$injector.get(token);
-    };
-    
-    return { get };
+  injector(): UiInjector {
+    return new UiInjectorImpl(this);
   }
 
   findNode(resolvable: Resolvable): PathNode {
@@ -171,5 +165,25 @@ export class ResolveContext {
     };
 
     return resolvable.deps.map(getDependency);
+  }
+}
+
+class UiInjectorImpl implements UiInjector {
+  constructor(public context: ResolveContext) { }
+  get(token: any) {
+    var resolvable = this.context.getResolvable(token);
+    if (resolvable) {
+      if (!resolvable.resolved) {
+        throw new Error("Resolvable async .get() not complete:" + stringify(resolvable.token))
+      }
+      return resolvable.data;
+    }
+    return services.$injector.get(token);
+  }
+
+  getAsync(token: any) {
+    var resolvable = this.context.getResolvable(token);
+    if (resolvable) return resolvable.get(this.context);
+    return services.$q.when(services.$injector.get(token));
   }
 }
