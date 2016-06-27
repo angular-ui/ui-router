@@ -183,7 +183,7 @@ export type IHookRegistration = (matchCriteria: HookMatchCriteria, callback: Hoo
  * - [[IHookRegistry.onError]]
  */
 export interface TransitionHookFn {
-  (transition: Transition, injector: UiInjector) : HookResult
+  (transition: Transition) : HookResult
 }
 
 /**
@@ -208,7 +208,7 @@ export interface TransitionHookFn {
  * - [[IHookRegistry.onExit]]
  */
 export interface TransitionStateHookFn {
-  (transition: Transition, injector: UiInjector, state: State) : HookResult
+  (transition: Transition, state: State) : HookResult
 }
 
 export type HookFn = (TransitionHookFn|TransitionStateHookFn);

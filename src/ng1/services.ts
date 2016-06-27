@@ -13,12 +13,11 @@
 import {UiRouter} from "../router";
 import {services} from "../common/coreservices";
 import {bindFunctions, removeFrom, applyPairs} from "../common/common";
-import {prop, propEq} from "../common/hof";
+import {prop} from "../common/hof";
 import {isObject, isString} from "../common/predicates";
-import {PathNode} from "../path/node";
 import {resolveFactory} from "./legacy/resolveService";
 import {trace} from "../common/trace";
-import {ng1ViewsBuilder, ng1ViewConfigFactory, Ng1ViewConfig} from "./statebuilders/views";
+import {ng1ViewsBuilder, ng1ViewConfigFactory} from "./statebuilders/views";
 import {TemplateFactory} from "./templateFactory";
 import {StateParams} from "../params/stateParams";
 import {TransitionService} from "../transition/transitionService";
@@ -26,9 +25,9 @@ import {StateService} from "../state/stateService";
 import {StateProvider} from "../state/state";
 import {UrlRouterProvider, UrlRouter} from "../url/urlRouter";
 import {UrlMatcherFactory} from "../url/urlMatcherFactory";
-import {Transition} from "../transition/transition";
 import {getStateHookBuilder} from "./statebuilders/onEnterExitRetain";
 import {ResolveContext} from "../resolve/resolveContext";
+import IInjectorService = angular.auto.IInjectorService;
 
 /** @hidden */
 let app = angular.module("ui.router.angular1", []);
@@ -283,6 +282,12 @@ export const getLocals = (ctx: ResolveContext) => {
   let tuples = tokens.map(key => [ key, ctx.getResolvable(key).data ]);
   return tuples.reduce(applyPairs, {});
 };
+
+declare module "../common/interface" {
+  interface UiInjector {
+    native: IInjectorService;
+  }
+}
 
 /** Injectable services */
 

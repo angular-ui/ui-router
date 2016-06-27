@@ -1,5 +1,8 @@
 /** @module transition */ /** for typedoc */
-import { IHookRegistry, TransitionOptions, HookMatchCriteria, HookRegOptions } from "./interface";
+import {
+    IHookRegistry, TransitionOptions, HookMatchCriteria, HookRegOptions,
+    TransitionStateHookFn, TransitionHookFn
+} from "./interface";
 
 import {Transition} from "./transition";
 import {HookRegistry} from "./hookRegistry";
@@ -89,21 +92,21 @@ export class TransitionService implements IHookRegistry {
   }
 
   /** @inheritdoc */
-  onBefore (matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions) : Function { throw ""; };
+  onBefore (matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions) : Function { throw ""; };
   /** @inheritdoc */
-  onStart (matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions) : Function { throw ""; };
+  onStart (matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions) : Function { throw ""; };
   /** @inheritdoc */
-  onExit (matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions) : Function { throw ""; };
+  onExit (matchCriteria: HookMatchCriteria, callback: TransitionStateHookFn, options?: HookRegOptions) : Function { throw ""; };
   /** @inheritdoc */
-  onRetain (matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions) : Function { throw ""; };
+  onRetain (matchCriteria: HookMatchCriteria, callback: TransitionStateHookFn, options?: HookRegOptions) : Function { throw ""; };
   /** @inheritdoc */
-  onEnter (matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions) : Function { throw ""; };
+  onEnter (matchCriteria: HookMatchCriteria, callback: TransitionStateHookFn, options?: HookRegOptions) : Function { throw ""; };
   /** @inheritdoc */
-  onFinish (matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions) : Function { throw ""; };
+  onFinish (matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions) : Function { throw ""; };
   /** @inheritdoc */
-  onSuccess (matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions) : Function { throw ""; };
+  onSuccess (matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions) : Function { throw ""; };
   /** @inheritdoc */
-  onError (matchCriteria: HookMatchCriteria, callback: IInjectable, options?: HookRegOptions) : Function { throw ""; };
+  onError (matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions) : Function { throw ""; };
 
 
   /** @hidden */

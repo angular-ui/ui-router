@@ -444,15 +444,15 @@ export interface StateDeclaration {
    * })
    * // a fn returning a promise for a redirect
    * .state('G', {
-   *   redirectTo: (trans, injector) => {
-   *     let svc = injector.get('SomeService')
-   *     let promise = svc.getAsyncRedirect(trans.params.foo);
+   *   redirectTo: (trans) => {
+   *     let svc = trans.injector().get('SomeAsyncService')
+   *     let promise = svc.getAsyncRedirectTo(trans.params.foo);
    *     return promise;
    *   }
    * })
    */
   redirectTo?: (
-      ($transition$: Transition, $injector: UiInjector) => TargetState |
+      ($transition$: Transition) => TargetState |
       { state: (string|StateDeclaration), params: { [key: string]: any }} |
       string
   )

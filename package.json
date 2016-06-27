@@ -3,20 +3,21 @@
   "description": "State-based routing for Javascript",
   "version": "1.0.0-alpha.5",
   "scripts": {
-    "test": "npm run test:core && npm run test:ng1",
-    "test:watch": "node_modules/watch/cli.js 'npm run test' src test",
+    "test": "npm run test:integrate",
+    "watch": "node_modules/watch/cli.js 'npm run test' src test",
 
     "test:core": "karma start config/karma.core.js",
-    "test:core:debug": "karma start config/karma.core.js --singleRun=false --browsers=Chrome --autoWatch=true --autoWatchInterval=1",
+    "debug:core": "karma start config/karma.core.js --singleRun=false --browsers=Chrome --autoWatch=true --autoWatchInterval=1",
 
     "test:ng1": "karma start config/karma.ng15.js",
-    "test:ng1:debug": "karma start config/karma.ng15.js --singleRun=false --browsers=Chrome --autoWatch=true --autoWatchInterval=1",
-    "test:ng1:watch": "node_modules/watch/cli.js 'npm run test:ng1' src test",
+    "debug:ng1": "karma start config/karma.ng15.js --singleRun=false --browsers=Chrome --autoWatch=true --autoWatchInterval=1",
+    "watch:ng1": "node_modules/watch/cli.js 'npm run test:ng1' src test",
 
     "test:ng12": "karma start config/karma.ng12.js",
     "test:ng13": "karma start config/karma.ng13.js",
     "test:ng14": "karma start config/karma.ng14.js",
     "test:ng15": "karma start config/karma.ng15.js",
+
     "test:integrate": "tsc && npm run test:core && npm run test:ng12 && npm run test:ng13 && npm run test:ng14 && npm run test:ng15"
   },
   "homepage": "http://angular-ui.github.com/ui-router",

@@ -41,7 +41,7 @@ export class TransitionHook {
       return Rejection.superseded(options.current()).toPromise();
     }
 
-    let hookResult = hookFn.call(options.bind, this.transition, resolveContext.injector(), this.stateContext);
+    let hookResult = hookFn.call(options.bind, this.transition, this.stateContext);
     return this.handleHookResult(hookResult);
   }
 

@@ -9,7 +9,10 @@ import { isObject, isArray } from "../common/predicates";
 import { prop, propEq, val, not } from "../common/hof";
 
 import {StateDeclaration, StateOrName} from "../state/interface";
-import {TransitionOptions, TransitionHookOptions, TreeChanges, IHookRegistry, IHookRegistration, IHookGetter} from "./interface";
+import {
+    TransitionOptions, TransitionHookOptions, TreeChanges, IHookRegistry, IHookGetter,
+    HookMatchCriteria, TransitionHookFn, TransitionStateHookFn, HookRegOptions
+} from "./interface";
 
 import {TransitionHook} from "./transitionHook";
 import {HookRegistry, matchState} from "./hookRegistry";
@@ -65,78 +68,23 @@ export class Transition implements IHookRegistry {
   private _options: TransitionOptions;
   private _treeChanges: TreeChanges;
 
-  /**
-   * Registers a callback function as an `onBefore` Transition Hook
-   *
-   * The hook is only registered for this specific `Transition`.
-   * For global hooks, use [[TransitionService.onBefore]]
-   *
-   * See [[IHookRegistry.onBefore]]
-   */
-  onBefore:   IHookRegistration;
-  /**
-   * Registers a callback function as an `onStart` Transition Hook
-   *
-   * The hook is only registered for this specific `Transition`.
-   * For global hooks, use [[TransitionService.onStart]]
-   *
-   * See [[IHookRegistry.onStart]]
-   */
-  onStart:    IHookRegistration;
-  /**
-   * Registers a callback function as an `onEnter` State Hook
-   *
-   * The hook is only registered for this specific `Transition`.
-   * For global hooks, use [[TransitionService.onEnter]]
-   *
-   * See [[IHookRegistry.onEnter]]
-   */
-  onEnter:    IHookRegistration;
-  /**
-   * Registers a callback function as an `onRetain` State Hook
-   *
-   * The hook is only registered for this specific `Transition`.
-   * For global hooks, use [[TransitionService.onRetain]]
-   *
-   * See [[IHookRegistry.onRetain]]
-   */
-  onRetain:   IHookRegistration;
-  /**
-   * Registers a callback function as an `onExit` State Hook
-   *
-   * The hook is only registered for this specific `Transition`.
-   * For global hooks, use [[TransitionService.onExit]]
-   *
-   * See [[IHookRegistry.onExit]]
-   */
-  onExit:     IHookRegistration;
-  /**
-   * Registers a callback function as an `onFinish` Transition Hook
-   *
-   * The hook is only registered for this specific `Transition`.
-   * For global hooks, use [[TransitionService.onFinish]]
-   *
-   * See [[IHookRegistry.onFinish]]
-   */
-  onFinish:   IHookRegistration;
-  /**
-   * Registers a callback function as an `onSuccess` Transition Hook
-   *
-   * The hook is only registered for this specific `Transition`.
-   * For global hooks, use [[TransitionService.onSuccess]]
-   *
-   * See [[IHookRegistry.onSuccess]]
-   */
-  onSuccess:  IHookRegistration;
-  /**
-   * Registers a callback function as an `onError` Transition Hook
-   *
-   * The hook is only registered for this specific `Transition`.
-   * For global hooks, use [[TransitionService.onError]]
-   *
-   * See [[IHookRegistry.onError]]
-   */
-  onError:    IHookRegistration;
+  /** @inheritdoc */
+  onBefore (matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions) : Function { throw ""; };
+  /** @inheritdoc */
+  onStart (matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions) : Function { throw ""; };
+  /** @inheritdoc */
+  onExit (matchCriteria: HookMatchCriteria, callback: TransitionStateHookFn, options?: HookRegOptions) : Function { throw ""; };
+  /** @inheritdoc */
+  onRetain (matchCriteria: HookMatchCriteria, callback: TransitionStateHookFn, options?: HookRegOptions) : Function { throw ""; };
+  /** @inheritdoc */
+  onEnter (matchCriteria: HookMatchCriteria, callback: TransitionStateHookFn, options?: HookRegOptions) : Function { throw ""; };
+  /** @inheritdoc */
+  onFinish (matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions) : Function { throw ""; };
+  /** @inheritdoc */
+  onSuccess (matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions) : Function { throw ""; };
+  /** @inheritdoc */
+  onError (matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions) : Function { throw ""; };
+
   getHooks:   IHookGetter;
 
   /**

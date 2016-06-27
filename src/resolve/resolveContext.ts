@@ -186,4 +186,7 @@ class UiInjectorImpl implements UiInjector {
     if (resolvable) return resolvable.get(this.context);
     return services.$q.when(services.$injector.get(token));
   }
+  
+  /** The native injector ($injector on ng1, Root Injector on ng2, justjs injector for everything else) */
+  native = services.$injector;
 }

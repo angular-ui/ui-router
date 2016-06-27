@@ -18,7 +18,7 @@ import {extend} from "../../common/common";
 export const getStateHookBuilder = (hookName) =>
 function stateHookBuilder(state: State, parentFn): TransitionStateHookFn {
   let hook = state[hookName];
-  function decoratedNg1Hook(trans: Transition, inj: IInjectorService, state): HookResult {
+  function decoratedNg1Hook(trans: Transition, state): HookResult {
     let resolveContext = new ResolveContext(trans.treeChanges().to);
     return services.$injector.invoke(hook, this, extend({ $state$: state }, getLocals(resolveContext)));
   }

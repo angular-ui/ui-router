@@ -153,10 +153,11 @@ var $stateNotFound;
     return memo;
   }
 
-  function stateChangeStartHandler($transition$: Transition, $injector) {
+  function stateChangeStartHandler($transition$: Transition) {
     if (!$transition$.options().notify || !$transition$.valid() || $transition$.ignored())
       return;
 
+    let $injector = $transition$.injector().native;
     let $stateEvents = $injector.get('$stateEvents');
     let $rootScope = $injector.get('$rootScope');
     let $state = $injector.get('$state');

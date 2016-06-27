@@ -4,11 +4,10 @@ import {Transition} from "../transition/transition";
 import {UiInjector} from "../common/interface";
 import {UiRouter} from "../router";
 
-export function updateUrl(transition: Transition, injector: UiInjector) {
+export function updateUrl(transition: Transition) {
   let options = transition.options();
-  var router: UiRouter = injector.get(UiRouter);
-  let $state: StateService = router.stateService;
-  let $urlRouter: UrlRouter = router.urlRouter;
+  let $state: StateService = transition.router.stateService;
+  let $urlRouter: UrlRouter = transition.router.urlRouter;
 
   if (options.location && $state.$current.navigable) {
     var urlOptions = {replace: options.location === 'replace'};

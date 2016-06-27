@@ -1,7 +1,5 @@
 import {isString, isFunction} from "../common/predicates"
-import {UiInjector} from "../common/interface";
 import {Transition} from "../transition/transition";
-import {UiRouter} from "../router";
 import {services} from "../common/coreservices";
 import {TargetState} from "../state/targetState";
 
@@ -10,22 +8,21 @@ import {TargetState} from "../state/targetState";
  *
  * See [[StateDeclaration.redirectTo]]
  */
-export const redirectToHook = (transition: Transition, $injector: UiInjector) => {
-  let redirect = transition.to().redirectTo;
+export const redirectToHook = (trans: Transition) => {
+  let redirect = trans.to().redirectTo;
   if (!redirect) return;
 
-  let router: UiRouter = $injector.get(UiRouter);
-  let $state = router.stateService;
-
-  if (isFunction(redirect))
-    return services.$q.when(redirect(transition, $injector)).then(handleResult);
-
-  return handleResult(redirect);
-
   function handleResult(result) {
+    let $state = trans.router.stateService;
+
     if (result instanceof TargetState) return result;
-    if (isString(result)) return $state.target(<any> result, transition.params(), transition.options());
+    if (isString(result)) return $state.target(<any> result, trans.params(), trans.options());
     if (result['state'] || result['params'])
-      return $state.target(result['state'] || transition.to(), result['params'] || transition.params(), transition.options());
+      return $state.target(result['state'] || trans.to(), result['params'] || trans.params(), trans.options());
   }
+
+  if (isFunction(redirect)) {
+    return services.$q.when(redirect(trans)).then(handleResult);
+  }
+  return handleResult(redirect);
 };

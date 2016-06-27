@@ -88,11 +88,10 @@ describe("view hooks", () => {
     });
 
     it("can redirect the transition", () => {
-      ctrl.prototype.uiCanExit = function($transition$, injector) {
+      ctrl.prototype.uiCanExit = function(trans) {
         log += "canexit;";
-        var $state = injector.get('$state');
-        if ($transition$.to().name !== 'baz')  {
-          return $state.target('baz');
+        if (trans.to().name !== 'baz')  {
+          return trans.router.stateService.target('baz');
         }
       };
       initial();
@@ -144,13 +143,12 @@ describe("view hooks", () => {
       expect($state.current.name).toBe('bar');
     });
 
-    it("receives the new Transition and an Injector as parameters", () => {
+    it("receives the new Transition as the first argument", () => {
       let _state = $state;
-      ctrl.prototype.uiCanExit = function(trans, inj) {
+      ctrl.prototype.uiCanExit = function(trans) {
         log += "canexit;";
         expect(typeof trans.treeChanges).toBe("function");
-        expect(typeof inj.get).toBe("function");
-        expect(inj.get('$state')).toBe(_state)
+        expect(trans.injector().get('$state')).toBe(_state)
       };
       initial();
 

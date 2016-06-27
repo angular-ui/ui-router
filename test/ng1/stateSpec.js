@@ -286,8 +286,8 @@ describe('state', function () {
         $stateProvider.state(childWithParam);
         $stateProvider.state(childNoParam);
 
-        $transitions.onEnter({}, function (trans, inj, state) { dynlog += "enter:"+state.name+";" });
-        $transitions.onExit({}, function (trans, inj, state) { dynlog += "exit:"+state.name+";" });
+        $transitions.onEnter({}, function (trans, state) { dynlog += "enter:"+state.name+";" });
+        $transitions.onExit({}, function (trans, state) { dynlog += "exit:"+state.name+";" });
         $transitions.onSuccess({}, function () { dynlog += "success;"; });
 
         $compile('<div><ui-view></ui-view></div>')($rootScope.$new());

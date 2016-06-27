@@ -4,9 +4,6 @@ import {services} from "../common/coreservices";
 import {Transition} from "../transition/transition";
 import {ViewService} from "../view/view";
 import {ViewConfig} from "../view/interface";
-import {TransitionService} from "../transition/transitionService";
-import {UiInjector} from "../common/interface";
-import {UiRouter} from "../router";
 
 
 /** Allows the views to do async work [.load()] before the transition continues */
@@ -16,12 +13,12 @@ export function loadEnteringViews(transition) {
   return services.$q.all(enteringViews.map(view => view.load())).then(noop);
 }
 
-export function activateViews(transition: Transition, injector: UiInjector) {
+export function activateViews(transition: Transition) {
   let enteringViews = transition.views("entering");
   let exitingViews = transition.views("exiting");
   if (!enteringViews.length && !exitingViews.length) return;
 
-  let $view: ViewService = injector.get(UiRouter).viewService;
+  let $view: ViewService = transition.router.viewService;
 
   exitingViews.forEach((vc: ViewConfig) => $view.deactivateViewConfig(vc));
   enteringViews.forEach((vc: ViewConfig) => $view.activateViewConfig(vc));
