@@ -487,9 +487,13 @@ export class Transition implements IHookRegistry {
 
     trace.traceTransitionStart(this);
 
+    // Chain the next hook off the previous
+    const appendHookToChain = (prev, nextHook) =>
+        prev.then(() => nextHook.invokeHook());
+
     // Run the hooks, then resolve or reject the overall deferred in the .then() handler
     hookBuilder.asyncHooks()
-        .reduce((_chain, step) => _chain.then(step.invokeHook.bind(step)), syncResult)
+        .reduce(appendHookToChain, syncResult)
         .then(transitionSuccess, transitionError);
 
     return this.promise;

@@ -14,7 +14,7 @@ import {Transition} from "../../src/transition/transition";
 
 describe('transition', function () {
 
-  var transitionProvider, matcher, pathFactory, statesMap, queue;
+  var $exceptionHandler, transitionProvider, matcher, pathFactory, statesMap, queue;
 
   var targetState = function(identifier, params = {}, options?) {
     options = options || {};
@@ -22,8 +22,10 @@ describe('transition', function () {
     return new TargetState(identifier, stateDefinition, params, options);
   };
 
-  beforeEach(module('ui.router', function ($transitionsProvider, $urlMatcherFactoryProvider) {
+  beforeEach(module('ui.router', function ($transitionsProvider, $urlMatcherFactoryProvider, $exceptionHandlerProvider) {
+    decorateExceptionHandler($exceptionHandlerProvider);
     transitionProvider = $transitionsProvider;
+
     var stateTree = {
       first: {},
       second: {},
@@ -71,7 +73,8 @@ describe('transition', function () {
 
   var makeTransition;
 
-  beforeEach(inject(function ($transitions, $state) {
+  beforeEach(inject(function ($transitions, $state, _$exceptionHandler_) {
+    $exceptionHandler = _$exceptionHandler_;
     matcher = new StateMatcher(statesMap);
     queue.flush($state);
     makeTransition = function makeTransition(from, to, options) {
@@ -113,6 +116,7 @@ describe('transition', function () {
 
       it('$transition$.promise should reject on error', inject(function($transitions, $q) {
         var result = new PromiseResult();
+        $exceptionHandler.disabled = true;
 
         transitionProvider.onStart({ from: "*", to: "third" }, function($transition$) {
           result.setPromise($transition$.promise);
@@ -126,6 +130,7 @@ describe('transition', function () {
 
       it('$transition$.promise should reject on error in synchronous hooks', inject(function($transitions, $q) {
         var result = new PromiseResult();
+        $exceptionHandler.disabled = true;
 
         transitionProvider.onBefore({ from: "*", to: "third" }, function($transition$) {
           result.setPromise($transition$.promise);
@@ -298,6 +303,7 @@ describe('transition', function () {
         }));
 
         it('should be called even if other .onSuccess() callbacks fail (throw errors, etc)', inject(function($transitions, $q) {
+          $exceptionHandler.disabled = true;
           transitionProvider.onSuccess({ from: "*", to: "*" }, function() { throw new Error("oops!"); });
           transitionProvider.onSuccess({ from: "*", to: "*" }, function(trans) { states.push(trans.to().name); });
 
@@ -318,6 +324,7 @@ describe('transition', function () {
         }));
 
         it('should be called if any part of the transition fails.', inject(function($transitions, $q) {
+          $exceptionHandler.disabled = true;
           transitionProvider.onEnter({ from: "A", entering: "C" }, function() { throw new Error("oops!");  });
           transitionProvider.onError({ }, function(trans) { states.push(trans.to().name); });
 
@@ -327,6 +334,7 @@ describe('transition', function () {
         }));
 
         it('should be called for only handlers matching the transition.', inject(function($transitions, $q) {
+          $exceptionHandler.disabled = true;
           transitionProvider.onEnter({ from: "A", entering: "C" }, function() { throw new Error("oops!");  });
           transitionProvider.onError({ from: "*", to: "*" }, function() { hooks.push("splatsplat"); });
           transitionProvider.onError({ from: "A", to: "C" }, function() { hooks.push("AC"); });

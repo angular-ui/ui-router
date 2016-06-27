@@ -1,5 +1,5 @@
 /** @module state */ /** */
-import {extend, defaults } from "../common/common";
+import {extend, defaults, silentRejection, silenceUncaughtInPromise} from "../common/common";
 import {isDefined, isObject, isString} from "../common/predicates";
 import {Queue} from "../common/queue";
 import {services} from "../common/coreservices";
@@ -274,7 +274,7 @@ export class StateService {
       return this._handleInvalidTargetState(currentPath, ref);
 
     if (!ref.valid())
-      return services.$q.reject(ref.error());
+      return <TransitionPromise> silentRejection(ref.error());
 
     /**
      * Special handling for Ignored, Aborted, and Redirected transitions
@@ -307,6 +307,8 @@ export class StateService {
 
     let transition = this.router.transitionService.create(currentPath, ref);
     let transitionToPromise = transition.run().catch(rejectedTransitionHandler(transition));
+    silenceUncaughtInPromise(transitionToPromise); // issue #2676
+
     // Return a promise for the transition, which also has the transition object on it.
     return extend(transitionToPromise, { transition });
   };

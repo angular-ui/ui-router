@@ -116,6 +116,25 @@ function html5Compat(html5mode) {
   return (angular.isObject(html5mode) && html5mode.hasOwnProperty("enabled") ? html5mode.enabled : html5mode);
 }
 
+/**
+ * The ng1 $exceptionHandler from angular-mocks will re-throw any exceptions thrown in a Promise.
+ * This chunk of code decorates the handler, allowing a test to disable that behavior.
+ * Inject $exceptionHandler and set `$exceptionHandler.disabled = true`
+ */
+function decorateExceptionHandler($exceptionHandlerProvider) {
+  var $get = $exceptionHandlerProvider.$get;
+
+  $exceptionHandlerProvider.$get = function() {
+    var realHandler = $get.apply($exceptionHandlerProvider, arguments);
+    function passThrough(e) {
+      if (!passThrough['disabled']) {
+        realHandler.apply(null, arguments);
+      }
+    }
+    return passThrough;
+  };
+}
+
 
 // Utils for test from core angular
 var noop = angular.noop,

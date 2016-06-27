@@ -6,6 +6,7 @@
 
 import {isFunction, isString, isArray, isRegExp, isDate} from "./predicates";
 import { all, any, not, prop, curry } from "./hof";
+import {services} from "./coreservices";
 
 let w: any = typeof window === 'undefined' ? {} : window;
 let angular = w.angular || {};
@@ -538,9 +539,9 @@ function _arraysEq(a1, a2) {
   if (a1.length !== a2.length) return false;
   return arrayTuples(a1, a2).reduce((b, t) => b && _equals(t[0], t[1]), true);
 }
-//
-//const _addToGroup = (result, keyFn) => (item) =>
-//  (result[keyFn(item)] = result[keyFn(item)] || []).push(item) && result;
-//const groupBy = (array, keyFn) => array.reduce((memo, item) => _addToGroup(memo, keyFn), {});
-//
-//
+
+// issue #2676
+export const silenceUncaughtInPromise = (promise: Promise<any>) =>
+    promise.catch(e => 0) && promise;
+export const silentRejection = (error: any) =>
+    silenceUncaughtInPromise(services.$q.reject(error));

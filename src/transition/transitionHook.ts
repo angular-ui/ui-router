@@ -34,20 +34,15 @@ export class TransitionHook {
 
   private isSuperseded = () => this.options.current() !== this.options.transition;
 
-  invokeHook(rethrow = false): Promise<any> {
+  invokeHook(): Promise<any> {
     let { options, hookFn, resolveContext } = this;
     trace.traceHookInvocation(this, options);
     if (options.rejectIfSuperseded && this.isSuperseded()) {
       return Rejection.superseded(options.current()).toPromise();
     }
 
-    try {
-      var hookResult = hookFn.call(options.bind, this.transition, resolveContext.injector(), this.stateContext);
-      return this.handleHookResult(hookResult);
-    } catch (error) {
-      if (rethrow) throw error;
-      return services.$q.reject(error);
-    }
+    let hookResult = hookFn.call(options.bind, this.transition, resolveContext.injector(), this.stateContext);
+    return this.handleHookResult(hookResult);
   }
 
   /**
@@ -96,7 +91,7 @@ export class TransitionHook {
     let results = [];
     for (let i = 0; i < hooks.length; i++) {
       try {
-        results.push(hooks[i].invokeHook(true));
+        results.push(hooks[i].invokeHook());
       } catch (exception) {
         if (!swallowExceptions) {
           return Rejection.aborted(exception).toPromise();

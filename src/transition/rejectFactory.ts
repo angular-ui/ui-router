@@ -1,7 +1,6 @@
 /** @module transition */ /** for typedoc */
 "use strict";
-import {extend} from "../common/common";
-import {services} from "../common/coreservices";
+import {extend, silentRejection} from "../common/common";
 import {stringify} from "../common/strings";
 
 export enum RejectType {
@@ -27,7 +26,7 @@ export class Rejection {
   }
 
   toPromise() {
-    return extend(services.$q.reject(this), { _transitionRejection: this });
+    return extend(silentRejection(this), { _transitionRejection: this });
   }
 
   /** Returns true if the obj is a rejected promise created from the `asPromise` factory */
