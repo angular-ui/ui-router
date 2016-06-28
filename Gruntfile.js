@@ -25,8 +25,8 @@ module.exports = function (grunt) {
                 'if (typeof module !== "undefined" && typeof exports !== "undefined" && module.exports === exports){\n'+
                 '  module.exports = \'ui.router\';\n'+
                 '}\n\n'+
-                '(function (window, angular, undefined) {\n',
-        footer: '})(window, window.angular);'
+                '(function (angular, undefined) {\n',
+        footer: '})(typeof angular !== "undefined" ? angular : window.angular);'
       },
       build: {
         src: files.src,
