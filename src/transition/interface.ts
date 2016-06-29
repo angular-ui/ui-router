@@ -189,7 +189,7 @@ export interface TransitionHookFn {
 /**
  * The signature for Transition State Hooks.
  *
- * A [[TransitionHook]] which is applied to a lifecycle event for a specific state.
+ * A function which hooks into a lifecycle event for a specific state.
  *
  * Transition State Hooks are callback functions that hook into the lifecycle events of specific states during a transition.
  * As a transition runs, it may exit some states, retain (keep) states, and enter states.
@@ -214,9 +214,9 @@ export interface TransitionStateHookFn {
 export type HookFn = (TransitionHookFn|TransitionStateHookFn);
 
 /**
- * The return value of a [[TransitionHook]] or [[TransitionStateHook]]
+ * The return value of a [[TransitionHookFn]] or [[TransitionStateHookFn]]
  *
- * When returned from a [[TransitionHook]] or [[TransitionStateHook]], these values alter the running [[Transition]]:
+ * When returned from a [[TransitionHookFn]] or [[TransitionStateHookFn]], these values alter the running [[Transition]]:
  *
  * - `false`: the transition will be cancelled.
  * - [[TargetState]]: the transition will be redirected to the new target state (see: [[StateService.target]])
@@ -255,13 +255,13 @@ export interface HookRegOptions {
  */
 export interface IHookRegistry {
   /**
-   * Registers a [[TransitionHook]], called *before a transition starts*.
+   * Registers a [[TransitionHookFn]], called *before a transition starts*.
    *
    * Registers a transition lifecycle hook, which is invoked before a transition even begins.
    * This hook can be useful to implement logic which prevents a transition from even starting, such
    * as authentication, redirection
    *
-   * See [[TransitionHook]] for the signature of the function.
+   * See [[TransitionHookFn]] for the signature of the function.
    *
    * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    *
@@ -351,12 +351,12 @@ export interface IHookRegistry {
   onBefore(matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions): Function;
 
   /**
-   * Registers a [[TransitionHook]], called when a transition starts.
+   * Registers a [[TransitionHookFn]], called when a transition starts.
    *
    * Registers a transition lifecycle hook, which is invoked as a transition starts running.
    * This hook can be useful to perform some asynchronous action before completing a transition.
    *
-   * See [[TransitionHook]] for the signature of the function.
+   * See [[TransitionHookFn]] for the signature of the function.
    *
    * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    *
@@ -419,7 +419,7 @@ export interface IHookRegistry {
   onStart(matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions): Function;
 
   /**
-   * Registers a [[TransitionStateHook]], called when a specific state is entered.
+   * Registers a [[TransitionStateHookFn]], called when a specific state is entered.
    *
    * Registers a lifecycle hook, which is invoked (during a transition) when a specific state is being entered.
    *
@@ -427,7 +427,7 @@ export interface IHookRegistry {
    * performing tasks when entering a submodule/feature area such as initializing a stateful service, 
    * or for guarding access to a submodule/feature area.
    *
-   * See [[TransitionStateHook]] for the signature of the function.
+   * See [[TransitionStateHookFn]] for the signature of the function.
    *
    * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    * `onEnter` hooks generally specify `{ entering: 'somestate' }`.
@@ -491,7 +491,7 @@ export interface IHookRegistry {
   onEnter(matchCriteria: HookMatchCriteria, callback: TransitionStateHookFn, options?: HookRegOptions): Function;
 
   /**
-   * Registers a [[TransitionStateHook]], called when a specific state is retained/kept.
+   * Registers a [[TransitionStateHookFn]], called when a specific state is retained/kept.
    *
    * Registers a lifecycle hook, which is invoked (during a transition) for
    * a specific state that was previously active and is not being entered nor exited.
@@ -528,7 +528,7 @@ export interface IHookRegistry {
   onRetain(matchCriteria: HookMatchCriteria, callback: TransitionStateHookFn, options?: HookRegOptions): Function;
 
   /**
-   * Registers a [[TransitionStateHook]], called when a specific state is exited.
+   * Registers a [[TransitionStateHookFn]], called when a specific state is exited.
    *
    * Registers a lifecycle hook, which is invoked (during a transition) when a specific state is being exited.
    *
@@ -536,7 +536,7 @@ export interface IHookRegistry {
    * performing tasks when leaving a submodule/feature area such as cleaning up a stateful service, 
    * or for preventing the user from leaving a state or submodule until some criteria is satisfied.
    *
-   * See [[TransitionStateHook]] for the signature of the function.
+   * See [[TransitionStateHookFn]] for the signature of the function.
    *
    * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    * `onExit` hooks generally specify `{ exiting: 'somestate' }`.
@@ -565,12 +565,12 @@ export interface IHookRegistry {
   onExit(matchCriteria: HookMatchCriteria, callback: TransitionStateHookFn, options?: HookRegOptions): Function;
 
   /**
-   * Registers a [[TransitionHook]], called *just before a transition finishes*.
+   * Registers a [[TransitionHookFn]], called *just before a transition finishes*.
    *
    * Registers a transition lifecycle hook, which is invoked just before a transition finishes.
    * This hook is a last chance to cancel or redirect a transition.
    *
-   * See [[TransitionHook]] for the signature of the function.
+   * See [[TransitionHookFn]] for the signature of the function.
    *
    * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    *
@@ -594,11 +594,11 @@ export interface IHookRegistry {
   onFinish(matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions): Function;
 
   /**
-   * Registers a [[TransitionHook]], called after a successful transition completed.
+   * Registers a [[TransitionHookFn]], called after a successful transition completed.
    *
    * Registers a transition lifecycle hook, which is invoked after a transition successfully completes.
    *
-   * See [[TransitionHook]] for the signature of the function.
+   * See [[TransitionHookFn]] for the signature of the function.
    *
    * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    *
@@ -620,11 +620,11 @@ export interface IHookRegistry {
   onSuccess(matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions): Function;
 
   /**
-   * Registers a [[TransitionHook]], called after a successful transition completed.
+   * Registers a [[TransitionHookFn]], called after a successful transition completed.
    *
    * Registers a transition lifecycle hook, which is invoked after a transition successfully completes.
    *
-   * See [[TransitionHook]] for the signature of the function.
+   * See [[TransitionHookFn]] for the signature of the function.
    *
    * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    *

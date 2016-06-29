@@ -1,3 +1,4 @@
+/** @module ng2 */ /** */
 import {HashLocationStrategy, PlatformLocation, LocationStrategy} from "@angular/common";
 import {Injectable} from "@angular/core";
 

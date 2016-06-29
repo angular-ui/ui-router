@@ -283,8 +283,26 @@ export const getLocals = (ctx: ResolveContext) => {
   return tuples.reduce(applyPairs, {});
 };
 
+/** Adds the angular 1 `$injector` to the `UiInjector` interface */
 declare module "../common/interface" {
+  /**
+   * This enhances the [[common.UiInjector]] interface by adding the `$injector` service as the [[native]] injector.
+   */
   interface UiInjector {
+    /**
+     * The native Angular 1 `$injector` service
+     *
+     * When you have access to a `UiInjector`, this property will contain the native `$injector` Angular 1 service.
+     *
+     * @example:
+     * ```js
+     *
+     * $transition.onStart({}, function(transition) {
+     *   var uiInjector = transition.injector();
+     *   var $injector = uiInjector.native;
+     *   var val = $injector.invoke(someFunction);
+     * });
+     */
     native: IInjectorService;
   }
 }

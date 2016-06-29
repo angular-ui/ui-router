@@ -479,7 +479,7 @@ export interface StateDeclaration {
    */
   onEnter?: TransitionStateHookFn;
   /**
-   * A [[TransitionStateHook]] called with the state is being retained/kept. See: [[IHookRegistry.onRetain]]
+   * A [[TransitionStateHookFn]] called with the state is being retained/kept. See: [[IHookRegistry.onRetain]]
    *
    * @example
    * ```js

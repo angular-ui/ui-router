@@ -1,3 +1,5 @@
+/** @module common */ /** */
+
 /**
  * An interface for getting values from dependency injection.
  */

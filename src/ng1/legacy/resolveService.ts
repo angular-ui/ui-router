@@ -1,13 +1,40 @@
+/** @module ng1 */ /** */
 import {State} from "../../state/stateObject";
 import {PathNode} from "../../path/node";
 import {ResolveContext} from "../../resolve/resolveContext";
 import {map} from "../../common/common";
 import {resolvablesBuilder} from "../../state/stateBuilder";
 
-export const resolveFactory = () => ({
+/**
+ * Implementation of the legacy `$resolve` service for angular 1.
+ */
+var $resolve = {
   /**
+   * Asynchronously injects a resolve block.
+   *
    * This emulates most of the behavior of the ui-router 0.2.x $resolve.resolve() service API.
-   * @param invocables an object, with keys as resolve names and values as injectable functions
+   *
+   * Given an object `invocables`, where keys are strings and values are injectable functions,
+   * injects each function, and waits for the resulting promise to resolve.
+   * When all resulting promises are resolved, returns the results as an object.
+   *
+   * @example
+   * ```js
+   *
+   * let invocables = {
+   *   foo: [ '$http', ($http) =>
+   *            $http.get('/api/foo').then(resp => resp.data) ],
+   *   bar: [ 'foo', '$http', (foo, $http) =>
+   *            $http.get('/api/bar/' + foo.barId).then(resp => resp.data) ]
+   * }
+   * $resolve.resolve(invocables)
+   *     .then(results => console.log(results.foo, results.bar))
+   * // Logs foo and bar:
+   * // { id: 123, barId: 456, fooData: 'foo data' }
+   * // { id: 456, barData: 'bar data' }
+   * ```
+   *
+   * @param invocables an object which looks like an [[StateDefinition.resolve]] object; keys are resolve names and values are injectable functions
    * @param locals key/value pre-resolved data (locals)
    * @param parent a promise for a "parent resolve"
    */
@@ -32,4 +59,7 @@ export const resolveFactory = () => ({
 
     return parent ? parent.then(resolveData) : resolveData({});
   }
-});
+};
+
+/** @hidden */
+export const resolveFactory = () => $resolve;

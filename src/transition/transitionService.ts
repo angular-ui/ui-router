@@ -10,14 +10,13 @@ import {TargetState} from "../state/targetState";
 import {PathNode} from "../path/node";
 import {IEventHook} from "./interface";
 import {ViewService} from "../view/view";
-import {IInjectable} from "../common/common";
-import {makeEnterExitRetainHook} from "../hooks/onEnterExitRetain";
-import {$eagerResolvePath, $lazyResolveState} from "../hooks/resolve";
+import {eagerResolvePath, lazyResolveState} from "../hooks/resolve";
 import {loadEnteringViews, activateViews} from "../hooks/views";
-import {UiRouter} from "../router";
-import {val} from "../common/hof";
 import {updateUrl} from "../hooks/url";
 import {redirectToHook} from "../hooks/redirectTo";
+import {onExitHook, onRetainHook, onEnterHook} from "../hooks/onEnterExitRetain";
+import {UiRouter} from "../router";
+import {val} from "../common/hof";
 
 /**
  * The default [[Transition]] options.
@@ -49,6 +48,12 @@ export class TransitionService implements IHookRegistry {
   /** @hidden */
   public $view: ViewService;
 
+  /**
+   * This object has hook de-registration functions.
+   * This can be used by third parties libraries that wish to customize the behaviors
+   *
+   * @hidden
+   */
   _deregisterHookFns: {
     onExit: Function;
     onRetain: Function;
@@ -67,7 +72,8 @@ export class TransitionService implements IHookRegistry {
     this._deregisterHookFns = <any> {};
     this.registerTransitionHooks();
   }
-  
+
+  /** @hidden */
   private registerTransitionHooks() {
     let fns = this._deregisterHookFns;
 
@@ -75,13 +81,13 @@ export class TransitionService implements IHookRegistry {
     fns.redirectTo    = this.onStart({to: (state) => !!state.redirectTo}, redirectToHook);
     
     // Wire up onExit/Retain/Enter state hooks
-    fns.onExit        = this.onExit({exiting: state => !!state.onExit}, makeEnterExitRetainHook('onExit'));
-    fns.onRetain      = this.onRetain({retained: state => !!state.onRetain}, makeEnterExitRetainHook('onRetain'));
-    fns.onEnter       = this.onEnter({entering: state => !!state.onEnter}, makeEnterExitRetainHook('onEnter'));
+    fns.onExit        = this.onExit  ({exiting: state => !!state.onExit},     onExitHook);
+    fns.onRetain      = this.onRetain({retained: state => !!state.onRetain},  onRetainHook);
+    fns.onEnter       = this.onEnter ({entering: state => !!state.onEnter},   onEnterHook);
 
     // Wire up Resolve hooks
-    fns.eagerResolve  = this.onStart({}, $eagerResolvePath, {priority: 1000});
-    fns.lazyResolve   = this.onEnter({ entering: val(true) }, $lazyResolveState, {priority: 1000});
+    fns.eagerResolve  = this.onStart({}, eagerResolvePath, {priority: 1000});
+    fns.lazyResolve   = this.onEnter({ entering: val(true) }, lazyResolveState, {priority: 1000});
 
     // Wire up the View management hooks
     fns.loadViews     = this.onStart({}, loadEnteringViews);

@@ -2,7 +2,7 @@
  * Higher order functions
  *
  * @module common_hof
- */
+ */ /** */
 
 import {Predicate} from "./common";
 /**

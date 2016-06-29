@@ -1,9 +1,13 @@
+/** @module hooks */ /** */
 import {UrlRouter} from "../url/urlRouter";
 import {StateService} from "../state/stateService";
 import {Transition} from "../transition/transition";
-import {UiInjector} from "../common/interface";
-import {UiRouter} from "../router";
 
+/** 
+ * A [[TransitionHookFn]] which updates the URL after a successful transition
+ * 
+ * Registered using `transitionService.onSuccess({}, updateUrl);`
+ */
 export function updateUrl(transition: Transition) {
   let options = transition.options();
   let $state: StateService = transition.router.stateService;

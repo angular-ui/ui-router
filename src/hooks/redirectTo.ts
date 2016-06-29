@@ -1,11 +1,14 @@
+/** @module hooks */ /** */
 import {isString, isFunction} from "../common/predicates"
 import {Transition} from "../transition/transition";
 import {services} from "../common/coreservices";
 import {TargetState} from "../state/targetState";
 
 /**
- * A hook that redirects to a different state or params
+ * A [[TransitionHookFn]] that redirects to a different state or params
  *
+ * Registered using `transitionService.onStart({ to: (state) => !!state.redirectTo }, redirectHook);`
+ * 
  * See [[StateDeclaration.redirectTo]]
  */
 export const redirectToHook = (trans: Transition) => {
