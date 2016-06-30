@@ -1,3 +1,93 @@
+<a name="1.0.0-beta.1"></a>
+# [1.0.0-beta.1](https://github.com/angular-ui/ui-router/compare/1.0.0-alpha.5...v1.0.0-beta.1) (2016-06-30)
+
+# UI-Router 1.0 is in beta
+
+## UI-Router has a new home!
+
+https://ui-router.github.io/new-ui-router-site/
+
+
+# BREAKING CHANGES
+
+These breaking changes are for users upgrading from a previous alpha, not from 0.x legacy series.
+This list is extensive, but typical users won't be affected by most of these changes.
+
+The most common breaks will be #1 and #2
+
+1) BC-BREAK: renamed all Ui* (lowercase 'i') symbols to UI* (uppercase 'I') for more consistent naming.
+   - UiView -> UIView
+   - UiSref -> UISref (and related directives)
+   - UiInjector -> UIInjector
+
+2) BC-BREAK: Transition Hooks are no longer injected (onBefore/onStart/onExit/onRetain/onEnter/onFinish/onSuccess/onError)
+
+   Previously, a hook like `['$state', ($state) => $state.target('foo')]` would get `$state` injected.
+   Now, all hooks receive two parameters:
+   - transition: the current Transition, which has an `injector()` function
+   - state: for onEnter/onRetain/onExit hooks only, the State which the hook is being run for. This value will be null for onBefore/onStart/onFinish/onSuccess/onError hooks.
+
+   Refactor your hooks
+   from: `['$state', 'mySvc', ($state, mySvc) => mySvc.foo() ? $state.target('foo')] : true`
+   to: `(trans) => trans.injector().get('mySvc').foo() ? trans.router.stateService.target('foo') : true`
+
+   Note: for backwards compatiblity, angular 1 onEnter/onExit/onRetain hooks are still injected
+
+3) BC-BREAK: - The (internal API) State object's .resolve property is now an array of Resolvables, built from your state definitions by the StateBuilder
+
+4) BC-BREAK: - Removed the default resolve called `$resolve$`, which was added in a previous alpha
+
+5) BC-BREAK: - `Transition.addResolves()`  replaced with `Transition.addResolvable()`
+
+6) BC-BREAK: remove `ResolveContext.getResolvables()` in favor of `.getToken()`` and `.getResolvable()`
+
+7) BC-BREAK: remove `ResolveContext.invokeLater()` and `.invokeNow()`
+
+8) BC-BREAK: remove support for `JIT` resolves.  This also eliminated the need for the `loadAllControllerLocals` hook which was also removed
+
+9) BC-BREAK: Replaced `ViewConfig.node` with `ViewConfig.path`. Angular 1's `$(element).data('$uiView')` is affected. 
+   Previously the .node was the node for the view. Now the last element in the path is the node for the view.
+
+10) BC-BREAK: Nodes no longer have (stateful) `.resolveContext` properties. Instead, a new ResolveContext is wrapped over a Path of Nodes.  Removed `PathFactory.bindResolveContexts()`.
+
+11) BC-BREAK: ResolveContext.resolvePath returns a promise for resolved data as an array of tuples, instead of a promise for an object of resolved data.  Removed `ResolveContext.resolvePathElement()`.
+
+12) BC-BREAK: Removed ResolvePolicy enum in favor of the ResolvePolicy interface `{ when: "", async: "" }`
+
+13) BC-BREAK: renamed `ResolveContext.isolateRootTo` to `subContext`
+
+14) BC-BREAK: rename `UIRouterGlobals` class to `Globals`; add `UIRouterGlobals` back as an interface
+
+15) BC-BREAK: Moved `defaultErrorHandler` from `TransitionService` to `StateService`
+
+
+
+
+### Features
+
+* **Resolve:** Switch state.resolve to be an array of Resolvables ([6743a60](https://github.com/angular-ui/ui-router/commit/6743a60))
+* **Resolve:** support ng2-like provide object literals.  Support injection of arbitrary tokens, not just strings. ([a7e5ea6](https://github.com/angular-ui/ui-router/commit/a7e5ea6))
+* **Resolve:** support ng2-like provide object literals ([a7e5ea6](https://github.com/angular-ui/ui-router/commit/a7e5ea6))
+* **Transition:** expose the current `UiRouter` object as a public property ([52f1308](https://github.com/angular-ui/ui-router/commit/52f1308))
+* **redirectTo:** Process `redirectTo` property of a state as a redirect string/object/hook function ([6becb12](https://github.com/angular-ui/ui-router/commit/6becb12)), closes [#27](https://github.com/angular-ui/ui-router/issues/27) [#948](https://github.com/angular-ui/ui-router/issues/948)
+* **rejectFactory:** separate transition aborted and transition errored reject types ([55995fd](https://github.com/angular-ui/ui-router/commit/55995fd))
+* **ParamType:** allow a custom parameter Type to specify a default value for a parameter's `dynamic` property
+* **Resolvable:** Added a new Resolve Policy 'RXWAIT'.  If an Observable is returned, pass the observable as the value, but also wait for it to emit its first value
+
+### Bug Fixes
+
+* **ng2.pushState:** Properly match urls when base path set ([b9be2dc](https://github.com/angular-ui/ui-router/commit/b9be2dc)), closes [#2745](https://github.com/angular-ui/ui-router/issues/2745)
+* **ng2.UIRouterConfig:** Allow new UIRouter() to finish before configuring it ([a151f71](https://github.com/angular-ui/ui-router/commit/a151f71))
+* **ng2.UiView:** fix input resolve binding ([4f53f81](https://github.com/angular-ui/ui-router/commit/4f53f81))
+* **ng2.UIView:** Make routed to component appear *inside* UIView, not next to it. ([558fc80](https://github.com/angular-ui/ui-router/commit/558fc80))
+* **redirect:** fix bug where redirected transitions with reload: true got wrong resolve values copied ([bd0e3a3](https://github.com/angular-ui/ui-router/commit/bd0e3a3))
+* **Rejection:** Silence "Error: Uncaught (in Exception)" ([38432f4](https://github.com/angular-ui/ui-router/commit/38432f4)), closes [#2676](https://github.com/angular-ui/ui-router/issues/2676)
+* **Trace:** Fix error in console after $trace.enable() ([013c77a](https://github.com/angular-ui/ui-router/commit/013c77a)), closes [#2752](https://github.com/angular-ui/ui-router/issues/2752)
+* **ng2.UIView:** Trigger change detection once for routed components
+
+
+
+
 <a name="1.0.0-alpha.5"></a>
 # [1.0.0-alpha.5](https://github.com/angular-ui/ui-router/compare/1.0.0-alpha.3...v1.0.0-alpha.5) (2016-05-13)
 
