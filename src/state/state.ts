@@ -272,17 +272,17 @@ export class StateProvider {
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.state.$stateProvider#onInvalid
-   * @methodOf ui.router.state.$stateProvider
+   * Registers an invalid state handler
    *
-   * @description
-   * Registers a function to be injected and invoked when transitionTo has been called with an invalid
+   * Registers a function to be injected and invoked when [[StateService.transitionTo]] has been called with an invalid
    * state reference parameter
    *
    * This function can be injected with one some special values:
    * - **`$to$`**: TargetState
    * - **`$from$`**: TargetState
+   *
+   * Note: This API is subject to change.
+   * Replacement of dependency injection support with some alternative is likely.
    *
    * @param {function} callback
    *   The function which will be injected and invoked, when a matching transition is started.

@@ -33,6 +33,7 @@ export class StateService {
   get current()     { return this.router.globals.current; }
   get $current()    { return this.router.globals.$current; }
 
+  /** @hidden */
   constructor(private router: UIRouter) {
     let getters = ['current', '$current', 'params', 'transition'];
     let boundFns = Object.keys(StateService.prototype).filter(key => getters.indexOf(key) === -1);
@@ -40,12 +41,13 @@ export class StateService {
   }
 
   /**
-   * Invokes the onInvalid callbacks, in natural order.  Each callback's return value is checked in sequence
-   * until one of them returns an instance of TargetState.   The results of the callbacks are wrapped
-   * in $q.when(), so the callbacks may return promises.
+   * Handler for when [[transitionTo]] is called with an invalid state.
    *
-   * If a callback returns an TargetState, then it is used as arguments to $state.transitionTo() and
-   * the result returned.
+   * Invokes the [[onInvalid]] callbacks, in natural order.
+   * Each callback's return value is checked in sequence until one of them returns an instance of TargetState.
+   * The results of the callbacks are wrapped in $q.when(), so the callbacks may return promises.
+   *
+   * If a callback returns an TargetState, then it is used as arguments to $state.transitionTo() and the result returned.
    */
   private _handleInvalidTargetState(fromPath: PathNode[], $to$: TargetState) {
     let globals = <Globals> this.router.globals;
@@ -482,6 +484,10 @@ export class StateService {
   private _defaultErrorHandler: ((_error) => void) = function $defaultErrorHandler($error$) {
     if ($error$ instanceof Error && $error$.stack) {
       console.error($error$.stack);
+    } else if ($error$ instanceof Rejection) {
+      console.error($error$);
+      if ($error$.detail && $error$.detail.stack)
+        console.error($error$.detail.stack);
     } else {
       console.error($error$);
     }

@@ -94,7 +94,7 @@ export class TransitionHook {
         results.push(hooks[i].invokeHook());
       } catch (exception) {
         if (!swallowExceptions) {
-          return Rejection.aborted(exception).toPromise();
+          return Rejection.errored(exception).toPromise();
         }
 
         console.error("Swallowed exception during synchronous hook handler: " + exception); // TODO: What to do here?
