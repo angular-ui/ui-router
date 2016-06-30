@@ -1,7 +1,7 @@
 /** @module ng2_directives */ /** */
 import {
     Component, ComponentResolver, ComponentFactory,
-    ViewContainerRef, ReflectiveInjector, InputMetadata, ComponentMetadata
+    ViewContainerRef, ReflectiveInjector, InputMetadata, ComponentMetadata, ViewChild
 } from '@angular/core';
 import {provide} from "@angular/core";
 import {Input} from "@angular/core";
@@ -103,7 +103,7 @@ const ng2ComponentInputs = (ng2CompClass) => {
  */
 @Component({
   selector: 'ui-view, [ui-view]',
-  template: ''
+  template: `<template #componentTarget></template>`
   // styles: [`
   //   .done-true {
   //     text-decoration: line-through;
@@ -122,6 +122,7 @@ const ng2ComponentInputs = (ng2CompClass) => {
   // </div>`
 })
 export class UIView {
+  @ViewChild('componentTarget', {read: ViewContainerRef}) componentTarget;
   @Input('name') name: string;
   @Input('ui-view') set _name(val) { this.name = val; }
   componentRef: ComponentRef<any>;
@@ -192,7 +193,7 @@ export class UIView {
     let createComponent = (factory: ComponentFactory<any>) => {
       let parentInjector = this.viewContainerRef.injector;
       let childInjector = ReflectiveInjector.resolveAndCreate(rawProviders, parentInjector);
-      let ref = this.componentRef = this.viewContainerRef.createComponent(factory, undefined, childInjector);
+      let ref = this.componentRef = this.componentTarget.createComponent(factory, undefined, childInjector);
 
       // TODO: wire uiCanExit and uiOnParamsChanged callbacks
 
