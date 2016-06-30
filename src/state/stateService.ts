@@ -299,8 +299,12 @@ export class StateService {
 
         if (error.type === RejectType.ABORTED) {
           router.urlRouter.update();
+          return services.$q.reject(error);
         }
       }
+
+      var errorHandler = this.defaultErrorHandler();
+      errorHandler(error);
 
       return services.$q.reject(error);
     };
@@ -473,6 +477,40 @@ export class StateService {
       absolute: options.absolute
     });
   };
+
+  /** @hidden */
+  private _defaultErrorHandler: ((_error) => void) = function $defaultErrorHandler($error$) {
+    if ($error$ instanceof Error && $error$.stack) {
+      console.error($error$.stack);
+    } else {
+      console.error($error$);
+    }
+  };
+
+  /**
+   * Sets or gets the default [[transitionTo]] error handler.
+   *
+   * The error handler is called when a [[Transition]] is rejected or when any error occurred during the Transition.
+   * This includes errors caused by resolves and transition hooks.
+   *
+   * The built-in default error handler logs the error to the console.
+   *
+   * You can provide your own custom handler.
+   *
+   * @example
+   * ```js
+   *
+   * stateService.defaultErrorHandler(function() {
+   *   // Do not log transitionTo errors
+   * });
+   * ```
+   *
+   * @param handler a global error handler function
+   * @returns the current global error handler
+   */
+  defaultErrorHandler(handler?: (error) => void): (error) => void {
+    return this._defaultErrorHandler = handler || this._defaultErrorHandler;
+  }
 
   /**
    * @ngdoc function

@@ -118,28 +118,6 @@ export class TransitionService implements IHookRegistry {
   /** @hidden */
   getHooks  : (hookName: string) => IEventHook[];
 
-  /** @hidden */
-  private _defaultErrorHandler: ((_error) => void) = function $defaultErrorHandler($error$) {
-    if ($error$ instanceof Error) {
-      console.error($error$);
-    }
-  };
-
-  /**
-   * Sets or gets the default transition error handler.
-   *
-   * The error handler is called when a [[Transition]] is rejected and when any error occurred during the Transition.
-   * This includes errors caused by resolves and transition hooks.
-   *
-   * The built-in default error handler logs thrown javascript Errors to the console.
-   *
-   * @param handler a global error handler function
-   * @returns the current global error handler
-   */
-  defaultErrorHandler(handler?: (error) => void): (error) => void {
-    return this._defaultErrorHandler = handler || this._defaultErrorHandler;
-  }
-
   /**
    * Creates a new [[Transition]] object
    *

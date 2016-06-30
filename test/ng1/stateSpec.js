@@ -10,11 +10,10 @@ describe('state', function () {
 
   var $injector, $stateProvider, locationProvider, templateParams, template, ctrlName, errors;
 
-  beforeEach(module('ui.router', function($locationProvider, $transitionsProvider) {
+  beforeEach(module('ui.router', function($locationProvider) {
     errors = [];
     locationProvider = $locationProvider;
     $locationProvider.html5Mode(false);
-    $transitionsProvider.defaultErrorHandler(function(error) { errors.push(error); } );
   }));
 
   var log, logEvents, logEnterExit;
@@ -169,7 +168,8 @@ describe('state', function () {
     $provide.value('AppInjectable', AppInjectable);
   }));
 
-  beforeEach(inject(function (_$injector_) {
+  beforeEach(inject(function (_$injector_, $state) {
+    $state.defaultErrorHandler(function(error) { errors.push(error); } );
     $injector = _$injector_;
     log = '';
     logEvents = logEnterExit = false;
@@ -1855,7 +1855,7 @@ describe('exceptions in onEnter', function() {
   // Test for #2772
   it('trigger transition.onError', inject(function ($state, $q, $transitions) {
     var called;
-    $transitions.defaultErrorHandler(function() { });
+    $state.defaultErrorHandler(function() { });
     $transitions.onError({}, function() {
       called = true;
     });
