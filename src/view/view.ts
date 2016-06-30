@@ -5,7 +5,7 @@ import {isString, isArray} from "../common/predicates";
 import {trace} from "../common/trace";
 import {PathNode} from "../path/node";
 
-import {ActiveUiView, ViewContext, ViewConfig} from "./interface";
+import {ActiveUIView, ViewContext, ViewConfig} from "./interface";
 import {_ViewDeclaration} from "../state/interface";
 
 const match = (obj1, ...keys) =>
@@ -17,7 +17,7 @@ export type ViewConfigFactory = (path: PathNode[], decl: _ViewDeclaration) => Vi
  * The View service
  */
 export class ViewService {
-  private uiViews: ActiveUiView[] = [];
+  private uiViews: ActiveUIView[] = [];
   private viewConfigs: ViewConfig[] = [];
   private _rootContext;
   private _viewConfigFactories: { [key: string]: ViewConfigFactory } = {};
@@ -55,7 +55,7 @@ export class ViewService {
   };
 
   sync = () => {
-    let uiViewsByFqn: TypedMap<ActiveUiView> =
+    let uiViewsByFqn: TypedMap<ActiveUIView> =
         this.uiViews.map(uiv => [uiv.fqn, uiv]).reduce(applyPairs, <any> {});
 
     /**
@@ -113,7 +113,7 @@ export class ViewService {
      * - And the remaining segments [ "$default", "bar" ].join("."_ of the ViewConfig's target name match
      *   the tail of the ui-view's fqn "default.bar"
      */
-    const matches = (uiView: ActiveUiView) => (viewConfig: ViewConfig) => {
+    const matches = (uiView: ActiveUIView) => (viewConfig: ViewConfig) => {
       // Don't supply an ng1 ui-view with an ng2 ViewConfig, etc
       if (uiView.$type !== viewConfig.viewDecl.$type) return false;
 
@@ -136,7 +136,7 @@ export class ViewService {
     };
 
     // Return the number of dots in the fully qualified name
-    function uiViewDepth(uiView: ActiveUiView) {
+    function uiViewDepth(uiView: ActiveUIView) {
       return uiView.fqn.split(".").length;
     }
 
@@ -157,14 +157,14 @@ export class ViewService {
       return [uiView, matchingConfigs[0]];
     };
 
-    const configureUiView = ([uiView, viewConfig]) => {
+    const configureUIView = ([uiView, viewConfig]) => {
       // If a parent ui-view is reconfigured, it could destroy child ui-views.
       // Before configuring a child ui-view, make sure it's still in the active uiViews array.
       if (this.uiViews.indexOf(uiView) !== -1)
         uiView.configUpdated(viewConfig);
     };
 
-    this.uiViews.sort(depthCompare(uiViewDepth, 1)).map(matchingConfigPair).forEach(configureUiView);
+    this.uiViews.sort(depthCompare(uiViewDepth, 1)).map(matchingConfigPair).forEach(configureUIView);
   };
 
   /**
@@ -176,12 +176,12 @@ export class ViewService {
    *                   of the view.
    * @return {Function} Returns a de-registration function used when the view is destroyed.
    */
-  registerUiView(uiView: ActiveUiView) {
-    trace.traceViewServiceUiViewEvent("-> Registering", uiView);
+  registerUIView(uiView: ActiveUIView) {
+    trace.traceViewServiceUIViewEvent("-> Registering", uiView);
     let uiViews = this.uiViews;
     const fqnMatches = uiv => uiv.fqn === uiView.fqn;
     if (uiViews.filter(fqnMatches).length)
-      trace.traceViewServiceUiViewEvent("!!!! duplicate uiView named:", uiView);
+      trace.traceViewServiceUIViewEvent("!!!! duplicate uiView named:", uiView);
 
     uiViews.push(uiView);
     this.sync();
@@ -189,10 +189,10 @@ export class ViewService {
     return () => {
       let idx = uiViews.indexOf(uiView);
       if (idx <= 0) {
-        trace.traceViewServiceUiViewEvent("Tried removing non-registered uiView", uiView);
+        trace.traceViewServiceUIViewEvent("Tried removing non-registered uiView", uiView);
         return;
       }
-      trace.traceViewServiceUiViewEvent("<- Deregistering", uiView);
+      trace.traceViewServiceUIViewEvent("<- Deregistering", uiView);
       removeFrom(uiViews)(uiView);
     };
   };
@@ -223,7 +223,7 @@ export class ViewService {
    *
    * @returns the normalized uiViewName and uiViewContextAnchor that the view targets
    */
-  static normalizeUiViewTarget(context: ViewContext, rawViewName = "") {
+  static normalizeUIViewTarget(context: ViewContext, rawViewName = "") {
     // TODO: Validate incoming view name with a regexp to allow:
     // ex: "view.name@foo.bar" , "^.^.view.name" , "view.name@^.^" , "" ,
     // "@" , "$default@^" , "!$default.$default" , "!foo.bar"

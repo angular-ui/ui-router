@@ -3,7 +3,7 @@
 /**
  * An interface for getting values from dependency injection.
  */
-export interface UiInjector {
+export interface UIInjector {
   /**
    * Gets a value from the injector
    *

@@ -8,7 +8,7 @@ import {Input} from "@angular/core";
 import {ComponentRef} from "@angular/core";
 import {Type} from "@angular/core";
 
-import {UiRouter} from "../../router";
+import {UIRouter} from "../../router";
 import {trace} from "../../common/trace";
 import {Inject} from "@angular/core";
 import {ViewContext, ViewConfig} from "../../view/interface";
@@ -19,8 +19,8 @@ import {ResolveContext} from "../../resolve/resolveContext";
 /** @hidden */
 let id = 0;
 
-// These are provide()d as the string UiView.PARENT_INJECT
-export interface ParentUiViewInject {
+// These are provide()d as the string UIView.PARENT_INJECT
+export interface ParentUIViewInject {
   context: ViewContext;
   fqn: string;
 }
@@ -121,18 +121,18 @@ const ng2ComponentInputs = (ng2CompClass) => {
   //
   // </div>`
 })
-export class UiView {
+export class UIView {
   @Input('name') name: string;
   @Input('ui-view') set _name(val) { this.name = val; }
   componentRef: ComponentRef<any>;
   deregister: Function;
   uiViewData: any = {};
 
-  static PARENT_INJECT = "UiView.PARENT_INJECT";
+  static PARENT_INJECT = "UIView.PARENT_INJECT";
 
   constructor(
-      public router: UiRouter,
-      @Inject(UiView.PARENT_INJECT) public parent: ParentUiViewInject,
+      public router: UIRouter,
+      @Inject(UIView.PARENT_INJECT) public parent: ParentUIViewInject,
       public compResolver: ComponentResolver,
       public viewContainerRef: ViewContainerRef
   ) { }
@@ -151,7 +151,7 @@ export class UiView {
       config: undefined
     };
 
-    this.deregister = this.router.viewService.registerUiView(this.uiViewData);
+    this.deregister = this.router.viewService.registerUIView(this.uiViewData);
   }
 
   disposeLast() {
@@ -175,16 +175,16 @@ export class UiView {
     if (uiViewData.config === config) return;
     // This is a new viewconfig.  Destroy the old component
     this.disposeLast();
-    trace.traceUiViewConfigUpdated(uiViewData, config && config.viewDecl.$context);
+    trace.traceUIViewConfigUpdated(uiViewData, config && config.viewDecl.$context);
     uiViewData.config = config;
-    // The config may be undefined if there is nothing state currently targeting this UiView.
+    // The config may be undefined if there is nothing state currently targeting this UIView.
     if (!config) return;
 
     // Map resolves to "useValue providers"
     let context = new ResolveContext(config.path);
     let resolvables = context.getTokens().map(token => context.getResolvable(token)).filter(r => r.resolved);
     let rawProviders = resolvables.map(r => ({ provide: r.token, useValue: r.data }));
-    rawProviders.push({ provide: UiView.PARENT_INJECT, useValue: { context: config.viewDecl.$context, fqn: uiViewData.fqn } });
+    rawProviders.push({ provide: UIView.PARENT_INJECT, useValue: { context: config.viewDecl.$context, fqn: uiViewData.fqn } });
 
     // Get the component class from the view declaration. TODO: allow promises?
     let componentType = <Type> viewDecl.component;

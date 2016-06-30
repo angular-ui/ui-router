@@ -24,7 +24,7 @@ import {equalForKeys} from "../common/common";
 import {HrefOptions} from "./interface";
 import {bindFunctions} from "../common/common";
 import {Globals} from "../globals";
-import {UiRouter} from "../router";
+import {UIRouter} from "../router";
 import {StateParams} from "../params/stateParams"; // for params() return type
 
 export class StateService {
@@ -33,7 +33,7 @@ export class StateService {
   get current()     { return this.router.globals.current; }
   get $current()    { return this.router.globals.$current; }
 
-  constructor(private router: UiRouter) {
+  constructor(private router: UIRouter) {
     let getters = ['current', '$current', 'params', 'transition'];
     let boundFns = Object.keys(StateService.prototype).filter(key => getters.indexOf(key) === -1);
     bindFunctions(StateService.prototype, this, this, boundFns);

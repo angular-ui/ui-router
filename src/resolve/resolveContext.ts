@@ -11,7 +11,7 @@ import {State} from "../state/stateObject";
 import {PathFactory} from "../path/pathFactory";
 import {stringify} from "../common/strings";
 import {Transition} from "../transition/transition";
-import {UiInjector} from "../common/interface";
+import {UIInjector} from "../common/interface";
 
 var when = resolvePolicies.when;
 const ALL_WHENS = [when.EAGER, when.LAZY];
@@ -130,8 +130,8 @@ export class ResolveContext {
     return services.$q.all(promises);
   }
 
-  injector(): UiInjector {
-    return new UiInjectorImpl(this);
+  injector(): UIInjector {
+    return new UIInjectorImpl(this);
   }
 
   findNode(resolvable: Resolvable): PathNode {
@@ -168,7 +168,7 @@ export class ResolveContext {
   }
 }
 
-class UiInjectorImpl implements UiInjector {
+class UIInjectorImpl implements UIInjector {
   constructor(public context: ResolveContext) { }
   get(token: any) {
     var resolvable = this.context.getResolvable(token);

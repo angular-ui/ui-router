@@ -1,15 +1,15 @@
 /** @module ng2_directives */ /** */
-import {UiRouter} from "../../router";
+import {UIRouter} from "../../router";
 import {Directive, Inject, Input} from "@angular/core";
 import {Optional} from "@angular/core";
 import {ElementRef} from "@angular/core";
 import {Renderer} from "@angular/core";
-import {UiView, ParentUiViewInject} from "./uiView";
+import {UIView, ParentUIViewInject} from "./uiView";
 import {extend} from "../../common/common";
 
 /** @hidden */
 @Directive({ selector: 'a[uiSref]' })
-export class AnchorUiSref {
+export class AnchorUISref {
   constructor(public _el: ElementRef, public _renderer: Renderer) { }
   update(href) {
     this._renderer.setElementProperty(this._el.nativeElement, 'href', href);
@@ -61,15 +61,15 @@ export class AnchorUiSref {
   selector: '[uiSref]',
   host: { '(click)': 'go()' }
 })
-export class UiSref {
+export class UISref {
   @Input('uiSref') state: string;
   @Input('uiParams') params: any;
   @Input('uiOptions') options: any;
 
   constructor(
-      private _router: UiRouter,
-      @Inject(UiView.PARENT_INJECT) public parent: ParentUiViewInject,
-      @Optional() private _anchorUiSref: AnchorUiSref
+      private _router: UIRouter,
+      @Inject(UIView.PARENT_INJECT) public parent: ParentUIViewInject,
+      @Optional() private _anchorUISref: AnchorUISref
   ) { }
 
   set "uiSref"(val) { this.state = val; this.update(); }
@@ -81,8 +81,8 @@ export class UiSref {
   }
 
   update() {
-    if (this._anchorUiSref) {
-      this._anchorUiSref.update(this._router.stateService.href(this.state, this.params, this.getOptions()));
+    if (this._anchorUISref) {
+      this._anchorUISref.update(this._router.stateService.href(this.state, this.params, this.getOptions()));
     }
   }
 

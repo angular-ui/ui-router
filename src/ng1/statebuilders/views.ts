@@ -69,7 +69,7 @@ export function ng1ViewsBuilder(state: State) {
     config.$context = state;
     config.$name = name;
 
-    let normalized = ViewService.normalizeUiViewTarget(config.$context, config.$name);
+    let normalized = ViewService.normalizeUIViewTarget(config.$context, config.$name);
     config.$uiViewName = normalized.uiViewName;
     config.$uiViewContextAnchor = normalized.uiViewContextAnchor;
 

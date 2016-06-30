@@ -3,7 +3,7 @@
 import {extend, unnestR, filter, tail} from "../../common/common";
 import {isDefined, isFunction, isString} from "../../common/predicates";
 import {trace} from "../../common/trace";
-import {ActiveUiView} from "../../view/interface";
+import {ActiveUIView} from "../../view/interface";
 import {Ng1ViewConfig} from "../statebuilders/views";
 import {TransitionService} from "../../transition/transitionService";
 import {parse} from "../../common/hof";
@@ -17,9 +17,9 @@ import {Ng1Controller, Ng1StateDeclaration} from "../interface";
 import {getLocals} from "../services";
 
 /** @hidden */
-export type UiViewData = {
+export type UIViewData = {
   $cfg: Ng1ViewConfig;
-  $uiView: ActiveUiView;
+  $uiView: ActiveUIView;
 
   $animEnter: Promise<any>;
   $animLeave: Promise<any>;
@@ -203,7 +203,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
             inherited     = $element.inheritedData('$uiView') || rootData,
             name          = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default';
 
-        let activeUiView: ActiveUiView = {
+        let activeUIView: ActiveUIView = {
           $type: 'ng1',
           id: directive.count++,                                   // Global sequential ID for ui-view tags added to DOM
           name: name,                                              // ui-view name (<div ui-view="name"></div>
@@ -215,43 +215,43 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
           }
         };
 
-        trace.traceUiViewEvent("Linking", activeUiView);
+        trace.traceUIViewEvent("Linking", activeUIView);
 
         function configUpdatedCallback(config?: Ng1ViewConfig) {
           if (config && !(config instanceof Ng1ViewConfig)) return;
           if (configsEqual(viewConfig, config)) return;
-          trace.traceUiViewConfigUpdated(activeUiView, config && config.viewDecl && config.viewDecl.$context);
+          trace.traceUIViewConfigUpdated(activeUIView, config && config.viewDecl && config.viewDecl.$context);
 
           viewConfig = config;
           updateView(config);
         }
 
-        $element.data('$uiView', { $uiView: activeUiView });
+        $element.data('$uiView', { $uiView: activeUIView });
 
         updateView();
 
-        unregister = $view.registerUiView(activeUiView);
+        unregister = $view.registerUIView(activeUIView);
         scope.$on("$destroy", function() {
-          trace.traceUiViewEvent("Destroying/Unregistering", activeUiView);
+          trace.traceUIViewEvent("Destroying/Unregistering", activeUIView);
           unregister();
         });
 
         function cleanupLastView() {
           if (previousEl) {
-            trace.traceUiViewEvent("Removing (previous) el", previousEl.data('$uiView'));
+            trace.traceUIViewEvent("Removing (previous) el", previousEl.data('$uiView'));
             previousEl.remove();
             previousEl = null;
           }
 
           if (currentScope) {
-            trace.traceUiViewEvent("Destroying scope", activeUiView);
+            trace.traceUIViewEvent("Destroying scope", activeUIView);
             currentScope.$destroy();
             currentScope = null;
           }
 
           if (currentEl) {
             let _viewData = currentEl.data('$uiView');
-            trace.traceUiViewEvent("Animate out", _viewData);
+            trace.traceUIViewEvent("Animate out", _viewData);
             renderer.leave(currentEl, function() {
               _viewData.$$animLeave.resolve();
               previousEl = null;
@@ -264,19 +264,19 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
 
         function updateView(config?: Ng1ViewConfig) {
           let newScope = scope.$new();
-          trace.traceUiViewScopeCreated(activeUiView, newScope);
+          trace.traceUIViewScopeCreated(activeUIView, newScope);
           let animEnter = $q.defer(), animLeave = $q.defer();
           
-          let $uiViewData: UiViewData = {
+          let $uiViewData: UIViewData = {
             $cfg: config,
-            $uiView: activeUiView,
+            $uiView: activeUIView,
             $animEnter: animEnter.promise,
             $animLeave: animLeave.promise,
             $$animLeave: animLeave
           };
 
           let cloned = $transclude(newScope, function(clone) {
-            renderer.enter(clone.data('$uiView', $uiViewData), $element, function onUiViewEnter() {
+            renderer.enter(clone.data('$uiView', $uiViewData), $element, function onUIViewEnter() {
               animEnter.resolve();
               if (currentScope) currentScope.$emit('$viewContentAnimationEnded');
 
@@ -323,12 +323,12 @@ function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,
       let initial = tElement.html();
 
       return function (scope, $element) {
-        let data: UiViewData = $element.data('$uiView');
+        let data: UIViewData = $element.data('$uiView');
         if (!data) return;
 
         let cfg: Ng1ViewConfig = data.$cfg || <any> { viewDecl: {} };
         $element.html(cfg.template || initial);
-        trace.traceUiViewFill(data.$uiView, $element.html());
+        trace.traceUIViewFill(data.$uiView, $element.html());
 
         let link = $compile($element.contents());
         let controller = cfg.controller;

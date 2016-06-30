@@ -8,7 +8,7 @@ import {Transition} from "../transition/transition";
 import {TransitionStateHookFn} from "../transition/interface";
 import {ResolvePolicy, ResolvableLiteral} from "../resolve/interface";
 import {Resolvable} from "../resolve/resolvable";
-import {UiInjector} from "../common/interface";
+import {UIInjector} from "../common/interface";
 import {TargetState} from "./targetState";
 
 export type StateOrName = (string|StateDeclaration|State);

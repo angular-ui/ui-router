@@ -1,12 +1,12 @@
 import {
-    UiRouter, TransitionService, StateService, State, PathNode, tail, PathFactory
+    UIRouter, TransitionService, StateService, State, PathNode, tail, PathFactory
 } from "../../src/core";
 
 import {tree2Array} from "../stateHelper.ts";
 import "../../src/justjs";
 
 describe('HookBuilder:', function() {
-  let uiRouter: UiRouter = null;
+  let uiRouter: UIRouter = null;
   let $trans: TransitionService = null;
   let $state: StateService = null;
   let root: State = null;
@@ -17,7 +17,7 @@ describe('HookBuilder:', function() {
 
   beforeEach(() => {
     log = "";
-    uiRouter = new UiRouter();
+    uiRouter = new UIRouter();
     $trans = uiRouter.transitionService;
     $state = uiRouter.stateService;
     root = uiRouter.stateRegistry.root();
@@ -40,7 +40,7 @@ describe('HookBuilder:', function() {
 
   let trans, trans2, hb, hb2, callback;
   beforeEach(function() {
-    // Clean out the default UiRouter onBefore hooks
+    // Clean out the default UIRouter onBefore hooks
     uiRouter.transitionService.getHooks("onBefore").length = 0;
 
     // Transition from 'A' to 'A.B.C'

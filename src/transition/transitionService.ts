@@ -15,7 +15,7 @@ import {loadEnteringViews, activateViews} from "../hooks/views";
 import {updateUrl} from "../hooks/url";
 import {redirectToHook} from "../hooks/redirectTo";
 import {onExitHook, onRetainHook, onEnterHook} from "../hooks/onEnterExitRetain";
-import {UiRouter} from "../router";
+import {UIRouter} from "../router";
 import {val} from "../common/hof";
 
 /**
@@ -42,7 +42,7 @@ export let defaultTransOpts: TransitionOptions = {
  * - It allows the default transition error handler to be set.
  * - It also has a factory function for creating new [[Transition]] objects, (used internally by the [[StateService]]).
  *
- * At bootstrap, [[UiRouter]] creates a single instance (singleton) of this class.
+ * At bootstrap, [[UIRouter]] creates a single instance (singleton) of this class.
  */
 export class TransitionService implements IHookRegistry {
   /** @hidden */
@@ -66,7 +66,7 @@ export class TransitionService implements IHookRegistry {
     redirectTo: Function;
   };
 
-  constructor(private _router: UiRouter) {
+  constructor(private _router: UIRouter) {
     this.$view = _router.viewService;
     HookRegistry.mixin(new HookRegistry(), this);
     this._deregisterHookFns = <any> {};

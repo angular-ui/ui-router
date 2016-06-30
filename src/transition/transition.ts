@@ -26,9 +26,9 @@ import {Resolvable} from "../resolve/resolvable";
 import {ViewConfig} from "../view/interface";
 import {Rejection} from "./rejectFactory";
 import {ResolveContext} from "../resolve/resolveContext";
-import {UiRouter} from "../router";
+import {UIRouter} from "../router";
 import {Globals} from "../globals";
-import {UiInjector} from "../common/interface";
+import {UIInjector} from "../common/interface";
 
 
 let transitionCount = 0;
@@ -49,11 +49,11 @@ export class Transition implements IHookRegistry {
   success: boolean;
 
   /**
-   * A reference to the [[UiRouter]] instance
+   * A reference to the [[UIRouter]] instance
    *
    * This reference can be used to access the router services, such as the [[StateService]]
    */
-  router: UiRouter;
+  router: UIRouter;
 
   /** @hidden */
   private _deferred = services.$q.defer();
@@ -95,9 +95,9 @@ export class Transition implements IHookRegistry {
    * @param fromPath The path of [[PathNode]]s from which the transition is leaving.  The last node in the `fromPath`
    *        encapsulates the "from state".
    * @param targetState The target state and parameters being transitioned to (also, the transition options)
-   * @param router The [[UiRouter]] instance
+   * @param router The [[UIRouter]] instance
    */
-  constructor(fromPath: PathNode[], targetState: TargetState, router: UiRouter) {
+  constructor(fromPath: PathNode[], targetState: TargetState, router: UIRouter) {
     this.router = router;
     if (!targetState.valid()) {
       throw new Error(targetState.error());
@@ -115,7 +115,7 @@ export class Transition implements IHookRegistry {
     PathFactory.applyViewConfigs(router.transitionService.$view, this._treeChanges.to, enteringStates);
 
     let rootResolvables: Resolvable[] = [
-      new Resolvable(UiRouter, () => router, [], undefined, router),
+      new Resolvable(UIRouter, () => router, [], undefined, router),
       new Resolvable(Transition, () => this, [], undefined, this),
       new Resolvable('$transition$', () => this, [], undefined, this),
       new Resolvable('$stateParams', () => this.params(), [], undefined, this.params())
@@ -179,19 +179,19 @@ export class Transition implements IHookRegistry {
 
 
   /**
-   * Creates a [[UiInjector]] Dependency Injector
+   * Creates a [[UIInjector]] Dependency Injector
    *
    * Returns a Dependency Injector for the Transition's target state (to state).
    * The injector provides resolve values which the target state has access to.
    *
-   * The `UiInjector` can also provide values from the native root/global injector (ng1/ng2).
+   * The `UIInjector` can also provide values from the native root/global injector (ng1/ng2).
    *
    * If a `state` is provided, the injector that is returned will be limited to resolve values that the provided state has access to.
    *
    * @param state Limits the resolves provided to only the resolves the provided state has access to.
-   * @returns a [[UiInjector]]
+   * @returns a [[UIInjector]]
    */
-  injector(state?: StateOrName): UiInjector {
+  injector(state?: StateOrName): UIInjector {
     let path: PathNode[] = this.treeChanges().to;
     if (state) path = PathFactory.subPath(path, node => node.state === state || node.state.name === state);
     return new ResolveContext(path).injector();

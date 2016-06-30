@@ -11,7 +11,7 @@ export interface ViewContext {
 }
 
 /** @hidden */
-export interface ActiveUiView {
+export interface ActiveUIView {
   /** type of framework, e.g., "ng1" or "ng2" */
   $type: string;
   /** An auto-incremented id */

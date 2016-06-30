@@ -1,16 +1,16 @@
 /**
  * The UI-Router Angular 2 directives:
  *
- * - [[UiView]]: A viewport for routed components
- * - [[UiSref]]: A state ref to a target state; navigates when clicked
- * - [[UiSrefActive]]: (and `UiSrefActiveEq`) Adds a css class when a UiSref's target state (or a child state) is active
+ * - [[UIView]]: A viewport for routed components
+ * - [[UISref]]: A state ref to a target state; navigates when clicked
+ * - [[UISrefActive]]: (and `UISrefActiveEq`) Adds a css class when a UISref's target state (or a child state) is active
  *
  * @preferred @module ng2_directives
  */ /** */
-import {UiSref, AnchorUiSref} from "./uiSref";
-import {UiSrefActive} from "./uiSrefActive";
-import {UiView} from "./uiView";
-import {UiSrefStatus} from "./uiSrefStatus";
+import {UISref, AnchorUISref} from "./uiSref";
+import {UISrefActive} from "./uiSrefActive";
+import {UIView} from "./uiView";
+import {UISrefStatus} from "./uiSrefStatus";
 
 export * from "./uiView";
 export * from "./uiSref";
@@ -30,4 +30,4 @@ export * from "./uiSrefActive";
  * })
  * ```
  */
-export let UIROUTER_DIRECTIVES = [UiSref, AnchorUiSref, UiView, UiSrefActive, UiSrefStatus];
+export let UIROUTER_DIRECTIVES = [UISref, AnchorUISref, UIView, UISrefActive, UISrefStatus];

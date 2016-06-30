@@ -32,7 +32,7 @@
 import {parse} from "../common/hof";
 import {isNumber} from "../common/predicates";
 import {Transition}  from "../transition/transition";
-import {ActiveUiView, ViewConfig}  from "../view/interface";
+import {ActiveUIView, ViewConfig}  from "../view/interface";
 import {stringify, functionToString, maxLength, padString} from "./strings";
 import {Resolvable} from "../resolve/resolvable";
 import {PathNode} from "../path/node";
@@ -211,27 +211,27 @@ export class Trace {
   }
 
   /** called by ui-router code */
-  traceUiViewEvent(event: string, viewData: ActiveUiView, extra = "") {
+  traceUIViewEvent(event: string, viewData: ActiveUIView, extra = "") {
     if (!this.enabled(Category.UIVIEW)) return;
     console.log(`ui-view: ${padString(30, event)} ${uiViewString(viewData)}${extra}`);
   }
 
   /** called by ui-router code */
-  traceUiViewConfigUpdated(viewData: ActiveUiView, context) {
+  traceUIViewConfigUpdated(viewData: ActiveUIView, context) {
     if (!this.enabled(Category.UIVIEW)) return;
-    this.traceUiViewEvent("Updating", viewData, ` with ViewConfig from context='${context}'`);
+    this.traceUIViewEvent("Updating", viewData, ` with ViewConfig from context='${context}'`);
   }
 
   /** called by ui-router code */
-  traceUiViewScopeCreated(viewData: ActiveUiView, newScope) {
+  traceUIViewScopeCreated(viewData: ActiveUIView, newScope) {
     if (!this.enabled(Category.UIVIEW)) return;
-    this.traceUiViewEvent("Created scope for", viewData, `, scope #${newScope.$id}`);
+    this.traceUIViewEvent("Created scope for", viewData, `, scope #${newScope.$id}`);
   }
 
   /** called by ui-router code */
-  traceUiViewFill(viewData: ActiveUiView, html) {
+  traceUIViewFill(viewData: ActiveUIView, html) {
     if (!this.enabled(Category.UIVIEW)) return;
-    this.traceUiViewEvent("Fill", viewData, ` with: ${maxLength(200, html)}`);
+    this.traceUIViewEvent("Fill", viewData, ` with: ${maxLength(200, html)}`);
   }
 
   /** called by ui-router code */
@@ -241,7 +241,7 @@ export class Trace {
   }
 
   /** called by ui-router code */
-  traceViewServiceUiViewEvent(event: string, viewData: ActiveUiView) {
+  traceViewServiceUIViewEvent(event: string, viewData: ActiveUIView) {
     if (!this.enabled(Category.VIEWCONFIG)) return;
     console.log(`VIEWCONFIG: ${event} ${uiViewString(viewData)}`);
   }

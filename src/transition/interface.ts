@@ -6,7 +6,7 @@ import {Transition} from "./transition";
 import {State} from "../state/stateObject";
 import {PathNode} from "../path/node";
 import {TargetState} from "../state/targetState";
-import {UiInjector} from "../common/interface";
+import {UIInjector} from "../common/interface";
 
 /**
  * The TransitionOptions object can be used to change the behavior of a transition.

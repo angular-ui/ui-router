@@ -21,5 +21,5 @@ export class MatcherConfig {
   }
 }
 
-// TODO: Do not export global instance; create one in UiRouter() constructor
+// TODO: Do not export global instance; create one in UIRouter() constructor
 export let matcherConfig = new MatcherConfig();

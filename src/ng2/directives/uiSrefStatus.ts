@@ -1,7 +1,7 @@
 /** @module ng2_directives */ /** */
 import {Directive, Output, EventEmitter} from "@angular/core";
 import {StateService} from "../../state/stateService";
-import {UiSref} from "./uiSref";
+import {UISref} from "./uiSref";
 import {PathNode} from "../../path/node";
 import {TransitionService} from "../../transition/transitionService";
 import {Transition} from "../../transition/transition";
@@ -9,7 +9,7 @@ import {TargetState} from "../../state/targetState";
 import {TreeChanges} from "../../transition/interface";
 import {State} from "../../state/stateObject";
 import {anyTrueR, tail, unnestR} from "../../common/common";
-import {UiRouterGlobals, Globals} from "../../globals";
+import {UIRouterGlobals, Globals} from "../../globals";
 import {Param} from "../../params/param";
 import {PathFactory} from "../../path/pathFactory";
 
@@ -28,9 +28,9 @@ export interface SrefStatus {
 }
 
 /**
- * A directive (which pairs with a [[UiSref]]) and emits events when the UiSref status changes.
+ * A directive (which pairs with a [[UISref]]) and emits events when the UISref status changes.
  *
- * This directive is used by the [[UiSrefActive]] directive.
+ * This directive is used by the [[UISrefActive]] directive.
  * 
  * The event emitted is of type [[SrefStatus]], and has boolean values for `active`, `exact`, `entering`, and `exiting`
  * 
@@ -39,7 +39,7 @@ export interface SrefStatus {
  * This API is subject to change.
  */
 @Directive({ selector: '[uiSrefStatus],[uiSrefActive],[uiSrefActiveEq]' })
-export class UiSrefStatus {
+export class UISrefStatus {
   private _deregisterHook;
 
   // current statuses of the state/params the uiSref directive is linking to
@@ -55,7 +55,7 @@ export class UiSrefStatus {
   constructor(transitionService: TransitionService,
               private _globals: Globals,
               private _stateService: StateService,
-              public sref: UiSref) {
+              public sref: UISref) {
     this._deregisterHook = transitionService.onStart({}, $transition$ => this.processTransition($transition$));
   }
 
