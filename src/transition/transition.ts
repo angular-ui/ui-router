@@ -247,6 +247,19 @@ export class Transition implements IHookRegistry {
   }
 
   /**
+   * Gets a [[Resolvable]] primitive
+   *
+   * This is a lower level API that returns a [[Resolvable]] from the Transition for a given token.
+   *
+   * @param token the DI token
+   *
+   * @returns the [[Resolvable]] in the transition's to path, or undefined
+   */
+  getResolvable(token: any): Resolvable {
+    return new ResolveContext(this._treeChanges.to).getResolvable(token);
+  }
+
+  /**
    * Dynamically adds a new [[Resolvable]] (`resolve`) to this transition.
    *
    * @param resolvable an [[Resolvable]] object
