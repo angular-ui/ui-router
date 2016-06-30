@@ -1,7 +1,7 @@
 {
   "name": "ui-router",
   "description": "State-based routing for Javascript",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0-beta.1",
   "scripts": {
     "test": "npm run test:integrate",
     "watch": "node_modules/watch/cli.js 'npm run test' src test",
@@ -20,7 +20,7 @@
 
     "test:integrate": "tsc && npm run test:core && npm run test:ng12 && npm run test:ng13 && npm run test:ng14 && npm run test:ng15"
   },
-  "homepage": "http://angular-ui.github.com/ui-router",
+  "homepage": "https://ui-router.github.io",
   "contributors": [
     {
       "name": "Nate Abele",
@@ -42,8 +42,8 @@
   ],
   "maintainers": [
     {
-      "name": "AngularUI",
-      "web": "https://github.com/angular-ui?tab=members"
+      "name": "UIRouter Team",
+      "web": "https://github.com/ui-router?tab=members"
     }
   ],
   "repository": {
@@ -58,11 +58,11 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@angular/common": "=2.0.0-rc.1",
-    "@angular/compiler": "=2.0.0-rc.1",
-    "@angular/core": "=2.0.0-rc.1",
-    "@angular/platform-browser": "=2.0.0-rc.1",
-    "@angular/platform-browser-dynamic": "=2.0.0-rc.1",
+    "@angular/common": "=2.0.0-rc.3",
+    "@angular/compiler": "=2.0.0-rc.3",
+    "@angular/core": "=2.0.0-rc.3",
+    "@angular/platform-browser": "=2.0.0-rc.3",
+    "@angular/platform-browser-dynamic": "=2.0.0-rc.3",
     "babel-core": "^5.8.14",
     "clone": "^1.0.2",
     "conventional-changelog": "^1.1.0",
