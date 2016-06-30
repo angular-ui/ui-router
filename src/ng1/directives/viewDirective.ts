@@ -155,7 +155,7 @@ export type UIViewData = {
  * });
  * ```
  */
-let uiViewNg1 = ['$view', '$animate', '$uiViewScroll', '$interpolate', '$q',
+let uiView = ['$view', '$animate', '$uiViewScroll', '$interpolate', '$q',
 function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,   $q) {
 
   function getRenderer(attrs, scope) {
@@ -430,5 +430,5 @@ function registerControllerCallbacks($transitions: TransitionService, controller
   }
 }
 
-angular.module('ui.router.state').directive('uiView', uiViewNg1);
+angular.module('ui.router.state').directive('uiView', uiView);
 angular.module('ui.router.state').directive('uiView', $ViewDirectiveFill);

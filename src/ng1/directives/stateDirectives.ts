@@ -70,25 +70,24 @@ function defaultOpts(el, $state) {
 /**
  * `ui-sref`: A directive for linking to a state
  *
- * A directive that binds a link (`<a>` tag) to a state. If the state has an associated
- * URL, the directive will automatically generate & update the `href` attribute via
- * the {@link ui.router.state.$state#methods_href $state.href()} method. Clicking
- * the link will trigger a state transition with optional parameters.
+ * A directive that binds a link (`<a>` tag) to a state.
+ * If the state has an associated URL, the directive will automatically generate and
+ * update the `href` attribute via the [[StateService.href]]  method.
+ * Clicking the link will trigger a state transition with optional parameters.
  *
  * Also middle-clicking, right-clicking, and ctrl-clicking on the link will be
  * handled natively by the browser.
  *
  * You can also use relative state paths within ui-sref, just like the relative
- * paths passed to `$state.go()`. You just need to be aware that the path is relative
- * to the state that the link lives in, in other words the state that loaded the
- * template containing the link.
+ * paths passed to `$state.go()`.
+ * You just need to be aware that the path is relative to the state that the link lives in.
+ * In other words, the state that created the view containing the link.
  *
- * You can specify options to pass to {@link ui.router.state.$state#go $state.go()}
- * using the `ui-sref-opts` attribute. Options are restricted to `location`, `inherit`,
- * and `reload`.
+ * You can specify options to pass to [[StateService.go]] using the `ui-sref-opts` attribute.
+ * Options are restricted to `location`, `inherit`, and `reload`.
  *
- * Here's an example of how you'd use ui-sref and how it would compile. If you have the
- * following template:
+ * Here's an example of how you'd use ui-sref and how it would compile.
+ * If you have the following template:
  *
  * @example
  * ```html
@@ -130,7 +129,7 @@ function defaultOpts(el, $state) {
  * @param {string} ui-sref 'stateName' can be any valid absolute or relative state
  * @param {Object} ui-sref-opts options to pass to [[StateService.go]]
  */
-let uiSrefNg1 = ['$state', '$timeout',
+let uiSref = ['$state', '$timeout',
 function $StateRefDirective($state, $timeout) {
   return {
     restrict: 'A',
@@ -182,7 +181,7 @@ function $StateRefDirective($state, $timeout) {
  * @param {Object} ui-state-params params to pass to [[StateService.href]]
  * @param {Object} ui-state-opts options to pass to [[StateService.go]]
  */
-let uiStateNg1 = ['$state', '$timeout',
+let uiState = ['$state', '$timeout',
 function $StateRefDynamicDirective($state, $timeout) {
   return {
     restrict: 'A',
@@ -294,7 +293,7 @@ function $StateRefDynamicDirective($state, $timeout) {
  * to both the <div> and <a> elements. It is important to note that the state
  * names/globs passed to ui-sref-active shadow the state provided by ui-sref.
  */
-let uiSrefActiveNg1 = ['$state', '$stateParams', '$interpolate', '$transitions',
+let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$transitions',
 function $StateRefActiveDirective($state, $stateParams, $interpolate, $transitions) {
   return  {
     restrict: "A",
@@ -403,7 +402,7 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate, $transitio
 }];
 
 angular.module('ui.router.state')
-    .directive('uiSref', uiSrefNg1)
-    .directive('uiSrefActive', uiSrefActiveNg1)
-    .directive('uiSrefActiveEq', uiSrefActiveNg1)
-    .directive('uiState', uiStateNg1);
+    .directive('uiSref', uiSref)
+    .directive('uiSrefActive', uiSrefActive)
+    .directive('uiSrefActiveEq', uiSrefActive)
+    .directive('uiState', uiState);

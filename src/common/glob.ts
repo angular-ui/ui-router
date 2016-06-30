@@ -1,4 +1,9 @@
-/** @module state */ /** for typedoc */
+/** @module common */ 
+/** 
+ * Matches state names using glob-like patterns.
+ * 
+ * See: [[StateService.includes]]
+ */
 export class Glob {
   text: string;
   glob: Array<string>;
