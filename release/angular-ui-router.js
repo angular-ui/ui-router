@@ -2094,7 +2094,9 @@ function $UrlRouterProvider(   $locationProvider,   $urlMatcherFactory) {
       listen: function() {
         return listen();
       },
-
+      // Update type string to separate 'read' and 'defaultPrevented' updates
+      // An update triggered by'defaultPrevented' should not set the $location.url as this breaks next navigation
+      // See issue #1525.
       update: function(type) {
         if (type === 'read') {
           location = $location.url();
@@ -3233,6 +3235,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
           $urlRouter.push(to.navigable.url, toParams, {
             $$avoidResync: true, replace: options.location === 'replace'
           });
+          /// Tell the urlRouter to trigger an update with 'read'. See issue #1525
           $urlRouter.update('read');
         }
         $state.transition = null;
@@ -3276,7 +3279,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          */
         if ($rootScope.$broadcast('$stateChangeStart', to.self, toParams, from.self, fromParams, options).defaultPrevented) {
           $rootScope.$broadcast('$stateChangeCancel', to.self, toParams, from.self, fromParams);
-          //Don't update and resync url if there's been a new transition started. see issue #2238, #600
+          // Don't update and resync url if there's been a new transition started. see issue #2238, #600
+          // Trigger an update with 'default' prevented. See issue #1525
           if ($state.transition == null) $urlRouter.update('defaultPrevented');
           return TransitionPrevented;
         }
@@ -3356,6 +3360,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
          */
           $rootScope.$broadcast('$stateChangeSuccess', to.self, toParams, from.self, fromParams);
         }
+        // Tell the urlRouter to trigger an update with 'read'. See issue #1525
         $urlRouter.update('read');
 
         return $state.current;

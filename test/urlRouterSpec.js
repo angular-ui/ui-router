@@ -194,7 +194,7 @@ describe("UrlRouter", function () {
         $location.url('/old');
 
         spyOn($location, 'url').andCallThrough();
-        $urlRouter.update('read');
+        $urlRouter.update(true);
         expect($location.url).toHaveBeenCalled();
 
         $location.url('/new');

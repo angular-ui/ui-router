@@ -1,3 +1,20 @@
+<a name="0.3.1"></a>
+### 0.3.1 (2016-06-03)
+
+# obscure BC-BREAK 
+
+If you're using `element.data('$uiView').$animEnter`, switch to `element.data('$uiViewAnim').$animEnter`
+This was necessary in order to fix #2763
+
+#### Bug Fixes
+
+* **state:**
+  * fire $stateChangeError if onEnter/onExit throws. closes #2772 ([a5756c38](https://github.com/angular-ui/ui-router/commit/a5756c38a282bd2556ed5faaf870d6e493722d1b))
+  * fail transition on exceptions in transition handler ([8222fb0e](https://github.com/angular-ui/ui-router/commit/8222fb0e7fd5eaaf6382f36db9ee9077a7bdbc6d))
+* **uiView:** separate $uiView and $uiViewAnim element.data() ([d3502f3c](https://github.com/angular-ui/ui-router/commit/d3502f3c0cb6a63f4b80aac91428f748b6460396), closes [#2763](https://github.com/angular-ui/ui-router/issues/2763))
+  * Fixes this error: `Cannot read property 'name' of undefined at getUiViewName`
+
+
 <a name="0.3.0"></a>
 ## 0.3.0 (2016-05-14)
 
