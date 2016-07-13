@@ -5,19 +5,15 @@
   "scripts": {
     "test": "npm run test:integrate",
     "watch": "node_modules/watch/cli.js 'npm run test' src test",
-
     "test:core": "karma start config/karma.core.js",
     "debug:core": "karma start config/karma.core.js --singleRun=false --browsers=Chrome --autoWatch=true --autoWatchInterval=1",
-
     "test:ng1": "karma start config/karma.ng15.js",
     "debug:ng1": "karma start config/karma.ng15.js --singleRun=false --browsers=Chrome --autoWatch=true --autoWatchInterval=1",
     "watch:ng1": "node_modules/watch/cli.js 'npm run test:ng1' src test",
-
     "test:ng12": "karma start config/karma.ng12.js",
     "test:ng13": "karma start config/karma.ng13.js",
     "test:ng14": "karma start config/karma.ng14.js",
     "test:ng15": "karma start config/karma.ng15.js",
-
     "test:integrate": "tsc && npm run test:core && npm run test:ng12 && npm run test:ng13 && npm run test:ng14 && npm run test:ng15"
   },
   "homepage": "https://ui-router.github.io",
@@ -71,6 +67,7 @@
     "es6-promise": "^3.0.2",
     "es6-shim": "^0.35.0",
     "faithful-exec": "~0.1.0",
+    "glob": "^7.0.5",
     "grunt": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-connect": "~0.7.1",
@@ -98,7 +95,7 @@
     "reflect-metadata": "=0.1.2",
     "remap-istanbul": "^0.6.3",
     "rxjs": "=5.0.0-beta.6",
-    "shelljs": "~0.6.0",
+    "shelljs": "^0.7.0",
     "systemjs": "^0.18.4",
     "ts-loader": "^0.8.1",
     "tslint": "=2.5.0",
