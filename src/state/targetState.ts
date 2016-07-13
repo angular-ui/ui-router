@@ -5,6 +5,7 @@ import {ParamsOrArray} from "../params/interface";
 import {TransitionOptions} from "../transition/interface";
 
 import {State} from "./stateObject";
+import {toJson} from "../common/common";
 
 /**
  * @ngdoc object
@@ -74,5 +75,9 @@ export class TargetState {
       return `No such state '${this.name()}'`;
     if (!this._definition.self)
       return `State '${this.name()}' has an invalid definition`;
+  }
+
+  toString() {
+    return `'${this.name()}'${toJson(this.params())}`;
   }
 }
