@@ -451,10 +451,9 @@ export interface StateDeclaration {
    *   }
    * })
    */
-  redirectTo?: (
-      ($transition$: Transition) => TargetState |
-      { state: (string|StateDeclaration), params: { [key: string]: any }} |
-      string
+  redirectTo?: ( string |
+          (($transition$: Transition) => TargetState) |
+          { state: (string|StateDeclaration), params: { [key: string]: any }}
   )
 
   /**

@@ -6,6 +6,7 @@
 
 export * from "./core";
 
+export * from "./ng1/interface";
 export * from "./ng1/services";
 export * from "./ng1/statebuilders/views";
 

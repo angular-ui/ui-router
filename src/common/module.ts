@@ -1,4 +1,5 @@
 /** @module common */ /** for typedoc */
+export * from "./interface";
 export * from "./common";
 export * from "./coreservices";
 export * from "./glob";
