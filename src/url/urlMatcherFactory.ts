@@ -7,6 +7,7 @@ import {matcherConfig} from "./urlMatcherConfig";
 import {Param} from "../params/param";
 import {paramTypes} from "../params/paramTypes";
 import {ParamType} from "../params/type";
+import {ParamTypeDefinition} from "../params/interface";
 
 /** @hidden */
 function getDefaultConfig() {
@@ -92,21 +93,25 @@ export class UrlMatcherFactory {
   };
 
   /**
-   * Creates and registers a custom [[ParamType]] object that can be used to generate URLs with typed parameters.
+   * Creates and registers a custom [[ParamType]] object
+   *
+   * A [[ParamType]] can be used to generate URLs with typed parameters.
    *
    * @param name  The type name.
    * @param definition The type definition. See [[ParamTypeDefinition]] for information on the values accepted.
-   * @param definitionFn A function that is injected before the app
-   *        runtime starts.  The result of this function is merged into the existing `definition`.
+   * @param definitionFn A function that is injected before the app runtime starts.
+   *        The result of this function should be a [[ParamTypeDefinition]].
+   *        The result is merged into the existing `definition`.
    *        See [[ParamType]] for information on the values accepted.
    *
    * @returns - if a type was registered: the [[UrlMatcherFactory]]
    *   - if only the `name` parameter was specified: the currently registered [[ParamType]] object, or undefined
    *
-   * This is a simple example of a custom type that encodes and decodes items from an
-   * array, using the array index as the URL-encoded value:
+   * Note: Register custom types *before using them* in a state definition.
+   *
+   * See [[ParamTypeDefinition]] for examples
    */
-  type(name: string, definition?: (Function|ParamType), definitionFn?: Function) {
+  type(name: string, definition?: ParamTypeDefinition, definitionFn?: () => ParamTypeDefinition) {
     let type = paramTypes.type(name, definition, definitionFn);
     return !isDefined(definition) ? type : this;
   };
