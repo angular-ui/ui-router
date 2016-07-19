@@ -1,5 +1,8 @@
 /** @module common */ /** */
 
+// Need to import or export at least one concrete something
+import {noop} from "./common";
+
 /**
  * An interface for getting values from dependency injection.
  */
