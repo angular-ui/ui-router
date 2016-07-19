@@ -942,7 +942,8 @@ describe('state', function () {
       expect($state.includes('*.*.*')).toBe(true);
       expect($state.includes('about.*.*')).toBe(true);
       expect($state.includes('about.**')).toBe(true);
-      expect($state.includes('about.*.**')).toBe(true);
+      expect($state.includes('about.*.**')).toBe(false);
+      expect($state.includes('**.person.*')).toBe(true);
       expect($state.includes('*.about.*')).toBe(false);
       expect($state.includes('about.*.*', {person: 'bob'})).toBe(true);
       expect($state.includes('about.*.*', {person: 'shawn'})).toBe(false);
