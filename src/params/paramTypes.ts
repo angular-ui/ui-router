@@ -4,6 +4,7 @@ import {isDefined} from "../common/predicates";
 import {is, val} from "../common/hof";
 import {services} from "../common/coreservices";
 import {ParamType} from "./type";
+import {ParamTypeDefinition} from "./interface";
 
 // Use tildes to pre-encode slashes.
 // If the slashes are simply URLEncoded, the browser can choose to pre-decode them,
@@ -85,7 +86,7 @@ export class ParamTypes {
     this.types = inherit(map(this.defaultTypes, makeType), {});
   }
 
-  type(name, definition?: any, definitionFn?: Function) {
+  type(name, definition?: ParamTypeDefinition, definitionFn?: () => ParamTypeDefinition) {
     if (!isDefined(definition)) return this.types[name];
     if (this.types.hasOwnProperty(name)) throw new Error(`A type named '${name}' has already been defined.`);
 
