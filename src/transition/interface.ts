@@ -205,7 +205,7 @@ export interface TransitionHookFn {
  *
  * - [[IHookRegistry.onExit]]
  * - [[IHookRegistry.onRetain]]
- * - [[IHookRegistry.onExit]]
+ * - [[IHookRegistry.onEnter]]
  */
 export interface TransitionStateHookFn {
   (transition: Transition, state: State) : HookResult
@@ -291,12 +291,12 @@ export interface IHookRegistry {
    *
    * This example redirects any transition from 'home' to 'home.dashboard'.  This is commonly referred to as a
    * "default substate".
-   * @example (ng2)
-   * ```
    *
-   * transitionService.onBefore({ to: 'home' }, function(trans: Transition, injector: Injector) {
-   *   return injector.get('$state').target("home.dashboard");
-   * });
+   * @example
+   * ```js
+   * // ng2
+   * transitionService.onBefore({ to: 'home' }, (trans: Transition) =>
+   *     trans.router.stateService.target("home.dashboard"));
    * ```
    *
    * #### Data Driven Default Substate
@@ -305,9 +305,9 @@ export interface IHookRegistry {
    * which has `defaultSubstate: "some.sub.state"` defined.  See: [[Transition.to]] which returns the "to state"
    * definition.
    *
-   * @example (ng1)
-   * ```
-   *
+   * @example
+   * ```js
+   * // ng1
    * // state declaration
    * {
    *   name: 'home',
@@ -320,25 +320,26 @@ export interface IHookRegistry {
    *     return state.defaultSubstate != null;
    *   }
    * }
-   * $transitions.onBefore(criteria, function(trans: Transition, $injector) {
-   *   return $injector.get("$state").target(trans.to().defaultSubstate);
+   *
+   * $transitions.onBefore(criteria, function(trans: Transition) {
+   *   var substate = trans.to().defaultSubstate;
+   *   return trans.router.stateService.target(substate);
    * });
    * ```
    *
    *
    * #### Require authentication
    *
-   * This example cancels a transition to a state which requires authentication, if the user is
-   * not currently authenticated.
+   * This example cancels a transition to a state which requires authentication, if the user is not currently authenticated.
    *
-   * This example assumes a state tree where all states which require authentication are children of
-   * a parent `'requireauth'` state. This example assumes `MyAuthService` synchronously returns a boolean from
-   * `isAuthenticated()`.
-   * @example (ng1)
-   * ```
+   * This example assumes a state tree where all states which require authentication are children of a parent `'requireauth'` state.
+   * This example assumes `MyAuthService` synchronously returns a boolean from `isAuthenticated()`.
    *
-   * $transitions.onBefore( { to: 'requireauth.*', from: '*' }, function(trans, $inj) {
-   *   var myAuthService = $inj.get('MyAuthService');
+   * @example
+   * ```js
+   * // ng1
+   * $transitions.onBefore( { to: 'requireauth.**' }, function(trans) {
+   *   var myAuthService = trans.injector().get('MyAuthService');
    *   // If isAuthenticated returns false, the transition is cancelled.
    *   return myAuthService.isAuthenticated();
    * });
@@ -389,12 +390,12 @@ export interface IHookRegistry {
    * - `MyAuthService.authenticate()` presents a login dialog, and returns a promise which is resolved
    *   or rejected, whether or not the login attempt was successful.
    *
-   * @example (ng1)
-   * ```
-   *
-   * $transitions.onStart( { to: 'auth.*' }, function(trans, $injector) {
-   *   var $state = $injector.get('$state');
-   *   var MyAuthService = $injector.get('MyAuthService');
+   * @example
+   * ```js
+   * // ng1
+   * $transitions.onStart( { to: 'auth.*' }, function(trans) {
+   *   var $state = trans.router.stateService;
+   *   var MyAuthService = trans.injector().get('MyAuthService');
    *
    *   // If the user is not authenticated
    *   if (!MyAuthService.isAuthenticated()) {
@@ -464,8 +465,8 @@ export interface IHookRegistry {
    * @example
    * ```
    *
-   * $transitions.onEnter({ entering: 'admin' }, function(transition, injector, state) {
-   *   var AuditService = injector.get('AuditService');
+   * $transitions.onEnter({ entering: 'admin' }, function(transition, state) {
+   *   var AuditService = trans.injector().get('AuditService');
    *   AuditService.log("Entered " + state.name + " module while transitioning to " + transition.to().name);
    * }
    * ```
@@ -476,13 +477,15 @@ export interface IHookRegistry {
    * ```
    * {
    *   name: 'admin',
-   *   template: '<div ui-view/>',
-   *   onEnter: function(transition, injector, state) {
-   *     var AuditService = injector.get('AuditService');
+   *   component: 'admin',
+   *   onEnter: function($transition$, $state$) {
+   *     var AuditService = $transition$.injector().get('AuditService');
    *     AuditService.log("Entered " + state.name + " module while transitioning to " + transition.to().name);
    *   }
    * }
    * ```
+   *
+   * Note: A state declaration's `onEnter` function is injected for Angular 1 only.
    *
    * @param matchCriteria defines which Transitions the Hook should be invoked for.
    * @param callback the hook function which will be injected and invoked.
@@ -520,6 +523,7 @@ export interface IHookRegistry {
    * Instead of registering `onRetain` hooks using the [[TransitionService]], you may define an `onRetain` hook
    * directly on a state declaration (see: [[StateDeclaration.onRetain]]).
    *
+   * Note: A state declaration's `onRetain` function is injected for Angular 1 only.
    *
    * @param matchCriteria defines which Transitions the Hook should be invoked for.
    * @param callback the hook function which will be injected and invoked.
@@ -558,6 +562,8 @@ export interface IHookRegistry {
    * Instead of registering `onExit` hooks using the [[TransitionService]], you may define an `onExit` hook
    * directly on a state declaration (see: [[StateDeclaration.onExit]]).
    *
+   * Note: A state declaration's `onExit` function is injected for Angular 1 only.
+   *
    * @param matchCriteria defines which Transitions the Hook should be invoked for.
    * @param callback the hook function which will be injected and invoked.
    * @returns a function which deregisters the hook.
@@ -576,11 +582,9 @@ export interface IHookRegistry {
    *
    * ### Lifecycle
    *
-   * `onFinish` hooks are invoked asynchronously, in priority order, just before the Transition completes, after
-   * all states are entered and exited.
    * `onFinish` hooks are invoked after the `onEnter` phase is complete.
    * These hooks are invoked just before the transition is "committed".
-   * The registered `onFinish` hooks are invoked in priority order.
+   * Each hook is invoked in priority order.
    *
    * ### Return value
    *
