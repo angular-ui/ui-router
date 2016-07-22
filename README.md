@@ -8,7 +8,7 @@ version 0.2.x, it can be found [here](https://github.com/angular-ui/ui-router/tr
 
 #### The de-facto solution to flexible routing in angular
 ---
-**[Docs 1.0.0-alpha.3](http://angular-ui.github.io/ui-router/1.0.0-alpha.3)** |
+**[Docs 1.0](https://ui-router.github.io/docs/latest/)** |
 **[Download stable](http://angular-ui.github.io/ui-router/release/angular-ui-router.js)** (or **[Minified](http://angular-ui.github.io/ui-router/release/angular-ui-router.min.js)**) **|**
 **[Guide](https://github.com/angular-ui/ui-router/wiki) |**
 **[API](http://angular-ui.github.io/ui-router/site) |**
