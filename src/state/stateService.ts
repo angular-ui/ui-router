@@ -160,7 +160,7 @@ export class StateService {
    * </pre>
    * <img src='../ngdoc_assets/StateGoExamples.png'/>
    *
-   * @param {string} to Absolute state name or relative state path. Some examples:
+   * @param {string|object} to Absolute state name, state object, or relative state path. Some examples:
    *
    * - `$state.go('contact.detail')` - will go to the `contact.detail` state
    * - `$state.go('^')` - will go to a parent state
@@ -242,7 +242,7 @@ export class StateService {
    * });
    * </pre>
    *
-   * @param {string} to State name.
+   * @param {string|object} to State name or state object.
    * @param {object=} toParams A map of the parameters that will be sent to the state,
    * will populate $stateParams.
    * @param {object=} options Options object. The options are:
@@ -401,8 +401,8 @@ export class StateService {
    * $state.includes("item.**"); // returns false
    * </pre>
    *
-   * @param {string} stateOrName A partial name, relative name, or glob pattern
-   * to be searched for within the current state name.
+   * @param {string|object} stateOrName A partial name, relative name, glob pattern, 
+   * or state object to be searched for within the current state name.
    * @param {object=} params A param object, e.g. `{sectionId: section.id}`,
    * that you'd like to test against the current active state.
    * @param {object=} options An options object.  The options are:
