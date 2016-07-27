@@ -483,6 +483,7 @@ export class StateService {
   /** @hidden */
   private _defaultErrorHandler: ((_error) => void) = function $defaultErrorHandler($error$) {
     if ($error$ instanceof Error && $error$.stack) {
+      console.error($error$);
       console.error($error$.stack);
     } else if ($error$ instanceof Rejection) {
       console.error($error$);
