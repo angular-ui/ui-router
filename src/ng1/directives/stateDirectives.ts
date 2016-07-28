@@ -159,7 +159,7 @@ function $StateRefDirective($state, $timeout) {
       update();
 
       if (!type.clickable) return;
-      element.bind("click", clickHook(element, $state, $timeout, type, function() { return def; }));
+      element.on("click", clickHook(element, $state, $timeout, type, function() { return def; }));
     }
   };
 }];
@@ -207,7 +207,7 @@ function $StateRefDynamicDirective($state, $timeout) {
       runStateRefLink(scope.$eval(watch));
 
       if (!type.clickable) return;
-      element.bind("click", clickHook(element, $state, $timeout, type, function() { return def; }));
+      element.on("click", clickHook(element, $state, $timeout, type, function() { return def; }));
     }
   };
 }];
