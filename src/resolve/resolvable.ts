@@ -46,7 +46,7 @@ export class Resolvable implements ResolvableLiteral {
   /** This constructor creates a new Resolvable from the plain old [[ResolvableLiteral]] javascript object */
   constructor(resolvable: ResolvableLiteral)
 
-  /** 
+  /**
    * This constructor creates a new `Resolvable`
    *
    * @example
@@ -125,8 +125,8 @@ export class Resolvable implements ResolvableLiteral {
      * - Waits for the promise, then return the cached observable (not the first emitted value).
      */
     const waitForRx = (observable$: any) => {
-      let cached = observable$.cache();
-      return cached.toPromise().then(() => cached);
+      let cached = observable$.cache(1);
+      return cached.take(1).toPromise().then(() => cached);
     };
 
     // If the resolve policy is RXWAIT, wait for the observable to emit something. otherwise pass through.
