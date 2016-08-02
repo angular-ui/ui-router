@@ -487,7 +487,7 @@ export class StateService {
       console.error($error$);
       console.error($error$.stack);
     } else if ($error$ instanceof Rejection) {
-      console.error($error$);
+      console.error($error$.toString());
       if ($error$.detail && $error$.detail.stack)
         console.error($error$.detail.stack);
     } else {

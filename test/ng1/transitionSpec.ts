@@ -283,6 +283,10 @@ describe('transition', function () {
       });
 
       describe('.onSuccess()', function() {
+        beforeEach(inject($uiRouter => {
+          $uiRouter.stateService.defaultErrorHandler(function() {})
+        }));
+
         it('should only be called if the transition succeeds', inject(function($transitions, $q) {
           transitionProvider.onSuccess({ from: "*", to: "*" }, function(trans) { states.push(trans.to().name); });
           transitionProvider.onEnter({ from: "A", entering: "C" }, function() { return false; });

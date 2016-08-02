@@ -101,10 +101,11 @@ describe("view hooks", () => {
       expect($state.current.name).toBe('baz');
     });
 
-    it("can cancel the transition by returning a rejected promise", inject(($q) => {
+    it("can cancel the transition by returning a rejected promise", inject(($q, $state) => {
       ctrl.prototype.uiCanExit = function() { log += "canexit;"; return $q.reject('nope'); };
       initial();
 
+      $state.defaultErrorHandler(function() {});
       $state.go('bar'); $q.flush(); $timeout.flush();
       expect(log).toBe('canexit;');
       expect($state.current.name).toBe('foo');

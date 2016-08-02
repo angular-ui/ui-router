@@ -272,6 +272,7 @@ describe('UI-Router v0.2.x $state events', function () {
     it('aborts pending transitions even when going back to the current state', inject(function ($state, $q) {
       initStateTo(A);
       logEvents = true;
+      $state.defaultErrorHandler(function() {});
 
       var superseded = $state.transitionTo(B, {});
       $state.transitionTo(A, {});
@@ -284,6 +285,7 @@ describe('UI-Router v0.2.x $state events', function () {
     it('aborts pending transitions (last call wins)', inject(function ($state, $q) {
       initStateTo(A);
       logEvents = true;
+      $state.defaultErrorHandler(function() {});
 
       var superseded = $state.transitionTo(B, {});
       $state.transitionTo(C, {});

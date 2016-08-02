@@ -1909,6 +1909,7 @@ describe('otherwise and state redirects', function() {
   }));
 
   it("should not go into an infinite loop", inject(function($location, $rootScope, $state, $urlRouter, $httpBackend) {
+    $state.defaultErrorHandler(function() {});
     $httpBackend.expectGET("login.html").respond("login page");
     $location.url("notmatched");
     $urlRouter.update(true);
@@ -1987,7 +1988,6 @@ describe('transition hook', function() {
 
     $transitions.onStart({ to: 'home' }, function($transition$) {
       if (!$transition$.options().reload && count++ < 5) {
-        console.log("forcing re-enter (reload) of home state ");
         var options = $transition$.options();
         return $state.target($transition$.to(), $transition$.params("to"), extend({}, options, {reload: true}));
       }

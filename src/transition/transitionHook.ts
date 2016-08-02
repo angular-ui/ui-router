@@ -89,14 +89,16 @@ export class TransitionHook {
   static runSynchronousHooks(hooks: TransitionHook[], swallowExceptions: boolean = false): Promise<any> {
     let results: Promise<HookResult>[] = [];
     for (let i = 0; i < hooks.length; i++) {
+      let hook = hooks[i];
       try {
-        results.push(hooks[i].invokeHook());
+        results.push(hook.invokeHook());
       } catch (exception) {
         if (!swallowExceptions) {
           return Rejection.errored(exception).toPromise();
         }
 
-        console.error("Swallowed exception during synchronous hook handler: " + exception); // TODO: What to do here?
+        let errorHandler = hook.transition.router.stateService.defaultErrorHandler();
+        errorHandler(exception);
       }
     }
 

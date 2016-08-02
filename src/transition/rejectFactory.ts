@@ -37,7 +37,7 @@ export class Rejection {
 
   /** Returns a TransitionRejection due to transition superseded */
   static superseded(detail?: any, options?: any) {
-    let message = "The transition has been superseded by a different transition (see detail).";
+    let message = "The transition has been superseded by a different transition";
     let rejection = new Rejection(RejectType.SUPERSEDED, message, detail);
     if (options && options.redirected) {
       rejection.redirected = true;
@@ -52,27 +52,27 @@ export class Rejection {
 
   /** Returns a TransitionRejection due to invalid transition */
   static invalid(detail?: any) {
-    let message = "This transition is invalid (see detail)";
+    let message = "This transition is invalid";
     return new Rejection(RejectType.INVALID, message, detail);
   }
 
   /** Returns a TransitionRejection due to ignored transition */
   static ignored(detail?: any) {
-    let message = "The transition was ignored.";
+    let message = "The transition was ignored";
     return new Rejection(RejectType.IGNORED, message, detail);
   }
 
   /** Returns a TransitionRejection due to aborted transition */
   static aborted(detail?: any) {
     // TODO think about how to encapsulate an Error() object
-    let message = "The transition has been aborted.";
+    let message = "The transition has been aborted";
     return new Rejection(RejectType.ABORTED, message, detail);
   }
 
   /** Returns a TransitionRejection due to aborted transition */
   static errored(detail?: any) {
     // TODO think about how to encapsulate an Error() object
-    let message = "The transition errored.";
+    let message = "The transition errored";
     return new Rejection(RejectType.ERROR, message, detail);
   }
 }
