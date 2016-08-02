@@ -55,7 +55,7 @@ import {TransitionService} from "../transition/transitionService";
 import {UrlMatcherFactory} from "../url/urlMatcherFactory";
 import {UrlRouter} from "../url/urlRouter";
 import {ViewService} from "../view/view";
-import {UIView} from "./directives/uiView";
+import {UIView, ParentUIViewInject} from "./directives/uiView";
 import {ng2ViewsBuilder, Ng2ViewConfig} from "./statebuilders/views";
 import {Ng2ViewDeclaration} from "./interface";
 import {UIRouterConfig} from "./uiRouterConfig";
@@ -120,5 +120,5 @@ export const UIROUTER_PROVIDERS: ProviderLike[] = [
 
   { provide: Globals, useFactory: (r: UIRouter) => { return r.globals; }, deps: [UIRouter]},
 
-  { provide: UIView.PARENT_INJECT, useFactory: (r: StateRegistry) => { return { fqn: null, context: r.root() } }, deps: [StateRegistry]}
+  { provide: UIView.PARENT_INJECT, useFactory: (r: StateRegistry) => { return { fqn: null, context: r.root() } as ParentUIViewInject }, deps: [StateRegistry]}
 ];

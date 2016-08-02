@@ -33,10 +33,10 @@ import {UISrefStatus, SrefStatus} from "./uiSrefStatus";
 export class UISrefActive {
 
   private _classes: string[] = [];
-  @Input('uiSrefActive') set active(val) { this._classes = val.split("\s+")};
+  @Input('uiSrefActive') set active(val: string) { this._classes = val.split("\s+")};
 
   private _classesEq: string[] = [];
-  @Input('uiSrefActiveEq') set activeEq(val) { this._classesEq = val.split("\s+")};
+  @Input('uiSrefActiveEq') set activeEq(val: string) { this._classesEq = val.split("\s+")};
 
   constructor(uiSrefStatus: UISrefStatus, rnd: Renderer, @Host() host: ElementRef) {
     uiSrefStatus.uiSrefStatus.subscribe((next: SrefStatus) => {

@@ -32,7 +32,7 @@ export class ResolveContext {
   constructor(private _path: PathNode[]) { }
 
   /** Gets all the tokens found in the resolve context, de-duplicated */
-  getTokens() {
+  getTokens(): any[] {
     return this._path.reduce((acc, node) => acc.concat(node.resolvables.map(r => r.token)), []).reduce(uniqR, []);
   }
 
@@ -42,7 +42,7 @@ export class ResolveContext {
    * Gets the last Resolvable that matches the token in this context, or undefined.
    * Throws an error if it doesn't exist in the ResolveContext
    */
-  getResolvable(token): Resolvable {
+  getResolvable(token: any): Resolvable {
     var matching = this._path.map(node => node.resolvables)
         .reduce(unnestR, [])
         .filter((r: Resolvable) => r.token === token);
@@ -152,7 +152,7 @@ export class ResolveContext {
         .reduce((acc, node) => acc.concat(node.resolvables), []) //all of subpath's resolvables
         .filter(res => res !== resolvable); // filter out the `resolvable` argument
 
-    const getDependency = token => {
+    const getDependency = (token: any) => {
       let matching = availableResolvables.filter(r => r.token === token);
       if (matching.length) return tail(matching);
 

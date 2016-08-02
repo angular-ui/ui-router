@@ -1,8 +1,11 @@
 /** @module params */ /** for typedoc */
-import {extend, ancestors} from "../common/common";
+import {extend, ancestors, Obj} from "../common/common";
+import {State} from "../state/stateObject";
 
 export class StateParams {
-  constructor(params: Object = {}) {
+  [key: string]: any;
+
+  constructor(params: Obj = {}) {
     extend(this, params);
   }
 
@@ -14,8 +17,11 @@ export class StateParams {
    * @param {Object} $current Internal definition of object representing the current state.
    * @param {Object} $to Internal definition of object representing state to transition to.
    */
-  $inherit(newParams, $current, $to) {
-    let parents = ancestors($current, $to), parentParams, inherited = {}, inheritList = [];
+  $inherit(newParams: Obj, $current: State, $to: State) {
+    let parents = ancestors($current, $to),
+        parentParams: string[],
+        inherited: Obj = {},
+        inheritList: string[] = [];
 
     for (let i in parents) {
       if (!parents[i] || !parents[i].params) continue;

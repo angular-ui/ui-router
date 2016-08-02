@@ -1,5 +1,5 @@
 /** @module ng2 */ /** */
-import {HashLocationStrategy, PlatformLocation, LocationStrategy} from "@angular/common";
+import {HashLocationStrategy, PlatformLocation, LocationStrategy, UrlChangeListener} from "@angular/common";
 import {Injectable} from "@angular/core";
 
 import {services} from "../common/coreservices";
@@ -48,7 +48,7 @@ export class UIRouterLocation {
       return queryString.split("&").map(kv => splitOnEquals(kv)).reduce(applyPairs, {});
     };
 
-    loc.url = (url) => {
+    loc.url = (url: string) => {
       if(isDefined(url)) {
         let split = splitOnQuestionMark(url);
         locSt.pushState(null, null, split[0], split[1]);
@@ -60,13 +60,13 @@ export class UIRouterLocation {
       console.log(new Error('$location.replace() not impl'))
     };
 
-    loc.onChange = cb => locSt.onPopState(cb);
+    loc.onChange = (cb: UrlChangeListener) => locSt.onPopState(cb);
 
     let locCfg = <any> services.locationConfig;
 
-    locCfg.port = () => null;
-    locCfg.protocol = () => null;
-    locCfg.host = () => null;
+    locCfg.port = () => null as number;
+    locCfg.protocol = () => null as string;
+    locCfg.host = () => null as string;
     locCfg.baseHref = () => locSt.getBaseHref();
     locCfg.html5Mode = () => !this.isHashBang;
     locCfg.hashPrefix = (newprefix: string): string => {

@@ -3,7 +3,6 @@ import {
     Component, ComponentResolver, ComponentFactory,
     ViewContainerRef, ReflectiveInjector, InputMetadata, ComponentMetadata, ViewChild
 } from '@angular/core';
-import {provide} from "@angular/core";
 import {Input} from "@angular/core";
 import {ComponentRef} from "@angular/core";
 import {Type} from "@angular/core";
@@ -15,6 +14,7 @@ import {ViewContext, ViewConfig} from "../../view/interface";
 import {Ng2ViewDeclaration} from "../interface";
 import {Ng2ViewConfig} from "../statebuilders/views";
 import {ResolveContext} from "../../resolve/resolveContext";
+import {flattenR} from "../../common/common";
 
 /** @hidden */
 let id = 0;
@@ -25,15 +25,21 @@ export interface ParentUIViewInject {
   fqn: string;
 }
 
+interface InputMapping {
+  token: string;
+  prop: string;
+}
+
+declare var Reflect: any;
 
 /** @hidden */
-const ng2ComponentInputs = (ng2CompClass) => {
+const ng2ComponentInputs = (ng2CompClass: Type) => {
   /** Get "@Input('foo') _foo" inputs */
   let props = Reflect['getMetadata']('propMetadata', ng2CompClass);
   let _props = Object.keys(props || {})
-  // -> { string, anno[] } tuples
+      // -> [ { key: string, anno: annotations[] } ] tuples
       .map(key => ({ key, annoArr: props[key] }))
-      // -> to { string, anno } tuples
+      // -> flattened to [ { key: string, anno: annotation } ] tuples
       .reduce((acc, tuple) => acc.concat(tuple.annoArr.map(anno => ({ key: tuple.key, anno }))), [])
       // Only Inputs
       .filter(tuple => tuple.anno instanceof InputMetadata)
@@ -42,15 +48,14 @@ const ng2ComponentInputs = (ng2CompClass) => {
 
   /** Get "inputs: ['foo']" inputs */
   let inputs = Reflect['getMetadata']('annotations', ng2CompClass)
-  // Find the ComponentMetadata class annotation
+      // Find the ComponentMetadata class annotation
       .filter(x => x instanceof ComponentMetadata && !!x.inputs)
       // Get the .inputs string array
       .map(x => x.inputs)
-      // Flatten
-      .reduce((acc, arr) => acc.concat(arr), [])
+      .reduce(flattenR)
       .map(input => ({ token: input, prop: input }));
 
-  return _props.concat(inputs);
+  return _props.concat(inputs) as InputMapping[];
 };
 
 /**
@@ -122,9 +127,9 @@ const ng2ComponentInputs = (ng2CompClass) => {
   // </div>`
 })
 export class UIView {
-  @ViewChild('componentTarget', {read: ViewContainerRef}) componentTarget;
+  @ViewChild('componentTarget', {read: ViewContainerRef}) componentTarget: ViewContainerRef;
   @Input('name') name: string;
-  @Input('ui-view') set _name(val) { this.name = val; }
+  @Input('ui-view') set _name(val: string) { this.name = val; }
   componentRef: ComponentRef<any>;
   deregister: Function;
   uiViewData: any = {};
@@ -198,7 +203,7 @@ export class UIView {
       // TODO: wire uiCanExit and uiOnParamsChanged callbacks
 
       let bindings = viewDecl['bindings'] || {};
-      var addResolvable = tuple => ({
+      var addResolvable = (tuple: InputMapping) => ({
         prop: tuple.prop,
         resolvable: context.getResolvable(bindings[tuple.prop] || tuple.token)
       });

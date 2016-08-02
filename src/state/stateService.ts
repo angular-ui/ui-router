@@ -7,7 +7,7 @@ import {services} from "../common/coreservices";
 import {PathFactory} from "../path/pathFactory";
 import {PathNode} from "../path/node";
 
-import {TransitionOptions} from "../transition/interface";
+import {TransitionOptions, HookResult} from "../transition/interface";
 import {defaultTransOpts} from "../transition/transitionService";
 import {Rejection, RejectType} from "../transition/rejectFactory";
 import {Transition} from "../transition/transition";
@@ -54,12 +54,13 @@ export class StateService {
     const latestThing = () => globals.transitionHistory.peekTail();
     let latest = latestThing();
     let $from$ = PathFactory.makeTargetState(fromPath);
-    let callbackQueue = new Queue<Function>([].concat(this.router.stateProvider.invalidCallbacks));
+    let callbackQueue = new Queue<Function>(this.router.stateProvider.invalidCallbacks.slice());
     let {$q, $injector} = services;
 
-    const invokeCallback = (callback: Function) => $q.when($injector.invoke(callback, null, { $to$, $from$ }));
+    const invokeCallback = (callback: Function) =>
+        $q.when($injector.invoke(callback, null, { $to$, $from$ }));
 
-    const checkForRedirect = (result) => {
+    const checkForRedirect = (result: HookResult) => {
       if (!(result instanceof TargetState)) {
         return;
       }
@@ -287,11 +288,11 @@ export class StateService {
      * no error occurred.  Likewise, the transition.run() promise may be rejected because of
      * a Redirect, but the transitionTo() promise is chained to the new Transition's promise.
      */
-    const rejectedTransitionHandler = (transition) => (error) => {
+    const rejectedTransitionHandler = (transition: Transition) => (error: any): Promise<any> => {
       if (error instanceof Rejection) {
         if (error.type === RejectType.IGNORED) {
           router.urlRouter.update();
-          return globals.current;
+          return services.$q.when(globals.current);
         }
 
         if (error.type === RejectType.SUPERSEDED && error.redirected && error.detail instanceof TargetState) {
@@ -481,7 +482,7 @@ export class StateService {
   };
 
   /** @hidden */
-  private _defaultErrorHandler: ((_error) => void) = function $defaultErrorHandler($error$) {
+  private _defaultErrorHandler: ((_error: any) => void) = function $defaultErrorHandler($error$) {
     if ($error$ instanceof Error && $error$.stack) {
       console.error($error$);
       console.error($error$.stack);
@@ -515,7 +516,7 @@ export class StateService {
    * @param handler a global error handler function
    * @returns the current global error handler
    */
-  defaultErrorHandler(handler?: (error) => void): (error) => void {
+  defaultErrorHandler(handler?: (error: any) => void): (error: any) => void {
     return this._defaultErrorHandler = handler || this._defaultErrorHandler;
   }
 

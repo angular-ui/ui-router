@@ -49,7 +49,7 @@ export class TransitionHook {
    *
    * A hook can return false, a redirect (TargetState), or a promise (which may resolve to false or a redirect)
    */
-  handleHookResult(hookResult): Promise<any> {
+  handleHookResult(hookResult: HookResult): Promise<any> {
     if (!isDefined(hookResult)) return undefined;
 
     /**
@@ -61,9 +61,9 @@ export class TransitionHook {
       // If the hook returns false, abort the current Transition
       [eq(false),         () => Rejection.aborted("Hook aborted transition").toPromise()],
       // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
-      [is(TargetState),   (target) => Rejection.redirected(target).toPromise()],
+      [is(TargetState),   (target: TargetState) => Rejection.redirected(target).toPromise()],
       // A promise was returned, wait for the promise and then chain another hookHandler
-      [isPromise,         (promise) => promise.then(this.handleHookResult.bind(this))]
+      [isPromise,         (promise: Promise<any>) => promise.then(this.handleHookResult.bind(this))]
     ]);
 
     let transitionResult = mapHookResult(hookResult);
@@ -87,7 +87,7 @@ export class TransitionHook {
    * Returns a promise chain composed of any promises returned from each hook.invokeStep() call
    */
   static runSynchronousHooks(hooks: TransitionHook[], swallowExceptions: boolean = false): Promise<any> {
-    let results = [];
+    let results: Promise<HookResult>[] = [];
     for (let i = 0; i < hooks.length; i++) {
       try {
         results.push(hooks[i].invokeHook());
@@ -104,7 +104,7 @@ export class TransitionHook {
     if (rejections.length) return rejections[0];
 
     return results
-        .filter(<Predicate<any>> isPromise)
-        .reduce((chain, promise) => chain.then(val(promise)), services.$q.when());
+        .filter(isPromise)
+        .reduce((chain: Promise<any>, promise: Promise<any>) => chain.then(val(promise)), services.$q.when());
   }
 }

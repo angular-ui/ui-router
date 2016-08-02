@@ -43,6 +43,8 @@ export interface ResolvableLiteral {
 /**
  * Defines how a resolve is processed during a transition
  *
+ * This object is the [[StateDeclaration.resolvePolicy]] property.
+ *
  * @example
  * ```js
  *

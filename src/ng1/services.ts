@@ -11,8 +11,9 @@
 
 /** for typedoc */
 import {UIRouter} from "../router";
-import {services} from "../common/coreservices";
-import {bindFunctions, removeFrom, applyPairs} from "../common/common";
+import {services, $InjectorLike} from "../common/coreservices";
+import {bindFunctions, removeFrom, applyPairs, IInjectable} from "../common/common";
+import {TypedMap} from "../common/common"; // has or is using
 import {prop} from "../common/hof";
 import {isObject, isString} from "../common/predicates";
 import {resolveFactory} from "./legacy/resolveService";
@@ -27,7 +28,15 @@ import {UrlRouterProvider, UrlRouter} from "../url/urlRouter";
 import {UrlMatcherFactory} from "../url/urlMatcherFactory";
 import {getStateHookBuilder} from "./statebuilders/onEnterExitRetain";
 import {ResolveContext} from "../resolve/resolveContext";
+
 import IInjectorService = angular.auto.IInjectorService;
+import IQService = angular.IQService;
+import ILocationProvider = angular.ILocationProvider;
+import ILocationService = angular.ILocationService;
+import IBrowserService = angular.IBrowserService;
+import IHttpService = angular.IHttpService;
+import ITemplateCacheService = angular.ITemplateCacheService;
+import IScope = angular.IScope;
 
 /** @hidden */
 let app = angular.module("ui.router.angular1", []);
@@ -128,14 +137,14 @@ angular.module('ui.router.compat', ['ui.router']);
  * returns an array of strings, which are the arguments of the controller expression
  */
 
-export function annotateController(controllerExpression): string[] {
-  let $injector = services.$injector;
+export function annotateController(controllerExpression: (IInjectable|string)): string[] {
+  let $injector = <any> services.$injector;
   let $controller = $injector.get("$controller");
   let oldInstantiate = $injector.instantiate;
   try {
-    let deps;
+    let deps: any[];
 
-    $injector.instantiate = function fakeInstantiate(constructorFunction) {
+    $injector.instantiate = function fakeInstantiate(constructorFunction: any) {
       $injector.instantiate = oldInstantiate; // Un-decorate ASAP
       deps = $injector.annotate(constructorFunction);
     };
@@ -149,7 +158,7 @@ export function annotateController(controllerExpression): string[] {
 }
 
 runBlock.$inject = ['$injector', '$q'];
-function runBlock($injector, $q) {
+function runBlock($injector: IInjectorService, $q: IQService) {
   services.$injector = $injector;
   services.$q = $q;
 }
@@ -160,7 +169,7 @@ let router: UIRouter = null;
 
 $uiRouter.$inject = ['$locationProvider'];
 /** This angular 1 provider instantiates a Router and exposes its services via the angular injector */
-function $uiRouter($locationProvider) {
+function $uiRouter($locationProvider: ILocationProvider) {
 
   // Create a new instance of the Router when the $uiRouterProvider is initialized
   router = new UIRouter();
@@ -185,14 +194,14 @@ function $uiRouter($locationProvider) {
 
   this.$get = $get;
   $get.$inject = ['$location', '$browser', '$sniffer', '$rootScope', '$http', '$templateCache'];
-  function $get($location, $browser, $sniffer, $rootScope, $http, $templateCache) {
+  function $get($location: ILocationService, $browser: IBrowserService, $sniffer: any, $rootScope: IScope, $http: IHttpService, $templateCache: ITemplateCacheService) {
 
     // Bind $locationChangeSuccess to the listeners registered in LocationService.onChange
     $rootScope.$on("$locationChangeSuccess", evt => urlListeners.forEach(fn => fn(evt)));
 
     // Bind LocationConfig.html5Mode to $locationProvider.html5Mode and $sniffer.history
     services.locationConfig.html5Mode = function() {
-      let html5Mode = $locationProvider.html5Mode();
+      let html5Mode: any = $locationProvider.html5Mode();
       html5Mode = isObject(html5Mode) ? html5Mode.enabled : html5Mode;
       return html5Mode && $sniffer.history;
     };
@@ -211,18 +220,14 @@ function $uiRouter($locationProvider) {
   }
 }
 
-function $stateParamsFactory($uiRouter) {
-  return $uiRouter.globals.params;
-}
-
 // The 'ui.router' ng1 module depends on 'ui.router.init' module.
 angular.module('ui.router.init', []).provider("$uiRouter", <any> $uiRouter);
 // This effectively calls $get() to init when we enter runtime
-angular.module('ui.router.init').run(['$uiRouter', function($uiRouter) { }]);
+angular.module('ui.router.init').run(['$uiRouter', function($uiRouter: UIRouter) { }]);
 
 // $urlMatcherFactory service and $urlMatcherFactoryProvider
 angular.module('ui.router.util').provider('$urlMatcherFactory', ['$uiRouterProvider', () => router.urlMatcherFactory]);
-angular.module('ui.router.util').run(['$urlMatcherFactory', function($urlMatcherFactory) { }]);
+angular.module('ui.router.util').run(['$urlMatcherFactory', function($urlMatcherFactory: UrlMatcherFactory) { }]);
 
 // $urlRouter service and $urlRouterProvider
 function getUrlRouterProvider() {
@@ -234,7 +239,7 @@ function getUrlRouterProvider() {
   return router.urlRouterProvider;
 }
 angular.module('ui.router.router').provider('$urlRouter', ['$uiRouterProvider', getUrlRouterProvider]);
-angular.module('ui.router.router').run(['$urlRouter', function($urlRouter) { }]);
+angular.module('ui.router.router').run(['$urlRouter', function($urlRouter: UrlRouter) { }]);
 
 // $state service and $stateProvider
 // $urlRouter service and $urlRouterProvider
@@ -247,10 +252,10 @@ function getStateProvider() {
   return router.stateProvider;
 }
 angular.module('ui.router.state').provider('$state', ['$uiRouterProvider', getStateProvider]);
-angular.module('ui.router.state').run(['$state', function($state) { }]);
+angular.module('ui.router.state').run(['$state', function($state: StateService) { }]);
 
 // $stateParams service
-angular.module('ui.router.state').factory('$stateParams', ['$uiRouter', ($uiRouter) =>
+angular.module('ui.router.state').factory('$stateParams', ['$uiRouter', ($uiRouter: UIRouter) =>
     $uiRouter.globals.params]);
 
 // $transitions service and $transitionsProvider
@@ -272,7 +277,7 @@ angular.module('ui.router').factory('$resolve', <any> resolveFactory);
 // $trace service
 angular.module("ui.router").service("$trace", () => trace);
 watchDigests.$inject = ['$rootScope'];
-export function watchDigests($rootScope) {
+export function watchDigests($rootScope: IScope) {
   $rootScope.$watch(function() { trace.approximateDigests++; });
 }
 angular.module("ui.router").run(watchDigests);
@@ -303,7 +308,7 @@ declare module "../common/interface" {
      *   var val = $injector.invoke(someFunction);
      * });
      */
-    native: IInjectorService;
+    native: $InjectorLike;
   }
 }
 

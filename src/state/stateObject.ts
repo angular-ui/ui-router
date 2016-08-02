@@ -6,6 +6,9 @@ import {propEq} from "../common/hof";
 import {Param} from "../params/param";
 import {UrlMatcher} from "../url/urlMatcher";
 import {Resolvable} from "../resolve/resolvable";
+import {TransitionStateHookFn} from "../transition/interface";
+import {TargetState} from "./targetState";
+import {Transition} from "../transition/transition";
 
 /**
  * @ngdoc object
@@ -35,6 +38,17 @@ export class State {
   public path: State[];
   public data: any;
   public includes: { [name: string] : boolean };
+
+  public onExit: TransitionStateHookFn;
+  public onRetain: TransitionStateHookFn;
+  public onEnter: TransitionStateHookFn;
+
+  redirectTo: (
+      string |
+      (($transition$: Transition) => TargetState) |
+      { state: (string|StateDeclaration), params: { [key: string]: any }}
+  );
+
 
   constructor(config?: StateDeclaration) {
     extend(this, config);
@@ -89,7 +103,7 @@ export class State {
     return this.parent && this.parent.root() || this;
   }
 
-  parameters(opts?): Param[] {
+  parameters(opts?: { inherit: boolean }): Param[] {
     opts = defaults(opts, { inherit: true });
     let inherited = opts.inherit && this.parent && this.parent.parameters() || [];
     return inherited.concat(values(this.params));

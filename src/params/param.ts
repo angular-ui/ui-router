@@ -2,39 +2,40 @@
 import {extend, filter, map, applyPairs, allTrueR} from "../common/common";
 import {prop, propEq} from "../common/hof";
 import {isInjectable, isDefined, isString, isArray} from "../common/predicates";
-import {RawParams} from "../params/interface";
+import {RawParams, ParamDeclaration} from "../params/interface";
 import {services} from "../common/coreservices";
 import {matcherConfig} from "../url/urlMatcherConfig";
 import {ParamType} from "./type";
 import {paramTypes} from "./paramTypes";
 
 let hasOwn = Object.prototype.hasOwnProperty;
-let isShorthand = cfg => ["value", "type", "squash", "array", "dynamic"].filter(hasOwn.bind(cfg || {})).length === 0;
+let isShorthand = (cfg: ParamDeclaration) =>
+    ["value", "type", "squash", "array", "dynamic"].filter(hasOwn.bind(cfg || {})).length === 0;
 
 export enum DefType {
   PATH, SEARCH, CONFIG
 }
 
-function unwrapShorthand(cfg) {
-  cfg = isShorthand(cfg) && { value: cfg } || cfg;
+function unwrapShorthand(cfg: ParamDeclaration): ParamDeclaration {
+  cfg = isShorthand(cfg) && { value: cfg } as any || cfg;
 
   return extend(cfg, {
     $$fn: isInjectable(cfg.value) ? cfg.value : () => cfg.value
   });
 }
 
-function getType(cfg, urlType, location, id) {
+function getType(cfg: ParamDeclaration, urlType: ParamType, location: DefType, id: string) {
   if (cfg.type && urlType && urlType.name !== 'string') throw new Error(`Param '${id}' has two type configurations.`);
-  if (cfg.type && urlType && urlType.name === 'string' && paramTypes.type(cfg.type)) return paramTypes.type(cfg.type);
+  if (cfg.type && urlType && urlType.name === 'string' && paramTypes.type(cfg.type as string)) return paramTypes.type(cfg.type as string);
   if (urlType) return urlType;
   if (!cfg.type) return (location === DefType.CONFIG ? paramTypes.type("any") : paramTypes.type("string"));
-  return cfg.type instanceof ParamType ? cfg.type : paramTypes.type(cfg.type);
+  return cfg.type instanceof ParamType ? cfg.type : paramTypes.type(cfg.type as string);
 }
 
 /**
  * returns false, true, or the squash value to indicate the "default parameter url squash policy".
  */
-function getSquashPolicy(config, isOptional) {
+function getSquashPolicy(config: ParamDeclaration, isOptional: boolean) {
   let squash = config.squash;
   if (!isOptional || squash === false) return false;
   if (!isDefined(squash) || squash == null) return matcherConfig.defaultSquashPolicy();
@@ -42,8 +43,8 @@ function getSquashPolicy(config, isOptional) {
   throw new Error(`Invalid squash policy: '${squash}'. Valid policies: false, true, or arbitrary string`);
 }
 
-function getReplace(config, arrayMode, isOptional, squash) {
-  let replace, configuredKeys, defaultPolicy = [
+function getReplace(config: ParamDeclaration, arrayMode: boolean, isOptional: boolean, squash: (string|boolean)) {
+  let replace: any, configuredKeys: string[], defaultPolicy = [
     {from: "", to: (isOptional || arrayMode ? undefined : "")},
     {from: null, to: (isOptional || arrayMode ? undefined : "")}
   ];
@@ -65,7 +66,7 @@ export class Param {
   dynamic: boolean;
   config: any;
 
-  constructor(id: string, type: ParamType, config: any, location: DefType) {
+  constructor(id: string, type: ParamType, config: ParamDeclaration, location: DefType) {
     config = unwrapShorthand(config);
     type = getType(config, type, location, id);
     let arrayMode = getArrayMode();
@@ -105,7 +106,7 @@ export class Param {
       return defaultValue;
     };
 
-    const $replace = (val) => {
+    const $replace = (val: any) => {
       let replacement: any = map(filter(this.replace, propEq('from', val)), prop("to"));
       return replacement.length ? replacement[0] : val;
     };
@@ -150,7 +151,7 @@ export class Param {
     return new Param(id, type, config, DefType.SEARCH);
   }
 
-  static values(params: Param[], values = {}): RawParams {
+  static values(params: Param[], values: RawParams = {}): RawParams {
     return <RawParams> params.map(param => [param.id, param.value(values[param.id])]).reduce(applyPairs, {});
   }
 
@@ -165,7 +166,7 @@ export class Param {
    *
    * @returns any Param objects whose values were different between values1 and values2
    */
-  static changed(params: Param[], values1 = {}, values2 = {}): Param[] {
+  static changed(params: Param[], values1: RawParams = {}, values2: RawParams = {}): Param[] {
     return params.filter(param => !param.type.equals(values1[param.id], values2[param.id]));
   }
 
@@ -183,7 +184,7 @@ export class Param {
   }
 
   /** Returns true if a the parameter values are valid, according to the Param definitions */
-  static validates(params: Param[], values = {}): boolean {
+  static validates(params: Param[], values: RawParams = {}): boolean {
     return params.map(param => param.validates(values[param.id])).reduce(allTrueR, true);
   }
 }

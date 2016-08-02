@@ -3,7 +3,7 @@ import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 import {
     map, find, extend, mergeR,  tail,
-    omit, toJson, abstractKey, arrayTuples, unnestR, identity, anyTrueR
+    omit, toJson, arrayTuples, unnestR, identity, anyTrueR
 } from "../common/common";
 import { isObject, isArray } from "../common/predicates";
 import { prop, propEq, val, not } from "../common/hof";
@@ -29,6 +29,7 @@ import {ResolveContext} from "../resolve/resolveContext";
 import {UIRouter} from "../router";
 import {Globals} from "../globals";
 import {UIInjector} from "../common/interface";
+import {RawParams} from "../params/interface";
 
 
 let transitionCount = 0;
@@ -231,7 +232,7 @@ export class Transition implements IHookRegistry {
    */
   getResolveValue(token: (any|any[])): (any|any[]) {
     let resolveContext = new ResolveContext(this._treeChanges.to);
-    const getData = token => {
+    const getData = (token: any) => {
       var resolvable = resolveContext.getResolvable(token);
       if (resolvable === undefined) {
         throw new Error("Dependency Injection token not found: ${stringify(token)}");
@@ -469,17 +470,17 @@ export class Transition implements IHookRegistry {
       runSynchronousHooks(hookBuilder.getOnSuccessHooks(), true);
     };
 
-    const transitionError = (error) => {
-      trace.traceError(error, this);
+    const transitionError = (reason: any) => {
+      trace.traceError(reason, this);
       this.success = false;
-      this._deferred.reject(error);
+      this._deferred.reject(reason);
       runSynchronousHooks(hookBuilder.getOnErrorHooks(), true);
     };
 
     trace.traceTransitionStart(this);
 
     // Chain the next hook off the previous
-    const appendHookToChain = (prev, nextHook) =>
+    const appendHookToChain = (prev: Promise<any>, nextHook: TransitionHook) =>
         prev.then(() => nextHook.invokeHook());
 
     // Run the hooks, then resolve or reject the overall deferred in the .then() handler
@@ -507,9 +508,9 @@ export class Transition implements IHookRegistry {
    * @returns an error message explaining why the transition is invalid
    */
   error() {
-    let state = this.$to();
+    let state: State = this.$to();
 
-    if (state.self[abstractKey])
+    if (state.self.abstract)
       return `Cannot transition to abstract state '${state.name}'`;
     if (!Param.validates(state.parameters(), this.params()))
       return `Param values not valid for state '${state.name}'`;
@@ -524,7 +525,7 @@ export class Transition implements IHookRegistry {
     let fromStateOrName = this.from();
     let toStateOrName = this.to();
 
-    const avoidEmptyHash = (params) =>
+    const avoidEmptyHash = (params: RawParams) =>
       (params["#"] !== null && params["#"] !== undefined) ? params : omit(params, "#");
 
     // (X) means the to state is invalid.

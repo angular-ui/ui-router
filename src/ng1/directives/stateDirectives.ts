@@ -5,14 +5,22 @@
  *
  * @preferred @module ng1_directives
  */ /** for typedoc */
-import {extend, forEach, toJson, tail} from "../../common/common";
+import {Obj, extend, forEach, toJson, tail} from "../../common/common";
 import {isString, isObject} from "../../common/predicates";
 import {UIViewData} from "./viewDirective";
 import {parse} from "../../common/hof";
 import {PathNode} from "../../path/node";
+import {StateOrName} from "../../state/interface";
+import IAugmentedJQuery = angular.IAugmentedJQuery;
+import {StateService} from "../../state/stateService";
+import ITimeoutService = angular.ITimeoutService;
+import IScope = angular.IScope;
+import IInterpolateService = angular.IInterpolateService;
+import {TransitionService} from "../../transition/transitionService";
+import {State} from "../../state/stateObject";
 
 /** @hidden */
-function parseStateRef(ref, current) {
+function parseStateRef(ref: string, current: string) {
   let preparsed = ref.match(/^\s*({[^}]*})\s*$/), parsed;
   if (preparsed) ref = current + '(' + preparsed[1] + ')';
   parsed = ref.replace(/\n/g, " ").match(/^([^(]+?)\s*(\((.*)\))?$/);
@@ -21,14 +29,20 @@ function parseStateRef(ref, current) {
 }
 
 /** @hidden */
-function stateContext(el) {
-  let $uiView: UIViewData = el.parent().inheritedData('$uiView');
+function stateContext(el: IAugmentedJQuery) {
+  let $uiView: UIViewData = (el.parent() as IAugmentedJQuery).inheritedData('$uiView');
   let path: PathNode[] = parse('$cfg.path')($uiView);
   return path ? tail(path).state.name : undefined;
 }
 
+interface TypeInfo {
+  attr: string;
+  isAnchor: boolean;
+  clickable: boolean;
+}
+
 /** @hidden */
-function getTypeInfo(el) {
+function getTypeInfo(el: IAugmentedJQuery): TypeInfo {
   // SVGAElement does not use the href attribute, but rather the 'xlinkHref' attribute.
   var isSvg = Object.prototype.toString.call(el.prop('href')) === '[object SVGAnimatedString]';
   var isForm = el[0].nodeName === "FORM";
@@ -41,8 +55,8 @@ function getTypeInfo(el) {
 }
 
 /** @hidden */
-function clickHook(el, $state, $timeout, type, current) {
-  return function(e) {
+function clickHook(el: IAugmentedJQuery, $state: StateService, $timeout: ITimeoutService, type: TypeInfo, current: Function) {
+  return function(e: JQueryMouseEventObject) {
     var button = e.which || e.button, target = current();
 
     if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || el.attr('target'))) {
@@ -63,7 +77,7 @@ function clickHook(el, $state, $timeout, type, current) {
 }
 
 /** @hidden */
-function defaultOpts(el, $state) {
+function defaultOpts(el: IAugmentedJQuery, $state: StateService) {
   return { relative: stateContext(el) || $state.$current, inherit: true };
 }
 
@@ -130,20 +144,20 @@ function defaultOpts(el, $state) {
  * @param {Object} ui-sref-opts options to pass to [[StateService.go]]
  */
 let uiSref = ['$state', '$timeout',
-function $StateRefDirective($state, $timeout) {
+function $StateRefDirective($state: StateService, $timeout: ITimeoutService) {
   return {
     restrict: 'A',
     require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
-    link: function(scope, element, attrs, uiSrefActive) {
+    link: function(scope: IScope, element: IAugmentedJQuery, attrs: any, uiSrefActive: any) {
       var ref    = parseStateRef(attrs.uiSref, $state.current.name);
-      var def    = { state: ref.state, href: null, params: null, options: null };
+      var def: Def = { state: ref.state, href: null, params: null, options: null };
       var type   = getTypeInfo(element);
       var active = uiSrefActive[1] || uiSrefActive[0];
-      var unlinkInfoFn = null;
+      var unlinkInfoFn: Function = null;
 
       def.options = extend(defaultOpts(element, $state), attrs.uiSrefOpts ? scope.$eval(attrs.uiSrefOpts) : {});
 
-      var update = function(val?) {
+      var update = function(val?: any) {
         if (val) def.params = angular.copy(val);
         def.href = $state.href(ref.state, def.params, def.options);
 
@@ -182,19 +196,19 @@ function $StateRefDirective($state, $timeout) {
  * @param {Object} ui-state-opts options to pass to [[StateService.go]]
  */
 let uiState = ['$state', '$timeout',
-function $StateRefDynamicDirective($state, $timeout) {
+function $StateRefDynamicDirective($state: StateService, $timeout: ITimeoutService) {
   return {
     restrict: 'A',
     require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
-    link: function(scope, element, attrs, uiSrefActive) {
+    link: function(scope: IScope, element: IAugmentedJQuery, attrs: any, uiSrefActive: any) {
       var type   = getTypeInfo(element);
       var active = uiSrefActive[1] || uiSrefActive[0];
       var group  = [attrs.uiState, attrs.uiStateParams || null, attrs.uiStateOpts || null];
       var watch  = '[' + group.map(function(val) { return val || 'null'; }).join(', ') + ']';
-      var def    = { state: null, params: null, options: null, href: null };
-      var unlinkInfoFn = null;
+      var def: Def = { state: null, params: null, options: null, href: null };
+      var unlinkInfoFn: Function = null;
 
-      function runStateRefLink (group) {
+      function runStateRefLink (group: any[]) {
         def.state = group[0]; def.params = group[1]; def.options = group[2];
         def.href = $state.href(def.state, def.params, def.options);
 
@@ -294,11 +308,12 @@ function $StateRefDynamicDirective($state, $timeout) {
  * names/globs passed to ui-sref-active shadow the state provided by ui-sref.
  */
 let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$transitions',
-function $StateRefActiveDirective($state, $stateParams, $interpolate, $transitions) {
+function $StateRefActiveDirective($state: StateService, $stateParams: Obj, $interpolate: IInterpolateService, $transitions: TransitionService) {
   return  {
     restrict: "A",
-    controller: ['$scope', '$element', '$attrs', '$timeout', function ($scope, $element, $attrs, $timeout) {
-      var states = [], activeClasses = {}, activeEqClass, uiSrefActive;
+    controller: ['$scope', '$element', '$attrs', '$timeout',
+      function ($scope: IScope, $element: IAugmentedJQuery, $attrs: any, $timeout: ITimeoutService) {
+      var states: any[] = [], activeClasses: Obj = {}, activeEqClass: string, uiSrefActive: any;
 
       // There probably isn't much point in $observing this
       // uiSrefActive and uiSrefActiveEq share the same directive object with some
@@ -313,7 +328,7 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate, $transitio
       }
       uiSrefActive = uiSrefActive || $interpolate($attrs.uiSrefActive || '', false)($scope);
       if (isObject(uiSrefActive)) {
-        forEach(uiSrefActive, function(stateOrName, activeClass) {
+        forEach(uiSrefActive, function(stateOrName: StateOrName, activeClass: string) {
           if (isString(stateOrName)) {
             var ref = parseStateRef(stateOrName, $state.current.name);
             addState(ref.state, $scope.$eval(ref.paramExpr), activeClass);
@@ -322,7 +337,7 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate, $transitio
       }
 
       // Allow uiSref to communicate with uiSrefActive[Equals]
-      this.$$addStateInfo = function (newState, newParams) {
+      this.$$addStateInfo = function (newState: string, newParams: Obj) {
         // we already got an explicit state provided by ui-sref-active, so we
         // shadow the one that comes from ui-sref
         if (isObject(uiSrefActive) && states.length > 0) {
@@ -334,9 +349,9 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate, $transitio
       };
 
       $scope.$on('$stateChangeSuccess', update);
-      $scope.$on('$destroy', $transitions.onStart({}, (trans) => trans.promise.then(update) && null));
+      $scope.$on('$destroy', <any> $transitions.onStart({}, (trans) => trans.promise.then(update) && null));
 
-      function addState(stateName, stateParams, activeClass) {
+      function addState(stateName: string, stateParams: Obj, activeClass: string) {
         var state = $state.get(stateName, stateContext($element));
         var stateHash = createStateHash(stateName, stateParams);
 
@@ -360,14 +375,14 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate, $transitio
        * @param {Object|string} [params]
        * @return {string}
        */
-      function createStateHash(state, params) {
+      function createStateHash(state: string, params: (Obj|string)) {
         if (!isString(state)) {
           throw new Error('state should be a string');
         }
         if (isObject(params)) {
           return state + toJson(params);
         }
-        params = $scope.$eval(params);
+        params = $scope.$eval(params as string);
         if (isObject(params)) {
           return state + toJson(params);
         }
@@ -391,16 +406,17 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate, $transitio
         }
       }
 
-      function addClass(el, className) { $timeout(function () { el.addClass(className); }); }
-      function removeClass(el, className) { el.removeClass(className); }
-      function anyMatch(state, params) { return $state.includes(state.name, params); }
-      function exactMatch(state, params) { return $state.is(state.name, params); }
+      function addClass(el: IAugmentedJQuery, className: string) { $timeout(function () { el.addClass(className); }); }
+      function removeClass(el: IAugmentedJQuery, className: string) { el.removeClass(className); }
+      function anyMatch(state: State, params: Obj) { return $state.includes(state.name, params); }
+      function exactMatch(state: State, params: Obj) { return $state.is(state.name, params); }
 
       update();
     }]
   };
 }];
 
+interface Def { state: string; href: string; params: Obj; options: any; }
 angular.module('ui.router.state')
     .directive('uiSref', uiSref)
     .directive('uiSrefActive', uiSrefActive)

@@ -2,6 +2,7 @@
 import {StateDeclaration, _ViewDeclaration} from "../state/interface";
 import {Transition} from "../transition/transition";
 import {Type} from "@angular/core";
+import {HookResult} from "../transition/interface";
 
 /**
  * The StateDeclaration object is used to define a state or nested state.
@@ -311,7 +312,7 @@ export interface Ng2Component {
    * });
    * ```
    */
-  uiOnParamsChanged(newValues: any, $transition$: Transition);
+  uiOnParamsChanged(newValues: any, $transition$: Transition): void;
 
   /**
    * This callback is called when the view's state is about to be exited.
@@ -338,5 +339,5 @@ export interface Ng2Component {
    *
    * @return a value, or a promise for a value.
    */
-  uiCanExit();
+  uiCanExit(): HookResult;
 }

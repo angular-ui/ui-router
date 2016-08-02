@@ -2,7 +2,7 @@
 import {extend, removeFrom, allTrueR, tail} from "../common/common";
 import {isString, isFunction} from "../common/predicates";
 import {PathNode} from "../path/node";
-import {TransitionStateHookFn, TransitionHookFn} from "./interface";
+import {TransitionStateHookFn, TransitionHookFn} from "./interface"; // has or is using
 
 import {
     HookRegOptions, HookMatchCriteria, IEventHook, IHookRegistry, IHookRegistration, TreeChanges,
@@ -27,7 +27,7 @@ import {State} from "../state/stateObject";
 export function matchState(state: State, criterion: HookMatchCriterion) {
   let toMatch = isString(criterion) ? [criterion] : criterion;
 
-  function matchGlobs(_state) {
+  function matchGlobs(_state: State) {
     let globStrings = <string[]> toMatch;
     for (let i = 0; i < globStrings.length; i++) {
       let glob = Glob.fromString(globStrings[i]);
@@ -72,7 +72,7 @@ export class EventHook implements IEventHook {
   matches(treeChanges: TreeChanges): IMatchingNodes {
     let mc = this.matchCriteria, _matchingNodes = EventHook._matchingNodes;
 
-    let matches = {
+    let matches: IMatchingNodes = {
       to: _matchingNodes([tail(treeChanges.to)], mc.to),
       from: _matchingNodes([tail(treeChanges.from)], mc.from),
       exiting: _matchingNodes(treeChanges.exiting, mc.exiting),

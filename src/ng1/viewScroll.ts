@@ -1,5 +1,7 @@
 /** @module ng1 */ /** */
 import {IServiceProviderFactory} from "angular";
+import IAnchorScrollService = angular.IAnchorScrollService;
+import ITimeoutService = angular.ITimeoutService;
 
 /**
  * @ngdoc object
@@ -39,12 +41,12 @@ function $ViewScrollProvider() {
    * If you prefer to rely on `$anchorScroll` to scroll the view to the anchor,
    * this can be enabled by calling {@link ui.router.state.$uiViewScrollProvider#methods_useAnchorScroll `$uiViewScrollProvider.useAnchorScroll()`}.
    */
-  this.$get = ['$anchorScroll', '$timeout', function ($anchorScroll, $timeout) {
+  this.$get = ['$anchorScroll', '$timeout', function ($anchorScroll: IAnchorScrollService, $timeout: ITimeoutService): Function {
     if (useAnchorScroll) {
       return $anchorScroll;
     }
 
-    return function ($element) {
+    return function ($element: JQuery) {
       return $timeout(function () {
         $element[0].scrollIntoView();
       }, 0, false);

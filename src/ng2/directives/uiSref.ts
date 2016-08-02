@@ -5,13 +5,14 @@ import {Optional} from "@angular/core";
 import {ElementRef} from "@angular/core";
 import {Renderer} from "@angular/core";
 import {UIView, ParentUIViewInject} from "./uiView";
-import {extend} from "../../common/common";
+import {extend, Obj} from "../../common/common";
+import {TransitionOptions} from "../../transition/interface";
 
 /** @hidden */
 @Directive({ selector: 'a[uiSref]' })
 export class AnchorUISref {
   constructor(public _el: ElementRef, public _renderer: Renderer) { }
-  update(href) {
+  update(href: string) {
     this._renderer.setElementProperty(this._el.nativeElement, 'href', href);
   }
 }
@@ -72,9 +73,9 @@ export class UISref {
       @Optional() private _anchorUISref: AnchorUISref
   ) { }
 
-  set "uiSref"(val) { this.state = val; this.update(); }
-  set "uiParams"(val) { this.params = val; this.update(); }
-  set "uiOptions"(val) { this.options = val; this.update(); }
+  set "uiSref"(val: string) { this.state = val; this.update(); }
+  set "uiParams"(val: Obj) { this.params = val; this.update(); }
+  set "uiOptions"(val: TransitionOptions) { this.options = val; this.update(); }
 
   ngOnInit() {
     this.update();

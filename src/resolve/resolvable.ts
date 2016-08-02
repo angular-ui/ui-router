@@ -1,5 +1,5 @@
 /** @module resolve */ /** for typedoc */
-import {extend, equals, inArray} from "../common/common";
+import {extend, equals, inArray, identity} from "../common/common";
 import {services} from "../common/coreservices";
 import {trace} from "../common/trace";
 import {ResolvePolicy, ResolvableLiteral, resolvePolicies} from "./interface";
@@ -110,10 +110,10 @@ export class Resolvable implements ResolvableLiteral {
     // Gets all dependencies from ResolveContext and wait for them to be resolved
     const getResolvableDependencies = () =>
         $q.all(resolveContext.getDependencies(this).map(r =>
-            r.get(resolveContext, trans)));
+            r.get(resolveContext, trans))) as Promise<any[]>;
 
     // Invokes the resolve function passing the resolved dependencies as arguments
-    const invokeResolveFn = resolvedDeps =>
+    const invokeResolveFn = (resolvedDeps: any[]) =>
         this.resolveFn.apply(null, resolvedDeps);
 
     /**
@@ -124,7 +124,7 @@ export class Resolvable implements ResolvableLiteral {
      * - then calls toPromise() (this triggers subscribe() and thus fetches)
      * - Waits for the promise, then return the cached observable (not the first emitted value).
      */
-    const waitForRx = observable$ => {
+    const waitForRx = (observable$: any) => {
       let cached = observable$.cache();
       return cached.toPromise().then(() => cached);
     };
@@ -132,10 +132,10 @@ export class Resolvable implements ResolvableLiteral {
     // If the resolve policy is RXWAIT, wait for the observable to emit something. otherwise pass through.
     let node: PathNode = resolveContext.findNode(this);
     let state: State = node && node.state;
-    let maybeWaitForRx = this.getPolicy(state).async === "RXWAIT" ? waitForRx : x => x;
+    let maybeWaitForRx = this.getPolicy(state).async === "RXWAIT" ? waitForRx : identity;
 
     // After the final value has been resolved, update the state of the Resolvable
-    const applyResolvedValue = resolvedValue => {
+    const applyResolvedValue = (resolvedValue: any) => {
       this.data = resolvedValue;
       this.resolved = true;
       trace.traceResolvableResolved(this, trans);

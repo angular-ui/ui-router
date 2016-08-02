@@ -17,10 +17,16 @@
  * @module ng1_state_events
  */ /** */
 import {IServiceProviderFactory} from "angular";
+import {Obj} from "../../common/common";
 import {TargetState} from "../../state/targetState";
 import {StateService} from "../../state/stateService";
 import {StateProvider} from "../../state/state";
 import {Transition} from "../../transition/transition";
+import IAngularEvent = angular.IAngularEvent;
+import {TransitionService} from "../../transition/transitionService";
+import {UrlRouter} from "../../url/urlRouter";
+import IScope = angular.IScope;
+import {HookResult} from "../../transition/interface";
 
 /**
  * An event broadcast on `$rootScope` when the state transition **begins**.
@@ -50,7 +56,7 @@ import {Transition} from "../../transition/transition";
  * @deprecated use [[TransitionService.onStart]]
  * @event $stateChangeStart
  */
-var $stateChangeStart;
+var $stateChangeStart: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` if a transition is **cancelled**.
@@ -66,7 +72,7 @@ var $stateChangeStart;
  * @deprecated
  * @event $stateChangeCancel
  */
-var $stateChangeCancel;
+var $stateChangeCancel: IAngularEvent;
 
 /**
  *
@@ -83,7 +89,7 @@ var $stateChangeCancel;
  * @deprecated use [[TransitionService.onStart]] and [[Transition.promise]], or [[Transition.onSuccess]]
  * @event $stateChangeSuccess
  */
-var $stateChangeSuccess;
+var $stateChangeSuccess: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` when an **error occurs** during transition.
@@ -105,7 +111,7 @@ var $stateChangeSuccess;
  * @deprecated use [[TransitionService.onStart]] and [[Transition.promise]], or [[Transition.onError]]
  * @event $stateChangeError
  */
-var $stateChangeError;
+var $stateChangeError: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` when a requested state **cannot be found** using the provided state name.
@@ -139,14 +145,14 @@ var $stateChangeError;
  * @deprecated use [[StateProvider.onInvalid]] // TODO: Move to [[StateService.onInvalid]]
  * @event $stateNotFound
  */
-var $stateNotFound;
+var $stateNotFound: IAngularEvent;
 
 
 (function() {
   let {isFunction, isString} = angular;
 
-  function applyPairs(memo, keyValTuple: any[]) {
-    let key, value;
+  function applyPairs(memo: Obj, keyValTuple: any[]) {
+    let key: string, value: any;
     if (Array.isArray(keyValTuple)) [key, value] = keyValTuple;
     if (!isString(key)) throw new Error("invalid parameters to applyPairs");
     memo[key] = value;
@@ -202,9 +208,13 @@ var $stateNotFound;
   }
 
   stateNotFoundHandler.$inject = ['$to$', '$from$', '$state', '$rootScope', '$urlRouter'];
-  function stateNotFoundHandler($to$: TargetState, $from$: TargetState, $state: StateService, $rootScope, $urlRouter) {
+  function stateNotFoundHandler($to$: TargetState, $from$: TargetState, $state: StateService, $rootScope: IScope, $urlRouter: UrlRouter): HookResult {
+    interface StateNotFoundEvent extends IAngularEvent {
+      retry: Promise<any>;
+    }
+
     let redirect = {to: $to$.identifier(), toParams: $to$.params(), options: $to$.options()};
-    let e = $rootScope.$broadcast('$stateNotFound', redirect, $from$.state(), $from$.params());
+    let e = <StateNotFoundEvent> $rootScope.$broadcast('$stateNotFound', redirect, $from$.state(), $from$.params());
 
     if (e.defaultPrevented || e.retry)
       $urlRouter.update();
@@ -225,6 +235,7 @@ var $stateNotFound;
     $StateEventsProvider.prototype.instance = this;
 
     interface IEventsToggle {
+      [key: string]: boolean;
       $stateChangeStart: boolean;
       $stateNotFound: boolean;
       $stateChangeSuccess: boolean;
@@ -263,11 +274,11 @@ var $stateNotFound;
 
     this.$get = $get;
     $get.$inject = ['$transitions'];
-    function $get($transitions) {
+    function $get($transitions: TransitionService) {
       runtime = true;
 
       if (enabledStateEvents["$stateNotFound"])
-        $stateProvider.onInvalid(stateNotFoundHandler);
+        $stateProvider.onInvalid(stateNotFoundHandler as Function);
       if (enabledStateEvents.$stateChangeStart)
         $transitions.onBefore({}, stateChangeStartHandler, {priority: 1000});
 
@@ -280,6 +291,6 @@ var $stateNotFound;
 
   angular.module('ui.router.state.events', ['ui.router.state'])
       .provider("$stateEvents", <IServiceProviderFactory> $StateEventsProvider)
-      .run(['$stateEvents', function ($stateEvents) { /* Invokes $get() */
+      .run(['$stateEvents', function ($stateEvents: any) { /* Invokes $get() */
       }]);
 })();

@@ -5,6 +5,7 @@ import {Ng1ViewDeclaration} from "./interface";
 import {IInjectable, tail} from "../common/common";
 import {ResolveContext} from "../resolve/resolveContext";
 import {Resolvable} from "../resolve/resolvable";
+import {RawParams} from "../params/interface";
 
 /**
  * Service which manages loading of templates from a ViewConfig.
@@ -41,7 +42,7 @@ export class TemplateFactory {
    * @return {string|object} The template html as a string, or a promise for that 
    * string.
    */
-  fromString(template: (string|Function), params?) {
+  fromString(template: (string|Function), params?: RawParams) {
     return isFunction(template) ? (<any> template)(params) : template;
   };
 

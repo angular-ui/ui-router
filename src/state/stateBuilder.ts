@@ -1,5 +1,5 @@
 /** @module state */ /** for typedoc */
-import {map, omit, noop, extend, inherit, values, applyPairs, tail} from "../common/common";
+import {Obj, omit, noop, extend, inherit, values, applyPairs, tail, mapObj, identity} from "../common/common";
 import {isDefined, isFunction, isString, isArray} from "../common/predicates";
 import {stringify} from "../common/strings";
 import {prop, pattern, is, pipe, val} from "../common/hof";
@@ -20,7 +20,7 @@ const parseUrl = (url: string): any => {
   return { val: root ? url.substring(1) : url, root };
 };
 
-export type BuilderFunction = (state: State, parent?) => any;
+export type BuilderFunction = (state: State, parent?: BuilderFunction) => any;
 
 interface Builders {
   [key: string]: BuilderFunction[];
@@ -49,13 +49,13 @@ function dataBuilder(state: State) {
   return state.data;
 }
 
-const getUrlBuilder = ($urlMatcherFactoryProvider, root) =>
+const getUrlBuilder = ($urlMatcherFactoryProvider: UrlMatcherFactory, root: () => State) =>
 function urlBuilder(state: State) {
   let stateDec: StateDeclaration = <any> state;
   const parsed = parseUrl(stateDec.url), parent = state.parent;
   const url = !parsed ? stateDec.url : $urlMatcherFactoryProvider.compile(parsed.val, {
     params: state.params || {},
-    paramMap: function (paramConfig, isSearch) {
+    paramMap: function (paramConfig: any, isSearch: boolean) {
       if (stateDec.reloadOnSearch === false && isSearch) paramConfig = extend(paramConfig || {}, {dynamic: true});
       return paramConfig;
     }
@@ -66,7 +66,7 @@ function urlBuilder(state: State) {
   return (parsed && parsed.root) ? url : ((parent && parent.navigable) || root()).url.append(<UrlMatcher> url);
 };
 
-const getNavigableBuilder = (isRoot) =>
+const getNavigableBuilder = (isRoot: (state: State) => boolean) =>
 function navigableBuilder(state: State) {
   return !isRoot(state) && state.url ? state : (state.parent ? state.parent.navigable : null);
 };
@@ -74,7 +74,7 @@ function navigableBuilder(state: State) {
 function paramsBuilder(state: State): { [key: string]: Param } {
   const makeConfigParam = (config: any, id: string) => Param.fromConfig(id, null, config);
   let urlParams: Param[] = (state.url && state.url.parameters({inherit: false})) || [];
-  let nonUrlParams: Param[] = values(map(omit(state.params || {}, urlParams.map(prop('id'))), makeConfigParam));
+  let nonUrlParams: Param[] = values(mapObj(omit(state.params || {}, urlParams.map(prop('id'))), makeConfigParam));
   return urlParams.concat(nonUrlParams).map(p => [p.id, p]).reduce(applyPairs, {});
 }
 
@@ -130,18 +130,27 @@ function includesBuilder(state: State) {
  * ]
  */
 export function resolvablesBuilder(state: State): Resolvable[] {
+  interface Tuple { token: any, val: any, deps: any[], policy?: string }
+  
   /** convert a resolve: {} object to an array of tuples */
-  const obj2Tuples        = obj => Object.keys(obj || {}).map(token => ({token, val: obj[token], deps: undefined}));
+  const obj2Tuples        = (obj: Obj) =>
+      Object.keys(obj || {}).map(token => ({token, val: obj[token], deps: undefined}));
+
   /** fetch DI annotations from a function or ng1-style array */
-  const annotate          = fn  => fn.$inject || services.$injector.annotate(fn, services.$injector.strictDi);
+  const annotate          = (fn: Function)  =>
+      fn.$inject || services.$injector.annotate(fn, services.$injector.strictDi);
+
   /** true if the object has both `token` and `resolveFn`, and is probably a [[ResolveLiteral]] */
-  const isResolveLiteral  = obj => !!(obj.token && obj.resolveFn);
+  const isResolveLiteral  = (obj: any) => !!(obj.token && obj.resolveFn);
+
   /** true if the object looks like a provide literal, or a ng2 Provider */
-  const isLikeNg2Provider = obj => !!((obj.provide || obj.token) && (obj.useValue || obj.useFactory || obj.useExisting || obj.useClass));
+  const isLikeNg2Provider = (obj: any) => !!((obj.provide || obj.token) && (obj.useValue || obj.useFactory || obj.useExisting || obj.useClass));
+
   /** true if the object looks like a tuple from obj2Tuples */
-  const isTupleFromObj    = obj => !!(obj && obj.val && (isString(obj.val) || isArray(obj.val)  || isFunction(obj.val)));
+  const isTupleFromObj    = (obj: any) => !!(obj && obj.val && (isString(obj.val) || isArray(obj.val)  || isFunction(obj.val)));
+
   /** extracts the token from a Provider or provide literal */
-  const token             = p => p.provide || p.token;
+  const token             = (p: any) => p.provide || p.token;
 
   /** Given a literal resolve or provider object, returns a Resolvable */
   const literal2Resolvable = pattern([
@@ -149,21 +158,21 @@ export function resolvablesBuilder(state: State): Resolvable[] {
     [prop('useFactory'),  p => new Resolvable(token(p), p.useFactory, (p.deps || p.dependencies), p.policy)],
     [prop('useClass'),    p => new Resolvable(token(p), () => new (<any>p.useClass)(), [], p.policy)],
     [prop('useValue'),    p => new Resolvable(token(p), () => p.useValue, [], p.policy, p.useValue)],
-    [prop('useExisting'), p => new Resolvable(token(p), (x) => x, [p.useExisting], p.policy)],
+    [prop('useExisting'), p => new Resolvable(token(p), identity, [p.useExisting], p.policy)],
   ]);
 
   const tuple2Resolvable = pattern([
-    [pipe(prop("val"), isString),   tuple => new Resolvable(tuple.token, x => x, [ tuple.val ], tuple.policy)],
-    [pipe(prop("val"), isArray),    tuple => new Resolvable(tuple.token, tail(<any[]> tuple.val), tuple.val.slice(0, -1), tuple.policy)],
-    [pipe(prop("val"), isFunction), tuple => new Resolvable(tuple.token, tuple.val, annotate(tuple.val), tuple.policy)],
+    [pipe(prop("val"), isString),   (tuple: Tuple) => new Resolvable(tuple.token, identity, [ tuple.val ], tuple.policy)],
+    [pipe(prop("val"), isArray),    (tuple: Tuple) => new Resolvable(tuple.token, tail(<any[]> tuple.val), tuple.val.slice(0, -1), tuple.policy)],
+    [pipe(prop("val"), isFunction), (tuple: Tuple) => new Resolvable(tuple.token, tuple.val, annotate(tuple.val), tuple.policy)],
   ]);
 
-  const item2Resolvable = <(any) => Resolvable> pattern([
+  const item2Resolvable = <(obj: any) => Resolvable> pattern([
     [is(Resolvable),                (r: Resolvable) => r],
     [isResolveLiteral,              literal2Resolvable],
     [isLikeNg2Provider,             literal2Resolvable],
     [isTupleFromObj,                tuple2Resolvable],
-    [val(true),                     tuple => { throw new Error("Invalid resolve value: " + stringify(tuple)) }]
+    [val(true),                     (obj: any) => { throw new Error("Invalid resolve value: " + stringify(obj)) }]
   ]);
 
   // If resolveBlock is already an array, use it as-is.
@@ -193,7 +202,7 @@ export class StateBuilder {
     let self = this;
 
     const root = () => matcher.find("");
-    const isRoot = (state) => state.name === "";
+    const isRoot = (state: State) => state.name === "";
 
     function parentBuilder(state: State) {
       if (isRoot(state)) return null;
@@ -230,7 +239,7 @@ export class StateBuilder {
    * @param fn The BuilderFunction which will be used to build the State property
    * @returns a function which deregisters the BuilderFunction
    */
-  builder(name: string, fn: BuilderFunction) {
+  builder(name: string, fn: BuilderFunction): (BuilderFunction|BuilderFunction[]|Function) {
     let builders = this.builders;
     let array = builders[name] || [];
     // Backwards compat: if only one builder exists, return it, else return whole arary.
@@ -256,20 +265,20 @@ export class StateBuilder {
 
     for (let key in builders) {
       if (!builders.hasOwnProperty(key)) continue;
-      let chain = builders[key].reduce((parentFn, step: BuilderFunction) => (_state) => step(_state, parentFn), noop);
+      let chain = builders[key].reduce((parentFn: BuilderFunction, step: BuilderFunction) => (_state) => step(_state, parentFn), noop);
       state[key] = chain(state);
     }
     return state;
   }
 
-  parentName(state) {
+  parentName(state: State) {
     let name = state.name || "";
     if (name.indexOf('.') !== -1) return name.substring(0, name.lastIndexOf('.'));
     if (!state.parent) return "";
     return isString(state.parent) ? state.parent : state.parent.name;
   }
 
-  name(state) {
+  name(state: State) {
     let name = state.name;
     if (name.indexOf('.') !== -1 || !state.parent) return name;
 

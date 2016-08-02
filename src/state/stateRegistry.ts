@@ -8,6 +8,7 @@ import {UrlMatcherFactory} from "../url/urlMatcherFactory";
 import {StateDeclaration} from "./interface";
 import {BuilderFunction} from "./stateBuilder";
 import {StateOrName} from "./interface";
+import {UrlRouterProvider} from "../url/urlRouter";
 
 export class StateRegistry {
   private _root: State;
@@ -17,7 +18,7 @@ export class StateRegistry {
   private builder: StateBuilder;
   stateQueue: StateQueueManager;
 
-  constructor(urlMatcherFactory: UrlMatcherFactory, urlRouterProvider) {
+  constructor(urlMatcherFactory: UrlMatcherFactory, urlRouterProvider: UrlRouterProvider) {
     this.matcher = new StateMatcher(this.states);
     this.builder = new StateBuilder(this.matcher, urlMatcherFactory);
     this.stateQueue = new StateQueueManager(this.states, this.builder, urlRouterProvider);

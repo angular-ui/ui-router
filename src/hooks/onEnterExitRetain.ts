@@ -12,8 +12,10 @@ import {Transition} from "../transition/transition";
  * @hidden
  */
 function makeEnterExitRetainHook(hookName: string): TransitionStateHookFn {
-    return (transition: Transition, state: State) =>
-        state[hookName](transition, state);
+    return (transition: Transition, state: State) => {
+        let hookFn: TransitionStateHookFn = state[hookName];
+        return hookFn(transition, state);
+    }
 }
 
 /**

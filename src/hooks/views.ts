@@ -14,7 +14,7 @@ import {ViewConfig} from "../view/interface";
  * Allows the views to do async work in [[ViewConfig.load]] before the transition continues.
  * In angular 1, this includes loading the templates.
  */
-export function loadEnteringViews(transition) {
+export function loadEnteringViews(transition: Transition) {
   let enteringViews = transition.views("entering");
   if (!enteringViews.length) return;
   return services.$q.all(enteringViews.map(view => view.load())).then(noop);

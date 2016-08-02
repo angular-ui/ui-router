@@ -40,7 +40,7 @@ export interface SrefStatus {
  */
 @Directive({ selector: '[uiSrefStatus],[uiSrefActive],[uiSrefActiveEq]' })
 export class UISrefStatus {
-  private _deregisterHook;
+  private _deregisterHook: Function;
 
   // current statuses of the state/params the uiSref directive is linking to
   @Output("uiSrefStatus") uiSrefStatus = new EventEmitter<SrefStatus>(false);

@@ -2,28 +2,31 @@
 import {extend, bindFunctions, IInjectable} from "../common/common";
 import {isFunction, isString, isDefined, isArray} from "../common/predicates";
 import {UrlMatcher} from "./urlMatcher";
-import {services} from "../common/coreservices";
+import {services, $InjectorLike} from "../common/coreservices";
 import {UrlMatcherFactory} from "./urlMatcherFactory";
 import {StateParams} from "../params/stateParams";
+import IInjectorService = angular.auto.IInjectorService;
+import {RawParams} from "../params/interface";
+import ILocationService = angular.ILocationService;
 
 /** @hidden */
 let $location = services.location;
 
 /** @hidden Returns a string that is a prefix of all strings matching the RegExp */
-function regExpPrefix(re) {
+function regExpPrefix(re: RegExp) {
   let prefix = /^\^((?:\\[^a-zA-Z0-9]|[^\\\[\]\^$*+?.()|{}]+)*)/.exec(re.source);
   return (prefix != null) ? prefix[1].replace(/\\(.)/g, "$1") : '';
 }
 
 /** @hidden Interpolates matched values into a String.replace()-style pattern */
-function interpolate(pattern, match) {
+function interpolate(pattern: string, match: RegExpExecArray) {
   return pattern.replace(/\$(\$|\d{1,2})/, function (m, what) {
     return match[what === '$' ? 0 : Number(what)];
   });
 }
 
 /** @hidden */
-function handleIfMatch($injector, $stateParams, handler, match) {
+function handleIfMatch($injector: $InjectorLike, $stateParams: RawParams, handler: IInjectable, match: RawParams) {
   if (!match) return false;
   let result = $injector.invoke(handler, handler, { $match: match, $stateParams: $stateParams });
   return isDefined(result) ? result : true;
@@ -43,7 +46,7 @@ function appendBasePath(url: string, isHtml5: boolean, absolute: boolean): strin
 function update(rules: Function[], otherwiseFn: Function, evt?: any) {
   if (evt && evt.defaultPrevented) return;
 
-  function check(rule) {
+  function check(rule: Function) {
     let handled = rule(services.$injector, $location);
 
     if (!handled) return false;
@@ -53,9 +56,9 @@ function update(rules: Function[], otherwiseFn: Function, evt?: any) {
     }
     return true;
   }
-  let n = rules.length, i;
+  let n = rules.length;
 
-  for (i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++) {
     if (check(rules[i])) return;
   }
   // always check otherwise last to allow dynamic updates to the set of rules
@@ -70,9 +73,9 @@ function update(rules: Function[], otherwiseFn: Function, evt?: any) {
  */
 export class UrlRouterProvider {
   /** @hidden */
-  rules = [];
+  rules: Function[] = [];
   /** @hidden */
-  otherwiseFn: ($injector, $location) => string;
+  otherwiseFn: ($injector: IInjectorService, $location: ILocationService) => string;
   /** @hidden */
   interceptDeferred = false;
 
@@ -118,7 +121,7 @@ export class UrlRouterProvider {
    *
    * @return [[$urlRouterProvider]] (`this`)
    */
-  rule(rule: ($injector, $location) => string): UrlRouterProvider {
+  rule(rule: ($injector: IInjectorService, $location: ILocationService) => string): UrlRouterProvider {
     if (!isFunction(rule)) throw new Error("'rule' must be a function");
     this.rules.push(rule);
     return this;
@@ -151,7 +154,7 @@ export class UrlRouterProvider {
    *
    * @return {object} `$urlRouterProvider` - `$urlRouterProvider` instance
    */
-  otherwise(rule: string | (($injector, $location) => string)): UrlRouterProvider {
+  otherwise(rule: string | (($injector: IInjectorService, $location: ILocationService) => string)): UrlRouterProvider {
     if (!isFunction(rule) && !isString(rule)) throw new Error("'rule' must be a string or function");
     this.otherwiseFn = isString(rule) ? () => rule : rule;
     return this;
@@ -337,7 +340,7 @@ export class UrlRouter {
   /**
    * Internal API.
    */
-  update(read?) {
+  update(read?: boolean) {
     if (read) {
       this.location = $location.url();
       return;

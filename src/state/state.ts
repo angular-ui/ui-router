@@ -3,7 +3,8 @@ import {isObject} from "../common/predicates";
 import {bindFunctions} from "../common/common";
 import {BuilderFunction} from "./stateBuilder";
 import {StateRegistry} from "./stateRegistry";
-import {State} from "./stateObject"; // TS4053
+import {State} from "./stateObject";
+import {Ng1StateDeclaration} from "../ng1/interface"; // TS4053
 
 /**
  * @ngdoc object
@@ -261,7 +262,9 @@ export class StateProvider {
    * To create a parent/child state use a dot, e.g. "about.sales", "home.newest".
    * @param {object} definition State configuration object.
    */
-  state(name, definition) {
+  state(name: string, definition: Ng1StateDeclaration): StateProvider;
+  state(definition: Ng1StateDeclaration): StateProvider;
+  state(name: any, definition?: any) {
     if (isObject(name)) {
       definition = name;
     } else {

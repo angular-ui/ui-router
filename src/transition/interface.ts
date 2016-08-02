@@ -736,6 +736,7 @@ export interface HookMatchCriteria {
 }
 
 export interface IMatchingNodes {
+  [key: string]: PathNode[];
   to: PathNode[];
   from: PathNode[];
   exiting: PathNode[];

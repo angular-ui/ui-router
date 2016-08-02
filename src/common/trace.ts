@@ -32,14 +32,17 @@
 import {parse} from "../common/hof";
 import {isNumber} from "../common/predicates";
 import {Transition}  from "../transition/transition";
-import {ActiveUIView, ViewConfig}  from "../view/interface";
+import {ActiveUIView, ViewConfig, ViewContext}  from "../view/interface";
 import {stringify, functionToString, maxLength, padString} from "./strings";
 import {Resolvable} from "../resolve/resolvable";
 import {PathNode} from "../path/node";
 import {PolicyWhen} from "../resolve/interface";
+import {TransitionHook} from "../transition/transitionHook";
+import {HookResult} from "../transition/interface";
+import {State} from "../state/stateObject";
 
 /** @hidden */
-function uiViewString (viewData) {
+function uiViewString (viewData: ActiveUIView) {
     if (!viewData) return 'ui-view (defunct)';
     return `[ui-view#${viewData.id} tag ` +
         `in template from '${viewData.creationContext && viewData.creationContext.name || '(root)'}' state]: ` +
@@ -71,7 +74,7 @@ function normalizedCat(input: Category): string {
  * `trace.enable(1)`
  */
 export enum Category {
-  RESOLVE, TRANSITION, HOOK, INVOKE, UIVIEW, VIEWCONFIG
+  RESOLVE, TRANSITION, HOOK, UIVIEW, VIEWCONFIG
 }
 
 /**
@@ -90,8 +93,9 @@ export class Trace {
    /** @hidden */
   private _set(enabled: boolean, categories: Category[]) {
     if (!categories.length) {
-      categories = Object.keys(Category)
-          .filter(k => isNaN(parseInt(k, 10)))
+      categories = <any> Object.keys(Category)
+          .map(k => parseInt(k, 10))
+          .filter(k => !isNaN(k))
           .map(key => Category[key]);
     }
     categories.map(normalizedCat).forEach(category => this._enabled[category] = enabled);
@@ -152,18 +156,18 @@ export class Trace {
   }
 
   /** called by ui-router code */
-  traceHookInvocation(step, options) {
+  traceHookInvocation(step: TransitionHook, options: any) {
     if (!this.enabled(Category.HOOK)) return;
     let tid = parse("transition.$id")(options),
         digest = this.approximateDigests,
         event = parse("traceData.hookType")(options) || "internal",
         context = parse("traceData.context.state.name")(options) || parse("traceData.context")(options) || "unknown",
-        name = functionToString(step.fn);
+        name = functionToString((step as any).hookFn);
     console.log(`Transition #${tid} Digest #${digest}:   Hook -> ${event} context: ${context}, ${maxLength(200, name)}`);
   }
 
   /** called by ui-router code */
-  traceHookResult(hookResult, transitionResult, transitionOptions) {
+  traceHookResult(hookResult: HookResult, transitionResult: Promise<any>, transitionOptions: any) {
     if (!this.enabled(Category.HOOK)) return;
     let tid = parse("transition.$id")(transitionOptions),
         digest = this.approximateDigests,
@@ -192,16 +196,16 @@ export class Trace {
   }
 
   /** called by ui-router code */
-  traceError(error, trans: Transition) {
+  traceError(reason: any, trans: Transition) {
     if (!this.enabled(Category.TRANSITION)) return;
     let tid = trans && trans.$id,
         digest = this.approximateDigests,
         transitionStr = stringify(trans);
-    console.log(`Transition #${tid} Digest #${digest}: <- Rejected ${transitionStr}, reason: ${error}`);
+    console.log(`Transition #${tid} Digest #${digest}: <- Rejected ${transitionStr}, reason: ${reason}`);
   }
 
   /** called by ui-router code */
-  traceSuccess(finalState, trans: Transition) {
+  traceSuccess(finalState: State, trans: Transition) {
     if (!this.enabled(Category.TRANSITION)) return;
     let tid = trans && trans.$id,
         digest = this.approximateDigests,
@@ -217,19 +221,13 @@ export class Trace {
   }
 
   /** called by ui-router code */
-  traceUIViewConfigUpdated(viewData: ActiveUIView, context) {
+  traceUIViewConfigUpdated(viewData: ActiveUIView, context: ViewContext) {
     if (!this.enabled(Category.UIVIEW)) return;
     this.traceUIViewEvent("Updating", viewData, ` with ViewConfig from context='${context}'`);
   }
 
   /** called by ui-router code */
-  traceUIViewScopeCreated(viewData: ActiveUIView, newScope) {
-    if (!this.enabled(Category.UIVIEW)) return;
-    this.traceUIViewEvent("Created scope for", viewData, `, scope #${newScope.$id}`);
-  }
-
-  /** called by ui-router code */
-  traceUIViewFill(viewData: ActiveUIView, html) {
+  traceUIViewFill(viewData: ActiveUIView, html: string) {
     if (!this.enabled(Category.UIVIEW)) return;
     this.traceUIViewEvent("Fill", viewData, ` with: ${maxLength(200, html)}`);
   }

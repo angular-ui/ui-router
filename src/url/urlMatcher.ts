@@ -1,7 +1,7 @@
 /** @module url */ /** for typedoc */
 import {
   map, defaults, extend, inherit, identity,
-  unnest, tail, forEach, find, omit, pairs, allTrueR
+  unnest, tail, forEach, find, Obj, pairs, allTrueR
 } from "../common/common";
 import {prop, propEq } from "../common/hof";
 import {isArray, isString} from "../common/predicates";
@@ -32,7 +32,8 @@ function quoteRegExp(string: any, param?: any) {
 }
 
 /** @hidden */
-const memoizeTo = (obj, prop, fn) => obj[prop] = obj[prop] || fn();
+const memoizeTo = (obj: Obj, prop: string, fn: Function) =>
+    obj[prop] = obj[prop] || fn();
 
 /**
  * Matches URLs against patterns.
@@ -141,16 +142,16 @@ export class UrlMatcher {
     //    \{(?:[^{}\\]+|\\.)*\}          - a matched set of curly braces containing other atoms
     let placeholder = /([:*])([\w\[\]]+)|\{([\w\[\]]+)(?:\:\s*((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
         searchPlaceholder = /([:]?)([\w\[\].-]+)|\{([\w\[\].-]+)(?:\:\s*((?:[^{}\\]+|\\.|\{(?:[^{}\\]+|\\.)*\})+))?\}/g,
-        last = 0, m, patterns = [];
+        last = 0, m: RegExpExecArray, patterns: any[][] = [];
 
-    const checkParamErrors = (id) => {
+    const checkParamErrors = (id: string) => {
       if (!UrlMatcher.nameValidator.test(id)) throw new Error(`Invalid parameter name '${id}' in pattern '${pattern}'`);
       if (find(this._params, propEq('id', id))) throw new Error(`Duplicate parameter name '${id}' in pattern '${pattern}'`);
     };
 
     // Split into static segments separated by path parameter placeholders.
     // The number of segments is always 1 more than the number of parameters.
-    const matchDetails = (m, isSearch) => {
+    const matchDetails = (m: RegExpExecArray, isSearch: boolean) => {
       // IE[78] returns '' for unmatched groups instead of null
       let id = m[2] || m[3], regexp = isSearch ? m[4] : m[4] || (m[1] === '*' ? '.*' : null);
 
@@ -165,7 +166,7 @@ export class UrlMatcher {
       };
     }
 
-    let p, segment;
+    let p: any, segment: string;
 
     while ((m = placeholder.exec(pattern))) {
       p = matchDetails(m, false);
@@ -278,7 +279,7 @@ export class UrlMatcher {
         pathParams:   Param[] = allParams.filter(param => !param.isSearch()),
         searchParams: Param[] = allParams.filter(param => param.isSearch()),
         nPathSegments  = this._cache.path.concat(this).map(urlm => urlm._segments.length - 1).reduce((a, x) => a + x),
-        values = {};
+        values: RawParams = {};
 
     if (nPathSegments !== match.length - 1)
       throw new Error(`Unbalanced capture group in route '${this.pattern}'`);
@@ -304,7 +305,7 @@ export class UrlMatcher {
       if (isDefined(value)) value = param.type.decode(value);
       values[param.id] = param.value(value);
     }
-    forEach(searchParams, param => {
+    searchParams.forEach(param => {
       let value = search[param.id];
       for (let j = 0; j < param.replace.length; j++) {
         if (param.replace[j].from === value) value = param.replace[j].to;
@@ -358,7 +359,8 @@ export class UrlMatcher {
    * @returns Returns `true` if `params` validates, otherwise `false`.
    */
   validates(params: RawParams): boolean {
-    const validParamVal = (param: Param, val) => !param || param.validates(val);
+    const validParamVal = (param: Param, val: any) => 
+        !param || param.validates(val);
     return pairs(params || {}).map(([key, val]) => validParamVal(this.parameter(key), val)).reduce(allTrueR, true);
   }
 
@@ -378,7 +380,7 @@ export class UrlMatcher {
    * @param values  the values to substitute for the parameters in this pattern.
    * @returns the formatted URL (path and optionally search part).
    */
-  format(values = {}) {
+  format(values: RawParams = {}) {
     if (!this.validates(values)) return null;
 
     // Build the full path of UrlMatchers (including all parent UrlMatchers)
@@ -447,7 +449,7 @@ export class UrlMatcher {
   }
 
   /** @hidden */
-  static encodeDashes(str) { // Replace dashes with encoded "\-"
+  static encodeDashes(str: string) { // Replace dashes with encoded "\-"
     return encodeURIComponent(str).replace(/-/g, c => `%5C%${c.charCodeAt(0).toString(16).toUpperCase()}`);
   }
 

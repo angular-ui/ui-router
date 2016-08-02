@@ -1,5 +1,8 @@
 /** @module state */ /** for typedoc */
 
+import {Obj} from "../common/common";
+import {StateService} from "../state/stateService";
+import {StateOrName} from "../state/interface";
 /**
  * @ngdoc filter
  * @name ui.router.state.filter:isState
@@ -10,8 +13,8 @@
  * Translates to {@link ui.router.state.$state#methods_is $state.is("stateName")}.
  */
 $IsStateFilter.$inject = ['$state'];
-export function $IsStateFilter($state) {
-  var isFilter: any = function(state, params, options) {
+export function $IsStateFilter($state: StateService) {
+  var isFilter: any = function(state: StateOrName, params: Obj, options: Obj) {
     return $state.is(state, params, options);
   };
   isFilter.$stateful = true;
@@ -28,8 +31,8 @@ export function $IsStateFilter($state) {
  * Translates to {@link ui.router.state.$state#methods_includes $state.includes('fullOrPartialStateName')}.
  */
 $IncludedByStateFilter.$inject = ['$state'];
-export function $IncludedByStateFilter($state) {
-  var includesFilter: any = function(state, params, options) {
+export function $IncludedByStateFilter($state: StateService) {
+  var includesFilter: any = function(state: StateOrName, params: Obj, options: Obj) {
     return $state.includes(state, params, options);
   };
   includesFilter.$stateful = true;

@@ -7,10 +7,10 @@ export * from "./core";
 import {services} from "./common/coreservices";
 import {stringify} from "./common/strings";
 import {isFunction, isArray, isObject, isInjectable} from "./common/predicates";
-import {extend, assertPredicate} from "./common/common";
+import {extend, assertPredicate, TypedMap, Obj} from "./common/common";
 
 /** $q-like promise api */
-services.$q = (executor: (resolve, reject) => void) => new Promise(executor);
+services.$q = ((executor) => new Promise(executor)) as any;
 services.$q.when = (val) => Promise.resolve(val);
 services.$q.reject = (val) => Promise.reject(val);
 services.$q.defer = function() {
@@ -23,18 +23,21 @@ services.$q.defer = function() {
   return deferred;
 };
 
-services.$q.all = function (promises: { [key: string]: Promise<any> } | Promise<any>[]) {
+type Promises = TypedMap<Promise<any>>;
+
+services.$q.all = function (promises: Promises | Promise<any>[]) {
   if (isArray(promises)) {
     return Promise.all(promises);
   }
 
   if (isObject(promises)) {
+    var p = <Promises> promises;
     // Convert promises map to promises array.
     // When each promise resolves, map it to a tuple { key: key, val: val }
     let objectToTuples = Object.keys(promises)
-        .map(key => promises[key].then(val => ({key, val})));
+        .map(key => p[key].then(val => ({key, val})));
 
-    const tuplesToObject = values =>
+    const tuplesToObject = (values: any[]) =>
         values.reduce((acc, tuple) => { acc[tuple.key] = tuple.val; return acc; }, {});
 
     // Then wait for all promises to resolve, and convert them back to an object
@@ -49,30 +52,33 @@ services.$q.all = function (promises: { [key: string]: Promise<any> } | Promise<
 // angular1-like injector api
 
 // globally available injectables
-let globals = { };
-services.$injector = { };
+let globals: { [key: string]: any } = {};
+services.$injector = {
+  get: (name: any) => globals[<string> name],
 
-services.$injector.get = name => globals[name];
-services.$injector.has = (name) => services.$injector.get(name) != null;
-services.$injector.invoke = function(fn, context?, locals?) {
-  let all = extend({}, globals, locals || {});
-  let params = services.$injector.annotate(fn);
-  let ensureExist = assertPredicate(key => all.hasOwnProperty(key), key => `Could not find Dependency Injection token: ${stringify(key)}`);
-  let args = params.filter(ensureExist).map(x => all[x]);
-  if (isFunction(fn)) return fn.apply(context, args);
-  return fn.slice(-1)[0].apply(context, args);
-};
+  has: (name: any) => services.$injector.get(name) != null,
 
-let STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
-let ARGUMENT_NAMES = /([^\s,]+)/g;
-// http://stackoverflow.com/questions/1007981
-services.$injector.annotate = function(fn) {
-  if (!isInjectable(fn)) throw new Error(`Not an injectable function: ${fn}`);
-  if (fn && fn.$inject) return fn.$inject;
-  if (isArray(fn)) return fn.slice(0, -1);
-  let fnStr = fn.toString().replace(STRIP_COMMENTS, '');
-  let result = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
-  return result || [];
+  invoke: function(fn: Function, context?: any, locals?: Obj) {
+    let all = extend({}, globals, locals || {});
+    let params = services.$injector.annotate(fn);
+    let ensureExist = assertPredicate(key => all.hasOwnProperty(key), (key: any) => `Could not find Dependency Injection token: ${stringify(key)}`);
+    let args = params.filter(ensureExist).map(x => all[x]);
+    if (isFunction(fn)) return fn.apply(context, args);
+    return (fn as any).slice(-1)[0].apply(context, args);
+  },
+
+  // http://stackoverflow.com/questions/1007981
+  annotate: function(fn: Function) {
+    let STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+    let ARGUMENT_NAMES = /([^\s,]+)/g;
+    if (!isInjectable(fn)) throw new Error(`Not an injectable function: ${fn}`);
+    if (fn && fn.$inject) return fn.$inject;
+    if (isArray(fn)) return (fn as any).slice(0, -1);
+    let fnStr = fn.toString().replace(STRIP_COMMENTS, '');
+    let result = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
+    return result || [];
+  }
+
 };
 
 let loc = <any> services.location;
@@ -80,9 +86,9 @@ let loc = <any> services.location;
 loc.hash = () => "";
 loc.path = () => location.hash.replace(/^#/, "");
 loc.search = () => location.search;
-loc.url = (url) => { if (url) location.hash = url; return loc.path(); };
+loc.url = (url: string) => { if (url) location.hash = url; return loc.path(); };
 loc.replace = () => { console.log(new Error("not impl")); };
-loc.onChange = (cb) => {
+loc.onChange = (cb: (ev?: HashChangeEvent) => any) => {
   window.addEventListener("hashchange", cb, false);
 };
 

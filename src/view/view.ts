@@ -8,9 +8,6 @@ import {PathNode} from "../path/node";
 import {ActiveUIView, ViewContext, ViewConfig} from "./interface";
 import {_ViewDeclaration} from "../state/interface";
 
-const match = (obj1, ...keys) =>
-    (obj2) => keys.reduce((memo, key) => memo && obj1[key] === obj2[key], true);
-
 export type ViewConfigFactory = (path: PathNode[], decl: _ViewDeclaration) => ViewConfig|ViewConfig[];
 
 /**
@@ -19,12 +16,12 @@ export type ViewConfigFactory = (path: PathNode[], decl: _ViewDeclaration) => Vi
 export class ViewService {
   private uiViews: ActiveUIView[] = [];
   private viewConfigs: ViewConfig[] = [];
-  private _rootContext;
+  private _rootContext: ViewContext;
   private _viewConfigFactories: { [key: string]: ViewConfigFactory } = {};
 
   constructor() { }
 
-  rootContext(context) {
+  rootContext(context?: ViewContext): ViewContext {
     return this._rootContext = context || this._rootContext;
   };
 

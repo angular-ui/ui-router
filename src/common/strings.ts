@@ -2,7 +2,7 @@
 
 import {isString, isArray, isDefined, isNull, isPromise, isInjectable, isObject} from "./predicates";
 import {Rejection} from "../transition/rejectFactory";
-import {IInjectable, identity} from "./common";
+import {IInjectable, identity, Obj} from "./common";
 import {pattern, is, not, val, invoke} from "./hof";
 import {Transition} from "../transition/transition";
 import {Resolvable} from "../resolve/resolvable";
@@ -41,7 +41,7 @@ export function kebobString(camelCase: string) {
       .replace(/([A-Z])/g, $1 => "-" + $1.toLowerCase()); // replace rest
 }
 
-function _toJson(obj: Object) {
+function _toJson(obj: Obj) {
   return JSON.stringify(obj);
 }
 
@@ -65,11 +65,11 @@ export function fnToString(fn: IInjectable) {
   return _fn && _fn.toString() || "undefined";
 }
 
-let stringifyPatternFn = null;
-let stringifyPattern = function(value) {
+let stringifyPatternFn: (val: any) => string = null;
+let stringifyPattern = function(value: any) {
   let isTransitionRejectionPromise = Rejection.isTransitionRejectionPromise;
 
-  stringifyPatternFn = stringifyPatternFn || pattern([
+  stringifyPatternFn = <any> stringifyPatternFn || pattern([
     [not(isDefined),                  val("undefined")],
     [isNull,                          val("null")],
     [isPromise,                       val("[Promise]")],
@@ -84,7 +84,7 @@ let stringifyPattern = function(value) {
   return stringifyPatternFn(value);
 };
 
-export function stringify(o: Object) {
+export function stringify(o: any) {
   var seen: any[] = [];
 
   function format(val: any) {

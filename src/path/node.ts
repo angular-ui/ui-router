@@ -1,6 +1,6 @@
 /** @module path */ /** for typedoc */
 import {extend, applyPairs, find, allTrueR} from "../common/common";
-import {prop, propEq} from "../common/hof";
+import {propEq} from "../common/hof";
 import {State} from "../state/stateObject";
 import {RawParams} from "../params/interface";
 import {Param} from "../params/param";
@@ -30,15 +30,16 @@ export class PathNode {
   constructor(state: PathNode);
   /** Creates a new (empty) PathNode for a State */
   constructor(state: State);
-  constructor(state) {
-    if (state instanceof PathNode) {
-      let node: PathNode = state;
+  constructor(stateOrPath: any) {
+    if (stateOrPath instanceof PathNode) {
+      let node: PathNode = stateOrPath;
       this.state = node.state;
       this.paramSchema = node.paramSchema.slice();
       this.paramValues = extend({}, node.paramValues);
       this.resolvables = node.resolvables.slice();
       this.views = node.views && node.views.slice();
     } else {
+      let state: State = stateOrPath;
       this.state = state;
       this.paramSchema = state.parameters({ inherit: false });
       this.paramValues = {};
@@ -62,8 +63,9 @@ export class PathNode {
    * @returns true if the state and parameter values for another PathNode are
    * equal to the state and param values for this PathNode
    */
-  equals(node: PathNode, keys = this.paramSchema.map(prop('id'))): boolean {
-    const paramValsEq = key => this.parameter(key).type.equals(this.paramValues[key], node.paramValues[key]);
+  equals(node: PathNode, keys = this.paramSchema.map(p => p.id)): boolean {
+    const paramValsEq = (key: string) =>
+        this.parameter(key).type.equals(this.paramValues[key], node.paramValues[key]);
     return this.state === node.state && keys.map(paramValsEq).reduce(allTrueR, true);
   }
 
@@ -79,7 +81,7 @@ export class PathNode {
    * Nodes are compared using their state property and parameter values.
    */
   static matching(pathA: PathNode[], pathB: PathNode[]): PathNode[] {
-    let matching = [];
+    let matching: PathNode[] = [];
 
     for (let i = 0; i < pathA.length && i < pathB.length; i++) {
       let a = pathA[i], b = pathB[i];

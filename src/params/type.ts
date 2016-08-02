@@ -6,12 +6,14 @@ import {ParamTypeDefinition} from "./interface";
 /**
  * Wraps up a `ParamType` object to handle array values.
  */
-function ArrayType(type, mode) {
+function ArrayType(type: ParamType, mode: (boolean|"auto")) {
   // Wrap non-array value as array
-  function arrayWrap(val): any[] { return isArray(val) ? val : (isDefined(val) ? [ val ] : []); }
+  function arrayWrap(val: any): any[] {
+    return isArray(val) ? val : (isDefined(val) ? [ val ] : []);
+  }
 
   // Unwrap array value for "auto" mode. Return undefined for empty array.
-  function arrayUnwrap(val) {
+  function arrayUnwrap(val: any) {
     switch (val.length) {
       case 0: return undefined;
       case 1: return mode === "auto" ? val[0] : val;
@@ -20,8 +22,8 @@ function ArrayType(type, mode) {
   }
 
   // Wraps type (.is/.encode/.decode) functions to operate on each value of an array
-  function arrayHandler(callback, allTruthyMode?: boolean) {
-    return function handleArray(val) {
+  function arrayHandler(callback: (x: any) => any, allTruthyMode?: boolean) {
+    return function handleArray(val: any) {
       if (isArray(val) && val.length === 0) return val;
       let arr = arrayWrap(val);
       let result = map(arr, callback);
@@ -30,8 +32,8 @@ function ArrayType(type, mode) {
   }
 
   // Wraps type (.equals) functions to operate on each value of an array
-  function arrayEqualsHandler(callback) {
-    return function handleArray(val1, val2) {
+  function arrayEqualsHandler(callback: (l: any, r: any) => boolean) {
+    return function handleArray(val1: any, val2: any) {
       let left = arrayWrap(val1), right = arrayWrap(val2);
       if (left.length !== right.length) return false;
       for (let i = 0; i < left.length; i++) {
@@ -41,8 +43,10 @@ function ArrayType(type, mode) {
     };
   }
 
-  ['encode', 'decode', 'equals', '$normalize'].map(name => {
-    this[name] = (name === 'equals' ? arrayEqualsHandler : arrayHandler)(type[name].bind(type));
+  ['encode', 'decode', 'equals', '$normalize'].forEach(name => {
+    var paramTypeFn = type[name].bind(type);
+    var wrapperFn: Function = name === 'equals' ? arrayEqualsHandler : arrayHandler;
+    this[name] = wrapperFn(paramTypeFn);
   });
 
   extend(this, {
@@ -112,7 +116,7 @@ export class ParamType implements ParamTypeDefinition {
   }
 
   /** Given an encoded string, or a decoded object, returns a decoded object */
-  $normalize(val) {
+  $normalize(val: any) {
     return this.is(val) ? val : this.decode(val);
   }
 
@@ -126,9 +130,9 @@ export class ParamType implements ParamTypeDefinition {
    * - url: "/path?queryParam=1 will create $stateParams.queryParam: 1
    * - url: "/path?queryParam=1&queryParam=2 will create $stateParams.queryParam: [1, 2]
    */
-  $asArray(mode, isSearch) {
+  $asArray(mode: (boolean|"auto"), isSearch: boolean) {
     if (!mode) return this;
     if (mode === "auto" && !isSearch) throw new Error("'auto' array mode is for query parameters only");
-    return new ArrayType(this, mode);
+    return new (<any> ArrayType)(this, mode);
   }
 }

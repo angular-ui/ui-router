@@ -2,7 +2,7 @@
 import {State} from "../../state/stateObject";
 import {PathNode} from "../../path/node";
 import {ResolveContext} from "../../resolve/resolveContext";
-import {map} from "../../common/common";
+import {Obj, mapObj} from "../../common/common";
 import {resolvablesBuilder} from "../../state/stateBuilder";
 
 /**
@@ -38,19 +38,19 @@ var $resolve = {
    * @param locals key/value pre-resolved data (locals)
    * @param parent a promise for a "parent resolve"
    */
-  resolve: (invocables, locals = {}, parent?) => {
+  resolve: (invocables: { [key: string]: Function }, locals = {}, parent?: Promise<any>) => {
     let parentNode = new PathNode(new State(<any> { params: {}, resolvables: [] }));
     let node = new PathNode(new State(<any> { params: {}, resolvables: [] }));
     let context = new ResolveContext([parentNode, node]);
 
     context.addResolvables(resolvablesBuilder(<any> { resolve: invocables }), node.state);
 
-    const resolveData = (parentLocals) => {
-      const rewrap = _locals => resolvablesBuilder(<any> { resolve: map(_locals, local => () => local) });
+    const resolveData = (parentLocals: Obj) => {
+      const rewrap = (_locals: Obj) => resolvablesBuilder(<any> { resolve: mapObj(_locals, local => () => local) });
       context.addResolvables(rewrap(parentLocals), parentNode.state);
       context.addResolvables(rewrap(locals), node.state);
 
-      const tuples2ObjR = (acc, tuple) => {
+      const tuples2ObjR = (acc: Obj, tuple: { token: any, value: any }) => {
         acc[tuple.token] = tuple.value;
         return acc;
       };

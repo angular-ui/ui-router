@@ -1,10 +1,12 @@
 /** @module state */ /** for typedoc */
-import {extend, inherit, pluck, equalForKeys, abstractKey} from "../common/common";
+import {extend, inherit, pluck, equalForKeys} from "../common/common";
 import {isString} from "../common/predicates";
 import {StateDeclaration} from "./interface";
 import {State} from "./stateObject";
 import {StateBuilder} from "./stateBuilder";
 import {StateService} from "./stateService";
+import {UrlRouterProvider} from "../url/urlRouter";
+import {RawParams} from "../params/interface";
 
 export class StateQueueManager {
   queue: State[];
@@ -13,7 +15,7 @@ export class StateQueueManager {
   constructor(
       public states: { [key: string]: State; },
       public builder: StateBuilder,
-      public $urlRouterProvider) {
+      public $urlRouterProvider: UrlRouterProvider) {
     this.queue = [];
   }
 
@@ -39,9 +41,10 @@ export class StateQueueManager {
     return state;
   }
 
-  flush($state) {
+  flush($state: StateService) {
     let {queue, states, builder} = this;
-    let result, state, orphans = [], orphanIdx, previousQueueLength = {};
+    let result: State, state: State, orphans: State[] = [], orphanIdx: number,
+        previousQueueLength = {};
 
     while (queue.length > 0) {
       state = queue.shift();
@@ -72,16 +75,16 @@ export class StateQueueManager {
     return states;
   }
 
-  autoFlush($state) {
+  autoFlush($state: StateService) {
     this.$state = $state;
     this.flush($state);
   }
 
-  attachRoute($state, state) {
+  attachRoute($state: StateService, state: State) {
     let {$urlRouterProvider} = this;
-    if (state[abstractKey] || !state.url) return;
+    if (state.abstract || !state.url) return;
 
-    $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match, $stateParams) {
+    $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match: RawParams, $stateParams: RawParams) {
       if ($state.$current.navigable !== state || !equalForKeys($match, $stateParams)) {
         $state.transitionTo(state, $match, { inherit: true, location: false });
       }

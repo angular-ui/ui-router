@@ -4,12 +4,10 @@
  *
  * @module common
  */
-
 /** for typedoc */
-//import {IQService} from "angular";
-//import {IInjectorService} from "angular";
+import {IInjectable, Obj} from "./common";
 
-let notImplemented = (fnname) => () => {
+let notImplemented = (fnname: string) => () => {
   throw new Error(`${fnname}(): No coreservices implementation for UI-Router is loaded. You should include one of: ['angular1.js']`);
 };
 
@@ -27,9 +25,31 @@ let services: CoreServices = {
 ["port", "protocol", "host", "baseHref", "html5Mode", "hashPrefix" ]
     .forEach(key => services.locationConfig[key] = notImplemented(key));
 
+export interface $QLikeDeferred {
+  resolve: (val?: any) => void;
+  reject: (reason?: any) => void;
+  promise: Promise<any>;
+}
+
+export interface $QLike {
+  when<T>(val?: T): Promise<T>;
+  reject<T>(reason: any): Promise<T>;
+  defer(): $QLikeDeferred;
+  all(promises: { [key: string]: Promise<any> }): Promise<any>;
+  all(promises: Promise<any>[]): Promise<any[]>;
+}
+
+export interface $InjectorLike {
+  get(token: any): any;
+  has(token: any): boolean;
+  invoke(fn: IInjectable, context?: any, locals?: Obj): any;
+  annotate(fn: IInjectable, strictDi?: boolean): any[];
+  strictDi?: boolean;
+}
+
 export interface CoreServices {
-  $q; // : IQService;
-  $injector; // : IInjectorService;
+  $q: $QLike;
+  $injector: $InjectorLike;
   /** Services related to getting or setting the browser location (url) */
   location: LocationServices;
   /** Retrieves configuration for how to construct a URL. */
@@ -59,7 +79,7 @@ export interface LocationConfig {
 }
 
 export interface TemplateServices {
-  get(url: string): string;
+  get(url: string): Promise<string>;
 }
 
 

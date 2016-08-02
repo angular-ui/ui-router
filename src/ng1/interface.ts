@@ -1,8 +1,8 @@
 /** @module ng1 */ /** */
 import {StateDeclaration, _ViewDeclaration} from "../state/interface";
-import {ParamDeclaration} from "../params/interface";
 import {IInjectable} from "../common/common";
 import {Transition} from "../transition/transition";
+import {HookResult} from "../transition/interface";
 
 /**
  * The StateDeclaration object is used to define a state or nested state.
@@ -463,7 +463,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
  */
 export interface Ng1Controller {
   /** @hidden */
-  $onInit();
+  $onInit(): void;
   /**
    * This callback is called when parameter values have changed.
    * 
@@ -490,7 +490,7 @@ export interface Ng1Controller {
    * });
    * ```
    */
-  uiOnParamsChanged(newValues: any, $transition$: Transition);
+  uiOnParamsChanged(newValues: any, $transition$: Transition): void;
 
   /**
    * This callback is called when the view's state is about to be exited.
@@ -515,7 +515,28 @@ export interface Ng1Controller {
    * - [[TargetState]]: The transition is redirected to the new target state.
    * - Anything else: the transition will continue normally (the state and view will be deactivated)
    *
+   *
+   * @example
+   * ```js
+   *
+   * app.component('myComponent', {
+   *   template: '<input ng-model="$ctrl.data" type="text">',
+   *   bindings: { 'data': '<' },
+   *   controller: function() {
+   *
+   *     this.originalData = angular.copy(this.data);
+   *
+   *     this.uiCanExit = function() {
+   *       if (!angular.equals(this.data, this.originalData) {
+   *         // Note: This could also return a Promise and request async
+   *         // confirmation using something like ui-bootstrap $modal
+   *         return window.confirm("Data has changed.  Exit anyway and lose changes?");
+   *       }
+   *     }
+   *   }
+   *
+   *
    * @return a value, or a promise for a value.
    */
-  uiCanExit();
+  uiCanExit(): HookResult;
 }

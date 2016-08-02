@@ -15,6 +15,17 @@ import {kebobString} from "../../common/strings";
 import {HookRegOptions} from "../../transition/interface";
 import {Ng1Controller, Ng1StateDeclaration} from "../interface";
 import {getLocals} from "../services";
+import {ViewService} from "../../view/view";
+import IAnimateService = angular.IAnimateService;
+import IInterpolateService = angular.IInterpolateService;
+import {$QLike} from "../../common/coreservices";
+import {Obj} from "../../common/common";
+import IScope = angular.IScope;
+import ITranscludeFunction = angular.ITranscludeFunction;
+import IAugmentedJQuery = angular.IAugmentedJQuery;
+import ICompileService = angular.ICompileService;
+import IControllerService = angular.IControllerService;
+import ITimeoutService = angular.ITimeoutService;
 
 /** @hidden */
 export type UIViewData = {
@@ -23,7 +34,7 @@ export type UIViewData = {
 
   $animEnter: Promise<any>;
   $animLeave: Promise<any>;
-  $$animLeave: { resolve(); } // "deferred"
+  $$animLeave: { resolve: () => any; } // "deferred"
 }
 
 /**
@@ -156,18 +167,18 @@ export type UIViewData = {
  * ```
  */
 let uiView = ['$view', '$animate', '$uiViewScroll', '$interpolate', '$q',
-function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,   $q) {
+function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $interpolate: IInterpolateService, $q: $QLike) {
 
-  function getRenderer(attrs, scope) {
+  function getRenderer(attrs: Obj, scope: IScope) {
     return {
-      enter: function(element, target, cb) {
+      enter: function(element: JQuery, target: any, cb: Function) {
         if (angular.version.minor > 2) {
           $animate.enter(element, null, target).then(cb);
         } else {
           $animate.enter(element, null, target, cb);
         }
       },
-      leave: function(element, cb) {
+      leave: function(element: JQuery, cb: Function) {
         if (angular.version.minor > 2) {
           $animate.leave(element).then(cb);
         } else {
@@ -177,7 +188,7 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
     };
   }
 
-  function configsEqual(config1, config2) {
+  function configsEqual(config1: Ng1ViewConfig, config2: Ng1ViewConfig) {
     return config1 === config2;
   }
 
@@ -192,16 +203,17 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
     terminal: true,
     priority: 400,
     transclude: 'element',
-    compile: function (tElement, tAttrs, $transclude) {
+    compile: function (tElement: JQuery, tAttrs: Obj, $transclude: ITranscludeFunction) {
 
-      return function (scope, $element, attrs) {
-        let previousEl, currentEl, currentScope, unregister,
-            onloadExp     = attrs.onload || '',
-            autoScrollExp = attrs.autoscroll,
+      return function (scope: IScope, $element: IAugmentedJQuery, attrs: Obj) {
+        let previousEl: JQuery, currentEl: JQuery,
+            currentScope: IScope, unregister: Function,
+            onloadExp     = attrs['onload'] || '',
+            autoScrollExp = attrs['autoscroll'],
             renderer      = getRenderer(attrs, scope),
-            viewConfig    = undefined,
+            viewConfig    = undefined as Ng1ViewConfig,
             inherited     = $element.inheritedData('$uiView') || rootData,
-            name          = $interpolate(attrs.uiView || attrs.name || '')(scope) || '$default';
+            name          = $interpolate(attrs['uiView'] || attrs['name'] || '')(scope) || '$default';
 
         let activeUIView: ActiveUIView = {
           $type: 'ng1',
@@ -264,7 +276,6 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
 
         function updateView(config?: Ng1ViewConfig) {
           let newScope = scope.$new();
-          trace.traceUIViewScopeCreated(activeUIView, newScope);
           let animEnter = $q.defer(), animLeave = $q.defer();
           
           let $uiViewData: UIViewData = {
@@ -312,17 +323,17 @@ function $ViewDirective(   $view,   $animate,   $uiViewScroll,   $interpolate,  
 
 $ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view', '$timeout'];
 /** @hidden */
-function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,   $timeout) {
+function $ViewDirectiveFill ($compile: ICompileService, $controller: IControllerService, $transitions: TransitionService, $view: ViewService, $timeout: ITimeoutService) {
   const getControllerAs = parse('viewDecl.controllerAs');
   const getResolveAs = parse('viewDecl.resolveAs');
 
   return {
     restrict: 'ECA',
     priority: -400,
-    compile: function (tElement) {
+    compile: function (tElement: JQuery) {
       let initial = tElement.html();
 
-      return function (scope, $element) {
+      return function (scope: IScope, $element: JQuery) {
         let data: UIViewData = $element.data('$uiView');
         if (!data) return;
 
@@ -363,7 +374,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,
           let kebobName = kebobString(cmp);
           let getComponentController = () => {
             let directiveEl = [].slice.call($element[0].children)
-                .filter(el => el && el.tagName && el.tagName.toLowerCase() === kebobName) ;
+                .filter((el: Element) => el && el.tagName && el.tagName.toLowerCase() === kebobName) ;
             return directiveEl && angular.element(directiveEl).data(`$${cmp}Controller`);
           };
 
@@ -381,10 +392,10 @@ function $ViewDirectiveFill (  $compile,   $controller,   $transitions,   $view,
 }
 
 /** @hidden */
-let hasComponentImpl = typeof angular.module('ui.router')['component'] === 'function';
+let hasComponentImpl = typeof (angular as any).module('ui.router')['component'] === 'function';
 
 /** @hidden TODO: move these callbacks to $view and/or `/hooks/components.ts` or something */
-function registerControllerCallbacks($transitions: TransitionService, controllerInstance: Ng1Controller, $scope, cfg: Ng1ViewConfig) {
+function registerControllerCallbacks($transitions: TransitionService, controllerInstance: Ng1Controller, $scope: IScope, cfg: Ng1ViewConfig) {
   // Call $onInit() ASAP
   if (isFunction(controllerInstance.$onInit) && !(cfg.viewDecl.component && hasComponentImpl)) controllerInstance.$onInit();
 
@@ -420,13 +431,13 @@ function registerControllerCallbacks($transitions: TransitionService, controller
         controllerInstance.uiOnParamsChanged(filter(toParams, (val, key) => changedKeys.indexOf(key) !== -1), $transition$);
       }
     };
-    $scope.$on('$destroy', $transitions.onSuccess({}, paramsUpdated, hookOptions));
+    $scope.$on('$destroy', <any> $transitions.onSuccess({}, paramsUpdated, hookOptions));
   }
 
   // Add component-level hook for uiCanExit
   if (isFunction(controllerInstance.uiCanExit)) {
     var criteria = {exiting: viewState.name};
-    $scope.$on('$destroy', $transitions.onBefore(criteria, controllerInstance.uiCanExit, hookOptions));
+    $scope.$on('$destroy', <any> $transitions.onBefore(criteria, controllerInstance.uiCanExit, hookOptions));
   }
 }
 
