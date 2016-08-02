@@ -1,6 +1,6 @@
 /** @module transition */ /** for typedoc */
-import {TransitionHookOptions, TransitionStateHookFn, HookFn, TransitionHookFn} from "./interface";
-import {defaults, noop, Predicate} from "../common/common";
+import {TransitionHookOptions, HookFn, HookResult} from "./interface";
+import {defaults, noop} from "../common/common";
 import {fnToString, maxLength} from "../common/strings";
 import {isDefined, isPromise } from "../common/predicates";
 import {pattern, val, eq, is, parse } from "../common/hof";
@@ -27,15 +27,14 @@ export class TransitionHook {
   constructor(private transition: Transition,
               private stateContext: State,
               private hookFn: HookFn,
-              private resolveContext: ResolveContext,
               private options: TransitionHookOptions) {
     this.options = defaults(options, defaultOptions);
   }
 
   private isSuperseded = () => this.options.current() !== this.options.transition;
 
-  invokeHook(): Promise<any> {
-    let { options, hookFn, resolveContext } = this;
+  invokeHook(): Promise<HookResult> {
+    let { options, hookFn } = this;
     trace.traceHookInvocation(this, options);
     if (options.rejectIfSuperseded && this.isSuperseded()) {
       return Rejection.superseded(options.current()).toPromise();

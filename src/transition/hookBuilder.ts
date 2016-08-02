@@ -98,8 +98,7 @@ export class HookBuilder {
        return matchingNodes.map(node => {
          let _options = extend({ bind: hook.bind, traceData: { hookType, context: node} }, this.baseHookOptions, options);
          let state = _options.stateHook ? node.state : null;
-         let context = resolveContext.subContext(node.state);
-         let transitionHook = new TransitionHook(this.transition, state, hook.callback, context, _options);
+         let transitionHook = new TransitionHook(this.transition, state, hook.callback, _options);
          return <HookTuple> { hook, node, transitionHook };
        });
     };

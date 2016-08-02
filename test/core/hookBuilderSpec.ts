@@ -162,18 +162,18 @@ describe('HookBuilder:', function() {
       Object.keys($trans._deregisterHookFns).forEach(key => $trans._deregisterHookFns[key]());
     });
 
-    describe('should be bound to the correct context', function() {
+    describe('should have the correct state context', function() {
       const context = hook =>
-          tail(hook.resolveContext['_path']).state.name;
+          hook.stateContext && hook.stateContext.name;
 
-      it('; onBefore should be bound to the to state', function() {
+      it('; onBefore should not have a state context', function() {
         trans.onBefore({}, callback);
-        expect(hb.getOnBeforeHooks().map(context)).toEqual(["A.B.C"]);
+        expect(hb.getOnBeforeHooks().map(context)).toEqual([null]);
       });
 
-      it('; onStart should be bound to the to state', function() {
+      it('; onStart should not have a state context', function() {
         trans.onStart({}, callback);
-        expect(hb.getOnStartHooks().map(context)).toEqual(["A.B.C"]);
+        expect(hb.getOnStartHooks().map(context)).toEqual([null]);
       });
 
       it('; onEnter should be bound to the entering state(s)', function() {
@@ -186,30 +186,25 @@ describe('HookBuilder:', function() {
         expect(hb.getOnRetainHooks().map(context)).toEqual(["", "A"]);
       });
 
-      it('; onRetain should be bound to the retained state(s)', function() {
-        trans.onRetain({}, callback);
-        expect(hb.getOnRetainHooks().map(context)).toEqual(["", "A"]);
-      });
-
       it('; onExit should be bound to the exiting state(s)', function() {
         trans2.onExit({}, callback);
         expect(hb2.getOnExitHooks().map(context)).toEqual(["A.B.C", "A.B"]);
       });
 
-      it('; onFinish should be bound to the to state', function() {
+      it('; onFinish should not have a state context', function() {
         trans.onFinish({}, callback);
-        expect(hb.getOnFinishHooks().map(context)).toEqual(["A.B.C"]);
+        expect(hb.getOnFinishHooks().map(context)).toEqual([null]);
       });
 
-      it('; onSuccess should be bound to the to state', function() {
+      it('; onSuccess should not have a state context', function() {
         trans.onSuccess({}, callback);
-        expect(hb.getOnSuccessHooks().map(context)).toEqual(["A.B.C"]);
+        expect(hb.getOnSuccessHooks().map(context)).toEqual([null]);
       });
 
-      it('; onError should be bound to the to state', function() {
+      it('; onError should not have a state context', function() {
         trans.onStart({}, () => { throw new Error('shuckydarn') });
         trans.onError({}, callback);
-        expect(hb.getOnErrorHooks().map(context)).toEqual(["A.B.C"]);
+        expect(hb.getOnErrorHooks().map(context)).toEqual([null]);
       });
 
     });
