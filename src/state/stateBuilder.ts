@@ -138,7 +138,7 @@ export function resolvablesBuilder(state: State): Resolvable[] {
 
   /** fetch DI annotations from a function or ng1-style array */
   const annotate          = (fn: Function)  =>
-      fn.$inject || services.$injector.annotate(fn, services.$injector.strictDi);
+      fn['$inject'] || services.$injector.annotate(fn, services.$injector.strictDi);
 
   /** true if the object has both `token` and `resolveFn`, and is probably a [[ResolveLiteral]] */
   const isResolveLiteral  = (obj: any) => !!(obj.token && obj.resolveFn);

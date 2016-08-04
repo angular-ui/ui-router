@@ -72,7 +72,7 @@ services.$injector = {
     let STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
     let ARGUMENT_NAMES = /([^\s,]+)/g;
     if (!isInjectable(fn)) throw new Error(`Not an injectable function: ${fn}`);
-    if (fn && fn.$inject) return fn.$inject;
+    if (fn && fn['$inject']) return fn['$inject'];
     if (isArray(fn)) return (fn as any).slice(0, -1);
     let fnStr = fn.toString().replace(STRIP_COMMENTS, '');
     let result = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);

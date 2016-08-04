@@ -2,12 +2,10 @@
 import {extend, bindFunctions, IInjectable} from "../common/common";
 import {isFunction, isString, isDefined, isArray} from "../common/predicates";
 import {UrlMatcher} from "./urlMatcher";
-import {services, $InjectorLike} from "../common/coreservices";
+import {services, $InjectorLike, LocationServices} from "../common/coreservices";
 import {UrlMatcherFactory} from "./urlMatcherFactory";
 import {StateParams} from "../params/stateParams";
-import IInjectorService = angular.auto.IInjectorService;
 import {RawParams} from "../params/interface";
-import ILocationService = angular.ILocationService;
 
 /** @hidden */
 let $location = services.location;
@@ -75,7 +73,7 @@ export class UrlRouterProvider {
   /** @hidden */
   rules: Function[] = [];
   /** @hidden */
-  otherwiseFn: ($injector: IInjectorService, $location: ILocationService) => string;
+  otherwiseFn: ($injector: $InjectorLike, $location: LocationServices) => string;
   /** @hidden */
   interceptDeferred = false;
 
@@ -121,7 +119,7 @@ export class UrlRouterProvider {
    *
    * @return [[$urlRouterProvider]] (`this`)
    */
-  rule(rule: ($injector: IInjectorService, $location: ILocationService) => string): UrlRouterProvider {
+  rule(rule: ($injector: $InjectorLike, $location: LocationServices) => string): UrlRouterProvider {
     if (!isFunction(rule)) throw new Error("'rule' must be a function");
     this.rules.push(rule);
     return this;
@@ -154,7 +152,7 @@ export class UrlRouterProvider {
    *
    * @return {object} `$urlRouterProvider` - `$urlRouterProvider` instance
    */
-  otherwise(rule: string | (($injector: IInjectorService, $location: ILocationService) => string)): UrlRouterProvider {
+  otherwise(rule: string | (($injector: $InjectorLike, $location: LocationServices) => string)): UrlRouterProvider {
     if (!isFunction(rule) && !isString(rule)) throw new Error("'rule' must be a string or function");
     this.otherwiseFn = isString(rule) ? () => rule : rule;
     return this;
