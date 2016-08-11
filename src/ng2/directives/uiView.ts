@@ -1,6 +1,6 @@
 /** @module ng2_directives */ /** */
 import {
-    Component, ComponentResolver, ComponentFactory,
+    Component, ComponentFactoryResolver, ComponentFactory,
     ViewContainerRef, ReflectiveInjector, InputMetadata, ComponentMetadata, ViewChild
 } from '@angular/core';
 import {Input} from "@angular/core";
@@ -52,7 +52,7 @@ const ng2ComponentInputs = (ng2CompClass: Type) => {
       .filter(x => x instanceof ComponentMetadata && !!x.inputs)
       // Get the .inputs string array
       .map(x => x.inputs)
-      .reduce(flattenR)
+      .reduce(flattenR, [])
       .map(input => ({ token: input, prop: input }));
 
   return _props.concat(inputs) as InputMapping[];
@@ -139,7 +139,7 @@ export class UIView {
   constructor(
       public router: UIRouter,
       @Inject(UIView.PARENT_INJECT) public parent: ParentUIViewInject,
-      public compResolver: ComponentResolver,
+      public compFactoryResolver: ComponentFactoryResolver,
       public viewContainerRef: ViewContainerRef
   ) { }
 
@@ -193,7 +193,7 @@ export class UIView {
     rawProviders.push({ provide: UIView.PARENT_INJECT, useValue: { context: config.viewDecl.$context, fqn: uiViewData.fqn } });
 
     // Get the component class from the view declaration. TODO: allow promises?
-    let componentType = <Type> viewDecl.component;
+    let componentType = <any> viewDecl.component;
 
     let createComponent = (factory: ComponentFactory<any>) => {
       let parentInjector = this.viewContainerRef.injector;
@@ -218,7 +218,8 @@ export class UIView {
       ref.changeDetectorRef.detectChanges();
     };
 
-    this.compResolver.resolveComponent(componentType).then(createComponent);
+    let factory = this.compFactoryResolver.resolveComponentFactory(componentType);
+    createComponent(factory);
   }
 }
 
