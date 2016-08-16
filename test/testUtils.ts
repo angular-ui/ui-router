@@ -1,4 +1,5 @@
 import {pick, extend, forEach, omit} from "../src/core";
+import {map} from "../src/common/common";
 
 let stateProps = ["resolve", "resolvePolicy", "data", "template", "templateUrl", "url", "name", "params"];
 
@@ -22,6 +23,39 @@ export function tree2Array(tree, inheritName) {
   }
 
   return processChildren("", tree);
+}
+
+export function PromiseResult(promise?) {
+  var self = this, _promise: Promise;
+  var resolve, reject, complete;
+
+  this.setPromise = function(promise) {
+    if (_promise) {
+      throw new Error("Already have with'd a promise.");
+    }
+
+    var onfulfilled = (data) =>
+        resolve = data || true;
+    var onrejected = (err) =>
+        reject = err || true;
+    var done = () =>
+        complete = true;
+
+    _promise = promise;
+    _promise.then(onfulfilled)
+        .catch(onrejected)
+        .then(done, done);
+  };
+
+  this.get = () =>
+      ({ resolve: resolve, reject: reject, complete: complete });
+
+  this.called = () =>
+      map(self.get(), (val, key) => val !== undefined);
+
+  if (promise) {
+    this.setPromise(promise);
+  }
 }
 
 

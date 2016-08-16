@@ -1,5 +1,5 @@
 import {UIRouter} from "../../src/router";
-import {tree2Array} from "../stateHelper.ts";
+import {tree2Array} from "../testUtils.ts";
 import {StateRegistry} from "../../src/state/stateRegistry";
 import {services} from "../../src/common/coreservices";
 

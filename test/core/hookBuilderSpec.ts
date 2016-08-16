@@ -2,7 +2,7 @@ import {
     UIRouter, TransitionService, StateService, State, PathNode, tail, PathFactory
 } from "../../src/core";
 
-import {tree2Array} from "../stateHelper.ts";
+import {tree2Array} from "../testUtils.ts";
 import "../../src/justjs";
 
 describe('HookBuilder:', function() {

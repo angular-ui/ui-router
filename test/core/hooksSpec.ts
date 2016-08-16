@@ -1,6 +1,6 @@
 
 import {UIRouter} from "../../src/router";
-import {tree2Array} from "../stateHelper.ts";
+import {tree2Array} from "../testUtils.ts";
 import {find} from "../../src/common/common";
 
 
