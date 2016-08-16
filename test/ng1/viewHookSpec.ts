@@ -61,6 +61,7 @@ describe("view hooks", () => {
     };
 
     it("can cancel a transition that would exit the view's state by returning false", () => {
+      $state.defaultErrorHandler(function() {});
       ctrl.prototype.uiCanExit = function() { log += "canexit;"; return false; };
       initial();
 
@@ -112,6 +113,7 @@ describe("view hooks", () => {
     }));
 
     it("can wait for a promise and then reject the transition", inject(($timeout) => {
+      $state.defaultErrorHandler(function() {});
       ctrl.prototype.uiCanExit = function() {
         log += "canexit;";
         return $timeout(() => { log += "delay;"; return false; }, 1000);

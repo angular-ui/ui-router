@@ -381,14 +381,17 @@ export const unnestR   = (memo: any[], elem: any[]) => memo.concat(elem);
 export const flattenR  = (memo: any[], elem: any) =>
     isArray(elem) ? memo.concat(elem.reduce(flattenR, [])) : pushR(memo, elem);
 
-/** Reduce function that pushes an object to an array, then returns the array.  Mostly just for [[flattenR]] */
+/**
+ * Reduce function that pushes an object to an array, then returns the array.
+ * Mostly just for [[flattenR]] and [[uniqR]]
+ */
 export function pushR(arr: any[], obj: any) {
   arr.push(obj);
   return arr;
 }
 
 /** Reduce function that filters out duplicates */
-export const uniqR = (acc: any[], token: any) =>
+export const uniqR = <T> (acc: T[], token: T): T[] =>
     inArray(acc, token) ? acc : pushR(acc, token);
 
 /**

@@ -2000,6 +2000,7 @@ describe('transition hook', function() {
 
   // Test for #2611
   it("aborts should reset the URL to the prevous state's", inject(function($transitions, $q, $state, $location) {
+    $state.defaultErrorHandler(function() {});
     $q.flush();
     $transitions.onStart({ to: 'home.foo' }, function() { return false; });
     $location.path('/home/foo'); $q.flush();

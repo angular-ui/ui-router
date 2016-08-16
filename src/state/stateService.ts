@@ -291,18 +291,21 @@ export class StateService {
     const rejectedTransitionHandler = (transition: Transition) => (error: any): Promise<any> => {
       if (error instanceof Rejection) {
         if (error.type === RejectType.IGNORED) {
+          // Consider ignored `Transition.run()` as a successful `transitionTo`
           router.urlRouter.update();
           return services.$q.when(globals.current);
         }
 
         if (error.type === RejectType.SUPERSEDED && error.redirected && error.detail instanceof TargetState) {
+          // If `Transition.run()` was redirected, allow the `transitionTo()` promise to resolve successfully
+          // by returning the promise for the new (redirect) `Transition.run()`.
           let redirect: Transition = transition.redirect(error.detail);
           return redirect.run().catch(rejectedTransitionHandler(redirect));
         }
 
         if (error.type === RejectType.ABORTED) {
           router.urlRouter.update();
-          return services.$q.reject(error);
+          // Fall through to default error handler
         }
       }
 
@@ -500,6 +503,10 @@ export class StateService {
    *
    * The error handler is called when a [[Transition]] is rejected or when any error occurred during the Transition.
    * This includes errors caused by resolves and transition hooks.
+   *
+   * Note:
+   * This handler does not receive certain Transition rejections.
+   * Redirected and Ignored Transitions are not considered to be errors by [[StateService.transitionTo]].
    *
    * The built-in default error handler logs the error to the console.
    *

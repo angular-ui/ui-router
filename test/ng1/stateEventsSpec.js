@@ -95,6 +95,7 @@ describe('UI-Router v0.2.x $state events', function () {
     }));
 
     it('can be cancelled by preventDefault() in $stateChangeStart', inject(function ($state, $q, $rootScope) {
+      $state.defaultErrorHandler(function() {});
       initStateTo(A);
       var called;
       $rootScope.$on('$stateChangeStart', function (ev) {
