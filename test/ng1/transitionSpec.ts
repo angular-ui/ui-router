@@ -50,7 +50,7 @@ describe('transition', function () {
     matcher = new StateMatcher(statesMap = {});
     pathFactory = new PathFactory();
     var builder = new StateBuilder(matcher, $urlMatcherFactoryProvider);
-    queue = new StateQueueManager(statesMap, builder, { when: function() {} });
+    queue = new StateQueueManager(statesMap, builder, { when: function() {} }, []);
     var root = queue.register({ name: '', url: '^', views: null, 'abstract': true});
     root.navigable = null;
 

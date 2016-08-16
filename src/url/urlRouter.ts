@@ -125,6 +125,15 @@ export class UrlRouterProvider {
     return this;
   };
 
+  /** @hidden */
+  private $$removeRule(rule) {
+    let idx = this.rules.indexOf(rule);
+    if (idx !== -1) {
+      this.rules.splice(idx, 1);
+    }
+    return (idx !== -1);
+  }
+
   /**
    * Defines the path or behavior to use when no url can be matched.
    *
@@ -239,7 +248,13 @@ export class UrlRouterProvider {
     };
 
     for (var n in check) {
-      if (check[n]) return this.rule(strategies[n](what, handler));
+      if (check[n]) {
+        let rule = strategies[n](what, handler);
+        if (check.matcher && what['config']) {
+          what['config'].$$removeRule = () => this.$$removeRule(rule);
+        }
+        return this.rule(rule);
+      }
     }
 
     throw new Error("invalid 'what' in when()");

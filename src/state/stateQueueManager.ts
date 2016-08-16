@@ -7,6 +7,7 @@ import {StateBuilder} from "./stateBuilder";
 import {StateService} from "./stateService";
 import {UrlRouterProvider} from "../url/urlRouter";
 import {RawParams} from "../params/interface";
+import {StateRegistry, StateRegistryListener} from "./stateRegistry";
 
 export class StateQueueManager {
   queue: State[];
@@ -15,7 +16,8 @@ export class StateQueueManager {
   constructor(
       public states: { [key: string]: State; },
       public builder: StateBuilder,
-      public $urlRouterProvider: UrlRouterProvider) {
+      public $urlRouterProvider: UrlRouterProvider,
+      public listeners: StateRegistryListener[]) {
     this.queue = [];
   }
 
@@ -43,13 +45,14 @@ export class StateQueueManager {
 
   flush($state: StateService) {
     let {queue, states, builder} = this;
-    let result: State, state: State, orphans: State[] = [], orphanIdx: number,
-        previousQueueLength = {};
+    let registered: State[] = [], // states that got registered
+        orphans: State[] = [], // states that dodn't yet have a parent registered
+        previousQueueLength = {}; // keep track of how long the queue when an orphan was first encountered
 
     while (queue.length > 0) {
-      state = queue.shift();
-      result = builder.build(state);
-      orphanIdx = orphans.indexOf(state);
+      let state: State = queue.shift();
+      let result: State = builder.build(state);
+      let orphanIdx: number = orphans.indexOf(state);
 
       if (result) {
         if (states.hasOwnProperty(state.name))
@@ -57,6 +60,7 @@ export class StateQueueManager {
         states[state.name] = state;
         this.attachRoute($state, state);
         if (orphanIdx >= 0) orphans.splice(orphanIdx, 1);
+        registered.push(state);
         continue;
       }
 
@@ -65,6 +69,7 @@ export class StateQueueManager {
       if (orphanIdx >= 0 && prev === queue.length) {
         // Wait until two consecutive iterations where no additional states were dequeued successfully.
         // throw new Error(`Cannot register orphaned state '${state.name}'`);
+        queue.push(state);
         return states;
       } else if (orphanIdx < 0) {
         orphans.push(state);
@@ -72,6 +77,11 @@ export class StateQueueManager {
 
       queue.push(state);
     }
+
+    if (registered.length) {
+      this.listeners.forEach(listener => listener("registered", registered.map(s => s.self)));
+    }
+
     return states;
   }
 
