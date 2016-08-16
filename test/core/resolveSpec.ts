@@ -348,11 +348,5 @@ describe('Resolvables system:', function () {
       }).then(done);
     });
   });
-
-  // TODO: test injection of annotated functions
-  // TODO: test injection of services
-  // TODO: test injection of other locals
-  // TODO: Implement and test injection to onEnter/Exit
-  // TODO: Implement and test injection into controllers
 });
 

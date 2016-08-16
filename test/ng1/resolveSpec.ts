@@ -1,4 +1,6 @@
 import "../testUtilsNg1.js";
+declare var resolvedValue, resolvedError, caught;
+
 import "../matchers.ts";
 
 import {
@@ -190,9 +192,9 @@ describe("$resolve", function () {
     });
 
     it("resolves dependencies between functions that return promises", inject(function ($q) {
-      var ad = $q.defer(), a = jasmine.createSpy('a').and.returnValue(ad.promise);
-      var bd = $q.defer(), b = jasmine.createSpy('b').and.returnValue(bd.promise);
-      var cd = $q.defer(), c = jasmine.createSpy('c').and.returnValue(cd.promise);
+      var ad = $q.defer(), a = jasmine.createSpy('a'); a.and.returnValue(ad.promise);
+      var bd = $q.defer(), b = jasmine.createSpy('b'); b.and.returnValue(bd.promise);
+      var cd = $q.defer(), c = jasmine.createSpy('c'); c.and.returnValue(cd.promise);
 
       var r = $r.resolve({ a: [ 'b', 'c', a ], b: [ 'c', b ], c: [ c ] });
       tick();
