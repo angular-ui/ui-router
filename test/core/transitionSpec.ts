@@ -343,6 +343,19 @@ describe('transition', function () {
         }));
       });
 
+      // Test for #2866
+      it('should have access to the failure reason in transition.error().', ((done) => {
+        let error = new Error("oops!");
+        let transError;
+        $transitions.onEnter({ from: "A", entering: "C" }, function() { throw error;  });
+        $transitions.onError({ }, function(trans) { transError = trans.error(); });
+
+        Promise.resolve()
+            .then(goFail("A", "D"))
+            .then(() => expect(transError).toBe(error))
+            .then(done);
+      }));
+
       it("return value of 'false' should reject the transition with ABORT status", ((done) => {
         var states = [], rejection, transition = makeTransition("", "D");
         $transitions.onEnter({ entering: "*" }, function(trans, state) { states.push(state); });

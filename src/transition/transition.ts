@@ -58,6 +58,8 @@ export class Transition implements IHookRegistry {
 
   /** @hidden */
   private _deferred = services.$q.defer();
+  /** @hidden */
+  private _error: any;
   /**
    * This promise is resolved or rejected based on the outcome of the Transition.
    *
@@ -156,7 +158,7 @@ export class Transition implements IHookRegistry {
   /**
    * Determines whether two transitions are equivalent.
    */
-  is(compare: (Transition|{to: any, from: any})): boolean {
+  is(compare: (Transition|{to?: any, from?: any})): boolean {
     if (compare instanceof Transition) {
       // TODO: Also compare parameters
       return this.is({ to: compare.$to().name, from: compare.$from().name });
@@ -474,6 +476,7 @@ export class Transition implements IHookRegistry {
       trace.traceError(reason, this);
       this.success = false;
       this._deferred.reject(reason);
+      this._error = reason;
       runSynchronousHooks(hookBuilder.getOnErrorHooks(), true);
     };
 
@@ -499,13 +502,16 @@ export class Transition implements IHookRegistry {
    * @returns true if the Transition is valid
    */
   valid() {
-    return !this.error();
+    return !this.error() || this.success !== undefined;
   }
 
   /**
-   * The reason the Transition is invalid
+   * The Transition error reason.
    *
-   * @returns an error message explaining why the transition is invalid
+   * If the transition is invalid (and could not be run), returns the reason the transition is invalid.
+   * If the transition was valid and ran, but was not successful, returns the reason the transition failed.
+   *
+   * @returns an error message explaining why the transition is invalid, or the reason the transition failed.
    */
   error() {
     let state: State = this.$to();
@@ -514,6 +520,8 @@ export class Transition implements IHookRegistry {
       return `Cannot transition to abstract state '${state.name}'`;
     if (!Param.validates(state.parameters(), this.params()))
       return `Param values not valid for state '${state.name}'`;
+    if (this.success === false)
+      return this._error;
   }
 
   /**
