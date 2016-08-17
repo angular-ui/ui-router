@@ -47,7 +47,6 @@ export class Transition implements IHookRegistry {
   static diToken = Transition;
   
   $id: number;
-  success: boolean;
 
   /**
    * A reference to the [[UIRouter]] instance
@@ -58,8 +57,6 @@ export class Transition implements IHookRegistry {
 
   /** @hidden */
   private _deferred = services.$q.defer();
-  /** @hidden */
-  private _error: any;
   /**
    * This promise is resolved or rejected based on the outcome of the Transition.
    *
@@ -67,9 +64,19 @@ export class Transition implements IHookRegistry {
    * When the transition is unsuccessful, the promise is rejected with the [[TransitionRejection]] or javascript error
    */
   promise: Promise<any> = this._deferred.promise;
+  /**
+   * A boolean which indicates if the transition was successful
+   *
+   * After a successful transition, this value is set to true.
+   * After a failed transition, this value is set to false.
+   */
+  success: boolean;
+  /** @hidden */
+  private _error: any;
 
   private _options: TransitionOptions;
   private _treeChanges: TreeChanges;
+  private _targetState: TargetState;
 
   /** @inheritdoc */
   onBefore (matchCriteria: HookMatchCriteria, callback: TransitionHookFn, options?: HookRegOptions) : Function { throw ""; };
@@ -102,6 +109,8 @@ export class Transition implements IHookRegistry {
    */
   constructor(fromPath: PathNode[], targetState: TargetState, router: UIRouter) {
     this.router = router;
+    this._targetState = targetState;
+
     if (!targetState.valid()) {
       throw new Error(targetState.error());
     }
@@ -153,6 +162,17 @@ export class Transition implements IHookRegistry {
    */
   to() {
     return this.$to().self;
+  }
+
+  /**
+   * Gets the Target State
+   *
+   * A transition's [[TargetState]] encapsulates the [[to]] state, the [[params]], and the [[options]].
+   *
+   * @returns the [[TargetState]] of this Transition
+   */
+  targetState() {
+    return this._targetState;
   }
 
   /**
