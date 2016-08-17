@@ -5,8 +5,9 @@ var stateEvents = require("../../src/ng1/legacy/stateEvents.ts");
 describe('UI-Router v0.2.x $state events', function () {
   var $injector, stateProvider;
 
-  beforeEach(module('ui.router.state.events', function($stateEventsProvider) {
+  beforeEach(module('ui.router.state.events', function($stateEventsProvider, $exceptionHandlerProvider) {
     $stateEventsProvider.enable();
+    decorateExceptionHandler($exceptionHandlerProvider)
   }));
 
   var log, logEvents, logEnterExit;
@@ -141,6 +142,28 @@ describe('UI-Router v0.2.x $state events', function () {
       expect(error).toBe(err);
     }));
 
+    it('sends $stateChangeError for exceptions in onEnter', inject(function ($state, $q, $rootScope, $exceptionHandler) {
+      $exceptionHandler.disabled = true;
+      $state.defaultErrorHandler(function() {});
+
+      stateProvider.state('onEnterFail', {
+        onEnter: function() {
+          throw new Error('negative onEnter');
+        }
+      });
+
+      var called;
+      $rootScope.$on('$stateChangeError', function (ev, to, toParams, from, fromParams, options) {
+        called = true;
+      });
+
+      initStateTo(A);
+      $state.transitionTo('onEnterFail');
+      $q.flush();
+
+      expect(called).toBeTruthy();
+      expect($state.current.name).toEqual(A.name);
+    }));
 
     it('can be cancelled by preventDefault() in $stateNotFound', inject(function ($state, $q, $rootScope) {
       initStateTo(A);
