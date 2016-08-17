@@ -31,7 +31,10 @@ import ITimeoutService = angular.ITimeoutService;
 export type UIViewData = {
   $cfg: Ng1ViewConfig;
   $uiView: ActiveUIView;
+}
 
+/** @hidden */
+export type UIViewAnimData = {
   $animEnter: Promise<any>;
   $animLeave: Promise<any>;
   $$animLeave: { resolve: () => any; } // "deferred"
@@ -262,7 +265,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
           }
 
           if (currentEl) {
-            let _viewData = currentEl.data('$uiView');
+            let _viewData = currentEl.data('$uiViewAnim');
             trace.traceUIViewEvent("Animate out", _viewData);
             renderer.leave(currentEl, function() {
               _viewData.$$animLeave.resolve();
@@ -281,13 +284,18 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
           let $uiViewData: UIViewData = {
             $cfg: config,
             $uiView: activeUIView,
+          };
+
+          let $uiViewAnim: UIViewAnimData = {
             $animEnter: animEnter.promise,
             $animLeave: animLeave.promise,
             $$animLeave: animLeave
           };
 
           let cloned = $transclude(newScope, function(clone) {
-            renderer.enter(clone.data('$uiView', $uiViewData), $element, function onUIViewEnter() {
+            clone.data('$uiViewAnim', $uiViewAnim);
+            clone.data('$uiView', $uiViewData);
+            renderer.enter(clone, $element, function onUIViewEnter() {
               animEnter.resolve();
               if (currentScope) currentScope.$emit('$viewContentAnimationEnded');
 
