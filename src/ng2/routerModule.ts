@@ -1,8 +1,9 @@
 import {Ng2StateDeclaration} from "./interface";
-import {NgModule, NgModuleMetadataType} from "@angular/core";
+import {NgModule, NgModuleMetadataType, OpaqueToken} from "@angular/core";
 import {UIROUTER_DIRECTIVES} from "./directives/directives";
 import {UIROUTER_PROVIDERS} from "./providers";
 import {UIView} from "./directives/uiView";
+import {uniqR} from "../common/common";
 
 @NgModule({
   declarations: [UIROUTER_DIRECTIVES],
@@ -19,8 +20,10 @@ export class _UIRouterModule {}
  * by adding a `states` array.
  */
 export interface UIRouterModuleMetadata extends NgModuleMetadataType {
-  states: Ng2StateDeclaration[]
+  states?: Ng2StateDeclaration[]
 }
+
+export const UIROUTER_STATES_TOKEN = new OpaqueToken("UIRouterStates");
 
 /**
  * Declares a NgModule with UI-Router states
@@ -28,9 +31,9 @@ export interface UIRouterModuleMetadata extends NgModuleMetadataType {
  * A Typescript decorator for declaring a [NgModule](https://angular.io/docs/ts/latest/guide/ngmodule.html)
  * which contains UI-Router states.
  * 
- * This decorator analyzes the `states` in the module, and adds module `declarations` and `entryComponents`
- * for all routed Components.
- * 
+ * This decorator analyzes the `states` in the module.
+ * It adds all routed `component:`(s) for each state to the module's `declarations` and `entryComponents`.
+ *
  * @example
  * ```js
  * 
@@ -38,6 +41,7 @@ export interface UIRouterModuleMetadata extends NgModuleMetadataType {
  * var aboutState = { name: 'about', url: '/about', component: About };
  * @UIRouterModule({
  *   imports: [BrowserModule],
+ *   declarations: [NonRoutedComponent],
  *   states: [homeState, aboutState]
  * }) export class AppModule {};
  * ```
@@ -47,14 +51,17 @@ export interface UIRouterModuleMetadata extends NgModuleMetadataType {
  */
 export function UIRouterModule(moduleMetaData: UIRouterModuleMetadata) {
   let states = moduleMetaData.states || [];
+
+  // Get the component classes for all views for all states in the module
   let components = states.map(state => state.views || { $default: state })
       .map(viewObj => Object.keys(viewObj).map(key => viewObj[key].component))
       .reduce((acc, arr) => acc.concat(arr), [])
       .filter(x => typeof x === 'function');
 
-  moduleMetaData.imports = (moduleMetaData.imports || []).concat(_UIRouterModule);
-  moduleMetaData.declarations = (moduleMetaData.declarations || []).concat(components);
-  moduleMetaData.entryComponents = (moduleMetaData.entryComponents || []).concat(components);
+  moduleMetaData.imports = <any[]> (moduleMetaData.imports || []).concat(_UIRouterModule).reduce(uniqR, []);
+  moduleMetaData.declarations = <any[]> (moduleMetaData.declarations || []).concat(components).reduce(uniqR, []);
+  moduleMetaData.entryComponents = <any[]> (moduleMetaData.entryComponents || []).concat(components).reduce(uniqR, []);
+  moduleMetaData.providers = (moduleMetaData.providers || []).concat({ provide: UIROUTER_STATES_TOKEN, useValue: states });
 
   return function(moduleClass) {
     return NgModule(moduleMetaData)(moduleClass);
