@@ -158,6 +158,7 @@ function $StateRefDirective($state: StateService, $timeout: ITimeoutService) {
       var type   = getTypeInfo(element);
       var active = uiSrefActive[1] || uiSrefActive[0];
       var unlinkInfoFn: Function = null;
+      var hookFn;
 
       def.options = extend(defaultOpts(element, $state), attrs.uiSrefOpts ? scope.$eval(attrs.uiSrefOpts) : {});
 
@@ -177,7 +178,11 @@ function $StateRefDirective($state: StateService, $timeout: ITimeoutService) {
       update();
 
       if (!type.clickable) return;
-      element.on("click", clickHook(element, $state, $timeout, type, function() { return def; }));
+      hookFn = clickHook(element, $state, $timeout, type, function() { return def; });
+      element.bind("click", hookFn);
+      scope.$on('$destroy', function() {
+        element.unbind("click", hookFn);
+      });
     }
   };
 }];
@@ -211,6 +216,7 @@ function $StateRefDynamicDirective($state: StateService, $timeout: ITimeoutServi
       var watch  = '[' + group.map(function(val) { return val || 'null'; }).join(', ') + ']';
       var def: Def = { state: null, params: null, options: null, href: null };
       var unlinkInfoFn: Function = null;
+      var hookFn;
 
       function runStateRefLink (group: any[]) {
         def.state = group[0]; def.params = group[1]; def.options = group[2];
@@ -225,7 +231,11 @@ function $StateRefDynamicDirective($state: StateService, $timeout: ITimeoutServi
       runStateRefLink(scope.$eval(watch));
 
       if (!type.clickable) return;
-      element.on("click", clickHook(element, $state, $timeout, type, function() { return def; }));
+      hookFn = clickHook(element, $state, $timeout, type, function() { return def; });
+      element.bind("click", hookFn);
+      scope.$on('$destroy', function() {
+        element.unbind("click", hookFn);
+      });
     }
   };
 }];
