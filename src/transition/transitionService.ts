@@ -32,7 +32,8 @@ export let defaultTransOpts: TransitionOptions = {
   notify      : true,
   reload      : false,
   custom      : {},
-  current     : () => null
+  current     : () => null,
+  source      : "unknown"
 };
 
 /**

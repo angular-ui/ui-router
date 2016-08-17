@@ -1,5 +1,6 @@
 /// <reference path='../typings/jasmine/jasmine.d.ts' />
 import {equals} from "../src/common/common";
+declare var testablePromise;
 
 beforeEach(function() {
   jasmine.addMatchers(<any> {

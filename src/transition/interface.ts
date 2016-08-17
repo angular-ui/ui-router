@@ -73,12 +73,14 @@ export interface TransitionOptions {
    * You can define your own Transition Options inside this property and use them, e.g., from a Transition Hook
    */
   custom      ?: any;
-  /** @internal */
+  /** @hidden @internal */
   reloadState ?: (State);
-  /** @internal */
+  /** @hidden @internal */
   previous    ?: Transition;
-  /** @internal */
+  /** @hidden @internal */
   current     ?: () => Transition;
+  /** @hidden @internal */
+  source      ?: "sref"|"url"|"unknown";
 }
 
 /** @hidden @internal */

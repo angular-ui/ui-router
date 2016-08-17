@@ -88,7 +88,11 @@ export class UISref {
   }
 
   getOptions() {
-    let defOpts = { relative: this.parent && this.parent.context && this.parent.context.name, inherit: true };
+    let defOpts: TransitionOptions = { 
+      relative: this.parent && this.parent.context && this.parent.context.name,
+      inherit: true ,
+      source: "sref"
+    };
     return extend(defOpts, this.options || {});
   }
 

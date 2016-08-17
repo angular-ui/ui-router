@@ -78,7 +78,11 @@ function clickHook(el: IAugmentedJQuery, $state: StateService, $timeout: ITimeou
 
 /** @hidden */
 function defaultOpts(el: IAugmentedJQuery, $state: StateService) {
-  return { relative: stateContext(el) || $state.$current, inherit: true };
+  return {
+    relative: stateContext(el) || $state.$current,
+    inherit: true,
+    source: "sref"
+  };
 }
 
 /**
