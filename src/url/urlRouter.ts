@@ -1,5 +1,5 @@
 /** @module url */ /** for typedoc */
-import {extend, bindFunctions, IInjectable} from "../common/common";
+import {extend, bindFunctions, IInjectable, removeFrom} from "../common/common";
 import {isFunction, isString, isDefined, isArray} from "../common/predicates";
 import {UrlMatcher} from "./urlMatcher";
 import {services, $InjectorLike, LocationServices} from "../common/coreservices";
@@ -125,13 +125,14 @@ export class UrlRouterProvider {
     return this;
   };
 
-  /** @hidden */
-  private $$removeRule(rule) {
-    let idx = this.rules.indexOf(rule);
-    if (idx !== -1) {
-      this.rules.splice(idx, 1);
-    }
-    return (idx !== -1);
+  /**
+   * Remove a rule previously registered
+   *
+   * @param rule the matcher rule that was previously registered using [[rule]]
+   * @return true if the rule was found (and removed)
+   */
+  removeRule(rule): boolean {
+    return this.rules.length !== removeFrom(this.rules, rule).length;
   }
 
   /**
@@ -202,10 +203,11 @@ export class UrlRouterProvider {
    *
    * @param what A pattern string to match, compiled as a [[UrlMatcher]].
    * @param handler The path (or function that returns a path) that you want to redirect your user to.
+   * @param ruleCallback [optional] A callback that receives the `rule` registered with [[UrlMatcher.rule]]
    *
    * Note: the handler may also invoke arbitrary code, such as `$state.go()`
    */
-  when(what: (RegExp|UrlMatcher|string), handler: string|IInjectable) {
+  when(what: (RegExp|UrlMatcher|string), handler: string|IInjectable, ruleCallback = function(rule) {}) {
     let {$urlMatcherFactory, $stateParams} = this;
     let redirect, handlerIsString = isString(handler);
 
@@ -250,9 +252,7 @@ export class UrlRouterProvider {
     for (var n in check) {
       if (check[n]) {
         let rule = strategies[n](what, handler);
-        if (check.matcher && what['config']) {
-          what['config'].$$removeRule = () => this.$$removeRule(rule);
-        }
+        ruleCallback(rule);
         return this.rule(rule);
       }
     }

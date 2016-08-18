@@ -112,13 +112,11 @@ export class UrlMatcher {
 
   /**
    * @param pattern The pattern to compile into a matcher.
-   * @param config  A configuration object hash
-   * * `caseInsensitive` - `true` if URL matching should be case insensitive, otherwise `false`, the default value (for backward compatibility) is `false`.
-   * * `strict` - `false` if matching against a URL with a trailing slash should be treated as equivalent to a URL without a trailing slash, the default value is `true`.
-   *
-   * @property {string} pattern  The pattern that was passed into the constructor
+   * @param config  A configuration object
+   * - `caseInsensitive` - `true` if URL matching should be case insensitive, otherwise `false`, the default value (for backward compatibility) is `false`.
+   * - `strict` - `false` if matching against a URL with a trailing slash should be treated as equivalent to a URL without a trailing slash, the default value is `true`.
    */
-  constructor(pattern: string, public config: any) {
+  constructor(pattern: string, public config?: any) {
     this.pattern = pattern;
     this.config = defaults(this.config, {
       params: {},

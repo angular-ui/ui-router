@@ -31,6 +31,8 @@ export class State {
   public resolvables: Resolvable[];
   public resolvePolicy: any;
   public url: UrlMatcher;
+  /** @hidden temporary place to put the rule registered with $urlRouter.when() */
+  public _urlRule: any;
   public params: { [key: string]: Param };
   public views: { [key: string]: _ViewDeclaration; };
   public self: StateDeclaration;

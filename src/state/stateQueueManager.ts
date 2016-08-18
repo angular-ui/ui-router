@@ -98,6 +98,6 @@ export class StateQueueManager {
       if ($state.$current.navigable !== state || !equalForKeys($match, $stateParams)) {
         $state.transitionTo(state, $match, { inherit: true, location: false, source: "url" });
       }
-    }]);
+    }], (rule) => state._urlRule = rule);
   }
 }

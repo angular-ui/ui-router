@@ -1,11 +1,14 @@
+import ILocationService = angular.ILocationService;
+declare var html5Compat;
+import {UrlMatcher, services, UrlRouterProvider, UrlRouter, StateService} from "../../src/ng1";
+import ILocationProvider = angular.ILocationProvider;
+
 var module = angular.mock.module;
-var uiRouter = require("angular-ui-router");
-var UrlMatcher = uiRouter.UrlMatcher;
-var services = uiRouter.services;
 
 describe("UrlRouter", function () {
 
-  var $urp, $lp, $s, $ur, location, match, scope;
+  var $urp: UrlRouterProvider, $lp: ILocationProvider,
+      $s: StateService, $ur: UrlRouter, location: ILocationService, match, scope;
 
   describe("provider", function () {
 
@@ -20,7 +23,7 @@ describe("UrlRouter", function () {
       inject(function($rootScope, $location, $injector) {
         scope = $rootScope.$new();
         location = $location;
-        $ur = $injector.invoke($urp.$get, $urp);
+        $ur = $injector.invoke($urp['$get'], $urp);
       });
     });
 
@@ -71,9 +74,9 @@ describe("UrlRouter", function () {
       inject(function($rootScope, $location, $injector) {
         scope = $rootScope.$new();
         location = $location;
-        $ur = $injector.invoke($urp.$get, $urp);
+        $ur = $injector.invoke($urp['$get'], $urp);
         $s = $injector.get('$sniffer');
-        $s.history = true;
+        $s['history'] = true;
       });
     });
 
@@ -155,6 +158,35 @@ describe("UrlRouter", function () {
       expect(called).toBeTruthy();
       expect(location.path()).toBe("/b4z");
     }));
+    
+
+    it('removeRule should remove a previously registered rule', function() {
+      var count = 0, rule = function ($injector, $location) { count++; };
+      $urp.rule(rule);
+
+      $ur.sync();
+      expect(count).toBe(1);
+      $ur.sync();
+      expect(count).toBe(2);
+
+      $urp.removeRule(rule);
+      $ur.sync();
+      expect(count).toBe(2);
+    });
+
+    it('when should provide the new rule to the callback argument', function() {
+      var _rule, calls = 0;
+      location.url('/foo');
+      $urp.when('/foo', function() { calls++; }, function(rule) { _rule = rule; });
+      expect(typeof _rule).toBe('function');
+
+      $ur.sync();
+      expect(calls).toBe(1);
+
+      $urp.removeRule(_rule);
+      $ur.sync();
+      expect(calls).toBe(1);
+    });
 
     describe("location updates", function() {
       it('can push location changes', inject(function($urlRouter) {
@@ -248,7 +280,7 @@ describe("UrlRouter", function () {
 
       it('should return URLs with #fragments when html5Mode is true & browser does not support pushState', inject(function($urlRouter) {
         $lp.html5Mode(true);
-        $s.history = false;
+        $s['history'] = false;
         expect(html5Compat($lp.html5Mode())).toBe(true);
         expect($urlRouter.href(new UrlMatcher('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('#/hello/world#frag');
       }));

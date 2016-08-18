@@ -31,7 +31,7 @@ export class StateRegistry {
 
   listeners: StateRegistryListener[] = [];
 
-  constructor(urlMatcherFactory: UrlMatcherFactory, urlRouterProvider: UrlRouterProvider) {
+  constructor(urlMatcherFactory: UrlMatcherFactory, private urlRouterProvider: UrlRouterProvider) {
     this.matcher = new StateMatcher(this.states);
     this.builder = new StateBuilder(this.matcher, urlMatcherFactory);
     this.stateQueue = new StateQueueManager(this.states, this.builder, urlRouterProvider, this.listeners);
@@ -130,7 +130,7 @@ export class StateRegistry {
     let deregistered = [state].concat(children).reverse();
 
     deregistered.forEach(state => {
-      state.url && state.url.config.$$removeRule();
+      this.urlRouterProvider.removeRule(state._urlRule);
       delete this.states[state.name];
     });
 
