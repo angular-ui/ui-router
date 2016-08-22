@@ -157,14 +157,6 @@ export function annotateController(controllerExpression: (IInjectable|string)): 
   }
 }
 
-runBlock.$inject = ['$injector', '$q'];
-function runBlock($injector: IInjectorService, $q: IQService) {
-  services.$injector = $injector;
-  services.$q = $q;
-}
-
-app.run(runBlock);
-
 let router: UIRouter = null;
 
 $uiRouter.$inject = ['$locationProvider'];
@@ -222,6 +214,15 @@ function $uiRouter($locationProvider: ILocationProvider) {
 
 // The 'ui.router' ng1 module depends on 'ui.router.init' module.
 angular.module('ui.router.init', []).provider("$uiRouter", <any> $uiRouter);
+
+runBlock.$inject = ['$injector', '$q'];
+function runBlock($injector: IInjectorService, $q: IQService) {
+  services.$injector = $injector;
+  services.$q = $q;
+}
+
+angular.module('ui.router.init').run(runBlock);
+
 // This effectively calls $get() to init when we enter runtime
 angular.module('ui.router.init').run(['$uiRouter', function($uiRouter: UIRouter) { }]);
 

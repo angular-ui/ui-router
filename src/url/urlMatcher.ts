@@ -6,7 +6,7 @@ import {
 import {prop, propEq } from "../common/hof";
 import {isArray, isString} from "../common/predicates";
 import {Param} from "../params/param";
-import {paramTypes} from "../params/paramTypes";
+import {ParamTypes} from "../params/paramTypes";
 import {isDefined} from "../common/predicates";
 import {DefType} from "../params/param";
 import {unnestR} from "../common/common";
@@ -112,11 +112,12 @@ export class UrlMatcher {
 
   /**
    * @param pattern The pattern to compile into a matcher.
+   * @param paramTypes The [[ParamTypes]] registry
    * @param config  A configuration object
    * - `caseInsensitive` - `true` if URL matching should be case insensitive, otherwise `false`, the default value (for backward compatibility) is `false`.
    * - `strict` - `false` if matching against a URL with a trailing slash should be treated as equivalent to a URL without a trailing slash, the default value is `true`.
    */
-  constructor(pattern: string, public config?: any) {
+  constructor(pattern: string, paramTypes: ParamTypes, public config?: any) {
     this.pattern = pattern;
     this.config = defaults(this.config, {
       params: {},
@@ -171,7 +172,7 @@ export class UrlMatcher {
       if (p.segment.indexOf('?') >= 0) break; // we're into the search part
 
       checkParamErrors(p.id);
-      this._params.push(Param.fromPath(p.id, p.type, this.config.paramMap(p.cfg, false)));
+      this._params.push(Param.fromPath(p.id, p.type, this.config.paramMap(p.cfg, false), paramTypes));
       this._segments.push(p.segment);
       patterns.push([p.segment, tail(this._params)]);
       last = placeholder.lastIndex;
@@ -191,7 +192,7 @@ export class UrlMatcher {
         while ((m = searchPlaceholder.exec(search))) {
           p = matchDetails(m, true);
           checkParamErrors(p.id);
-          this._params.push(Param.fromSearch(p.id, p.type, this.config.paramMap(p.cfg, true)));
+          this._params.push(Param.fromSearch(p.id, p.type, this.config.paramMap(p.cfg, true), paramTypes));
           last = placeholder.lastIndex;
           // check if ?&
         }

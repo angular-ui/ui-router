@@ -6,7 +6,7 @@ import {RawParams, ParamDeclaration} from "../params/interface";
 import {services} from "../common/coreservices";
 import {matcherConfig} from "../url/urlMatcherConfig";
 import {ParamType} from "./type";
-import {paramTypes} from "./paramTypes";
+import {ParamTypes} from "./paramTypes";
 
 let hasOwn = Object.prototype.hasOwnProperty;
 let isShorthand = (cfg: ParamDeclaration) =>
@@ -24,7 +24,7 @@ function unwrapShorthand(cfg: ParamDeclaration): ParamDeclaration {
   });
 }
 
-function getType(cfg: ParamDeclaration, urlType: ParamType, location: DefType, id: string) {
+function getType(cfg: ParamDeclaration, urlType: ParamType, location: DefType, id: string, paramTypes: ParamTypes) {
   if (cfg.type && urlType && urlType.name !== 'string') throw new Error(`Param '${id}' has two type configurations.`);
   if (cfg.type && urlType && urlType.name === 'string' && paramTypes.type(cfg.type as string)) return paramTypes.type(cfg.type as string);
   if (urlType) return urlType;
@@ -66,9 +66,9 @@ export class Param {
   dynamic: boolean;
   config: any;
 
-  constructor(id: string, type: ParamType, config: ParamDeclaration, location: DefType) {
+  constructor(id: string, type: ParamType, config: ParamDeclaration, location: DefType, paramTypes: ParamTypes) {
     config = unwrapShorthand(config);
-    type = getType(config, type, location, id);
+    type = getType(config, type, location, id, paramTypes);
     let arrayMode = getArrayMode();
     type = arrayMode ? type.$asArray(arrayMode, location === DefType.SEARCH) : type;
     let isOptional = config.value !== undefined;
@@ -137,18 +137,18 @@ export class Param {
   }
 
   /** Creates a new [[Param]] from a CONFIG block */
-  static fromConfig(id: string, type: ParamType, config: any): Param {
-    return new Param(id, type, config, DefType.CONFIG);
+  static fromConfig(id: string, type: ParamType, config: any, paramTypes: ParamTypes): Param {
+    return new Param(id, type, config, DefType.CONFIG, paramTypes);
   }
 
   /** Creates a new [[Param]] from a url PATH */
-  static fromPath(id: string, type: ParamType, config: any): Param {
-    return new Param(id, type, config, DefType.PATH);
+  static fromPath(id: string, type: ParamType, config: any, paramTypes: ParamTypes): Param {
+    return new Param(id, type, config, DefType.PATH, paramTypes);
   }
 
   /** Creates a new [[Param]] from a url SEARCH */
-  static fromSearch(id: string, type: ParamType, config: any): Param {
-    return new Param(id, type, config, DefType.SEARCH);
+  static fromSearch(id: string, type: ParamType, config: any, paramTypes: ParamTypes): Param {
+    return new Param(id, type, config, DefType.SEARCH, paramTypes);
   }
 
   static values(params: Param[], values: RawParams = {}): RawParams {

@@ -5,8 +5,7 @@ import {isObject, isDefined, isFunction} from "../common/predicates";
 import {UrlMatcher} from "./urlMatcher";
 import {matcherConfig} from "./urlMatcherConfig";
 import {Param} from "../params/param";
-import {paramTypes} from "../params/paramTypes";
-import {ParamType} from "../params/type";
+import {ParamTypes} from "../params/paramTypes";
 import {ParamTypeDefinition} from "../params/interface";
 
 /** @hidden */
@@ -24,6 +23,8 @@ function getDefaultConfig() {
  * `$urlMatcherFactor` or ng1 providers as `$urlMatcherFactoryProvider`.
  */
 export class UrlMatcherFactory {
+  paramTypes = new ParamTypes();
+
   constructor() {
     extend(this, { UrlMatcher, Param });
   }
@@ -71,7 +72,7 @@ export class UrlMatcherFactory {
    * @returns The UrlMatcher.
    */
   compile(pattern: string, config?: { [key: string]: any }) {
-    return new UrlMatcher(pattern, extend(getDefaultConfig(), config));
+    return new UrlMatcher(pattern, this.paramTypes, extend(getDefaultConfig(), config));
   }
 
   /**
@@ -112,14 +113,14 @@ export class UrlMatcherFactory {
    * See [[ParamTypeDefinition]] for examples
    */
   type(name: string, definition?: ParamTypeDefinition, definitionFn?: () => ParamTypeDefinition) {
-    let type = paramTypes.type(name, definition, definitionFn);
+    let type = this.paramTypes.type(name, definition, definitionFn);
     return !isDefined(definition) ? type : this;
   };
 
   /** @hidden */
   $get() {
-    paramTypes.enqueue = false;
-    paramTypes._flushTypeQueue();
+    this.paramTypes.enqueue = false;
+    this.paramTypes._flushTypeQueue();
     return this;
   };
 }

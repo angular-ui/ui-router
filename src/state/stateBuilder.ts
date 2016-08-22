@@ -13,6 +13,7 @@ import {UrlMatcher} from "../url/urlMatcher";
 import {Resolvable} from "../resolve/resolvable";
 import {services} from "../common/coreservices";
 import {ResolvePolicy} from "../resolve/interface";
+import {ParamTypes} from "../params/paramTypes";
 
 const parseUrl = (url: string): any => {
   if (!isString(url)) return false;
@@ -71,12 +72,13 @@ function navigableBuilder(state: State) {
   return !isRoot(state) && state.url ? state : (state.parent ? state.parent.navigable : null);
 };
 
+const getParamsBuilder = (paramTypes: ParamTypes) => 
 function paramsBuilder(state: State): { [key: string]: Param } {
-  const makeConfigParam = (config: any, id: string) => Param.fromConfig(id, null, config);
+  const makeConfigParam = (config: any, id: string) => Param.fromConfig(id, null, config, paramTypes);
   let urlParams: Param[] = (state.url && state.url.parameters({inherit: false})) || [];
   let nonUrlParams: Param[] = values(mapObj(omit(state.params || {}, urlParams.map(prop('id'))), makeConfigParam));
   return urlParams.concat(nonUrlParams).map(p => [p.id, p]).reduce(applyPairs, {});
-}
+};
 
 function pathBuilder(state: State) {
   return state.parent ? state.parent.path.concat(state) : /*root*/ [state];
@@ -217,7 +219,7 @@ export class StateBuilder {
       url: [ getUrlBuilder($urlMatcherFactoryProvider, root) ],
       // Keep track of the closest ancestor state that has a URL (i.e. is navigable)
       navigable: [ getNavigableBuilder(isRoot) ],
-      params: [ paramsBuilder ],
+      params: [ getParamsBuilder($urlMatcherFactoryProvider.paramTypes) ],
       // Each framework-specific ui-router implementation should define its own `views` builder
       // e.g., src/ng1/statebuilders/views.ts
       views: [],

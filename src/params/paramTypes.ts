@@ -107,5 +107,3 @@ export class ParamTypes {
     }
   }
 }
-
-export let paramTypes = new ParamTypes();
