@@ -762,4 +762,5 @@ export interface IEventHook {
   priority?: number;
   bind?: any;
   matches:  (treeChanges: TreeChanges) => IMatchingNodes;
+  _deregistered: boolean;
 }

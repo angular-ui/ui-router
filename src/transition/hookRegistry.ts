@@ -49,12 +49,14 @@ export class EventHook implements IEventHook {
   matchCriteria: HookMatchCriteria;
   priority: number;
   bind: any;
+  _deregistered: boolean;
 
   constructor(matchCriteria: HookMatchCriteria, callback: HookFn, options: HookRegOptions = <any>{}) {
     this.callback = callback;
     this.matchCriteria = extend({ to: true, from: true, exiting: true, retained: true, entering: true }, matchCriteria);
     this.priority = options.priority || 0;
     this.bind = options.bind || null;
+    this._deregistered = false;
   }
 
   private static _matchingNodes(nodes: PathNode[], criterion: HookMatchCriterion): PathNode[] {
@@ -99,6 +101,7 @@ function makeHookRegistrationFn(hooks: ITransitionEvents, name: string): IHookRe
     hooks[name].push(eventHook);
 
     return function deregisterEventHook() {
+      eventHook._deregistered = true;
       removeFrom(hooks[name])(eventHook);
     };
   };

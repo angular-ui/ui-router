@@ -62,7 +62,7 @@ describe('HookBuilder:', function() {
     expect(typeof callback).toBe('function')
   });
 
-  const getFn = x => x['hookFn'];
+  const getFn = x => x['eventHook']['callback'];
 
   describe('HookMatchCriteria', function() {
 
