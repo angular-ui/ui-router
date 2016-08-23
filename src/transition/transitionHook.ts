@@ -1,5 +1,5 @@
 /** @module transition */ /** for typedoc */
-import {TransitionHookOptions, HookFn, HookResult} from "./interface";
+import {TransitionHookOptions, IEventHook, HookResult} from "./interface";
 import {defaults, noop} from "../common/common";
 import {fnToString, maxLength} from "../common/strings";
 import {isDefined, isPromise } from "../common/predicates";
@@ -26,7 +26,7 @@ let defaultOptions: TransitionHookOptions = {
 export class TransitionHook {
   constructor(private transition: Transition,
               private stateContext: State,
-              private hookFn: HookFn,
+              private eventHook: IEventHook,
               private options: TransitionHookOptions) {
     this.options = defaults(options, defaultOptions);
   }
@@ -34,13 +34,15 @@ export class TransitionHook {
   private isSuperseded = () => this.options.current() !== this.options.transition;
 
   invokeHook(): Promise<HookResult> {
-    let { options, hookFn } = this;
+    let { options, eventHook } = this;
     trace.traceHookInvocation(this, options);
     if (options.rejectIfSuperseded && this.isSuperseded()) {
       return Rejection.superseded(options.current()).toPromise();
     }
 
-    let hookResult = hookFn.call(options.bind, this.transition, this.stateContext);
+    let hookResult = !eventHook._deregistered
+      ? eventHook.callback.call(options.bind, this.transition, this.stateContext)
+      : undefined;
     return this.handleHookResult(hookResult);
   }
 
@@ -73,10 +75,10 @@ export class TransitionHook {
   }
 
   toString() {
-    let { options, hookFn } = this;
+    let { options, eventHook } = this;
     let event = parse("traceData.hookType")(options) || "internal",
         context = parse("traceData.context.state.name")(options) || parse("traceData.context")(options) || "unknown",
-        name = fnToString(hookFn);
+        name = fnToString(eventHook.callback);
     return `${event} context: ${context}, ${maxLength(200, name)}`;
   }
 
