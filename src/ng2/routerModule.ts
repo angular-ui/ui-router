@@ -56,7 +56,7 @@ export function UIRouterModule(moduleMetaData: UIRouterModuleMetadata) {
   let components = states.map(state => state.views || { $default: state })
       .map(viewObj => Object.keys(viewObj).map(key => viewObj[key].component))
       .reduce((acc, arr) => acc.concat(arr), [])
-      .filter(x => typeof x === 'function');
+      .filter(x => typeof x === 'function' && x !== UIView);
 
   moduleMetaData.imports = <any[]> (moduleMetaData.imports || []).concat(_UIRouterModule).reduce(uniqR, []);
   moduleMetaData.declarations = <any[]> (moduleMetaData.declarations || []).concat(components).reduce(uniqR, []);

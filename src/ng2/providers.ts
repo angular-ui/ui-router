@@ -57,12 +57,13 @@ import {UrlRouter} from "../url/urlRouter";
 import {ViewService} from "../view/view";
 import {UIView, ParentUIViewInject} from "./directives/uiView";
 import {ng2ViewsBuilder, Ng2ViewConfig} from "./statebuilders/views";
-import {Ng2ViewDeclaration} from "./interface";
+import {Ng2ViewDeclaration, NG2_INJECTOR_TOKEN} from "./interface";
 import {UIRouterConfig} from "./uiRouterConfig";
 import {Globals} from "../globals";
 import {UIRouterLocation} from "./location";
 import {services} from "../common/coreservices";
 import {ProviderLike} from "../state/interface";
+import {Resolvable} from "../resolve/resolvable";
 
 let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation, injector: Injector) => {
   services.$injector.get = injector.get.bind(injector);
@@ -74,6 +75,9 @@ let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation,
   router.stateRegistry.decorator('views', ng2ViewsBuilder);
 
   router.stateRegistry.stateQueue.autoFlush(router.stateService);
+  
+  let ng2InjectorResolvable = new Resolvable(NG2_INJECTOR_TOKEN, () => injector, null, { when: "EAGER" }, injector);
+  router.stateRegistry.root().resolvables.push(ng2InjectorResolvable);
 
   setTimeout(() => {
     routerConfig.configure(router);

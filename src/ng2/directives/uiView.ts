@@ -1,20 +1,17 @@
 /** @module ng2_directives */ /** */
 import {
-    Component, ComponentFactoryResolver, ComponentFactory,
-    ViewContainerRef, ReflectiveInjector, InputMetadata, ComponentMetadata, ViewChild
+    Component, ComponentFactoryResolver, ViewContainerRef, Input, ComponentRef, Type,
+    ReflectiveInjector, InputMetadata, ComponentMetadata, ViewChild, Injector, Inject
 } from '@angular/core';
-import {Input} from "@angular/core";
-import {ComponentRef} from "@angular/core";
-import {Type} from "@angular/core";
 
 import {UIRouter} from "../../router";
 import {trace} from "../../common/trace";
-import {Inject} from "@angular/core";
-import {ViewContext, ViewConfig} from "../../view/interface";
-import {Ng2ViewDeclaration} from "../interface";
+import {ViewContext, ViewConfig, ActiveUIView} from "../../view/interface";
+import {NG2_INJECTOR_TOKEN} from "../interface";
 import {Ng2ViewConfig} from "../statebuilders/views";
 import {ResolveContext} from "../../resolve/resolveContext";
 import {flattenR} from "../../common/common";
+import {MergeInjector} from "../mergeInjector";
 
 /** @hidden */
 let id = 0;
@@ -132,14 +129,13 @@ export class UIView {
   @Input('ui-view') set _name(val: string) { this.name = val; }
   componentRef: ComponentRef<any>;
   deregister: Function;
-  uiViewData: any = {};
+  uiViewData: ActiveUIView = <any> {};
 
   static PARENT_INJECT = "UIView.PARENT_INJECT";
 
   constructor(
       public router: UIRouter,
       @Inject(UIView.PARENT_INJECT) public parent: ParentUIViewInject,
-      public compFactoryResolver: ComponentFactoryResolver,
       public viewContainerRef: ViewContainerRef
   ) { }
 
@@ -170,56 +166,94 @@ export class UIView {
     this.disposeLast();
   }
 
+  /**
+   * The view service is informing us of an updated ViewConfig
+   * (usually because a transition activated some state and its views)
+   */
   viewConfigUpdated(config: ViewConfig) {
+    // The config may be undefined if there is nothing currently targeting this UIView.
+    // Dispose the current component, if there is one
     if (!config) return this.disposeLast();
+
+    // Only care about Ng2 configs
     if (!(config instanceof Ng2ViewConfig)) return;
 
-    let uiViewData = this.uiViewData;
-    let viewDecl = <Ng2ViewDeclaration> config.viewDecl;
-
     // The "new" viewconfig is already applied, so exit early
-    if (uiViewData.config === config) return;
-    // This is a new viewconfig.  Destroy the old component
-    this.disposeLast();
-    trace.traceUIViewConfigUpdated(uiViewData, config && config.viewDecl.$context);
-    uiViewData.config = config;
-    // The config may be undefined if there is nothing state currently targeting this UIView.
-    if (!config) return;
+    if (this.uiViewData.config === config) return;
 
-    // Map resolves to "useValue providers"
+    // This is a new ViewConfig.  Dispose the previous component
+    this.disposeLast();
+    trace.traceUIViewConfigUpdated(this.uiViewData, config && config.viewDecl.$context);
+
+    this.applyUpdatedConfig(config);
+  }
+
+  applyUpdatedConfig(config: Ng2ViewConfig) {
+    this.uiViewData.config = config;
+    // Create the Injector for the routed component
     let context = new ResolveContext(config.path);
-    let resolvables = context.getTokens().map(token => context.getResolvable(token)).filter(r => r.resolved);
-    let rawProviders = resolvables.map(r => ({ provide: r.token, useValue: r.data }));
-    rawProviders.push({ provide: UIView.PARENT_INJECT, useValue: { context: config.viewDecl.$context, fqn: uiViewData.fqn } });
+    let componentInjector = this.getComponentInjector(context);
 
     // Get the component class from the view declaration. TODO: allow promises?
-    let componentType = <any> viewDecl.component;
+    let componentClass = config.viewDecl.component;
 
-    let createComponent = (factory: ComponentFactory<any>) => {
-      let parentInjector = this.viewContainerRef.injector;
-      let childInjector = ReflectiveInjector.resolveAndCreate(rawProviders, parentInjector);
-      let ref = this.componentRef = this.componentTarget.createComponent(factory, undefined, childInjector);
+    // Create the component
+    let compFactoryResolver = componentInjector.get(ComponentFactoryResolver);
+    let compFactory = compFactoryResolver.resolveComponentFactory(componentClass);
+    this.componentRef = this.componentTarget.createComponent(compFactory, undefined, componentInjector);
 
-      // TODO: wire uiCanExit and uiOnParamsChanged callbacks
+    // Wire resolves to @Input()s
+    this.applyInputBindings(this.componentRef, context, componentClass);
 
-      let bindings = viewDecl['bindings'] || {};
-      var addResolvable = (tuple: InputMapping) => ({
-        prop: tuple.prop,
-        resolvable: context.getResolvable(bindings[tuple.prop] || tuple.token)
-      });
+    // TODO: wire uiCanExit and uiOnParamsChanged callbacks
+  }
 
-      // Supply resolve data to matching @Input('prop') or inputs: ['prop']
-      let inputTuples = ng2ComponentInputs(componentType);
-      inputTuples.map(addResolvable)
-          .filter(tuple => tuple.resolvable && tuple.resolvable.resolved)
-          .forEach(tuple => { ref.instance[tuple.prop] = tuple.resolvable.data });
-          
-      // Initiate change detection for the newly created component
-      ref.changeDetectorRef.detectChanges();
-    };
+  /**
+   * Creates a new Injector for a routed component.
+   *
+   * Adds resolve values to the Injector
+   * Adds providers from the NgModule for the state
+   * Adds providers from the parent Component in the component tree
+   * Adds a PARENT_INJECT view context object
+   *
+   * @returns an Injector
+   */
+  getComponentInjector(context: ResolveContext): Injector {
+    // Map resolves to "useValue: providers"
+    let resolvables = context.getTokens().map(token => context.getResolvable(token)).filter(r => r.resolved);
+    let newProviders = resolvables.map(r => ({ provide: r.token, useValue: r.data }));
 
-    let factory = this.compFactoryResolver.resolveComponentFactory(componentType);
-    createComponent(factory);
+    var parentInject = { context: this.uiViewData.config.viewDecl.$context, fqn: this.uiViewData.fqn };
+    newProviders.push({ provide: UIView.PARENT_INJECT, useValue: parentInject });
+
+    let parentComponentInjector = this.viewContainerRef.injector;
+    let moduleInjector = context.getResolvable(NG2_INJECTOR_TOKEN).data;
+    let mergedParentInjector = new MergeInjector(moduleInjector, parentComponentInjector);
+
+    return ReflectiveInjector.resolveAndCreate(newProviders, mergedParentInjector);
+  }
+
+  /**
+   * Supplies component inputs with resolve data
+   *
+   * Finds component inputs which match resolves (by name) and sets the input value
+   * to the resolve data.
+   */
+  applyInputBindings(ref: ComponentRef<any>, context: ResolveContext, componentClass) {
+    let bindings = this.uiViewData.config.viewDecl['bindings'] || {};
+
+    var addResolvable = (tuple: InputMapping) => ({
+      prop: tuple.prop,
+      resolvable: context.getResolvable(bindings[tuple.prop] || tuple.token)
+    });
+
+    // Supply resolve data to matching @Input('prop') or inputs: ['prop']
+    let inputTuples = ng2ComponentInputs(componentClass);
+    inputTuples.map(addResolvable)
+        .filter(tuple => tuple.resolvable && tuple.resolvable.resolved)
+        .forEach(tuple => { ref.instance[tuple.prop] = tuple.resolvable.data });
+
+    // Initiate change detection for the newly created component
+    ref.changeDetectorRef.detectChanges();
   }
 }
-
