@@ -4,6 +4,8 @@ import {Transition} from "../transition/transition";
 import {State} from "../state/stateObject";
 import {ResolveContext} from "../resolve/resolveContext";
 import {TransitionStateHookFn, TransitionHookFn} from "../transition/interface";
+import {TransitionService} from "../transition/transitionService";
+import {val} from "../common/hof";
 
 /**
  * A [[TransitionHookFn]] which resolves all EAGER Resolvables in the To Path
@@ -14,10 +16,13 @@ import {TransitionStateHookFn, TransitionHookFn} from "../transition/interface";
  *
  * See [[StateDeclaration.resolve]]
  */
-export const eagerResolvePath: TransitionHookFn = (trans: Transition) =>
+const eagerResolvePath: TransitionHookFn = (trans: Transition) =>
     new ResolveContext(trans.treeChanges().to)
         .resolvePath("EAGER", trans)
         .then(noop);
+
+export const registerEagerResolvePath = (transitionService: TransitionService) =>
+    transitionService.onStart({}, eagerResolvePath, {priority: 1000});
 
 /**
  * A [[TransitionHookFn]] which resolves all LAZY Resolvables for the state (and all its ancestors) in the To Path
@@ -28,9 +33,12 @@ export const eagerResolvePath: TransitionHookFn = (trans: Transition) =>
  *
  * See [[StateDeclaration.resolve]]
  */
-export const lazyResolveState: TransitionStateHookFn = (trans: Transition, state: State) =>
+const lazyResolveState: TransitionStateHookFn = (trans: Transition, state: State) =>
     new ResolveContext(trans.treeChanges().to)
         .subContext(state)
         .resolvePath("LAZY", trans)
         .then(noop);
+
+export const registerLazyResolveState = (transitionService: TransitionService) =>
+    transitionService.onEnter({ entering: val(true) }, lazyResolveState, {priority: 1000});
 

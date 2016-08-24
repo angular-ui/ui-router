@@ -10,13 +10,13 @@ import {TargetState} from "../state/targetState";
 import {PathNode} from "../path/node";
 import {IEventHook} from "./interface";
 import {ViewService} from "../view/view";
-import {eagerResolvePath, lazyResolveState} from "../hooks/resolve";
-import {loadEnteringViews, activateViews} from "../hooks/views";
-import {updateUrl} from "../hooks/url";
-import {redirectToHook} from "../hooks/redirectTo";
-import {onExitHook, onRetainHook, onEnterHook} from "../hooks/onEnterExitRetain";
 import {UIRouter} from "../router";
-import {val} from "../common/hof";
+
+import {registerEagerResolvePath, registerLazyResolveState} from "../hooks/resolve";
+import {registerLoadEnteringViews, registerActivateViews} from "../hooks/views";
+import {registerUpdateUrl} from "../hooks/url";
+import {registerRedirectToHook} from "../hooks/redirectTo";
+import {registerOnExitHook, registerOnRetainHook, registerOnEnterHook} from "../hooks/onEnterExitRetain";
 
 /**
  * The default [[Transition]] options.
@@ -79,23 +79,23 @@ export class TransitionService implements IHookRegistry {
     let fns = this._deregisterHookFns;
 
     // Wire up redirectTo hook
-    fns.redirectTo    = this.onStart({to: (state) => !!state.redirectTo}, redirectToHook);
+    fns.redirectTo    = registerRedirectToHook(this);
     
     // Wire up onExit/Retain/Enter state hooks
-    fns.onExit        = this.onExit  ({exiting: state => !!state.onExit},     onExitHook);
-    fns.onRetain      = this.onRetain({retained: state => !!state.onRetain},  onRetainHook);
-    fns.onEnter       = this.onEnter ({entering: state => !!state.onEnter},   onEnterHook);
+    fns.onExit        = registerOnExitHook(this);
+    fns.onRetain      = registerOnRetainHook(this);
+    fns.onEnter       = registerOnEnterHook(this);
 
     // Wire up Resolve hooks
-    fns.eagerResolve  = this.onStart({}, eagerResolvePath, {priority: 1000});
-    fns.lazyResolve   = this.onEnter({ entering: val(true) }, lazyResolveState, {priority: 1000});
+    fns.eagerResolve  = registerEagerResolvePath(this);
+    fns.lazyResolve   = registerLazyResolveState(this);
 
     // Wire up the View management hooks
-    fns.loadViews     = this.onStart({}, loadEnteringViews);
-    fns.activateViews = this.onSuccess({}, activateViews);
+    fns.loadViews     = registerLoadEnteringViews(this);
+    fns.activateViews = registerActivateViews(this);
 
     // After globals.current is updated at priority: 10000
-    fns.updateUrl     = this.onSuccess({}, updateUrl, {priority: 9999});
+    fns.updateUrl     = registerUpdateUrl(this);
   }
 
   /** @inheritdoc */

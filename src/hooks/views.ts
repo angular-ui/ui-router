@@ -4,6 +4,8 @@ import {services} from "../common/coreservices";
 import {Transition} from "../transition/transition";
 import {ViewService} from "../view/view";
 import {ViewConfig} from "../view/interface";
+import {TransitionHookFn} from "../transition/interface";
+import {TransitionService} from "../transition/transitionService";
 
 
 /**
@@ -14,11 +16,14 @@ import {ViewConfig} from "../view/interface";
  * Allows the views to do async work in [[ViewConfig.load]] before the transition continues.
  * In angular 1, this includes loading the templates.
  */
-export function loadEnteringViews(transition: Transition) {
+const loadEnteringViews: TransitionHookFn = (transition: Transition) => {
   let enteringViews = transition.views("entering");
   if (!enteringViews.length) return;
   return services.$q.all(enteringViews.map(view => view.load())).then(noop);
-}
+};
+
+export const registerLoadEnteringViews = (transitionService: TransitionService) =>
+    transitionService.onStart({}, loadEnteringViews);
 
 /**
  * A [[TransitionHookFn]] which activates the new views when a transition is successful.
@@ -30,7 +35,7 @@ export function loadEnteringViews(transition: Transition) {
  *
  * See [[ViewService]]
  */
-export function activateViews(transition: Transition) {
+const activateViews: TransitionHookFn = (transition: Transition) => {
   let enteringViews = transition.views("entering");
   let exitingViews = transition.views("exiting");
   if (!enteringViews.length && !exitingViews.length) return;
@@ -41,4 +46,7 @@ export function activateViews(transition: Transition) {
   enteringViews.forEach((vc: ViewConfig) => $view.activateViewConfig(vc));
 
   $view.sync();
-}
+};
+
+export const registerActivateViews = (transitionService: TransitionService) =>
+    transitionService.onSuccess({}, activateViews);

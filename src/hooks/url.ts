@@ -2,13 +2,14 @@
 import {UrlRouter} from "../url/urlRouter";
 import {StateService} from "../state/stateService";
 import {Transition} from "../transition/transition";
+import {TransitionHookFn} from "../transition/interface";
 
 /** 
  * A [[TransitionHookFn]] which updates the URL after a successful transition
  * 
  * Registered using `transitionService.onSuccess({}, updateUrl);`
  */
-export function updateUrl(transition: Transition) {
+const updateUrl: TransitionHookFn = (transition: Transition) => {
   let options = transition.options();
   let $state: StateService = transition.router.stateService;
   let $urlRouter: UrlRouter = transition.router.urlRouter;
@@ -19,4 +20,7 @@ export function updateUrl(transition: Transition) {
   }
 
   $urlRouter.update(true);
-}
+};
+
+export const registerUpdateUrl = (transitionService: TransitionService) =>
+    transitionService.onSuccess({}, updateUrl, {priority: 9999});

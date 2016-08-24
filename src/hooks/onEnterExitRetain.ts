@@ -2,6 +2,7 @@
 import {TransitionStateHookFn} from "../transition/interface";
 import {State} from "../state/stateObject";
 import {Transition} from "../transition/transition";
+import {TransitionService} from "../transition/transitionService";
 
 /**
  * A factory which creates an onEnter, onExit or onRetain transition hook function
@@ -12,10 +13,10 @@ import {Transition} from "../transition/transition";
  * @hidden
  */
 function makeEnterExitRetainHook(hookName: string): TransitionStateHookFn {
-    return (transition: Transition, state: State) => {
-        let hookFn: TransitionStateHookFn = state[hookName];
-        return hookFn(transition, state);
-    }
+  return (transition: Transition, state: State) => {
+    let hookFn: TransitionStateHookFn = state[hookName];
+    return hookFn(transition, state);
+  }
 }
 
 /**
@@ -27,7 +28,9 @@ function makeEnterExitRetainHook(hookName: string): TransitionStateHookFn {
  *
  * See: [[IHookRegistry.onExit]]
  */
-export const onExitHook: TransitionStateHookFn      = makeEnterExitRetainHook('onExit');
+const onExitHook: TransitionStateHookFn = makeEnterExitRetainHook('onExit');
+export const registerOnExitHook = (transitionService: TransitionService) =>
+    transitionService.onExit({exiting: state => !!state.onExit}, onExitHook);
 
 /**
  * The [[TransitionStateHookFn]] for onRetain
@@ -38,7 +41,9 @@ export const onExitHook: TransitionStateHookFn      = makeEnterExitRetainHook('o
  *
  * See: [[IHookRegistry.onRetain]]
  */
-export const onRetainHook: TransitionStateHookFn    = makeEnterExitRetainHook('onRetain');
+const onRetainHook: TransitionStateHookFn = makeEnterExitRetainHook('onRetain');
+export const registerOnRetainHook = (transitionService: TransitionService) =>
+    transitionService.onRetain({retained: state => !!state.onRetain}, onRetainHook);
 
 /**
  * The [[TransitionStateHookFn]] for onEnter
@@ -49,4 +54,7 @@ export const onRetainHook: TransitionStateHookFn    = makeEnterExitRetainHook('o
  *
  * See: [[IHookRegistry.onEnter]]
  */
-export const onEnterHook: TransitionStateHookFn     = makeEnterExitRetainHook('onEnter');
+const onEnterHook: TransitionStateHookFn = makeEnterExitRetainHook('onEnter');
+export const registerOnEnterHook = (transitionService: TransitionService) =>
+    transitionService.onEnter({entering: state => !!state.onEnter}, onEnterHook);
+

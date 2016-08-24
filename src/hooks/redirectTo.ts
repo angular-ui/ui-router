@@ -3,6 +3,8 @@ import {isString, isFunction} from "../common/predicates"
 import {Transition} from "../transition/transition";
 import {services} from "../common/coreservices";
 import {TargetState} from "../state/targetState";
+import {TransitionService} from "../transition/transitionService";
+import {TransitionHookFn} from "../transition/interface";
 
 /**
  * A [[TransitionHookFn]] that redirects to a different state or params
@@ -11,7 +13,7 @@ import {TargetState} from "../state/targetState";
  * 
  * See [[StateDeclaration.redirectTo]]
  */
-export const redirectToHook = (trans: Transition) => {
+const redirectToHook: TransitionHookFn = (trans: Transition) => {
   let redirect = trans.to().redirectTo;
   if (!redirect) return;
 
@@ -29,3 +31,6 @@ export const redirectToHook = (trans: Transition) => {
   }
   return handleResult(redirect);
 };
+
+export const registerRedirectToHook = (transitionService: TransitionService) =>
+    transitionService.onStart({to: (state) => !!state.redirectTo}, redirectToHook);
