@@ -49,17 +49,13 @@ If your issue gets labeled with purple label, no further action will be taken un
 
 # Developing
 
-UI-Router uses <code>grunt >= 0.4.x</code>. Make sure to upgrade your environment and read the
-[Migration Guide](http://gruntjs.com/upgrading-from-0.3-to-0.4).
+UI-Router uses <code>npm</code> and <code>webpack</code>.
+After cloning the ui-router repository, fetch the dependencies for building from source and running tests:
 
-Dependencies for building from source and running tests:
+* run `$ npm install` from the project directory
 
-* [grunt-cli](https://github.com/gruntjs/grunt-cli) - run: `$ npm install -g grunt-cli`
-* Then, install the development dependencies by running `$ npm install` from the project directory
+There are a number of scripts in the package.json that are used to generate builds and run tests:
 
-There are a number of targets in the gruntfile that are used to generating different builds:
-
-* `grunt`: Perform a normal build, runs jshint and karma tests
-* `grunt build`: Perform a normal build
-* `grunt dist`: Perform a clean build and generate documentation
-* `grunt dev`: Run dev server (sample app) and watch for changes, builds and runs karma tests on changes.
+* `npm test`: runs the entire test suite.
+* `npm run build`: Perform a full build.
+* `npm run watch`: Continuously runs the tests when source or tests change.
