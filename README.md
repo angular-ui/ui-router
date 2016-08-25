@@ -180,7 +180,7 @@ interfaces more effectively by nesting your views, and pairing those views with 
 
 **(1)** Follow the [setup](#get-started) instructions detailed above.
 
-**(2)** Add one or more `ui-view` to your app, give them names.
+**(2)** Add one or more `ui-view`s to your app with names.
 >
 ```html
 <!-- index.html -->
