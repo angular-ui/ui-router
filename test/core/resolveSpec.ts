@@ -8,12 +8,14 @@ import { omit, pick, forEach, copy } from "../../src/core";
 import Spy = jasmine.Spy;
 import {services} from "../../src/common/coreservices";
 import {resolvablesBuilder} from "../../src/state/stateBuilder";
+import {tree2Array} from "../testUtils.ts";
+import {UIRouter} from "../../src/router";
 
 ///////////////////////////////////////////////
 
-var states, statesTree, statesMap: { [key:string]: State } = {};
-var vals, counts, expectCounts;
-var asyncCount;
+let router, states, statesMap: { [key:string]: State } = {};
+let vals, counts, expectCounts;
+let asyncCount;
 
 function invokeLater(fn: Function, ctx: ResolveContext) {
   return new Resolvable("", fn, services.$injector.annotate(fn)).get(ctx)
@@ -35,7 +37,14 @@ function getStates() {
       },
       I: { resolve: { _I: function(_I) { return "I"; } } }
     },
-    J: { resolve: { _J: function() { counts['_J']++; return "J"; }, _J2: function(_J) { counts['_J2']++; return _J + "J2"; } },
+    J: {
+      resolve: {
+        _J: function() { counts['_J']++; return "J"; },
+        _J2: function(_J) { counts['_J2']++; return _J + "J2"; }
+      },
+      resolvePolicy: {
+        _J: { when: 'EAGER' }
+      },
       K: { resolve: { _K: function(_J2) { counts['_K']++; return _J2 + "K"; }},
         L: { resolve: { _L: function(_K) { counts['_L']++; return _K + "L"; }},
           M: { resolve: { _M: function(_L) { counts['_M']++; return _L + "M"; }} }
@@ -57,35 +66,17 @@ function getStates() {
   };
 }
 
-
 beforeEach(function () {
+  router = new UIRouter();
+  router.stateRegistry.stateQueue.autoFlush(router.stateService);
+
   counts = { _J: 0, _J2: 0, _K: 0, _L: 0, _M: 0, _Q: 0 };
   vals = { _Q: null };
   expectCounts = copy(counts);
-  states = getStates();
 
-  var stateProps = ["resolve", "resolvePolicy"];
-  statesTree = loadStates({}, states, '');
-
-  function loadStates(parent, state, name) {
-    var thisState = pick.apply(null, [state].concat(stateProps));
-    var substates = omit.apply(null, [state].concat(stateProps));
-    var resolve = thisState.resolve || {};
-
-    thisState.resolvables = resolvablesBuilder(<any> { resolve });
-    thisState.template = thisState.template || "empty";
-    thisState.name = name;
-    thisState.parent = parent.name;
-    thisState.params = {};
-    thisState.data = { children: [] };
-
-    forEach(substates, function (value, key) {
-      thisState.data.children.push(loadStates(thisState, value, key));
-    });
-    thisState = new State(thisState);
-    statesMap[name] = thisState;
-    return thisState;
-  }
+  tree2Array(getStates(), false).forEach(state => router.stateRegistry.register(state));
+  statesMap = router.stateRegistry.get()
+      .reduce((acc, state) => ((acc[state.name] = state.$$state()), acc), {});
 });
 
 function makePath(names: string[]): PathNode[] {
@@ -123,6 +114,14 @@ describe('Resolvables system:', function () {
       let ctx = new ResolveContext(path);
       ctx.resolvePath("EAGER").then(function () {
         expect(getResolvedData(ctx)).toEqualData({ _J: "J", _N: "JN" });
+      }).then(done);
+    });
+
+    it('should resolve only eager resolves when run with "eager" policy', done => {
+      let path = makePath([ "J", "K" ]);
+      let ctx = new ResolveContext(path);
+      ctx.resolvePath("EAGER").then(function () {
+        expect(getResolvedData(ctx)).toEqualData({ _J: "J" });
       }).then(done);
     });
 

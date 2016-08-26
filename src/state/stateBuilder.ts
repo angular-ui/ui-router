@@ -132,11 +132,11 @@ function includesBuilder(state: State) {
  * ]
  */
 export function resolvablesBuilder(state: State): Resolvable[] {
-  interface Tuple { token: any, val: any, deps: any[], policy?: string }
+  interface Tuple { token: any, val: any, deps: any[], policy: ResolvePolicy }
   
-  /** convert a resolve: {} object to an array of tuples */
-  const obj2Tuples        = (obj: Obj) =>
-      Object.keys(obj || {}).map(token => ({token, val: obj[token], deps: undefined}));
+  /** convert resolve: {} and resolvePolicy: {} objects to an array of tuples */
+  const objects2Tuples    = (resolveObj: Obj, resolvePolicies: { [key: string]: ResolvePolicy }) =>
+      Object.keys(resolveObj || {}).map(token => ({token, val: resolveObj[token], deps: undefined, policy: resolvePolicies[token]}));
 
   /** fetch DI annotations from a function or ng1-style array */
   const annotate          = (fn: Function)  =>
@@ -180,7 +180,7 @@ export function resolvablesBuilder(state: State): Resolvable[] {
   // If resolveBlock is already an array, use it as-is.
   // Otherwise, assume it's an object and convert to an Array of tuples
   let decl = state.resolve;
-  let items: any[] = isArray(decl) ? decl : obj2Tuples(decl);
+  let items: any[] = isArray(decl) ? decl : objects2Tuples(decl, state.resolvePolicy || {});
   return items.map(item2Resolvable);
 }
 
