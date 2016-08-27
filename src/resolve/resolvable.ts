@@ -167,4 +167,7 @@ export class Resolvable implements ResolvableLiteral {
   clone(): Resolvable {
     return new Resolvable(this);
   }
+  
+  static fromData = (token: any, data: any) =>  
+      new Resolvable(token, () => data, null, null, data);
 }

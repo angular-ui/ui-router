@@ -3,6 +3,7 @@ import {UrlRouter} from "../url/urlRouter";
 import {StateService} from "../state/stateService";
 import {Transition} from "../transition/transition";
 import {TransitionHookFn} from "../transition/interface";
+import {TransitionService} from "../transition/transitionService";
 
 /** 
  * A [[TransitionHookFn]] which updates the URL after a successful transition

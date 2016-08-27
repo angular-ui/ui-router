@@ -1,7 +1,7 @@
 /** @module ng2 */ /** */
 import {StateDeclaration, _ViewDeclaration} from "../state/interface";
 import {Transition} from "../transition/transition";
-import {Type} from "@angular/core";
+import {Type, OpaqueToken} from "@angular/core";
 import {HookResult} from "../transition/interface";
 
 /**
@@ -342,4 +342,4 @@ export interface Ng2Component {
   uiCanExit(): HookResult;
 }
 
-export const NG2_INJECTOR_TOKEN = {};
+export const NG2_INJECTOR_TOKEN = new OpaqueToken("NgModule Injector");

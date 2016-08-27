@@ -8,10 +8,12 @@ export * from "./core";
 import "./justjs";
 
 export * from "./ng2/interface";
-export * from "./ng2/routerModule";
+export * from "./ng2/lazyLoadNgModule";
 export * from "./ng2/providers";
 export * from "./ng2/location";
 export * from "./ng2/directives/directives";
 export * from "./ng2/statebuilders/views";
+export * from "./ng2/statebuilders/lazyLoadNgModuleResolvable";
+export * from "./ng2/uiRouterNgModule";
 export * from "./ng2/uiRouterConfig";
 

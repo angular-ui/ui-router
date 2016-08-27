@@ -44,6 +44,7 @@ export class State {
   public onExit: TransitionStateHookFn;
   public onRetain: TransitionStateHookFn;
   public onEnter: TransitionStateHookFn;
+  public lazyLoad: (transition: Transition) => Promise<StateDeclaration[]>;
 
   redirectTo: (
       string |

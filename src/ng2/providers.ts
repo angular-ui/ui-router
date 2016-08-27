@@ -64,15 +64,27 @@ import {UIRouterLocation} from "./location";
 import {services} from "../common/coreservices";
 import {ProviderLike} from "../state/interface";
 import {Resolvable} from "../resolve/resolvable";
+import {ngModuleResolvablesBuilder} from "./statebuilders/lazyLoadNgModuleResolvable";
 
 let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation, injector: Injector) => {
   services.$injector.get = injector.get.bind(injector);
-  let router = new UIRouter();
 
   location.init();
 
+
+  // ----------------- Create router -----------------
+  // Create a new ng2 UIRouter and configure it for ng2
+  let router = new UIRouter();
+  let registry = router.stateRegistry;
+
+  // ----------------- Configure for ng2 -------------
+  // Apply ng2 ui-view handling code
   router.viewService.viewConfigFactory("ng2", (path: PathNode[], config: Ng2ViewDeclaration) => new Ng2ViewConfig(path, config));
-  router.stateRegistry.decorator('views', ng2ViewsBuilder);
+  registry.decorator('views', ng2ViewsBuilder);
+
+  // Apply statebuilder decorator for ng2 NgModule registration
+  registry.stateQueue.flush(router.stateService);
+  registry.decorator('resolvables', ngModuleResolvablesBuilder);
 
   router.stateRegistry.stateQueue.autoFlush(router.stateService);
   

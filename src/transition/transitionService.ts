@@ -17,6 +17,7 @@ import {registerLoadEnteringViews, registerActivateViews} from "../hooks/views";
 import {registerUpdateUrl} from "../hooks/url";
 import {registerRedirectToHook} from "../hooks/redirectTo";
 import {registerOnExitHook, registerOnRetainHook, registerOnEnterHook} from "../hooks/onEnterExitRetain";
+import {registerLazyLoadHook} from "../hooks/lazyLoadStates";
 
 /**
  * The default [[Transition]] options.
@@ -50,12 +51,13 @@ export class TransitionService implements IHookRegistry {
   public $view: ViewService;
 
   /**
-   * This object has hook de-registration functions.
+   * This object has hook de-registration functions for the built-in hooks.
    * This can be used by third parties libraries that wish to customize the behaviors
    *
    * @hidden
    */
   _deregisterHookFns: {
+    redirectTo: Function;
     onExit: Function;
     onRetain: Function;
     onEnter: Function;
@@ -64,7 +66,7 @@ export class TransitionService implements IHookRegistry {
     loadViews: Function;
     activateViews: Function;
     updateUrl: Function;
-    redirectTo: Function;
+    lazyLoad: Function;
   };
 
   constructor(private _router: UIRouter) {
@@ -96,6 +98,9 @@ export class TransitionService implements IHookRegistry {
 
     // After globals.current is updated at priority: 10000
     fns.updateUrl     = registerUpdateUrl(this);
+
+    // Lazy load state trees
+    fns.lazyLoad      = registerLazyLoadHook(this);
   }
 
   /** @inheritdoc */

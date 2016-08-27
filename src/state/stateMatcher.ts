@@ -2,6 +2,8 @@
 import {isString} from "../common/predicates";
 import {StateOrName} from "./interface";
 import {State} from "./stateObject";
+import {Glob} from "../common/glob";
+import {values} from "../common/common";
 
 export class StateMatcher {
   constructor (private _states: { [key: string]: State }) { }
@@ -22,6 +24,17 @@ export class StateMatcher {
 
     if (state && (isStr || (!isStr && (state === stateOrName || state.self === stateOrName)))) {
       return state;
+    } else if (isStr) {
+      let matches = values(this._states)
+          .filter(state => !!state.lazyLoad)
+          .map(state => ({ state, glob: new Glob(state.name + ".**")}))
+          .filter(({state, glob}) => glob.matches(name))
+          .map(({state, glob}) => state);
+
+      if (matches.length > 1) {
+        console.log(`stateMatcher.find: Found multiple matches for ${name} using glob: `, matches.map(match => match.name));
+      }
+      return matches[0];
     }
     return undefined;
   }

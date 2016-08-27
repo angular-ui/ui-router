@@ -521,6 +521,15 @@ export interface StateDeclaration {
   onExit?: TransitionStateHookFn;
 
   /**
+   * A function that lazy loads a state tree.
+   
+   
+   *
+   * @param transition
+   */
+  lazyLoad?: (transition: Transition) => Promise<StateDeclaration[]>;
+
+  /**
    * @deprecated define individual parameters as [[ParamDeclaration.dynamic]]
    */
   reloadOnSearch?: boolean;

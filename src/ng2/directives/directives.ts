@@ -19,15 +19,6 @@ export * from "./uiSrefActive";
 
 /**
  * References to the UI-Router directive classes, for use within a @Component's `directives:` property
- *
- * @example
- * ```js
- *
- * Component({
- *   selector: 'my-cmp',
- *   directives: [UIROUTER_DIRECTIVES],
- *   template: '<a uiSref="foo">Foo</a>'
- * })
- * ```
+ * @deprecated use [[UIRouterModule]]
  */
 export let UIROUTER_DIRECTIVES = [UISref, AnchorUISref, UIView, UISrefActive, UISrefStatus];
