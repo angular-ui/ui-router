@@ -46,7 +46,7 @@
  *
  * @preferred @module ng2
  */ /** */
-import {Injector} from "@angular/core";
+import {Injector, OpaqueToken} from "@angular/core";
 import {UIRouter} from "../router";
 import {PathNode} from "../path/node";
 import {StateRegistry} from "../state/stateRegistry";
@@ -66,9 +66,31 @@ import {ProviderLike} from "../state/interface";
 import {Resolvable} from "../resolve/resolvable";
 import {ngModuleResolvablesBuilder} from "./statebuilders/lazyLoadNgModuleResolvable";
 
-let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation, injector: Injector) => {
+export const NG1_UIROUTER_TOKEN = new OpaqueToken("$uiRouter");
+
+/**
+ * This is a provider factory for a UIRouter instance which is configured for Angular 2
+ */
+let uiRouterFactory = (injector: Injector) => {
+  // ----------------- ng1-to-ng2 short circuit ------
+  // Before creating a UIRouter instance, see if there is
+  // already one created (from ng1-to-ng2 as NG1_UIROUTER_TOKEN)
+  let $uiRouter = injector.get(NG1_UIROUTER_TOKEN, null);
+  if ($uiRouter) return $uiRouter;
+
+
+  // ----------------- Get DI dependencies -----------
+  // Get the DI deps manually from the injector
+  // (no UIRouterConfig is provided when in hybrid mode)
+  let routerConfig: UIRouterConfig = injector.get(UIRouterConfig);
+  let location: UIRouterLocation = injector.get(UIRouterLocation);
+
+
+  // ----------------- Monkey Patches ----------------
+  // Monkey patch the services.$injector to the ng2 Injector
   services.$injector.get = injector.get.bind(injector);
 
+  // Monkey patch the services.$location with ng2 Location implementation
   location.init();
 
 
@@ -86,14 +108,21 @@ let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation,
   registry.stateQueue.flush(router.stateService);
   registry.decorator('resolvables', ngModuleResolvablesBuilder);
 
-  router.stateRegistry.stateQueue.autoFlush(router.stateService);
-  
-  let ng2InjectorResolvable = new Resolvable(NG2_INJECTOR_TOKEN, () => injector, null, { when: "EAGER" }, injector);
+  // Prep the tree of NgModule by placing the root NgModule's Injector on the root state.
+  let ng2InjectorResolvable = Resolvable.fromData(NG2_INJECTOR_TOKEN, injector);
   router.stateRegistry.root().resolvables.push(ng2InjectorResolvable);
 
+
+  // ----------------- Initialize router -------------
+  // Allow states to be registered
+  router.stateRegistry.stateQueue.autoFlush(router.stateService);
+
   setTimeout(() => {
+    // Let the app apply custom configuration...
+    // (global transition hooks, deferIntercept, otherwise, etc)
     routerConfig.configure(router);
 
+    // Start monitoring the URL
     if (!router.urlRouterProvider.interceptDeferred) {
       router.urlRouter.listen();
       router.urlRouter.sync();
@@ -106,35 +135,19 @@ let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation,
 /**
  * The UI-Router providers, for use in your application bootstrap
  *
- * @example
- * ```js
- *
- * bootstrap(UIView, [
- *     ...UIROUTER_PROVIDERS,
- *     ...HTTP_PROVIDERS,
- *     provide(UIRouterConfig, { useClass: MyUIRouterConfig })
- * ]);
- * ```
+ * @deprecated use [[UIRouterModule]]
  */
-
 export const UIROUTER_PROVIDERS: ProviderLike[] = [
-  { provide: UIRouter, useFactory: uiRouterFactory, deps: [UIRouterConfig, UIRouterLocation, Injector] },
-
   { provide: UIRouterLocation, useClass: UIRouterLocation },
+  { provide: UIRouter, useFactory: uiRouterFactory, deps: [Injector] },
 
-  { provide: StateService, useFactory: (r: UIRouter) => { return r.stateService; }, deps: [UIRouter]},
-
-  { provide: TransitionService, useFactory: (r: UIRouter) => { return r.transitionService; }, deps: [UIRouter]},
-
-  { provide: UrlMatcherFactory, useFactory: (r: UIRouter) => { return r.urlMatcherFactory; }, deps: [UIRouter]},
-
-  { provide: UrlRouter, useFactory: (r: UIRouter) => { return r.urlRouter; }, deps: [UIRouter]},
-
-  { provide: ViewService, useFactory: (r: UIRouter) => { return r.viewService; }, deps: [UIRouter]},
-
-  { provide: StateRegistry, useFactory: (r: UIRouter) => { return r.stateRegistry; }, deps: [UIRouter]},
-
-  { provide: Globals, useFactory: (r: UIRouter) => { return r.globals; }, deps: [UIRouter]},
+  { provide: StateService,      useFactory: (r: UIRouter) => r.stateService     , deps: [UIRouter]},
+  { provide: TransitionService, useFactory: (r: UIRouter) => r.transitionService, deps: [UIRouter]},
+  { provide: UrlMatcherFactory, useFactory: (r: UIRouter) => r.urlMatcherFactory, deps: [UIRouter]},
+  { provide: UrlRouter,         useFactory: (r: UIRouter) => r.urlRouter        , deps: [UIRouter]},
+  { provide: ViewService,       useFactory: (r: UIRouter) => r.viewService      , deps: [UIRouter]},
+  { provide: StateRegistry,     useFactory: (r: UIRouter) => r.stateRegistry    , deps: [UIRouter]},
+  { provide: Globals,           useFactory: (r: UIRouter) => r.globals          , deps: [UIRouter]},
 
   { provide: UIView.PARENT_INJECT, useFactory: (r: StateRegistry) => { return { fqn: null, context: r.root() } as ParentUIViewInject }, deps: [StateRegistry]}
 ];
