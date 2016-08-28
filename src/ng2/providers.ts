@@ -65,6 +65,8 @@ import {services} from "../common/coreservices";
 import {ProviderLike} from "../state/interface";
 import {Resolvable} from "../resolve/resolvable";
 import {ngModuleResolvablesBuilder} from "./statebuilders/lazyLoadNgModuleResolvable";
+import {flattenR} from "../common/common";
+import {UIROUTER_STATES_TOKEN} from "./uiRouterNgModule";
 
 export const NG1_UIROUTER_TOKEN = new OpaqueToken("$uiRouter");
 
@@ -110,17 +112,21 @@ let uiRouterFactory = (injector: Injector) => {
 
   // Prep the tree of NgModule by placing the root NgModule's Injector on the root state.
   let ng2InjectorResolvable = Resolvable.fromData(NG2_INJECTOR_TOKEN, injector);
-  router.stateRegistry.root().resolvables.push(ng2InjectorResolvable);
+  registry.root().resolvables.push(ng2InjectorResolvable);
 
 
   // ----------------- Initialize router -------------
   // Allow states to be registered
-  router.stateRegistry.stateQueue.autoFlush(router.stateService);
+  registry.stateQueue.autoFlush(router.stateService);
 
   setTimeout(() => {
     // Let the app apply custom configuration...
     // (global transition hooks, deferIntercept, otherwise, etc)
     routerConfig.configure(router);
+
+    // Register the states from the root NgModule [[UIRouterModule]]
+    let states = (injector.get(UIROUTER_STATES_TOKEN) || []).reduce(flattenR, []);
+    states.forEach(state => registry.register(state));
 
     // Start monitoring the URL
     if (!router.urlRouterProvider.interceptDeferred) {
