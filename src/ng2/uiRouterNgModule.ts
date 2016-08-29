@@ -1,15 +1,15 @@
 import {Ng2StateDeclaration} from "./interface";
 import {NgModule, NgModuleMetadataType, OpaqueToken} from "@angular/core";
-import {UIROUTER_DIRECTIVES} from "./directives/directives";
-import {UIROUTER_PROVIDERS} from "./providers";
+import {_UIROUTER_DIRECTIVES} from "./directives/directives";
+import {_UIROUTER_PROVIDERS} from "./providers";
 import {UIView} from "./directives/uiView";
 import {uniqR, flattenR} from "../common/common";
 
 @NgModule({
-  declarations: [UIROUTER_DIRECTIVES],
-  exports: [UIROUTER_DIRECTIVES],
+  declarations: [_UIROUTER_DIRECTIVES],
+  exports: [_UIROUTER_DIRECTIVES],
   entryComponents: [UIView],
-  providers: [UIROUTER_PROVIDERS]
+  providers: [_UIROUTER_PROVIDERS]
 })
 export class UIRouterRootModule {}
 
@@ -39,11 +39,30 @@ export const UIROUTER_STATES_TOKEN = new OpaqueToken("UIRouter States");
  * 
  * var homeState = { name: 'home', url: '/home', component: Home };
  * var aboutState = { name: 'about', url: '/about', component: About };
+ *
  * @UIRouterModule({
  *   imports: [BrowserModule],
  *   declarations: [NonRoutedComponent],
  *   states: [homeState, aboutState]
  * }) export class AppModule {};
+ * ```
+ *
+ * The `UIRouterModule` decorator creates an Angular 2 `NgModule`.
+ * The equivalent `AppModule` could also be crafted by hand using the `NgModule` decorator:
+ *
+ * ```
+ * var homeState = { name: 'home', url: '/home', component: Home };
+ * var aboutState = { name: 'about', url: '/about', component: About };
+ *
+ * @NgModule({
+ *   imports: [BrowserModule, UIRouterRootModule],
+ *   declarations: [NonRoutedComponent, Home, About],
+ *   entryComponents: [Home, About],
+ *   providers: [
+ *    { provide: UIROUTER_STATES_TOKEN, useValue: [homeState, aboutState], multi: true }
+ *   ]
+ * }) export class AppModule {};
+ *
  * ```
  * 
  * @param moduleMetaData the [[UIRouterModuleMetadata]] 

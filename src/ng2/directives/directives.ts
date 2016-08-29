@@ -17,8 +17,10 @@ export * from "./uiSref";
 export * from "./uiSrefStatus";
 export * from "./uiSrefActive";
 
+export const _UIROUTER_DIRECTIVES = [UISref, AnchorUISref, UIView, UISrefActive, UISrefStatus];
+
 /**
  * References to the UI-Router directive classes, for use within a @Component's `directives:` property
  * @deprecated use [[UIRouterModule]]
  */
-export let UIROUTER_DIRECTIVES = [UISref, AnchorUISref, UIView, UISrefActive, UISrefStatus];
+export const UIROUTER_DIRECTIVES = _UIROUTER_DIRECTIVES;

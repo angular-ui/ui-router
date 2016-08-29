@@ -138,12 +138,7 @@ let uiRouterFactory = (injector: Injector) => {
   return router;
 };
 
-/**
- * The UI-Router providers, for use in your application bootstrap
- *
- * @deprecated use [[UIRouterModule]]
- */
-export const UIROUTER_PROVIDERS: ProviderLike[] = [
+export const _UIROUTER_PROVIDERS: ProviderLike[] = [
   { provide: UIRouterLocation, useClass: UIRouterLocation },
   { provide: UIRouter, useFactory: uiRouterFactory, deps: [Injector] },
 
@@ -156,4 +151,10 @@ export const UIROUTER_PROVIDERS: ProviderLike[] = [
   { provide: Globals,           useFactory: (r: UIRouter) => r.globals          , deps: [UIRouter]},
 
   { provide: UIView.PARENT_INJECT, useFactory: (r: StateRegistry) => { return { fqn: null, context: r.root() } as ParentUIViewInject }, deps: [StateRegistry]}
-];
+]
+/**
+ * The UI-Router providers, for use in your application bootstrap
+ *
+ * @deprecated use [[UIRouterModule]]
+ */
+export const UIROUTER_PROVIDERS = _UIROUTER_PROVIDERS;
