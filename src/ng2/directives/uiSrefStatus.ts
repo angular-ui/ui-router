@@ -1,5 +1,5 @@
 /** @module ng2_directives */ /** */
-import {Directive, Output, EventEmitter} from "@angular/core";
+import {Directive, Output, EventEmitter, ContentChild} from "@angular/core";
 import {StateService} from "../../state/stateService";
 import {UISref} from "./uiSref";
 import {PathNode} from "../../path/node";
@@ -9,7 +9,7 @@ import {TargetState} from "../../state/targetState";
 import {TreeChanges} from "../../transition/interface";
 import {State} from "../../state/stateObject";
 import {anyTrueR, tail, unnestR} from "../../common/common";
-import {UIRouterGlobals, Globals} from "../../globals";
+import {Globals} from "../../globals";
 import {Param} from "../../params/param";
 import {PathFactory} from "../../path/pathFactory";
 
@@ -44,6 +44,7 @@ export class UISrefStatus {
 
   // current statuses of the state/params the uiSref directive is linking to
   @Output("uiSrefStatus") uiSrefStatus = new EventEmitter<SrefStatus>(false);
+  @ContentChild(UISref) sref: UISref;
 
   status: SrefStatus = {
     active: false,
@@ -54,12 +55,11 @@ export class UISrefStatus {
 
   constructor(transitionService: TransitionService,
               private _globals: Globals,
-              private _stateService: StateService,
-              public sref: UISref) {
+              private _stateService: StateService) {
     this._deregisterHook = transitionService.onStart({}, $transition$ => this.processTransition($transition$));
   }
 
-  ngOnInit() {
+  ngAfterContentInit() {
     let lastTrans = this._globals.transitionHistory.peekTail();
     if (lastTrans != null) {
       this.processTransition(lastTrans);
