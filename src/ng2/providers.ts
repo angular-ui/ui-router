@@ -67,6 +67,7 @@ import {Resolvable} from "../resolve/resolvable";
 import {ngModuleResolvablesBuilder} from "./statebuilders/lazyLoadNgModuleResolvable";
 import {flattenR} from "../common/common";
 import {UIROUTER_STATES_TOKEN} from "./uiRouterNgModule";
+import {UIRouterRx} from "./rx";
 
 export const NG1_UIROUTER_TOKEN = new OpaqueToken("$uiRouter");
 
@@ -99,6 +100,7 @@ let uiRouterFactory = (injector: Injector) => {
   // ----------------- Create router -----------------
   // Create a new ng2 UIRouter and configure it for ng2
   let router = new UIRouter();
+  new UIRouterRx(router);
   let registry = router.stateRegistry;
 
   // ----------------- Configure for ng2 -------------
