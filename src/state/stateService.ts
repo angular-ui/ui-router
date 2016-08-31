@@ -460,7 +460,7 @@ export class StateService {
    *
    * @returns {string} compiled state url
    */
-  href(stateOrName: StateOrName, params?: RawParams, options?: HrefOptions): string {
+  href(stateOrName: StateOrName, params: RawParams, options?: HrefOptions): string {
     let defaultHrefOpts = {
       lossy:    true,
       inherit:  true,
@@ -468,11 +468,12 @@ export class StateService {
       relative: this.$current
     };
     options = defaults(options, defaultHrefOpts);
+    params = params || {};
 
     let state = this.router.stateRegistry.matcher.find(stateOrName, options.relative);
 
     if (!isDefined(state)) return null;
-    if (options.inherit) params = <any> this.params.$inherit(params || {}, this.$current, state);
+    if (options.inherit) params = <any> this.params.$inherit(params, this.$current, state);
 
     let nav = (state && options.lossy) ? state.navigable : state;
 
