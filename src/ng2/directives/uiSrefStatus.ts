@@ -1,17 +1,17 @@
 /** @module ng2_directives */ /** */
-import {Directive, Output, EventEmitter, ContentChild} from "@angular/core";
-import {StateService} from "../../state/stateService";
+import {Directive, Output, EventEmitter, ContentChildren, QueryList, Inject} from "@angular/core";
 import {UISref} from "./uiSref";
 import {PathNode} from "../../path/node";
-import {TransitionService} from "../../transition/transitionService";
 import {Transition} from "../../transition/transition";
 import {TargetState} from "../../state/targetState";
-import {TreeChanges} from "../../transition/interface";
 import {State} from "../../state/stateObject";
-import {anyTrueR, tail, unnestR} from "../../common/common";
-import {Globals} from "../../globals";
+import {anyTrueR, tail, unnestR, Predicate} from "../../common/common";
+import {Globals, UIRouterGlobals} from "../../globals";
 import {Param} from "../../params/param";
 import {PathFactory} from "../../path/pathFactory";
+import {Subscription, Observable} from "rxjs/Rx";
+
+interface TransEvt { evt: string, trans: Transition }
 
 /**
  * uiSref status booleans 
@@ -27,6 +27,84 @@ export interface SrefStatus {
   exiting: boolean;
 }
 
+const inactiveStatus: SrefStatus = {
+  active: false,
+  exact: false,
+  entering: false,
+  exiting: false
+};
+
+/**
+ * Returns a Predicate<PathNode[]>
+ *
+ * The predicate returns true when the target state (and param values)
+ * match the (tail of) the path, and the path's param values
+ */
+const pathMatches = (target: TargetState): Predicate<PathNode[]> => {
+  let state: State = target.$state();
+  let targetParamVals = target.params();
+  let targetPath: PathNode[] = PathFactory.buildPath(target);
+  let paramSchema: Param[] = targetPath.map(node => node.paramSchema)
+      .reduce(unnestR, [])
+      .filter((param: Param) => targetParamVals.hasOwnProperty(param.id));
+
+  return (path: PathNode[]) => {
+    let tailNode = tail(path);
+    if (!tailNode || tailNode.state !== state) return false;
+    var paramValues = PathFactory.paramValues(path);
+    return Param.equals(paramSchema, paramValues, targetParamVals);
+  };
+};
+
+/**
+ * Given basePath: [a, b], appendPath: [c, d]),
+ * Expands the path to [c], [c, d]
+ * Then appends each to [a,b,] and returns: [a, b, c], [a, b, c, d]
+ */
+function spreadToSubPaths(basePath: PathNode[], appendPath: PathNode[]): PathNode[][] {
+  return appendPath.map(node => basePath.concat(PathFactory.subPath(appendPath, n => n.state === node.state)));
+}
+
+/**
+ * Given a TransEvt (Transition event: started, success, error)
+ * and a UISref Target State, return a SrefStatus object
+ * which represents the current status of that Sref: 
+ * active, activeEq (exact match), entering, exiting
+ */
+function getSrefStatus(event: TransEvt, srefTarget: TargetState): SrefStatus {
+  const pathMatchesTarget = pathMatches(srefTarget);
+  const tc = event.trans.treeChanges();
+
+  let isStartEvent = event.evt === 'start';
+  let isSuccessEvent = event.evt === 'success';
+  let activePath: PathNode[] = isSuccessEvent ? tc.to : tc.from;
+
+  const isActive = () =>
+      spreadToSubPaths([], activePath)
+          .map(pathMatchesTarget)
+          .reduce(anyTrueR, false);
+
+  const isExact = () =>
+      pathMatchesTarget(activePath);
+
+  const isEntering = () =>
+      spreadToSubPaths(tc.retained, tc.entering)
+          .map(pathMatchesTarget)
+          .reduce(anyTrueR, false);
+
+  const isExiting = () =>
+      spreadToSubPaths(tc.retained, tc.exiting)
+          .map(pathMatchesTarget)
+          .reduce(anyTrueR, false);
+
+  return {
+    active: isActive(),
+    exact: isExact(),
+    entering: isStartEvent ? isEntering() : false,
+    exiting: isStartEvent ? isExiting() : false,
+  } as SrefStatus;
+}
+
 /**
  * A directive (which pairs with a [[UISref]]) and emits events when the UISref status changes.
  *
@@ -40,110 +118,61 @@ export interface SrefStatus {
  */
 @Directive({ selector: '[uiSrefStatus],[uiSrefActive],[uiSrefActiveEq]' })
 export class UISrefStatus {
-  private _deregisterHook: Function;
-
-  // current statuses of the state/params the uiSref directive is linking to
+  /** current statuses of the state/params the uiSref directive is linking to */
   @Output("uiSrefStatus") uiSrefStatus = new EventEmitter<SrefStatus>(false);
-  @ContentChild(UISref) sref: UISref;
+  /** Monitor all child components for UISref(s) */
+  @ContentChildren(UISref, {descendants: true}) srefs: QueryList<UISref>;
 
-  status: SrefStatus = {
-    active: false,
-    exact: false,
-    entering: false,
-    exiting: false
-  };
+  /** The current status */
+  status: SrefStatus;
 
-  constructor(transitionService: TransitionService,
-              private _globals: Globals,
-              private _stateService: StateService) {
-    this._deregisterHook = transitionService.onStart({}, $transition$ => this.processTransition($transition$));
+  private _subscription: Subscription;
+
+  constructor(@Inject(Globals) private _globals: UIRouterGlobals) {
+    this.status = Object.assign({}, inactiveStatus);
   }
 
   ngAfterContentInit() {
-    let lastTrans = this._globals.transitionHistory.peekTail();
-    if (lastTrans != null) {
-      this.processTransition(lastTrans);
-    }
+    // Map each transition start event to a stream of:
+    // start -> (success|error)
+    let transEvents$: Observable<TransEvt> = this._globals.start$.switchMap((trans: Transition) => {
+      const event = (evt: string) => ({evt, trans} as TransEvt);
+
+      let transStart$ = Observable.of(event("start"));
+      let transResult = trans.promise.then(() => event("success"), () => event("error"));
+      let transFinish$ = Observable.fromPromise(transResult);
+
+      return transStart$.concat(transFinish$);
+    });
+
+    // Watch the children UISref components and get their target states
+    let srefs$: Observable<UISref[]> = Observable.of(this.srefs.toArray()).concat(this.srefs.changes);
+    let targetStates$: Observable<TargetState[]> =
+        srefs$.switchMap((srefs: UISref[]) =>
+            Observable.combineLatest<TargetState[]>(srefs.map(sref => sref.targetState$)));
+
+    // Calculate the status of each UISref based on the transition event.
+    // Reduce the statuses (if multiple) by or-ing each flag.
+    this._subscription = transEvents$.mergeMap((evt: TransEvt) => {
+      return targetStates$.map((targets: TargetState[]) => {
+        let statuses: SrefStatus[] = targets.map(target => getSrefStatus(evt, target));
+
+        return statuses.reduce((acc: SrefStatus, val: SrefStatus) => ({
+          active: acc.active || val.active,
+          exact: acc.active || val.active,
+          entering: acc.active || val.active,
+          exiting: acc.active || val.active,
+        }))
+      })
+    }).subscribe(this._setStatus.bind(this));
   }
 
   ngOnDestroy() {
-    if (this._deregisterHook) {
-      this._deregisterHook();
-    }
-    this._deregisterHook = null;
+    if (this._subscription) this._subscription.unsubscribe();
   }
 
   private _setStatus(status: SrefStatus) {
     this.status = status;
     this.uiSrefStatus.emit(status);
-  }
-
-  private processTransition($transition$: Transition) {
-    let sref = this.sref;
-
-    let status: SrefStatus = <any> {
-      active: false,
-      exact: false,
-      entering: false,
-      exiting: false
-    };
-
-    let srefTarget: TargetState = this._stateService.target(sref.state, sref.params, sref.getOptions());
-    if (!srefTarget.exists()) {
-      return this._setStatus(status);
-    }
-
-
-    /**
-     * Returns a Predicate<PathNode[]> that returns true when the target state (and any param values)
-     * match the (tail of) the path, and the path's param values
-     */
-    const pathMatches = (target: TargetState) => {
-      let state: State = target.$state();
-      let targetParamVals = target.params();
-      let targetPath: PathNode[] = PathFactory.buildPath(target);
-      let paramSchema: Param[] = targetPath.map(node => node.paramSchema)
-          .reduce(unnestR, [])
-          .filter((param: Param) => targetParamVals.hasOwnProperty(param.id));
-
-      return (path: PathNode[]) => {
-        let tailNode = tail(path);
-        if (!tailNode || tailNode.state !== state) return false;
-        var paramValues = PathFactory.paramValues(path);
-        return Param.equals(paramSchema, paramValues, targetParamVals);
-      };
-    };
-
-    const isTarget = pathMatches(srefTarget);
-
-    /**
-     * Given path: [c, d] appendTo: [a, b]),
-     * Expands the path to [c], [c, d]
-     * Then appends each to [a,b,] and returns: [a, b, c], [a, b, c, d]
-     */
-    function spreadToSubPaths (path: PathNode[], appendTo: PathNode[] = []): PathNode[][] {
-      return path.map(node => appendTo.concat(PathFactory.subPath(path, n => n.state === node.state)));
-    }
-
-    let tc: TreeChanges = $transition$.treeChanges();
-    status.active = spreadToSubPaths(tc.from).map(isTarget).reduce(anyTrueR, false);
-    status.exact = isTarget(tc.from);
-    status.entering = spreadToSubPaths(tc.entering, tc.retained).map(isTarget).reduce(anyTrueR, false);
-    status.exiting = spreadToSubPaths(tc.exiting, tc.retained).map(isTarget).reduce(anyTrueR, false);
-
-    if ($transition$.isActive()) {
-      this._setStatus(status);
-    }
-
-    let update = (currentPath: PathNode[]) => () => {
-      if (this._deregisterHook == null) return; // destroyed
-      if (!$transition$.isActive()) return; // superseded
-      status.active = spreadToSubPaths(currentPath).map(isTarget).reduce(anyTrueR, false);
-      status.exact = isTarget(currentPath);
-      status.entering = status.exiting = false;
-      this._setStatus(status);
-    };
-
-    $transition$.promise.then(update(tc.to), update(tc.from));
   }
 }

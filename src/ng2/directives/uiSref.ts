@@ -7,6 +7,9 @@ import {Renderer} from "@angular/core";
 import {UIView, ParentUIViewInject} from "./uiView";
 import {extend, Obj} from "../../common/common";
 import {TransitionOptions} from "../../transition/interface";
+import {Globals, UIRouterGlobals} from "../../globals";
+import {Subscription, ReplaySubject} from "rxjs/Rx";
+import {TargetState} from "../../state/targetState";
 
 /** @hidden */
 @Directive({ selector: 'a[uiSref]' })
@@ -67,33 +70,54 @@ export class UISref {
   @Input('uiParams') params: any;
   @Input('uiOptions') options: any;
 
+  public targetState$ = new ReplaySubject<TargetState>(1);
+  private _emit: boolean = false;
+
+  private _statesSub: Subscription;
+
   constructor(
       private _router: UIRouter,
       @Inject(UIView.PARENT_INJECT) public parent: ParentUIViewInject,
-      @Optional() private _anchorUISref: AnchorUISref
-  ) { }
+      @Optional() private _anchorUISref: AnchorUISref,
+      @Inject(Globals) _globals: UIRouterGlobals
+  ) {
+    this._statesSub = _globals.states$.subscribe(() => this.update())
+  }
 
   set "uiSref"(val: string) { this.state = val; this.update(); }
   set "uiParams"(val: Obj) { this.params = val; this.update(); }
   set "uiOptions"(val: TransitionOptions) { this.options = val; this.update(); }
 
   ngOnInit() {
+    this._emit = true;
     this.update();
   }
 
+  ngOnDestroy() {
+    this._statesSub.unsubscribe();
+    this.targetState$.unsubscribe();
+  }
+
   update() {
+    let $state = this._router.stateService;
+    if (this._emit) {
+      let newTarget = $state.target(this.state, this.params, this.getOptions());
+      this.targetState$.next(newTarget);
+    }
+
     if (this._anchorUISref) {
-      this._anchorUISref.update(this._router.stateService.href(this.state, this.params, this.getOptions()));
+      let href = $state.href(this.state, this.params, this.getOptions());
+      this._anchorUISref.update(href);
     }
   }
 
   getOptions() {
-    let defOpts: TransitionOptions = { 
+    let defaultOpts: TransitionOptions = {
       relative: this.parent && this.parent.context && this.parent.context.name,
       inherit: true ,
       source: "sref"
     };
-    return extend(defOpts, this.options || {});
+    return extend(defaultOpts, this.options || {});
   }
 
   go() {
@@ -101,5 +125,3 @@ export class UISref {
     return false;
   }
 }
-
-
