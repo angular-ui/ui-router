@@ -1,6 +1,6 @@
 # AngularUI Router &nbsp;[![Build Status](https://travis-ci.org/angular-ui/ui-router.svg?branch=master)](https://travis-ci.org/angular-ui/ui-router)
 
-**Note: this is the Angular 1.x source for UI-Router version 1.0 alpha.  If you are looking for the source for UI-Router 
+**Note: this is the Angular 1.x source for UI-Router version 1.0.  If you are looking for the source for UI-Router 
 version 0.2.x, it can be found [here](https://github.com/angular-ui/ui-router/tree/legacy)**
 
 ---
