@@ -18,6 +18,7 @@ import IScope = angular.IScope;
 import IInterpolateService = angular.IInterpolateService;
 import {TransitionService} from "../../transition/transitionService";
 import {State} from "../../state/stateObject";
+import {UIRouter} from "../../router";
 
 /** @hidden */
 function parseStateRef(ref: string, current: string) {
@@ -321,8 +322,8 @@ function $StateRefDynamicDirective($state: StateService, $timeout: ITimeoutServi
  * to both the <div> and <a> elements. It is important to note that the state
  * names/globs passed to ui-sref-active shadow the state provided by ui-sref.
  */
-let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$transitions',
-function $StateRefActiveDirective($state: StateService, $stateParams: Obj, $interpolate: IInterpolateService, $transitions: TransitionService) {
+let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$transitions', '$uiRouter',
+function $StateRefActiveDirective($state: StateService, $stateParams: Obj, $interpolate: IInterpolateService, $transitions: TransitionService, $uiRouter: UIRouter) {
   return  {
     restrict: "A",
     controller: ['$scope', '$element', '$attrs', '$timeout',
@@ -362,8 +363,12 @@ function $StateRefActiveDirective($state: StateService, $stateParams: Obj, $inte
         return deregister;
       };
 
+      function updateAfterTransition(trans) { trans.promise.then(update); }
       $scope.$on('$stateChangeSuccess', update);
-      $scope.$on('$destroy', <any> $transitions.onStart({}, (trans) => trans.promise.then(update) && null));
+      $scope.$on('$destroy', <any> $transitions.onStart({}, updateAfterTransition));
+      if ($uiRouter.globals.transition) {
+        updateAfterTransition($uiRouter.globals.transition);
+      }
 
       function addState(stateName: string, stateParams: Obj, activeClass: string) {
         var state = $state.get(stateName, stateContext($element));
