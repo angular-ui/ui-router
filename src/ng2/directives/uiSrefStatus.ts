@@ -41,6 +41,7 @@ const inactiveStatus: SrefStatus = {
  * match the (tail of) the path, and the path's param values
  */
 const pathMatches = (target: TargetState): Predicate<PathNode[]> => {
+  if (!target.exists()) return () => false;
   let state: State = target.$state();
   let targetParamVals = target.params();
   let targetPath: PathNode[] = PathFactory.buildPath(target);
