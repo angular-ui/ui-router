@@ -86,8 +86,9 @@ let loc = <any> services.location;
 loc.hash = () => "";
 loc.path = () => location.hash.replace(/^#/, "");
 loc.search = () => location.search;
-loc.url = (url: string) => { if (url) location.hash = url; return loc.path(); };
-loc.replace = () => { console.log(new Error("not impl")); };
+loc.setUrl = (url: string, replace: boolean = true) => {
+  if (url) location.hash = url;
+};
 loc.onChange = (cb: (ev?: HashChangeEvent) => any) => {
   window.addEventListener("hashchange", cb, false);
 };

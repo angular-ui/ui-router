@@ -49,8 +49,7 @@ function update(rules: Function[], otherwiseFn: Function, evt?: any) {
 
     if (!handled) return false;
     if (isString(handled)) {
-      $location.replace();
-      $location.url(handled);
+      $location.setUrl(handled, true);
     }
     return true;
   }
@@ -355,13 +354,12 @@ export class UrlRouter {
    */
   update(read?: boolean) {
     if (read) {
-      this.location = $location.url();
+      this.location = $location.path();
       return;
     }
-    if ($location.url() === this.location) return;
+    if ($location.path() === this.location) return;
 
-    $location.url(this.location);
-    $location.replace();
+    $location.setUrl(this.location, true);
   }
 
   /**
@@ -374,8 +372,8 @@ export class UrlRouter {
    * @param options
    */
   push(urlMatcher: UrlMatcher, params: StateParams, options: { replace?: (string|boolean) }) {
-    $location.url(urlMatcher.format(params || {}));
-    if (options && options.replace) $location.replace();
+    let replace = options && !!options.replace;
+    $location.setUrl(urlMatcher.format(params || {}), replace);
   }
 
   /**

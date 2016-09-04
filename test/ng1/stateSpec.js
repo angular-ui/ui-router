@@ -1456,12 +1456,13 @@ describe('state', function () {
 
     it('should replace browser history when "replace" enabled', inject(function ($state, $rootScope, $location, $q) {
 
-      spyOn(services.location, 'replace');
+      spyOn(services.location, 'setUrl');
 
       $state.transitionTo('about', {}, { location: 'replace' });
       $q.flush();
 
-      expect(services.location.replace).toHaveBeenCalled();
+      expect(services.location.setUrl).toHaveBeenCalled();
+      expect(services.location.setUrl.calls.argsFor(0)[1]).toBe(true);
     }));
 
     it('should not replace history normally', inject(function ($state, $rootScope, $location, $q) {

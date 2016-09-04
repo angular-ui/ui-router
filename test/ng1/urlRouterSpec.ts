@@ -194,28 +194,21 @@ describe("UrlRouter", function () {
 
     describe("location updates", function() {
       it('can push location changes', inject(function($urlRouter) {
-        spyOn(services.location, "url");
-        spyOn(services.location, "replace");
+        spyOn(services.location, "setUrl");
         $urlRouter.push(makeMatcher("/hello/:name"), { name: "world" });
-
-        expect(services.location.url).toHaveBeenCalledWith("/hello/world");
-        expect(services.location.replace).not.toHaveBeenCalled();
+        expect(services.location.setUrl).toHaveBeenCalledWith("/hello/world", undefined);
       }));
 
       it('can push a replacement location', inject(function($urlRouter, $location) {
-        spyOn(services.location, "url");
-        spyOn(services.location, "replace");
+        spyOn(services.location, "setUrl");
         $urlRouter.push(makeMatcher("/hello/:name"), { name: "world" }, { replace: true });
-
-        expect(services.location.url).toHaveBeenCalledWith("/hello/world");
-        expect(services.location.replace).toHaveBeenCalled();
+        expect(services.location.setUrl).toHaveBeenCalledWith("/hello/world", true);
       }));
 
       it('can push location changes with no parameters', inject(function($urlRouter, $location) {
-        spyOn(services.location, "url");
+        spyOn(services.location, "setUrl");
         $urlRouter.push(makeMatcher("/hello/:name", {params:{name: ""}}));
-
-        expect(services.location.url).toHaveBeenCalledWith("/hello/");
+        expect(services.location.setUrl).toHaveBeenCalledWith("/hello/", undefined);
       }));
 
       it('can push location changes that include a #fragment', inject(function($urlRouter, $location) {
@@ -237,9 +230,9 @@ describe("UrlRouter", function () {
       it('can read and sync a copy of location URL', inject(function($urlRouter, $location) {
         $location.url('/old');
 
-        spyOn(services.location, 'url').and.callThrough();
+        spyOn(services.location, 'path').and.callThrough();
         $urlRouter.update(true);
-        expect(services.location.url).toHaveBeenCalled();
+        expect(services.location.path).toHaveBeenCalled();
 
         $location.url('/new');
         $urlRouter.update();

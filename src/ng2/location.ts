@@ -24,7 +24,7 @@ export class UIRouterLocation {
   }
 
   init() {
-    let loc = <any> services.location;
+    let loc = services.location;
     let locSt = this.locationStrategy;
 
     if (this.isHashBang) {
@@ -43,24 +43,23 @@ export class UIRouterLocation {
     }
 
 
-    loc.search = () => {
+    loc.search = <any> (() => {
       let queryString = splitOnHash(splitOnQuestionMark(locSt.path())[1])[0];
       return queryString.split("&").map(kv => splitOnEquals(kv)).reduce(applyPairs, {});
-    };
+    });
 
-    loc.url = (url: string) => {
+    loc.setUrl = (url: string, replace: boolean = false) => {
       if(isDefined(url)) {
         let split = splitOnQuestionMark(url);
-        locSt.pushState(null, null, split[0], split[1]);
+        if (replace) {
+          locSt.replaceState(null, null, split[0], split[1]);
+        } else {
+          locSt.pushState(null, null, split[0], split[1]);
+        }
       }
-      return locSt.path()
     };
 
-    loc.replace = () => {
-      console.log(new Error('$location.replace() not impl'))
-    };
-
-    loc.onChange = (cb: LocationChangeListener) => locSt.onPopState(cb);
+    loc.onChange = (cb: LocationChangeListener) => locSt.onPopState(cb) as any;
 
     let locCfg = <any> services.locationConfig;
 

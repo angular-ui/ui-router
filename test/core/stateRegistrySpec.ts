@@ -64,7 +64,7 @@ describe("StateRegistry", () => {
       registry.register(state);
 
       spyOn($state, "transitionTo");
-      services.location.url("/foo");
+      services.location.setUrl("/foo");
       router.urlRouter.sync();
       expect($state.transitionTo['calls'].mostRecent().args[0]).toBe(state.$$state());
 

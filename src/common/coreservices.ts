@@ -19,7 +19,7 @@ let services: CoreServices = {
   template: <any> {}
 };
 
-["replace", "url", "path", "search", "hash", "onChange"]
+["setUrl", "path", "search", "hash", "onChange"]
     .forEach(key => services.location[key] = notImplemented(key));
 
 ["port", "protocol", "host", "baseHref", "html5Mode", "hashPrefix" ]
@@ -58,8 +58,7 @@ export interface CoreServices {
 }
 
 export interface LocationServices {
-  replace(): void;
-  url(newurl: string): string;
+  setUrl(newurl: string, replace?: boolean): void;
   url(): string;
   path(): string;
   search(): string;

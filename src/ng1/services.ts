@@ -197,6 +197,11 @@ function $uiRouter($locationProvider: ILocationProvider) {
       html5Mode = isObject(html5Mode) ? html5Mode.enabled : html5Mode;
       return html5Mode && $sniffer.history;
     };
+    
+    services.location.setUrl = (newUrl: string, replace = false) =>  {
+      $location.url(newUrl)
+      if (replace) $location.replace();
+    };
 
     services.template.get = (url: string) =>
         $http.get(url, { cache: $templateCache, headers: { Accept: 'text/html' }}).then(prop("data"));

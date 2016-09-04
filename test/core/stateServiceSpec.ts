@@ -63,13 +63,13 @@ describe('stateService', function () {
     }));
 
     it("should not update the URL in response to synchronizing URL", ((done) => {
-      $loc.url('/a/b/c');
-      spyOn($loc, 'url').and.callThrough();
+      $loc.setUrl('/a/b/c');
+      spyOn($loc, 'setUrl').and.callThrough();
       router.urlRouter.sync();
 
       wait().then(() => {
         expect($state.current.name).toBe('C');
-        let pushedUrls = $loc.url.calls.all().map(x => x.args[0]).filter(x => x !== undefined);
+        let pushedUrls = $loc.setUrl.calls.all().map(x => x.args[0]).filter(x => x !== undefined);
         expect(pushedUrls).toEqual([]);
         expect($loc.path()).toBe('/a/b/c');
         done();
@@ -79,13 +79,13 @@ describe('stateService', function () {
     it("should update the URL in response to synchronizing URL then redirecting", ((done) => {
       $transitions.onStart({ to: 'C' }, () => $state.target('D'));
 
-      $loc.url('/a/b/c');
-      spyOn($loc, 'url').and.callThrough();
+      $loc.setUrl('/a/b/c');
+      spyOn($loc, 'setUrl').and.callThrough();
       router.urlRouter.sync();
 
       wait().then(() => {
         expect($state.current.name).toBe('D');
-        let pushedUrls = $loc.url.calls.all().map(x => x.args[0]).filter(x => x !== undefined);
+        let pushedUrls = $loc.setUrl.calls.all().map(x => x.args[0]).filter(x => x !== undefined);
         expect(pushedUrls).toEqual(['/a/b/c/d']);
         expect($loc.path()).toBe('/a/b/c/d');
         done();
