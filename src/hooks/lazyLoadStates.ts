@@ -1,3 +1,4 @@
+/** @module hooks */ /** */
 import {Transition} from "../transition/transition";
 import {TransitionService} from "../transition/transitionService";
 import {TransitionHookFn} from "../transition/interface";

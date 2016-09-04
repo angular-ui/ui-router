@@ -1,3 +1,4 @@
+/** @module ng2 */ /** */
 import {Transition} from "../transition/transition";
 import {NG2_INJECTOR_TOKEN, Ng2StateDeclaration} from "./interface";
 import {UIROUTER_STATES_TOKEN} from "./uiRouterNgModule";

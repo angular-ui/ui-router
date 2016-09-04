@@ -1,3 +1,4 @@
+/** @module ng2 */ /** */
 import {Observable, ReplaySubject} from "rxjs/Rx";
 import {Transition} from "../transition/transition";
 import {UIRouter} from "../router";

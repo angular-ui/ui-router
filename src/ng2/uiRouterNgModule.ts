@@ -1,3 +1,4 @@
+/** @module ng2 */ /** */
 import {Ng2StateDeclaration} from "./interface";
 import {NgModule, NgModuleMetadataType, OpaqueToken} from "@angular/core";
 import {_UIROUTER_DIRECTIVES} from "./directives/directives";
