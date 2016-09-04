@@ -15,7 +15,11 @@ const updateUrl: TransitionHookFn = (transition: Transition) => {
   let $state: StateService = transition.router.stateService;
   let $urlRouter: UrlRouter = transition.router.urlRouter;
 
-  if (options.location && $state.$current.navigable) {
+  // Dont update the url in these situations:
+  // The transition was triggered by a URL sync (options.source === 'url')
+  // The user doesn't want the url to update (options.location === false)
+  // The destination state, and all parents have no navigable url
+  if (options.source !== 'url' && options.location && $state.$current.navigable) {
     var urlOptions = {replace: options.location === 'replace'};
     $urlRouter.push($state.$current.navigable.url, $state.params, urlOptions);
   }

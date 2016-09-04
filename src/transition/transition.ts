@@ -297,12 +297,26 @@ export class Transition implements IHookRegistry {
   }
 
   /**
-   * Gets the previous transition, from which this transition was redirected.
+   * If the current transition is a redirect, returns the transition that was redirected.
+   *
+   * Gets the transition from which this transition was redirected.
+   *
+   *
+   * @example
+   * ```js
+   *
+   * let transitionA = $state.go('A').transitionA
+   * transitionA.onStart({}, () => $state.target('B'));
+   * $transitions.onSuccess({ to: 'B' }, (trans) => {
+   *   trans.to().name === 'B'; // true
+   *   trans.redirectedFrom() === transitionA; // true
+   * });
+   * ```
    *
    * @returns The previous Transition, or null if this Transition is not the result of a redirection
    */
-  previous(): Transition {
-    return this._options.previous || null;
+  redirectedFrom(): Transition {
+    return this._options.redirectedFrom || null;
   }
 
   /**
@@ -371,7 +385,7 @@ export class Transition implements IHookRegistry {
    * @returns Returns a new [[Transition]] instance.
    */
   redirect(targetState: TargetState): Transition {
-    let newOptions = extend({}, this.options(), targetState.options(), { previous: this });
+    let newOptions = extend({}, this.options(), targetState.options(), { redirectedFrom: this, source: "redirect" });
     targetState = new TargetState(targetState.identifier(), targetState.$state(), targetState.params(), newOptions);
 
     let newTransition = this.router.transitionService.create(this._treeChanges.from, targetState);

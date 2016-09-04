@@ -96,7 +96,7 @@ export class StateQueueManager {
 
     $urlRouterProvider.when(state.url, ['$match', '$stateParams', function ($match: RawParams, $stateParams: RawParams) {
       if ($state.$current.navigable !== state || !equalForKeys($match, $stateParams)) {
-        $state.transitionTo(state, $match, { inherit: true, location: false, source: "url" });
+        $state.transitionTo(state, $match, { inherit: true, source: "url" });
       }
     }], (rule) => state._urlRule = rule);
   }

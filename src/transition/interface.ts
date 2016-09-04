@@ -75,12 +75,14 @@ export interface TransitionOptions {
   custom      ?: any;
   /** @hidden @internal */
   reloadState ?: (State);
-  /** @hidden @internal */
-  previous    ?: Transition;
+  /** @hidden @internal
+   * If this transition is a redirect, this property should be the original Transition (which was redirected to this one)
+   */
+  redirectedFrom?: Transition;
   /** @hidden @internal */
   current     ?: () => Transition;
   /** @hidden @internal */
-  source      ?: "sref"|"url"|"unknown";
+  source      ?: "sref"|"url"|"redirect"|"unknown";
 }
 
 /** @hidden @internal */
