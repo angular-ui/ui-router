@@ -66,6 +66,7 @@ function clickHook(el: IAugmentedJQuery, $state: StateService, $timeout: ITimeou
         $state.go(target.state, target.params, target.options);
       });
       e.preventDefault();
+      e.stopPropagation();
 
       // if the state has no URL, ignore one preventDefault from the <a> directive.
       var ignorePreventDefaultCount = type.isAnchor && !target.href ? 1: 0;
