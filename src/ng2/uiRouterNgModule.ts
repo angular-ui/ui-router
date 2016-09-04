@@ -11,7 +11,7 @@ import {uniqR, flattenR} from "../common/common";
   entryComponents: [UIView],
   providers: [_UIROUTER_PROVIDERS]
 })
-export class UIRouterRootModule {}
+export class UIRouterLibraryModule {}
 
 /**
  * A module declaration lteral, including UI-Router states.
@@ -28,11 +28,23 @@ export const UIROUTER_STATES_TOKEN = new OpaqueToken("UIRouter States");
 /**
  * Declares a NgModule with UI-Router states
  * 
- * A Typescript decorator for declaring a [NgModule](https://angular.io/docs/ts/latest/guide/ngmodule.html)
- * which contains UI-Router states.
+ * A Typescript decorator for declaring an [NgModule](https://angular.io/docs/ts/latest/guide/ngmodule.html)
+ * which contains UI-Router states and/or uses UI-Router directives and providers.
+ *
+ * The decorator adds the `UIRouterLibraryModule` NgModule as an import.
+ * The `UIRouterLibraryModule has the UI-Router directives and providers.
  * 
- * This decorator analyzes the `states` in the module.
- * It adds all routed `component:`(s) for each state to the module's `declarations` and `entryComponents`.
+ * The decorator also analyzes the `states:` property.
+ * When it finds a state with a routed `component:`, it adds the component
+ * to the module's `declarations` and `entryComponents`.
+ *
+ * Note: adding the component to `entryComponents` instructs the Module Compiler that those
+ * components should be compiled.
+ * Otherwise, they would not be automatically discovered as "reachable" by the compiler.
+ *
+ * Further, the states found in the `states:` property are added to Dependency Injection
+ * using a specific token.
+ * This will automatically register them with the [[StateRegistry]] when the application bootstraps.
  *
  * @example
  * ```js
@@ -41,21 +53,23 @@ export const UIROUTER_STATES_TOKEN = new OpaqueToken("UIRouter States");
  * var aboutState = { name: 'about', url: '/about', component: About };
  *
  * @UIRouterModule({
- *   imports: [BrowserModule],
- *   declarations: [NonRoutedComponent],
- *   states: [homeState, aboutState]
+ *   imports: [ BrowserModule ],
+ *   declarations: [ NonRoutedComponent ],
+ *   states: [ homeState, aboutState ]
  * }) export class AppModule {};
  * ```
  *
- * The `UIRouterModule` decorator creates an Angular 2 `NgModule`.
- * The equivalent `AppModule` could also be crafted by hand using the `NgModule` decorator:
+ * ---
+ *
+ * Note: the `UIRouterModule` decorator creates a standard Angular 2 `NgModule`.
+ * The equivalent `AppModule` could also be crafted by hand using only the `NgModule` decorator:
  *
  * ```
  * var homeState = { name: 'home', url: '/home', component: Home };
  * var aboutState = { name: 'about', url: '/about', component: About };
  *
  * @NgModule({
- *   imports: [BrowserModule, UIRouterRootModule],
+ *   imports: [BrowserModule, UIRouterLibraryModule],
  *   declarations: [NonRoutedComponent, Home, About],
  *   entryComponents: [Home, About],
  *   providers: [
@@ -79,7 +93,7 @@ export function UIRouterModule(moduleMetaData: UIRouterModuleMetadata) {
       .reduce((acc, arr) => acc.concat(arr), [])
       .filter(x => typeof x === 'function' && x !== UIView);
 
-  moduleMetaData.imports          = <any[]> (moduleMetaData.imports || []).concat(UIRouterRootModule).reduce(uniqR, []);
+  moduleMetaData.imports          = <any[]> (moduleMetaData.imports || []).concat(UIRouterLibraryModule).reduce(uniqR, []);
   moduleMetaData.declarations     = <any[]> (moduleMetaData.declarations || []).concat(routedComponents).reduce(uniqR, []);
   moduleMetaData.entryComponents  = <any[]> (moduleMetaData.entryComponents || []).concat(routedComponents).reduce(uniqR, []);
   moduleMetaData.providers        = (moduleMetaData.providers || []).concat(statesProvider);

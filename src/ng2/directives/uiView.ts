@@ -30,7 +30,7 @@ interface InputMapping {
 declare var Reflect: any;
 
 /** @hidden */
-const ng2ComponentInputs = (ng2CompClass: Type) => {
+const ng2ComponentInputs = (ng2CompClass: Type<any>) => {
   /** Get "@Input('foo') _foo" inputs */
   let props = Reflect['getMetadata']('propMetadata', ng2CompClass);
   let _props = Object.keys(props || {})

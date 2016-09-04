@@ -223,7 +223,7 @@ export interface Ng2ViewDeclaration extends _ViewDeclaration {
    * }
    * ```
    */
-  component?: Type;
+  component?: Type<any>;
 
   /**
    * An object which maps `resolve` keys to [[component]] `bindings`.

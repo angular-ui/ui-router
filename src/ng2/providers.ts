@@ -46,7 +46,8 @@
  *
  * @preferred @module ng2
  */ /** */
-import {Injector, OpaqueToken} from "@angular/core";
+import {Injector, OpaqueToken, Provider} from "@angular/core";
+import {ClassProvider, ExistingProvider, FactoryProvider, TypeProvider, ValueProvider} from "@angular/core"; // has or is using
 import {UIRouter} from "../router";
 import {PathNode} from "../path/node";
 import {StateRegistry} from "../state/stateRegistry";
@@ -62,17 +63,20 @@ import {UIRouterConfig} from "./uiRouterConfig";
 import {Globals} from "../globals";
 import {UIRouterLocation} from "./location";
 import {services} from "../common/coreservices";
-import {ProviderLike} from "../state/interface";
 import {Resolvable} from "../resolve/resolvable";
 import {ngModuleResolvablesBuilder} from "./statebuilders/lazyLoadNgModuleResolvable";
 import {flattenR} from "../common/common";
 import {UIROUTER_STATES_TOKEN} from "./uiRouterNgModule";
 import {UIRouterRx} from "./rx";
+import {LocationStrategy, HashLocationStrategy, PathLocationStrategy} from "@angular/common";
 
 export const NG1_UIROUTER_TOKEN = new OpaqueToken("$uiRouter");
 
 /**
- * This is a provider factory for a UIRouter instance which is configured for Angular 2
+ * This is a factory function for a UIRouter instance
+ *
+ * Creates a UIRouter instance and configures it for Angular 2, then invokes router bootstrap.
+ * This function is used as an Angular 2 `useFactory` Provider.
  */
 let uiRouterFactory = (injector: Injector) => {
   // ----------------- ng1-to-ng2 short circuit ------
@@ -140,10 +144,12 @@ let uiRouterFactory = (injector: Injector) => {
   return router;
 };
 
-export const _UIROUTER_PROVIDERS: ProviderLike[] = [
-  { provide: UIRouterLocation, useClass: UIRouterLocation },
+export const _UIROUTER_INSTANCE_PROVIDERS: Provider[] =  [
   { provide: UIRouter, useFactory: uiRouterFactory, deps: [Injector] },
+  { provide: UIRouterLocation, useClass: UIRouterLocation },
+];
 
+export const _UIROUTER_PROVIDERS: Provider[] = [
   { provide: StateService,      useFactory: (r: UIRouter) => r.stateService     , deps: [UIRouter]},
   { provide: TransitionService, useFactory: (r: UIRouter) => r.transitionService, deps: [UIRouter]},
   { provide: UrlMatcherFactory, useFactory: (r: UIRouter) => r.urlMatcherFactory, deps: [UIRouter]},
@@ -153,10 +159,41 @@ export const _UIROUTER_PROVIDERS: ProviderLike[] = [
   { provide: Globals,           useFactory: (r: UIRouter) => r.globals          , deps: [UIRouter]},
 
   { provide: UIView.PARENT_INJECT, useFactory: (r: StateRegistry) => { return { fqn: null, context: r.root() } as ParentUIViewInject }, deps: [StateRegistry]}
-]
+];
+
+/**
+ * Provides an Instance of UI-Router for NG2.
+ *
+ * Use this on the root NgModule to configure and create an instance of the Angular 2 UIRouter.
+ *
+ * @example
+ * ```js
+ *
+ * @UIRouterModule({
+ *   states: [ homeState, aboutState ],
+ *   providers: [ provideUIRouter({ configClass: MyUIRouterConfig, useHash: true }) ],
+ *   bootstrap: [ UIView ]
+ * }) class RootNgModule {}
+ *
+ * platformBrowserDynamic().bootstrapModule(RootNgModule);
+ * ```
+ *
+ * Note: UIRouter should only be provided *once*, on the root module, when bootstrapping the application.
+ */
+export function provideUIRouter(rootConfig: { configClass?: typeof UIRouterConfig, useHash?: boolean } = {}) {
+  // Provide the UIRouter instance providers
+  return _UIROUTER_INSTANCE_PROVIDERS.concat(
+      // Provide the user-supplied UIRouterConfig class, or use base UIRouterConfig (as a no-op config)
+      { provide: UIRouterConfig, useClass: (rootConfig.configClass as any || UIRouterConfig) },
+      // Provide the PathLocationStrategy by default unless `useHash` is `true`
+      { provide: LocationStrategy, useClass: (rootConfig.useHash ? HashLocationStrategy : PathLocationStrategy ) }
+  );
+}
+
 /**
  * The UI-Router providers, for use in your application bootstrap
  *
- * @deprecated use [[UIRouterModule]]
+ * @deprecated use [[UIRouterModule]] and [[provideUIRouter]]
  */
-export const UIROUTER_PROVIDERS = _UIROUTER_PROVIDERS;
+export const UIROUTER_PROVIDERS: Provider[] = _UIROUTER_INSTANCE_PROVIDERS.concat(_UIROUTER_PROVIDERS);
+

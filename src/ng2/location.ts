@@ -1,5 +1,5 @@
 /** @module ng2 */ /** */
-import {HashLocationStrategy, PlatformLocation, LocationStrategy, UrlChangeListener} from "@angular/common";
+import {HashLocationStrategy, PlatformLocation, LocationStrategy, LocationChangeListener} from "@angular/common";
 import {Injectable} from "@angular/core";
 
 import {services} from "../common/coreservices";
@@ -60,7 +60,7 @@ export class UIRouterLocation {
       console.log(new Error('$location.replace() not impl'))
     };
 
-    loc.onChange = (cb: UrlChangeListener) => locSt.onPopState(cb);
+    loc.onChange = (cb: LocationChangeListener) => locSt.onPopState(cb);
 
     let locCfg = <any> services.locationConfig;
 
