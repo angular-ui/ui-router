@@ -268,6 +268,7 @@ export interface IHookRegistry {
    * See [[TransitionHookFn]] for the signature of the function.
    *
    * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
+   * To match all Transitions, use an empty criteria object `{}`.
    *
    * ### Lifecycle
    *
@@ -364,6 +365,7 @@ export interface IHookRegistry {
    * See [[TransitionHookFn]] for the signature of the function.
    *
    * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
+   * To match all Transitions, use an empty criteria object `{}`.
    *
    * ### Lifecycle
    *
@@ -397,7 +399,7 @@ export interface IHookRegistry {
    * @example
    * ```js
    * // ng1
-   * $transitions.onStart( { to: 'auth.*' }, function(trans) {
+   * $transitions.onStart( { to: 'auth.**' }, function(trans) {
    *   var $state = trans.router.stateService;
    *   var MyAuthService = trans.injector().get('MyAuthService');
    *
@@ -436,9 +438,7 @@ export interface IHookRegistry {
    *
    * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    * `onEnter` hooks generally specify `{ entering: 'somestate' }`.
-   *
-   * The `matchCriteria` is used to determine which Transitions the hook should be invoked during.
-   * Note: for `onEnter` hooks, the `to` in the `matchCriteria` matches the entering state, not the Transition "to state".
+   * To match all Transitions, use an empty criteria object `{}`.
    *
    * ### Lifecycle
    *
@@ -508,8 +508,9 @@ export interface IHookRegistry {
    * This hook can be used to perform actions when the user moves from one substate to another, such as
    * between steps in a wizard.
    *
-   * The `matchCriteria` is used to determine which Transitions the hook should be invoked during.
+   * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    * `onRetain` hooks generally specify `{ retained: 'somestate' }`.
+   * To match all Transitions, use an empty criteria object `{}`.
    *
    * ### Lifecycle
    *
@@ -548,6 +549,7 @@ export interface IHookRegistry {
    *
    * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
    * `onExit` hooks generally specify `{ exiting: 'somestate' }`.
+   * To match all Transitions, use an empty criteria object `{}`.
    *
    * ### Lifecycle
    *
@@ -583,6 +585,7 @@ export interface IHookRegistry {
    * See [[TransitionHookFn]] for the signature of the function.
    *
    * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
+   * To match all Transitions, use an empty criteria object `{}`.
    *
    * ### Lifecycle
    *
@@ -609,6 +612,7 @@ export interface IHookRegistry {
    * See [[TransitionHookFn]] for the signature of the function.
    *
    * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
+   * To match all Transitions, use an empty criteria object `{}`.
    *
    * ### Lifecycle
    *
@@ -635,6 +639,7 @@ export interface IHookRegistry {
    * See [[TransitionHookFn]] for the signature of the function.
    *
    * The [[HookMatchCriteria]] is used to determine which Transitions the hook should be invoked for.
+   * To match all Transitions, use an empty criteria object `{}`.
    *
    * ### Lifecycle
    *
@@ -689,10 +694,11 @@ export type IStateMatch = Predicate<State>
  * This object is used to configure whether or not a Transition Hook is invoked for a particular transition,
  * based on the Transition's "to state" and "from state".
  *
- * Each property (`to`, `from`, `exiting`, `retained`, and `entering`) can be state globs, a function that takes a
- * state, or a boolean (see [[HookMatchCriterion]])
+ * Each property (`to`, `from`, `exiting`, `retained`, and `entering`) can be a state [[Glob]] string,
+ * a boolean, or a function that takes a state and returns a boolean (see [[HookMatchCriterion]])
  *
  * All properties are optional.  If any property is omitted, it is replaced with the value `true`, and always matches.
+ * To match any transition, use an empty criteria object `{}`.
  *
  * @example
  * ```js
@@ -774,7 +780,7 @@ export interface IMatchingNodes {
  * Or, a function with the signature `function(state) { return matches; }`
  * which should return a boolean to indicate if a state matches.
  *
- * Or, `true` to match anything
+ * Or, `true` to always match
  */
 export type HookMatchCriterion = (string|IStateMatch|boolean)
 
