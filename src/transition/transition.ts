@@ -1,4 +1,5 @@
 /** @module transition */ /** for typedoc */
+import {stringify} from "../common/strings";
 import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 import {
@@ -257,7 +258,7 @@ export class Transition implements IHookRegistry {
     const getData = (token: any) => {
       var resolvable = resolveContext.getResolvable(token);
       if (resolvable === undefined) {
-        throw new Error("Dependency Injection token not found: ${stringify(token)}");
+        throw new Error(`Dependency Injection token not found: ${stringify(token)}`);
       }
       return resolvable.data;
     };
