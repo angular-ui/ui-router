@@ -53,7 +53,7 @@ export const UIROUTER_STATES_TOKEN = new OpaqueToken("UIRouter States");
  * var homeState = { name: 'home', url: '/home', component: Home };
  * var aboutState = { name: 'about', url: '/about', component: About };
  *
- * @UIRouterModule({
+ * @ UIRouterModule({
  *   imports: [ BrowserModule ],
  *   declarations: [ NonRoutedComponent ],
  *   states: [ homeState, aboutState ]
@@ -65,11 +65,11 @@ export const UIROUTER_STATES_TOKEN = new OpaqueToken("UIRouter States");
  * Note: the `UIRouterModule` decorator creates a standard Angular 2 `NgModule`.
  * The equivalent `AppModule` could also be crafted by hand using only the `NgModule` decorator:
  *
- * ```
+ * ```js
  * var homeState = { name: 'home', url: '/home', component: Home };
  * var aboutState = { name: 'about', url: '/about', component: About };
  *
- * @NgModule({
+ * @ NgModule({
  *   imports: [BrowserModule, UIRouterLibraryModule],
  *   declarations: [NonRoutedComponent, Home, About],
  *   entryComponents: [Home, About],
@@ -77,10 +77,9 @@ export const UIROUTER_STATES_TOKEN = new OpaqueToken("UIRouter States");
  *    { provide: UIROUTER_STATES_TOKEN, useValue: [homeState, aboutState], multi: true }
  *   ]
  * }) export class AppModule {};
- *
  * ```
  * 
- * @param moduleMetaData the [[UIRouterModuleMetadata]] 
+ * @param moduleMetaData
  *        (See also [NgModuleMetadataType](https://angular.io/docs/ts/latest/api/core/index/NgModuleMetadataType-interface.html)
  */
 export function UIRouterModule(moduleMetaData: UIRouterModuleMetadata) {
