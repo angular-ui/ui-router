@@ -128,7 +128,7 @@ export class StateService {
    * @returns {promise} A promise representing the state of the new transition. See
    * {@link ui.router.state.$state#methods_go $state.go}.
    */
-  reload(reloadState: StateOrName): Promise<State> {
+  reload(reloadState?: StateOrName): Promise<State> {
     return this.transitionTo(this.current, this.params, {
       reload: isDefined(reloadState) ? reloadState : true,
       inherit: false,
