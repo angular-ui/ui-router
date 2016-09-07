@@ -12,75 +12,73 @@
  * - [[HookMatchCriteria.retained]]
  * - [[HookMatchCriteria.entering]]
  *
- * A `Glob` string is a pattern which matches state names according to the following rules:
+ * A `Glob` string is a pattern which matches state names.
+ * Nested state names are split into segments (separated by a dot) when processing.
+ * The state named `foo.bar.baz` is split into three segments ['foo', 'bar', 'baz']
+ *
+ * Globs work according to the following rules:
  *
  * ### Exact match:
  *
  * The glob `'A.B'` matches the state named exactly `'A.B'`.
  *
  * | Glob        |Matches states named|Does not match state named|
- * |:------------|:--------------------|:-----------------|
- * | `'A'`       | `'A'`               | `'B'` , `'A.C'`  |
- * | `'A.B'`     | `'A.B'`             | `'A'` , `'A.B.C'`|
+ * |:------------|:--------------------|:---------------------|
+ * | `'A'`       | `'A'`               | `'B'` , `'A.C'`      |
+ * | `'A.B'`     | `'A.B'`             | `'A'` , `'A.B.C'`    |
+ * | `'foo'`     | `'foo'`             | `'FOO'` , `'foo.bar'`|
  *
- * ### Single wildcard (`*`)
+ * ### Single star (`*`)
  *
- * A single wildcard (`*`) matches any value for *a single segment* of a state name.
+ * A single star (`*`) is a wildcard that matches exactly one segment.
  *
  * | Glob        |Matches states named  |Does not match state named |
  * |:------------|:---------------------|:--------------------------|
- * | `'A.*'`     | `'A.B'` , `'A.C'`    | `'A'` , `'A.B.C'`         |
  * | `'*'`       | `'A'` , `'Z'`        | `'A.B'` , `'Z.Y.X'`       |
+ * | `'A.*'`     | `'A.B'` , `'A.C'`    | `'A'` , `'A.B.C'`         |
  * | `'A.*.*'`   | `'A.B.C'` , `'A.X.Y'`| `'A'`, `'A.B'` , `'Z.Y.X'`|
  *
+ * ### Double star (`**`)
  *
- * ### Double wildcards (`**`)
+ * A double star (`'**'`) is a wildcard that matches *zero or more segments*
  *
- * Double wildcards (`'**'`) act as a wildcard for *one or more segments*
- *
- * | Glob        |Matches states named                           |Does not match state named|
- * |:------------|:----------------------------------------------|:-------------------------|
- * | `'**'`      | `'A'` , `'A.B'`, `'Z.Y.X'`                    | (matches all states)     |
- * | `'A.**'`    | `'A.B'` , `'A.C'` , `'A.B.X'`                 | `'A'`, `'Z.Y.X'`         |
- * | `'**.login'`| `'A.login'` , `'A.B.login'` , `'Z.Y.X.login'` | `'A'` , `'login'` , `'A.login.Z'` |
+ * | Glob        |Matches states named                           |Does not match state named         |
+ * |:------------|:----------------------------------------------|:----------------------------------|
+ * | `'**'`      | `'A'` , `'A.B'`, `'Z.Y.X'`                    | (matches all states)              |
+ * | `'A.**'`    | `'A'` , `'A.B'` , `'A.C.X'`                   | `'Z.Y.X'`                         |
+ * | `'**.X'`    | `'X'` , `'A.X'` , `'Z.Y.X'`                   | `'A'` , `'A.login.Z'`             |
+ * | `'A.**.X'`  | `'A.X'` , `'A.B.X'` , `'A.B.C.X'`             | `'A'` , `'A.B.C'`                 |
  *
  */
 export class Glob {
   text: string;
   glob: Array<string>;
+  regexp: RegExp;
 
   constructor(text: string) {
     this.text = text;
     this.glob = text.split('.');
+
+    let regexpString = this.text.split('.')
+        .map(seg => {
+          if (seg === '**') return '(?:|(?:\\.[^.]*)*)';
+          if (seg === '*')  return '\\.[^.]*';
+          return                   '\\.' + seg;
+        }).join('');
+
+    this.regexp = new RegExp("^" + regexpString + "$");
   }
 
   matches(name: string) {
-    let segments = name.split('.');
-
-    // match single stars
-    for (let i = 0, l = this.glob.length; i < l; i++) {
-      if (this.glob[i] === '*') segments[i] = '*';
-    }
-
-    // match greedy starts
-    if (this.glob[0] === '**') {
-       segments = segments.slice(segments.indexOf(this.glob[1]));
-       segments.unshift('**');
-    }
-    // match greedy ends
-    if (this.glob[this.glob.length - 1] === '**') {
-       segments.splice(segments.indexOf(this.glob[this.glob.length - 2]) + 1, Number.MAX_VALUE);
-       segments.push('**');
-    }
-    if (this.glob.length != segments.length) return false;
-
-    return segments.join('') === this.glob.join('');
+    return this.regexp.test('.' + name);
   }
 
+  /** @deprecated whats the point? */
   static is(text: string) {
     return text.indexOf('*') > -1;
   }
 
+  /** @deprecated whats the point? */
   static fromString(text: string) {
     if (!this.is(text)) return null;
     return new Glob(text);

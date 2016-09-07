@@ -500,6 +500,7 @@ declare module jasmine {
   export interface Matchers {
     toBeResolved(): boolean
     toEqualData(expected: any): boolean
+    toEqualValues(expected: any): boolean
     toHaveClass(expected: any): boolean
   }
 }

@@ -12,6 +12,16 @@ beforeEach(function() {
       }
     },
 
+    toEqualValues: function() {
+      return {
+        compare: function(actual, expected) {
+          let pass = Object.keys(expected)
+              .reduce((acc, key) => acc && equals(actual[key], expected[key]), true);
+          return { pass };
+        }
+      }
+    },
+
     toBeResolved: () => ({
       compare: actual => ({
         pass: !!testablePromise(actual).$$resolved

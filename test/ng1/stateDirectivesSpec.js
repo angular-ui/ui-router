@@ -816,7 +816,7 @@ describe('uiSrefActive', function() {
     }));
 
     it('should support multiple <className, stateOrName> pairs', inject(function($compile, $rootScope, $state, $q) {
-      el = $compile('<div ui-sref-active="{contacts: \'contacts.*\', admin: \'admin.roles({page: 1})\'}"></div>')($rootScope);
+      el = $compile('<div ui-sref-active="{contacts: \'contacts.**\', admin: \'admin.roles({page: 1})\'}"></div>')($rootScope);
       $state.transitionTo('contacts');
       $q.flush();
       timeoutFlush();
