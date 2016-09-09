@@ -551,6 +551,11 @@ export class Transition implements IHookRegistry {
   error() {
     let state: State = this.$to();
 
+    let redirects = 0, trans: Transition = this;
+    while((trans = trans.redirectedFrom()) != null) {
+      if (++redirects > 20) return `Too many Transition redirects (20+)`;
+    }
+
     if (state.self.abstract)
       return `Cannot transition to abstract state '${state.name}'`;
     if (!Param.validates(state.parameters(), this.params()))

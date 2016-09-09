@@ -62,6 +62,21 @@ describe('stateService', function () {
       .then(done, done);
     }));
 
+    it('should error after 20+ redirects', (done) => {
+      let errors = [];
+      $transitions.onEnter({ entering: "D" }, trans => trans.router.stateService.target('D'));
+      $transitions.onError({}, trans => { errors.push(trans.error()) });
+
+      $state.defaultErrorHandler(function() {});
+
+      $state.go("D").catch(err => {
+        expect(errors.length).toBe(21);
+        expect(err.message).toContain('Too many Transition redirects');
+        done();
+      });
+    })
+
+
     it("should not update the URL in response to synchronizing URL", ((done) => {
       $loc.setUrl('/a/b/c');
       spyOn($loc, 'setUrl').and.callThrough();
