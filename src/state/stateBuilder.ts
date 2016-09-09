@@ -26,6 +26,7 @@ export type BuilderFunction = (state: State, parent?: BuilderFunction) => any;
 interface Builders {
   [key: string]: BuilderFunction[];
 
+  name: BuilderFunction[];
   parent: BuilderFunction[];
   data: BuilderFunction[];
   url: BuilderFunction[];
@@ -37,6 +38,12 @@ interface Builders {
   resolvables: BuilderFunction[];
 }
 
+
+function nameBuilder(state: State) {
+  if (state.lazyLoad)
+    state.name = state.self.name + ".**";
+  return state.name;
+}
 
 function selfBuilder(state: State) {
   state.self.$$state = () => state;
@@ -53,6 +60,11 @@ function dataBuilder(state: State) {
 const getUrlBuilder = ($urlMatcherFactoryProvider: UrlMatcherFactory, root: () => State) =>
 function urlBuilder(state: State) {
   let stateDec: StateDeclaration = <any> state;
+
+  if (stateDec && stateDec.url && stateDec.lazyLoad) {
+    stateDec.url += "{remainder:any}"; // match any path (.*)
+  }
+
   const parsed = parseUrl(stateDec.url), parent = state.parent;
   const url = !parsed ? stateDec.url : $urlMatcherFactoryProvider.compile(parsed.val, {
     params: state.params || {},
@@ -212,6 +224,7 @@ export class StateBuilder {
     }
 
     this.builders = {
+      name: [ nameBuilder ],
       self: [ selfBuilder ],
       parent: [ parentBuilder ],
       data: [ dataBuilder ],

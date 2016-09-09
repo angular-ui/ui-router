@@ -521,18 +521,99 @@ export interface StateDeclaration {
   onExit?: TransitionStateHookFn;
 
   /**
-   * A function that lazy loads a state tree.
-   
-   
+   * A function which lazy loads the state (and child states)
    *
-   * @param transition
+   * A state which has a `lazyLoad` function is treated as a **temporary
+   * placeholder** for a state definition that will be lazy loaded some time
+   * in the future.
+   * These temporary placeholder states are called "**Future States**".
+   *
+   *
+   * ### Future State placeholders
+   *
+   * #### `lazyLoad`:
+   *
+   * A future state's `lazyLoad` function should return a Promise for an array of
+   * lazy loaded [[StateDeclaration]] objects.
+   *
+   * The lazy loaded states are registered with the [[StateRegistry]].
+   * One of the lazy loaded states must have the same name as the future state;
+   * it will **replace the future state placeholder** in the registry.
+   *
+   * #### `url`
+   * A future state's `url` property acts as a wildcard.
+   *
+   * UI-Router matches all paths that begin with the `url`.
+   * It effectively appends `.*` to the internal regular expression.
+   *
+   * #### `name`
+   *
+   * A future state's `name` property acts as a wildcard.
+   *
+   * It matches any state name that starts with the `name`.
+   * UI-Router effectively matches the future state using a `.**` [[Glob]] appended to the `name`.
+   *
+   * ---
+   *
+   * Future state placeholders should only define `lazyLoad`, `name`, and `url`.
+   * Any additional properties should only be defined on the state that will eventually be lazy loaded.
+   *
+   * @example
+   * #### states.js
+   * ```js
+   *
+   * // The parent state is not lazy loaded
+   * {
+   *   name: 'parent',
+   *   url: '/parent',
+   *   component: ParentComponent
+   * }
+   *
+   * // This child state is a lazy loaded future state
+   * // The `lazyLoad` function loads the final state definition
+   * {
+   *   name: 'parent.child',
+   *   url: '/child',
+   *   lazyLoad: () => System.import('./child.state.js')
+   * }
+   * ```
+   *
+   * #### child.state.js
+   *
+   * This file is lazy loaded.  It exports an array of states.
+   *
+   * ```js
+   * import {ChildComponent} from "./child.component.js";
+   *
+   * let childState = {
+   *   // the name should match the future state
+   *   name: 'parent.child',
+   *   url: '/child/:childId',
+   *   params: {
+   *     id: "default"
+   *   },
+   *   resolve: {
+   *     childData: ($transition$, ChildService) =>
+   *         ChildService.get($transition$.params().childId)
+   *   }
+   * };
+   *
+   * // The future state's lazyLoad imports this array of states
+   * export default [ childState ];
+   * ```
+   *
+   * @param transition the [[Transition]] that is activating the future state
    */
-  lazyLoad?: (transition: Transition) => Promise<StateDeclaration[]>;
+  lazyLoad?: (transition: Transition) => Promise<LazyLoadResult>;
 
   /**
    * @deprecated define individual parameters as [[ParamDeclaration.dynamic]]
    */
   reloadOnSearch?: boolean;
+}
+
+export interface LazyLoadResult {
+  states?: StateDeclaration[];
 }
 
 export interface HrefOptions {

@@ -70,29 +70,13 @@ import {UIROUTER_STATES_TOKEN} from "./uiRouterNgModule";
 import {UIRouterRx} from "./rx";
 import {LocationStrategy, HashLocationStrategy, PathLocationStrategy} from "@angular/common";
 
-export const NG1_UIROUTER_TOKEN = new OpaqueToken("$uiRouter");
-
 /**
  * This is a factory function for a UIRouter instance
  *
  * Creates a UIRouter instance and configures it for Angular 2, then invokes router bootstrap.
  * This function is used as an Angular 2 `useFactory` Provider.
  */
-let uiRouterFactory = (injector: Injector) => {
-  // ----------------- ng1-to-ng2 short circuit ------
-  // Before creating a UIRouter instance, see if there is
-  // already one created (from ng1-to-ng2 as NG1_UIROUTER_TOKEN)
-  let $uiRouter = injector.get(NG1_UIROUTER_TOKEN, null);
-  if ($uiRouter) return $uiRouter;
-
-
-  // ----------------- Get DI dependencies -----------
-  // Get the DI deps manually from the injector
-  // (no UIRouterConfig is provided when in hybrid mode)
-  let routerConfig: UIRouterConfig = injector.get(UIRouterConfig);
-  let location: UIRouterLocation = injector.get(UIRouterLocation);
-
-
+let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation, injector: Injector) => {
   // ----------------- Monkey Patches ----------------
   // Monkey patch the services.$injector to the ng2 Injector
   services.$injector.get = injector.get.bind(injector);
@@ -131,7 +115,7 @@ let uiRouterFactory = (injector: Injector) => {
     routerConfig.configure(router);
 
     // Register the states from the root NgModule [[UIRouterModule]]
-    let states = (injector.get(UIROUTER_STATES_TOKEN) || []).reduce(flattenR, []);
+    let states = injector.get(UIROUTER_STATES_TOKEN, []).reduce(flattenR, []);
     states.forEach(state => registry.register(state));
 
     // Start monitoring the URL
@@ -145,7 +129,7 @@ let uiRouterFactory = (injector: Injector) => {
 };
 
 export const _UIROUTER_INSTANCE_PROVIDERS: Provider[] =  [
-  { provide: UIRouter, useFactory: uiRouterFactory, deps: [Injector] },
+  { provide: UIRouter, useFactory: uiRouterFactory, deps: [UIRouterConfig, UIRouterLocation, Injector] },
   { provide: UIRouterLocation, useClass: UIRouterLocation },
 ];
 

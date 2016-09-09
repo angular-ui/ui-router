@@ -5,6 +5,7 @@ import {UIROUTER_STATES_TOKEN} from "./uiRouterNgModule";
 
 import {NgModuleFactoryLoader, NgModuleRef, Injector, NgModuleFactory} from "@angular/core";
 import {unnestR} from "../common/common";
+import {LazyLoadResult} from "../state/interface";
 
 /**
  * Returns a function which lazy loads a nested module
@@ -20,7 +21,7 @@ import {unnestR} from "../common/common";
  *
  * returns the new states array
  */
-export function loadNgModule(path: string) {
+export function loadNgModule(path: string): (transition: Transition) => Promise<LazyLoadResult> {
   /** Get the parent NgModule Injector (from resolves) */
   const getNg2Injector = (transition: Transition) =>
       transition.injector().getAsync(NG2_INJECTOR_TOKEN);
@@ -34,8 +35,8 @@ export function loadNgModule(path: string) {
    * - Create the new NgModule
    */
   const createNg2Module = (path: string, ng2Injector: Injector) =>
-      ng2Injector.get(NgModuleFactoryLoader).load(path)
-          .then((factory: NgModuleFactory<any>) => factory.create(ng2Injector));
+      ng2Injector.get(NgModuleFactoryLoader).load(path).then((factory: NgModuleFactory<any>) => 
+          factory.create(ng2Injector));
 
   /**
    * Apply the Lazy Loaded NgModule's Injector to the newly loaded state tree.
@@ -47,7 +48,7 @@ export function loadNgModule(path: string) {
    * The NgModule's Injector (and ComponentFactoryResolver) will be added to that state.
    * The Injector/Factory are used when creating Components for the `replacement` state and all its children.
    */
-  function applyNgModuleToNewStates(transition: Transition, ng2Module: NgModuleRef<any>): Ng2StateDeclaration[] {
+  function applyNgModuleToNewStates(transition: Transition, ng2Module: NgModuleRef<any>): LazyLoadResult {
     var targetName = transition.to().name;
     let newStates: Ng2StateDeclaration[] = ng2Module.injector.get(UIROUTER_STATES_TOKEN).reduce(unnestR, []);
     let replacementState = newStates.find(state => state.name === targetName);
@@ -60,7 +61,8 @@ export function loadNgModule(path: string) {
     // Add the injector as a resolve.
     replacementState['_ngModuleInjector'] = ng2Module.injector;
 
-    return newStates;
+    // Return states to be registered by the lazyLoadHook
+    return { states: newStates };
   }
 
   return (transition: Transition) => getNg2Injector(transition)

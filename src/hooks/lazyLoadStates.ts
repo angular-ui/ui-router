@@ -2,7 +2,7 @@
 import {Transition} from "../transition/transition";
 import {TransitionService} from "../transition/transitionService";
 import {TransitionHookFn} from "../transition/interface";
-import {StateDeclaration} from "../state/interface";
+import {StateDeclaration, LazyLoadResult} from "../state/interface";
 import {State} from "../state/stateObject";
 import {services} from "../common/coreservices";
 
@@ -22,14 +22,15 @@ import {services} from "../common/coreservices";
  */
 const lazyLoadHook: TransitionHookFn = (transition: Transition) => {
   var toState = transition.to();
+  let registry = transition.router.stateRegistry;
 
-  function retryOriginalTransition(newStates: State[]) {
+  function retryOriginalTransition() {
     if (transition.options().source === 'url') {
-      let loc = services.location;
-      let path = loc.path(), search = loc.search(), hash = loc.hash();
+      let loc = services.location, path = loc.path(), search = loc.search(), hash = loc.hash();
 
-      let matchState = state => [state, state.url.exec(path, search, hash)];
-      let matches = newStates.map(matchState).filter(([state, params]) => !!params);
+      let matchState = state => [state, state.url && state.url.exec(path, search, hash)];
+      let matches = registry.get().map(s => s.$$state()).map(matchState).filter(([state, params]) => !!params);
+
       if (matches.length) {
         let [state, params] = matches[0];
         return transition.router.stateService.target(state, params, transition.options());
@@ -37,27 +38,33 @@ const lazyLoadHook: TransitionHookFn = (transition: Transition) => {
       transition.router.urlRouter.sync();
     }
 
-    let state = transition.targetState().identifier();
-    let params = transition.params();
-    let options = transition.options();
-    return transition.router.stateService.target(state, params, options);
+    // The original transition was not triggered via url sync
+    // The lazy state should be loaded now, so re-try the original transition
+    let orig = transition.targetState();
+    return transition.router.stateService.target(orig.identifier(), orig.params(), orig.options());
   }
 
   /**
    * Replace the placeholder state with the newly loaded states from the NgModule.
    */
-  function updateStateRegistry(newStates: StateDeclaration[]) {
-    let registry = transition.router.stateRegistry;
-    let placeholderState = transition.to();
-
-    registry.deregister(placeholderState);
-    newStates.forEach(state => registry.register(state));
-    return newStates.map(state => registry.get(state).$$state());
+  function updateStateRegistry(result: LazyLoadResult) {
+    // deregister placeholder state
+    registry.deregister(transition.$to());
+    if (result && Array.isArray(result.states)) {
+      result.states.forEach(state => registry.register(state));
+    }
   }
-  
-  return toState.lazyLoad(transition)
-      .then(updateStateRegistry)
-      .then(retryOriginalTransition)
+
+  let hook = toState.lazyLoad;
+  // Store/get the lazy load promise on/from the hookfn so it doesn't get re-invoked
+  let promise = hook['_promise'];
+  if (!promise) {
+    promise = hook['_promise'] = hook(transition).then(updateStateRegistry);
+    const cleanup = () => delete hook['_promise'];
+    promise.catch(cleanup, cleanup);
+  }
+
+  return promise.then(retryOriginalTransition);
 };
 
 export const registerLazyLoadHook = (transitionService: TransitionService) =>

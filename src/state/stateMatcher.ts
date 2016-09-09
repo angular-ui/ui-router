@@ -26,8 +26,7 @@ export class StateMatcher {
       return state;
     } else if (isStr) {
       let matches = values(this._states)
-          .filter(state => !!state.lazyLoad)
-          .map(state => ({ state, glob: new Glob(state.name + ".**")}))
+          .map(state => ({ state, glob: new Glob(state.name)}))
           .filter(({state, glob}) => glob.matches(name))
           .map(({state, glob}) => state);
 
