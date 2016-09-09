@@ -427,14 +427,17 @@ export interface StateDeclaration {
    * .state('A', {
    *   redirectTo: 'A.B'
    * })
+   *
    * // a {state, params} object
    * .state('C', {
    *   redirectTo: { state: 'C.D', params: { foo: 'index' } }
    * })
+   *
    * // a fn
    * .state('E', {
    *   redirectTo: () => "A"
    * })
+   *
    * // a fn conditionally returning a {state, params}
    * .state('F', {
    *   redirectTo: (trans) => {
@@ -442,6 +445,7 @@ export interface StateDeclaration {
    *       return { state: 'F', params: { foo: 10 } };
    *   }
    * })
+   *
    * // a fn returning a promise for a redirect
    * .state('G', {
    *   redirectTo: (trans) => {
@@ -450,6 +454,7 @@ export interface StateDeclaration {
    *     return promise;
    *   }
    * })
+   * ```
    */
   redirectTo?: ( string |
           (($transition$: Transition) => TargetState) |
