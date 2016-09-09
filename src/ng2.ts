@@ -9,6 +9,7 @@ import "./justjs";
 
 export * from "./ng2/interface";
 export * from "./ng2/lazyLoadNgModule";
+export * from "./ng2/rx";
 export * from "./ng2/providers";
 export * from "./ng2/location";
 export * from "./ng2/directives/directives";
