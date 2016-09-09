@@ -521,7 +521,7 @@ export interface StateDeclaration {
   onExit?: TransitionStateHookFn;
 
   /**
-   * A function which lazy loads the state (and child states)
+   * A function which lazy loads the state definition (and child state definitions)
    *
    * A state which has a `lazyLoad` function is treated as a **temporary
    * placeholder** for a state definition that will be lazy loaded some time
@@ -529,18 +529,20 @@ export interface StateDeclaration {
    * These temporary placeholder states are called "**Future States**".
    *
    *
-   * ### Future State placeholders
-   *
    * #### `lazyLoad`:
    *
-   * A future state's `lazyLoad` function should return a Promise for an array of
-   * lazy loaded [[StateDeclaration]] objects.
+   * A future state's `lazyLoad` function should return a Promise to lazy load the
+   * code for one or more lazy loaded [[StateDeclaration]] objects.
    *
-   * The lazy loaded states are registered with the [[StateRegistry]].
-   * One of the lazy loaded states must have the same name as the future state;
-   * it will **replace the future state placeholder** in the registry.
+   * If the promise resolves to an object with a `states: []` array,
+   * the lazy loaded states will be registered with the [[StateRegistry]].
+   * Generally, of the lazy loaded states should have the same name as the future state;
+   * then it will **replace the future state placeholder** in the registry.
+   *
+   * In any case, when the promise successfully resolves, the placeholder Future State will be deregistered.
    *
    * #### `url`
+   *
    * A future state's `url` property acts as a wildcard.
    *
    * UI-Router matches all paths that begin with the `url`.
@@ -553,21 +555,9 @@ export interface StateDeclaration {
    * It matches any state name that starts with the `name`.
    * UI-Router effectively matches the future state using a `.**` [[Glob]] appended to the `name`.
    *
-   * ---
-   *
-   * Future state placeholders should only define `lazyLoad`, `name`, and `url`.
-   * Any additional properties should only be defined on the state that will eventually be lazy loaded.
-   *
    * @example
    * #### states.js
    * ```js
-   *
-   * // The parent state is not lazy loaded
-   * {
-   *   name: 'parent',
-   *   url: '/parent',
-   *   component: ParentComponent
-   * }
    *
    * // This child state is a lazy loaded future state
    * // The `lazyLoad` function loads the final state definition
@@ -598,11 +588,18 @@ export interface StateDeclaration {
    *   }
    * };
    *
-   * // The future state's lazyLoad imports this array of states
-   * export default [ childState ];
+   * // This array of states will be registered by the lazyLoad hook
+   * let result = {
+   *   states: [ childState ]
+   * };
+   *
+   * export default result;
    * ```
    *
    * @param transition the [[Transition]] that is activating the future state
+   * @return a Promise to load the states.
+   *         Optionally, if the promise resolves to a [[LazyLoadResult]],
+   *         the states will be registered with the [[StateRegistry]].
    */
   lazyLoad?: (transition: Transition) => Promise<LazyLoadResult>;
 
