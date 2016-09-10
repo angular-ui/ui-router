@@ -56,7 +56,7 @@ import {HookResult} from "../../transition/interface";
  * @deprecated use [[TransitionService.onStart]]
  * @event $stateChangeStart
  */
-var $stateChangeStart: IAngularEvent;
+export var $stateChangeStart: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` if a transition is **cancelled**.
@@ -72,7 +72,7 @@ var $stateChangeStart: IAngularEvent;
  * @deprecated
  * @event $stateChangeCancel
  */
-var $stateChangeCancel: IAngularEvent;
+export var $stateChangeCancel: IAngularEvent;
 
 /**
  *
@@ -89,7 +89,7 @@ var $stateChangeCancel: IAngularEvent;
  * @deprecated use [[TransitionService.onStart]] and [[Transition.promise]], or [[Transition.onSuccess]]
  * @event $stateChangeSuccess
  */
-var $stateChangeSuccess: IAngularEvent;
+export var $stateChangeSuccess: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` when an **error occurs** during transition.
@@ -111,7 +111,7 @@ var $stateChangeSuccess: IAngularEvent;
  * @deprecated use [[TransitionService.onStart]] and [[Transition.promise]], or [[Transition.onError]]
  * @event $stateChangeError
  */
-var $stateChangeError: IAngularEvent;
+export var $stateChangeError: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` when a requested state **cannot be found** using the provided state name.
@@ -145,7 +145,7 @@ var $stateChangeError: IAngularEvent;
  * @deprecated use [[StateProvider.onInvalid]] // TODO: Move to [[StateService.onInvalid]]
  * @event $stateNotFound
  */
-var $stateNotFound: IAngularEvent;
+export var $stateNotFound: IAngularEvent;
 
 
 (function() {
