@@ -11,7 +11,7 @@ import {UIRouter} from "../router";
  * import {UIView} from "ui-router-ng2";
  *
  * @ UIRouterModule({
- *   providers: [provideUIRouter({ configClass: MyUIRouterConfig)]
+ *   providers: [provideUIRouter({ configClass: MyUIRouterConfig })]
  *   states: [state1, state2],
  *   bootstrap: [UIView]
  * }) class RootAppModule {}
