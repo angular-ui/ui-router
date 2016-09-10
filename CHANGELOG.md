@@ -1,7 +1,28 @@
 <a name="1.0.0-beta.2"></a>
 # [1.0.0-beta.2](https://github.com/angular-ui/ui-router/compare/1.0.0-alpha.5...v1.0.0-beta.2) (2016-09-09)
 
-[Read more on the blog](
+[Read more on the blog](https://ui-router.github.io/uirouter-1.0.0-beta.2/)
+
+### BC-BREAK
+
+1) State Glob patterns have been changed slightly.
+
+Previously, a single wildcard `foo.*` could match "missing segments" on the end of a state name.
+For example, `foo.*` would match the state `foo`.
+Likewise, `foo.*.*.*` would also match the `foo` state.
+
+Now, a single wildcard matches exactly one segment. 
+`foo.*` will match `foo.bar` and `foo.baz`, but neither `foo` nor `foo.bar.baz`.
+
+If you previously relied on the single wildcard to match missing segments, use a double wildcard, `foo.**`.
+
+Double wildcards match 0 or more segments.
+
+[Read more about Glob matching](https://ui-router.github.io/docs/latest/classes/common.glob.html)
+
+2) (obscure) Angular 1 DI token `ng1UIRouter` renamed to `$uiRouter`
+
+3) (obscure) Renamed `Transition.previous()` to `Transition.redirectedFrom()`
 
 ### Features
 
