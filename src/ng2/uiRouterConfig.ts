@@ -1,57 +1,47 @@
 /** @module ng2 */ /** */
 import {UIRouter} from "../router";
 /**
- * Provides states configuration to UI-Router during application bootstrap.
+ * Configures UI-Router during application bootstrap.
  * 
- * An instance of this class should be `provide()`d to the application `bootstrap()`.
+ * UI-Router ng2 users should implement this class, and pass it to [[provideUIRouter]] in the root app `NgModule`.
  *
  * @example
  * ```js
- * import {UIROUTER_PROVIDERS, UIView} from "ui-router-ng2";
- * import {MyConfig} from "./app/myConfig";
+ * import {MyUIRouterConfig} from "./app/router.config";
+ * import {UIView} from "ui-router-ng2";
  *
- * bootstrap(UIView, [
- *   ...UIROUTER_PROVIDERS,
- *   provide(UIRouterConfig, { useClass: MyConfig }
- * ]);
+ * @ UIRouterModule({
+ *   providers: [provideUIRouter({ configClass: MyUIRouterConfig)]
+ *   states: [state1, state2],
+ *   bootstrap: [UIView]
+ * }) class RootAppModule {}
  * ```
  *
- * The application's initial states should be registered with the [[UIRouter.stateRegistry]].
  * Any global configuration (transition hooks, parameter types, etc) should be done here.
  *
  * @example
  * ```js
  *
- * // myconfig.ts
- * import {STATES} from "./states";
+ * // router.config.ts
  * import {registerAuthHook} from "./hooks";
  * import {registerSlugType} from "./paramtypes";
  *
- * export class MyConfig {
+ * export class MyUIRouterConfig {
  *   configure(uiRouter: UIRouter) {
- *     STATES.forEach(state => uiRouter.stateRegistry.register(state));
  *     registerAuthHook(uiRouter.transitionService);
  *     registerSlugType(uiRouter.urlMatcherFactory);
  *   }
  * }
  *
- * // states.ts
- * import {FooComponent} from "./foo.component";
- * import {BarComponent} from "./bar.component";
- * import BAZ_MODULE_STATES from "./baz/states";
- *
- * export let STATES = [
- *   { name: 'foo', url: '/url', component: FooComponent},
- *   { name: 'bar', url: '/bar', component: BarComponent}
- * ].concat(BAZ_MODULE_STATES);
- *
  * // hooks.ts
  * export function registerAuthHook(transitionService: TransitionService) {
- *   let requireAuthentication = (transition: Transition, injector: Injector) {
- *     if (!Injector.get(AuthService).isAuthenticated()) {
- *       return Injector.get(StateService).target('login');
+ *   const requireAuthentication = (transition: Transition) => {
+ *     let injector = transition.injector();
+ *     if (!injector.get(AuthService).isAuthenticated()) {
+ *       return injector.get(StateService).target('login');
  *     }
  *   }
+ *
  *   transitionService.onBefore({ to: (state) => state.requiresAuth }, requireAuthentication);
  * }
  *
@@ -63,6 +53,25 @@ import {UIRouter} from "../router";
  *   urlMatcherFactory.type('slug', slugType);
  * }
  * ```
+ *
+ * Your configuration class can be injected, if necessary.
+ * Decorate with `@Injectable` and add dependencies to the class constructor.
+ *
+ * ```js
+ * @ Injectable()
+ * export class MyConfig {
+ *   myService: MyService;
+ *
+ *   constructor(myService: MyService) {
+ *     this.myService = myService;
+ *   }
+ *
+ *   configure(router: UIRouter) {
+ *     // ... use this.myService
+ *   }
+ * }
+ * ```
+ *
  *
  */
 export class UIRouterConfig {
