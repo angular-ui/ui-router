@@ -153,7 +153,7 @@ export const _UIROUTER_PROVIDERS: Provider[] = [
  * @example
  * ```js
  *
- * @UIRouterModule({
+ * @ UIRouterModule({
  *   states: [ homeState, aboutState ],
  *   providers: [ provideUIRouter({ configClass: MyUIRouterConfig, useHash: true }) ],
  *   bootstrap: [ UIView ]
