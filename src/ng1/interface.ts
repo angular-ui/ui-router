@@ -534,6 +534,7 @@ export interface Ng1Controller {
    *       }
    *     }
    *   }
+   * ```
    *
    *
    * @return a value, or a promise for a value.
