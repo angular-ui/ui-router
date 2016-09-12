@@ -349,6 +349,12 @@ function $StateRefActiveDirective($state: StateService, $stateParams: Obj, $inte
             var ref = parseStateRef(stateOrName, $state.current.name);
             addState(ref.state, $scope.$eval(ref.paramExpr), activeClass);
           }
+          else if(isArray(stateOrName)) {
+                  forEach(stateOrName, function(value, key) {
+                      var ref = parseStateRef(value, $state.current.name);
+                      addState(ref.state, $scope.$eval(ref.paramExpr), activeClass);
+                  });
+                }
         });
       }
 
