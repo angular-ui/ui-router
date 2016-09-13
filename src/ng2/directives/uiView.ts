@@ -1,7 +1,7 @@
 /** @module ng2_directives */ /** */
 import {
     Component, ComponentFactoryResolver, ViewContainerRef, Input, ComponentRef, Type,
-    ReflectiveInjector, InputMetadata, ComponentMetadata, ViewChild, Injector, Inject
+    ReflectiveInjector, ViewChild, Injector, Inject
 } from '@angular/core';
 
 import {UIRouter} from "../../router";
@@ -39,14 +39,14 @@ const ng2ComponentInputs = (ng2CompClass: Type<any>) => {
       // -> flattened to [ { key: string, anno: annotation } ] tuples
       .reduce((acc, tuple) => acc.concat(tuple.annoArr.map(anno => ({ key: tuple.key, anno }))), [])
       // Only Inputs
-      .filter(tuple => tuple.anno instanceof InputMetadata)
+      .filter(tuple => tuple.anno instanceof Input)
       // If they have a bindingPropertyName, i.e. "@Input('foo') _foo", then foo, else _foo
       .map(tuple => ({ token: tuple.anno.bindingPropertyName || tuple.key, prop: tuple.key }));
 
   /** Get "inputs: ['foo']" inputs */
   let inputs = Reflect['getMetadata']('annotations', ng2CompClass)
       // Find the ComponentMetadata class annotation
-      .filter(x => x instanceof ComponentMetadata && !!x.inputs)
+      .filter(x => x instanceof Component && !!x.inputs)
       // Get the .inputs string array
       .map(x => x.inputs)
       .reduce(flattenR, [])

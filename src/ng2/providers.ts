@@ -1,8 +1,10 @@
 /**
  * # UI-Router for Angular 2
  *
- * For the quick start repository, please see http://github.com/ui-router/quickstart-ng2
- * 
+ * - [ui-router-ng2 home page](https://ui-router.github.io/ng2)
+ * - [tutorials](https://ui-router.github.io/tutorial/ng2/helloworld)
+ * - [quick start repository](http://github.com/ui-router/quickstart-ng2)
+ *
  * Getting started:
  * 
  * - Use npm. Add a dependency on latest `ui-router-ng2`
@@ -12,36 +14,63 @@
  * import {StateRegistry} from "ui-router-ng2";
  * ```
  *
- * - When defining a component, add the [[UIROUTER_DIRECTIVES]] to `directives:` array.
- * - Either bootstrap a [[UIView]] component, or add a `<ui-view></ui-view>` viewport to your root component.
- * - Create application states (as defined by [[Ng2StateDeclaration]]) which will fill in the viewports.
- * - Create a [[UIRouterConfig]], and register your states in the [[UIRouterConfig.configure]] function.
+ * - Create application states (as defined by [[Ng2StateDeclaration]]).
+ *
+ * ```js
+ * export let state1 = {
+ *   name: 'state1',
+ *   component: State1Component,
+ *   url: '/one'
+ * }
+ *
+ * export let state2 = {
+ *   name: 'state2',
+ *   component: State2Component,
+ *   url: '/two'
+ * }
+ * ```
+ *
+ * - Create application feature modules using [[UIRouterModule]]
+ *
+ * ```js
+ * @ UIRouterModule({
+ *   imports: [ CommonModule ],
+ *   states: [ state1, state2 ]
+ * })
+ * export class MyFeatureModule {}
+ * ```
+ *
+ * - Optionally create a [[UIRouterConfig]] to perform any pre-bootstrap configuration.
  *
  * ```js
  * import {UIRouter} from "ui-router-ng2";
- * import {INITIAL_STATES} from "./app.states";
+ *
  * @ Injectable()
  * export class MyUIRouterConfig {
+ *   constructor() {} // Constructor is injectable
  *   configure(uiRouter: UIRouter) {
- *     INITIAL_STATES.forEach(function(state) {
- *       uiRouter.stateRegistry.register(state));
- *     });
+ *     uiRouter.urlRouterProvider.otherwise(() => uiRouter.stateService.target('home'));
  *   }
  * }
  * ```
  *
- * - When bootstrapping: include the [[UIROUTER_PROVIDERS]] and define a provider for your [[UIRouterConfig]]
+ * - When bootstrapping the root module: use the [[provideUIRouter]] function:
+ * - Either bootstrap a [[UIView]] component, or add a `<ui-view></ui-view>` viewport to your root component.
  *
  * ```js
- * import {provide} from "@angular/core";
- * import {bootstrap} from 'angular2/platform/browser';
- * import {UIRouterConfig, UIView, UIROUTER_PROVIDERS} from "ui-router-ng2";
+ * import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
+ * import {UIRouterModule, provideUIRouter, UIView} from "ui-router-ng2";
  * import {MyUIRouterConfig} from "./router.config";
  *
- * bootstrap(UIView, [
- *     ...UIROUTER_PROVIDERS,
- *     provide(UIRouterConfig, { useClass: MyUIRouterConfig })
- * ]);
+ * @ UIRouterModule({
+ *   import: [ FeatureModule, BrowserModule ],
+ *   providers: [ provideUIRouter({ configClass: MyUIRouterConfig }) ],
+ *   states: [ homeState ],
+ *   bootstrap: [ UIView ]
+ * })
+ * class RootAppModule {}
+ *
+ * platformBrowserDynamic().bootstrapModule(RootAppModule);
  * ```
  *
  * @preferred @module ng2

@@ -1,6 +1,6 @@
 /** @module ng2 */ /** */
 import {Ng2StateDeclaration} from "./interface";
-import {NgModule, NgModuleMetadataType, OpaqueToken} from "@angular/core";
+import {NgModule, OpaqueToken} from "@angular/core";
 import {_UIROUTER_DIRECTIVES} from "./directives/directives";
 import {_UIROUTER_PROVIDERS} from "./providers";
 import {UIView} from "./directives/uiView";
@@ -15,12 +15,30 @@ import {uniqR, flattenR} from "../common/common";
 export class UIRouterLibraryModule {}
 
 /**
- * A module declaration lteral, including UI-Router states.
+ * A module declaration literal, including UI-Router states.
  * 
- * This interface extends the NG2 [NgModuleMetadataType](https://angular.io/docs/ts/latest/api/core/index/NgModuleMetadataType-interface.html)
+ * This interface extends the NG2 [NgModule interface](https://angular.io/docs/ts/latest/api/core/index/NgModule-decorator.html)
  * by adding a `states` array.
+ * 
+ * The literal goes inside an `@UIRouterModule` decorator
+ *
+ * ---
+ * 
+ * Although this example demonstrates what the literal is, they are usually 
+ * defined inline instead of as a separate variable:
+ * ```
+ * let uiRouterModuleLiteral = {
+ *   providers: [ { provide: LocationStrategy, useClass: HashLocationStrategy } ],
+ *   declarations: [ FooComponent ],
+ *   imports: [ CommonModule ],
+ *   states: [ routerState1, routerState2 ]
+ * };
+ * 
+ * @UIRouterModule(uiRouterModuleLiteral) 
+ * class MyModule {}
+ * ``
  */
-export interface UIRouterModuleMetadata extends NgModuleMetadataType {
+export interface UIRouterModuleLiteral extends NgModule {
   states?: Ng2StateDeclaration[]
 }
 
@@ -57,7 +75,8 @@ export const UIROUTER_STATES_TOKEN = new OpaqueToken("UIRouter States");
  *   imports: [ BrowserModule ],
  *   declarations: [ NonRoutedComponent ],
  *   states: [ homeState, aboutState ]
- * }) export class AppModule {};
+ * })
+ * export class AppModule {};
  * ```
  *
  * ---
@@ -76,13 +95,14 @@ export const UIROUTER_STATES_TOKEN = new OpaqueToken("UIRouter States");
  *   providers: [
  *    { provide: UIROUTER_STATES_TOKEN, useValue: [homeState, aboutState], multi: true }
  *   ]
- * }) export class AppModule {};
+ * })
+ * export class AppModule {};
  * ```
  * 
  * @param moduleMetaData
  *        (See also [NgModuleMetadataType](https://angular.io/docs/ts/latest/api/core/index/NgModuleMetadataType-interface.html)
  */
-export function UIRouterModule(moduleMetaData: UIRouterModuleMetadata) {
+export function UIRouterModule(moduleMetaData: UIRouterModuleLiteral) {
   let states = moduleMetaData.states || [];
   var statesProvider = { provide: UIROUTER_STATES_TOKEN, useValue: states, multi: true };
 
