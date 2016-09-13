@@ -59,7 +59,6 @@ export interface CoreServices {
 
 export interface LocationServices {
   setUrl(newurl: string, replace?: boolean): void;
-  url(): string;
   path(): string;
   search(): string;
   hash(): string;
