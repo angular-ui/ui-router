@@ -181,9 +181,9 @@ function $StateRefDirective($state: StateService, $timeout: ITimeoutService) {
 
       if (!type.clickable) return;
       hookFn = clickHook(element, $state, $timeout, type, function() { return def; });
-      element.bind("click", hookFn);
+      element.on("click", hookFn);
       scope.$on('$destroy', function() {
-        element.unbind("click", hookFn);
+        element.off("click", hookFn);
       });
     }
   };
@@ -234,9 +234,9 @@ function $StateRefDynamicDirective($state: StateService, $timeout: ITimeoutServi
 
       if (!type.clickable) return;
       hookFn = clickHook(element, $state, $timeout, type, function() { return def; });
-      element.bind("click", hookFn);
+      element.on("click", hookFn);
       scope.$on('$destroy', function() {
-        element.unbind("click", hookFn);
+        element.off("click", hookFn);
       });
     }
   };
