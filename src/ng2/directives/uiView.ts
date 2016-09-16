@@ -3,6 +3,7 @@ import {
     Component, ComponentFactoryResolver, ViewContainerRef, Input, ComponentRef, Type,
     ReflectiveInjector, ViewChild, Injector, Inject
 } from '@angular/core';
+import {ReflectorReader, reflector} from '../private_import_core';
 
 import {UIRouter} from "../../router";
 import {trace} from "../../common/trace";
@@ -27,12 +28,10 @@ interface InputMapping {
   prop: string;
 }
 
-declare var Reflect: any;
-
 /** @hidden */
 const ng2ComponentInputs = (ng2CompClass: Type<any>) => {
   /** Get "@Input('foo') _foo" inputs */
-  let props = Reflect['getMetadata']('propMetadata', ng2CompClass);
+  let props = reflector.propMetadata(ng2CompClass);
   let _props = Object.keys(props || {})
       // -> [ { key: string, anno: annotations[] } ] tuples
       .map(key => ({ key, annoArr: props[key] }))
@@ -44,7 +43,7 @@ const ng2ComponentInputs = (ng2CompClass: Type<any>) => {
       .map(tuple => ({ token: tuple.anno.bindingPropertyName || tuple.key, prop: tuple.key }));
 
   /** Get "inputs: ['foo']" inputs */
-  let inputs = Reflect['getMetadata']('annotations', ng2CompClass)
+  let inputs = reflector.annotations(ng2CompClass)
       // Find the ComponentMetadata class annotation
       .filter(x => x instanceof Component && !!x.inputs)
       // Get the .inputs string array
