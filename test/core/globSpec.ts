@@ -61,5 +61,12 @@ describe('Glob', function() {
 
     expect(new Glob('**.person.**.*.*').matches(state)).toBe(false);
     expect(new Glob('**.person.**.*.item').matches(state)).toBe(false);
+
+    // Tests for #2438
+    expect(new Glob('**.todo.*').matches('awesome.edit.todo.inbox')).toBe(true);
+    expect(new Glob('*.todo.*').matches('awesome.edit.todo.inbox')).toBe(false);
+    expect(new Glob('**.todo.*.*').matches('awesome.edit.todo.inbox')).toBe(false);
+    expect(new Glob('**.todo.**').matches('awesome.edit.todo.inbox')).toBe(true);
+    expect(new Glob('**.todo.**.*').matches('awesome.edit.todo.inbox')).toBe(true);
   });
 });
