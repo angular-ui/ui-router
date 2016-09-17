@@ -82,7 +82,7 @@ export interface TransitionOptions {
   /** @hidden @internal */
   current     ?: () => Transition;
   /** @hidden @internal */
-  source      ?: "sref"|"url"|"redirect"|"unknown";
+  source      ?: "sref"|"url"|"redirect"|"otherwise"|"unknown";
 }
 
 /** @hidden @internal */

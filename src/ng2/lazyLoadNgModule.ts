@@ -1,11 +1,14 @@
 /** @module ng2 */ /** */
-import {Transition} from "../transition/transition";
-import {NG2_INJECTOR_TOKEN, Ng2StateDeclaration} from "./interface";
-import {UIROUTER_STATES_TOKEN} from "./uiRouterNgModule";
-
 import {NgModuleFactoryLoader, NgModuleRef, Injector, NgModuleFactory} from "@angular/core";
-import {unnestR} from "../common/common";
+
+import {NG2_INJECTOR_TOKEN} from "./interface";
 import {LazyLoadResult} from "../state/interface";
+
+import {Transition} from "../transition/transition";
+import {RootModule, ChildModule, UIROUTER_ROOT_MODULE, UIROUTER_CHILD_MODULE} from "./uiRouterNgModule";
+import {applyModuleConfig} from "./uiRouterConfig";
+import {UIRouter} from "../router";
+import {Resolvable} from "../resolve/resolvable";
 
 /**
  * Returns a function which lazy loads a nested module
@@ -39,7 +42,9 @@ export function loadNgModule(path: string): (transition: Transition) => Promise<
           factory.create(ng2Injector));
 
   /**
-   * Apply the Lazy Loaded NgModule's Injector to the newly loaded state tree.
+   * Apply the UI-Router Modules found in the lazy loaded module.
+   *
+   * Apply the Lazy Loaded NgModule's newly created Injector to the right state in the state tree.
    *
    * Lazy loading uses a placeholder state which is removed (and replaced) after the module is loaded.
    * The NgModule should include a state with the same name as the placeholder.
@@ -48,24 +53,38 @@ export function loadNgModule(path: string): (transition: Transition) => Promise<
    * The NgModule's Injector (and ComponentFactoryResolver) will be added to that state.
    * The Injector/Factory are used when creating Components for the `replacement` state and all its children.
    */
-  function applyNgModuleToNewStates(transition: Transition, ng2Module: NgModuleRef<any>): LazyLoadResult {
-    var targetName = transition.to().name;
-    let newStates: Ng2StateDeclaration[] = ng2Module.injector.get(UIROUTER_STATES_TOKEN).reduce(unnestR, []);
-    let replacementState = newStates.find(state => state.name === targetName);
-    
-    if (!replacementState) {
-      throw new Error(`The module that was loaded from ${path} should have a state named '${targetName}'` +
-          `, but it only had: ${(newStates || []).map(s=>s.name).join(', ')}`);
-    }
-        
-    // Add the injector as a resolve.
-    replacementState['_ngModuleInjector'] = ng2Module.injector;
+  function loadUIRouterModules(transition: Transition, ng2Module: NgModuleRef<any>): LazyLoadResult {
+    let injector = ng2Module.injector;
+    let parentInjector = <Injector> ng2Module.injector['parent'];
+    let uiRouter: UIRouter = injector.get(UIRouter);
 
-    // Return states to be registered by the lazyLoadHook
-    return { states: newStates };
+    let originalName = transition.to().name;
+    let originalState = uiRouter.stateRegistry.get(originalName);
+
+    let rootModules: RootModule[] = injector.get(UIROUTER_ROOT_MODULE);
+    let parentRootModules: RootModule[] = parentInjector.get(UIROUTER_ROOT_MODULE);
+    let newRootModules = rootModules.filter(module => parentRootModules.indexOf(module) === -1);
+
+    if (newRootModules.length) {
+      console.log(rootModules);
+      throw new Error('Lazy loaded modules should not contain a UIRouterModule.forRoot() module');
+    }
+
+    let childModules: ChildModule[] = injector.get(UIROUTER_CHILD_MODULE);
+    childModules.forEach(module => applyModuleConfig(uiRouter, injector, module));
+
+    let replacementState = uiRouter.stateRegistry.get(originalName);
+    if (replacementState === originalState) {
+      throw new Error(`The module that was loaded from ${path} should have a ui-router state named '${originalName}'`);
+    }
+
+    // Supply the newly loaded states with the Injector from the lazy loaded NgModule
+    replacementState.$$state().resolvables.push(Resolvable.fromData(NG2_INJECTOR_TOKEN, injector));
+
+    return {};
   }
 
   return (transition: Transition) => getNg2Injector(transition)
       .then((injector: Injector) => createNg2Module(path, injector))
-      .then((moduleRef: NgModuleRef<any>) => applyNgModuleToNewStates(transition, moduleRef))
+      .then((moduleRef: NgModuleRef<any>) => loadUIRouterModules(transition, moduleRef))
 }

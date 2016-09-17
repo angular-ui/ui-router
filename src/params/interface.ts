@@ -1,6 +1,11 @@
 /** @module params */ /** for typedoc */
 import {ParamType} from "./type";
 
+/**
+ * Parameter values
+ *
+ * An object containing state parameter key/value pairs
+ */
 export interface RawParams {
   [key: string]: any;
 }

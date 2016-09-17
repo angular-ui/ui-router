@@ -17,66 +17,74 @@
  * - Create application states (as defined by [[Ng2StateDeclaration]]).
  *
  * ```js
- * export let state1 = {
+ * export let state1: Ng2StateDeclaration = {
  *   name: 'state1',
  *   component: State1Component,
  *   url: '/one'
  * }
  *
- * export let state2 = {
+ * export let state2: Ng2StateDeclaration = {
  *   name: 'state2',
  *   component: State2Component,
  *   url: '/two'
  * }
  * ```
  *
- * - Create application feature modules using [[UIRouterModule]]
+ * - Import a [[UIRouterModule.forChild]] module into your feature `NgModule`s.
  *
  * ```js
- * @ UIRouterModule({
- *   imports: [ CommonModule ],
- *   states: [ state1, state2 ]
+ * @ NgModule({
+ *   imports: [
+ *     SharedModule,
+ *     UIRouterModule.forChild({ states: [state1, state2 ] })
+ *   ],
+ *   declarations: [
+ *     State1Component,
+ *     State2Component,
+ *   ]
  * })
  * export class MyFeatureModule {}
  * ```
  *
- * - Optionally create a [[UIRouterConfig]] to perform any pre-bootstrap configuration.
+ * - Import a [[UIRouterModule.forRoot]] module into your application root `NgModule`
+ * - Either bootstrap a [[UIView]] component, or add a `<ui-view></ui-view>` viewport to your root component.
+ *
+ * ```js
+ * @ NgModule({
+ *   imports: [
+ *     BrowserModule,
+ *     UIRouterModule.forRoot({ states: [ homeState ] }),
+ *     MyFeatureModule,
+ *   ],
+ *   declarations: [
+ *     HomeComponent
+ *   ]
+ *   bootstrap: [ UIView ]
+ * })
+ * class RootAppModule {}
+ *
+ * browserPlatformDynamic.bootstrapModule(RootAppModule);
+ * ```
+ *
+ * - Optionally specify a configuration class [[ChildModule.configClass]] for any module
+ * to perform any router configuration during bootstrap or lazyload.
+ * Pass the class to [[UIRouterModule.forRoot]] or [[UIRouterModule.forChild]].
  *
  * ```js
  * import {UIRouter} from "ui-router-ng2";
  *
  * @ Injectable()
  * export class MyUIRouterConfig {
- *   constructor() {} // Constructor is injectable
- *   configure(uiRouter: UIRouter) {
- *     uiRouter.urlRouterProvider.otherwise(() => uiRouter.stateService.target('home'));
+ *   // Constructor is injectable
+ *   constructor(uiRouter: UIRouter) {
+ *     uiRouter.urlMatcherFactory.type('datetime', myDateTimeParamType);
  *   }
  * }
  * ```
  *
- * - When bootstrapping the root module: use the [[provideUIRouter]] function:
- * - Either bootstrap a [[UIView]] component, or add a `<ui-view></ui-view>` viewport to your root component.
- *
- * ```js
- * import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
- * import {UIRouterModule, provideUIRouter, UIView} from "ui-router-ng2";
- * import {MyUIRouterConfig} from "./router.config";
- *
- * @ UIRouterModule({
- *   import: [ FeatureModule, BrowserModule ],
- *   providers: [ provideUIRouter({ configClass: MyUIRouterConfig }) ],
- *   states: [ homeState ],
- *   bootstrap: [ UIView ]
- * })
- * class RootAppModule {}
- *
- * platformBrowserDynamic().bootstrapModule(RootAppModule);
- * ```
- *
  * @preferred @module ng2
  */ /** */
-import {Injector, OpaqueToken, Provider} from "@angular/core";
-import {ClassProvider, ExistingProvider, FactoryProvider, TypeProvider, ValueProvider} from "@angular/core"; // has or is using
+import {Injector, Provider} from "@angular/core";
 import {UIRouter} from "../router";
 import {PathNode} from "../path/node";
 import {StateRegistry} from "../state/stateRegistry";
@@ -88,16 +96,13 @@ import {ViewService} from "../view/view";
 import {UIView, ParentUIViewInject} from "./directives/uiView";
 import {ng2ViewsBuilder, Ng2ViewConfig} from "./statebuilders/views";
 import {Ng2ViewDeclaration, NG2_INJECTOR_TOKEN} from "./interface";
-import {UIRouterConfig} from "./uiRouterConfig";
+import {applyRootModuleConfig, applyModuleConfig} from "./uiRouterConfig";
 import {Globals} from "../globals";
 import {UIRouterLocation} from "./location";
 import {services} from "../common/coreservices";
 import {Resolvable} from "../resolve/resolvable";
-import {ngModuleResolvablesBuilder} from "./statebuilders/lazyLoadNgModuleResolvable";
-import {flattenR} from "../common/common";
-import {UIROUTER_STATES_TOKEN} from "./uiRouterNgModule";
+import {RootModule, ChildModule, UIROUTER_ROOT_MODULE, UIROUTER_CHILD_MODULE} from "./uiRouterNgModule";
 import {UIRouterRx} from "./rx";
-import {LocationStrategy, HashLocationStrategy, PathLocationStrategy} from "@angular/common";
 
 /**
  * This is a factory function for a UIRouter instance
@@ -105,7 +110,17 @@ import {LocationStrategy, HashLocationStrategy, PathLocationStrategy} from "@ang
  * Creates a UIRouter instance and configures it for Angular 2, then invokes router bootstrap.
  * This function is used as an Angular 2 `useFactory` Provider.
  */
-let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation, injector: Injector) => {
+let uiRouterFactory = (
+    location: UIRouterLocation,
+    injector: Injector) => {
+
+  let rootModules: RootModule[] = injector.get(UIROUTER_ROOT_MODULE);
+  let childModules: ChildModule[] = injector.get(UIROUTER_CHILD_MODULE);
+
+  if (rootModules.length !== 1) {
+    throw new Error("Exactly one UIRouterModule.forRoot() should be in the bootstrapped app module's imports: []");
+  }
+
   // ----------------- Monkey Patches ----------------
   // Monkey patch the services.$injector to the ng2 Injector
   services.$injector.get = injector.get.bind(injector);
@@ -127,7 +142,6 @@ let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation,
 
   // Apply statebuilder decorator for ng2 NgModule registration
   registry.stateQueue.flush(router.stateService);
-  registry.decorator('resolvables', ngModuleResolvablesBuilder);
 
   // Prep the tree of NgModule by placing the root NgModule's Injector on the root state.
   let ng2InjectorResolvable = Resolvable.fromData(NG2_INJECTOR_TOKEN, injector);
@@ -139,13 +153,8 @@ let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation,
   registry.stateQueue.autoFlush(router.stateService);
 
   setTimeout(() => {
-    // Let the app apply custom configuration...
-    // (global transition hooks, deferIntercept, otherwise, etc)
-    routerConfig.configure(router);
-
-    // Register the states from the root NgModule [[UIRouterModule]]
-    let states = injector.get(UIROUTER_STATES_TOKEN, []).reduce(flattenR, []);
-    states.forEach(state => registry.register(state));
+    rootModules.forEach(moduleConfig => applyRootModuleConfig(router, injector, moduleConfig));
+    childModules.forEach(moduleConfig => applyModuleConfig(router, injector, moduleConfig));
 
     // Start monitoring the URL
     if (!router.urlRouterProvider.interceptDeferred) {
@@ -158,11 +167,12 @@ let uiRouterFactory = (routerConfig: UIRouterConfig, location: UIRouterLocation,
 };
 
 export const _UIROUTER_INSTANCE_PROVIDERS: Provider[] =  [
-  { provide: UIRouter, useFactory: uiRouterFactory, deps: [UIRouterConfig, UIRouterLocation, Injector] },
+  { provide: UIRouter, useFactory: uiRouterFactory, deps: [UIRouterLocation, Injector] },
   { provide: UIRouterLocation, useClass: UIRouterLocation },
+  { provide: UIView.PARENT_INJECT, useFactory: (r: StateRegistry) => { return { fqn: null, context: r.root() } as ParentUIViewInject }, deps: [StateRegistry]},
 ];
 
-export const _UIROUTER_PROVIDERS: Provider[] = [
+export const _UIROUTER_SERVICE_PROVIDERS: Provider[] = [
   { provide: StateService,      useFactory: (r: UIRouter) => r.stateService     , deps: [UIRouter]},
   { provide: TransitionService, useFactory: (r: UIRouter) => r.transitionService, deps: [UIRouter]},
   { provide: UrlMatcherFactory, useFactory: (r: UIRouter) => r.urlMatcherFactory, deps: [UIRouter]},
@@ -170,43 +180,12 @@ export const _UIROUTER_PROVIDERS: Provider[] = [
   { provide: ViewService,       useFactory: (r: UIRouter) => r.viewService      , deps: [UIRouter]},
   { provide: StateRegistry,     useFactory: (r: UIRouter) => r.stateRegistry    , deps: [UIRouter]},
   { provide: Globals,           useFactory: (r: UIRouter) => r.globals          , deps: [UIRouter]},
-
-  { provide: UIView.PARENT_INJECT, useFactory: (r: StateRegistry) => { return { fqn: null, context: r.root() } as ParentUIViewInject }, deps: [StateRegistry]}
 ];
-
-/**
- * Provides an Instance of UI-Router for NG2.
- *
- * Use this on the root NgModule to configure and create an instance of the Angular 2 UIRouter.
- *
- * @example
- * ```js
- *
- * @ UIRouterModule({
- *   states: [ homeState, aboutState ],
- *   providers: [ provideUIRouter({ configClass: MyUIRouterConfig, useHash: true }) ],
- *   bootstrap: [ UIView ]
- * }) class RootNgModule {}
- *
- * platformBrowserDynamic().bootstrapModule(RootNgModule);
- * ```
- *
- * Note: UIRouter should only be provided *once*, on the root module, when bootstrapping the application.
- */
-export function provideUIRouter(rootConfig: { configClass?: typeof UIRouterConfig, useHash?: boolean } = {}) {
-  // Provide the UIRouter instance providers
-  return _UIROUTER_INSTANCE_PROVIDERS.concat(
-      // Provide the user-supplied UIRouterConfig class, or use base UIRouterConfig (as a no-op config)
-      { provide: UIRouterConfig, useClass: (rootConfig.configClass as any || UIRouterConfig) },
-      // Provide the PathLocationStrategy by default unless `useHash` is `true`
-      { provide: LocationStrategy, useClass: (rootConfig.useHash ? HashLocationStrategy : PathLocationStrategy ) }
-  );
-}
 
 /**
  * The UI-Router providers, for use in your application bootstrap
  *
- * @deprecated use [[UIRouterModule]] and [[provideUIRouter]]
+ * @deprecated use [[UIRouterModule.forRoot]]
  */
-export const UIROUTER_PROVIDERS: Provider[] = _UIROUTER_INSTANCE_PROVIDERS.concat(_UIROUTER_PROVIDERS);
+export const UIROUTER_PROVIDERS: Provider[] = _UIROUTER_INSTANCE_PROVIDERS.concat(_UIROUTER_SERVICE_PROVIDERS);
 
