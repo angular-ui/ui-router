@@ -26,9 +26,7 @@ export class StateMatcher {
       return state;
     } else if (isStr) {
       let matches = values(this._states)
-          .map(state => ({ state, glob: new Glob(state.name)}))
-          .filter(({state, glob}) => glob.matches(name))
-          .map(({state, glob}) => state);
+          .filter(state => new Glob(state.name).matches(name));
 
       if (matches.length > 1) {
         console.log(`stateMatcher.find: Found multiple matches for ${name} using glob: `, matches.map(match => match.name));

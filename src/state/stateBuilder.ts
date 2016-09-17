@@ -288,7 +288,17 @@ export class StateBuilder {
 
   parentName(state: State) {
     let name = state.name || "";
-    if (name.indexOf('.') !== -1) return name.substring(0, name.lastIndexOf('.'));
+
+    let segments = name.split('.');
+    if (segments.length > 1) {
+      if (state.parent) {
+        throw new Error(`States that specify the 'parent:' property should not have a '.' in their name (${name})`);
+      }
+      var lastSegment = segments.pop();
+      if (lastSegment === '**') segments.pop();
+      return segments.join(".");
+    }
+
     if (!state.parent) return "";
     return isString(state.parent) ? state.parent : state.parent.name;
   }

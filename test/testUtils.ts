@@ -8,7 +8,8 @@ export function tree2Array(tree, inheritName) {
   function processState(parent, state, name) {
     var substates = omit.apply(null, [state].concat(stateProps));
     var thisState = pick.apply(null, [state].concat(stateProps));
-    thisState = extend(thisState, {name: name, parent: parent});
+    thisState.name = name;
+    if (!inheritName) thisState.parent = parent;
 
     return [thisState].concat(processChildren(thisState, substates));
   }

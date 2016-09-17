@@ -13,8 +13,9 @@ describe('state helpers', function() {
     states['home.about.people.person'] = { name: 'home.about.people.person', parent: states['home.about.people'] };
     states['home.about.company'] = { name: 'home.about.company', parent: states['home.about'] };
     states['other'] = { name: 'other', parent: states[''] };
-    states['other.foo'] = { name: 'other.foo', parent: states['other'] };
+    states['other.foo'] = { name: 'other.foo' };
     states['other.foo.bar'] = { name: 'other.foo.bar' };
+    states['home.error'] = { name: 'home.error', parent: states['home'] };
 
     states['home.withData'] = {
       name: 'home.withData',
@@ -105,6 +106,9 @@ describe('state helpers', function() {
         });
         it('should return empty string if state has no parent', function() {
           expect(builder.parentName(states[''])).toBe("");
+        });
+        it('should error if parent: is specified *AND* the state name has a dot (.) in it', function() {
+          expect(() => builder.parentName(states['home.error'])).toThrowError();
         });
       });
     });
