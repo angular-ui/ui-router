@@ -162,18 +162,17 @@ export class Trace {
         digest = this.approximateDigests,
         event = parse("traceData.hookType")(options) || "internal",
         context = parse("traceData.context.state.name")(options) || parse("traceData.context")(options) || "unknown",
-        name = functionToString((step as any).hookFn);
+        name = functionToString((step as any).eventHook.callback);
     console.log(`Transition #${tid} Digest #${digest}:   Hook -> ${event} context: ${context}, ${maxLength(200, name)}`);
   }
 
   /** called by ui-router code */
-  traceHookResult(hookResult: HookResult, transitionResult: Promise<any>, transitionOptions: any) {
+  traceHookResult(hookResult: HookResult, transitionOptions: any) {
     if (!this.enabled(Category.HOOK)) return;
     let tid = parse("transition.$id")(transitionOptions),
         digest = this.approximateDigests,
-        hookResultStr = stringify(hookResult),
-        transitionResultStr = stringify(transitionResult);
-    console.log(`Transition #${tid} Digest #${digest}:   <- Hook returned: ${maxLength(200, hookResultStr)}, transition result: ${maxLength(200, transitionResultStr)}`);
+        hookResultStr = stringify(hookResult);
+    console.log(`Transition #${tid} Digest #${digest}:   <- Hook returned: ${maxLength(200, hookResultStr)}`);
   }
 
   /** called by ui-router code */

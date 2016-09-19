@@ -57,7 +57,13 @@ function promiseToString(p: Promise<any>) {
 export function functionToString(fn: Function) {
   let fnStr = fnToString(fn);
   let namedFunctionMatch = fnStr.match(/^(function [^ ]+\([^)]*\))/);
-  return namedFunctionMatch ? namedFunctionMatch[1] : fnStr;
+  let toStr = namedFunctionMatch ? namedFunctionMatch[1] : fnStr;
+
+  let fnName = fn['name'] || "";
+  if (fnName && toStr.match(/function \(/)) {
+    return 'function ' + fnName + toStr.substr(9);
+  }
+  return toStr;
 }
 
 export function fnToString(fn: IInjectable) {
