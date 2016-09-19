@@ -111,9 +111,11 @@ describe("UrlMatcher", function () {
 
     expect(matcher1.format({ foo: "abc" })).toBe('/abc');
     expect(matcher1.format({ foo: "~abc" })).toBe('/~~abc');
+    expect(matcher1.format({ foo: "~2F" })).toBe('/~~2F');
 
     expect(matcher1.exec('/abc').foo).toBe("abc");
     expect(matcher1.exec('/~~abc').foo).toBe("~abc");
+    expect(matcher1.exec('/~~2F').foo).toBe("~2F");
   });
 
   describe("snake-case parameters", function() {
