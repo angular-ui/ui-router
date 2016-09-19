@@ -9,8 +9,7 @@ import { all, any, not, prop, curry } from "./hof";
 import {services} from "./coreservices";
 import {State} from "../state/stateObject";
 
-let w: any = typeof window === 'undefined' ? {} : window;
-let angular = w.angular || {};
+import * as angular from 'angular';
 export const fromJson = angular.fromJson || JSON.parse.bind(JSON);
 export const toJson = angular.toJson || JSON.stringify.bind(JSON);
 export const copy = angular.copy || _copy;
@@ -517,7 +516,7 @@ function _copy(src: Obj, dest: Obj) {
 }
 
 /** Naive forEach implementation works with Objects or Arrays */
-function _forEach(obj: (any[]|any), cb: Function, _this: Obj) {
+function _forEach(obj: (any[]|any), cb: any, _this: Obj) {
   if (isArray(obj)) return obj.forEach(cb, _this);
   Object.keys(obj).forEach(key => cb(obj[key], key));
 }

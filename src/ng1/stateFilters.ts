@@ -3,6 +3,8 @@
 import {Obj} from "../common/common";
 import {StateService} from "../state/stateService";
 import {StateOrName} from "../state/interface";
+import * as angular from 'angular';
+
 /**
  * @ngdoc filter
  * @name ui.router.state.filter:isState
