@@ -1,20 +1,31 @@
 {
-  "moduleResolution": "node",
   "comment": "tsconfig for 'justjs' and 'ng2' builds.  ng1 is built using grunt",
   "compilerOptions": {
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
     "module": "commonjs",
+    "moduleResolution": "node",
     "rootDir": "src",
     "sourceRoot": "src",
     "target": "es5",
     "outDir": "build/es5",
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "types": [
+      "core-js",
+      "node",
+      "jquery",
+      "jasmine",
+      "angular",
+      "angular-mocks",
+      "angular-animate"
+    ]
   },
   "files": [
     "src/ng2.ts",
-    "src/justjs.ts",
-    "typings/es6-shim/es6-shim.d.ts"
-  ]
+    "src/justjs.ts"
+  ],
+  "compileOnSave": false,
+  "buildOnSave": false
 }

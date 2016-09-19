@@ -3,11 +3,22 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "module": "commonjs",
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
     "rootDir": "src",
     "target": "es5",
     "outDir": "build/es5",
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "types": [
+      "core-js",
+      "node",
+      "jquery",
+      "jasmine",
+      "angular",
+      "angular-mocks",
+      "angular-animate"
+    ]
   },
   "lib": [ "es2015", "dom" ],
   "exclude": [
@@ -15,5 +26,7 @@
     "build",
     "build_packages",
     "test"
-  ]
+  ],
+  "compileOnSave": false,
+  "buildOnSave": false
 }

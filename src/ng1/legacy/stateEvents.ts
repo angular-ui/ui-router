@@ -25,6 +25,7 @@ import {Transition} from "../../transition/transition";
 import IAngularEvent = angular.IAngularEvent;
 import {TransitionService} from "../../transition/transitionService";
 import {UrlRouter} from "../../url/urlRouter";
+import * as angular from 'angular';
 import IScope = angular.IScope;
 import {HookResult} from "../../transition/interface";
 

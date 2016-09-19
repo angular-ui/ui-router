@@ -16,10 +16,11 @@ import {HookRegOptions} from "../../transition/interface";
 import {Ng1Controller, Ng1StateDeclaration} from "../interface";
 import {getLocals} from "../services";
 import {ViewService} from "../../view/view";
-import IAnimateService = angular.IAnimateService;
-import IInterpolateService = angular.IInterpolateService;
 import {$QLike} from "../../common/coreservices";
 import {Obj} from "../../common/common";
+
+import * as angular from 'angular';
+import IInterpolateService = angular.IInterpolateService;
 import IScope = angular.IScope;
 import ITranscludeFunction = angular.ITranscludeFunction;
 import IAugmentedJQuery = angular.IAugmentedJQuery;
@@ -280,7 +281,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
         function updateView(config?: Ng1ViewConfig) {
           let newScope = scope.$new();
           let animEnter = $q.defer(), animLeave = $q.defer();
-          
+
           let $uiViewData: UIViewData = {
             $cfg: config,
             $uiView: activeUIView,
@@ -303,7 +304,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
                 $uiViewScroll(clone);
               }
             });
-            
+
             cleanupLastView();
           });
 
@@ -357,7 +358,7 @@ function $ViewDirectiveFill ($compile: ICompileService, $controller: IController
         let locals = resolveCtx && getLocals(resolveCtx);
 
         scope[resolveAs] = locals;
-        
+
         if (controller) {
           let controllerInstance = $controller(controller, extend({}, locals, { $scope: scope, $element: $element }));
           if (controllerAs) {
@@ -403,7 +404,7 @@ function $ViewDirectiveFill ($compile: ICompileService, $controller: IController
 let hasComponentImpl = typeof (angular as any).module('ui.router')['component'] === 'function';
 
 /** @hidden TODO: move these callbacks to $view and/or `/hooks/components.ts` or something */
-function registerControllerCallbacks($transitions: TransitionService, controllerInstance: Ng1Controller, $scope: IScope, cfg: Ng1ViewConfig) {
+function registerControllerCallbacks($transitions: TransitionService, controllerInstance: any, $scope: IScope, cfg: Ng1ViewConfig) {
   // Call $onInit() ASAP
   if (isFunction(controllerInstance.$onInit) && !(cfg.viewDecl.component && hasComponentImpl)) controllerInstance.$onInit();
 

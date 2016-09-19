@@ -4,7 +4,7 @@ import {and, not, pipe, prop} from "./hof";
 const toStr = Object.prototype.toString;
 const tis = (t: string) => (x: any) => typeof(x) === t;
 export const isUndefined = tis('undefined');
-export const isDefined = not(isUndefined);
+export const isDefined: any = not(isUndefined);
 export const isNull = (o: any) => o === null;
 export const isFunction: (x: any) => x is Function = <any> tis('function');
 export const isNumber: (x: any) => x is number = <any> tis('number');
@@ -34,4 +34,3 @@ export function isInjectable(val: any) {
  * It is probably a Promise if it's an object, and it has a `then` property which is a Function
  */
 export const isPromise = <(x: any) => x is Promise<any>> and(isObject, pipe(prop('then'), isFunction));
-
