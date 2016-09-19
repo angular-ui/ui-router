@@ -129,6 +129,29 @@ describe('transition', function () {
             .then(done);
       }));
 
+      // Test for #2972 and https://github.com/ui-router/react/issues/3
+      it('should reject transitions that are superseded by a new transition', ((done) => {
+        $state.defaultErrorHandler(function() {});
+        router.stateRegistry.register({
+          name: 'slowResolve',
+          resolve: {
+            foo: () => new Promise(resolve => setTimeout(resolve, 50))
+          }
+        });
+
+        let results = { success: 0, error: 0 };
+        let success = () => results.success++;
+        let error = () => results.error++;
+        $transitions.onBefore({}, trans => { trans.promise.then(success, error) });
+
+        $state.go('slowResolve');
+
+        setTimeout(() => $state.go('slowResolve').transition.promise.then(() => {
+          expect(results).toEqual({success: 1, error: 1});
+          done();
+        }), 20);
+      }));
+
       describe('.onStart()', function() {
         it('should fire matching events when transition starts', ((done) => {
           var t = null;
