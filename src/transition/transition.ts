@@ -472,7 +472,7 @@ export class Transition implements IHookRegistry {
    *
    * @returns a promise for a successful transition.
    */
-  run (): Promise<any> {
+  run(): Promise<any> {
     let runSynchronousHooks = TransitionHook.runSynchronousHooks;
     let hookBuilder = this.hookBuilder();
     let globals = <Globals> this.router.globals;
