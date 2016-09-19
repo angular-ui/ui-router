@@ -10,8 +10,8 @@ import {ParamTypeDefinition} from "./interface";
 // If the slashes are simply URLEncoded, the browser can choose to pre-decode them,
 // and bidirectional encoding/decoding fails.
 // Tilde was chosen because it's not a RFC 3986 section 2.2 Reserved Character
-function valToString(val: any) { return val != null ? val.toString().replace(/~/g, "~~").replace(/\//g, "~2F") : val; }
-function valFromString(val: string) { return val != null ? val.toString().replace(/~2F/g, "/").replace(/~~/g, "~") : val; }
+function valToString(val: any) { return val != null ? val.toString().replace(/(~|\/)/g, m => ({'~':'~~', '/':'~2F'}[m])) : val; }
+function valFromString(val: string) { return val != null ? val.toString().replace(/(~~|~2F)/g, m => ({'~~':'~', '~2F':'/'}[m])) : val; }
 
 export class ParamTypes {
   types: any;
