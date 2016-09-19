@@ -61,7 +61,7 @@ const lazyLoadHook: TransitionHookFn = (transition: Transition) => {
   if (!promise) {
     promise = hook['_promise'] = hook(transition).then(updateStateRegistry);
     const cleanup = () => delete hook['_promise'];
-    promise.catch(cleanup, cleanup);
+    promise.then(cleanup, cleanup);
   }
 
   return promise.then(retryOriginalTransition);
