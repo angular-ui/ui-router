@@ -2,14 +2,13 @@
 import {TransitionHookOptions, IEventHook, HookResult} from "./interface";
 import {defaults, noop} from "../common/common";
 import {fnToString, maxLength} from "../common/strings";
-import {isDefined, isPromise } from "../common/predicates";
-import {pattern, val, eq, is, parse } from "../common/hof";
+import {isPromise} from "../common/predicates";
+import {val, is, parse } from "../common/hof";
 import {trace} from "../common/trace";
 import {services} from "../common/coreservices";
 
 import {Rejection} from "./rejectFactory";
 import {TargetState} from "../state/targetState";
-import {ResolveContext} from "../resolve/resolveContext";
 import {Transition} from "./transition";
 import {State} from "../state/stateObject";
 
@@ -31,7 +30,8 @@ export class TransitionHook {
     this.options = defaults(options, defaultOptions);
   }
 
-  private isSuperseded = () => this.options.current() !== this.options.transition;
+  private isSuperseded = () =>
+    this.options.current() !== this.options.transition;
 
   invokeHook(): Promise<HookResult> {
     let { options, eventHook } = this;
@@ -40,38 +40,50 @@ export class TransitionHook {
       return Rejection.superseded(options.current()).toPromise();
     }
 
-    let hookResult = !eventHook._deregistered
+    let synchronousHookResult = !eventHook._deregistered
       ? eventHook.callback.call(options.bind, this.transition, this.stateContext)
       : undefined;
-    return this.handleHookResult(hookResult);
+
+    return this.handleHookResult(synchronousHookResult);
   }
 
   /**
    * This method handles the return value of a Transition Hook.
    *
-   * A hook can return false, a redirect (TargetState), or a promise (which may resolve to false or a redirect)
+   * A hook can return false (cancel), a TargetState (redirect),
+   * or a promise (which may later resolve to false or a redirect)
+   *
+   * This also handles "transition superseded" -- when a new transition
+   * was started while the hook was still running
    */
-  handleHookResult(hookResult: HookResult): Promise<any> {
-    if (!isDefined(hookResult)) return undefined;
+  handleHookResult(result: HookResult): Promise<any> {
+    // This transition is no longer current.
+    // Another transition started while this hook was still running.
+    if (this.isSuperseded()) {
+      // Abort this transition
+      return Rejection.superseded(this.options.current()).toPromise();
+    }
 
-    /**
-     * Handles transition superseded, transition aborted and transition redirect.
-     */
-    const mapHookResult = pattern([
-      // Transition is no longer current
-      [this.isSuperseded, () => Rejection.superseded(this.options.current()).toPromise()],
-      // If the hook returns false, abort the current Transition
-      [eq(false),         () => Rejection.aborted("Hook aborted transition").toPromise()],
-      // If the hook returns a Transition, halt the current Transition and redirect to that Transition.
-      [is(TargetState),   (target: TargetState) => Rejection.redirected(target).toPromise()],
-      // A promise was returned, wait for the promise and then chain another hookHandler
-      [isPromise,         (promise: Promise<any>) => promise.then(this.handleHookResult.bind(this))]
-    ]);
+    // Hook returned a promise
+    if (isPromise(result)) {
+      // Wait for the promise, then reprocess the resolved value
+      return result.then(this.handleHookResult.bind(this));
+    }
 
-    let transitionResult = mapHookResult(hookResult);
-    if (transitionResult) trace.traceHookResult(hookResult, transitionResult, this.options);
+    trace.traceHookResult(result, this.options);
 
-    return transitionResult;
+    // Hook returned false
+    if (result === false) {
+      // Abort this Transition
+      return Rejection.aborted("Hook aborted transition").toPromise();
+    }
+
+    const isTargetState = is(TargetState);
+    // hook returned a TargetState
+    if (isTargetState(result)) {
+      // Halt the current Transition and start a redirected Transition (to the TargetState).
+      return Rejection.redirected(result).toPromise();
+    }
   }
 
   toString() {
