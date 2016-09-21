@@ -2,12 +2,14 @@
 import {State} from "../../state/stateObject";
 import {TransitionStateHookFn, HookResult} from "../../transition/interface";
 import {Transition} from "../../transition/transition";
-import IInjectorService = angular.auto.IInjectorService;
 import {services} from "../../common/coreservices";
 import {getLocals} from "../services";
 import {ResolveContext} from "../../resolve/resolveContext";
 import {extend} from "../../common/common";
 import {BuilderFunction} from "../../state/stateBuilder";
+
+import * as angular from 'angular';
+import IInjectorService = angular.auto.IInjectorService;
 
 /**
  * This is a [[StateBuilder.builder]] function for angular1 `onEnter`, `onExit`,

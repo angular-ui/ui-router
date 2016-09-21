@@ -29,11 +29,11 @@ import {UrlMatcherFactory} from "../url/urlMatcherFactory";
 import {getStateHookBuilder} from "./statebuilders/onEnterExitRetain";
 import {ResolveContext} from "../resolve/resolveContext";
 
+import * as angular from 'angular';
 import IInjectorService = angular.auto.IInjectorService;
 import IQService = angular.IQService;
 import ILocationProvider = angular.ILocationProvider;
 import ILocationService = angular.ILocationService;
-import IBrowserService = angular.IBrowserService;
 import IHttpService = angular.IHttpService;
 import ITemplateCacheService = angular.ITemplateCacheService;
 import IScope = angular.IScope;
@@ -165,7 +165,7 @@ function $uiRouter($locationProvider: ILocationProvider) {
 
   // Create a new instance of the Router when the $uiRouterProvider is initialized
   router = new UIRouter();
-  
+
   // Apply ng1 specific StateBuilder code for `views`, `resolve`, and `onExit/Retain/Enter` properties
   router.stateRegistry.decorator("views", ng1ViewsBuilder);
   router.stateRegistry.decorator("onExit", getStateHookBuilder("onExit"));
@@ -186,7 +186,7 @@ function $uiRouter($locationProvider: ILocationProvider) {
 
   this.$get = $get;
   $get.$inject = ['$location', '$browser', '$sniffer', '$rootScope', '$http', '$templateCache'];
-  function $get($location: ILocationService, $browser: IBrowserService, $sniffer: any, $rootScope: IScope, $http: IHttpService, $templateCache: ITemplateCacheService) {
+  function $get($location: ILocationService, $browser: any, $sniffer: any, $rootScope: IScope, $http: IHttpService, $templateCache: ITemplateCacheService) {
 
     // Bind $locationChangeSuccess to the listeners registered in LocationService.onChange
     $rootScope.$on("$locationChangeSuccess", evt => urlListeners.forEach(fn => fn(evt)));
@@ -197,14 +197,14 @@ function $uiRouter($locationProvider: ILocationProvider) {
       html5Mode = isObject(html5Mode) ? html5Mode.enabled : html5Mode;
       return html5Mode && $sniffer.history;
     };
-    
+
     services.location.setUrl = (newUrl: string, replace = false) =>  {
-      $location.url(newUrl)
+      $location.url(newUrl);
       if (replace) $location.replace();
     };
 
     services.template.get = (url: string) =>
-        $http.get(url, { cache: $templateCache, headers: { Accept: 'text/html' }}).then(prop("data"));
+        $http.get(url, { cache: $templateCache, headers: { Accept: 'text/html' }}).then(prop("data")) as any;
 
     // Bind these LocationService functions to $location
     bindFunctions($location, services.location, $location, ["replace", "url", "path", "search", "hash"]);
@@ -223,7 +223,7 @@ angular.module('ui.router.init', []).provider("$uiRouter", <any> $uiRouter);
 runBlock.$inject = ['$injector', '$q'];
 function runBlock($injector: IInjectorService, $q: IQService) {
   services.$injector = $injector;
-  services.$q = $q;
+  services.$q = <any> $q;
 }
 
 angular.module('ui.router.init').run(runBlock);
@@ -419,7 +419,7 @@ var $urlMatcherFactory: UrlMatcherFactory;
 
 /**
  * An injectable service used to configure the URL.
- * 
+ *
  * This service is used to set url mapping options, and create [[UrlMatcher]] objects.
  *
  * This angular service exposes the [[UrlMatcherFactory]] singleton at config-time.

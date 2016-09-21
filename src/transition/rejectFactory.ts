@@ -10,10 +10,10 @@ export enum RejectType {
 export class Rejection {
   type: number;
   message: string;
-  detail: string;
+  detail: any;
   redirected: boolean;
 
-  constructor(type: number, message?: string, detail?: string) {
+  constructor(type: number, message?: string, detail?: any) {
     this.type = type;
     this.message = message;
     this.detail = detail;

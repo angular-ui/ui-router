@@ -296,10 +296,11 @@ export class StateService {
           return services.$q.when(globals.current);
         }
 
-        if (error.type === RejectType.SUPERSEDED && error.redirected && error.detail instanceof TargetState) {
+        const detail: any = error.detail;
+        if (error.type === RejectType.SUPERSEDED && error.redirected && detail instanceof TargetState) {
           // If `Transition.run()` was redirected, allow the `transitionTo()` promise to resolve successfully
           // by returning the promise for the new (redirect) `Transition.run()`.
-          let redirect: Transition = transition.redirect(error.detail);
+          let redirect: Transition = transition.redirect(detail);
           return redirect.run().catch(rejectedTransitionHandler(redirect));
         }
 
@@ -405,7 +406,7 @@ export class StateService {
    * $state.includes("item.**"); // returns false
    * </pre>
    *
-   * @param {string|object} stateOrName A partial name, relative name, glob pattern, 
+   * @param {string|object} stateOrName A partial name, relative name, glob pattern,
    * or state object to be searched for within the current state name.
    * @param {object=} params A param object, e.g. `{sectionId: section.id}`,
    * that you'd like to test against the current active state.

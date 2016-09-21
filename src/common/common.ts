@@ -517,7 +517,7 @@ function _copy(src: Obj, dest: Obj) {
 }
 
 /** Naive forEach implementation works with Objects or Arrays */
-function _forEach(obj: (any[]|any), cb: Function, _this: Obj) {
+function _forEach(obj: (any[]|any), cb: (el, idx?) => void, _this: Obj) {
   if (isArray(obj)) return obj.forEach(cb, _this);
   Object.keys(obj).forEach(key => cb(obj[key], key));
 }

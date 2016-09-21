@@ -10,7 +10,6 @@
     "declaration": true,
     "sourceMap": true
   },
-  "files": [
-    "ng2.ts", "../typings/es6-shim/es6-shim.d.ts"
-  ]
+  "files": [ "ng2.ts" ],
+  "types": [ "core-js" ]
 }

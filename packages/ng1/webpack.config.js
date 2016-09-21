@@ -31,6 +31,8 @@ module.exports = {
     extensions: ['', '.js', '.ts']
   },
 
+  externals: [ 'angular' ],
+
   plugins: [
     new webpack.optimize.UglifyJsPlugin({
       include: /\.min\.js$/, minimize: true
@@ -40,7 +42,7 @@ module.exports = {
 
   module: {
     loaders: [
-      { test: /\.ts$/, loader: "ts-loader" }
+      { test: /\.ts$/, loader: "awesome-typescript-loader" }
     ]
   },
 

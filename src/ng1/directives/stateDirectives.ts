@@ -5,6 +5,7 @@
  *
  * @preferred @module ng1_directives
  */ /** for typedoc */
+import * as angular from 'angular';
 import {Obj, extend, forEach, toJson, tail} from "../../common/common";
 import {isString, isObject} from "../../common/predicates";
 import {UIViewData} from "./viewDirective";

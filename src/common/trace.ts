@@ -55,7 +55,7 @@ const viewConfigString = (viewConfig: ViewConfig) =>
     `[ViewConfig#${viewConfig.$id} from '${viewConfig.viewDecl.$context.name || '(root)'}' state]: target ui-view: '${viewConfig.viewDecl.$uiViewName}@${viewConfig.viewDecl.$uiViewContextAnchor}'`;
 
 /** @hidden */
-function normalizedCat(input: Category): string {
+function normalizedCat(input: Category|string): string {
   return isNumber(input) ? Category[input] : Category[Category[input]];
 }
 

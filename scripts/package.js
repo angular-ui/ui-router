@@ -20,18 +20,21 @@ function prepPackage(pkgName) {
   if (!pkgName) usage();
 
   let paths = {};
+  let files = { bin: {} };
+
   paths.script = __filename;
   paths.scriptdir = __dirname;
-  paths.basedir = path.resolve(paths.scriptdir, '..');
-  paths.pkgsrc = path.resolve(paths.basedir, 'packages', pkgName);
-  paths.build = path.resolve(paths.basedir, `build_packages/${pkgName}`);
+  paths.basedir =     path.resolve(paths.scriptdir, '..');
+  paths.pkgsrc =      path.resolve(paths.basedir, 'packages', pkgName);
+  paths.build =       path.resolve(paths.basedir, `build_packages/${pkgName}`);
 
-  let files = {};
-  files.sources = path.resolve(paths.pkgsrc, "sources.json");
-  files.pkgfile = path.resolve(paths.pkgsrc, "package.json");
-  files.bowerfile = path.resolve(paths.pkgsrc, "bower.json");
-  files.tsconfig = path.resolve(paths.pkgsrc, "tsconfig.json");
-  files.webpack = path.resolve(paths.pkgsrc, "webpack.config.js");
+  files.sources =     path.resolve(paths.pkgsrc, "sources.json");
+  files.pkgfile =     path.resolve(paths.pkgsrc, "package.json");
+  files.bowerfile =   path.resolve(paths.pkgsrc, "bower.json");
+  files.tsconfig =    path.resolve(paths.pkgsrc, "tsconfig.json");
+  files.webpack =     path.resolve(paths.pkgsrc, "webpack.config.js");
+  files.bin.webpack = path.resolve(paths.basedir, "node_modules/webpack/bin/webpack.js");
+  files.bin.tsc =     path.resolve(paths.basedir, "node_modules/typescript/bin/tsc");
 
   // Check for some paths and files required to build a package
   assertDir(paths.pkgsrc);
@@ -107,22 +110,22 @@ function prepPackage(pkgName) {
 
   // Merge the root tsconfig.json with the tsconfig property of package.config.js
   // Write the merged tsconfig.json to the copied source files dir
-  let baseTsConfigJson = require('../tsconfig.json');
-  delete baseTsConfigJson.files;
-  let tsconfigJson = _.merge({}, baseTsConfigJson, JSON.parse(fs.readFileSync(files.tsconfig)));
-  fs.writeFileSync(path.resolve(paths.srcCopy, 'tsconfig.json'), asJson(tsconfigJson));
+  let tsconfig = Object.assign({}, require('../tsconfig.json'));
+  let overrides = JSON.parse(fs.readFileSync(files.tsconfig));
+  ['compilerOptions'].forEach(key => {
+    Object.assign(tsconfig[key], overrides[key]);
+    delete overrides[key]
+  });
+  Object.assign(tsconfig, overrides);
 
-  echo('--> Linking node_modules and typings...');
-  // In case the source needs typings and node_modules to compile, symlink them
-  ln('-sf', `${paths.basedir}/typings`, `${paths.build}/typings`);
-  ln('-sf', `${paths.basedir}/node_modules`, `${paths.srcCopy}/node_modules`);
+  fs.writeFileSync(path.resolve(paths.srcCopy, 'tsconfig.json'), asJson(tsconfig));
 
   echo('--> Building webpack bundles...');
   cd(paths.srcCopy);
-  exec(`node ./node_modules/webpack/bin/webpack.js`);
+  exec(`node ${files.bin.webpack}`);
 
   echo('--> Building commonjs and typings using tsc...');
-  exec(`node ./node_modules/typescript/bin/tsc`);
+  exec(`node ${files.bin.tsc}`);
   
   echo('<-- done!');
 }

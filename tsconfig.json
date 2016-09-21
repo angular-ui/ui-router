@@ -2,18 +2,17 @@
   "compilerOptions": {
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "moduleResolution": "node",
     "module": "commonjs",
-    "rootDir": "src",
     "target": "es5",
+    "lib": [ "es6", "dom" ],
+    "allowSyntheticDefaultImports": true,
+    "rootDir": "src",
     "outDir": "build/es5",
     "declaration": true,
     "sourceMap": true
   },
-  "lib": [ "es2015", "dom" ],
-  "exclude": [
-    "node_modules",
-    "build",
-    "build_packages",
-    "test"
+  "files": [
+    "src/core.ts", "src/ng1.ts", "src/ng1/legacy/stateEvents.ts", "src/ng2.ts"
   ]
 }

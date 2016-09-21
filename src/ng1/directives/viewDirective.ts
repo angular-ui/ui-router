@@ -16,10 +16,11 @@ import {HookRegOptions} from "../../transition/interface";
 import {Ng1Controller, Ng1StateDeclaration} from "../interface";
 import {getLocals} from "../services";
 import {ViewService} from "../../view/view";
-import IAnimateService = angular.IAnimateService;
-import IInterpolateService = angular.IInterpolateService;
 import {$QLike} from "../../common/coreservices";
 import {Obj} from "../../common/common";
+
+import * as angular from 'angular';
+import IInterpolateService = angular.IInterpolateService;
 import IScope = angular.IScope;
 import ITranscludeFunction = angular.ITranscludeFunction;
 import IAugmentedJQuery = angular.IAugmentedJQuery;
@@ -280,7 +281,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
         function updateView(config?: Ng1ViewConfig) {
           let newScope = scope.$new();
           let animEnter = $q.defer(), animLeave = $q.defer();
-          
+
           let $uiViewData: UIViewData = {
             $cfg: config,
             $uiView: activeUIView,
@@ -303,7 +304,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
                 $uiViewScroll(clone);
               }
             });
-            
+
             cleanupLastView();
           });
 
@@ -357,9 +358,9 @@ function $ViewDirectiveFill ($compile: ICompileService, $controller: IController
         let locals = resolveCtx && getLocals(resolveCtx);
 
         scope[resolveAs] = locals;
-        
+
         if (controller) {
-          let controllerInstance = $controller(controller, extend({}, locals, { $scope: scope, $element: $element }));
+          let controllerInstance = <Ng1Controller> $controller(controller, extend({}, locals, { $scope: scope, $element: $element }));
           if (controllerAs) {
             scope[controllerAs] = controllerInstance;
             scope[controllerAs][resolveAs] = locals;

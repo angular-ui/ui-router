@@ -12,8 +12,10 @@ import {PathNode} from "../../path/node";
 import {TemplateFactory} from "../templateFactory";
 import {ResolveContext} from "../../resolve/resolveContext";
 import {Resolvable} from "../../resolve/resolvable";
-import IInjectorService = angular.auto.IInjectorService;
 import {RawParams} from "../../params/interface";
+
+import * as angular from 'angular';
+import IInjectorService = angular.auto.IInjectorService;
 
 export const ng1ViewConfigFactory: ViewConfigFactory = (path, view) =>
     [new Ng1ViewConfig(path, view)];
@@ -52,7 +54,7 @@ export function ng1ViewsBuilder(state: State) {
 
       // Dynamically build a template like "<component-name input1='::$resolve.foo'></component-name>"
       config.templateProvider = ['$injector', function($injector: IInjectorService) {
-        const resolveFor = (key: string) => 
+        const resolveFor = (key: string) =>
             config.bindings && config.bindings[key] || key;
         const prefix = angular.version.minor >= 3 ? "::" : "";
         const attributeTpl = (input: BindingTuple) => {
@@ -91,20 +93,23 @@ interface BindingTuple {
 // for ng 1.2 style, process the scope: { input: "=foo" }
 // for ng 1.3 through ng 1.5, process the component's bindToController: { input: "=foo" } object
 const scopeBindings = (bindingsObj: Obj) => Object.keys(bindingsObj || {})
-      .map(key => [key, /^([=<@])[?]?(.*)/.exec(bindingsObj[key])])        // [ 'input', [ '=foo', '=', 'foo' ] ]
-      .filter(tuple => isDefined(tuple) && isDefined(tuple[1]))             // skip malformed values
-      .map(tuple => ({ name: tuple[1][2] || tuple[0], type: tuple[1][1] } as BindingTuple));// { name: ('foo' || 'input'), type: '=' }
+  // [ 'input', [ '=foo', '=', 'foo' ] ]
+  .map(key => [key, /^([=<@])[?]?(.*)/.exec(bindingsObj[key])])
+  // skip malformed values
+  .filter(tuple => isDefined(tuple) && isDefined(tuple[1]))
+  // { name: ('foo' || 'input'), type: '=' }
+  .map(tuple => ({ name: tuple[1][2] || tuple[0], type: tuple[1][1] } as BindingTuple));
 
 // Given a directive definition, find its object input attributes
 // Use different properties, depending on the type of directive (component, bindToController, normal)
 const getBindings = (def: any) => {
   if (isObject(def.bindToController)) return scopeBindings(def.bindToController);
-  return <any> scopeBindings(def.scope);
+  return scopeBindings(def.scope);
 };
 
 // Gets all the directive(s)' inputs ('@', '=', and '<')
 function getComponentInputs($injector: IInjectorService, name: string) {
-  let cmpDefs = $injector.get(name + "Directive"); // could be multiple
+  let cmpDefs = <any[]> $injector.get(name + "Directive"); // could be multiple
   if (!cmpDefs || !cmpDefs.length) throw new Error(`Unable to find component named '${name}'`);
   return cmpDefs.map(getBindings).reduce(unnestR, []);
 }

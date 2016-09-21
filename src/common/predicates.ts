@@ -1,5 +1,6 @@
 /** Predicates @module common_predicates */ /** */
 import {and, not, pipe, prop} from "./hof";
+import {Predicate} from "./common"; // has or is using
 
 const toStr = Object.prototype.toString;
 const tis = (t: string) => (x: any) => typeof(x) === t;
