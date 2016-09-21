@@ -1,10 +1,10 @@
-/** @module state */ /** for typedoc */
+/** @module ng1 */ /** for typedoc */
 import {isObject} from "../common/predicates";
 import {bindFunctions} from "../common/common";
-import {BuilderFunction} from "./stateBuilder";
-import {StateRegistry} from "./stateRegistry";
-import {StateDeclaration} from "./interface";
-import {State} from "./stateObject"; // has or is using
+import {BuilderFunction} from "../state/stateBuilder";
+import {StateRegistry} from "../state/stateRegistry";
+import {Ng1StateDeclaration} from "./interface";
+import {StateService, OnInvalidCallback} from "../state/stateService";
 
 /**
  * @ngdoc object
@@ -28,8 +28,7 @@ import {State} from "./stateObject"; // has or is using
  * The `$stateProvider` provides interfaces to declare these states for your app.
  */
 export class StateProvider {
-  invalidCallbacks: Function[] = [];
-  constructor(private stateRegistry: StateRegistry) {
+  constructor(private stateRegistry: StateRegistry, private stateService: StateService) {
     bindFunctions(StateProvider.prototype, this, this);
   }
 
@@ -262,8 +261,8 @@ export class StateProvider {
    * To create a parent/child state use a dot, e.g. "about.sales", "home.newest".
    * @param {object} definition State configuration object.
    */
-  state(name: string, definition: StateDeclaration): StateProvider;
-  state(definition: StateDeclaration): StateProvider;
+  state(name: string, definition: Ng1StateDeclaration): StateProvider;
+  state(definition: Ng1StateDeclaration): StateProvider;
   state(name: any, definition?: any) {
     if (isObject(name)) {
       definition = name;
@@ -277,23 +276,10 @@ export class StateProvider {
   /**
    * Registers an invalid state handler
    *
-   * Registers a function to be injected and invoked when [[StateService.transitionTo]] has been called with an invalid
-   * state reference parameter
-   *
-   * This function can be injected with one some special values:
-   * - **`$to$`**: TargetState
-   * - **`$from$`**: TargetState
-   *
-   * Note: This API is subject to change.
-   * Replacement of dependency injection support with some alternative is likely.
-   *
-   * @param {function} callback
-   *   The function which will be injected and invoked, when a matching transition is started.
-   *   The function may optionally return a {TargetState} or a Promise for a TargetState.  If one
-   *   is returned, it is treated as a redirect.
+   * This is a passthrough to [[StateService.onInvalid]] for ng1.
    */
 
-  onInvalid(callback: Function) {
-    this.invalidCallbacks.push(callback);
+  onInvalid(callback: OnInvalidCallback): Function {
+    return this.stateService.onInvalid(callback);
   }
 }

@@ -1,7 +1,6 @@
 /** @module core */ /** */
 import {UrlMatcherFactory} from "./url/urlMatcherFactory";
 import {UrlRouterProvider} from "./url/urlRouter";
-import {StateProvider} from "./state/state";
 import {UrlRouter} from "./url/urlRouter";
 import {TransitionService} from "./transition/transitionService";
 import {ViewService} from "./view/view";
@@ -32,9 +31,6 @@ export class UIRouter {
   urlRouter: UrlRouter = new UrlRouter(this.urlRouterProvider);
 
   stateRegistry: StateRegistry = new StateRegistry(this.urlMatcherFactory, this.urlRouterProvider);
-
-  /** @hidden TODO: move this to ng1.ts */
-  stateProvider = new StateProvider(this.stateRegistry);
 
   stateService = new StateService(this);
 

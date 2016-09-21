@@ -23,7 +23,7 @@ import {TemplateFactory} from "./templateFactory";
 import {StateParams} from "../params/stateParams";
 import {TransitionService} from "../transition/transitionService";
 import {StateService} from "../state/stateService";
-import {StateProvider} from "../state/state";
+import {StateProvider} from "./stateProvider";
 import {UrlRouterProvider, UrlRouter} from "../url/urlRouter";
 import {UrlMatcherFactory} from "../url/urlMatcherFactory";
 import {getStateHookBuilder} from "./statebuilders/onEnterExitRetain";
@@ -158,6 +158,12 @@ export function annotateController(controllerExpression: (IInjectable|string)): 
 }
 
 let router: UIRouter = null;
+declare module "../router" {
+  interface UIRouter {
+    /** @hidden TODO: move this to ng1.ts */
+    stateProvider: StateProvider;
+  }
+}
 
 $uiRouter.$inject = ['$locationProvider'];
 /** This angular 1 provider instantiates a Router and exposes its services via the angular injector */
@@ -165,6 +171,7 @@ function $uiRouter($locationProvider: ILocationProvider) {
 
   // Create a new instance of the Router when the $uiRouterProvider is initialized
   router = new UIRouter();
+  router.stateProvider = new StateProvider(router.stateRegistry, router.stateService);
 
   // Apply ng1 specific StateBuilder code for `views`, `resolve`, and `onExit/Retain/Enter` properties
   router.stateRegistry.decorator("views", ng1ViewsBuilder);

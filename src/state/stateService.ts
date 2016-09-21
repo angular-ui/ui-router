@@ -1,5 +1,5 @@
 /** @module state */ /** */
-import {extend, defaults, silentRejection, silenceUncaughtInPromise} from "../common/common";
+import {extend, defaults, silentRejection, silenceUncaughtInPromise, removeFrom} from "../common/common";
 import {isDefined, isObject, isString} from "../common/predicates";
 import {Queue} from "../common/queue";
 import {services} from "../common/coreservices";
@@ -25,9 +25,16 @@ import {HrefOptions} from "./interface";
 import {bindFunctions} from "../common/common";
 import {Globals} from "../globals";
 import {UIRouter} from "../router";
-import {StateParams} from "../params/stateParams"; // for params() return type
+import {UIInjector} from "../common/interface";
+import {ResolveContext} from "../resolve/resolveContext";
+import {StateParams} from "../params/stateParams"; // has or is using
+
+export type OnInvalidCallback =
+    (toState?: TargetState, fromState?: TargetState, injector?: UIInjector) => HookResult;
 
 export class StateService {
+  invalidCallbacks: OnInvalidCallback[] = [];
+
   get transition()  { return this.router.globals.transition; }
   get params()      { return this.router.globals.params; }
   get current()     { return this.router.globals.current; }
@@ -49,16 +56,13 @@ export class StateService {
    *
    * If a callback returns an TargetState, then it is used as arguments to $state.transitionTo() and the result returned.
    */
-  private _handleInvalidTargetState(fromPath: PathNode[], $to$: TargetState) {
+  private _handleInvalidTargetState(fromPath: PathNode[], toState: TargetState) {
+    let fromState = PathFactory.makeTargetState(fromPath);
     let globals = <Globals> this.router.globals;
     const latestThing = () => globals.transitionHistory.peekTail();
     let latest = latestThing();
-    let $from$ = PathFactory.makeTargetState(fromPath);
-    let callbackQueue = new Queue<Function>(this.router.stateProvider.invalidCallbacks.slice());
-    let {$q, $injector} = services;
-
-    const invokeCallback = (callback: Function) =>
-        $q.when($injector.invoke(callback, null, { $to$, $from$ }));
+    let callbackQueue = new Queue<OnInvalidCallback>(this.invalidCallbacks.slice());
+    let injector = new ResolveContext(fromPath).injector();
 
     const checkForRedirect = (result: HookResult) => {
       if (!(result instanceof TargetState)) {
@@ -76,12 +80,46 @@ export class StateService {
 
     function invokeNextCallback() {
       let nextCallback = callbackQueue.dequeue();
-      if (nextCallback === undefined) return Rejection.invalid($to$.error()).toPromise();
-      return invokeCallback(nextCallback).then(checkForRedirect).then(result => result || invokeNextCallback());
+      if (nextCallback === undefined) return Rejection.invalid(toState.error()).toPromise();
+
+      let callbackResult = services.$q.when(nextCallback(toState, fromState, injector));
+      return callbackResult.then(checkForRedirect).then(result => result || invokeNextCallback());
     }
 
     return invokeNextCallback();
   }
+
+  /**
+   * Registers an Invalid State handler
+   *
+   * Registers a [[OnInvalidCallback]] function to be invoked when [[StateService.transitionTo]]
+   * has been called with an invalid state reference parameter
+   *
+   * Example:
+   * ```js
+   * stateService.onInvalid(function(to, from, injector) {
+   *   if (to.name() === 'foo') {
+   *     let lazyLoader = injector.get('LazyLoadService');
+   *     return lazyLoader.load('foo')
+   *         .then(() => stateService.target('foo'));
+   *   }
+   * });
+   * ```
+   *
+   * @param {function} callback invoked when the toState is invalid
+   *   This function receives the (invalid) toState, the fromState, and an injector.
+   *   The function may optionally return a [[TargetState]] or a Promise for a TargetState.
+   *   If one is returned, it is treated as a redirect.
+   *
+   * @returns a function which deregisters the callback
+   */
+  onInvalid(callback: OnInvalidCallback): Function {
+    this.invalidCallbacks.push(callback);
+    return function deregisterListener() {
+      removeFrom(this.invalidCallbacks)(callback);
+    }.bind(this);
+  }
+
 
   /**
    * @ngdoc function

@@ -1,6 +1,5 @@
 /** @module state */ /** for typedoc */
 export * from "./interface";
-export * from "./state";
 export * from "./stateBuilder";
 export * from "./stateObject";
 export * from "./stateMatcher";

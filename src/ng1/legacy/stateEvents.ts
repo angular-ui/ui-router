@@ -20,7 +20,7 @@ import {IServiceProviderFactory} from "angular";
 import {Obj} from "../../common/common";
 import {TargetState} from "../../state/targetState";
 import {StateService} from "../../state/stateService";
-import {StateProvider} from "../../state/state";
+import {StateProvider} from "../stateProvider";
 import {Transition} from "../../transition/transition";
 import IAngularEvent = angular.IAngularEvent;
 import {TransitionService} from "../../transition/transitionService";
@@ -28,6 +28,7 @@ import {UrlRouter} from "../../url/urlRouter";
 import * as angular from 'angular';
 import IScope = angular.IScope;
 import {HookResult} from "../../transition/interface";
+import {UIInjector} from "../../common/interface";
 
 /**
  * An event broadcast on `$rootScope` when the state transition **begins**.
@@ -164,7 +165,7 @@ export var $stateNotFound: IAngularEvent;
     if (!$transition$.options().notify || !$transition$.valid() || $transition$.ignored())
       return;
 
-    let $injector = $transition$.injector().native;
+    let $injector = $transition$.injector();
     let $stateEvents = $injector.get('$stateEvents');
     let $rootScope = $injector.get('$rootScope');
     let $state = $injector.get('$state');
@@ -209,7 +210,11 @@ export var $stateNotFound: IAngularEvent;
   }
 
   stateNotFoundHandler.$inject = ['$to$', '$from$', '$state', '$rootScope', '$urlRouter'];
-  function stateNotFoundHandler($to$: TargetState, $from$: TargetState, $state: StateService, $rootScope: IScope, $urlRouter: UrlRouter): HookResult {
+  function stateNotFoundHandler($to$: TargetState, $from$: TargetState, injector: UIInjector): HookResult {
+    let $state: StateService  = injector.get('$state');
+    let $rootScope: IScope    = injector.get('$rootScope');
+    let $urlRouter: UrlRouter = injector.get('$urlRouter');
+
     interface StateNotFoundEvent extends IAngularEvent {
       retry: Promise<any>;
     }
@@ -279,7 +284,7 @@ export var $stateNotFound: IAngularEvent;
       runtime = true;
 
       if (enabledStateEvents["$stateNotFound"])
-        $stateProvider.onInvalid(stateNotFoundHandler as Function);
+        $stateProvider.onInvalid(stateNotFoundHandler);
       if (enabledStateEvents.$stateChangeStart)
         $transitions.onBefore({}, stateChangeStartHandler, {priority: 1000});
 
