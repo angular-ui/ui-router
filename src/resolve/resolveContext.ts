@@ -2,7 +2,7 @@
 import { find, tail, uniqR, unnestR, inArray } from "../common/common";
 import {propEq} from "../common/hof";
 import {trace} from "../common/trace";
-import {services} from "../common/coreservices";
+import {services, $InjectorLike} from "../common/coreservices";
 import {resolvePolicies, PolicyWhen} from "./interface";
 
 import {PathNode} from "../path/node";
@@ -13,9 +13,11 @@ import {stringify} from "../common/strings";
 import {Transition} from "../transition/transition";
 import {UIInjector} from "../common/interface";
 
-var when = resolvePolicies.when;
+const when = resolvePolicies.when;
 const ALL_WHENS = [when.EAGER, when.LAZY];
 const EAGER_WHENS = [when.EAGER];
+
+export const NATIVE_INJECTOR_TOKEN = "Native Injector";
 
 /**
  * Encapsulates Depenency Injection for a path of nodes
@@ -28,6 +30,7 @@ const EAGER_WHENS = [when.EAGER];
  * The ResolveContext closes over the [[PathNode]]s, and provides DI for the last node in the path.
  */
 export class ResolveContext {
+  _injector: UIInjector;
 
   constructor(private _path: PathNode[]) { }
 
@@ -131,7 +134,7 @@ export class ResolveContext {
   }
 
   injector(): UIInjector {
-    return new UIInjectorImpl(this);
+    return this._injector || (this._injector = new UIInjectorImpl(this));
   }
 
   findNode(resolvable: Resolvable): PathNode {
@@ -147,8 +150,8 @@ export class ResolveContext {
     let node = this.findNode(resolvable);
     // Find which other resolvables are "visible" to the `resolvable` argument
     // subpath stopping at resolvable's node, or the whole path (if the resolvable isn't in the path)
-    var subPath: PathNode[] = PathFactory.subPath(this._path, x => x === node) || this._path;
-    var availableResolvables: Resolvable[] = subPath
+    let subPath: PathNode[] = PathFactory.subPath(this._path, x => x === node) || this._path;
+    let availableResolvables: Resolvable[] = subPath
         .reduce((acc, node) => acc.concat(node.resolvables), []) //all of subpath's resolvables
         .filter(res => res !== resolvable); // filter out the `resolvable` argument
 
@@ -156,7 +159,7 @@ export class ResolveContext {
       let matching = availableResolvables.filter(r => r.token === token);
       if (matching.length) return tail(matching);
 
-      let fromInjector = services.$injector.get(token);
+      let fromInjector = this.injector().get(token);
       if (!fromInjector) {
         throw new Error("Could not find Dependency Injection token: " + stringify(token));
       }
@@ -169,7 +172,12 @@ export class ResolveContext {
 }
 
 class UIInjectorImpl implements UIInjector {
-  constructor(public context: ResolveContext) { }
+  native: $InjectorLike;
+
+  constructor(public context: ResolveContext) {
+    this.native = this.get(NATIVE_INJECTOR_TOKEN) || services.$injector;
+  }
+
   get(token: any) {
     var resolvable = this.context.getResolvable(token);
     if (resolvable) {
@@ -178,15 +186,12 @@ class UIInjectorImpl implements UIInjector {
       }
       return resolvable.data;
     }
-    return services.$injector.get(token);
+    return this.native && this.native.get(token);
   }
 
   getAsync(token: any) {
     var resolvable = this.context.getResolvable(token);
     if (resolvable) return resolvable.get(this.context);
-    return services.$q.when(services.$injector.get(token));
+    return services.$q.when(this.native.get(token));
   }
-  
-  /** The native injector ($injector on ng1, Root Injector on ng2, justjs injector for everything else) */
-  native = services.$injector;
 }

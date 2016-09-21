@@ -1,10 +1,10 @@
 /** @module ng2 */ /** */
 import {UIRouter} from "../router";
-import {ChildModule, RootModule} from "./uiRouterNgModule";
+import {StatesModule, RootModule} from "./uiRouterNgModule";
 import {Injector} from "@angular/core";
 import {isDefined} from "../common/predicates";
 
-export function applyModuleConfig(uiRouter: UIRouter, injector: Injector, options: ChildModule) {
+export function applyModuleConfig(uiRouter: UIRouter, injector: Injector, options: StatesModule) {
   if (options.configClass) {
     injector.get(options.configClass);
   }
@@ -29,8 +29,6 @@ export function applyRootModuleConfig(uiRouter: UIRouter, injector: Injector, co
       uiRouter.urlRouterProvider.otherwise(<any> config.otherwise);
     }
   }
-
-  applyModuleConfig(uiRouter, injector, config);
 }
 
 

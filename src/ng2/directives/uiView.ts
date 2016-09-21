@@ -7,9 +7,8 @@ import {
 import {UIRouter} from "../../router";
 import {trace} from "../../common/trace";
 import {ViewContext, ViewConfig, ActiveUIView} from "../../view/interface";
-import {NG2_INJECTOR_TOKEN} from "../interface";
 import {Ng2ViewConfig} from "../statebuilders/views";
-import {ResolveContext} from "../../resolve/resolveContext";
+import {ResolveContext, NATIVE_INJECTOR_TOKEN} from "../../resolve/resolveContext";
 import {flattenR} from "../../common/common";
 import {MergeInjector} from "../mergeInjector";
 
@@ -227,7 +226,7 @@ export class UIView {
     newProviders.push({ provide: UIView.PARENT_INJECT, useValue: parentInject });
 
     let parentComponentInjector = this.viewContainerRef.injector;
-    let moduleInjector = context.getResolvable(NG2_INJECTOR_TOKEN).data;
+    let moduleInjector = context.getResolvable(NATIVE_INJECTOR_TOKEN).data;
     let mergedParentInjector = new MergeInjector(moduleInjector, parentComponentInjector);
 
     return ReflectiveInjector.resolveAndCreate(newProviders, mergedParentInjector);

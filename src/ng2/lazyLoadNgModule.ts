@@ -1,14 +1,14 @@
 /** @module ng2 */ /** */
 import {NgModuleFactoryLoader, NgModuleRef, Injector, NgModuleFactory} from "@angular/core";
 
-import {NG2_INJECTOR_TOKEN} from "./interface";
 import {LazyLoadResult} from "../state/interface";
 
 import {Transition} from "../transition/transition";
-import {RootModule, ChildModule, UIROUTER_ROOT_MODULE, UIROUTER_CHILD_MODULE} from "./uiRouterNgModule";
+import {RootModule, StatesModule, UIROUTER_ROOT_MODULE, UIROUTER_MODULE_TOKEN} from "./uiRouterNgModule";
 import {applyModuleConfig} from "./uiRouterConfig";
 import {UIRouter} from "../router";
 import {Resolvable} from "../resolve/resolvable";
+import {NATIVE_INJECTOR_TOKEN} from "../resolve/resolveContext";
 
 /**
  * Returns a function which lazy loads a nested module
@@ -27,7 +27,7 @@ import {Resolvable} from "../resolve/resolvable";
 export function loadNgModule(path: string): (transition: Transition) => Promise<LazyLoadResult> {
   /** Get the parent NgModule Injector (from resolves) */
   const getNg2Injector = (transition: Transition) =>
-      transition.injector().getAsync(NG2_INJECTOR_TOKEN);
+      transition.injector().getAsync(NATIVE_INJECTOR_TOKEN);
 
   /**
    * Lazy loads the NgModule using the NgModuleFactoryLoader
@@ -70,8 +70,8 @@ export function loadNgModule(path: string): (transition: Transition) => Promise<
       throw new Error('Lazy loaded modules should not contain a UIRouterModule.forRoot() module');
     }
 
-    let childModules: ChildModule[] = injector.get(UIROUTER_CHILD_MODULE);
-    childModules.forEach(module => applyModuleConfig(uiRouter, injector, module));
+    let modules: StatesModule[] = injector.get(UIROUTER_MODULE_TOKEN);
+    modules.forEach(module => applyModuleConfig(uiRouter, injector, module));
 
     let replacementState = uiRouter.stateRegistry.get(originalName);
     if (replacementState === originalState) {
@@ -79,7 +79,7 @@ export function loadNgModule(path: string): (transition: Transition) => Promise<
     }
 
     // Supply the newly loaded states with the Injector from the lazy loaded NgModule
-    replacementState.$$state().resolvables.push(Resolvable.fromData(NG2_INJECTOR_TOKEN, injector));
+    replacementState.$$state().resolvables.push(Resolvable.fromData(NATIVE_INJECTOR_TOKEN, injector));
 
     return {};
   }

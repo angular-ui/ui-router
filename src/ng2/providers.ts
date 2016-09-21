@@ -95,14 +95,15 @@ import {UrlRouter} from "../url/urlRouter";
 import {ViewService} from "../view/view";
 import {UIView, ParentUIViewInject} from "./directives/uiView";
 import {ng2ViewsBuilder, Ng2ViewConfig} from "./statebuilders/views";
-import {Ng2ViewDeclaration, NG2_INJECTOR_TOKEN} from "./interface";
+import {Ng2ViewDeclaration} from "./interface";
 import {applyRootModuleConfig, applyModuleConfig} from "./uiRouterConfig";
 import {Globals} from "../globals";
 import {UIRouterLocation} from "./location";
 import {services} from "../common/coreservices";
 import {Resolvable} from "../resolve/resolvable";
-import {RootModule, ChildModule, UIROUTER_ROOT_MODULE, UIROUTER_CHILD_MODULE} from "./uiRouterNgModule";
+import {RootModule, StatesModule, UIROUTER_ROOT_MODULE, UIROUTER_MODULE_TOKEN} from "./uiRouterNgModule";
 import {UIRouterRx} from "./rx";
+import {NATIVE_INJECTOR_TOKEN} from "../resolve/resolveContext";
 
 /**
  * This is a factory function for a UIRouter instance
@@ -115,7 +116,7 @@ let uiRouterFactory = (
     injector: Injector) => {
 
   let rootModules: RootModule[] = injector.get(UIROUTER_ROOT_MODULE);
-  let childModules: ChildModule[] = injector.get(UIROUTER_CHILD_MODULE);
+  let modules: StatesModule[] = injector.get(UIROUTER_MODULE_TOKEN);
 
   if (rootModules.length !== 1) {
     throw new Error("Exactly one UIRouterModule.forRoot() should be in the bootstrapped app module's imports: []");
@@ -144,7 +145,7 @@ let uiRouterFactory = (
   registry.stateQueue.flush(router.stateService);
 
   // Prep the tree of NgModule by placing the root NgModule's Injector on the root state.
-  let ng2InjectorResolvable = Resolvable.fromData(NG2_INJECTOR_TOKEN, injector);
+  let ng2InjectorResolvable = Resolvable.fromData(NATIVE_INJECTOR_TOKEN, injector);
   registry.root().resolvables.push(ng2InjectorResolvable);
 
 
@@ -154,7 +155,7 @@ let uiRouterFactory = (
 
   setTimeout(() => {
     rootModules.forEach(moduleConfig => applyRootModuleConfig(router, injector, moduleConfig));
-    childModules.forEach(moduleConfig => applyModuleConfig(router, injector, moduleConfig));
+    modules.forEach(moduleConfig => applyModuleConfig(router, injector, moduleConfig));
 
     // Start monitoring the URL
     if (!router.urlRouterProvider.interceptDeferred) {

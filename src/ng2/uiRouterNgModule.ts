@@ -110,31 +110,30 @@ export class UIRouterModule {
    * @param module UI-Router module options
    * @returns an `NgModule`
    */
-  static forChild(module: ChildModule = {}): ModuleWithProviders {
+  static forChild(module: StatesModule = {}): ModuleWithProviders {
     return {
       ngModule: UIRouterModule,
       providers: UIRouterModule.makeProviders(module, false),
     }
   }
 
-  static makeProviders(module: ChildModule, forRoot: boolean): Provider[] {
-    let provideConfig: Provider[] = [module.configClass]
+  static makeProviders(module: StatesModule, forRoot: boolean): Provider[] {
+    let providers: Provider[] = [module.configClass]
         .filter(identity)
         .map(configClass => ({ provide: configClass, useClass: configClass }));
 
-    let UIROUTER_MODULE_TOKEN = forRoot ? UIROUTER_ROOT_MODULE : UIROUTER_CHILD_MODULE;
+    if (forRoot) providers.push({ provide: UIROUTER_ROOT_MODULE, useValue: module, multi: true});
+    providers.push({ provide: UIROUTER_MODULE_TOKEN,        useValue: module,              multi: true });
+    providers.push({ provide: ANALYZE_FOR_ENTRY_COMPONENTS, useValue: module.states || [], multi: true });
 
-    return provideConfig.concat([
-      { provide: UIROUTER_MODULE_TOKEN,        useValue: module,              multi: true },
-      { provide: ANALYZE_FOR_ENTRY_COMPONENTS, useValue: module.states || [], multi: true },
-    ]);
+    return providers;
   }
 }
 
 /**
  * UI-Router declarative configuration which can be provided to [[UIRouterModule.forRoot]]
  */
-export interface RootModule extends ChildModule {
+export interface RootModule extends StatesModule {
   /**
    * Chooses a `LocationStrategy`.
    *
@@ -162,7 +161,7 @@ export interface RootModule extends ChildModule {
 /**
  * UI-Router Module declarative configuration which can be passed to [[UIRouterModule.forChild]]
  */
-export interface ChildModule {
+export interface StatesModule {
   /**
    * The module's UI-Router states
    *
@@ -214,6 +213,6 @@ export interface ChildModule {
   configClass?: Type<any>;
 }
 
-export const UIROUTER_ROOT_MODULE = new OpaqueToken("UIRouter Module Root Options");
-export const UIROUTER_CHILD_MODULE = new OpaqueToken("UIRouter Module Options");
+export const UIROUTER_ROOT_MODULE = new OpaqueToken("UIRouter Root Module");
+export const UIROUTER_MODULE_TOKEN = new OpaqueToken("UIRouter Module");
 
