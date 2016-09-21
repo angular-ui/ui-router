@@ -24,7 +24,8 @@ routerFiles = {
       return [
         'lib/angular-' + version + '/angular.js',
         'lib/angular-' + version + '/angular-mocks.js',
-        'lib/angular-' + version + '/angular-animate.js'
+        'lib/angular-' + version + '/angular-animate.js',
+        'test/ng1.systemjs.adapter.js'
       ];
     }
 
