@@ -159,7 +159,7 @@ export class ResolveContext {
       let matching = availableResolvables.filter(r => r.token === token);
       if (matching.length) return tail(matching);
 
-      let fromInjector = this.injector().get(token);
+      let fromInjector = this.injector().getNative(token);
       if (!fromInjector) {
         throw new Error("Could not find Dependency Injection token: " + stringify(token));
       }
@@ -193,5 +193,9 @@ class UIInjectorImpl implements UIInjector {
     var resolvable = this.context.getResolvable(token);
     if (resolvable) return resolvable.get(this.context);
     return services.$q.when(this.native.get(token));
+  }
+
+  getNative(token: any) {
+    return this.native.get(token);
   }
 }

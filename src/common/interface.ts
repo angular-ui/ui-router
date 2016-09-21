@@ -5,6 +5,13 @@ import {noop} from "./common";
 
 /**
  * An interface for getting values from dependency injection.
+ *
+ * This injector primarily returns resolve values (using a [[ResolveContext]]) that match the given token.
+ * If no resolve is found for a token, then it will delegate to the native injector.
+ * The native injector may be Angular 1 `$injector`, Angular 2 `Injector`, or a naive polyfill.
+ *
+ * In Angular 2, the native injector might be the root Injector,
+ * or it might be a lazy loaded `NgModule` injector scoped to a lazy load state tree.
  */
 export interface UIInjector {
   /**
@@ -25,17 +32,16 @@ export interface UIInjector {
    * injector.get(StateService).go('home');
    * ```
    *
-   * Note:
-   * The code that implements this interface may be Angular 1 `$injector`, Angular 2 `Injector`,
-   * a [[ResolveContext]], or a `ResolveContext` that delegates to the ng1/ng2 injector if keys are missing.
-   *
-   * @param key the key for the value to get.  May be a string or arbitrary object.
-   * @return the Dependency Injection value that matches the key
+   * @param token the key for the value to get.  May be a string or arbitrary object.
+   * @return the Dependency Injection value that matches the token
    */
-  get(key: any): any;
+  get(token: any): any;
 
   /**
    * Asynchronously gets a value from the injector
+   *
+   * If the [[ResolveContext]] has a [[Resolvable]] matching the token, it will be
+   * asynchronously resolved.
    *
    * Returns a promise for a value from the injector.
    * Returns resolve values and/or values from the native injector (ng1/ng2).
@@ -48,8 +54,23 @@ export interface UIInjector {
    * });
    * ```
    *
-   * @param key the key for the value to get.  May be a string or arbitrary object.
-   * @return a Promise for the Dependency Injection value that matches the key
+   * @param token the key for the value to get.  May be a string or arbitrary object.
+   * @return a Promise for the Dependency Injection value that matches the token
    */
-  getAsync(key: any): any;
+  getAsync(token: any): Promise<any>;
+
+  /**
+   * Gets a value from the native injector
+   *
+   * Returns a value from the native injector, bypassing anything in the [[ResolveContext]].
+   *
+   * Example:
+   * ```js
+   * let someThing = injector.getNative(SomeToken);
+   * ```
+   *
+   * @param token the key for the value to get.  May be a string or arbitrary object.
+   * @return the Dependency Injection value that matches the token
+   */
+  getNative(token: any): any;
 }
