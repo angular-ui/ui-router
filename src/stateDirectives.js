@@ -26,14 +26,23 @@ function getTypeInfo(el) {
   };
 }
 
-function clickHook(el, $state, $timeout, type, current) {
+function clickHook(scope, el, $state, $timeout, type, current) {
   return function(e) {
     var button = e.which || e.button, target = current();
 
     if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || el.attr('target'))) {
       // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
       var transition = $timeout(function() {
-        $state.go(target.state, target.params, target.options);
+        var transitionPromise = $state.go(target.state, target.params, target.options);
+        var noop = function() {};
+
+        // if there's an error since the state change is cancelled
+        // emit $stateChangeCancel
+        transitionPromise.then(noop, function(e) {
+          if (scope) {
+            scope.$emit('$stateChangeCancel', e);
+          }
+        });
       });
       e.preventDefault();
 
@@ -144,7 +153,7 @@ function $StateRefDirective($state, $timeout) {
       update();
 
       if (!type.clickable) return;
-      hookFn = clickHook(element, $state, $timeout, type, function() { return def; });
+      hookFn = clickHook(scope, element, $state, $timeout, type, function() { return def; });
       element.bind("click", hookFn);
       scope.$on('$destroy', function() {
         element.unbind("click", hookFn);
@@ -196,7 +205,7 @@ function $StateRefDynamicDirective($state, $timeout) {
       runStateRefLink(scope.$eval(watch));
 
       if (!type.clickable) return;
-      hookFn = clickHook(element, $state, $timeout, type, function() { return def; });
+      hookFn = clickHook(scope, element, $state, $timeout, type, function() { return def; });
       element.bind("click", hookFn);
       scope.$on('$destroy', function() {
         element.unbind("click", hookFn);

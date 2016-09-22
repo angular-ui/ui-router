@@ -141,7 +141,7 @@ describe('uiStateRef', function() {
         ctrlKey:  undefined,
         shiftKey: undefined,
         altKey:   undefined,
-        button:   undefined 
+        button:   undefined
       });
       timeoutFlush();
       $q.flush();
@@ -156,7 +156,7 @@ describe('uiStateRef', function() {
 
       timeoutFlush();
       $q.flush();
-      
+
       expect($state.current.name).toEqual('top');
       expect($stateParams).toEqualData({ });
     }));
@@ -222,7 +222,7 @@ describe('uiStateRef', function() {
 
     it('should allow passing params to current state', inject(function($compile, $rootScope, $state) {
       $state.current.name = 'contacts.item.detail';
-      
+
       el = angular.element("<a ui-sref=\"{id: $index}\">Details</a>");
       $rootScope.$index = 3;
       $rootScope.$apply();
@@ -231,10 +231,10 @@ describe('uiStateRef', function() {
       $rootScope.$digest();
       expect(el.attr('href')).toBe('#/contacts/3');
     }));
-    
+
     it('should allow multi-line attribute values when passing params to current state', inject(function($compile, $rootScope, $state) {
       $state.current.name = 'contacts.item.detail';
-      
+
       el = angular.element("<a ui-sref=\"{\n\tid: $index\n}\">Details</a>");
       $rootScope.$index = 3;
       $rootScope.$apply();
@@ -256,6 +256,25 @@ describe('uiStateRef', function() {
       $rootScope.urlParams.id = 2;
       $rootScope.$digest();
       expect(angular.element(template[0].querySelector('a')).attr('href')).toBe('#/contacts/2');
+    }));
+
+    it('emits $stateChangeCancel when transition rejects', inject(function ($rootScope, $timeout, $state, $q) {
+      var TransitionSupersededError = new Error('Transition superseded');
+
+      $rootScope.$on('$stateChangeCancel', function(_, e) {
+        expect(e).toEqual(TransitionSupersededError);
+      });
+
+      spyOn($state, 'go').andCallFake(function(state, params, options) {
+        var deferred = $q.defer();
+
+        deferred.reject(TransitionSupersededError);
+        return deferred.promise;
+      });
+
+      triggerClick(el);
+      $timeout.flush();
+      $rootScope.$digest();
     }));
   });
 
@@ -368,7 +387,7 @@ describe('uiStateRef', function() {
       expect(angular.element(template[0]).attr('href')).toBe('#/contacts/10');
     }));
 
-    it('accepts option overrides', inject(function ($compile, $timeout, $state) {
+    it('accepts option overrides', inject(function ($compile, $timeout, $state, $q) {
       var transitionOptions;
 
       el = angular.element('<a ui-state="state" ui-state-opts="opts">state</a>');
@@ -378,7 +397,11 @@ describe('uiStateRef', function() {
       scope.$digest();
 
       spyOn($state, 'go').andCallFake(function(state, params, options) {
+        var deferred = $q.defer();
+
+        deferred.resolve(42);
         transitionOptions = options;
+        return deferred.promise;
       });
 
       triggerClick(template)
