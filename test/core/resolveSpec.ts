@@ -7,13 +7,12 @@ import { omit, pick, forEach, copy } from "../../src/core";
 
 import Spy = jasmine.Spy;
 import {services} from "../../src/common/coreservices";
-import {resolvablesBuilder} from "../../src/state/stateBuilder";
 import {tree2Array} from "../testUtils.ts";
 import {UIRouter} from "../../src/router";
 
 ///////////////////////////////////////////////
 
-let router, states, statesMap: { [key:string]: State } = {};
+let router: UIRouter, states, statesMap: { [key:string]: State } = {};
 let vals, counts, expectCounts;
 let asyncCount;
 
@@ -76,7 +75,7 @@ beforeEach(function () {
 
   tree2Array(getStates(), false).forEach(state => router.stateRegistry.register(state));
   statesMap = router.stateRegistry.get()
-      .reduce((acc, state) => ((acc[state.name] = state.$$state()), acc), {});
+      .reduce((acc, state) => (acc[state.name] = state.$$state(), acc), statesMap);
 });
 
 function makePath(names: string[]): PathNode[] {
@@ -347,5 +346,25 @@ describe('Resolvables system:', function () {
       }).then(done);
     });
   });
+
+  // Test for #2641
+  it("should not re-resolve data, when redirecting to a child", (done) => {
+    let $state = router.stateService;
+    let $transitions = router.transitionService;
+    $transitions.onStart({to: "J"}, ($transition$) => {
+      var ctx = new ResolveContext($transition$.treeChanges().to);
+      return invokeLater(function (_J) {}, ctx).then(function() {
+        expect(counts._J).toEqualData(1);
+        return $state.target("K");
+      });
+    });
+
+    $state.go("J").then(() => {
+      expect($state.current.name).toBe("K");
+      expect(counts._J).toEqualData(1);
+      done();
+    });
+  });
 });
+
 
