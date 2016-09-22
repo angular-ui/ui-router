@@ -129,14 +129,17 @@ export class UIView {
   componentRef: ComponentRef<any>;
   deregister: Function;
   uiViewData: ActiveUIView = <any> {};
+  parent: ParentUIViewInject;
 
   static PARENT_INJECT = "UIView.PARENT_INJECT";
 
   constructor(
       public router: UIRouter,
-      @Inject(UIView.PARENT_INJECT) public parent: ParentUIViewInject,
+      @Inject(UIView.PARENT_INJECT) parent,
       public viewContainerRef: ViewContainerRef
-  ) { }
+  ) {
+    this.parent = parent;
+  }
 
   ngOnInit() {
     let parentFqn = this.parent.fqn;

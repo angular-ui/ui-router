@@ -80,7 +80,7 @@ export class UIRouterModule {
         _UIROUTER_INSTANCE_PROVIDERS,
         _UIROUTER_SERVICE_PROVIDERS,
         { provide: LocationStrategy, useClass: locationStrategy },
-        ...UIRouterModule.makeProviders(config, true),
+        ...makeProviders(config, true),
       ]
     }
   }
@@ -113,21 +113,23 @@ export class UIRouterModule {
   static forChild(module: StatesModule = {}): ModuleWithProviders {
     return {
       ngModule: UIRouterModule,
-      providers: UIRouterModule.makeProviders(module, false),
+      providers: makeProviders(module, false),
     }
   }
 
-  static makeProviders(module: StatesModule, forRoot: boolean): Provider[] {
-    let providers: Provider[] = [module.configClass]
-        .filter(identity)
-        .map(configClass => ({ provide: configClass, useClass: configClass }));
+}
 
-    if (forRoot) providers.push({ provide: UIROUTER_ROOT_MODULE, useValue: module, multi: true});
-    providers.push({ provide: UIROUTER_MODULE_TOKEN,        useValue: module,              multi: true });
-    providers.push({ provide: ANALYZE_FOR_ENTRY_COMPONENTS, useValue: module.states || [], multi: true });
 
-    return providers;
-  }
+export function makeProviders(module: StatesModule, forRoot: boolean): Provider[] {
+  let providers: Provider[] = [module.configClass]
+      .filter(identity)
+      .map(configClass => ({ provide: configClass, useClass: configClass }));
+
+  if (forRoot) providers.push({ provide: UIROUTER_ROOT_MODULE, useValue: module, multi: true});
+  providers.push({ provide: UIROUTER_MODULE_TOKEN,        useValue: module,              multi: true });
+  providers.push({ provide: ANALYZE_FOR_ENTRY_COMPONENTS, useValue: module.states || [], multi: true });
+
+  return providers;
 }
 
 /**
