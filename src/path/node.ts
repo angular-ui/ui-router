@@ -79,15 +79,23 @@ export class PathNode {
    *
    * The new path starts from root and contains any nodes that match the nodes in the second path.
    * Nodes are compared using their state property and parameter values.
+   *
+   * @param pathA the first path
+   * @param pathB the second path
+   * @param ignoreDynamicParams don't compare dynamic parameter values
    */
-  static matching(pathA: PathNode[], pathB: PathNode[]): PathNode[] {
+  static matching(pathA: PathNode[], pathB: PathNode[], ignoreDynamicParams = true): PathNode[] {
     let matching: PathNode[] = [];
 
     for (let i = 0; i < pathA.length && i < pathB.length; i++) {
       let a = pathA[i], b = pathB[i];
 
       if (a.state !== b.state) break;
-      if (!Param.equals(a.paramSchema, a.paramValues, b.paramValues)) break;
+
+      let changedParams = Param.changed(a.paramSchema, a.paramValues, b.paramValues)
+          .filter(param => !(ignoreDynamicParams && param.dynamic));
+      if (changedParams.length) break;
+
       matching.push(a);
     }
 

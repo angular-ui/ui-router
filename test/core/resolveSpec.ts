@@ -3,7 +3,7 @@
 import "../matchers.ts"
 
 import { ResolveContext, State, PathNode, Resolvable } from "../../src/core";
-import { omit, pick, forEach, copy } from "../../src/core";
+import { copy } from "../../src/core";
 
 import Spy = jasmine.Spy;
 import {services} from "../../src/common/coreservices";
@@ -362,6 +362,39 @@ describe('Resolvables system:', function () {
     $state.go("J").then(() => {
       expect($state.current.name).toBe("K");
       expect(counts._J).toEqualData(1);
+      done();
+    });
+  });
+
+  // Test for #2796
+  it("should not re-resolve data, when redirecting to self with dynamic parameter update", (done) => {
+    let $registry = router.stateRegistry;
+    let $state = router.stateService;
+    let $transitions = router.transitionService;
+    let resolveCount = 0;
+
+    $registry.register({
+      name: 'dynamic',
+      url: '/dynamic/{param}',
+      params: {
+        param: { dynamic: true }
+      },
+      resolve: {
+        data: () => {
+          new Promise(resolve => resolve('Expensive data ' + resolveCount++))
+        }
+      }
+    });
+
+    $transitions.onEnter({entering: "dynamic"}, trans => {
+      if (trans.params()['param'] === 'initial')
+        return $state.target("dynamic", { param: 'redirected' });
+    });
+
+    $state.go("dynamic", { param: 'initial'}).then(() => {
+      expect($state.current.name).toBe("dynamic");
+      expect($state.params['param']).toBe('redirected');
+      expect(resolveCount).toBe(1);
       done();
     });
   });
