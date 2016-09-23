@@ -1,5 +1,5 @@
 <a name="1.0.0-beta.3"></a>
-# [1.0.0-beta.3](https://github.com/angular-ui/ui-router/compare/1.0.0-beta.2...v1.0.0-beta.3) (2016-09-23)
+# [1.0.0-beta.3 commits](https://github.com/angular-ui/ui-router/compare/1.0.0-beta.2...1.0.0-beta.3) (2016-09-23)
 
 [Read more on the blog](https://ui-router.github.io/blog/uirouter-1.0.0-beta.3/)
 
@@ -69,30 +69,9 @@ class RootAppModule {}
 
 
 <a name="1.0.0-beta.2"></a>
-# [1.0.0-beta.2](https://github.com/angular-ui/ui-router/compare/1.0.0-alpha.5...v1.0.0-beta.2) (2016-09-09)
+# [1.0.0-beta.2 commits](https://github.com/angular-ui/ui-router/compare/1.0.0-beta.1...1.0.0-beta.2) (2016-09-09)
 
-[Read more on the blog](https://ui-router.github.io/uirouter-1.0.0-beta.2/)
-
-### BC-BREAK
-
-1) State Glob patterns have been changed slightly.
-
-Previously, a single wildcard `foo.*` could match "missing segments" on the end of a state name.
-For example, `foo.*` would match the state `foo`.
-Likewise, `foo.*.*.*` would also match the `foo` state.
-
-Now, a single wildcard matches exactly one segment. 
-`foo.*` will match `foo.bar` and `foo.baz`, but neither `foo` nor `foo.bar.baz`.
-
-If you previously relied on the single wildcard to match missing segments, use a double wildcard, `foo.**`.
-
-Double wildcards match 0 or more segments.
-
-[Read more about Glob matching](https://ui-router.github.io/docs/latest/classes/common.glob.html)
-
-2) (obscure) Angular 1 DI token `ng1UIRouter` renamed to `$uiRouter`
-
-3) (obscure) Renamed `Transition.previous()` to `Transition.redirectedFrom()`
+[Read more on the blog](https://ui-router.github.io/blog/uirouter-1.0.0-beta.2/)
 
 ### Features
 
@@ -164,9 +143,30 @@ Double wildcards match 0 or more segments.
 * **ng2.UiView:** fix input resolve binding ([4f53f81](https://github.com/angular-ui/ui-router/commit/4f53f81))
 * **ng2.UIView:** Make routed to component appear *inside* UIView, not next to it. ([558fc80](https://github.com/angular-ui/ui-router/commit/558fc80))
 
+### BREAKING CHANGES:
+
+1) State Glob patterns have been changed slightly.
+
+Previously, a single wildcard `foo.*` could match "missing segments" on the end of a state name.
+For example, `foo.*` would match the state `foo`.
+Likewise, `foo.*.*.*` would also match the `foo` state.
+
+Now, a single wildcard matches exactly one segment. 
+`foo.*` will match `foo.bar` and `foo.baz`, but neither `foo` nor `foo.bar.baz`.
+
+If you previously relied on the single wildcard to match missing segments, use a double wildcard, `foo.**`.
+
+Double wildcards match 0 or more segments.
+
+[Read more about Glob matching](https://ui-router.github.io/docs/latest/classes/common.glob.html)
+
+2) (obscure) Angular 1 DI token `ng1UIRouter` renamed to `$uiRouter`
+
+3) (obscure) Renamed `Transition.previous()` to `Transition.redirectedFrom()`
+
 
 <a name="1.0.0-beta.1"></a>
-# [1.0.0-beta.1](https://github.com/angular-ui/ui-router/compare/1.0.0-alpha.5...v1.0.0-beta.1) (2016-06-30)
+# [1.0.0-beta.1 commits](https://github.com/angular-ui/ui-router/compare/1.0.0-alpha.5...1.0.0-beta.1) (2016-06-30)
 
 # UI-Router 1.0 is in beta
 
@@ -256,7 +256,7 @@ The most common breaks will be #1 and #2
 
 
 <a name="1.0.0-alpha.5"></a>
-# [1.0.0-alpha.5](https://github.com/angular-ui/ui-router/compare/1.0.0-alpha.3...v1.0.0-alpha.5) (2016-05-13)
+# [1.0.0-alpha.5 commits](https://github.com/angular-ui/ui-router/compare/1.0.0-alpha.4...1.0.0-alpha.5) (2016-05-13)
 
 
 ### Bug Fixes
@@ -293,7 +293,7 @@ The most common breaks will be #1 and #2
 
 
 <a name="1.0.0-alpha.4"></a>
-# [1.0.0-alpha.4](https://github.com/angular-ui/ui-router/compare/1.0.0-alpha.3...v1.0.0-alpha.4) (2016-04-06)
+# [1.0.0-alpha.4 commits](https://github.com/angular-ui/ui-router/compare/1.0.0-alpha.3...1.0.0-alpha.4) (2016-04-06)
 
 ### Bug Fixes
 
@@ -335,7 +335,7 @@ This is the first release with angular 2 support.  See http://github.com/ui-rout
 
 
 <a name="1.0.0-alpha.1"></a>
-# [1.0.0-alpha.1](https://github.com/angular-ui/ui-router/compare/1.0.0alpha0...v1.0.0-alpha.1) (2016-03-27)
+# [1.0.0-alpha.1 commits](https://github.com/angular-ui/ui-router/compare/1.0.0alpha0...1.0.0-alpha.1) (2016-03-27)
 
 ## We will maintain a list of [Known BC from 0.2.x to 1.0 final](https://github.com/angular-ui/ui-router/issues/2219) to help people upgrade to the 1.0 release.
 
