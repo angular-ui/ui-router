@@ -185,7 +185,7 @@ export class ViewService {
 
     return () => {
       let idx = uiViews.indexOf(uiView);
-      if (idx <= 0) {
+      if (idx === -1) {
         trace.traceViewServiceUIViewEvent("Tried removing non-registered uiView", uiView);
         return;
       }

@@ -1,7 +1,7 @@
-/// <reference path='../../typings/angularjs/angular.d.ts' />
-/// <reference path='../../typings/angularjs/angular-mocks.d.ts' />
-/// <reference path='../../typings/jasmine/jasmine.d.ts' />
-
+/// <reference path='../../node_modules/@types/angular/index.d.ts' />
+/// <reference path='../../node_modules/@types/angular-mocks/index.d.ts' />
+/// <reference path='../../node_modules/@types/jasmine/index.d.ts' />
+import * as angular from "angular";
 var module = angular.mock.module;
 
 import {inherit, extend, tail} from "../../src/common/common";
@@ -52,7 +52,7 @@ describe('view', function() {
   }));
 
   describe('controller handling', function() {
-    let state, path, ctrlExpression;
+    let state, path: PathNode[], ctrlExpression;
     beforeEach(() => {
       ctrlExpression = null;
       state = register({
