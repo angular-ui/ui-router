@@ -1,7 +1,7 @@
 <a name="1.0.0-beta.3"></a>
 # [1.0.0-beta.3](https://github.com/angular-ui/ui-router/compare/1.0.0-beta.2...v1.0.0-beta.3) (2016-09-23)
 
-[Read more on the blog](https://ui-router-github.io/uirouter-1.0.0-beta.3/)
+[Read more on the blog](https://ui-router.github.io/blog/uirouter-1.0.0-beta.3/)
 
 This release adds Angular 2.0.0 final support.
 It changes the NgModule mechanism to use `UIRouterModule.forRoot()` and `UIRouterModule.forChild()`.
