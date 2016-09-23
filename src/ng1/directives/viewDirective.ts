@@ -450,5 +450,5 @@ function registerControllerCallbacks($transitions: TransitionService, controller
   }
 }
 
-angular.module('ui.router.state').directive('uiView', uiView);
-angular.module('ui.router.state').directive('uiView', $ViewDirectiveFill);
+angular.module('ui.router.state').directive('uiView', <any> uiView);
+angular.module('ui.router.state').directive('uiView', <any> $ViewDirectiveFill);

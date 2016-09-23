@@ -1,3 +1,73 @@
+<a name="1.0.0-beta.3"></a>
+# [1.0.0-beta.3](https://github.com/angular-ui/ui-router/compare/1.0.0-beta.2...v1.0.0-beta.3) (2016-09-23)
+
+[Read more on the blog](https://ui-router-github.io/uirouter-1.0.0-beta.3/)
+
+This release adds Angular 2.0.0 final support.
+It changes the NgModule mechanism to use `UIRouterModule.forRoot()` and `UIRouterModule.forChild()`.
+See the blog and the breaking changes section.
+
+### Bug Fixes
+
+This release fixes bugs for both ng1 and ng2
+
+* **common:** Remove `url()` from LocationService interface ([#2990](https://github.com/angular-ui/ui-router/issues/2990)) ([d6c2580](https://github.com/angular-ui/ui-router/commit/d6c2580))
+* **lazyLoad:** Always delete the lazy load promise after it settles. ([dd2f101](https://github.com/angular-ui/ui-router/commit/dd2f101))
+* **ng1.StateProvider:** Export StateProvider class so type can be used ([167770d](https://github.com/angular-ui/ui-router/commit/167770d))
+* **ng1.uiView:** Remove deprecated jquery functions bind/unbind in favor of on/off ([60ebd44](https://github.com/angular-ui/ui-router/commit/60ebd44))
+* **ng2:** Angular 2.0.0 final compatibility ([7c54b75](https://github.com/angular-ui/ui-router/commit/7c54b75)), closes [#2991](https://github.com/angular-ui/ui-router/issues/2991)
+* **ng2.NgModule:** Allow apps with no forChild modules ([d3bd332](https://github.com/angular-ui/ui-router/commit/d3bd332)), closes [#3009](https://github.com/angular-ui/ui-router/issues/3009)
+* **ng2.uiView:** Use ReflectorReader to get component inputs
+* **resolve:** Don't re-resolve data when redirected to same state, but only dynamic params changed. ([98cd2d2](https://github.com/angular-ui/ui-router/commit/98cd2d2)), closes [#3033](https://github.com/angular-ui/ui-router/issues/3033)
+* **trace:** Show function definition during logging of trace.enable('HOOK') ([190d122](https://github.com/angular-ui/ui-router/commit/190d122))
+* **transition:** Fail a transition if a new one has started while resolves are loading ([bc87d9e](https://github.com/angular-ui/ui-router/commit/bc87d9e)), closes [#2972](https://github.com/angular-ui/ui-router/issues/2972)
+* **urlMatcherFactory:** fix tilde edge case with "string" encoding ([#3018](https://github.com/angular-ui/ui-router/issues/3018)) ([a201906](https://github.com/angular-ui/ui-router/commit/a201906))
+* **viewService:** Allow root ui-view to be wrapped in ng-if ([32f718a](https://github.com/angular-ui/ui-router/commit/32f718a)), closes [#3004](https://github.com/angular-ui/ui-router/issues/3004)
+
+### Features
+
+* **StateBuilder:** Calculate parent state name when ends in two wildcards `**` ([b4621f3](https://github.com/angular-ui/ui-router/commit/b4621f3))
+
+
+### BREAKING CHANGES
+
+* Remove `UIInjector.native` infavor of `UIInjector.getNative()` ([d11b7dc](https://github.com/angular-ui/ui-router/commit/d11b7dc))
+* Remove `stateProvider` from ui-router-core. Use `stateRegistry` and `stateService` in 88c6494
+
+#### Angular 2
+
+Major breaking changes for Angular 2 bootstrap between beta.2 and beta.3
+
+- Removed `@UIRouterModule` decorator.
+- Added `UIRouterModule.forRoot()` and `UIRouterModule.forChild()` factory methods
+- See https://ui-router.github.io/docs/latest/classes/ng2.uiroutermodule.html
+
+@NgModule({
+  imports: [
+    UIRouterModule.forRoot({
+      states: INITIAL_STATES,
+      useHash: true,
+      configClass: MyUIRouterConfig
+    }),
+    BrowserModule,
+    FeatureModule,
+  ],
+  declarations: INITIAL_COMPONENTS
+})
+class RootAppModule {}
+
+@NgModule({
+  imports: [
+    UIRouterModule.forChild({
+      states: FEATURE_STATES,
+      configClass: FeatureConfig
+    }),
+    CommonModule,
+  ],
+  declarations: FEATURE_COMPONENTS
+})
+
+
 <a name="1.0.0-beta.2"></a>
 # [1.0.0-beta.2](https://github.com/angular-ui/ui-router/compare/1.0.0-alpha.5...v1.0.0-beta.2) (2016-09-09)
 

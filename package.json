@@ -4,6 +4,7 @@
   "version": "1.0.0-beta.3",
   "scripts": {
     "test": "npm run test:integrate",
+    "build": "node ./scripts/package.js core && node ./scripts/package.js ng1 && node ./scripts/package.js ng2",
     "watch": "node_modules/watch/cli.js 'npm run test' src test",
     "test:core": "karma start config/karma.core.js",
     "debug:core": "karma start config/karma.core.js --singleRun=false --browsers=Chrome --autoWatch=true --autoWatchInterval=1",
@@ -15,7 +16,6 @@
     "test:ng14": "karma start config/karma.ng14.js",
     "test:ng15": "karma start config/karma.ng15.js",
     "test:integrate": "tsc && npm run test:core && npm run test:ng12 && npm run test:ng13 && npm run test:ng14 && npm run test:ng15",
-    "build": "node ./scripts/package.js core && node ./scripts/package.js ng1 && node ./scripts/package.js ng2",
     "docs": "./scripts/docs.sh"
   },
   "homepage": "https://ui-router.github.io",
