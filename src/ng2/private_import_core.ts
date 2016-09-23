@@ -1,3 +1,4 @@
+/** @module ng2 */
 /**
  * @Kamshak It's imported like this in @angular/compiler as well.
  * Was going to mark it injectable as in
