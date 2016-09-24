@@ -341,5 +341,3 @@ export interface Ng2Component {
    */
   uiCanExit(): HookResult;
 }
-
-export const NG2_INJECTOR_TOKEN = new OpaqueToken("NgModule Injector");

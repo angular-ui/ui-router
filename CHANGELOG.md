@@ -31,10 +31,12 @@ This release fixes bugs for both ng1 and ng2
 
 ### BREAKING CHANGES
 
+#### BC in Core
 * Remove `UIInjector.native` infavor of `UIInjector.getNative()` ([d11b7dc](https://github.com/angular-ui/ui-router/commit/d11b7dc))
 * Remove `stateProvider` from ui-router-core. Use `stateRegistry` and `stateService` in 88c6494
+* We now enforce states with an explicit `parent:` may NOT ALSO specify a parent state in their name (i.e., `parent.child`)
 
-#### Angular 2
+#### BC in Angular 2
 
 Major breaking changes for Angular 2 bootstrap between beta.2 and beta.3
 
@@ -151,7 +153,7 @@ Previously, a single wildcard `foo.*` could match "missing segments" on the end 
 For example, `foo.*` would match the state `foo`.
 Likewise, `foo.*.*.*` would also match the `foo` state.
 
-Now, a single wildcard matches exactly one segment. 
+Now, a single wildcard matches exactly one segment.
 `foo.*` will match `foo.bar` and `foo.baz`, but neither `foo` nor `foo.bar.baz`.
 
 If you previously relied on the single wildcard to match missing segments, use a double wildcard, `foo.**`.
