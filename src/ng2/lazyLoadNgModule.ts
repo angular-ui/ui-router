@@ -1,5 +1,5 @@
 /** @module ng2 */ /** */
-import {NgModuleFactoryLoader, NgModuleRef, Injector, NgModuleFactory} from "@angular/core";
+import {NgModuleFactoryLoader, NgModuleRef, Injector, NgModuleFactory, Type, Compiler} from "@angular/core";
 
 import {LazyLoadResult} from "../state/interface";
 
@@ -9,6 +9,8 @@ import {applyModuleConfig} from "./uiRouterConfig";
 import {UIRouter} from "../router";
 import {Resolvable} from "../resolve/resolvable";
 import {NATIVE_INJECTOR_TOKEN} from "../resolve/resolveContext";
+
+export type ModuleTypeCallback = () => Type<any> | Promise<Type<any>>;
 
 /**
  * Returns a function which lazy loads a nested module
@@ -24,22 +26,46 @@ import {NATIVE_INJECTOR_TOKEN} from "../resolve/resolveContext";
  *
  * returns the new states array
  */
-export function loadNgModule(path: string): (transition: Transition) => Promise<LazyLoadResult> {
+export function loadNgModule( moduleToLoad: string | ModuleTypeCallback): (transition: Transition) => Promise<LazyLoadResult> {
   /** Get the parent NgModule Injector (from resolves) */
   const getNg2Injector = (transition: Transition) =>
       transition.injector().getAsync(NATIVE_INJECTOR_TOKEN);
 
   /**
+   * Returns the module factory that can be used to instantiate a module
+   *
+   * For strings this:
+   * - Finds the correct NgModuleFactoryLoader
+   * - Loads the new NgModuleFactory from the path string (async)
+   *
+   * For a Type<any> or Promise<Type<any>> this:
+   * - Compiles the component type (if not running with AOT)
+   * - Returns the NgModuleFactory resulting from compilation (or direct loading if using AOT) as a Promise
+   *
+   */
+  const loadModuleFactory = (loadChildren: string | ModuleTypeCallback, ng2Injector: Injector): Promise<NgModuleFactory<any>>=>{
+    if(typeof(loadChildren) === 'string'){
+      return ng2Injector.get(NgModuleFactoryLoader).load(loadChildren);
+    }
+    else{
+     const compiler: Compiler = ng2Injector.get(Compiler);
+     const offlineMode = compiler instanceof Compiler;
+     const loadChildrenPromise = Promise.resolve(loadChildren());
+     return offlineMode ? loadChildrenPromise : loadChildrenPromise.then( moduleType => compiler.compileModuleAsync(moduleType))
+    }
+  }
+
+  /**
    * Lazy loads the NgModule using the NgModuleFactoryLoader
    *
    * Use the parent NgModule's Injector to:
-   * - Find the correct NgModuleFactoryLoader
-   * - Load the new NgModuleFactory from the path string (async)
+   * - Find the correct NgModuleFactory
    * - Create the new NgModule
    */
-  const createNg2Module = (path: string, ng2Injector: Injector) =>
-      ng2Injector.get(NgModuleFactoryLoader).load(path).then((factory: NgModuleFactory<any>) => 
+  const createNg2Module = ( moduleToLoad: string | ModuleTypeCallback , ng2Injector: Injector) =>
+      loadModuleFactory(moduleToLoad, ng2Injector).then((factory: NgModuleFactory<any>) =>
           factory.create(ng2Injector));
+
 
   /**
    * Apply the UI-Router Modules found in the lazy loaded module.
@@ -75,7 +101,7 @@ export function loadNgModule(path: string): (transition: Transition) => Promise<
 
     let replacementState = uiRouter.stateRegistry.get(originalName);
     if (replacementState === originalState) {
-      throw new Error(`The module that was loaded from ${path} should have a ui-router state named '${originalName}'`);
+      throw new Error(`The module that was loaded from ${moduleToLoad} should have a ui-router state named '${originalName}'`);
     }
 
     // Supply the newly loaded states with the Injector from the lazy loaded NgModule
@@ -85,6 +111,6 @@ export function loadNgModule(path: string): (transition: Transition) => Promise<
   }
 
   return (transition: Transition) => getNg2Injector(transition)
-      .then((injector: Injector) => createNg2Module(path, injector))
+      .then((injector: Injector) => createNg2Module(moduleToLoad, injector))
       .then((moduleRef: NgModuleRef<any>) => loadUIRouterModules(transition, moduleRef))
 }
