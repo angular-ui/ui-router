@@ -12,8 +12,8 @@ import {PathFactory} from "../../src/path/module";
 import {ng1ViewsBuilder, ng1ViewConfigFactory} from "../../src/ng1/statebuilders/views";
 import {ViewService} from "../../src/view/view";
 import {StateMatcher, StateBuilder} from "../../src/state/module";
-
 import {State} from "../../src/state/module";
+import {Ng1StateDeclaration} from "../../src/ng1/interface";
 
 describe('view', function() {
   var scope, $compile, $injector, elem, $controllerProvider, $urlMatcherFactoryProvider;
@@ -55,14 +55,16 @@ describe('view', function() {
     let state, path: PathNode[], ctrlExpression;
     beforeEach(() => {
       ctrlExpression = null;
-      state = register({
+      const stateDeclaration: Ng1StateDeclaration = {
         name: "foo",
         template: "test",
-        controllerProvider: function (/* $stateParams, */ foo) { // todo: reimplement localized $stateParams
+        controllerProvider: ["foo", function (/* $stateParams, */ foo) { // todo: reimplement localized $stateParams
           ctrlExpression = /* $stateParams.type + */ foo + "Controller as foo";
           return ctrlExpression;
-        }
-      });
+        }]
+      };
+
+      state = register(stateDeclaration);
       let $view = new ViewService();
       $view.viewConfigFactory("ng1", ng1ViewConfigFactory);
 

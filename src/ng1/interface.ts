@@ -360,7 +360,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * }
    * ```
    */
-  controllerProvider?: Function;
+  controllerProvider?: IInjectable;
 
   /**
    * The scope variable name to use for resolve data.
