@@ -98,6 +98,14 @@ describe('state', function () {
           foo: function() { return 'Foo'; }
         }
       })
+      .state('dynamicController', {
+        url: "/dynamicController/:type",
+        template: "a",
+        controllerProvider: ["$stateParams", function($stateParams) {
+          ctrlName = $stateParams.type + "Controller";
+          return ctrlName;
+        }]
+      })
       .state('home.redirect', {
         url: "redir",
         onEnter: function($state) {
@@ -647,6 +655,12 @@ describe('state', function () {
       expect(template).toEqual("AcmeFooTemplate");
     }));
 
+    it('uses the controllerProvider to get controller dynamically', inject(function ($state, $q) {
+      $state.transitionTo('dynamicController', { type: "Acme" });
+      $q.flush();
+      expect(ctrlName).toEqual("AcmeController");
+    }));
+
     it('updates the location #fragment, if specified', inject(function ($state, $q, $location) {
       // html5mode disabled
       locationProvider.html5Mode(false);
@@ -1076,7 +1090,7 @@ describe('state', function () {
       var list = $state.get().sort(function(a, b) { return (a.name > b.name) - (b.name > a.name); });
       var names = ['', 'A', 'B', 'C', 'D', 'DD', 'DDDD', 'E', 'F', 'H', 'HH', 'HHH', 'ISS2101', 'OPT', 'OPT.OPT2', 'RS', 'URLLESS',
         'about', 'about.person', 'about.person.item', 'about.sidebar', 'about.sidebar.item',
-        'badParam', 'badParam2', 'dynamicTemplate', 'first', 'home', 'home.item', 'home.redirect',
+        'badParam', 'badParam2', 'dynamicController', 'dynamicTemplate', 'first', 'home', 'home.item', 'home.redirect',
         'json', 'logA', 'logA.logB', 'logA.logB.logC', 'resolveFail', 'resolveTimeout',
         'root', 'root.sub1', 'root.sub2', 'second'];
 
