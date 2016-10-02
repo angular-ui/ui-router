@@ -9,7 +9,7 @@ import {anyTrueR, tail, unnestR, Predicate} from "../../common/common";
 import {Globals, UIRouterGlobals} from "../../globals";
 import {Param} from "../../params/param";
 import {PathFactory} from "../../path/pathFactory";
-import {Subscription, Observable} from "rxjs/Rx";
+import {Subscription, Observable, BehaviorSubject} from "rxjs/Rx";
 
 interface TransEvt { evt: string, trans: Transition }
 
@@ -106,14 +106,54 @@ function getSrefStatus(event: TransEvt, srefTarget: TargetState): SrefStatus {
   } as SrefStatus;
 }
 
+function mergeSrefStatus(left: SrefStatus, right: SrefStatus) {
+  return {
+    active:   left.active   || right.active,
+    exact:    left.exact    || right.exact,
+    entering: left.entering || right.entering,
+    exiting:  left.exiting  || right.exiting,
+  };
+}
+
 /**
- * A directive (which pairs with a [[UISref]]) and emits events when the UISref status changes.
+ * A directive which emits events when a paired [[UISref]] status changes.
  *
- * This directive is used by the [[UISrefActive]] directive.
- * 
- * The event emitted is of type [[SrefStatus]], and has boolean values for `active`, `exact`, `entering`, and `exiting`
- * 
- * The values from this event can be captured and stored on a component, then applied (perhaps using ngClass).
+ * This directive is primarily used by the [[UISrefActive]]/[[UISrefActiveEq]] directives to monitor `UISref`(s).
+ * This directive shares the same attribute selectors as `UISrefActive/Eq`, so it is created whenever a `UISrefActive/Eq` is created.
+ *
+ * Most apps should simply use [[UISrefActive]], but some advanced components may want to process the
+ * `uiSrefStatus` events directly.
+ *
+ * ```js
+ * <li (uiSrefStatus)="onSrefStatusChanged($event)">
+ *   <a uiSref="book" [uiParams]="{ bookId: book.id }">Book {{ book.name }}</a>
+ * </li>
+ * ```
+ *
+ * The `uiSrefStatus` event is emitted whenever an enclosed `uiSref`'s status changes.
+ * The event emitted is of type [[SrefStatus]], and has boolean values for `active`, `exact`, `entering`, and `exiting`.
+ *
+ * The values from this event can be captured and stored on a component (then applied, e.g., using ngClass).
+ *
+ * ---
+ *
+ * A single `uiSrefStatus` can enclose multiple `uiSref`.
+ * Each status boolean (`active`, `exact`, `entering`, `exiting`) will be true if *any of the enclosed `uiSref` status is true*.
+ * In other words, all enclosed `uiSref` statuses  are merged to a single status using `||` (logical or).
+ *
+ * ```js
+ * <li (uiSrefStatus)="onSrefStatus($event)" uiSref="admin">
+ *   Home
+ *   <ul>
+ *     <li> <a uiSref="admin.users">Users</a> </li>
+ *     <li> <a uiSref="admin.groups">Groups</a> </li>
+ *   </ul>
+ * </li>
+ * ```
+ *
+ * In the above example, `$event.active === true` when either `admin.users` or `admin.groups` is active.
+ *
+ * ---
  *
  * This API is subject to change.
  */
@@ -128,6 +168,8 @@ export class UISrefStatus {
   status: SrefStatus;
 
   private _subscription: Subscription;
+  private _srefChangesSub: Subscription;
+  private _srefs$: BehaviorSubject<UISref[]>;
 
   constructor(@Inject(Globals) private _globals: UIRouterGlobals) {
     this.status = Object.assign({}, inactiveStatus);
@@ -146,10 +188,14 @@ export class UISrefStatus {
       return transStart$.concat(transFinish$);
     });
 
-    // Watch the children UISref components and get their target states
-    let srefs$: Observable<UISref[]> = Observable.of(this.srefs.toArray()).concat(this.srefs.changes);
+    // Watch the @ContentChildren UISref[] components and get their target states
+
+    // let srefs$: Observable<UISref[]> = Observable.of(this.srefs.toArray()).concat(this.srefs.changes);
+    this._srefs$ = new BehaviorSubject(this.srefs.toArray());
+    this._srefChangesSub = this.srefs.changes.subscribe(srefs => this._srefs$.next(srefs));
+
     let targetStates$: Observable<TargetState[]> =
-        srefs$.switchMap((srefs: UISref[]) =>
+        this._srefs$.switchMap((srefs: UISref[]) =>
             Observable.combineLatest<TargetState[]>(srefs.map(sref => sref.targetState$)));
 
     // Calculate the status of each UISref based on the transition event.
@@ -157,19 +203,16 @@ export class UISrefStatus {
     this._subscription = transEvents$.mergeMap((evt: TransEvt) => {
       return targetStates$.map((targets: TargetState[]) => {
         let statuses: SrefStatus[] = targets.map(target => getSrefStatus(evt, target));
-
-        return statuses.reduce((acc: SrefStatus, val: SrefStatus) => ({
-          active: acc.active || val.active,
-          exact: acc.active || val.active,
-          entering: acc.active || val.active,
-          exiting: acc.active || val.active,
-        }))
+        return statuses.reduce(mergeSrefStatus)
       })
     }).subscribe(this._setStatus.bind(this));
   }
 
   ngOnDestroy() {
     if (this._subscription) this._subscription.unsubscribe();
+    if (this._srefChangesSub) this._srefChangesSub.unsubscribe();
+    if (this._srefs$) this._srefs$.unsubscribe();
+    this._subscription = this._srefChangesSub = this._srefs$ = undefined;
   }
 
   private _setStatus(status: SrefStatus) {

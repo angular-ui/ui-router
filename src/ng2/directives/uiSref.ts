@@ -94,6 +94,7 @@ export class UISref {
   }
 
   ngOnDestroy() {
+    this._emit = false;
     this._statesSub.unsubscribe();
     this.targetState$.unsubscribe();
   }
