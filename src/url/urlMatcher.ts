@@ -53,6 +53,9 @@ const memoizeTo = (obj: Obj, prop: string, fn: Function) =>
  * (`/somePath/{param:[a-zA-Z0-9]+}`) in a curly brace placeholder.
  * The regexp must match for the url to be matched.
  * Should the regexp itself contain curly braces, they must be in matched pairs or escaped with a backslash.
+ * Note that a RegExp parameter will encode its value with `string` ParamType encoding: "/" as "~2F", and "~" as "~~". 
+ * When matching these characters, use the encoded versions in the regexp.
+ * See issue [#2540](https://github.com/angular-ui/ui-router/issues/2540) for more information.
  *
  * - *Custom parameter types* may also be specified after a colon (`/somePath/{param:int}`)
  * in curly brace parameters.  See [[UrlMatcherFactory.type]] for more information.
