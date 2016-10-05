@@ -271,6 +271,50 @@ describe('uiStateRef', function() {
     }));
   });
 
+  describe('nested links', function() {
+    var inner, outer;
+    beforeEach(inject(function($rootScope, $compile, $timeout, $document) {
+      el = angular.element('<div id="outer" ui-sref="contacts">Outer <a ui-sref="contacts.item({ id: 1 })">Inner</a></div>');
+      $compile(el)($rootScope);
+      $rootScope.$digest();
+
+      inner = el.find('a');
+      outer = el;
+      $document[0].body.appendChild(el[0]);
+
+
+      timeoutFlush = function () {
+        try {
+          $timeout.flush();
+        } catch (e) {
+          // Angular 1.0.8 throws 'No deferred tasks to be flushed' if there is nothing in queue.
+          // Behave as Angular >=1.1.5 and do nothing in such case.
+        }
+      }
+    }));
+
+    afterEach(inject(function($document) {
+      $document[0].body.removeChild(el[0]);
+    }));
+
+    it('should navigate to the inner sref when clicking on the inner link', inject(function($q, $state, $stateParams) {
+      triggerClick(inner);
+      timeoutFlush();
+      $q.flush();
+
+      expect($state.current.name).toEqual('contacts.item');
+      expect(obj($stateParams)).toEqualData({ id: 1 });
+    }));
+
+    it('should navigate to the outer sref when clicking on the outer element', inject(function($q, $state) {
+      triggerClick(outer);
+      timeoutFlush();
+      $q.flush();
+
+      expect($state.current.name).toEqual('contacts');
+    }));
+  });
+
   describe('links in html5 mode', function() {
     beforeEach(function() {
       _locationProvider.html5Mode(true);
