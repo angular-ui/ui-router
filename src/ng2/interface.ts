@@ -48,9 +48,9 @@ export interface Ng2StateDeclaration extends StateDeclaration, Ng2ViewDeclaratio
    * ```js
    *
    * views: {
-   *   header: HeaderComponent,
-   *   body: BodyComponent,
-   *   footer: FooterComponent
+   *   header: {component: HeaderComponent},
+   *   body: {component: BodyComponent},
+   *   footer: {component: FooterComponent}
    * }
    * ```
    *
@@ -60,8 +60,8 @@ export interface Ng2StateDeclaration extends StateDeclaration, Ng2ViewDeclaratio
    * // Targets named ui-view="header" in the template of the ancestor state 'top'
    * // and the named `ui-view="body" from the parent state's template.
    * views: {
-   *   'header@top': MsgHeaderComponent,
-   *   'body': MessagesComponent
+   *   'header@top': {component: MsgHeaderComponent},
+   *   'body': {component: MessagesComponent}
    * }
    * ```
    *
