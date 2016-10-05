@@ -120,13 +120,15 @@ export class Resolvable implements ResolvableLiteral {
      * For RXWAIT policy:
      *
      * Given an observable returned from a resolve function:
-     * - enables .cache() mode (this allows multicast subscribers)
-     * - then calls toPromise() (this triggers subscribe() and thus fetches)
-     * - Waits for the promise, then return the cached observable (not the first emitted value).
+     * - waits for the first item to be emitted by using take
+     * - calls toPromise to make the stream eager
+     * - in the promise: creates a multicast behaviour stream that emits the first item and all subsequent item
+     * - enables refCount to make sure subscriptions are cleaned up correctly and connected to automatically
      */
     const waitForRx = (observable$: any) => {
-      let cached = observable$.cache(1);
-      return cached.take(1).toPromise().then(() => cached);
+      return observable$.take(1).toPromise().then((firstItem) => {
+      	return observable$.publishBehavior(firstItem).refCount();
+      });
     };
 
     // If the resolve policy is RXWAIT, wait for the observable to emit something. otherwise pass through.
