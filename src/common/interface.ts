@@ -36,6 +36,7 @@ export interface UIInjector {
    * @return the Dependency Injection value that matches the token
    */
   get(token: any): any;
+  get<T>(token: any): T;
 
   /**
    * Asynchronously gets a value from the injector
@@ -58,6 +59,7 @@ export interface UIInjector {
    * @return a Promise for the Dependency Injection value that matches the token
    */
   getAsync(token: any): Promise<any>;
+  getAsync<T>(token: any): Promise<T>;
 
   /**
    * Gets a value from the native injector
@@ -73,4 +75,5 @@ export interface UIInjector {
    * @return the Dependency Injection value that matches the token
    */
   getNative(token: any): any;
+  getNative<T>(token: any): T;
 }
