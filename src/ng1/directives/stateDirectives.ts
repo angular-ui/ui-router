@@ -57,13 +57,15 @@ function getTypeInfo(el: IAugmentedJQuery): TypeInfo {
 }
 
 /** @hidden */
+let pendingTransition;
 function clickHook(el: IAugmentedJQuery, $state: StateService, $timeout: ITimeoutService, type: TypeInfo, current: Function) {
   return function(e: JQueryMouseEventObject) {
     var button = e.which || e.button, target = current();
 
-    if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || el.attr('target'))) {
+    if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || el.attr('target') || pendingTransition)) {
       // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
-      var transition = $timeout(function() {
+      pendingTransition = $timeout(function() {
+        pendingTransition = null;
         $state.go(target.state, target.params, target.options);
       });
       e.preventDefault();
@@ -72,7 +74,10 @@ function clickHook(el: IAugmentedJQuery, $state: StateService, $timeout: ITimeou
       var ignorePreventDefaultCount = type.isAnchor && !target.href ? 1: 0;
 
       e.preventDefault = function() {
-        if (ignorePreventDefaultCount-- <= 0) $timeout.cancel(transition);
+        if (ignorePreventDefaultCount-- <= 0) {
+          $timeout.cancel(pendingTransition);
+          pendingTransition = null;
+        }
       };
     }
   };
