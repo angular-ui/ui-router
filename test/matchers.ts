@@ -1,5 +1,5 @@
 /// <reference path='../typings/jasmine/jasmine.d.ts' />
-import {equals} from "../src/common/common";
+import {equals} from "ui-router-core";
 declare var testablePromise;
 
 beforeEach(function() {

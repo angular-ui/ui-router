@@ -1,11 +1,11 @@
 /** @module ng2 */ /** */
-import {State} from "../../state/stateObject";
-import {PathNode} from "../../path/node";
-import {pick, forEach} from "../../common/common";
-import {ViewConfig} from "../../view/interface";
+import {State} from "ui-router-core";
+import {PathNode} from "ui-router-core";
+import {pick, forEach} from "ui-router-core";
+import {ViewConfig} from "ui-router-core";
 import {Ng2ViewDeclaration} from "../interface";
-import {services} from "../../common/coreservices";
-import {ViewService} from "../../view/view";
+import {services} from "ui-router-core";
+import {ViewService} from "ui-router-core";
 
 /**
  * This is a [[StateBuilder.builder]] function for angular2 `views`.

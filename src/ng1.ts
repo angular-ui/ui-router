@@ -4,7 +4,7 @@
  */
 /** for typedoc */
 
-export * from "./core";
+export * from "ui-router-core";
 
 export * from "./ng1/interface";
 export * from "./ng1/services";

@@ -1,14 +1,14 @@
 /** @module ng2 */ /** */
 import {NgModuleFactoryLoader, NgModuleRef, Injector, NgModuleFactory, Type, Compiler} from "@angular/core";
 
-import {LazyLoadResult} from "../state/interface";
+import {LazyLoadResult} from "ui-router-core";
 
-import {Transition} from "../transition/transition";
+import {Transition} from "ui-router-core";
 import {RootModule, StatesModule, UIROUTER_ROOT_MODULE, UIROUTER_MODULE_TOKEN} from "./uiRouterNgModule";
 import {applyModuleConfig} from "./uiRouterConfig";
-import {UIRouter} from "../router";
-import {Resolvable} from "../resolve/resolvable";
-import {NATIVE_INJECTOR_TOKEN} from "../resolve/resolveContext";
+import {UIRouter} from "ui-router-core";
+import {Resolvable} from "ui-router-core";
+import {NATIVE_INJECTOR_TOKEN} from "ui-router-core";
 
 export type ModuleTypeCallback = () => Type<any> | Promise<Type<any>>;
 

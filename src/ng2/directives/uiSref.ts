@@ -1,15 +1,16 @@
 /** @module ng2_directives */ /** */
-import {UIRouter} from "../../router";
+import {UIRouter, UIRouterGlobals} from "ui-router-core";
 import {Directive, Inject, Input} from "@angular/core";
 import {Optional} from "@angular/core";
 import {ElementRef} from "@angular/core";
 import {Renderer} from "@angular/core";
 import {UIView, ParentUIViewInject} from "./uiView";
-import {extend, Obj} from "../../common/common";
-import {TransitionOptions} from "../../transition/interface";
-import {Globals, UIRouterGlobals} from "../../globals";
+import {extend, Obj} from "ui-router-core";
+import {TransitionOptions} from "ui-router-core";
+import {Globals} from "ui-router-core";
 import {Subscription, ReplaySubject} from "rxjs/Rx";
-import {TargetState} from "../../state/targetState";
+import {TargetState} from "ui-router-core";
+import "../rx";
 
 /** @hidden */
 @Directive({ selector: 'a[uiSref]' })

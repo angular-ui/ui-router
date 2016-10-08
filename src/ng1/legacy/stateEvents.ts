@@ -17,18 +17,18 @@
  * @module ng1_state_events
  */ /** */
 import {IServiceProviderFactory} from "angular";
-import {Obj} from "../../common/common";
-import {TargetState} from "../../state/targetState";
-import {StateService} from "../../state/stateService";
+import {Obj} from "ui-router-core";
+import {TargetState} from "ui-router-core";
+import {StateService} from "ui-router-core";
 import {StateProvider} from "../stateProvider";
-import {Transition} from "../../transition/transition";
+import {Transition} from "ui-router-core";
 import IAngularEvent = angular.IAngularEvent;
-import {TransitionService} from "../../transition/transitionService";
-import {UrlRouter} from "../../url/urlRouter";
+import {TransitionService} from "ui-router-core";
+import {UrlRouter} from "ui-router-core";
 import * as angular from 'angular';
 import IScope = angular.IScope;
-import {HookResult} from "../../transition/interface";
-import {UIInjector} from "../../common/interface";
+import {HookResult} from "ui-router-core";
+import {UIInjector} from "ui-router-core";
 
 /**
  * An event broadcast on `$rootScope` when the state transition **begins**.

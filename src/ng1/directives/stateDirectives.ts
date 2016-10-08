@@ -6,20 +6,20 @@
  * @preferred @module ng1_directives
  */ /** for typedoc */
 import * as angular from 'angular';
-import {Obj, extend, forEach, toJson, tail} from "../../common/common";
-import {isString, isObject} from "../../common/predicates";
+import {Obj, extend, forEach, toJson, tail} from "ui-router-core";
+import {isString, isObject} from "ui-router-core";
 import {UIViewData} from "./viewDirective";
-import {parse} from "../../common/hof";
-import {PathNode} from "../../path/node";
-import {StateOrName} from "../../state/interface";
+import {parse} from "ui-router-core";
+import {PathNode} from "ui-router-core";
+import {StateOrName} from "ui-router-core";
+import {StateService} from "ui-router-core";
 import IAugmentedJQuery = angular.IAugmentedJQuery;
-import {StateService} from "../../state/stateService";
 import ITimeoutService = angular.ITimeoutService;
 import IScope = angular.IScope;
 import IInterpolateService = angular.IInterpolateService;
-import {TransitionService} from "../../transition/transitionService";
-import {State} from "../../state/stateObject";
-import {UIRouter} from "../../router";
+import {TransitionService} from "ui-router-core";
+import {State} from "ui-router-core";
+import {UIRouter} from "ui-router-core";
 
 /** @hidden */
 function parseStateRef(ref: string, current: string) {

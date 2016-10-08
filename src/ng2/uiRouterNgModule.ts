@@ -3,8 +3,8 @@ import {Ng2StateDeclaration} from "./interface";
 import {NgModule, OpaqueToken, ModuleWithProviders, ANALYZE_FOR_ENTRY_COMPONENTS, Provider, Type} from "@angular/core";
 import {_UIROUTER_DIRECTIVES} from "./directives/directives";
 import {UIView} from "./directives/uiView";
-import {RawParams} from "../params/interface";
-import {identity} from "../common/common";
+import {RawParams} from "ui-router-core";
+import {identity} from "ui-router-core";
 import {LocationStrategy, HashLocationStrategy, PathLocationStrategy} from "@angular/common";
 import {_UIROUTER_INSTANCE_PROVIDERS, _UIROUTER_SERVICE_PROVIDERS} from "./providers";
 

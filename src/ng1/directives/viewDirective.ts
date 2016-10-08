@@ -1,23 +1,23 @@
 /** @module ng1_directives */ /** for typedoc */
 "use strict";
-import {extend, unnestR, filter, tail} from "../../common/common";
-import {isDefined, isFunction, isString} from "../../common/predicates";
-import {trace} from "../../common/trace";
-import {ActiveUIView} from "../../view/interface";
+import {extend, unnestR, filter, tail} from "ui-router-core";
+import {isDefined, isFunction, isString} from "ui-router-core";
+import {trace} from "ui-router-core";
+import {ActiveUIView} from "ui-router-core";
 import {Ng1ViewConfig} from "../statebuilders/views";
-import {TransitionService} from "../../transition/transitionService";
-import {parse} from "../../common/hof";
-import {ResolveContext} from "../../resolve/resolveContext";
-import {Transition} from "../../transition/transition";
-import {PathNode} from "../../path/node";
-import {Param} from "../../params/param";
-import {kebobString} from "../../common/strings";
-import {HookRegOptions} from "../../transition/interface";
+import {TransitionService} from "ui-router-core";
+import {parse} from "ui-router-core";
+import {ResolveContext} from "ui-router-core";
+import {Transition} from "ui-router-core";
+import {PathNode} from "ui-router-core";
+import {Param} from "ui-router-core";
+import {kebobString} from "ui-router-core";
+import {HookRegOptions} from "ui-router-core";
 import {Ng1Controller, Ng1StateDeclaration} from "../interface";
 import {getLocals} from "../services";
-import {ViewService} from "../../view/view";
-import {$QLike} from "../../common/coreservices";
-import {Obj} from "../../common/common";
+import {ViewService} from "ui-router-core";
+import {$QLike} from "ui-router-core";
+import {Obj} from "ui-router-core";
 
 import * as angular from 'angular';
 import IInterpolateService = angular.IInterpolateService;

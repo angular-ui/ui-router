@@ -1,8 +1,8 @@
 /** @module ng2 */ /** */
 import {Observable, ReplaySubject} from "rxjs/Rx";
-import {Transition} from "../transition/transition";
-import {UIRouter} from "../router";
-import {StateDeclaration} from "../state/interface";
+import {Transition} from "ui-router-core";
+import {UIRouter} from "ui-router-core";
+import {StateDeclaration} from "ui-router-core";
 
 export interface StatesChangedEvent {
   currentStates: StateDeclaration[];
@@ -10,7 +10,7 @@ export interface StatesChangedEvent {
   deregistered: StateDeclaration[];
 }
 
-declare module '../globals' {
+declare module 'ui-router-core/lib/globals' {
   interface UIRouterGlobals {
     states$?: Observable<StatesChangedEvent>;
     start$?: Observable<Transition>;

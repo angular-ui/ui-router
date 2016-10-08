@@ -8,8 +8,7 @@ import {
 } from "../../src/ng1";
 
 import Spy = jasmine.Spy;
-import {Resolvable} from "../../src/resolve/resolvable";
-import {services} from "../../src/common/coreservices";
+import {Resolvable, services} from "ui-router-core";
 
 let module = angular.mock.module;
 ///////////////////////////////////////////////

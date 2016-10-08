@@ -2,10 +2,10 @@
 import {HashLocationStrategy, PlatformLocation, LocationStrategy, LocationChangeListener} from "@angular/common";
 import {Injectable} from "@angular/core";
 
-import {services} from "../common/coreservices";
-import {isDefined} from "../common/predicates";
-import {applyPairs} from "../common/common";
-import {beforeAfterSubstr} from "../common/strings";
+import {services} from "ui-router-core";
+import {isDefined} from "ui-router-core";
+import {applyPairs} from "ui-router-core";
+import {beforeAfterSubstr} from "ui-router-core";
 
 const splitOnHash = beforeAfterSubstr("#");
 const splitOnEquals = beforeAfterSubstr("=");

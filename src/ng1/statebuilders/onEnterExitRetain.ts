@@ -1,12 +1,12 @@
 /** @module ng1 */ /** */
-import {State} from "../../state/stateObject";
-import {TransitionStateHookFn, HookResult} from "../../transition/interface";
-import {Transition} from "../../transition/transition";
-import {services} from "../../common/coreservices";
+import {State} from "ui-router-core";
+import {TransitionStateHookFn, HookResult} from "ui-router-core";
+import {Transition} from "ui-router-core";
+import {services} from "ui-router-core";
 import {getLocals} from "../services";
-import {ResolveContext} from "../../resolve/resolveContext";
-import {extend} from "../../common/common";
-import {BuilderFunction} from "../../state/stateBuilder";
+import {ResolveContext} from "ui-router-core";
+import {extend} from "ui-router-core";
+import {BuilderFunction} from "ui-router-core";
 
 import * as angular from 'angular';
 import IInjectorService = angular.auto.IInjectorService;

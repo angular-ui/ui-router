@@ -11,13 +11,15 @@ System.config({
         '@angular': 'node_modules/@angular',
 
         'angular-ui-router': 'src/ng1.ts',
-        'ui-router-core': 'src/core.ts',
         'ui-router-ng2': 'src/ng2.ts'
     },
+    map: {
+        'ui-router-core': 'node_modules/ui-router-core/lib',
+    },
     packages: {
-        'build/es6': { defaultExtension: 'js' },
         'src': { defaultExtension: 'ts' },
 
+        'ui-router-core':       { main: 'index.js', defaultExtension: 'js' },
         '@angular/core':        { main: 'index.js', defaultExtension: 'js' },
         '@angular/compiler':    { main: 'index.js', defaultExtension: 'js' },
         '@angular/common':      { main: 'index.js', defaultExtension: 'js' },

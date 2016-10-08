@@ -5,12 +5,12 @@ import {
 } from '@angular/core';
 import {ReflectorReader, reflector} from '../private_import_core';
 
-import {UIRouter} from "../../router";
-import {trace} from "../../common/trace";
-import {ViewContext, ViewConfig, ActiveUIView} from "../../view/interface";
+import {UIRouter} from "ui-router-core";
+import {trace} from "ui-router-core";
+import {ViewContext, ViewConfig, ActiveUIView} from "ui-router-core";
 import {Ng2ViewConfig} from "../statebuilders/views";
-import {ResolveContext, NATIVE_INJECTOR_TOKEN} from "../../resolve/resolveContext";
-import {flattenR} from "../../common/common";
+import {ResolveContext, NATIVE_INJECTOR_TOKEN} from "ui-router-core";
+import {flattenR} from "ui-router-core";
 import {MergeInjector} from "../mergeInjector";
 
 /** @hidden */

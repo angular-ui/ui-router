@@ -1,10 +1,10 @@
 /** @module ng1 */ /** for typedoc */
-import {isObject} from "../common/predicates";
-import {bindFunctions} from "../common/common";
-import {BuilderFunction} from "../state/stateBuilder";
-import {StateRegistry} from "../state/stateRegistry";
+import {isObject} from "ui-router-core";
+import {bindFunctions} from "ui-router-core";
+import {BuilderFunction} from "ui-router-core";
+import {StateRegistry} from "ui-router-core";
 import {Ng1StateDeclaration} from "./interface";
-import {StateService, OnInvalidCallback} from "../state/stateService";
+import {StateService, OnInvalidCallback} from "ui-router-core";
 
 /**
  * @ngdoc object

@@ -1,9 +1,9 @@
 /** @module ng1 */ /** */
-import {State} from "../../state/stateObject";
-import {PathNode} from "../../path/node";
-import {ResolveContext} from "../../resolve/resolveContext";
-import {Obj, mapObj} from "../../common/common";
-import {resolvablesBuilder} from "../../state/stateBuilder";
+import {State} from "ui-router-core";
+import {PathNode} from "ui-router-core";
+import {ResolveContext} from "ui-router-core";
+import {Obj, mapObj} from "ui-router-core";
+import {resolvablesBuilder} from "ui-router-core";
 
 /**
  * Implementation of the legacy `$resolve` service for angular 1.

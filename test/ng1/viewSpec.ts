@@ -4,15 +4,15 @@
 import * as angular from "angular";
 var module = angular.mock.module;
 
-import {inherit, extend, tail} from "../../src/common/common";
-import {curry} from "../../src/common/hof";
-import {PathNode} from "../../src/path/module";
-import {ResolveContext} from "../../src/resolve/module";
-import {PathFactory} from "../../src/path/module";
+import {inherit, extend, tail} from "ui-router-core";
+import {curry} from "ui-router-core";
+import {PathNode} from "ui-router-core";
+import {ResolveContext} from "ui-router-core";
+import {PathFactory} from "ui-router-core";
 import {ng1ViewsBuilder, ng1ViewConfigFactory} from "../../src/ng1/statebuilders/views";
-import {ViewService} from "../../src/view/view";
-import {StateMatcher, StateBuilder} from "../../src/state/module";
-import {State} from "../../src/state/module";
+import {ViewService} from "ui-router-core";
+import {StateMatcher, StateBuilder} from "ui-router-core";
+import {State} from "ui-router-core";
 import {Ng1StateDeclaration} from "../../src/ng1/interface";
 
 describe('view', function() {

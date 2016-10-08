@@ -37,7 +37,10 @@ var config = {
   systemjs: {
     // Set up systemjs paths
     configFile: 'config/system.config.js',
-    files: ['src/**/*.ts']
+    files: [
+        'src/**/*.ts',
+        'node_modules/ui-router-core/lib/**/*'
+    ]
   },
   exclude: []
 };

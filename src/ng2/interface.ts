@@ -1,8 +1,8 @@
 /** @module ng2 */ /** */
-import {StateDeclaration, _ViewDeclaration} from "../state/interface";
-import {Transition} from "../transition/transition";
+import {StateDeclaration, _ViewDeclaration} from "ui-router-core";
+import {Transition} from "ui-router-core";
 import {Type, OpaqueToken} from "@angular/core";
-import {HookResult} from "../transition/interface";
+import {HookResult} from "ui-router-core";
 
 /**
  * The StateDeclaration object is used to define a state or nested state.

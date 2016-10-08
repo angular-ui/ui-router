@@ -10,24 +10,24 @@
  */
 
 /** for typedoc */
-import {UIRouter} from "../router";
-import {services, $InjectorLike} from "../common/coreservices";
-import {bindFunctions, removeFrom, applyPairs, IInjectable} from "../common/common";
-import {TypedMap} from "../common/common"; // has or is using
-import {prop} from "../common/hof";
-import {isObject, isString} from "../common/predicates";
+import {UIRouter} from "ui-router-core";
+import {services, $InjectorLike} from "ui-router-core";
+import {bindFunctions, removeFrom, applyPairs, IInjectable} from "ui-router-core";
+import {TypedMap} from "ui-router-core"; // has or is using
+import {prop} from "ui-router-core";
+import {isObject, isString} from "ui-router-core";
 import {resolveFactory} from "./legacy/resolveService";
-import {trace} from "../common/trace";
+import {trace} from "ui-router-core";
 import {ng1ViewsBuilder, ng1ViewConfigFactory} from "./statebuilders/views";
 import {TemplateFactory} from "./templateFactory";
-import {StateParams} from "../params/stateParams";
-import {TransitionService} from "../transition/transitionService";
-import {StateService} from "../state/stateService";
+import {StateParams} from "ui-router-core";
+import {TransitionService} from "ui-router-core";
+import {StateService} from "ui-router-core";
 import {StateProvider} from "./stateProvider";
-import {UrlRouterProvider, UrlRouter} from "../url/urlRouter";
-import {UrlMatcherFactory} from "../url/urlMatcherFactory";
+import {UrlRouterProvider, UrlRouter} from "ui-router-core";
+import {UrlMatcherFactory} from "ui-router-core";
 import {getStateHookBuilder} from "./statebuilders/onEnterExitRetain";
-import {ResolveContext} from "../resolve/resolveContext";
+import {ResolveContext} from "ui-router-core";
 
 import * as angular from 'angular';
 import IInjectorService = angular.auto.IInjectorService;
@@ -157,13 +157,14 @@ export function annotateController(controllerExpression: (IInjectable|string)): 
   }
 }
 
-let router: UIRouter = null;
-declare module "../router" {
+declare module 'ui-router-core/lib/router' {
   interface UIRouter {
-    /** @hidden TODO: move this to ng1.ts */
+    /** @hidden */
     stateProvider: StateProvider;
   }
 }
+
+let router: UIRouter = null;
 
 $uiRouter.$inject = ['$locationProvider'];
 /** This angular 1 provider instantiates a Router and exposes its services via the angular injector */

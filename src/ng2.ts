@@ -4,8 +4,8 @@
  */
 /** for typedoc */
 
-export * from "./core";
-import "./justjs";
+export * from "ui-router-core";
+import "ui-router-core/lib/justjs";
 
 export * from "./ng2/interface";
 export * from "./ng2/lazyLoadNgModule";

@@ -13,6 +13,6 @@
     "sourceMap": true
   },
   "files": [
-    "src/core.ts", "src/ng1.ts", "src/ng1/legacy/stateEvents.ts", "src/ng2.ts"
+    "src/ng1.ts", "src/ng1/legacy/stateEvents.ts", "src/ng2.ts"
   ]
 }

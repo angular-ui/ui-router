@@ -50,12 +50,56 @@ If your issue gets labeled with purple label, no further action will be taken un
 # Developing
 
 UI-Router uses <code>npm</code> and <code>webpack</code>.
-After cloning the ui-router repository, fetch the dependencies for building from source and running tests:
 
-* run `$ npm install` from the project directory
+## Fetch the source code
 
-There are a number of scripts in the package.json that are used to generate builds and run tests:
+The code for Angular UI-Router is split into two source repositories:
 
-* `npm test`: runs the entire test suite.
+* [UI-Router Core](https://github.com/ui-router/core) (`ui-router-core` on npm)
+* [UI-Router for Angular 1](https://github.com/angular-ui/ui-router) (`angular-ui-router` on npm)
+
+Clone both repositories into directories next to each other.
+
+```
+git clone https://github.com/angular-ui/ui-router.git angular-ui-router
+git clone https://github.com/ui-router/core.git ui-router-core
+```
+
+## Install dependencies
+
+Use `npm` to install the development dependencies for each repositor.
+
+```
+cd ui-router-core
+npm install
+cd ../angular-ui-router
+npm install
+cd ..
+```
+
+## Link the directories
+
+This step is necessary if you need to modify any code in `ui-router-core`.
+Using `npm`, link `ui-router-core` into `angular-ui-router` 
+
+```
+cd ui-router-core
+npm link
+cd ../angular-ui-router
+npm link ui-router-core
+cd ..
+```
+
+After executing these steps, `angular-ui-router` will be built using your local copy of `ui-router-core`.
+
+## Develop 
+
 * `npm run build`: Perform a full build.
+* `npm test`: Runs the `angular-ui-router` test suite (against Angular 1.2 through 1.5).
 * `npm run watch`: Continuously runs the tests when source or tests change.
+
+If you make changes in `ui-router-core`, run these scripts before rebuilding or re-testing `angular-ui-router`:
+
+* `npm run build`: Compiles `ui-router-core` code
+* `npm test`: Runs the `ui-router-core` test suite
+

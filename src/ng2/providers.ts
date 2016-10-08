@@ -85,25 +85,25 @@
  * @preferred @module ng2
  */ /** */
 import {Injector, Provider} from "@angular/core";
-import {UIRouter} from "../router";
-import {PathNode} from "../path/node";
-import {StateRegistry} from "../state/stateRegistry";
-import {StateService} from "../state/stateService";
-import {TransitionService} from "../transition/transitionService";
-import {UrlMatcherFactory} from "../url/urlMatcherFactory";
-import {UrlRouter} from "../url/urlRouter";
-import {ViewService} from "../view/view";
+import {UIRouter} from "ui-router-core";
+import {PathNode} from "ui-router-core";
+import {StateRegistry} from "ui-router-core";
+import {StateService} from "ui-router-core";
+import {TransitionService} from "ui-router-core";
+import {UrlMatcherFactory} from "ui-router-core";
+import {UrlRouter} from "ui-router-core";
+import {ViewService} from "ui-router-core";
 import {UIView, ParentUIViewInject} from "./directives/uiView";
 import {ng2ViewsBuilder, Ng2ViewConfig} from "./statebuilders/views";
 import {Ng2ViewDeclaration} from "./interface";
 import {applyRootModuleConfig, applyModuleConfig} from "./uiRouterConfig";
-import {Globals} from "../globals";
+import {Globals} from "ui-router-core";
 import {UIRouterLocation} from "./location";
-import {services} from "../common/coreservices";
-import {Resolvable} from "../resolve/resolvable";
+import {services} from "ui-router-core";
+import {Resolvable} from "ui-router-core";
 import {RootModule, StatesModule, UIROUTER_ROOT_MODULE, UIROUTER_MODULE_TOKEN} from "./uiRouterNgModule";
 import {UIRouterRx} from "./rx";
-import {NATIVE_INJECTOR_TOKEN} from "../resolve/resolveContext";
+import {NATIVE_INJECTOR_TOKEN} from "ui-router-core";
 
 /**
  * This is a factory function for a UIRouter instance

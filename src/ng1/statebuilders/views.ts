@@ -1,18 +1,18 @@
 /** @module ng1 */ /** */
-import {State} from "../../state/stateObject";
-import {Obj, pick, forEach, anyTrueR, unnestR, tail, extend} from "../../common/common";
-import {kebobString} from "../../common/strings";
-import {ViewConfig} from "../../view/interface";
+import {State} from "ui-router-core";
+import {Obj, pick, forEach, anyTrueR, unnestR, tail, extend} from "ui-router-core";
+import {kebobString} from "ui-router-core";
+import {ViewConfig} from "ui-router-core";
 import {Ng1ViewDeclaration} from "../interface";
-import {ViewService, ViewConfigFactory} from "../../view/view";
-import {isArray, isInjectable, isDefined, isString, isObject} from "../../common/predicates";
-import {services} from "../../common/coreservices";
-import {trace} from "../../common/trace";
-import {PathNode} from "../../path/node";
+import {ViewService, ViewConfigFactory} from "ui-router-core";
+import {isArray, isInjectable, isDefined, isString, isObject} from "ui-router-core";
+import {services} from "ui-router-core";
+import {trace} from "ui-router-core";
+import {PathNode} from "ui-router-core";
 import {TemplateFactory} from "../templateFactory";
-import {ResolveContext} from "../../resolve/resolveContext";
-import {Resolvable} from "../../resolve/resolvable";
-import {RawParams} from "../../params/interface";
+import {ResolveContext} from "ui-router-core";
+import {Resolvable} from "ui-router-core";
+import {RawParams} from "ui-router-core";
 
 import * as angular from 'angular';
 import IInjectorService = angular.auto.IInjectorService;

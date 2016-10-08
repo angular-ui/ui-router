@@ -1,14 +1,14 @@
 /** @module ng2_directives */ /** */
 import {Directive, Output, EventEmitter, ContentChildren, QueryList, Inject} from "@angular/core";
 import {UISref} from "./uiSref";
-import {PathNode} from "../../path/node";
-import {Transition} from "../../transition/transition";
-import {TargetState} from "../../state/targetState";
-import {State} from "../../state/stateObject";
-import {anyTrueR, tail, unnestR, Predicate} from "../../common/common";
-import {Globals, UIRouterGlobals} from "../../globals";
-import {Param} from "../../params/param";
-import {PathFactory} from "../../path/pathFactory";
+import {PathNode} from "ui-router-core";
+import {Transition} from "ui-router-core";
+import {TargetState} from "ui-router-core";
+import {State} from "ui-router-core";
+import {anyTrueR, tail, unnestR, Predicate} from "ui-router-core";
+import {Globals, UIRouterGlobals} from "ui-router-core";
+import {Param} from "ui-router-core";
+import {PathFactory} from "ui-router-core";
 import {Subscription, Observable, BehaviorSubject} from "rxjs/Rx";
 
 interface TransEvt { evt: string, trans: Transition }
