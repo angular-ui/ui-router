@@ -1,6 +1,0 @@
-{
-  "name": "ui-router-core",
-  "description": "Framework-agnostic state based routing for Javascript",
-  "main": "core.js",
-  "typings": "core.d.ts"
-}

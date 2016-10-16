@@ -1,9 +1,0 @@
-{
-  "name": "ui-router-ng2",
-  "description": "State-based routing for Angular 2",
-  "peerDependencies": {
-    "@angular/core": "^2.0.0-rc.5"
-  },
-  "main": "ng2.js",
-  "typings": "ng2.d.ts"
-}

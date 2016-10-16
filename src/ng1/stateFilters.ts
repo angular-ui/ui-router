@@ -16,7 +16,7 @@ import * as angular from 'angular';
  */
 $IsStateFilter.$inject = ['$state'];
 export function $IsStateFilter($state: StateService) {
-  var isFilter: any = function(state: StateOrName, params: Obj, options: Obj) {
+  var isFilter: any = function(state: StateOrName, params: Obj, options?: { relative?: boolean }) {
     return $state.is(state, params, options);
   };
   isFilter.$stateful = true;

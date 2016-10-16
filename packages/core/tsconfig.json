@@ -1,5 +1,0 @@
-{
-  "compilerOptions": { "rootDir": ".", "outDir": ".." },
-  "files": [ "core.ts" ],
-  "types": [ "core-js" ]
-}

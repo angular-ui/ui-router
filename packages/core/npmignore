@@ -1,7 +1,0 @@
-**/tsconfig.json
-**/webpack.config.js
-**/node_modules
-**/ng1*
-**/ng2*
-typings
-.*
