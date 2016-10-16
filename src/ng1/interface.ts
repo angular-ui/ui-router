@@ -8,9 +8,8 @@ import {HookResult} from "ui-router-core";
  * The StateDeclaration object is used to define a state or nested state.
  * It should be registered with the [[StateRegistry]].
  *
- * @example
+ * #### Example:
  * ```js
- *
  * // StateDeclaration object
  * var foldersState = {
  *   name: 'folders',
@@ -88,9 +87,8 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    *
    *  Targets three named ui-views in the parent state's template
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * views: {
    *   header: {
    *     controller: "headerCtrl",
@@ -104,9 +102,8 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    * }
    * ```
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * // Targets named ui-view="header" in the template of the ancestor state 'top'
    * // and the named `ui-view="body" from the parent state's template.
    * views: {
@@ -130,9 +127,8 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    *
    * Addresses without an `@` are anchored to the parent state.
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * // target the `<div ui-view='foo'></div>` created in the parent state's view
    * views: { foo: {...} }
    * ```
@@ -155,9 +151,8 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    * You can address a `ui-view` absolutely, using dotted notation, by prefixing the address with a `!`.  Dotted
    * addresses map to the hierarchy of `ui-view`s active in the DOM:
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * // absolutely target the `<div ui-view='nested'></div>`... which was created
    * // in the unnamed/$default root `<ui-view></ui-view>`
    * views: { '!$default.nested': {...} }
@@ -168,18 +163,16 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    * Absolute addressing is actually relative addressing, only anchored to the unnamed root state.  You can also use
    * relative addressing anchored to any state, in order to target a target deeply nested `ui-views`:
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    *
    * // target the `<div ui-view='bar'></div>`... which was created inside the
    * // `<div ui-view='bar'></div>`... which was created inside the parent state's template.
    * views: { 'foo.bar': {...} }
    * ```
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * // target the `<div ui-view='bar'></div>`...  which was created in
    * // `<div ui-view='foo'></div>`... which was created in a template crom the state `baz.qux`
    * views: { 'foo.bar@baz.qux': {...} }
@@ -230,9 +223,8 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    *
    * Note: Mapping from resolve names to component inputs may be specified using [[bindings]].
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * .state('profile', {
    *   // Use the <my-profile></my-profile> component for the Unnamed view
    *   component: 'MyProfile',
@@ -281,9 +273,8 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * Any component bindings that are omitted from this map get the default behavior of mapping to a resolve of the
    * same name.
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * $stateProvider.state('foo', {
    *   resolve: {
    *     foo: function(FooService) { return FooService.get(); },
@@ -344,9 +335,8 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * of a registered controller.  The provider will invoked during a Transition in which the view's state is
    * entered.  The provider is called after the resolve data is fetched.
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * controllerProvider: function(MyResolveData, $transition$) {
    *   if (MyResolveData.foo) {
    *     return "FooCtrl"
@@ -386,15 +376,13 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    *
    * If `template` is a function, it will be called with the Transition parameters as the first argument.
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * template: "<h1>inline template definition</h1><div ui-view></div>"
    * ```
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * template: function(params) {
    *   return "<h1>generated template</h1>";
    * }
@@ -412,15 +400,13 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    *
    * If `templateUrl` is a function, it will be called with the Transition parameters as the first argument.
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * templateUrl: "/templates/home.html"
    * ```
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * templateUrl: function(params) {
    *   return myTemplates[params.pageId];
    * }
@@ -436,9 +422,8 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * Injected function which returns the HTML template.
    * The template will be used to render the corresponding [[ui-view]] directive.
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * templateProvider: function(MyTemplateService, $transition$) {
    *   return MyTemplateService.getTemplate($transition$.params().pageId);
    * }
@@ -516,9 +501,8 @@ export interface Ng1Controller {
    * - Anything else: the transition will continue normally (the state and view will be deactivated)
    *
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * app.component('myComponent', {
    *   template: '<input ng-model="$ctrl.data" type="text">',
    *   bindings: { 'data': '<' },

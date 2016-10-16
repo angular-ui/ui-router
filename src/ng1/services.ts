@@ -312,9 +312,8 @@ export const getLocals = (ctx: ResolveContext) => {
  *
  * This object can be injected into other services.
  *
- * @example
+ * #### Example:
  * ```js
- *
  * SomeService.$inject = ['$http', '$stateParams'];
  * function SomeService($http, $stateParams) {
  *   return {

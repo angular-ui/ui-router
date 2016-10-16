@@ -18,9 +18,8 @@ var $resolve = {
    * injects each function, and waits for the resulting promise to resolve.
    * When all resulting promises are resolved, returns the results as an object.
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * let invocables = {
    *   foo: [ '$http', ($http) =>
    *            $http.get('/api/foo').then(resp => resp.data) ],

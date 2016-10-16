@@ -159,9 +159,8 @@ export type UIViewAnimData = {
  * controller is instantiated.  The `$onInit()` hook can be used to perform initialization code which
  * depends on `$resolve` data.
  *
- * @example
+ * #### Example:
  * ```js
- *
  * $stateProvider.state('home', {
  *   template: '<my-component user="$resolve.user"></my-component>',
  *   resolve: {
