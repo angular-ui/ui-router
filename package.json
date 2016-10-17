@@ -1,21 +1,21 @@
 {
-  "name": "ui-router",
-  "description": "State-based routing for Javascript",
+  "name": "angular-ui-router",
+  "description": "State-based routing for AngularJS 1.x",
   "version": "1.0.0-beta.4",
   "scripts": {
     "test": "npm run test:integrate",
-    "build": "node ./scripts/package.js ng1 && node ./scripts/package.js ng2",
+    "clean": "shx rm -rf lib lib-esm _doc release",
+    "build": "tsc && tsc -p tsconfig.esm.json",
+    "package": "npm run clean && npm run build && webpack",
     "watch": "node_modules/watch/cli.js 'npm run test' src test",
     "test:ng1": "karma start config/karma.ng15.js",
-    "debug:ng1": "karma start config/karma.ng15.js --singleRun=false --browsers=Chrome --autoWatch=true --autoWatchInterval=1",
-    "watch:ng1": "node_modules/watch/cli.js 'npm run test:ng1' src test",
     "test:ng12": "karma start config/karma.ng12.js",
     "test:ng13": "karma start config/karma.ng13.js",
     "test:ng14": "karma start config/karma.ng14.js",
     "test:ng15": "karma start config/karma.ng15.js",
-    "test:ng2": "karma start config/karma.ng2.js",
     "test:integrate": "tsc && npm run test:ng12 && npm run test:ng13 && npm run test:ng14 && npm run test:ng15",
-    "docs": "./scripts/docs.sh"
+    "debug": "karma start config/karma.ng15.js --singleRun=false --browsers=Chrome --autoWatch=true --autoWatchInterval=1",
+    "docs": "typedoc --tsconfig tsconfig.typedoc.json --readme README.md --name 'angular-ui-router' --theme node_modules/ui-router-typedoc-themes/bin/default --out _doc --external-aliases internalapi,external --navigation-label-globals angular-ui-router"
   },
   "homepage": "https://ui-router.github.io",
   "contributors": [
@@ -54,8 +54,14 @@
     "node": ">4"
   },
   "license": "MIT",
+  "main": "lib/ng1.js",
+  "jsnext:main": "lib-esm/ng1.js",
+  "typings": "lib/ng1.d.ts",
   "dependencies": {
-    "ui-router-core": "latest"
+    "ui-router-core": "=1.0.0"
+  },
+  "peerDependencies": {
+    "angularjs": ">=1.2 <2.0"
   },
   "devDependencies": {
     "@types/angular": "^1.5.14",
@@ -80,6 +86,7 @@
     "lodash": "^4.5.1",
     "remap-istanbul": "^0.6.3",
     "shelljs": "^0.7.0",
+    "shx": "^0.1.4",
     "systemjs": "^0.18.4",
     "tslint": "=2.5.0",
     "typedoc": "~0.5.0",

@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "target": "es5",
+    "allowSyntheticDefaultImports": true,
+    "outDir": "build/es5",
+    "declaration": false,
+    "sourceMap": false
+  },
+  "files": [
+    "../ui-router-core/src/index.ts",
+    "../ui-router-core/src/interface.ts",
+    "../ui-router-core/src/globals.ts",
+    "../ui-router-core/src/router.ts",
+    "../ui-router-core/src/common/glob.ts",
+    "../ui-router-core/src/common/trace.ts",
+    "../ui-router-core/src/params/module.ts",
+    "../ui-router-core/src/params/interface.ts",
+    "../ui-router-core/src/resolve/interface.ts",
+    "../ui-router-core/src/resolve/resolvable.ts",
+    "../ui-router-core/src/state/interface.ts",
+    "../ui-router-core/src/state/module.ts",
+    "../ui-router-core/src/state/stateObject.ts",
+    "../ui-router-core/src/state/stateRegistry.ts",
+    "../ui-router-core/src/state/stateService.ts",
+    "../ui-router-core/src/state/targetState.ts",
+    "../ui-router-core/src/transition/module.ts",
+    "../ui-router-core/src/transition/interface.ts",
+    "../ui-router-core/src/transition/transition.ts",
+    "../ui-router-core/src/transition/transitionService.ts",
+    "../ui-router-core/src/url/module.ts",
+    "../ui-router-core/src/url/urlMatcher.ts",
+    "../ui-router-core/src/url/urlMatcherFactory.ts",
+    "../ui-router-core/src/url/urlRouter.ts",
+    "../ui-router-core/src/view/module.ts",
+    "../ui-router-core/src/view/view.ts",
+    "src/ng1.ts",
+    "node_modules/typescript/lib/lib.es6.d.ts"
+  ]
+}
