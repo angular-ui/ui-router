@@ -201,6 +201,7 @@ function $StateRefDirective($state: StateService, $timeout: ITimeoutService) {
  * <li ng-repeat="nav in navlinks">
  *   <a ui-state="nav.statename">{{nav.description}}</a>
  * </li>
+ * ```
  *
  * @param {string} ui-state 'stateName' can be any valid absolute or relative state
  * @param {Object} ui-state-params params to pass to [[StateService.href]]
