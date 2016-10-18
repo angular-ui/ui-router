@@ -1,6 +1,7 @@
 /** @module ng2 */ /** */
 import {Ng2StateDeclaration} from "./interface";
 import {NgModule, OpaqueToken, ModuleWithProviders, ANALYZE_FOR_ENTRY_COMPONENTS, Provider, Type} from "@angular/core";
+import {CommonModule} from "@angular/common";
 import {_UIROUTER_DIRECTIVES} from "./directives/directives";
 import {UIView} from "./directives/uiView";
 import {RawParams} from "ui-router-core";
@@ -31,6 +32,7 @@ import {_UIROUTER_INSTANCE_PROVIDERS, _UIROUTER_SERVICE_PROVIDERS} from "./provi
  * Any routed components are added as `entryComponents:` so they will get compiled.
  */
 @NgModule({
+  imports: [CommonModule],
   declarations: [_UIROUTER_DIRECTIVES],
   exports: [_UIROUTER_DIRECTIVES],
   entryComponents: [UIView],
@@ -217,4 +219,3 @@ export interface StatesModule {
 
 export const UIROUTER_ROOT_MODULE = new OpaqueToken("UIRouter Root Module");
 export const UIROUTER_MODULE_TOKEN = new OpaqueToken("UIRouter Module");
-

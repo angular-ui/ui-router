@@ -103,7 +103,10 @@ const ng2ComponentInputs = (ng2CompClass: Type<any>) => {
  */
 @Component({
   selector: 'ui-view, [ui-view]',
-  template: `<template #componentTarget></template>`
+  template: `
+    <template #componentTarget></template>
+    <ng-content *ngIf="!componentRef"></ng-content>
+  `
   // styles: [`
   //   .done-true {
   //     text-decoration: line-through;
