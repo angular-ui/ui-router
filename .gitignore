@@ -18,5 +18,8 @@ idea-out
 *.ipr
 *.iws
 
-# generate doc to _doc; copy to proper gh-pages dir
+# generated files
 _doc
+lib
+lib-esm
+release
