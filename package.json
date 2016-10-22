@@ -61,7 +61,7 @@
     "ui-router-core": "=1.0.0"
   },
   "peerDependencies": {
-    "angularjs": ">=1.2 <2.0"
+    "angular": ">=1.2 <2.0"
   },
   "devDependencies": {
     "@types/angular": "^1.5.14",
