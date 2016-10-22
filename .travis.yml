@@ -7,6 +7,7 @@ before_script:
   - sh -e /etc/init.d/xvfb start
   - npm install -g karma
   - npm install -g typescript
+  - npm install -g yarn
   - ./nodeserver.sh > /dev/null &
 
 matrix:
@@ -27,7 +28,7 @@ script:
   - echo "CORE_BRANCH = x${CORE_BRANCH}x";
   - >
     if [ "x${CORE_BRANCH}x" != "xx" ] ; then 
-      git clone --depth=10 --branch="${CORE_BRANCH}" https://github.com/ui-router/core.git ui-router-core && npm install ./ui-router-core ;
+      git clone --depth=10 --branch="${CORE_BRANCH}" https://github.com/ui-router/core.git ui-router-core && pushd ui-router-core && yarn && popd && npm install ./ui-router-core ;
     fi
   - npm test
 

@@ -23,15 +23,15 @@ function karmaServedFiles(ngVersion) {
     ];
   }
 
-  let angularFiles = angular(ngVersion).map(function (pattern) {
+  var angularFiles = angular(ngVersion).map(function (pattern) {
     return { watched: false, included: true, nocache: true, pattern: pattern };
   });
 
-  let srcFiles = [
+  var srcFiles = [
     { watched: true, included: false, nocache: true, pattern: 'src/**/*.ts' },
   ];
 
-  let testFiles = [
+  var testFiles = [
     { watched: true, included: false, nocache: true, pattern: 'test/**/*.ts' },
     { watched: true, included: false, nocache: true, pattern: 'test/**/*.js' }
   ];
