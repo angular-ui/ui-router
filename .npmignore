@@ -1,18 +1,19 @@
 # Any hidden files
 **/.*
 
-# Build related stuff
-/build
-/config
-/lib
-/ngdoc_assets
-/sample
-/test
-/bower_components
-/node_modules
-Gruntfile.js
+config
+test
+node_modules
+scripts
+src
+
+tslint.json
+tsconfig.json
+tsconfig.**.json
+webpack.config.js
 files.js
 
-# Package managers
-bower.json
-component.json
+*.iml
+*.ipr
+*.iws
+idea-out
