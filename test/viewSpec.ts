@@ -1,6 +1,6 @@
-/// <reference path='../../node_modules/@types/angular/index.d.ts' />
-/// <reference path='../../node_modules/@types/angular-mocks/index.d.ts' />
-/// <reference path='../../node_modules/@types/jasmine/index.d.ts' />
+/// <reference path='../node_modules/@types/angular/index.d.ts' />
+/// <reference path='../node_modules/@types/angular-mocks/index.d.ts' />
+/// <reference path='../node_modules/@types/jasmine/index.d.ts' />
 import * as angular from "angular";
 var module = angular.mock.module;
 
@@ -9,11 +9,11 @@ import {curry} from "ui-router-core";
 import {PathNode} from "ui-router-core";
 import {ResolveContext} from "ui-router-core";
 import {PathFactory} from "ui-router-core";
-import {ng1ViewsBuilder, ng1ViewConfigFactory} from "../../src/ng1/statebuilders/views";
+import {ng1ViewsBuilder, ng1ViewConfigFactory} from "../src/ng1/statebuilders/views";
 import {ViewService} from "ui-router-core";
 import {StateMatcher, StateBuilder} from "ui-router-core";
 import {State} from "ui-router-core";
-import {Ng1StateDeclaration} from "../../src/ng1/interface";
+import {Ng1StateDeclaration} from "../src/ng1/interface";
 
 describe('view', function() {
   var scope, $compile, $injector, elem, $controllerProvider, $urlMatcherFactoryProvider;

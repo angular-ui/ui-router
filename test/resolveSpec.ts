@@ -1,11 +1,11 @@
-import "../testUtilsNg1.js";
+import "./util/testUtilsNg1.js";
 declare var resolvedValue, resolvedError, caught;
 
-import "../matchers.ts";
+import "./util/matchers.ts";
 
 import {
     ResolveContext, State, PathNode, omit, pick, extend, forEach
-} from "../../src/ng1";
+} from "../src/ng1";
 
 import Spy = jasmine.Spy;
 import {Resolvable, services} from "ui-router-core";

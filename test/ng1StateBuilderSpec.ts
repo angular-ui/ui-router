@@ -1,4 +1,4 @@
-import {StateBuilder, StateMatcher, ng1ViewsBuilder} from "../../src/ng1";
+import {StateBuilder, StateMatcher, ng1ViewsBuilder} from "../src/ng1";
 import {Resolvable} from "ui-router-core";
 
 describe('Ng1 StateBuilder', function() {

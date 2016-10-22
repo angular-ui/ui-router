@@ -1,6 +1,6 @@
 import ILocationService = angular.ILocationService;
 declare var html5Compat;
-import {UrlMatcher, UrlMatcherFactory, services, UrlRouterProvider, UrlRouter, StateService} from "../../src/ng1";
+import {UrlMatcher, UrlMatcherFactory, services, UrlRouterProvider, UrlRouter, StateService} from "../src/ng1";
 import ILocationProvider = angular.ILocationProvider;
 
 var module = angular.mock.module;
