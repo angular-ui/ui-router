@@ -1,6 +1,12 @@
 var module = angular.mock.module;
-var uiRouter = require("angular-ui-router");
+var uiRouter = require("../src/ng1");
 var stateEvents = require("../src/ng1/legacy/stateEvents.ts");
+var decorateExceptionHandler = require("./util/testUtilsNg1").decorateExceptionHandler;
+var obj = require('./util/testUtilsNg1').obj;
+
+var resolvedValue = require('./util/testUtilsNg1').resolvedValue;
+var resolvedError = require('./util/testUtilsNg1').resolvedError;
+var caught = require('./util/testUtilsNg1').caught;
 
 describe('UI-Router v0.2.x $state events', function () {
   var $injector, stateProvider;

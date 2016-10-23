@@ -1,4 +1,10 @@
-export default "";
+/// <reference path='../node_modules/@types/angular/index.d.ts' />
+/// <reference path='../node_modules/@types/angular-mocks/index.d.ts' />
+/// <reference path='../node_modules/@types/jasmine/index.d.ts' />
+
+import * as angular from "angular";
+import "./util/matchers";
+declare var inject;
 
 describe("view hooks", () => {
   let app, ctrl, $state, $q, $timeout, log = "";
@@ -20,7 +26,7 @@ describe("view hooks", () => {
     app = angular.module('viewhooks', []);
   });
 
-  beforeEach(module(($stateProvider) => {
+  beforeEach(angular['mock'].module(($stateProvider) => {
     ctrl = function controller() {
       this.data = "DATA";
     };
@@ -40,7 +46,7 @@ describe("view hooks", () => {
     $stateProvider.state({ name: "baz", url: "/baz", component: 'baz' });
   }));
 
-  beforeEach(module('viewhooks', 'ui.router'));
+  beforeEach(angular['mock'].module('viewhooks', 'ui.router'));
 
   beforeEach(inject((_$state_, _$q_, _$timeout_, $compile, $rootScope) => {
     $state = _$state_;

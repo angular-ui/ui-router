@@ -1,9 +1,16 @@
-import ILocationService = angular.ILocationService;
-declare var html5Compat;
-import {UrlMatcher, UrlMatcherFactory, services, UrlRouterProvider, UrlRouter, StateService} from "../src/ng1";
-import ILocationProvider = angular.ILocationProvider;
+/// <reference path='../node_modules/@types/angular/index.d.ts' />
+/// <reference path='../node_modules/@types/angular-mocks/index.d.ts' />
+/// <reference path='../node_modules/@types/jasmine/index.d.ts' />
 
-var module = angular.mock.module;
+import * as angular from "angular";
+import {ILocationService, ILocationProvider} from "angular";
+import "./util/matchers";
+import { html5Compat } from './util/testUtilsNg1';
+declare var inject;
+
+import {UrlMatcher, UrlMatcherFactory, services, UrlRouterProvider, UrlRouter, StateService} from "../src/ng1";
+
+var module = angular['mock'].module;
 
 describe("UrlRouter", function () {
   var $urp: UrlRouterProvider, $lp: ILocationProvider, $umf: UrlMatcherFactory,
@@ -41,6 +48,7 @@ describe("UrlRouter", function () {
 
       $urp.rule(function ($injector, $location) {
         log.push($location.path());
+        return null;
       });
 
       $location.path("/foo");
@@ -64,7 +72,7 @@ describe("UrlRouter", function () {
 
         $urp.rule(function ($injector, $location) {
           var path = $location.path();
-          if (!/baz/.test(path)) return false;
+          if (!/baz/.test(path)) return;
           return path.replace('baz', 'b4z');
         }).when('/foo/:param', function($match) {
           match = ['/foo/:param', $match];
@@ -120,7 +128,7 @@ describe("UrlRouter", function () {
           validates:  function() {},
           parameter:  function() {},
           parameters: function() {}
-        },
+        } as any as UrlMatcher,
         handler: function() {}
       };
 

@@ -1,5 +1,4 @@
-/// <reference path='../typings/angularjs/angular.d.ts' />
-/// <reference path='../typings/jasmine/jasmine.d.ts' />
+import * as angular from "angular";
 
 // Promise testing support
 angular.module('ngMock').config(function ($provide, $locationProvider) {
@@ -68,32 +67,32 @@ try {
   });
 } catch (e) {}
 
-function testablePromise(promise) {
+export function testablePromise(promise) {
   if (!promise || !promise.then) throw new Error('Expected a promise, but got ' + jasmine.pp(promise) + '.');
   if (!angular.isDefined(promise.$$resolved)) throw new Error('Promise has not been augmented by ngMock');
   return promise;
 }
 
-function resolvedPromise(promise) {
+export function resolvedPromise(promise) {
   var result = testablePromise(promise).$$resolved;
   if (!result) throw new Error('Promise is not resolved yet');
   return result;
 }
 
-function resolvedValue(promise) {
+export function resolvedValue(promise) {
   var result = resolvedPromise(promise);
   if (!result.success) throw result.error;
   return result.value;
 }
 
-function resolvedError(promise) {
+export function resolvedError(promise) {
   var result = resolvedPromise(promise);
   if (result.success) throw new Error('Promise was expected to fail but returned ' + jasmine.pp(result.value) + '.');
   return result.error;
 }
 
 // Misc test utils
-function caught(fn) {
+export function caught(fn) {
   try {
     fn();
     return null;
@@ -103,7 +102,7 @@ function caught(fn) {
 }
 
 // Usage of this helper should be replaced with a custom matcher in jasmine 2.0+
-function obj(object) {
+export function obj(object) {
   var o = {};
   angular.forEach(object, function (val, key) {
     if (!/^\$/.test(key) && key != "#")
@@ -112,7 +111,7 @@ function obj(object) {
   return o;
 }
 
-function html5Compat(html5mode) {
+export function html5Compat(html5mode) {
   return (angular.isObject(html5mode) && html5mode.hasOwnProperty("enabled") ? html5mode.enabled : html5mode);
 }
 
@@ -121,7 +120,7 @@ function html5Compat(html5mode) {
  * This chunk of code decorates the handler, allowing a test to disable that behavior.
  * Inject $exceptionHandler and set `$exceptionHandler.disabled = true`
  */
-function decorateExceptionHandler($exceptionHandlerProvider) {
+export function decorateExceptionHandler($exceptionHandlerProvider) {
   var $get = $exceptionHandlerProvider.$get;
 
   $exceptionHandlerProvider.$get = function() {
@@ -136,7 +135,4 @@ function decorateExceptionHandler($exceptionHandlerProvider) {
 }
 
 
-// Utils for test from core angular
-var noop = angular.noop,
-    toJson = angular.toJson;
-beforeEach(angular.mock.module('ui.router.compat'));
+beforeEach(angular['mock'].module('ui.router.compat'));

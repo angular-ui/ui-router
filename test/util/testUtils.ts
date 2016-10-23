@@ -26,7 +26,7 @@ export function tree2Array(tree, inheritName) {
 }
 
 export function PromiseResult(promise?) {
-  var self = this, _promise: Promise;
+  var self = this, _promise: Promise<any>;
   var resolve, reject, complete;
 
   this.setPromise = function(promise) {

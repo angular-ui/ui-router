@@ -1,5 +1,5 @@
 var module = angular.mock.module;
-var uiRouter = require("angular-ui-router");
+var uiRouter = require("../src/ng1");
 
 function animateFlush($animate) {
   $animate && $animate.triggerCallbacks && $animate.triggerCallbacks(); // 1.2-1.3

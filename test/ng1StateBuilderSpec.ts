@@ -1,5 +1,10 @@
+/// <reference path='../node_modules/@types/angular/index.d.ts' />
+/// <reference path='../node_modules/@types/angular-mocks/index.d.ts' />
+/// <reference path='../node_modules/@types/jasmine/index.d.ts' />
+
 import {StateBuilder, StateMatcher, ng1ViewsBuilder} from "../src/ng1";
 import {Resolvable} from "ui-router-core";
+declare var inject;
 
 describe('Ng1 StateBuilder', function() {
   var builder, matcher, urlMatcherFactoryProvider: any = {

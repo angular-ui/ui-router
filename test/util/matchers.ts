@@ -1,6 +1,10 @@
-/// <reference path='../typings/jasmine/jasmine.d.ts' />
+/// <reference path='../../node_modules/@types/angular/index.d.ts' />
+/// <reference path='../../node_modules/@types/angular-mocks/index.d.ts' />
+/// <reference path='../../node_modules/@types/jasmine/index.d.ts' />
+/// <reference path='./matchers.types.d.ts' />
+
 import {equals} from "ui-router-core";
-declare var testablePromise;
+import {testablePromise} from "./testUtilsNg1";
 
 beforeEach(function() {
   jasmine.addMatchers(<any> {

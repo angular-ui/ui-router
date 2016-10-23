@@ -1,16 +1,20 @@
-import "./util/testUtilsNg1.js";
-declare var resolvedValue, resolvedError, caught;
+/// <reference path='../node_modules/@types/angular/index.d.ts' />
+/// <reference path='../node_modules/@types/angular-mocks/index.d.ts' />
+/// <reference path='../node_modules/@types/jasmine/index.d.ts' />
+/// <reference path='./util/matchers.types.d.ts' />
 
-import "./util/matchers.ts";
+import * as angular from "angular";
+import "./util/matchers";
+import "./util/testUtilsNg1";
 
-import {
-    ResolveContext, State, PathNode, omit, pick, extend, forEach
-} from "../src/ng1";
-
+declare var inject;
 import Spy = jasmine.Spy;
-import {Resolvable, services} from "ui-router-core";
+import "./util/matchers.ts";
+import { resolvedValue, resolvedError, caught } from './util/testUtilsNg1';
+import { ResolveContext, State, PathNode, omit, pick, extend, forEach } from "../src/ng1";
+import {Resolvable, services, StateDeclaration} from "ui-router-core";
 
-let module = angular.mock.module;
+let module = angular['mock'].module;
 ///////////////////////////////////////////////
 
 var states, statesTree, statesMap: { [key:string]: State } = {};
@@ -433,7 +437,7 @@ describe("Integration: Resolvables system", () => {
       copy[name] = extend({}, stateDef);
     });
 
-    angular.forEach(copy, stateDef => {
+    angular.forEach(copy, (stateDef: StateDeclaration) => {
       if (stateDef.name) $stateProvider.state(stateDef);
     });
   }));

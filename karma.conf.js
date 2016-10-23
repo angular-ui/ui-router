@@ -19,7 +19,6 @@ function karmaServedFiles(ngVersion) {
       'test/angular/' + version + '/angular.js',
       'test/angular/' + version + '/angular-mocks.js',
       'test/angular/' + version + '/angular-animate.js',
-      'test/util/ng1.systemjs.adapter.js'
     ];
   }
 
@@ -27,17 +26,12 @@ function karmaServedFiles(ngVersion) {
     return { watched: false, included: true, nocache: true, pattern: pattern };
   });
 
-  var srcFiles = [
-    { watched: true, included: false, nocache: true, pattern: 'src/**/*.ts' },
-  ];
-
-  var testFiles = [
-    { watched: true, included: false, nocache: true, pattern: 'test/**/*.ts' },
-    { watched: true, included: false, nocache: true, pattern: 'test/**/*.js' }
-  ];
-
-  return [].concat(angularFiles).concat(srcFiles).concat(testFiles);
+  return angularFiles.concat('test/index.js');
 }
+
+var webpackConfig = require('./webpack.config.js');
+webpackConfig.entry = {};
+webpackConfig.plugins = [];
 
 module.exports = function(config) {
   var ngVersion = config.ngversion || "1.5.0";
@@ -63,29 +57,25 @@ module.exports = function(config) {
     // Chrome, ChromeCanary, Firefox, Opera, Safari, PhantomJS
     browsers: ['PhantomJS'],
 
-    frameworks: ['systemjs', 'jasmine'],
+    frameworks: ['jasmine'],
 
     plugins: [
-      require('karma-systemjs'),
+      require('karma-webpack'),
+      require('karma-sourcemap-loader'),
       require('karma-jasmine'),
       require('karma-phantomjs-launcher'),
       require('karma-chrome-launcher')
     ],
 
+    webpack: webpackConfig,
+
     /* Files *available to be served* by karma, i.e., anything that will be require()'d */
     files: karmaServedFiles(ngVersion),
-    exclude: [],
-    systemjs: {
-      // Set up systemjs paths
-      configFile: 'karma.system.config.js',
 
-      files: [
-        'src/**/*.ts',
-        'node_modules/ui-router-core/lib/**/*'
-      ],
-
-      // karma-systemjs kludge: This is turned into a regexp and is the actual specs that are loaded
-      testFileSuffix: "/test/\\S+Spec.[tj]s"
+    preprocessors: {
+      'test/index.js': ['webpack', 'sourcemap'],
+      '../src/ng1': ['webpack', 'sourcemap'],
     },
+
   });
 };

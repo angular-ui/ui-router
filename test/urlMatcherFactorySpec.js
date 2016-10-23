@@ -1,5 +1,5 @@
 var module      = angular.mock.module;
-var uiRouter    = require("angular-ui-router");
+var uiRouter    = require("../src/ng1");
 var Param       = uiRouter.Param;
 var ParamTypes  = uiRouter.ParamTypes;
 var UrlMatcher  = uiRouter.UrlMatcher;

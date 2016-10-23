@@ -1,8 +1,10 @@
 /// <reference path='../node_modules/@types/angular/index.d.ts' />
 /// <reference path='../node_modules/@types/angular-mocks/index.d.ts' />
 /// <reference path='../node_modules/@types/jasmine/index.d.ts' />
+
 import * as angular from "angular";
-var module = angular.mock.module;
+import "./util/matchers";
+declare var inject;
 
 import {inherit, extend, tail} from "ui-router-core";
 import {curry} from "ui-router-core";
@@ -19,7 +21,7 @@ describe('view', function() {
   var scope, $compile, $injector, elem, $controllerProvider, $urlMatcherFactoryProvider;
   let root: State, states: {[key: string]: State};
 
-  beforeEach(module('ui.router', function(_$provide_, _$controllerProvider_, _$urlMatcherFactoryProvider_) {
+  beforeEach(angular['mock'].module('ui.router', function(_$provide_, _$controllerProvider_, _$urlMatcherFactoryProvider_) {
     _$provide_.factory('foo', function() {
       return "Foo";
     });

@@ -1,10 +1,13 @@
 var module = angular.mock.module;
-var uiRouter = require("angular-ui-router");
+var uiRouter = require("../src/ng1");
 var extend = uiRouter.extend;
 var forEach = uiRouter.forEach;
 var services = uiRouter.services;
 var UrlMatcher = uiRouter.UrlMatcher;
-
+var obj = require('./util/testUtilsNg1').obj;
+var resolvedError = require('./util/testUtilsNg1').resolvedError;
+var resolvedValue = require('./util/testUtilsNg1').resolvedValue;
+var html5Compat = require('./util/testUtilsNg1').html5Compat;
 
 describe('state', function () {
 
