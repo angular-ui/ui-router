@@ -51,7 +51,7 @@
     "url": "https://github.com/angular-ui/ui-router/issues"
   },
   "engines": {
-    "node": ">4"
+    "node": ">=4.0.0"
   },
   "license": "MIT",
   "main": "lib/ng1.js",
