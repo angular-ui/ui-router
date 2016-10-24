@@ -58,7 +58,7 @@
   "jsnext:main": "lib-esm/ng1.js",
   "typings": "lib/ng1.d.ts",
   "dependencies": {
-    "ui-router-core": "=1.0.0"
+    "ui-router-core": "=1.0.1"
   },
   "peerDependencies": {
     "angular": ">=1.2 <2.0"
