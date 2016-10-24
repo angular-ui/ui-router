@@ -68,6 +68,9 @@ module.exports = function(config) {
     ],
 
     webpack: webpackConfig,
+    webpackMiddleware: {
+      stats: { chunks: false },
+    },
 
     /* Files *available to be served* by karma, i.e., anything that will be require()'d */
     files: karmaServedFiles(ngVersion),
