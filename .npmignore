@@ -1,17 +1,18 @@
 # Any hidden files
 **/.*
 
-config
-test
 node_modules
 scripts
 src
+test
+_docs
 
-tslint.json
+bower.json
+karma.conf.js
 tsconfig.json
 tsconfig.**.json
+tslint.json
 webpack.config.js
-files.js
 
 *.iml
 *.ipr

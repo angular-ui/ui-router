@@ -1,9 +1,0 @@
-{
-  "name": "angular-ui-router",
-  "description": "State-based routing for AngularJS",
-  "peerDependencies": {
-    "angular": ">1.2 <2.0"
-  },
-  "main": "release/angular-ui-router.js",
-  "typings": "commonjs/ng1.d.ts"
-}

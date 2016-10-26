@@ -1,81 +1,60 @@
 #!env node
 "use strict";
 
-require('shelljs/global');
-let _ = require('lodash');
-var argv = require('yargs')
-    .usage('Usage: $0 <packages> [options]')
-    .command('packages', '[optional] Comma separated list of packages to build.')
-    .alias('c', 'no-changelog')
-    .describe('c', 'Do not update CHANGELOG.md')
-    .alias('b', 'branch')
-    .nargs('b', 1)
-    .describe('b', 'Specify non-master branch to release from')
-    .help('h')
-    .alias('h', 'help')
-    .example('$0 --no-changelog --branch feature', 'Release all packages from "feature" branch')
-    .argv;
-
-let path = require('path');
-let _exec = require('./util')._exec;
 let version = require('../package.json').version;
-let rootDir = path.resolve(__dirname, '..');
-let commands = []; // List of commands that will commit the release
 
-cd(rootDir);
+require('shelljs/global');
+let readlineSync = require('readline-sync');
+let fs = require('fs');
+let path = require('path');
+let util = require('./util');
+let _exec = util._exec;
 
-let knownProjects = ['core', 'ng1', 'ng1-bower', 'ng2'];
-let projects = knownProjects.slice();
+cd(path.join(__dirname, '..'));
 
-projects.forEach(project => {
-    if (knownProjects.indexOf(project) === -1)
-        throw new Error(`Unknwon project: ${project}; try: ${knownProjects.join(',')}`);
-});
-
-projects = projects.reduce((memo, key) => { memo[key] = true; return memo; }, {});
-
-
-echo('--> Checking working copy status...');
-_exec(`node ${rootDir}/scripts/ensure_clean_master.js ${argv.branch || 'master'}`);
-
-commands.push(``);
-commands.push(``);
-commands.push(`################# To perform the release ################# `);
-  commands.push(``);
-
-if (!argv['no-changelog']) {
-  echo('--> Updating CHANGELOG...');
-  _exec(`node ${rootDir}/scripts/update_changelog.js`);
-  
-  echo('--> Committing changelog...');
-  commands.push(`git commit -m "chore(*): Release prep - Update CHANGELOG" CHANGELOG.md`);
+if (!readlineSync.keyInYN('Did you bump the version number in package.json?')) {
+  process.exit(1);
 }
 
-commands.push(`git tag ${version}`);
-commands.push(`git push origin ${version}`);
+if (!readlineSync.keyInYN('Did you update CHANGELOG.md using scripts/update_changelog.js?')) {
+  process.exit(1);
+}
 
+if (!readlineSync.keyInYN('Did you push all changes back to origin?')) {
+  process.exit(1);
+}
 
-Object.keys(projects).map(project => {
-  echo(`Packaging ${project} for npm...`);
-  _exec(`node ${rootDir}/scripts/package.js ${project}`);
-  var pkgPath = path.resolve(rootDir, "build_packages", project);
-  cd(pkgPath);
-  
-  if (test('-f', './package.json')) {
-    commands.push(`echo To publish ${project} to npm:`);
-    commands.push(`cd ${pkgPath}`);
-    commands.push(`npm publish`);
-    commands.push(``);
-  }
+util.ensureCleanMaster('master');
 
-  if (test('-f', './bower.json')) {
-    commands.push(`echo To publish ${project} to bower:`);
-    commands.push(`cd ${pkgPath}`);
-    commands.push(`node ${rootDir}/scripts/publish_bower.js`);
-    commands.push(``);
-  }
-});
-    
-commands.forEach(line => echo(line));
+_exec('npm run package');
+_exec(`npm run docs`);
+
+console.log('Updating version in bower.json to ${version}');
+
+let bowerJson = JSON.parse(fs.readFileSync(BOWER_JSON, 'UTF-8'));
+bowerJson.version = version;
+fs.writeFileSync(BOWER_JSON, asJson(bowerJson));
+_exec(`git commit -m "Release ${version}"`);
+
+util.ensureCleanMaster('master');
+
+// publish to npm first
+_exec(`npm publish`);
+
+// then branch, add/commit release files, tag, and push
+_exec(`git tag ${version}`);
+_exec(`git push`);
+_exec(`git push origin ${version}`);
+
+_exec(`git checkout -b bower-${version}`);
+_exec(`git add --force release`);
+_exec(`git commit -m "bower release ${version}"`);
+_exec(`git tag ${version}+bower`);
+_exec(`git remote add bower https://github.com/angular-ui/angular-ui-router-bower.git`);
+_exec(`git push bower ${version}+bower:${version}`);
+_exec(`git remote rm bower`);
+_exec(`git checkout master`);
+
+console.log("\n\nAPI docs generated (but not deployed) at ./_docs");
 
 
