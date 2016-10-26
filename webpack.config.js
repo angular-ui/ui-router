@@ -11,7 +11,9 @@ var webpack = require('webpack');
 module.exports = {
   entry: {
     "angular-ui-router": "./src/ng1.ts",
-    "angular-ui-router.min": "./src/ng1.ts"
+    "angular-ui-router.min": "./src/ng1.ts",
+    "stateEvents": "./src/ng1/legacy/stateEvents.ts",
+    "stateEvents.min": "./src/ng1/legacy/stateEvents.ts",
   },
 
   output: {
