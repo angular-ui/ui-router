@@ -4,7 +4,7 @@
   "version": "1.0.0-beta.4",
   "scripts": {
     "clean": "shx rm -rf lib lib-esm _doc release",
-    "build": "tsc && tsc -p tsconfig.esm.json",
+    "build": "tsc && tsc -m es6 --outDir lib-esm",
     "package": "npm run clean && npm run build && webpack",
     "watch": "node_modules/watch/cli.js 'npm run test' src test",
     "test": "npm run test:integrate",
