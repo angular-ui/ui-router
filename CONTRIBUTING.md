@@ -87,19 +87,25 @@ cd ui-router-core
 npm link
 cd ../angular-ui-router
 npm link ui-router-core
-cd ..
 ```
 
 After executing these steps, `angular-ui-router` will be built using your local copy of `ui-router-core`.
 
-## Develop 
+## Develop
 
-* `npm run build`: Perform a full build.
+These scripts may be run in `angular-ui-router`:
+
+* `npm run build`: Compiles TypeScript source
+* `npm run package`: Compiles TypeScript source and creates webpack bundles.
 * `npm test`: Runs the `angular-ui-router` test suite (against Angular 1.2 through 1.5).
-* `npm run watch`: Continuously runs the tests when source or tests change.
+* `npm run watch`: Continuously compiles the source and runs the `angular-ui-router` tests (when source or tests change).
 
-If you make changes in `ui-router-core`, run these scripts before rebuilding or re-testing `angular-ui-router`:
+Scripts of the same name (in `ui-router-core`) can be used.
 
-* `npm run build`: Compiles `ui-router-core` code
+* `npm run build`: Compiles `ui-router-core` TypeScript source
 * `npm test`: Runs the `ui-router-core` test suite
+* `npm run watch`: Continuously compiles the source and runs the `ui-router-core` test suite (when core source or tests change).
 
+If you've followed the [linking instructions](#link-the-directories), it's useful to run both
+`npm run watch` tasks (each task from `ui-router-core` *and* `angular-ui-router`).
+This ensures that changes to either `ui-router-core` and `angular-ui-router` compile successfully and are run against the test suite.
