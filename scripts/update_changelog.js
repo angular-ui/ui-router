@@ -10,5 +10,6 @@ cd(path.resolve(__dirname, '..'));
 echo('Updating CHANGELOG...');
 cp('CHANGELOG.md', 'CHANGELOG.bak');
 _exec('node ./scripts/show_changelog.js >> CHANGELOG.new');
+_exec('node ./scripts/show_core_changelog.js >> CHANGELOG.new');
 _exec('cat CHANGELOG.new CHANGELOG.bak > CHANGELOG.md');
 rm('CHANGELOG.bak', 'CHANGELOG.new');
