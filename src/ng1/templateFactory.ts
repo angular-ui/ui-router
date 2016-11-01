@@ -1,11 +1,8 @@
 /** @module view */ /** for typedoc */
-import {isArray, isDefined, isFunction} from "ui-router-core";
-import {services} from "ui-router-core";
-import {Ng1ViewDeclaration} from "./interface";
-import {IInjectable, tail} from "ui-router-core";
-import {ResolveContext} from "ui-router-core";
-import {Resolvable} from "ui-router-core";
-import {RawParams} from "ui-router-core";
+import {
+    isArray, isDefined, isFunction, services, IInjectable, tail, ResolveContext, Resolvable, RawParams
+} from "ui-router-core";
+import { Ng1ViewDeclaration } from "./interface";
 
 /**
  * Service which manages loading of templates from a ViewConfig.

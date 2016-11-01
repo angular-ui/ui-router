@@ -1,21 +1,13 @@
 /** @module ng1 */ /** */
-import { ng as angular } from '../../angular';
+import { ng as angular } from "../../angular";
+import {
+    State, Obj, pick, forEach, anyTrueR, unnestR, tail, extend, kebobString,
+    isArray, isInjectable, isDefined, isString, isObject, services, trace,
+    ViewConfig, ViewService, ViewConfigFactory, PathNode, ResolveContext, Resolvable, RawParams
+} from "ui-router-core";
+import { Ng1ViewDeclaration } from "../interface";
+import { TemplateFactory } from "../templateFactory";
 import IInjectorService = angular.auto.IInjectorService;
-
-import {State} from "ui-router-core";
-import {Obj, pick, forEach, anyTrueR, unnestR, tail, extend} from "ui-router-core";
-import {kebobString} from "ui-router-core";
-import {ViewConfig} from "ui-router-core";
-import {Ng1ViewDeclaration} from "../interface";
-import {ViewService, ViewConfigFactory} from "ui-router-core";
-import {isArray, isInjectable, isDefined, isString, isObject} from "ui-router-core";
-import {services} from "ui-router-core";
-import {trace} from "ui-router-core";
-import {PathNode} from "ui-router-core";
-import {TemplateFactory} from "../templateFactory";
-import {ResolveContext} from "ui-router-core";
-import {Resolvable} from "ui-router-core";
-import {RawParams} from "ui-router-core";
 
 export const ng1ViewConfigFactory: ViewConfigFactory = (path, view) =>
     [new Ng1ViewConfig(path, view)];
@@ -36,8 +28,8 @@ export function ng1ViewsBuilder(state: State) {
       nonCompKeys = tplKeys.concat(ctrlKeys),
       allKeys = compKeys.concat(nonCompKeys);
 
-  let views: { [key:string]: Ng1ViewDeclaration } = {},
-      viewsObject = state.views || {"$default": pick(state, allKeys)};
+  let views: { [key: string]: Ng1ViewDeclaration } = {},
+      viewsObject = state.views || { "$default": pick(state, allKeys) };
 
   forEach(viewsObject, function (config: Ng1ViewDeclaration, name: string) {
     // Account for views: { "": { template... } }
@@ -53,9 +45,9 @@ export function ng1ViewsBuilder(state: State) {
       }
 
       // Dynamically build a template like "<component-name input1='::$resolve.foo'></component-name>"
-      config.templateProvider = ['$injector', function($injector: IInjectorService) {
+      config.templateProvider = ['$injector', function ($injector: IInjectorService) {
         const resolveFor = (key: string) =>
-            config.bindings && config.bindings[key] || key;
+        config.bindings && config.bindings[key] || key;
         const prefix = angular.version.minor >= 3 ? "::" : "";
         const attributeTpl = (input: BindingTuple) => {
           var attrName = kebobString(input.name);
@@ -93,12 +85,12 @@ interface BindingTuple {
 // for ng 1.2 style, process the scope: { input: "=foo" }
 // for ng 1.3 through ng 1.5, process the component's bindToController: { input: "=foo" } object
 const scopeBindings = (bindingsObj: Obj) => Object.keys(bindingsObj || {})
-  // [ 'input', [ '=foo', '=', 'foo' ] ]
-  .map(key => [key, /^([=<@])[?]?(.*)/.exec(bindingsObj[key])])
-  // skip malformed values
-  .filter(tuple => isDefined(tuple) && isDefined(tuple[1]))
-  // { name: ('foo' || 'input'), type: '=' }
-  .map(tuple => ({ name: tuple[1][2] || tuple[0], type: tuple[1][1] } as BindingTuple));
+// [ 'input', [ '=foo', '=', 'foo' ] ]
+    .map(key => [key, /^([=<@])[?]?(.*)/.exec(bindingsObj[key])])
+    // skip malformed values
+    .filter(tuple => isDefined(tuple) && isDefined(tuple[1]))
+    // { name: ('foo' || 'input'), type: '=' }
+    .map(tuple => ({ name: tuple[1][2] || tuple[0], type: tuple[1][1] } as BindingTuple));
 
 // Given a directive definition, find its object input attributes
 // Use different properties, depending on the type of directive (component, bindToController, normal)
@@ -122,7 +114,8 @@ export class Ng1ViewConfig implements ViewConfig {
   template: string;
   locals: any; // TODO: delete me
 
-  constructor(public path: PathNode[], public viewDecl: Ng1ViewDeclaration) { }
+  constructor(public path: PathNode[], public viewDecl: Ng1ViewDeclaration) {
+  }
 
   load() {
     let $q = services.$q;

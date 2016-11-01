@@ -10,28 +10,22 @@
  */
 
 /** for typedoc */
-import { ng as angular } from '../angular';
+import { ng as angular } from "../angular";
+import {
+    IRootScopeService, IQService, ILocationService, ILocationProvider, IHttpService, ITemplateCacheService
+} from "angular";
+import {
+    services, bindFunctions, removeFrom, applyPairs, prop, isObject, isString, trace,
+    UIRouter, IInjectable, StateParams, TransitionService, StateService, UrlRouterProvider,
+    UrlRouter, UrlMatcherFactory, ResolveContext, TypedMap
+} from "ui-router-core";
+import { resolveFactory } from "./legacy/resolveService";
+import { ng1ViewsBuilder, ng1ViewConfigFactory } from "./statebuilders/views";
+import { TemplateFactory } from "./templateFactory";
+import { StateProvider } from "./stateProvider";
+import { getStateHookBuilder } from "./statebuilders/onEnterExitRetain";
 import IInjectorService = angular.auto.IInjectorService;
-import { IRootScopeService, IQService, ILocationService, ILocationProvider, IHttpService, ITemplateCacheService } from 'angular';
-
-import {UIRouter} from "ui-router-core";
-import {services, $InjectorLike} from "ui-router-core";
-import {bindFunctions, removeFrom, applyPairs, IInjectable} from "ui-router-core";
-import {TypedMap} from "ui-router-core"; // has or is using
-import {prop} from "ui-router-core";
-import {isObject, isString} from "ui-router-core";
-import {resolveFactory} from "./legacy/resolveService";
-import {trace} from "ui-router-core";
-import {ng1ViewsBuilder, ng1ViewConfigFactory} from "./statebuilders/views";
-import {TemplateFactory} from "./templateFactory";
-import {StateParams} from "ui-router-core";
-import {TransitionService} from "ui-router-core";
-import {StateService} from "ui-router-core";
-import {StateProvider} from "./stateProvider";
-import {UrlRouterProvider, UrlRouter} from "ui-router-core";
-import {UrlMatcherFactory} from "ui-router-core";
-import {getStateHookBuilder} from "./statebuilders/onEnterExitRetain";
-import {ResolveContext} from "ui-router-core";
+// has or is using
 
 /** @hidden */
 let app = angular.module("ui.router.angular1", []);

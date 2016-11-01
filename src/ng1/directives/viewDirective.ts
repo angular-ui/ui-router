@@ -1,26 +1,18 @@
 /** @module ng1_directives */ /** for typedoc */
-import { ng as angular } from '../../angular';
-import { IInterpolateService, IScope, ITranscludeFunction, IAugmentedJQuery,
-    ICompileService, IControllerService, ITimeoutService } from "angular";
+import { ng as angular } from "../../angular";
+import {
+    IInterpolateService, IScope, ITranscludeFunction, IAugmentedJQuery,
+    ICompileService, IControllerService, ITimeoutService
+} from "angular";
 
-import {extend, unnestR, filter, tail} from "ui-router-core";
-import {isDefined, isFunction, isString} from "ui-router-core";
-import {trace} from "ui-router-core";
-import {ActiveUIView} from "ui-router-core";
+import {
+    extend, unnestR, filter, tail, isDefined, isFunction, isString, trace, parse,
+    ActiveUIView, TransitionService, ResolveContext, Transition, PathNode,
+    Param, kebobString, HookRegOptions, ViewService, $QLike, Obj
+} from "ui-router-core";
 import {Ng1ViewConfig} from "../statebuilders/views";
-import {TransitionService} from "ui-router-core";
-import {parse} from "ui-router-core";
-import {ResolveContext} from "ui-router-core";
-import {Transition} from "ui-router-core";
-import {PathNode} from "ui-router-core";
-import {Param} from "ui-router-core";
-import {kebobString} from "ui-router-core";
-import {HookRegOptions} from "ui-router-core";
 import {Ng1Controller, Ng1StateDeclaration} from "../interface";
 import {getLocals} from "../services";
-import {ViewService} from "ui-router-core";
-import {$QLike} from "ui-router-core";
-import {Obj} from "ui-router-core";
 
 /** @hidden */
 export type UIViewData = {

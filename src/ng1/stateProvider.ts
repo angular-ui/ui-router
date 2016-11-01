@@ -1,10 +1,8 @@
 /** @module ng1 */ /** for typedoc */
-import {isObject} from "ui-router-core";
-import {bindFunctions} from "ui-router-core";
-import {BuilderFunction} from "ui-router-core";
-import {StateRegistry} from "ui-router-core";
-import {Ng1StateDeclaration} from "./interface";
-import {StateService, OnInvalidCallback} from "ui-router-core";
+import {
+    isObject, bindFunctions, BuilderFunction, StateRegistry, StateService, OnInvalidCallback
+} from "ui-router-core";
+import { Ng1StateDeclaration } from "./interface";
 
 /**
  * @ngdoc object

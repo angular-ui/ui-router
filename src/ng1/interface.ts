@@ -1,8 +1,5 @@
 /** @module ng1 */ /** */
-import {StateDeclaration, _ViewDeclaration} from "ui-router-core";
-import {IInjectable} from "ui-router-core";
-import {Transition} from "ui-router-core";
-import {HookResult} from "ui-router-core";
+import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult } from "ui-router-core";
 
 /**
  * The StateDeclaration object is used to define a state or nested state.

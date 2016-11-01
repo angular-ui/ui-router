@@ -1,12 +1,8 @@
 /** @module ng1 */ /** */
-import {State} from "ui-router-core";
-import {TransitionStateHookFn, HookResult} from "ui-router-core";
-import {Transition} from "ui-router-core";
-import {services} from "ui-router-core";
-import {getLocals} from "../services";
-import {ResolveContext} from "ui-router-core";
-import {extend} from "ui-router-core";
-import {BuilderFunction} from "ui-router-core";
+import {
+    State, TransitionStateHookFn, HookResult, Transition, services, ResolveContext, extend, BuilderFunction
+} from "ui-router-core";
+import { getLocals } from "../services";
 
 /**
  * This is a [[StateBuilder.builder]] function for angular1 `onEnter`, `onExit`,
