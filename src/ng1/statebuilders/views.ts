@@ -3,7 +3,7 @@ import { ng as angular } from "../../angular";
 import {
     State, Obj, pick, forEach, anyTrueR, unnestR, tail, extend, kebobString,
     isArray, isInjectable, isDefined, isString, isObject, services, trace,
-    ViewConfig, ViewService, ViewConfigFactory, PathNode, ResolveContext, Resolvable, RawParams
+    ViewConfig, ViewService, ViewConfigFactory, PathNode, ResolveContext, Resolvable, RawParams, IInjectable
 } from "ui-router-core";
 import { Ng1ViewDeclaration } from "../interface";
 import { TemplateFactory } from "../templateFactory";
@@ -110,7 +110,7 @@ let id = 0;
 export class Ng1ViewConfig implements ViewConfig {
   $id = id++;
   loaded: boolean = false;
-  controller: Function;
+  controller: Function; // actually IInjectable|string
   template: string;
   locals: any; // TODO: delete me
 
@@ -156,7 +156,7 @@ export class Ng1ViewConfig implements ViewConfig {
    *
    * @returns {Function|Promise.<Function>} Returns a controller, or a promise that resolves to a controller.
    */
-  getController(context: ResolveContext): (String|Function|Promise<Function|String>) {
+  getController(context: ResolveContext): (IInjectable|string|Promise<IInjectable|string>) {
     let provider = this.viewDecl.controllerProvider;
     if (!isInjectable(provider)) return this.viewDecl.controller;
     let deps = services.$injector.annotate(provider);
