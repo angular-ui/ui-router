@@ -311,7 +311,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    *
    * See: [[Ng1Controller]] for information about component-level router hooks.
    */
-  controller?: (Function|string);
+  controller?: (IInjectable|string);
 
   /**
    * A controller alias name.
