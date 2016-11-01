@@ -5,7 +5,9 @@
  *
  * @preferred @module ng1_directives
  */ /** for typedoc */
-import * as angular from 'angular';
+import { ng as angular } from '../../angular';
+import { IAugmentedJQuery, ITimeoutService, IScope, IInterpolateService } from "angular";
+
 import {Obj, extend, forEach, toJson, tail} from "ui-router-core";
 import {isString, isObject} from "ui-router-core";
 import {UIViewData} from "./viewDirective";
@@ -13,10 +15,6 @@ import {parse} from "ui-router-core";
 import {PathNode} from "ui-router-core";
 import {StateOrName} from "ui-router-core";
 import {StateService} from "ui-router-core";
-import IAugmentedJQuery = angular.IAugmentedJQuery;
-import ITimeoutService = angular.ITimeoutService;
-import IScope = angular.IScope;
-import IInterpolateService = angular.IInterpolateService;
 import {TransitionService} from "ui-router-core";
 import {State} from "ui-router-core";
 import {UIRouter} from "ui-router-core";

@@ -43,6 +43,7 @@ module.exports = {
       { test: /\.ts$/, loader: "awesome-typescript-loader?declaration=false" }
     ]
   },
+
   ts: {
     compilerOptions: {
       declaration: false

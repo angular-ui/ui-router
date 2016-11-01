@@ -1,5 +1,5 @@
 /** @module ng1 */ /** */
-import * as angular from 'angular';
+import { ng as angular } from '../angular';
 import {IServiceProviderFactory} from "angular";
 import IAnchorScrollService = angular.IAnchorScrollService;
 import ITimeoutService = angular.ITimeoutService;

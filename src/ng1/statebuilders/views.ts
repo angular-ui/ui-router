@@ -1,4 +1,7 @@
 /** @module ng1 */ /** */
+import { ng as angular } from '../../angular';
+import IInjectorService = angular.auto.IInjectorService;
+
 import {State} from "ui-router-core";
 import {Obj, pick, forEach, anyTrueR, unnestR, tail, extend} from "ui-router-core";
 import {kebobString} from "ui-router-core";
@@ -13,9 +16,6 @@ import {TemplateFactory} from "../templateFactory";
 import {ResolveContext} from "ui-router-core";
 import {Resolvable} from "ui-router-core";
 import {RawParams} from "ui-router-core";
-
-import * as angular from 'angular';
-import IInjectorService = angular.auto.IInjectorService;
 
 export const ng1ViewConfigFactory: ViewConfigFactory = (path, view) =>
     [new Ng1ViewConfig(path, view)];

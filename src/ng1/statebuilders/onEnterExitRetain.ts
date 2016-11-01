@@ -8,9 +8,6 @@ import {ResolveContext} from "ui-router-core";
 import {extend} from "ui-router-core";
 import {BuilderFunction} from "ui-router-core";
 
-import * as angular from 'angular';
-import IInjectorService = angular.auto.IInjectorService;
-
 /**
  * This is a [[StateBuilder.builder]] function for angular1 `onEnter`, `onExit`,
  * `onRetain` callback hooks on a [[Ng1StateDeclaration]].

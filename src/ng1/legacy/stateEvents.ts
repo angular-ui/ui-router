@@ -16,17 +16,16 @@
  *
  * @module ng1_state_events
  */ /** */
-import {IServiceProviderFactory} from "angular";
+import { ng as angular } from '../../angular';
+import { IScope, IAngularEvent, IServiceProviderFactory } from "angular";
+
 import {Obj} from "ui-router-core";
 import {TargetState} from "ui-router-core";
 import {StateService} from "ui-router-core";
 import {StateProvider} from "../stateProvider";
 import {Transition} from "ui-router-core";
-import IAngularEvent = angular.IAngularEvent;
 import {TransitionService} from "ui-router-core";
 import {UrlRouter} from "ui-router-core";
-import * as angular from 'angular';
-import IScope = angular.IScope;
 import {HookResult} from "ui-router-core";
 import {UIInjector} from "ui-router-core";
 

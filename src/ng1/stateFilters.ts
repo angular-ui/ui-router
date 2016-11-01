@@ -1,9 +1,9 @@
 /** @module state */ /** for typedoc */
 
+import { ng as angular } from '../angular';
 import {Obj} from "ui-router-core";
 import {StateService} from "ui-router-core";
 import {StateOrName} from "ui-router-core";
-import * as angular from 'angular';
 
 /**
  * @ngdoc filter

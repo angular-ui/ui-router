@@ -1,5 +1,8 @@
 /** @module ng1_directives */ /** for typedoc */
-"use strict";
+import { ng as angular } from '../../angular';
+import { IInterpolateService, IScope, ITranscludeFunction, IAugmentedJQuery,
+    ICompileService, IControllerService, ITimeoutService } from "angular";
+
 import {extend, unnestR, filter, tail} from "ui-router-core";
 import {isDefined, isFunction, isString} from "ui-router-core";
 import {trace} from "ui-router-core";
@@ -18,15 +21,6 @@ import {getLocals} from "../services";
 import {ViewService} from "ui-router-core";
 import {$QLike} from "ui-router-core";
 import {Obj} from "ui-router-core";
-
-import * as angular from 'angular';
-import IInterpolateService = angular.IInterpolateService;
-import IScope = angular.IScope;
-import ITranscludeFunction = angular.ITranscludeFunction;
-import IAugmentedJQuery = angular.IAugmentedJQuery;
-import ICompileService = angular.ICompileService;
-import IControllerService = angular.IControllerService;
-import ITimeoutService = angular.ITimeoutService;
 
 /** @hidden */
 export type UIViewData = {

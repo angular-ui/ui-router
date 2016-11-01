@@ -10,6 +10,10 @@
  */
 
 /** for typedoc */
+import { ng as angular } from '../angular';
+import IInjectorService = angular.auto.IInjectorService;
+import { IRootScopeService, IQService, ILocationService, ILocationProvider, IHttpService, ITemplateCacheService } from 'angular';
+
 import {UIRouter} from "ui-router-core";
 import {services, $InjectorLike} from "ui-router-core";
 import {bindFunctions, removeFrom, applyPairs, IInjectable} from "ui-router-core";
@@ -28,15 +32,6 @@ import {UrlRouterProvider, UrlRouter} from "ui-router-core";
 import {UrlMatcherFactory} from "ui-router-core";
 import {getStateHookBuilder} from "./statebuilders/onEnterExitRetain";
 import {ResolveContext} from "ui-router-core";
-
-import * as angular from 'angular';
-import IInjectorService = angular.auto.IInjectorService;
-import IQService = angular.IQService;
-import ILocationProvider = angular.ILocationProvider;
-import ILocationService = angular.ILocationService;
-import IHttpService = angular.IHttpService;
-import ITemplateCacheService = angular.ITemplateCacheService;
-import IScope = angular.IScope;
 
 /** @hidden */
 let app = angular.module("ui.router.angular1", []);
@@ -194,7 +189,7 @@ function $uiRouter($locationProvider: ILocationProvider) {
 
   this.$get = $get;
   $get.$inject = ['$location', '$browser', '$sniffer', '$rootScope', '$http', '$templateCache'];
-  function $get($location: ILocationService, $browser: any, $sniffer: any, $rootScope: IScope, $http: IHttpService, $templateCache: ITemplateCacheService) {
+  function $get($location: ILocationService, $browser: any, $sniffer: any, $rootScope: ng.IScope, $http: IHttpService, $templateCache: ITemplateCacheService) {
 
     // Bind $locationChangeSuccess to the listeners registered in LocationService.onChange
     $rootScope.$on("$locationChangeSuccess", evt => urlListeners.forEach(fn => fn(evt)));
@@ -291,7 +286,7 @@ angular.module('ui.router').factory('$resolve', <any> resolveFactory);
 // $trace service
 angular.module("ui.router").service("$trace", () => trace);
 watchDigests.$inject = ['$rootScope'];
-export function watchDigests($rootScope: IScope) {
+export function watchDigests($rootScope: IRootScopeService) {
   $rootScope.$watch(function() { trace.approximateDigests++; });
 }
 angular.module("ui.router").run(watchDigests);
