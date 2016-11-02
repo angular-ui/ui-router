@@ -160,7 +160,7 @@ $uiRouter.$inject = ['$locationProvider'];
 function $uiRouter($locationProvider: ILocationProvider) {
 
   // Create a new instance of the Router when the $uiRouterProvider is initialized
-  router = new UIRouter();
+  router = this.router = new UIRouter();
   router.stateProvider = new StateProvider(router.stateRegistry, router.stateService);
 
   // Apply ng1 specific StateBuilder code for `views`, `resolve`, and `onExit/Retain/Enter` properties
