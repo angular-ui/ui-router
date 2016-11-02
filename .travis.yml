@@ -28,6 +28,7 @@ script:
       git clone --depth=10 --branch="${CORE_BRANCH}" https://github.com/ui-router/core.git ui-router-core && \
       pushd ui-router-core && \
       yarn > /dev/null && \
+      yarn build && \
       popd && \
       npm install ./ui-router-core ;
     fi
