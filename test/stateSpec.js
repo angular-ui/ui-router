@@ -11,12 +11,13 @@ var html5Compat = require('./util/testUtilsNg1').html5Compat;
 
 describe('state', function () {
 
-  var $injector, $stateProvider, locationProvider, templateParams, template, ctrlName, errors;
+  var $uiRouter, $injector, $stateProvider, locationProvider, templateParams, template, ctrlName, errors;
 
-  beforeEach(module('ui.router', function($locationProvider) {
+  beforeEach(module('ui.router', function($locationProvider, $uiRouterProvider) {
     errors = [];
     locationProvider = $locationProvider;
     $locationProvider.html5Mode(false);
+    $uiRouter = $uiRouterProvider.router;
   }));
 
   var log, logEvents, logEnterExit;
@@ -633,6 +634,32 @@ describe('state', function () {
         'DD.onExit;' +
         'D.onExit;' +
         'A.onEnter;');
+    }));
+
+    // test for #3081
+    it('injects resolve values from the exited state into onExit', (function(done) {
+      const registry = $uiRouter.stateRegistry;
+      registry.register({
+        name: 'design',
+        url: '/design',
+        resolve: { cc: function() { return 'cc resolve'; } },
+        onExit: function(cc, $state$, $transition$) {
+          expect($transition$.to().name).toBe('A');
+          expect($transition$.from().name).toBe('design');
+
+          expect($state$.self).toBe(registry.get('design'));
+
+          expect(cc).toBe('cc resolve');
+
+          done();
+        }
+      });
+
+      $state.go("design");
+      $q.flush();
+
+      $state.go("A");
+      $q.flush();
     }));
 
     it('doesn\'t transition to parent state when child has no URL', inject(function ($state, $q) {

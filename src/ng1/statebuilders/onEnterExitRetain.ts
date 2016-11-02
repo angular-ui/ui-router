@@ -14,9 +14,12 @@ import { getLocals } from "../services";
 export const getStateHookBuilder = (hookName: "onEnter"|"onExit"|"onRetain") =>
 function stateHookBuilder(state: State, parentFn: BuilderFunction): TransitionStateHookFn {
   let hook = state[hookName];
+  let pathname = hookName === 'onExit' ? 'from' : 'to';
+
   function decoratedNg1Hook(trans: Transition, state: State): HookResult {
-    let resolveContext = new ResolveContext(trans.treeChanges().to);
-    return services.$injector.invoke(hook, this, extend({ $state$: state }, getLocals(resolveContext)));
+    let resolveContext = new ResolveContext(trans.treeChanges(pathname));
+    var locals = extend(getLocals(resolveContext), { $state$: state, $transition$: trans });
+    return services.$injector.invoke(hook, this, locals);
   }
 
   return hook ? decoratedNg1Hook : undefined;
