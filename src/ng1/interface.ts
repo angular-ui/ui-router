@@ -1,6 +1,32 @@
 /** @module ng1 */ /** */
 import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult } from "ui-router-core";
 
+
+/**
+ * The signature for Angular 1 State Transition Hooks.
+ *
+ * State hooks are registered as onEnter/onRetain/onExit in state declarations.
+ * State hooks can additionally be injected with $transition$ and $state$ for
+ * the current [[Transition]] and [[State]] in the transition.
+ *
+ * Transition State Hooks are callback functions that hook into the lifecycle events of specific states during a transition.
+ * As a transition runs, it may exit some states, retain (keep) states, and enter states.
+ * As each lifecycle event occurs, the hooks which are registered for the event and that state are called (in priority order).
+ *
+ * @param injectables list of services to inject into the function
+ *
+ * @returns a [[HookResult]] which may alter the transition
+ *
+ * @see
+ *
+ * - [[IHookRegistry.onExit]]
+ * - [[IHookRegistry.onRetain]]
+ * - [[IHookRegistry.onEnter]]
+ */
+export interface Ng1StateTransitionHook {
+  (...injectables: any[]) : HookResult
+}
+
 /**
  * The StateDeclaration object is used to define a state or nested state.
  * It should be registered with the [[StateRegistry]].
@@ -192,6 +218,51 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    * - controllerProvider
    */
   views?: { [key: string]: Ng1ViewDeclaration; };
+
+  /**
+   * State hook that can be injected with `$transition$` or `$state$` for the current transition.
+   * 
+   * ### Example:
+   * ```js
+   * $stateProvider.state({
+   *   name: 'mystate',
+   *   onEnter: (MyService, $transition$, $state$) => {
+   *     return MyService.doSomething($state$.name, $transition$.params());
+   *   }
+   * });
+   * ```
+   */
+  onEnter?: Ng1StateTransitionHook;
+
+  /**
+   * State hook that can be injected with `$transition$` or `$state$` for the current transition.
+   * 
+   * ### Example:
+   * ```js
+   * $stateProvider.state({
+   *   name: 'mystate',
+   *   onExit: (MyService, $transition$, $state$) => {
+   *     return MyService.doSomething($state$.name, $transition$.params());
+   *   }
+   * });
+   * ```
+   */
+  onExit?: Ng1StateTransitionHook;
+
+  /**
+   * State hook that can be injected with `$transition$` or `$state$` for the current transition.
+   * 
+   * ### Example:
+   * ```js
+   * $stateProvider.state({
+   *   name: 'mystate',
+   *   onRetain: (MyService, $transition$, $state$) => {
+   *     return MyService.doSomething($state$.name, $transition$.params());
+   *   }
+   * });
+   * ```
+   */
+  onRetain?: Ng1StateTransitionHook;
 
   /**
    * Makes all search/query parameters `dynamic`
