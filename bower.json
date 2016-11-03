@@ -1,6 +1,6 @@
 {
   "name": "angular-ui-router",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "license" : "MIT",
   "main": "./release/angular-ui-router.js",
   "dependencies": {
