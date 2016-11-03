@@ -50,8 +50,8 @@ export function ng1ViewsBuilder(state: State) {
         config.bindings && config.bindings[key] || key;
         const prefix = angular.version.minor >= 3 ? "::" : "";
         const attributeTpl = (input: BindingTuple) => {
-          var attrName = kebobString(input.name);
-          var resolveName = resolveFor(input.name);
+          let attrName = kebobString(input.name);
+          let resolveName = resolveFor(input.name);
           if (input.type === '@')
             return `${attrName}='{{${prefix}$resolve.${resolveName}}}'`;
           return `${attrName}='${prefix}$resolve.${resolveName}'`;

@@ -146,14 +146,12 @@ export function annotateController(controllerExpression: (IInjectable|string)): 
   }
 }
 
-declare module 'ui-router-core/lib/router' {
-  interface UIRouter {
-    /** @hidden */
-    stateProvider: StateProvider;
-  }
+interface Ng1UIRouter extends UIRouter {
+  /** @hidden */
+  stateProvider: StateProvider;
 }
 
-let router: UIRouter = null;
+let router: Ng1UIRouter = null;
 
 $uiRouter.$inject = ['$locationProvider'];
 /** This angular 1 provider instantiates a Router and exposes its services via the angular injector */
