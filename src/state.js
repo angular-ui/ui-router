@@ -718,10 +718,10 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
     var TransitionSupersededError = new Error('transition superseded');
 
-    var TransitionSuperseded = $q.reject(TransitionSupersededError);
-    var TransitionPrevented = $q.reject(new Error('transition prevented'));
-    var TransitionAborted = $q.reject(new Error('transition aborted'));
-    var TransitionFailed = $q.reject(new Error('transition failed'));
+    var TransitionSuperseded = silenceUncaughtInPromise($q.reject(TransitionSupersededError));
+    var TransitionPrevented = silenceUncaughtInPromise($q.reject(new Error('transition prevented')));
+    var TransitionAborted = silenceUncaughtInPromise($q.reject(new Error('transition aborted')));
+    var TransitionFailed = silenceUncaughtInPromise($q.reject(new Error('transition failed')));
 
     // Handles the case where a state which is the target of a transition is not found, and the user
     // can optionally retry or defer the transition
