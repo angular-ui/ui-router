@@ -514,6 +514,7 @@ describe('state', function () {
       expect(log).toBe(
         '$stateChangeStart(B,A);' +
         '$stateChangeStart(C,A);' +
+        '$stateChangeCancel(B,A);' +
         '$stateChangeSuccess(C,A);');
     }));
 
@@ -521,12 +522,13 @@ describe('state', function () {
       initStateTo(A);
       logEvents = true;
 
-      var superseded = $state.transitionTo(B, {});
-      $state.transitionTo(A, {});
+      // added direction param to help future contributors debug state events
+      var superseded = $state.transitionTo(B, {direction: 'A to B'});
+      $state.transitionTo(A, { direction: 'A to A'});
       $q.flush();
       expect($state.current).toBe(A);
       expect(resolvedError(superseded)).toBeTruthy();
-      expect(log).toBe('$stateChangeStart(B,A);');
+      expect(log).toBe('$stateChangeStart(B,A);$stateChangeCancel(B,A);');
     }));
 
     it('aborts pending transitions when aborted from callbacks', inject(function ($state, $q) {
