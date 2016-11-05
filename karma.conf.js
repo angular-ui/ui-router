@@ -32,6 +32,7 @@ function karmaServedFiles(ngVersion) {
 var webpackConfig = require('./webpack.config.js');
 webpackConfig.entry = {};
 webpackConfig.plugins = [];
+webpackConfig.devtool = 'inline-source-map';
 
 module.exports = function(config) {
   var ngVersion = config.ngversion || "1.5.0";

@@ -12,6 +12,9 @@ describe('uiStateRef', function() {
     _locationProvider = $locationProvider;
     $stateProvider.state('top', {
       url: ''
+    }).state('other', {
+      url: '/other/:id',
+      template: 'other'
     }).state('contacts', {
       url: '/contacts',
       template: '<a ui-sref=".item({ id: 5 })" class="item">Person</a> <ui-view></ui-view>'
@@ -365,6 +368,14 @@ describe('uiStateRef', function() {
 
     }));
 
+    it('updates to a new href when it points to a new state', function () {
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
+      scope.state = 'other';
+      scope.params = { id: '123' };
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/other/123');
+    });
+
     it('retains the old href if the new points to a non-state', function () {
       expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
       scope.state = 'nostate';
@@ -373,13 +384,56 @@ describe('uiStateRef', function() {
     });
 
     it('accepts param overrides', inject(function ($compile) {
-      el = angular.element('<a ui-state="state" ui-state-params="params">state</a>');
       scope.state  = 'contacts.item';
       scope.params = { id: 10 };
-      template = $compile(el)(scope);
       scope.$digest();
       expect(angular.element(template[0]).attr('href')).toBe('#/contacts/10');
     }));
+
+    it('accepts param overrides', inject(function ($compile) {
+      scope.state  = 'contacts.item';
+      scope.params = { id: 10 };
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/10');
+
+      scope.params.id = 22;
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/22');
+    }));
+
+    it('watches attributes', inject(function ($compile) {
+      el = angular.element('<a ui-state="{{exprvar}}" ui-state-params="params">state</a>');
+      template = $compile(el)(scope);
+
+      scope.exprvar  = 'state1';
+      scope.state1  = 'contacts.item';
+      scope.state2  = 'other';
+      scope.params = { id: 10 };
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/contacts/10');
+
+      scope.exprvar  = 'state2';
+      scope.$digest();
+      expect(angular.element(template[0]).attr('href')).toBe('#/other/10');
+    }));
+
+    if (angular.version.minor >= 3) {
+      it('allows one-time-binding on ng1.3+', inject(function ($compile) {
+        el = angular.element('<a ui-state="::state" ui-state-params="::params">state</a>');
+
+        scope.state = 'contacts.item';
+        scope.params = {id: 10};
+        template = $compile(el)(scope);
+        scope.$digest();
+        expect(angular.element(template[0]).attr('href')).toBe('#/contacts/10');
+
+        scope.state = 'other';
+        scope.params = {id: 22};
+
+        scope.$digest();
+        expect(angular.element(template[0]).attr('href')).toBe('#/contacts/10');
+      }));
+    }
 
     it('accepts option overrides', inject(function ($compile, $timeout, $state) {
       var transitionOptions;
@@ -402,7 +456,7 @@ describe('uiStateRef', function() {
     }));
   });
 
-  describe('links with dynamic state definitions', function () {
+  describe('links with dyna mic state definitions', function () {
     var template;
 
     beforeEach(inject(function($rootScope, $compile, $state) {

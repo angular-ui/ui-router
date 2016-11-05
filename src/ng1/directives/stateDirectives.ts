@@ -9,7 +9,7 @@ import { ng as angular } from "../../angular";
 import { IAugmentedJQuery, ITimeoutService, IScope, IInterpolateService } from "angular";
 
 import {
-    Obj, extend, forEach, toJson, tail, isString, isObject, parse,
+    Obj, extend, forEach, toJson, tail, isString, isObject, parse, noop,
     PathNode, StateOrName, StateService, TransitionService, State, UIRouter
 } from "ui-router-core";
 import { UIViewData } from "./viewDirective";
@@ -50,14 +50,14 @@ function getTypeInfo(el: IAugmentedJQuery): TypeInfo {
 }
 
 /** @hidden */
-function clickHook(el: IAugmentedJQuery, $state: StateService, $timeout: ITimeoutService, type: TypeInfo, current: Function) {
+function clickHook(el: IAugmentedJQuery, $state: StateService, $timeout: ITimeoutService, type: TypeInfo, getDef: () => Def) {
   return function (e: JQueryMouseEventObject) {
-    var button = e.which || e.button, target = current();
+    var button = e.which || e.button, target = getDef();
 
     if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || el.attr('target'))) {
       // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
       var transition = $timeout(function () {
-        $state.go(target.state, target.params, target.options);
+        $state.go(target.uiState, target.uiStateParams, target.uiStateOpts);
       });
       e.preventDefault();
 
@@ -142,37 +142,41 @@ function defaultOpts(el: IAugmentedJQuery, $state: StateService) {
  * @param {string} ui-sref 'stateName' can be any valid absolute or relative state
  * @param {Object} ui-sref-opts options to pass to [[StateService.go]]
  */
-let uiSref = ['$state', '$timeout',
-  function $StateRefDirective($state: StateService, $timeout: ITimeoutService) {
+let uiSref = ['$uiRouter', '$timeout',
+  function $StateRefDirective($uiRouter: UIRouter, $timeout: ITimeoutService) {
+    let $state = $uiRouter.stateService;
+
     return {
       restrict: 'A',
       require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
       link: function (scope: IScope, element: IAugmentedJQuery, attrs: any, uiSrefActive: any) {
         var ref = parseStateRef(attrs.uiSref, $state.current.name);
-        var def: Def = { state: ref.state, href: null, params: null, options: null };
+        var def = { uiState: ref.state } as Def;
         var type = getTypeInfo(element);
         var active = uiSrefActive[1] || uiSrefActive[0];
         var unlinkInfoFn: Function = null;
         var hookFn;
 
-        def.options = extend(defaultOpts(element, $state), attrs.uiSrefOpts ? scope.$eval(attrs.uiSrefOpts) : {});
+        def.uiStateOpts = extend(defaultOpts(element, $state), attrs.uiSrefOpts ? scope.$eval(attrs.uiSrefOpts) : {});
 
         var update = function (val?: any) {
-          if (val) def.params = angular.copy(val);
-          def.href = $state.href(ref.state, def.params, def.options);
+          if (val) def.uiStateParams = angular.copy(val);
+          def.href = $state.href(ref.state, def.uiStateParams, def.uiStateOpts);
 
           if (unlinkInfoFn) unlinkInfoFn();
-          if (active) unlinkInfoFn = active.$$addStateInfo(ref.state, def.params);
+          if (active) unlinkInfoFn = active.$$addStateInfo(ref.state, def.uiStateParams);
           if (def.href !== null) attrs.$set(type.attr, def.href);
         };
 
         if (ref.paramExpr) {
           scope.$watch(ref.paramExpr, function (val) {
-            if (val !== def.params) update(val);
+            if (val !== def.uiStateParams) update(val);
           }, true);
-          def.params = angular.copy(scope.$eval(ref.paramExpr));
+          def.uiStateParams = angular.copy(scope.$eval(ref.paramExpr));
         }
         update();
+
+        scope.$on('$destroy', <any> $uiRouter.stateRegistry.onStatesChanged(() => update()));
 
         if (!type.clickable) return;
         hookFn = clickHook(element, $state, $timeout, type, function () {
@@ -187,52 +191,75 @@ let uiSref = ['$state', '$timeout',
   }];
 
 /**
- * `ui-state`: A dynamic version of `ui-sref`
+ * `ui-state`: A dynamic version of the `ui-sref` directive
  *
- * Much like ui-sref, but will accept named $scope properties to evaluate for a state definition,
- * params and override options.
+ * Much like ui-sref, but it `$observe`s inputs and `$watch`es/evaluates values.
+ *
+ * The `ui-sref` directive takes a string literal, which is split into 1) state name and 2) parameter values expression.
+ * It does not `$observe` the input string and `$watch`es only the parameter value expression.
+ * Because of this, `ui-sref` is fairly lightweight, but does no deal well with with srefs that dynamically change.
+ *
+ *
+ * On the other hand, the `ui-state` directive is fully dynamic.
+ * It is useful for building dynamic links, such as data–driven navigation links.
+ *
+ * It consists of three attributes:
+ *
+ *  - `ui-state="expr"`: The state to link to; the `expr` string is evaluated and `$watch`ed
+ *  - `ui-state-params="expr"`: The state params to link to; the `expr` string is evaluated and `$watch`ed
+ *  - `ui-state-opts="expr"`: The transition options for the link; the `expr` string is evaluated and `$watch`ed
+ *
+ * In angular 1.3 and above, a one time binding may be used if you know specific bindings will not change, i.e:
+ * `ui-params="::foo.params"`.
+ *
+ * Like `ui-sref`, this directive also works with `ui-sref-active` and `ui-sref-active-eq`.
  *
  * @example
  * ```html
  *
- * <li ng-repeat="nav in navlinks">
- *   <a ui-state="nav.statename">{{nav.description}}</a>
+ * <li ng-repeat="nav in navlinks" ui-sref-active="active">
+ *   <a ui-state="nav.statename" ui-state-params="nav.params">{{nav.description}}</a>
  * </li>
  * ```
- *
- * @param {string} ui-state 'stateName' can be any valid absolute or relative state
- * @param {Object} ui-state-params params to pass to [[StateService.href]]
- * @param {Object} ui-state-opts options to pass to [[StateService.go]]
  */
-let uiState = ['$state', '$timeout',
-  function $StateRefDynamicDirective($state: StateService, $timeout: ITimeoutService) {
+let uiState = ['$uiRouter', '$timeout',
+  function $StateRefDynamicDirective($uiRouter: UIRouter, $timeout: ITimeoutService) {
+    let $state = $uiRouter.stateService;
+
     return {
       restrict: 'A',
       require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
       link: function (scope: IScope, element: IAugmentedJQuery, attrs: any, uiSrefActive: any) {
         var type = getTypeInfo(element);
         var active = uiSrefActive[1] || uiSrefActive[0];
-        var group = [attrs.uiState, attrs.uiStateParams || null, attrs.uiStateOpts || null];
-        var watch = '[' + group.map(function (val) {
-              return val || 'null';
-            }).join(', ') + ']';
-        var def: Def = { state: null, params: null, options: null, href: null };
+        var def = {} as Def;
+        let inputAttrs = ['uiState', 'uiStateParams', 'uiStateOpts'];
+        let watchDeregFns = inputAttrs.reduce((acc, attr) => (acc[attr] = noop, acc), {});
         var unlinkInfoFn: Function = null;
         var hookFn;
 
-        function runStateRefLink(group: any[]) {
-          def.state = group[0];
-          def.params = group[1];
-          def.options = group[2];
-          def.href = $state.href(def.state, def.params, def.options);
+        function update() {
+          def.href = $state.href(def.uiState, def.uiStateParams, def.uiStateOpts);
 
           if (unlinkInfoFn) unlinkInfoFn();
-          if (active) unlinkInfoFn = active.$$addStateInfo(def.state, def.params);
+          if (active) unlinkInfoFn = active.$$addStateInfo(def.uiState, def.uiStateParams);
           if (def.href) attrs.$set(type.attr, def.href);
         }
 
-        scope.$watch(watch, runStateRefLink, true);
-        runStateRefLink(scope.$eval(watch));
+        inputAttrs.forEach((field) => {
+          def[field] = attrs[field] ? scope.$eval(attrs[field]) : null;
+
+          attrs.$observe(field, (expr) => {
+            watchDeregFns[field]();
+            watchDeregFns[field] = scope.$watch(expr, (newval) => {
+              def[field] = newval;
+              update();
+            }, true);
+          })
+        });
+
+        scope.$on('$destroy', <any> $uiRouter.stateRegistry.onStatesChanged(() => update()));
+        update();
 
         if (!type.clickable) return;
         hookFn = clickHook(element, $state, $timeout, type, function () {
@@ -456,7 +483,7 @@ let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$transitions', '$
     };
   }];
 
-interface Def { state: string; href: string; params: Obj; options: any;
+interface Def { uiState: string; href: string; uiStateParams: Obj; uiStateOpts: any;
 }
 angular.module('ui.router.state')
     .directive('uiSref', uiSref)
