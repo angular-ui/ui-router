@@ -461,6 +461,7 @@ let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$transitions', '$
           }
 
           function addClass(el: IAugmentedJQuery, className: string) {
+            el.addClass(className);
             $timeout(function () {
               el.addClass(className);
             });
