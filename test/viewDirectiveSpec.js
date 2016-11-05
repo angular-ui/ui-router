@@ -832,6 +832,11 @@ describe('angular 1.5+ style .component()', function() {
         bindings: { oneway: '<?oneway', twoway: '=?', attribute: '@?attr' },
         template: '-{{ $ctrl.oneway }},{{ $ctrl.twoway }},{{ $ctrl.attribute }}-'
       });
+
+      app.component('eventComponent', {
+        bindings: { evt: '&' },
+        template: 'eventCmp',
+      });
     }
   }));
 
@@ -1056,6 +1061,18 @@ describe('angular 1.5+ style .component()', function() {
         $state.transitionTo('optionalbindingtypes'); $q.flush();
 
         expect(el.text()).toBe('-ONEWAY,TWOWAY,ATTRIBUTE-');
+      });
+
+      // Test for #3099
+      it('should not throw when routing to a component with output "&" binding', function () {
+        $stateProvider.state('nothrow', {
+          component: 'eventComponent',
+        });
+
+        var $state = svcs.$state, $q = svcs.$q;
+        $state.transitionTo('nothrow'); $q.flush();
+
+        expect(el.text()).toBe('eventCmp');
       });
     }
   });

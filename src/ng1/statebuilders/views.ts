@@ -88,7 +88,7 @@ const scopeBindings = (bindingsObj: Obj) => Object.keys(bindingsObj || {})
 // [ 'input', [ '=foo', '=', 'foo' ] ]
     .map(key => [key, /^([=<@])[?]?(.*)/.exec(bindingsObj[key])])
     // skip malformed values
-    .filter(tuple => isDefined(tuple) && isDefined(tuple[1]))
+    .filter(tuple => isDefined(tuple) && isArray(tuple[1]))
     // { name: ('foo' || 'input'), type: '=' }
     .map(tuple => ({ name: tuple[1][2] || tuple[0], type: tuple[1][1] } as BindingTuple));
 
