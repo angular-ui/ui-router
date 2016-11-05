@@ -9,8 +9,8 @@ import { ng as angular } from "../../angular";
 import { IAugmentedJQuery, ITimeoutService, IScope, IInterpolateService } from "angular";
 
 import {
-    Obj, extend, forEach, toJson, tail, isString, isObject, parse, noop,
-    PathNode, StateOrName, StateService, TransitionService, State, UIRouter
+    Obj, extend, forEach, tail, isString, isObject, parse, noop, unnestR, identity, uniqR, inArray, removeFrom,
+    RawParams, PathNode, StateOrName, StateService, TransitionService, StateDeclaration, UIRouter
 } from "ui-router-core";
 import { UIViewData } from "./viewDirective";
 
@@ -354,13 +354,15 @@ let uiState = ['$uiRouter', '$timeout',
  * to both the <div> and <a> elements. It is important to note that the state
  * names/globs passed to ui-sref-active shadow the state provided by ui-sref.
  */
-let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$transitions', '$uiRouter',
-  function $StateRefActiveDirective($state: StateService, $stateParams: Obj, $interpolate: IInterpolateService, $transitions: TransitionService, $uiRouter: UIRouter) {
+let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$uiRouter',
+  function $StateRefActiveDirective($state: StateService, $stateParams: Obj, $interpolate: IInterpolateService, $uiRouter: UIRouter) {
     return {
       restrict: "A",
-      controller: ['$scope', '$element', '$attrs', '$timeout',
-        function ($scope: IScope, $element: IAugmentedJQuery, $attrs: any, $timeout: ITimeoutService) {
-          var states: any[] = [], activeClasses: Obj = {}, activeEqClass: string, uiSrefActive: any;
+      controller: ['$scope', '$element', '$attrs',
+        function ($scope: IScope, $element: IAugmentedJQuery, $attrs: any) {
+          var states: StateData[] = [],
+              activeEqClass: string,
+              uiSrefActive: any;
 
           // There probably isn't much point in $observing this
           // uiSrefActive and uiSrefActiveEq share the same directive object with some
@@ -400,80 +402,46 @@ let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$transitions', '$
           }
 
           $scope.$on('$stateChangeSuccess', update);
-          $scope.$on('$destroy', <any> $transitions.onStart({}, updateAfterTransition));
+          $scope.$on('$destroy', <any> $uiRouter.transitionService.onStart({}, updateAfterTransition));
           if ($uiRouter.globals.transition) {
             updateAfterTransition($uiRouter.globals.transition);
           }
 
           function addState(stateName: string, stateParams: Obj, activeClass: string) {
             var state = $state.get(stateName, stateContext($element));
-            var stateHash = createStateHash(stateName, stateParams);
 
             var stateInfo = {
               state: state || { name: stateName },
               params: stateParams,
-              hash: stateHash
+              activeClass: activeClass
             };
 
             states.push(stateInfo);
-            activeClasses[stateHash] = activeClass;
 
             return function removeState() {
-              var idx = states.indexOf(stateInfo);
-              if (idx !== -1) states.splice(idx, 1);
+              removeFrom(states)(stateInfo);
             }
-          }
-
-          /**
-           * @param {string} state
-           * @param {Object|string} [params]
-           * @return {string}
-           */
-          function createStateHash(state: string, params: (Obj|string)) {
-            if (!isString(state)) {
-              throw new Error('state should be a string');
-            }
-            if (isObject(params)) {
-              return state + toJson(params);
-            }
-            params = $scope.$eval(params as string);
-            if (isObject(params)) {
-              return state + toJson(params);
-            }
-            return state;
           }
 
           // Update route state
           function update() {
-            for (var i = 0; i < states.length; i++) {
-              if (anyMatch(states[i].state, states[i].params)) {
-                addClass($element, activeClasses[states[i].hash]);
-              } else {
-                removeClass($element, activeClasses[states[i].hash]);
-              }
+            const splitClasses = str =>
+                str.split(/\s/).filter(identity);
+            const getClasses = (stateList: StateData[]) =>
+                stateList.map(x => x.activeClass).map(splitClasses).reduce(unnestR, []);
 
-              if (exactMatch(states[i].state, states[i].params)) {
-                addClass($element, activeEqClass);
-              } else {
-                removeClass($element, activeEqClass);
-              }
-            }
-          }
+            let allClasses = getClasses(states).concat(splitClasses(activeEqClass)).reduce(uniqR, []);
+            let fuzzyClasses = getClasses(states.filter(x => $state.includes(x.state.name, x.params)));
+            let exactlyMatchesAny = !!states.filter(x => $state.is(x.state.name, x.params)).length;
+            let exactClasses = exactlyMatchesAny ? splitClasses(activeEqClass) : [];
 
-          function addClass(el: IAugmentedJQuery, className: string) {
-            $scope.$evalAsync(() => el.addClass(className));
-          }
+            let addClasses = fuzzyClasses.concat(exactClasses).reduce(uniqR, []);
+            let removeClasses = allClasses.filter(cls => !inArray(addClasses, cls));
 
-          function removeClass(el: IAugmentedJQuery, className: string) {
-            $scope.$evalAsync(() => el.removeClass(className));
-          }
-
-          function anyMatch(state: State, params: Obj) {
-            return $state.includes(state.name, params);
-          }
-
-          function exactMatch(state: State, params: Obj) {
-            return $state.is(state.name, params);
+            $scope.$evalAsync(() => {
+              addClasses.forEach(className => $element.addClass(className));
+              removeClasses.forEach(className => $element.removeClass(className));
+            });
           }
 
           update();
@@ -481,8 +449,9 @@ let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$transitions', '$
     };
   }];
 
-interface Def { uiState: string; href: string; uiStateParams: Obj; uiStateOpts: any;
-}
+interface Def { uiState: string; href: string; uiStateParams: Obj; uiStateOpts: any; }
+interface StateData { state: StateDeclaration; params: RawParams; activeClass: string; }
+
 angular.module('ui.router.state')
     .directive('uiSref', uiSref)
     .directive('uiSrefActive', uiSrefActive)
