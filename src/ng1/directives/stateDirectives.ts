@@ -461,14 +461,11 @@ let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$transitions', '$
           }
 
           function addClass(el: IAugmentedJQuery, className: string) {
-            el.addClass(className);
-            $timeout(function () {
-              el.addClass(className);
-            });
+            $scope.$evalAsync(() => el.addClass(className));
           }
 
           function removeClass(el: IAugmentedJQuery, className: string) {
-            el.removeClass(className);
+            $scope.$evalAsync(() => el.removeClass(className));
           }
 
           function anyMatch(state: State, params: Obj) {
