@@ -10,17 +10,18 @@ import { IAugmentedJQuery, ITimeoutService, IScope, IInterpolateService } from "
 
 import {
     Obj, extend, forEach, tail, isString, isObject, parse, noop, unnestR, identity, uniqR, inArray, removeFrom,
-    RawParams, PathNode, StateOrName, StateService, TransitionService, StateDeclaration, UIRouter
+    RawParams, PathNode, StateOrName, StateService, StateDeclaration, UIRouter
 } from "ui-router-core";
 import { UIViewData } from "./viewDirective";
 
 /** @hidden */
-function parseStateRef(ref: string, current: string) {
-  let preparsed = ref.match(/^\s*({[^}]*})\s*$/), parsed;
-  if (preparsed) ref = current + '(' + preparsed[1] + ')';
-  parsed = ref.replace(/\n/g, " ").match(/^([^(]+?)\s*(\((.*)\))?$/);
+function parseStateRef(ref: string) {
+  let paramsOnly = ref.match(/^\s*({[^}]*})\s*$/), parsed;
+  if (paramsOnly) ref = '(' + paramsOnly[1] + ')';
+
+  parsed = ref.replace(/\n/g, " ").match(/^\s*([^(]*?)\s*(\((.*)\))?\s*$/);
   if (!parsed || parsed.length !== 4) throw new Error("Invalid state ref '" + ref + "'");
-  return { state: parsed[1], paramExpr: parsed[3] || null };
+  return { state: parsed[1] || null, paramExpr: parsed[3] || null };
 }
 
 /** @hidden */
@@ -57,7 +58,8 @@ function clickHook(el: IAugmentedJQuery, $state: StateService, $timeout: ITimeou
     if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || el.attr('target'))) {
       // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
       var transition = $timeout(function () {
-        $state.go(target.uiState, target.uiStateParams, target.uiStateOpts);
+        let state = target.uiState || $state.current;
+        $state.go(state, target.uiStateParams, target.uiStateOpts);
       });
       e.preventDefault();
 
@@ -150,21 +152,22 @@ let uiSref = ['$uiRouter', '$timeout',
       restrict: 'A',
       require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
       link: function (scope: IScope, element: IAugmentedJQuery, attrs: any, uiSrefActive: any) {
-        var ref = parseStateRef(attrs.uiSref, $state.current.name);
-        var def = { uiState: ref.state } as Def;
+        var ref = parseStateRef(attrs.uiSref);
         var type = getTypeInfo(element);
         var active = uiSrefActive[1] || uiSrefActive[0];
         var unlinkInfoFn: Function = null;
         var hookFn;
 
+        var def = { uiState: ref.state } as Def;
         def.uiStateOpts = extend(defaultOpts(element, $state), attrs.uiSrefOpts ? scope.$eval(attrs.uiSrefOpts) : {});
 
         var update = function (val?: any) {
           if (val) def.uiStateParams = angular.copy(val);
-          def.href = $state.href(ref.state, def.uiStateParams, def.uiStateOpts);
+          let state = def.uiState || $uiRouter.globals.current;
+          def.href = $state.href(state, def.uiStateParams, def.uiStateOpts);
 
           if (unlinkInfoFn) unlinkInfoFn();
-          if (active) unlinkInfoFn = active.$$addStateInfo(ref.state, def.uiStateParams);
+          if (active) unlinkInfoFn = active.$$addStateInfo(state, def.uiStateParams);
           if (def.href !== null) attrs.$set(type.attr, def.href);
         };
 
@@ -177,6 +180,7 @@ let uiSref = ['$uiRouter', '$timeout',
         update();
 
         scope.$on('$destroy', <any> $uiRouter.stateRegistry.onStatesChanged(() => update()));
+        scope.$on('$destroy', <any> $uiRouter.transitionService.onSuccess({}, () => update()));
 
         if (!type.clickable) return;
         hookFn = clickHook(element, $state, $timeout, type, function () {
@@ -239,10 +243,11 @@ let uiState = ['$uiRouter', '$timeout',
         var hookFn;
 
         function update() {
-          def.href = $state.href(def.uiState, def.uiStateParams, def.uiStateOpts);
+          let state = def.uiState || $uiRouter.globals.current;
+          def.href = $state.href(state, def.uiStateParams, def.uiStateOpts);
 
           if (unlinkInfoFn) unlinkInfoFn();
-          if (active) unlinkInfoFn = active.$$addStateInfo(def.uiState, def.uiStateParams);
+          if (active) unlinkInfoFn = active.$$addStateInfo(state, def.uiStateParams);
           if (def.href) attrs.$set(type.attr, def.href);
         }
 
@@ -259,6 +264,7 @@ let uiState = ['$uiRouter', '$timeout',
         });
 
         scope.$on('$destroy', <any> $uiRouter.stateRegistry.onStatesChanged(() => update()));
+        scope.$on('$destroy', <any> $uiRouter.transitionService.onSuccess({}, () => update()));
         update();
 
         if (!type.clickable) return;
@@ -360,7 +366,7 @@ let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$uiRouter',
       restrict: "A",
       controller: ['$scope', '$element', '$attrs',
         function ($scope: IScope, $element: IAugmentedJQuery, $attrs: any) {
-          var states: StateData[] = [],
+          let states: StateData[] = [],
               activeEqClass: string,
               uiSrefActive: any;
 
@@ -379,7 +385,7 @@ let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$uiRouter',
           if (isObject(uiSrefActive)) {
             forEach(uiSrefActive, function (stateOrName: StateOrName, activeClass: string) {
               if (isString(stateOrName)) {
-                var ref = parseStateRef(stateOrName, $state.current.name);
+                let ref = parseStateRef(stateOrName);
                 addState(ref.state, $scope.$eval(ref.paramExpr), activeClass);
               }
             });
@@ -392,7 +398,7 @@ let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$uiRouter',
             if (isObject(uiSrefActive) && states.length > 0) {
               return;
             }
-            var deregister = addState(newState, newParams, uiSrefActive);
+            let deregister = addState(newState, newParams, uiSrefActive);
             update();
             return deregister;
           };
