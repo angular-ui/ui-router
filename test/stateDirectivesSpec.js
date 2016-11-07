@@ -15,6 +15,9 @@ describe('uiStateRef', function() {
     }).state('other', {
       url: '/other/:id',
       template: 'other'
+    }).state('other.detail', {
+      url: '/detail',
+      template: 'detail'
     }).state('contacts', {
       url: '/contacts',
       template: '<a ui-sref=".item({ id: 5 })" class="item">Person</a> <ui-view></ui-view>'
@@ -26,8 +29,16 @@ describe('uiStateRef', function() {
     });
   }));
 
-  beforeEach(inject(function($document) {
+  beforeEach(inject(function($document, $timeout) {
     document = $document[0];
+    timeoutFlush = function () {
+      try {
+        $timeout.flush();
+      } catch (e) {
+        // Angular 1.0.8 throws 'No deferred tasks to be flushed' if there is nothing in queue.
+        // Behave as Angular >=1.1.5 and do nothing in such case.
+      }
+    }
   }));
 
   function triggerClick(el, options) {
@@ -93,15 +104,6 @@ describe('uiStateRef', function() {
     $compile(el)(scope);
     $compile(el2)(scope);
     scope.$digest();
-
-    timeoutFlush = function () {
-      try {
-        $timeout.flush();
-      } catch (e) {
-        // Angular 1.0.8 throws 'No deferred tasks to be flushed' if there is nothing in queue.
-        // Behave as Angular >=1.1.5 and do nothing in such case.
-      }
-    }
   };
 
   describe('links', function() {
@@ -236,20 +238,48 @@ describe('uiStateRef', function() {
       expect(obj($stateParams)).toEqualData({});
     }));
 
-    it('should allow passing params to current state', inject(function($compile, $rootScope, $state) {
-      $state.current.name = 'contacts.item.detail';
+    // Test for #1031
+    it('should allow passing params to current state', inject(function($compile, $rootScope, $state, $q) {
+      $state.go('other', { id: 'abc' });
+      $rootScope.$index = 'def';
+      $rootScope.$digest();
 
       el = angular.element("<a ui-sref=\"{id: $index}\">Details</a>");
-      $rootScope.$index = 3;
-      $rootScope.$apply();
-
       $compile(el)($rootScope);
       $rootScope.$digest();
-      expect(el.attr('href')).toBe('#/contacts/3');
+
+      expect($state.current.name).toBe('other');
+      expect($state.params).toEqualValues({ id: 'abc' });
+      expect(el.attr('href')).toBe('#/other/def');
+
+      triggerClick(el);
+      timeoutFlush();
+      $q.flush();
+
+      expect($state.current.name).toBe('other');
+      expect($state.params).toEqualValues({ id: 'def' });
+
+      $rootScope.$index = 'ghi';
+      $state.go('other.detail');
+      $rootScope.$digest();
+
+      expect($state.current.name).toBe('other.detail');
+      expect($state.params).toEqualValues({ id: 'def' });
+
+      expect(el.attr('href')).toBe('#/other/ghi/detail');
+
+      triggerClick(el);
+      timeoutFlush();
+      $q.flush();
+
+      expect($state.current.name).toBe('other.detail');
+      expect($state.params).toEqualValues({ id: 'ghi' });
+
     }));
 
     it('should allow multi-line attribute values when passing params to current state', inject(function($compile, $rootScope, $state) {
-      $state.current.name = 'contacts.item.detail';
+      $state.go('contacts.item.detail', { id: '123' });
+      $rootScope.$digest();
 
       el = angular.element("<a ui-sref=\"{\n\tid: $index\n}\">Details</a>");
       $rootScope.$index = 3;
@@ -375,6 +405,44 @@ describe('uiStateRef', function() {
       scope.$digest();
       expect(angular.element(template[0]).attr('href')).toBe('#/other/123');
     });
+
+    // Test for #1031
+    it('should allow passing params to current state using empty ui-state', inject(function($compile, $rootScope, $state, $q) {
+      $state.go('other', { id: 'abc' });
+      $rootScope.$index = 'def';
+      $rootScope.$digest();
+
+      el = angular.element('<a ui-state="" ui-state-params="{id: $index}">Details</a>');
+      $compile(el)($rootScope);
+      $rootScope.$digest();
+
+      expect($state.current.name).toBe('other');
+      expect($state.params).toEqualValues({ id: 'abc' });
+      expect(el.attr('href')).toBe('#/other/def');
+
+      triggerClick(el);
+      timeoutFlush();
+      $q.flush();
+
+      expect($state.current.name).toBe('other');
+      expect($state.params).toEqualValues({ id: 'def' });
+
+      $rootScope.$index = 'ghi';
+      $state.go('other.detail');
+      $rootScope.$digest();
+
+      expect($state.current.name).toBe('other.detail');
+      expect($state.params).toEqualValues({ id: 'def' });
+
+      expect(el.attr('href')).toBe('#/other/ghi/detail');
+
+      triggerClick(el);
+      timeoutFlush();
+      $q.flush();
+
+      expect($state.current.name).toBe('other.detail');
+      expect($state.params).toEqualValues({ id: 'ghi' });
+    }));
 
     it('retains the old href if the new points to a non-state', function () {
       expect(angular.element(template[0]).attr('href')).toBe('#/contacts');
