@@ -158,22 +158,24 @@ let uiSref = ['$uiRouter', '$timeout',
       restrict: 'A',
       require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
       link: function (scope: IScope, element: IAugmentedJQuery, attrs: any, uiSrefActive: any) {
-        let ref = parseStateRef(attrs.uiSref);
         let type = getTypeInfo(element);
         let active = uiSrefActive[1] || uiSrefActive[0];
         let unlinkInfoFn: Function = null;
         let hookFn;
 
-        let rawDef = { uiState: ref.state } as Def;
+        let rawDef = {} as Def;
         let getDef = () => processedDef($state, element, rawDef);
+
+        let ref = parseStateRef(attrs.uiSref);
+        rawDef.uiState = ref.state;
         rawDef.uiStateOpts = attrs.uiSrefOpts ? scope.$eval(attrs.uiSrefOpts) : {};
 
-        let update = function () {
+        function update() {
           let def = getDef();
           if (unlinkInfoFn) unlinkInfoFn();
           if (active) unlinkInfoFn = active.$$addStateInfo(def.uiState, def.uiStateParams);
-          if (def.href !== null) attrs.$set(type.attr, def.href);
-        };
+          if (def.href != null) attrs.$set(type.attr, def.href);
+        }
 
         if (ref.paramExpr) {
           scope.$watch(ref.paramExpr, function (val) {
@@ -182,6 +184,7 @@ let uiSref = ['$uiRouter', '$timeout',
           }, true);
           rawDef.uiStateParams = angular.copy(scope.$eval(ref.paramExpr));
         }
+
         update();
 
         scope.$on('$destroy', <any> $uiRouter.stateRegistry.onStatesChanged(update));
@@ -237,20 +240,22 @@ let uiState = ['$uiRouter', '$timeout',
       restrict: 'A',
       require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
       link: function (scope: IScope, element: IAugmentedJQuery, attrs: any, uiSrefActive: any) {
-        var type = getTypeInfo(element);
-        var active = uiSrefActive[1] || uiSrefActive[0];
+        let type = getTypeInfo(element);
+        let active = uiSrefActive[1] || uiSrefActive[0];
+        let unlinkInfoFn: Function = null;
+        let hookFn;
+
+        let rawDef = {} as Def;
+        let getDef = () => processedDef($state, element, rawDef);
+
         let inputAttrs = ['uiState', 'uiStateParams', 'uiStateOpts'];
         let watchDeregFns = inputAttrs.reduce((acc, attr) => (acc[attr] = noop, acc), {});
-        var unlinkInfoFn: Function = null;
-        var hookFn;
-        var rawDef = {} as Def;
-        let getDef = () => processedDef($state, element, rawDef);
 
         function update() {
           let def = getDef();
           if (unlinkInfoFn) unlinkInfoFn();
           if (active) unlinkInfoFn = active.$$addStateInfo(def.uiState, def.uiStateParams);
-          if (def.href) attrs.$set(type.attr, def.href);
+          if (def.href != null) attrs.$set(type.attr, def.href);
         }
 
         inputAttrs.forEach((field) => {
@@ -265,9 +270,10 @@ let uiState = ['$uiRouter', '$timeout',
           })
         });
 
+        update();
+
         scope.$on('$destroy', <any> $uiRouter.stateRegistry.onStatesChanged(update));
         scope.$on('$destroy', <any> $uiRouter.transitionService.onSuccess({}, update));
-        update();
 
         if (!type.clickable) return;
         hookFn = clickHook(element, $state, $timeout, type, getDef);
