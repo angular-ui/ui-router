@@ -31,6 +31,13 @@ function stateContext(el: IAugmentedJQuery) {
   return path ? tail(path).state.name : undefined;
 }
 
+function processedDef($state: StateService, $element: IAugmentedJQuery, def: Def): Def {
+  let uiState = def.uiState || $state.current.name;
+  let uiStateOpts = extend(defaultOpts($element, $state), def.uiStateOpts || {});
+  let href = $state.href(uiState, def.uiStateParams, uiStateOpts);
+  return { uiState, uiStateParams: def.uiStateParams, uiStateOpts, href };
+}
+
 interface TypeInfo {
   attr: string;
   isAnchor: boolean;
@@ -58,8 +65,7 @@ function clickHook(el: IAugmentedJQuery, $state: StateService, $timeout: ITimeou
     if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || el.attr('target'))) {
       // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
       var transition = $timeout(function () {
-        let state = target.uiState || $state.current;
-        $state.go(state, target.uiStateParams, target.uiStateOpts);
+        $state.go(target.uiState, target.uiStateParams, target.uiStateOpts);
       });
       e.preventDefault();
 
@@ -152,40 +158,37 @@ let uiSref = ['$uiRouter', '$timeout',
       restrict: 'A',
       require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
       link: function (scope: IScope, element: IAugmentedJQuery, attrs: any, uiSrefActive: any) {
-        var ref = parseStateRef(attrs.uiSref);
-        var type = getTypeInfo(element);
-        var active = uiSrefActive[1] || uiSrefActive[0];
-        var unlinkInfoFn: Function = null;
-        var hookFn;
+        let ref = parseStateRef(attrs.uiSref);
+        let type = getTypeInfo(element);
+        let active = uiSrefActive[1] || uiSrefActive[0];
+        let unlinkInfoFn: Function = null;
+        let hookFn;
 
-        var def = { uiState: ref.state } as Def;
-        def.uiStateOpts = extend(defaultOpts(element, $state), attrs.uiSrefOpts ? scope.$eval(attrs.uiSrefOpts) : {});
+        let rawDef = { uiState: ref.state } as Def;
+        let getDef = () => processedDef($state, element, rawDef);
+        rawDef.uiStateOpts = attrs.uiSrefOpts ? scope.$eval(attrs.uiSrefOpts) : {};
 
-        var update = function (val?: any) {
-          if (val) def.uiStateParams = angular.copy(val);
-          let state = def.uiState || $uiRouter.globals.current;
-          def.href = $state.href(state, def.uiStateParams, def.uiStateOpts);
-
+        let update = function () {
+          let def = getDef();
           if (unlinkInfoFn) unlinkInfoFn();
-          if (active) unlinkInfoFn = active.$$addStateInfo(state, def.uiStateParams);
+          if (active) unlinkInfoFn = active.$$addStateInfo(def.uiState, def.uiStateParams);
           if (def.href !== null) attrs.$set(type.attr, def.href);
         };
 
         if (ref.paramExpr) {
           scope.$watch(ref.paramExpr, function (val) {
-            if (val !== def.uiStateParams) update(val);
+            rawDef.uiStateParams = angular.copy(val);
+            update();
           }, true);
-          def.uiStateParams = angular.copy(scope.$eval(ref.paramExpr));
+          rawDef.uiStateParams = angular.copy(scope.$eval(ref.paramExpr));
         }
         update();
 
-        scope.$on('$destroy', <any> $uiRouter.stateRegistry.onStatesChanged(() => update()));
-        scope.$on('$destroy', <any> $uiRouter.transitionService.onSuccess({}, () => update()));
+        scope.$on('$destroy', <any> $uiRouter.stateRegistry.onStatesChanged(update));
+        scope.$on('$destroy', <any> $uiRouter.transitionService.onSuccess({}, update));
 
         if (!type.clickable) return;
-        hookFn = clickHook(element, $state, $timeout, type, function () {
-          return def;
-        });
+        hookFn = clickHook(element, $state, $timeout, type, getDef);
         element[element.on ? 'on' : 'bind']("click", hookFn);
         scope.$on('$destroy', function () {
           element[element.off ? 'off' : 'unbind']("click", hookFn);
@@ -236,41 +239,38 @@ let uiState = ['$uiRouter', '$timeout',
       link: function (scope: IScope, element: IAugmentedJQuery, attrs: any, uiSrefActive: any) {
         var type = getTypeInfo(element);
         var active = uiSrefActive[1] || uiSrefActive[0];
-        var def = {} as Def;
         let inputAttrs = ['uiState', 'uiStateParams', 'uiStateOpts'];
         let watchDeregFns = inputAttrs.reduce((acc, attr) => (acc[attr] = noop, acc), {});
         var unlinkInfoFn: Function = null;
         var hookFn;
+        var rawDef = {} as Def;
+        let getDef = () => processedDef($state, element, rawDef);
 
         function update() {
-          let state = def.uiState || $uiRouter.globals.current;
-          def.href = $state.href(state, def.uiStateParams, def.uiStateOpts);
-
+          let def = getDef();
           if (unlinkInfoFn) unlinkInfoFn();
-          if (active) unlinkInfoFn = active.$$addStateInfo(state, def.uiStateParams);
+          if (active) unlinkInfoFn = active.$$addStateInfo(def.uiState, def.uiStateParams);
           if (def.href) attrs.$set(type.attr, def.href);
         }
 
         inputAttrs.forEach((field) => {
-          def[field] = attrs[field] ? scope.$eval(attrs[field]) : null;
+          rawDef[field] = attrs[field] ? scope.$eval(attrs[field]) : null;
 
           attrs.$observe(field, (expr) => {
             watchDeregFns[field]();
             watchDeregFns[field] = scope.$watch(expr, (newval) => {
-              def[field] = newval;
+              rawDef[field] = newval;
               update();
             }, true);
           })
         });
 
-        scope.$on('$destroy', <any> $uiRouter.stateRegistry.onStatesChanged(() => update()));
-        scope.$on('$destroy', <any> $uiRouter.transitionService.onSuccess({}, () => update()));
+        scope.$on('$destroy', <any> $uiRouter.stateRegistry.onStatesChanged(update));
+        scope.$on('$destroy', <any> $uiRouter.transitionService.onSuccess({}, update));
         update();
 
         if (!type.clickable) return;
-        hookFn = clickHook(element, $state, $timeout, type, function () {
-          return def;
-        });
+        hookFn = clickHook(element, $state, $timeout, type, getDef);
         element[element.on ? 'on' : 'bind']("click", hookFn);
         scope.$on('$destroy', function () {
           element[element.off ? 'off' : 'unbind']("click", hookFn);
