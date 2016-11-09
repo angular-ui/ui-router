@@ -31,6 +31,7 @@ function stateContext(el: IAugmentedJQuery) {
   return path ? tail(path).state.name : undefined;
 }
 
+/** @hidden */
 function processedDef($state: StateService, $element: IAugmentedJQuery, def: Def): Def {
   let uiState = def.uiState || $state.current.name;
   let uiStateOpts = extend(defaultOpts($element, $state), def.uiStateOpts || {});
@@ -38,6 +39,7 @@ function processedDef($state: StateService, $element: IAugmentedJQuery, def: Def
   return { uiState, uiStateParams: def.uiStateParams, uiStateOpts, href };
 }
 
+/** @hidden */
 interface TypeInfo {
   attr: string;
   isAnchor: boolean;
@@ -91,45 +93,93 @@ function defaultOpts(el: IAugmentedJQuery, $state: StateService) {
 /**
  * `ui-sref`: A directive for linking to a state
  *
- * A directive that binds a link (`<a>` tag) to a state.
- * If the state has an associated URL, the directive will automatically generate and
- * update the `href` attribute via the [[StateService.href]]  method.
- * Clicking the link will trigger a state transition with optional parameters.
+ * A directive which links to a state (and optionally, parameters).
+ * When clicked, this directive activates the linked state with the supplied parameter values.
  *
- * Also middle-clicking, right-clicking, and ctrl-clicking on the link will be
- * handled natively by the browser.
+ * ### Linked State
+ * The attribute value of the `ui-sref` is the name of the state to link to.
  *
- * You can also use relative state paths within ui-sref, just like the relative
- * paths passed to `$state.go()`.
- * You just need to be aware that the path is relative to the state that the link lives in.
- * In other words, the state that created the view containing the link.
+ * #### Example:
+ * This will activate the `home` state when the link is clicked.
+ * <a ui-sref="home">Home</a>
  *
- * You can specify options to pass to [[StateService.go]] using the `ui-sref-opts` attribute.
+ * ### Relative Links
+ * You can also use relative state paths within `ui-sref`, just like a relative path passed to `$state.go()` ([[StateService.go]]).
+ * You just need to be aware that the path is relative to the state that *created* the link.
+ * This allows a state to create a relative `ui-sref` which always targets the same destination.
+ *
+ * #### Example:
+ * Both these links are relative to the parent state, even when a child state is currently active.
+ * ```html
+ * <a ui-sref=".child1">child 1 state</a>
+ * <a ui-sref=".child2">child 2 state</a>
+ * ```
+ *
+ * This link activates the parent class.
+ * ```html
+ * <a ui-sref="^">Return</a>
+ * ```
+ *
+ * ### hrefs
+ * If the linked state has a URL, the directive will automatically generate and
+ * update the `href` attribute (using the [[StateService.href]]  method).
+ *
+ * #### Example:
+ * Assuming the `users` state has a url of `/users/`
+ * ```html
+ * <a ui-sref="users" href="/users/">Users</a>
+ * ```
+ *
+ * ### Parameter Values
+ * In addition to the state name, a `ui-sref` can include parameter values which are applied when activating the state.
+ * Param values can be provided in the `ui-sref` value after the state name, enclosed by parentheses.
+ * The content inside the parentheses is an expression, evaluated to the parameter values.
+ *
+ * #### Example:
+ * This example renders a list of links to users.
+ * The state's `userId` parameter value comes from each user's `user.id` property.
+ * ```html
+ * <li ng-repeat="user in users">
+ *   <a ui-sref="users.detail({ userId: user.id })">{{ user.displayName }}</a>
+ * </li>
+ * ```
+ *
+ * Note:
+ * The parameter values expression is `$watch`ed for updates.
+ *
+ * ### Transition Options
+ * You can specify [[TransitionOptions]] to pass to [[StateService.go]] by using the `ui-sref-opts` attribute.
  * Options are restricted to `location`, `inherit`, and `reload`.
  *
- * Here's an example of how you'd use ui-sref and how it would compile.
+ * #### Example:
+ * ```html
+ * <a ui-sref="home" ui-sref-opts="{ reload: true }">Home</a>
+ * ```
+ *
+ * ### Highlighting the active link
+ * This directive can be used in conjunction with [[uiSrefActive]] to highlight the active link.
+ *
+ * ### Examples
  * If you have the following template:
  *
- * @example
  * ```html
- *
- * <pre>
- * <a ui-sref="home">Home</a> | <a ui-sref="about">About</a> | <a ui-sref="{page: 2}">Next page</a>
+ * <a ui-sref="home">Home</a>
+ * <a ui-sref="about">About</a>
+ * <a ui-sref="{page: 2}">Next page</a>
  *
  * <ul>
  *     <li ng-repeat="contact in contacts">
  *         <a ui-sref="contacts.detail({ id: contact.id })">{{ contact.name }}</a>
  *     </li>
  * </ul>
- * </pre>
  * ```
  *
- * Then the compiled html would be (assuming Html5Mode is off and current state is contacts):
+ * Then (assuming the current state is `contacts`) the rendered html including hrefs would be:
  *
  * ```html
- *
- * <pre>
- * <a href="#/home" ui-sref="home">Home</a> | <a href="#/about" ui-sref="about">About</a> | <a href="#/contacts?page=2" ui-sref="{page: 2}">Next page</a>
+ * <a href="#/home" ui-sref="home">Home</a>
+ * <a href="#/about" ui-sref="about">About</a>
+ * <a href="#/contacts?page=2" ui-sref="{page: 2}">Next page</a>
  *
  * <ul>
  *     <li ng-repeat="contact in contacts">
@@ -143,12 +193,23 @@ function defaultOpts(el: IAugmentedJQuery, $state: StateService) {
  *     </li>
  * </ul>
  *
- * <a ui-sref="home" ui-sref-opts="{reload: true}">Home</a>
- * </pre>
+ * <a href="#/home" ui-sref="home" ui-sref-opts="{reload: true}">Home</a>
  * ```
  *
- * @param {string} ui-sref 'stateName' can be any valid absolute or relative state
- * @param {Object} ui-sref-opts options to pass to [[StateService.go]]
+ * ### Notes
+ *
+ * - You can use `ui-sref` to change **only the parameter values** by omitting the state name and parentheses.
+ * #### Example:
+ * Sets the `lang` parameter to `en` and remains on the same state.
+ *
+ * ```html
+ * <a ui-sref="{ lang: 'en' }">English</a>
+ * ```
+ *
+ * - A middle-click, right-click, or ctrl-click is handled (natively) by the browser to open the href in a new window, for example.
+ *
+ * - Unlike the parameter values expression, the state name is not `$watch`ed (for performance reasons).
+ * If you need to dynamically update the state being linked to, use the fully dynamic [[uiState]] directive.
  */
 let uiSref = ['$uiRouter', '$timeout',
   function $StateRefDirective($uiRouter: UIRouter, $timeout: ITimeoutService) {
@@ -201,35 +262,76 @@ let uiSref = ['$uiRouter', '$timeout',
   }];
 
 /**
- * `ui-state`: A dynamic version of the `ui-sref` directive
+ * `ui-state`: A fully dynamic directive for linking to a state
  *
- * Much like ui-sref, but it `$observe`s inputs and `$watch`es/evaluates values.
+ * A directive which links to a state (and optionally, parameters).
+ * When clicked, this directive activates the linked state with the supplied parameter values.
  *
- * The `ui-sref` directive takes a string literal, which is split into 1) state name and 2) parameter values expression.
- * It does not `$observe` the input string and `$watch`es only the parameter value expression.
- * Because of this, `ui-sref` is fairly lightweight, but does no deal well with with srefs that dynamically change.
+ * **This directive is very similar to [[uiSref]], but it `$observe`s and `$watch`es/evaluates all its inputs.**
  *
+ * A directive which links to a state (and optionally, parameters).
+ * When clicked, this directive activates the linked state with the supplied parameter values.
  *
- * On the other hand, the `ui-state` directive is fully dynamic.
- * It is useful for building dynamic links, such as data–driven navigation links.
+ * ### Linked State
+ * The attribute value of `ui-state` is an expression which is `$watch`ed and evaluated as the state to link to.
+ * **This is in contrast with `ui-sref`, which takes a state name as a string literal.**
  *
- * It consists of three attributes:
- *
- *  - `ui-state="expr"`: The state to link to; the `expr` string is evaluated and `$watch`ed
- *  - `ui-state-params="expr"`: The state params to link to; the `expr` string is evaluated and `$watch`ed
- *  - `ui-state-opts="expr"`: The transition options for the link; the `expr` string is evaluated and `$watch`ed
- *
- * In angular 1.3 and above, a one time binding may be used if you know specific bindings will not change, i.e:
- * `ui-params="::foo.params"`.
- *
- * Like `ui-sref`, this directive also works with `ui-sref-active` and `ui-sref-active-eq`.
- *
- * @example
+ * #### Example:
+ * Create a list of links.
  * ```html
- *
- * <li ng-repeat="nav in navlinks" ui-sref-active="active">
- *   <a ui-state="nav.statename" ui-state-params="nav.params">{{nav.description}}</a>
+ * <li ng-repeat="link in navlinks">
+ *   <a ui-sref="link.state">{{ link.displayName }}</a>
  * </li>
+ *
+ * ### Relative Links
+ * If the expression evaluates to a relative path, it is processed like [[uiSref]].
+ * You just need to be aware that the path is relative to the state that *created* the link.
+ * This allows a state to create relative `ui-state` which always targets the same destination.
+ *
+ * ### hrefs
+ * If the linked state has a URL, the directive will automatically generate and
+ * update the `href` attribute (using the [[StateService.href]]  method).
+ *
+ * ### Parameter Values
+ * In addition to the state name expression, a `ui-state` can include parameter values which are applied when activating the state.
+ * Param values should be provided using the `ui-state-params` attribute.
+ * The `ui-state-params` attribute value is `$watch`ed and evaluated as an expression.
+ *
+ * #### Example:
+ * This example renders a list of links with param values.
+ * The state's `userId` parameter value comes from each user's `user.id` property.
+ * ```html
+ * <li ng-repeat="link in navlinks">
+ *   <a ui-state="link.state" ui-state-params="link.params">{{ link.displayName }}</a>
+ * </li>
+ * ```
+ *
+ * ### Transition Options
+ * You can specify [[TransitionOptions]] to pass to [[StateService.go]] by using the `ui-state-opts` attribute.
+ * Options are restricted to `location`, `inherit`, and `reload`.
+ * The value of the `ui-state-opts` is `$watch`ed and evaluated as an expression.
+ *
+ * #### Example:
+ * ```html
+ * <a ui-state="returnto.state" ui-state-opts="{ reload: true }">Home</a>
+ * ```
+ *
+ * ### Highlighting the active link
+ * This directive can be used in conjunction with [[uiSrefActive]] to highlight the active link.
+ *
+ * ### Notes
+ *
+ * - You can use `ui-params` to change **only the parameter values** by omitting the state name and supplying only `ui-state-params`.
+ *   However, it might be simpler to use [[uiSref]] parameter-only links.
+ *
+ * #### Example:
+ * Sets the `lang` parameter to `en` and remains on the same state.
+ *
+ * ```html
+ * <a ui-state="" ui-state-params="{ lang: 'en' }">English</a>
+ * ```
+ *
+ * - A middle-click, right-click, or ctrl-click is handled (natively) by the browser to open the href in a new window, for example.
  * ```
  */
 let uiState = ['$uiRouter', '$timeout',
@@ -289,82 +391,83 @@ let uiState = ['$uiRouter', '$timeout',
 /**
  * `ui-sref-active` and `ui-sref-active-eq`: A directive that adds a CSS class when a `ui-sref` is active
  *
- * A directive working alongside ui-sref to add classes to an element when the
- * related ui-sref directive's state is active, and removing them when it is inactive.
- * The primary use-case is to simplify the special appearance of navigation menus
- * relying on `ui-sref`, by having the "active" state's menu button appear different,
+ * A directive working alongside [[uiSref]] and [[uiState]] to add classes to an element when the
+ * related directive's state is active (and remove them when it is inactive).
+ *
+ * The primary use-case is to highlight the active link in navigation menus,
  * distinguishing it from the inactive menu items.
  *
- * ui-sref-active can live on the same element as ui-sref or on a parent element. The first
- * ui-sref-active found at the same level or above the ui-sref will be used.
+ * ### Linking to a `ui-sref` or `ui-state`
+ * `ui-sref-active` can live on the same element as `ui-sref`/`ui-state`, or it can be on a parent element.
+ * If a `ui-sref-active` is a parent to more than one `ui-sref`/`ui-state`, it will apply the CSS class when **any of the links are active**.
  *
- * Will activate when the ui-sref's target state or any child state is active. If you
- * need to activate only when the ui-sref target state is active and *not* any of
- * it's children, then you will use ui-sref-active-eq
+ * ### Matching
+ *
+ * The `ui-sref-active` directive applies the CSS class when the `ui-sref`/`ui-state`'s target state **or any child state is active**.
+ * This is a "fuzzy match" which uses [[StateService.includes]].
+ *
+ * The `ui-sref-active-eq` directive applies the CSS class when the `ui-sref`/`ui-state`'s target state is directly active (not when child states are active).
+ * This is an "exact match" which uses [[StateService.is]].
+ *
+ * ### Parameter values
+ * If the `ui-sref`/`ui-state` includes parameter values, the current parameter values must match the link's values for the link to be highlighted.
+ * This allows a list of links to the same state with different parameters to be rendered, and the correct one highlighted.
+ *
+ * #### Example:
+ * ```html
+ * <li ng-repeat="user in users" ui-sref-active="active">
+ *   <a ui-sref="user.details({ userId: user.id })">{{ user.lastName }}</a>
+ * </li>
+ * ```
+ *
+ * ### Examples
  *
  * Given the following template:
  * @example
  * ```html
- *
- * <pre>
  * <ul>
  *   <li ui-sref-active="active" class="item">
  *     <a href ui-sref="app.user({user: 'bilbobaggins'})">@bilbobaggins</a>
  *   </li>
  * </ul>
- * </pre>
  * ```
  *
- *
- * When the app state is "app.user" (or any children states), and contains the state parameter "user" with value "bilbobaggins",
+ * When the app state is `app.user` (or any child state),
+ * and contains the state parameter "user" with value "bilbobaggins",
  * the resulting HTML will appear as (note the 'active' class):
  *
  * ```html
- *
- * <pre>
  * <ul>
  *   <li ui-sref-active="active" class="item active">
  *     <a ui-sref="app.user({user: 'bilbobaggins'})" href="/users/bilbobaggins">@bilbobaggins</a>
  *   </li>
  * </ul>
- * </pre>
  * ```
  *
- * The class name is interpolated **once** during the directives link time (any further changes to the
- * interpolated value are ignored).
+ * ### Glob mode
  *
- * Multiple classes may be specified in a space-separated format:
- *
- * ```html
- * <pre>
- * <ul>
- *   <li ui-sref-active='class1 class2 class3'>
- *     <a ui-sref="app.user">link</a>
- *   </li>
- * </ul>
- * </pre>
- * ```
- *
- * It is also possible to pass ui-sref-active an expression that evaluates
- * to an object hash, whose keys represent active class names and whose
- * values represent the respective state names/globs.
- * ui-sref-active will match if the current active state **includes** any of
+ * It is possible to pass `ui-sref-active` an expression that evaluates to an object.
+ * The objects keys represent active class names and values represent the respective state names/globs.
+ * `ui-sref-active` will match if the current active state **includes** any of
  * the specified state names/globs, even the abstract ones.
  *
+ * #### Example:
  * Given the following template, with "admin" being an abstract state:
- * @example
  * ```html
- *
- * <pre>
- * <div ui-sref-active="{'active': 'admin.*'}">
+ * <div ui-sref-active="{'active': 'admin.**'}">
  *   <a ui-sref-active="active" ui-sref="admin.roles">Roles</a>
  * </div>
- * </pre>
  * ```
  *
- * When the current state is "admin.roles" the "active" class will be applied
- * to both the <div> and <a> elements. It is important to note that the state
- * names/globs passed to ui-sref-active shadow the state provided by ui-sref.
+ * When the current state is "admin.roles" the "active" class will be applied to both the <div> and <a> elements.
+ * It is important to note that the state names/globs passed to `ui-sref-active` override any state provided by a linked `ui-sref`.
+ *
+ * ### Notes:
+ *
+ * - The class name is interpolated **once** during the directives link time (any further changes to the
+ * interpolated value are ignored).
+ *
+ * - Multiple classes may be specified in a space-separated format: `ui-sref-active='class1 class2 class3'`
  */
 let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$uiRouter',
   function $StateRefActiveDirective($state: StateService, $stateParams: Obj, $interpolate: IInterpolateService, $uiRouter: UIRouter) {
