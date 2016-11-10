@@ -182,9 +182,11 @@ export var $stateNotFound: IAngularEvent;
         return false;
       }
 
-      $transition$.promise.then(function () {
+      // right after global state is updated
+      let successOpts = { priority: 9999 };
+      $transition$.onSuccess({}, function () {
         $rootScope.$broadcast('$stateChangeSuccess', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$.options(), $transition$);
-      });
+      }, successOpts);
     }
 
     if (enabledEvents.$stateChangeError) {
