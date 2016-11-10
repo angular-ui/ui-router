@@ -14,7 +14,7 @@
     "test:integrate": "tsc && npm run test:ng12 && npm run test:ng13 && npm run test:ng14 && npm run test:ng15",
     "watch": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1",
     "debug": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1 --browsers=Chrome",
-    "docs": "typedoc --tsconfig tsconfig.typedoc.json --readme README.md --name 'angular-ui-router' --theme node_modules/ui-router-typedoc-themes/bin/default --out _doc --external-aliases internalapi,external --navigation-label-globals angular-ui-router"
+    "docs": "typedoc --tsconfig tsconfig.typedoc.json --readme README.md --name 'angular-ui-router' --theme node_modules/ui-router-typedoc-themes/bin/default --out _doc --internal-aliases internal,coreapi,ng1api --external-aliases internalapi,external --navigation-label-globals angular-ui-router"
   },
   "homepage": "https://ui-router.github.io",
   "contributors": [
