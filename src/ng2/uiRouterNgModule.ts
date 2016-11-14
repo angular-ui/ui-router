@@ -86,7 +86,7 @@ export class UIRouterModule {
   }
 
   /**
-   * Creates an `NgModule` for an UIRouter module
+   * Creates an `NgModule` for a UIRouter module
    *
    * This function creates an [Angular 2 NgModule](https://angular.io/docs/ts/latest/guide/ngmodule.html)
    * with UI-Router support.
