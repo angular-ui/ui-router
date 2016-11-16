@@ -83,7 +83,7 @@ function $TemplateFactory(  $http,   $templateCache,   $injector) {
     if (isFunction(url)) url = url(params);
     if (url == null) return null;
     else {
-      if($injector.has('$templateRequest')) {
+      if($injector.has && $injector.has('$templateRequest')) {
         return $injector.get('$templateRequest')(url);
       } else {
         return $http
