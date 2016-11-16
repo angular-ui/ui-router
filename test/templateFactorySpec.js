@@ -6,7 +6,7 @@ describe('templateFactory', function () {
     expect($templateFactory).toBeDefined();
   }));
 
-  it('should request templates as text/html', inject(function($templateFactory, $httpBackend) {
+  xit('should request templates as text/html', inject(function($templateFactory, $httpBackend) {
     $httpBackend.expectGET('views/view.html', function(headers) {
       return headers.Accept === 'text/html';
     }).respond(200);
