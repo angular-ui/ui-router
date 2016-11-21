@@ -1,8 +1,8 @@
 /** @module ng1 */ /** */
 import { ng as angular } from "../../angular";
 import {
-    State, Obj, pick, forEach, anyTrueR, unnestR, tail, extend, kebobString,
-    isArray, isInjectable, isDefined, isString, isObject, services, trace,
+    State, pick, forEach, anyTrueR, tail, extend,
+    isArray, isInjectable, isDefined, isString, services, trace,
     ViewConfig, ViewService, ViewConfigFactory, PathNode, ResolveContext, Resolvable, RawParams, IInjectable
 } from "ui-router-core";
 import { Ng1ViewDeclaration } from "../interface";
@@ -24,7 +24,7 @@ export const ng1ViewConfigFactory: ViewConfigFactory = (path, view) =>
 export function ng1ViewsBuilder(state: State) {
   let tplKeys = ['templateProvider', 'templateUrl', 'template', 'notify', 'async'],
       ctrlKeys = ['controller', 'controllerProvider', 'controllerAs', 'resolveAs'],
-      compKeys = ['component', 'bindings'],
+      compKeys = ['component', 'bindings', 'componentProvider'],
       nonCompKeys = tplKeys.concat(ctrlKeys),
       allKeys = compKeys.concat(nonCompKeys);
 
@@ -43,24 +43,6 @@ export function ng1ViewsBuilder(state: State) {
       if (nonCompKeys.map(key => isDefined(config[key])).reduce(anyTrueR, false)) {
         throw new Error(`Cannot combine: ${compKeys.join("|")} with: ${nonCompKeys.join("|")} in stateview: 'name@${state.name}'`);
       }
-
-      // Dynamically build a template like "<component-name input1='::$resolve.foo'></component-name>"
-      config.templateProvider = ['$injector', function ($injector: IInjectorService) {
-        const resolveFor = (key: string) =>
-        config.bindings && config.bindings[key] || key;
-        const prefix = angular.version.minor >= 3 ? "::" : "";
-        const attributeTpl = (input: BindingTuple) => {
-          var attrName = kebobString(input.name);
-          var resolveName = resolveFor(input.name);
-          if (input.type === '@')
-            return `${attrName}='{{${prefix}$resolve.${resolveName}}}'`;
-          return `${attrName}='${prefix}$resolve.${resolveName}'`;
-        };
-
-        let attrs = getComponentInputs($injector, config.component).map(attributeTpl).join(" ");
-        let kebobName = kebobString(config.component);
-        return `<${kebobName} ${attrs}></${kebobName}>`;
-      }];
     }
 
     config.resolveAs = config.resolveAs || '$resolve';
@@ -75,35 +57,6 @@ export function ng1ViewsBuilder(state: State) {
     views[name] = config;
   });
   return views;
-}
-
-interface BindingTuple {
-  name: string;
-  type: string;
-}
-
-// for ng 1.2 style, process the scope: { input: "=foo" }
-// for ng 1.3 through ng 1.5, process the component's bindToController: { input: "=foo" } object
-const scopeBindings = (bindingsObj: Obj) => Object.keys(bindingsObj || {})
-// [ 'input', [ '=foo', '=', 'foo' ] ]
-    .map(key => [key, /^([=<@])[?]?(.*)/.exec(bindingsObj[key])])
-    // skip malformed values
-    .filter(tuple => isDefined(tuple) && isArray(tuple[1]))
-    // { name: ('foo' || 'input'), type: '=' }
-    .map(tuple => ({ name: tuple[1][2] || tuple[0], type: tuple[1][1] } as BindingTuple));
-
-// Given a directive definition, find its object input attributes
-// Use different properties, depending on the type of directive (component, bindToController, normal)
-const getBindings = (def: any) => {
-  if (isObject(def.bindToController)) return scopeBindings(def.bindToController);
-  return scopeBindings(def.scope);
-};
-
-// Gets all the directive(s)' inputs ('@', '=', and '<')
-function getComponentInputs($injector: IInjectorService, name: string) {
-  let cmpDefs = <any[]> $injector.get(name + "Directive"); // could be multiple
-  if (!cmpDefs || !cmpDefs.length) throw new Error(`Unable to find component named '${name}'`);
-  return cmpDefs.map(getBindings).reduce(unnestR, []);
 }
 
 let id = 0;
@@ -144,7 +97,7 @@ export class Ng1ViewConfig implements ViewConfig {
    * @return {boolean} Returns `true` if the configuration contains a valid template, otherwise `false`.
    */
   hasTemplate() {
-    return !!(this.viewDecl.template || this.viewDecl.templateUrl || this.viewDecl.templateProvider);
+    return !!(this.viewDecl.template || this.viewDecl.templateUrl || this.viewDecl.templateProvider || this.viewDecl.component || this.viewDecl.componentProvider);
   }
 
   getTemplate(params: RawParams, $factory: TemplateFactory, context: ResolveContext) {
