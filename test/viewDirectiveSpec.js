@@ -806,6 +806,13 @@ describe('angular 1.5+ style .component()', function() {
       }
     });
 
+    app.directive('ng12DynamicDirective', function() {
+      return {
+        restrict: 'E',
+        template: 'dynamic directive'
+      }
+    });
+
     // ng 1.5+ component
     if (angular.version.minor >= 5) {
       app.component('ngComponent', {
@@ -837,6 +844,10 @@ describe('angular 1.5+ style .component()', function() {
         bindings: { evt: '&' },
         template: 'eventCmp',
       });
+
+      app.component('dynamicComponent', {
+        template: 'dynamicComponent'
+      })
     }
   }));
 
@@ -1185,6 +1196,47 @@ describe('angular 1.5+ style .component()', function() {
         expect(directiveEl).toBeDefined();
         expect($state.current.name).toBe('route2cmp');
         expect(el.text()).toBe('-DATA!.DATA2!-');
+      });
+    }
+  });
+
+  describe('componentProvider', function() {
+    it('should work with angular 1.2+ directives', function () {
+      $stateProvider.state('ng12-dynamic-directive', {
+        url: '/ng12dynamicDirective/:type',
+        componentProvider: ['$stateParams', function($stateParams) {
+          return $stateParams.type;
+        }]
+      });
+
+      var $state = svcs.$state, $q = svcs.$q;
+
+      $state.transitionTo('ng12-dynamic-directive', {type: 'ng12DynamicDirective'}); $q.flush();
+
+      directiveEl = el[0].querySelector('div ui-view ng12-dynamic-directive');
+      expect(directiveEl).toBeDefined();
+      expect($state.current.name).toBe('ng12-dynamic-directive');
+      expect(el.text()).toBe('dynamic directive');
+    });
+
+    if (angular.version.minor >= 5) {
+      it('should load correct component when using componentProvider', function() {
+        $stateProvider.state('dynamicComponent', {
+          url: '/dynamicComponent/:type',
+          componentProvider: ['$stateParams', function($stateParams) {
+            return $stateParams.type;
+          }]
+        });
+
+        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+
+        $state.transitionTo('dynamicComponent', {type: 'dynamicComponent'});
+        $q.flush();
+
+        directiveEl = el[0].querySelector('div ui-view dynamic-component');
+        expect(directiveEl).toBeDefined();
+        expect($state.current.name).toBe('dynamicComponent');
+        expect(el.text()).toBe('dynamicComponent');
       });
     }
   });

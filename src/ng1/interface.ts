@@ -370,6 +370,28 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
   bindings?: { [key: string]: string };
 
   /**
+   * Dynamic component provider function.
+   *
+   * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
+   *
+   * This is an injectable provider function which returns the component's wrapper template.
+   * The provider will invoked during a Transition in which the view's state is
+   * entered.  The provider is called after the resolve data is fetched.
+   *
+   * #### Example:
+   * ```js
+   * componentProvider: function(MyResolveData, $transition$) {
+   *   if (MyResolveData.foo) {
+   *     return "fooComponent"
+   *   } else if ($transition$.to().name === 'bar') {
+   *     return "barComponent";
+   *   }
+   * }
+   * ```
+   */
+  componentProvider?: IInjectable;
+
+  /**
    * The view's controller function or name
    *
    * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
