@@ -85,7 +85,8 @@ export class TemplateFactory {
    */
   fromComponent(component: string, bindings?: any) {
     const resolveFor = (key: string) =>
-    bindings && bindings[key] || key;
+        bindings && bindings[key] || key;
+    // Bind once prefix
     const prefix = angular.version.minor >= 3 ? "::" : "";
     const attributeTpl = (input: BindingTuple) => {
       var attrName = kebobString(input.name);
@@ -139,7 +140,7 @@ interface BindingTuple {
 // for ng 1.2 style, process the scope: { input: "=foo" }
 // for ng 1.3 through ng 1.5, process the component's bindToController: { input: "=foo" } object
 const scopeBindings = (bindingsObj: Obj) => Object.keys(bindingsObj || {})
-// [ 'input', [ '=foo', '=', 'foo' ] ]
+    // [ 'input', [ '=foo', '=', 'foo' ] ]
     .map(key => [key, /^([=<@])[?]?(.*)/.exec(bindingsObj[key])])
     // skip malformed values
     .filter(tuple => isDefined(tuple) && isArray(tuple[1]))

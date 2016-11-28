@@ -12,6 +12,9 @@ import IInjectorService = angular.auto.IInjectorService;
 export const ng1ViewConfigFactory: ViewConfigFactory = (path, view) =>
     [new Ng1ViewConfig(path, view)];
 
+const hasAnyKey = (keys, obj) =>
+    keys.reduce((acc, key) => acc || isDefined(obj[key]), false);
+
 /**
  * This is a [[StateBuilder.builder]] function for angular1 `views`.
  *
@@ -39,10 +42,8 @@ export function ng1ViewsBuilder(state: State) {
     if (!Object.keys(config).length) return;
 
     // Configure this view for routing to an angular 1.5+ style .component (or any directive, really)
-    if (config.component) {
-      if (nonCompKeys.map(key => isDefined(config[key])).reduce(anyTrueR, false)) {
-        throw new Error(`Cannot combine: ${compKeys.join("|")} with: ${nonCompKeys.join("|")} in stateview: 'name@${state.name}'`);
-      }
+    if (hasAnyKey(compKeys, config) && hasAnyKey(nonCompKeys, config)) {
+      throw new Error(`Cannot combine: ${compKeys.join("|")} with: ${nonCompKeys.join("|")} in stateview: '${name}@${state.name}'`);
     }
 
     config.resolveAs = config.resolveAs || '$resolve';
@@ -97,7 +98,8 @@ export class Ng1ViewConfig implements ViewConfig {
    * @return {boolean} Returns `true` if the configuration contains a valid template, otherwise `false`.
    */
   hasTemplate() {
-    return !!(this.viewDecl.template || this.viewDecl.templateUrl || this.viewDecl.templateProvider || this.viewDecl.component || this.viewDecl.componentProvider);
+    var templateKeys = ['template', 'templateUrl', 'templateProvider', 'component', 'componentProvider'];
+    return hasAnyKey(templateKeys, this.viewDecl);
   }
 
   getTemplate(params: RawParams, $factory: TemplateFactory, context: ResolveContext) {

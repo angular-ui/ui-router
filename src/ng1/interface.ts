@@ -374,9 +374,9 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    *
    * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
    *
-   * This is an injectable provider function which returns the component's wrapper template.
-   * The provider will invoked during a Transition in which the view's state is
-   * entered.  The provider is called after the resolve data is fetched.
+   * This is an injectable provider function which returns the name of the component to use.
+   * The provider will invoked during a Transition in which the view's state is entered.
+   * The provider is called after the resolve data is fetched.
    *
    * #### Example:
    * ```js
