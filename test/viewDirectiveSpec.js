@@ -88,6 +88,7 @@ describe('uiView', function () {
     controller: function() {
       this.someProperty = "value"
     },
+    template: "{{vm.someProperty}}",
     controllerAs: "vm"
   },
   lState = {
@@ -324,7 +325,7 @@ describe('uiView', function () {
   });
 
   it('should instantiate a controller with controllerAs', inject(function($state, $q) {
-    elem.append($compile('<div><ui-view>{{vm.someProperty}}</ui-view></div>')(scope));
+    elem.append($compile('<div><ui-view></ui-view></div>')(scope));
     $state.transitionTo(kState);
     $q.flush();
 
@@ -733,4 +734,52 @@ describe("UiView", function() {
       expect($state.current.name).toBe('main.home');
     }));
   }
+});
+
+describe('uiView transclusion', function() {
+  var scope, $compile, elem;
+
+  beforeEach(function() {
+    app = angular.module('foo', []);
+
+    app.directive('scopeObserver', function() {
+      return {
+        restrict: 'E',
+        link: function(scope) {
+          scope.$emit('directiveCreated');
+          scope.$on('$destroy', function() {
+            scope.$emit('directiveDestroyed');
+          });
+        }
+      };
+    });
+  });
+
+  beforeEach(module('ui.router', 'foo'));
+
+  beforeEach(module(function($stateProvider) {
+    $stateProvider
+        .state('a', { template: '<ui-view><scope-observer></scope-observer></ui-view>' })
+        .state('a.b', { template: 'anything' });
+  }));
+
+  beforeEach(inject(function ($rootScope, _$compile_) {
+    scope = $rootScope.$new();
+    $compile = _$compile_;
+    elem = angular.element('<div>');
+  }));
+
+  it('should not link the initial view and leave its scope undestroyed when a subview is activated', inject(function($state, $q) {
+    var aliveCount = 0;
+    scope.$on('directiveCreated', function() {
+      aliveCount++;
+    });
+    scope.$on('directiveDestroyed', function() {
+      aliveCount--;
+    });
+    elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+    $state.transitionTo('a.b');
+    $q.flush();
+    expect(aliveCount).toBe(0);
+  }));
 });
