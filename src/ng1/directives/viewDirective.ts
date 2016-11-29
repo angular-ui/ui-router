@@ -326,10 +326,15 @@ function $ViewDirectiveFill ($compile: ICompileService, $controller: IController
     priority: -400,
     compile: function (tElement: JQuery) {
       let initial = tElement.html();
+      tElement.empty();
 
       return function (scope: IScope, $element: JQuery) {
         let data: UIViewData = $element.data('$uiView');
-        if (!data) return;
+        if (!data) {
+            $element.html(initial);
+            $compile($element.contents())(scope);
+            return;
+        }
 
         let cfg: Ng1ViewConfig = data.$cfg || <any> { viewDecl: {} };
         $element.html(cfg.template || initial);
