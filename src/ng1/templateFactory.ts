@@ -23,13 +23,15 @@ export class TemplateFactory {
    * that string,or `null` if no template is configured.
    */
   fromConfig(config: Ng1ViewDeclaration, params: any, context: ResolveContext) {
+    const defaultTemplate = "<ui-view></ui-view>";
+
     return (
       isDefined(config.template) ? this.fromString(config.template, params) :
       isDefined(config.templateUrl) ? this.fromUrl(config.templateUrl, params) :
       isDefined(config.templateProvider) ? this.fromProvider(config.templateProvider, params, context) :
       isDefined(config.component) ? this.fromComponent(config.component, config.bindings) :
       isDefined(config.componentProvider) ? this.fromComponentProvider(config.componentProvider, params, context) :
-      null
+      defaultTemplate
     );
   };
 

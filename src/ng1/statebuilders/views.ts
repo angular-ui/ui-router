@@ -25,6 +25,9 @@ const hasAnyKey = (keys, obj) =>
  * and applies the state-level configuration to a view named `$default`.
  */
 export function ng1ViewsBuilder(state: State) {
+  // Do not process root state
+  if (!state.parent) return {};
+
   let tplKeys = ['templateProvider', 'templateUrl', 'template', 'notify', 'async'],
       ctrlKeys = ['controller', 'controllerProvider', 'controllerAs', 'resolveAs'],
       compKeys = ['component', 'bindings', 'componentProvider'],
@@ -39,9 +42,7 @@ export function ng1ViewsBuilder(state: State) {
     name = name || "$default";
     // Account for views: { header: "headerComponent" }
     if (isString(config)) config = { component: <string> config };
-    if (!Object.keys(config).length) return;
 
-    // Configure this view for routing to an angular 1.5+ style .component (or any directive, really)
     if (hasAnyKey(compKeys, config) && hasAnyKey(nonCompKeys, config)) {
       throw new Error(`Cannot combine: ${compKeys.join("|")} with: ${nonCompKeys.join("|")} in stateview: '${name}@${state.name}'`);
     }
@@ -73,9 +74,6 @@ export class Ng1ViewConfig implements ViewConfig {
 
   load() {
     let $q = services.$q;
-    if (!this.hasTemplate())
-      throw new Error(`No template configuration specified for '${this.viewDecl.$uiViewName}@${this.viewDecl.$uiViewContextAnchor}'`);
-
     let context = new ResolveContext(this.path);
     let params = this.path.reduce((acc, node) => extend(acc, node.paramValues), {});
 

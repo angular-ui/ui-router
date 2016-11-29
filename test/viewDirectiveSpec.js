@@ -431,6 +431,16 @@ describe('uiView', function () {
     expect($onInit).toHaveBeenCalled();
   }));
 
+  it('should default the template to a <ui-view>', inject(function ($state, $q) {
+    $stateProvider.state('abstract', { abstract: true });
+    $stateProvider.state('abstract.foo', { template: 'hello' });
+    elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+    $state.transitionTo('abstract.foo');
+    $q.flush();
+
+    expect(elem.text()).toBe('hello');
+  }));
+
   describe('play nicely with other directives', function() {
     // related to issue #857
     it('should work with ngIf', inject(function ($state, $q, $compile) {
