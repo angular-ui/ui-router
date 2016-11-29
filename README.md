@@ -50,6 +50,7 @@ application states in a transaction-like manner.
 * [Tim Kindberg on Angular UI-Router](https://www.youtube.com/watch?v=lBqiZSemrqg)
 * [Activating States](https://egghead.io/lessons/angularjs-ui-router-activating-states) (egghead.io)
 * [Learn Angular.js using UI-Router](http://youtu.be/QETUuZ27N0w) (LearnCode.academy)
+* [Single-Page Apps With Angular UI-Router](https://code.tutsplus.com/courses/single-page-apps-with-angular-ui-router)
 
 ## Reporting issues and Contributing
 
