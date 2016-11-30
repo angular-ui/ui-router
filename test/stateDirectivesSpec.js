@@ -626,6 +626,9 @@ describe('uiSrefActive', function() {
       template: '<ui-view/>'
     }).state('admin.roles', {
       url: '/roles?page'
+    }).state('arrayparam', {
+      url: '/arrayparam?{foo:int}&bar',
+      template: '<div></div>'
     });
   }));
 
@@ -674,6 +677,57 @@ describe('uiSrefActive', function() {
     timeoutFlush();
     expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
   }));
+
+
+  // Test for #2696
+  it('should compare using typed parameters', inject(function($rootScope, $q, $compile, $state) {
+    el = angular.element('<div><a ui-sref="arrayparam({ foo: [1,2,3] })" ui-sref-active="active">foo 123</a></div>');
+    template = $compile(el)($rootScope);
+    $rootScope.$digest();
+
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+
+    $state.transitionTo('arrayparam', {foo: [1,2,3] });
+    $q.flush();
+    timeoutFlush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
+
+    $state.transitionTo('arrayparam', {foo: [1,2,3], bar: 'asdf' });
+    $q.flush();
+    timeoutFlush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
+
+    $state.transitionTo('arrayparam', {foo: [1,2] });
+    $q.flush();
+    timeoutFlush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+  }));
+
+  // Test for #3154
+  it('should compare ui-sref-active-eq using typed parameters', inject(function($rootScope, $q, $compile, $state) {
+    el = angular.element('<div><a ui-sref="arrayparam({ foo: [1,2,3] })" ui-sref-active-eq="active">foo 123</a></div>');
+    template = $compile(el)($rootScope);
+    $rootScope.$digest();
+
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+
+    $state.transitionTo('arrayparam', {foo: [1,2,3] });
+    $q.flush();
+    timeoutFlush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
+
+    $state.transitionTo('arrayparam', {foo: [1,2,3], bar: 'asdf' });
+    $q.flush();
+    timeoutFlush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
+
+    $state.transitionTo('arrayparam', {foo: [1,2] });
+    $q.flush();
+    timeoutFlush();
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+  }));
+
+
 
   it('should update in response to ui-sref param expression changes', inject(function($rootScope, $q, $compile, $state) {
     el = angular.element('<div><a ui-sref="contacts.item.detail({ foo: fooId })" ui-sref-active="active">Contacts</a></div>');
