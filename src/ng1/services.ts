@@ -172,7 +172,7 @@ function $uiRouter($locationProvider: ILocationProvider) {
   router.viewService.viewConfigFactory('ng1', ng1ViewConfigFactory);
 
   // Bind LocationConfig.hashPrefix to $locationProvider.hashPrefix
-  bindFunctions($locationProvider, services.locationConfig, $locationProvider, ['hashPrefix']);
+  bindFunctions($locationProvider, services.location, $locationProvider, ['hashPrefix']);
 
   // Create a LocationService.onChange registry
   let urlListeners: Function[] = [];
@@ -189,7 +189,7 @@ function $uiRouter($locationProvider: ILocationProvider) {
     $rootScope.$on("$locationChangeSuccess", evt => urlListeners.forEach(fn => fn(evt)));
 
     // Bind LocationConfig.html5Mode to $locationProvider.html5Mode and $sniffer.history
-    services.locationConfig.html5Mode = function() {
+    services.location.html5Mode = function() {
       let html5Mode: any = $locationProvider.html5Mode();
       html5Mode = isObject(html5Mode) ? html5Mode.enabled : html5Mode;
       return html5Mode && $sniffer.history;
