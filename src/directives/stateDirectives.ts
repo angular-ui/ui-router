@@ -5,7 +5,7 @@
  *
  * @preferred @module ng1_directives
  */ /** for typedoc */
-import { ng as angular } from "../../angular";
+import { ng as angular } from "../angular";
 import { IAugmentedJQuery, ITimeoutService, IScope, IInterpolateService } from "angular";
 
 import {

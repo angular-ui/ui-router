@@ -10,8 +10,8 @@ var banner = pkg.description + '\n' +
 var webpack = require('webpack');
 module.exports = {
   entry: {
-    "angular-ui-router": "./src/ng1.ts",
-    "angular-ui-router.min": "./src/ng1.ts",
+    "angular-ui-router": "./src/index.ts",
+    "angular-ui-router.min": "./src/index.ts",
     "stateEvents": "./src/ng1/legacy/stateEvents.ts",
     "stateEvents.min": "./src/ng1/legacy/stateEvents.ts",
   },

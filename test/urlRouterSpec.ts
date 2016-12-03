@@ -8,7 +8,7 @@ import "./util/matchers";
 import { html5Compat } from './util/testUtilsNg1';
 declare var inject;
 
-import {UrlMatcher, UrlMatcherFactory, services, UrlRouterProvider, UrlRouter, StateService} from "../src/ng1";
+import {UrlMatcher, UrlMatcherFactory, services, UrlRouterProvider, UrlRouter, StateService} from "../src/index.ts";
 
 var module = angular['mock'].module;
 

@@ -1,5 +1,5 @@
 /** @module ng1 */ /** */
-import { ng as angular } from "../../angular";
+import { ng as angular } from "../angular";
 import {
     State, pick, forEach, anyTrueR, tail, extend,
     isArray, isInjectable, isDefined, isString, services, trace,

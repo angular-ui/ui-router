@@ -94,7 +94,7 @@
     "typedoc-plugin-external-module-name": "^1.0.2",
     "typedoc-plugin-internal-external": "^1.0.0",
     "typedoc-plugin-ui-router": "^1.0.0",
-    "typescript": "~2.0.2",
+    "typescript": "^2.1.1",
     "ui-router-typedoc-themes": "^1.0.0",
     "watch": "^0.18.0",
     "webpack": "1.x",

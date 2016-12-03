@@ -3,7 +3,7 @@
 
 require('./util');
 
-require('../src/ng1');
+require('../src/index');
 
 var testsContext = require.context(".", true, /Spec$/);
 testsContext.keys().forEach(testsContext);

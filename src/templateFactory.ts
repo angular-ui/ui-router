@@ -1,4 +1,4 @@
-import { ng as angular } from "../angular";
+import { ng as angular } from "./angular";
 /** @module view */ /** for typedoc */
 import {
     isArray, isDefined, isFunction, isObject, services, Obj, IInjectable, tail, kebobString, unnestR, ResolveContext, Resolvable, RawParams

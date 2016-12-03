@@ -10,7 +10,7 @@
  */
 
 /** for typedoc */
-import { ng as angular } from "../angular";
+import { ng as angular } from "./angular";
 import {
     IRootScopeService, IQService, ILocationService, ILocationProvider, IHttpService, ITemplateCacheService
 } from "angular";

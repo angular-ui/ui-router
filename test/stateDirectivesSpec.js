@@ -1,5 +1,5 @@
 var module = angular.mock.module;
-var uiRouter = require("../src/ng1");
+var uiRouter = require("../src/index");
 var obj = require('./util/testUtilsNg1').obj;
 
 describe('uiStateRef', function() {

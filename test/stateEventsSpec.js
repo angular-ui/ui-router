@@ -1,6 +1,6 @@
 var module = angular.mock.module;
-var uiRouter = require("../src/ng1");
-var stateEvents = require("../src/ng1/legacy/stateEvents.ts");
+var uiRouter = require("../src/index");
+var stateEvents = require("../src/legacy/stateEvents.ts");
 var decorateExceptionHandler = require("./util/testUtilsNg1").decorateExceptionHandler;
 var obj = require('./util/testUtilsNg1').obj;
 

@@ -1,6 +1,6 @@
 /** @module state */ /** for typedoc */
 
-import { ng as angular } from "../angular";
+import { ng as angular } from "./angular";
 import { Obj, StateService, StateOrName } from "ui-router-core";
 
 /**

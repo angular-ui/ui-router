@@ -16,7 +16,7 @@
  *
  * @module ng1_state_events
  */ /** */
-import { ng as angular } from "../../angular";
+import { ng as angular } from "../angular";
 import { IScope, IAngularEvent, IServiceProviderFactory } from "angular";
 import {
     Obj, TargetState, StateService, Transition, TransitionService, UrlRouter, HookResult, UIInjector
