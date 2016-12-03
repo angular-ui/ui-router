@@ -39,6 +39,25 @@ export function $IncludedByStateFilter($state: StateService) {
   return  includesFilter;
 }
 
+/**
+ * @ngdoc filter
+ * @name ui.router.state.filter:asHref
+ *
+ * @requires ui.router.state.$state
+ *
+ * @description
+ * Translates to {@link ui.router.router.$urlRouter#href $state.href('absoluteOrRelativeStateName')}.
+ */
+$AsHrefFilter.$inject = ['$state'];
+export function $AsHrefFilter($state) {
+  var asFilter: any = function(state, params, options) {
+    return $state.href(state, params);
+  };
+  asFilter.$stateful = true;
+  return  asFilter;
+}
+
 angular.module('ui.router.state')
   .filter('isState', $IsStateFilter)
-  .filter('includedByState', $IncludedByStateFilter);
+  .filter('includedByState', $IncludedByStateFilter)
+  .filter('asHref', $AsHrefFilter);
