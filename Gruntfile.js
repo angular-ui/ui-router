@@ -91,7 +91,7 @@ module.exports = function (grunt) {
       ng108: { configFile: 'config/karma-1.0.8.js' },
       ng115: { configFile: 'config/karma-1.1.5.js' },
       ng1214: { configFile: 'config/karma-1.2.14.js' },
-      ng130: { configFile: 'config/karma-1.3.0.js' },
+      ng1317: { configFile: 'config/karma-1.3.17.js' },
       ng149: { configFile: 'config/karma-1.4.9.js' },
       ng150: { configFile: 'config/karma-1.5.0.js' },
       background: {
@@ -125,7 +125,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('integrate', ['build', 'jshint', 'karma:ng108', 'karma:ng115', 'karma:ng1214', 'karma:ng130', 'karma:ng149', 'karma:ng150']);
+  grunt.registerTask('integrate', ['build', 'jshint', 'karma:ng108', 'karma:ng115', 'karma:ng1214', 'karma:ng1317', 'karma:ng149', 'karma:ng150']);
   grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
   grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
   grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
@@ -137,9 +137,9 @@ module.exports = function (grunt) {
   grunt.registerTask('widedocs', 'Convert to bootstrap container-fluid', function () {
     promising(this,
       system(
-      'sed -i.bak ' + 
-      '-e \'s/class="row"/class="row-fluid"/\' ' + 
-      '-e \'s/icon-cog"><\\/i>/icon-cog"><\\/i>Provider/\' ' + 
+      'sed -i.bak ' +
+      '-e \'s/class="row"/class="row-fluid"/\' ' +
+      '-e \'s/icon-cog"><\\/i>/icon-cog"><\\/i>Provider/\' ' +
       '-e \'s/role="main" class="container"/role="main" class="container-fluid"/\' site/index.html')
     );
   });
