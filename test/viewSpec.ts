@@ -68,7 +68,7 @@ describe('view', function() {
 
       state = register(stateDeclaration);
       let $view = new ViewService();
-      $view.viewConfigFactory("ng1", ng1ViewConfigFactory);
+      $view._pluginapi._viewConfigFactory("ng1", ng1ViewConfigFactory);
 
       let states = [root, state];
       path = states.map(_state => new PathNode(_state));

@@ -9,9 +9,9 @@ import "./util/testUtilsNg1";
 
 declare var inject;
 import Spy = jasmine.Spy;
-import "./util/matchers.ts";
+import "./util/matchers";
 import { resolvedValue, resolvedError, caught } from './util/testUtilsNg1';
-import { ResolveContext, State, PathNode, omit, pick, extend, forEach } from "../src/index.ts";
+import { ResolveContext, State, PathNode, omit, pick, extend, forEach } from "../src/index";
 import { Resolvable, services, StateDeclaration } from "ui-router-core";
 
 let module = angular['mock'].module;

@@ -169,7 +169,7 @@ function $uiRouter($locationProvider: ILocationProvider) {
   router.stateRegistry.decorator("onRetain", getStateHookBuilder("onRetain"));
   router.stateRegistry.decorator("onEnter", getStateHookBuilder("onEnter"));
 
-  router.viewService.viewConfigFactory('ng1', ng1ViewConfigFactory);
+  router.viewService._pluginapi._viewConfigFactory('ng1', ng1ViewConfigFactory);
 
   // Bind LocationConfig.hashPrefix to $locationProvider.hashPrefix
   bindFunctions($locationProvider, services.location, $locationProvider, ['hashPrefix']);

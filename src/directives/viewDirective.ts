@@ -182,7 +182,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
   }
 
   let rootData = {
-    $cfg: { viewDecl: { $context: $view.rootContext() } },
+    $cfg: { viewDecl: { $context: $view._pluginapi._rootViewContext() } },
     $uiView: { }
   };
 
