@@ -1,7 +1,3 @@
-/// <reference path='../node_modules/@types/angular/index.d.ts' />
-/// <reference path='../node_modules/@types/angular-mocks/index.d.ts' />
-/// <reference path='../node_modules/@types/jasmine/index.d.ts' />
-
 import {StateBuilder, StateMatcher, ng1ViewsBuilder, extend} from "../src/index";
 import {Resolvable} from "ui-router-core";
 declare var inject;

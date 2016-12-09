@@ -13,6 +13,7 @@ idea-out
 
 # generated files
 _doc
+.testlib
 lib
 lib-esm
 release

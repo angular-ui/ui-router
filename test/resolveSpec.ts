@@ -1,8 +1,3 @@
-/// <reference path='../node_modules/@types/angular/index.d.ts' />
-/// <reference path='../node_modules/@types/angular-mocks/index.d.ts' />
-/// <reference path='../node_modules/@types/jasmine/index.d.ts' />
-/// <reference path='./util/matchers.types.d.ts' />
-
 import * as angular from "angular";
 import "./util/matchers";
 import "./util/testUtilsNg1";
