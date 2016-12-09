@@ -4,7 +4,8 @@
   "version": "1.0.0-beta.4",
   "scripts": {
     "clean": "shx rm -rf lib lib-esm _doc release",
-    "build": "tsc && tsc -m es6 --outDir lib-esm",
+    "build": "tsc && tsc -m es6 --outDir lib-esm && npm run fixdts",
+    "fixdts": "dts-downlevel 'lib/**/*.d.ts' 'lib-esm/**/*.d.ts'",
     "package": "npm run clean && npm run build && webpack --hide-modules",
     "test": "npm run test:integrate",
     "test:ng12": "karma start --ngversion 1.2.28",
@@ -53,9 +54,9 @@
     "node": ">=4.0.0"
   },
   "license": "MIT",
-  "main": "lib/ng1.js",
-  "jsnext:main": "lib-esm/ng1.js",
-  "typings": "lib/ng1.d.ts",
+  "main": "lib/index.js",
+  "jsnext:main": "lib-esm/index.js",
+  "typings": "lib/index.d.ts",
   "dependencies": {
     "ui-router-core": "=1.0.1"
   },
@@ -73,6 +74,7 @@
     "clone": "^1.0.2",
     "conventional-changelog": "^1.1.0",
     "conventional-changelog-cli": "^1.1.1",
+    "dts-downlevel": "^0.1.0",
     "glob": "^7.0.5",
     "jasmine-core": "^2.4.1",
     "karma": "^1.2.0",
