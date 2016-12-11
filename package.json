@@ -58,7 +58,7 @@
   "jsnext:main": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "ui-router-core": "=1.0.1"
+    "ui-router-core": "2.0.0"
   },
   "peerDependencies": {
     "angular": ">=1.2.0 <2.0.0"
@@ -88,6 +88,7 @@
     "karma-webpack": "^1.8.0",
     "lodash": "^4.5.1",
     "remap-istanbul": "^0.6.3",
+    "replace-in-file": "^2.0.3",
     "shelljs": "^0.7.0",
     "shx": "^0.1.4",
     "systemjs": "^0.18.4",
