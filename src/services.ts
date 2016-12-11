@@ -30,121 +30,11 @@ import IInjectorService = angular.auto.IInjectorService;
 /** @hidden */
 let app = angular.module("ui.router.angular1", []);
 
-/**
- * @ngdoc overview
- * @name ui.router.util
- *
- * @description
- * # ui.router.util sub-module
- *
- * This module is a dependency of other sub-modules. Do not include this module as a dependency
- * in your angular app (use {@link ui.router} module instead).
- *
- */
 angular.module('ui.router.util', ['ng', 'ui.router.init']);
-
-/**
- * @ngdoc overview
- * @name ui.router.router
- *
- * @requires ui.router.util
- *
- * @description
- * # ui.router.router sub-module
- *
- * This module is a dependency of other sub-modules. Do not include this module as a dependency
- * in your angular app (use {@link ui.router} module instead).
- */
 angular.module('ui.router.router', ['ui.router.util']);
-
-/**
- * @ngdoc overview
- * @name ui.router.state
- *
- * @requires ui.router.router
- * @requires ui.router.util
- *
- * @description
- * # ui.router.state sub-module
- *
- * This module is a dependency of the main ui.router module. Do not include this module as a dependency
- * in your angular app (use {@link ui.router} module instead).
- *
- */
 angular.module('ui.router.state', ['ui.router.router', 'ui.router.util', 'ui.router.angular1']);
-
-/**
- * @ngdoc overview
- * @name ui.router
- *
- * @requires ui.router.state
- *
- * @description
- * # ui.router
- *
- * ## The main module for ui.router
- * There are several sub-modules included with the ui.router module, however only this module is needed
- * as a dependency within your angular app. The other modules are for organization purposes.
- *
- * The modules are:
- * * ui.router - the main "umbrella" module
- * * ui.router.router -
- *
- * *You'll need to include **only** this module as the dependency within your angular app.*
- *
- * <pre>
- * <!doctype html>
- * <html ng-app="myApp">
- * <head>
- *   <script src="js/angular.js"></script>
- *   <!-- Include the ui-router script -->
- *   <script src="js/angular-ui-router.min.js"></script>
- *   <script>
- *     // ...and add 'ui.router' as a dependency
- *     var myApp = angular.module('myApp', ['ui.router']);
- *   </script>
- * </head>
- * <body>
- * </body>
- * </html>
- * </pre>
- */
 angular.module('ui.router', ['ui.router.init', 'ui.router.state', 'ui.router.angular1']);
-
 angular.module('ui.router.compat', ['ui.router']);
-
-/**
- * Annotates a controller expression (may be a controller function(), a "controllername",
- * or "controllername as name")
- *
- * - Temporarily decorates $injector.instantiate.
- * - Invokes $controller() service
- *   - Calls $injector.instantiate with controller constructor
- * - Annotate constructor
- * - Undecorate $injector
- *
- * returns an array of strings, which are the arguments of the controller expression
- */
-
-export function annotateController(controllerExpression: (IInjectable|string)): string[] {
-  let $injector = <any> services.$injector;
-  let $controller = $injector.get("$controller");
-  let oldInstantiate = $injector.instantiate;
-  try {
-    let deps: any[];
-
-    $injector.instantiate = function fakeInstantiate(constructorFunction: any) {
-      $injector.instantiate = oldInstantiate; // Un-decorate ASAP
-      deps = $injector.annotate(constructorFunction);
-    };
-
-    $controller(controllerExpression, { $scope: {} });
-
-    return deps;
-  } finally {
-    $injector.instantiate = oldInstantiate;
-  }
-}
 
 declare module 'ui-router-core/lib/router' {
   interface UIRouter {
@@ -181,9 +71,12 @@ function $uiRouter($locationProvider: ILocationProvider) {
     return () => removeFrom(urlListeners)(callback);
   };
 
-  this.$get = $get;
+  router['router'] = router;
+  router['$get'] = $get;
   $get.$inject = ['$location', '$browser', '$sniffer', '$rootScope', '$http', '$templateCache'];
   function $get($location: ILocationService, $browser: any, $sniffer: any, $rootScope: ng.IScope, $http: IHttpService, $templateCache: ITemplateCacheService) {
+    delete router['router'];
+    delete router['$get'];
 
     // Bind $locationChangeSuccess to the listeners registered in LocationService.onChange
     $rootScope.$on("$locationChangeSuccess", evt => urlListeners.forEach(fn => fn(evt)));
@@ -212,7 +105,14 @@ function $uiRouter($locationProvider: ILocationProvider) {
 
     return router;
   }
+  return router;
 }
+
+const getProviderFor = (serviceName) => [ '$uiRouterProvider', ($urp) => {
+  let service = $urp.router[serviceName];
+  service["$get"] = () => service;
+  return service;
+}];
 
 // The 'ui.router' ng1 module depends on 'ui.router.init' module.
 angular.module('ui.router.init', []).provider("$uiRouter", <any> $uiRouter);
@@ -257,18 +157,20 @@ function getStateProvider() {
 angular.module('ui.router.state').provider('$state', ['$uiRouterProvider', getStateProvider]);
 angular.module('ui.router.state').run(['$state', function($state: StateService) { }]);
 
+// $stateRegistry and $stateRegistryProvider
+angular.module('ui.router.state').provider('$stateRegistry', getProviderFor('stateRegistry'));
+
+// $uiRouterGlobals and $uiRouterGlobalsProvider
+angular.module('ui.router.state').provider('$uiRouterGlobals', getProviderFor('globals'));
+
 // $stateParams service
 angular.module('ui.router.state').factory('$stateParams', ['$uiRouter', ($uiRouter: UIRouter) =>
     $uiRouter.globals.params]);
 
-// $transitions service and $transitionsProvider
-function getTransitionsProvider() {
-  router.transitionService["$get"] = () => router.transitionService;
-  return router.transitionService;
-}
-angular.module('ui.router.state').provider('$transitions', ['$uiRouterProvider', getTransitionsProvider]);
+// $transitions and $transitionsProvider
+angular.module('ui.router.state').provider('$transitions', getProviderFor('transitionService'));
 
-// $templateFactory service
+// $templateFactory
 angular.module('ui.router.util').factory('$templateFactory', ['$uiRouter', () => new TemplateFactory()]);
 
 // The $view service
@@ -290,113 +192,4 @@ export const getLocals = (ctx: ResolveContext) => {
   let tuples = tokens.map(key => [ key, ctx.getResolvable(key).data ]);
   return tuples.reduce(applyPairs, {});
 };
-
-/** Injectable services */
-
-/**
- * An injectable service object which has the current state parameters
- *
- * This angular service (singleton object) holds the current state parameters.
- * The values in `$stateParams` are not updated until *after* a [[Transition]] successfully completes.
- *
- * This object can be injected into other services.
- *
- * #### Example:
- * ```js
- * SomeService.$inject = ['$http', '$stateParams'];
- * function SomeService($http, $stateParams) {
- *   return {
- *     getUser: function() {
- *       return $http.get('/api/users/' + $stateParams.username);
- *     }
- *   }
- * };
- * angular.service('SomeService', SomeService);
- * ```
- *
- * ### Deprecation warning:
- *
- * When `$stateParams` is injected into transition hooks, resolves and view controllers, they receive a different
- * object than this global service object.  In those cases, the injected object has the parameter values for the
- * *pending* Transition.
- *
- * Because of these confusing details, this service is deprecated.
- *
- * @deprecated Instead of using `$stateParams, inject the current [[Transition]] as `$transition$` and use [[Transition.params]]
- * ```js
- * MyController.$inject = ['$transition$'];
- * function MyController($transition$) {
- *   var username = $transition$.params().username;
- *   // .. do something with username
- * }
- * ```
- */
-var $stateParams: StateParams;
-
-/**
- * An injectable service primarily used to register transition hooks
- *
- * This angular service exposes the [[TransitionService]] singleton, which is primarily used to add transition hooks.
- *
- * The same object is also exposed as [[$transitionsProvider]] for injection during angular config time.
- */
-var $transitions: TransitionService;
-
-/**
- * A config-time injectable provider primarily used to register transition hooks
- *
- * This angular provider exposes the [[TransitionService]] singleton, which is primarily used to add transition hooks.
- *
- * The same object is also exposed as [[$transitions]] for injection at runtime.
- */
-var $transitionsProvider: TransitionService;
-
-/**
- * An injectable service used to query for current state information.
- *
- * This angular service exposes the [[StateService]] singleton.
- */
-var $state: StateService;
-
-/**
- * A config-time injectable provider used to register states.
- *
- * This angular service exposes the [[StateProvider]] singleton.
- */
-var $stateProvider: StateProvider;
-
-/**
- * A config-time injectable provider used to manage the URL.
- *
- * This angular service exposes the [[UrlRouterProvider]] singleton.
- */
-var $urlRouterProvider: UrlRouterProvider;
-
-/**
- * An injectable service used to configure URL redirects.
- *
- * This angular service exposes the [[UrlRouter]] singleton.
- */
-var $urlRouter: UrlRouter;
-
-/**
- * An injectable service used to configure the URL.
- *
- * This service is used to set url mapping options, and create [[UrlMatcher]] objects.
- *
- * This angular service exposes the [[UrlMatcherFactory]] singleton.
- * The singleton is also exposed at config-time as the [[$urlMatcherFactoryProvider]].
- */
-var $urlMatcherFactory: UrlMatcherFactory;
-
-/**
- * An injectable service used to configure the URL.
- *
- * This service is used to set url mapping options, and create [[UrlMatcher]] objects.
- *
- * This angular service exposes the [[UrlMatcherFactory]] singleton at config-time.
- * The singleton is also exposed at runtime as the [[$urlMatcherFactory]].
- */
-var $urlMatcherFactoryProvider: UrlMatcherFactory;
-
 

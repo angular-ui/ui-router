@@ -11,6 +11,7 @@ export * from "./services";
 export * from "./statebuilders/views";
 export * from "./stateProvider";
 
+import "./injectables";
 import "./directives/stateDirectives";
 import "./stateFilters";
 import "./directives/viewDirective";

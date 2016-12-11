@@ -1,4 +1,4 @@
-/** @module ng1_directives */ /** for typedoc */
+/** @ng1api @module directives */ /** for typedoc */
 import { ng as angular } from "../angular";
 import {
     IInterpolateService, IScope, ITranscludeFunction, IAugmentedJQuery,
@@ -13,6 +13,7 @@ import {
 import {Ng1ViewConfig} from "../statebuilders/views";
 import {Ng1Controller, Ng1StateDeclaration} from "../interface";
 import {getLocals} from "../services";
+import { ng1_directive } from "./stateDirectives";
 
 /** @hidden */
 export type UIViewData = {
@@ -30,18 +31,17 @@ export type UIViewAnimData = {
 /**
  * `ui-view`: A viewport directive which is filled in by a view from the active state.
  *
- * @param {string=} name A view name. The name should be unique amongst the other views in the
- * same state. You can have views of the same name that live in different states.
+ * ### Attributes
  *
- * @param {string=} autoscroll It allows you to set the scroll behavior of the browser window
- * when a view is populated. By default, $anchorScroll is overridden by ui-router's custom scroll
- * service, {@link ui.router.state.$uiViewScroll}. This custom service let's you
- * scroll ui-view elements into view when they are populated during a state activation.
+ * - `name`: (Optional) A view name.
+ *   The name should be unique amongst the other views in the same state.
+ *   You can have views of the same name that live in different states.
+ *   The ui-view can be targeted in a View using the name ([[Ng1StateDeclaration.views]]).
  *
- * *Note: To revert back to old [`$anchorScroll`](http://docs.angularjs.org/api/ng.$anchorScroll)
- * functionality, call `$uiViewScrollProvider.useAnchorScroll()`.*
+ * - `autoscroll`: an expression. When it evaluates to true, the `ui-view` will be scrolled into view when it is activated.
+ *   Uses [[$uiViewScroll]] to do the scrolling.
  *
- * @param {string=} onload Expression to evaluate whenever the view updates.
+ * - `onload`: Expression to evaluate whenever the view updates.
  *
  * A view can be unnamed or named.
  * @example
@@ -52,6 +52,9 @@ export type UIViewAnimData = {
  *
  * <!-- Named -->
  * <div ui-view="viewName"></div>
+ *
+ * <!-- Named (different style) -->
+ * <ui-view name="viewName"></ui-view>
  * ```
  *
  * You can only have one unnamed view within any template (or root html). If you are only using a
@@ -155,7 +158,8 @@ export type UIViewAnimData = {
  * });
  * ```
  */
-let uiView = ['$view', '$animate', '$uiViewScroll', '$interpolate', '$q',
+let uiView: ng1_directive;
+uiView = ['$view', '$animate', '$uiViewScroll', '$interpolate', '$q',
 function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $interpolate: IInterpolateService, $q: $QLike) {
 
   function getRenderer(attrs: Obj, scope: IScope) {

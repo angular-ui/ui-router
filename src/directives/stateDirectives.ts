@@ -3,7 +3,7 @@
  *
  * These directives are used in templates to create viewports and navigate to states
  *
- * @preferred @module ng1_directives
+ * @ng1api @preferred @module directives
  */ /** for typedoc */
 import { ng as angular } from "../angular";
 import { IAugmentedJQuery, ITimeoutService, IScope, IInterpolateService } from "angular";
@@ -13,6 +13,9 @@ import {
     RawParams, PathNode, StateOrName, StateService, StateDeclaration, UIRouter
 } from "ui-router-core";
 import { UIViewData } from "./viewDirective";
+
+/** @hidden Used for typedoc */
+export interface ng1_directive {}
 
 /** @hidden */
 function parseStateRef(ref: string) {
@@ -211,7 +214,8 @@ function defaultOpts(el: IAugmentedJQuery, $state: StateService) {
  * - Unlike the parameter values expression, the state name is not `$watch`ed (for performance reasons).
  * If you need to dynamically update the state being linked to, use the fully dynamic [[uiState]] directive.
  */
-let uiSref = ['$uiRouter', '$timeout',
+let uiSref: ng1_directive;
+uiSref = ['$uiRouter', '$timeout',
   function $StateRefDirective($uiRouter: UIRouter, $timeout: ITimeoutService) {
     let $state = $uiRouter.stateService;
 
@@ -334,7 +338,8 @@ let uiSref = ['$uiRouter', '$timeout',
  * - A middle-click, right-click, or ctrl-click is handled (natively) by the browser to open the href in a new window, for example.
  * ```
  */
-let uiState = ['$uiRouter', '$timeout',
+let uiState: ng1_directive;
+uiState = ['$uiRouter', '$timeout',
   function $StateRefDynamicDirective($uiRouter: UIRouter, $timeout: ITimeoutService) {
     let $state = $uiRouter.stateService;
 
@@ -469,7 +474,8 @@ let uiState = ['$uiRouter', '$timeout',
  *
  * - Multiple classes may be specified in a space-separated format: `ui-sref-active='class1 class2 class3'`
  */
-let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$uiRouter',
+let uiSrefActive: ng1_directive;
+uiSrefActive = ['$state', '$stateParams', '$interpolate', '$uiRouter',
   function $StateRefActiveDirective($state: StateService, $stateParams: Obj, $interpolate: IInterpolateService, $uiRouter: UIRouter) {
     return {
       restrict: "A",
@@ -564,7 +570,9 @@ let uiSrefActive = ['$state', '$stateParams', '$interpolate', '$uiRouter',
     };
   }];
 
+/** @hidden */
 interface Def { uiState: string; href: string; uiStateParams: Obj; uiStateOpts: any; }
+/** @hidden */
 interface StateData { state: StateDeclaration; params: RawParams; activeClass: string; }
 
 angular.module('ui.router.state')
