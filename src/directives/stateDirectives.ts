@@ -3,7 +3,9 @@
  *
  * These directives are used in templates to create viewports and navigate to states
  *
- * @ng1api @preferred @module directives
+ * @ng1api
+ * @preferred
+ * @module directives
  */ /** for typedoc */
 import { ng as angular } from "../angular";
 import { IAugmentedJQuery, ITimeoutService, IScope, IInterpolateService } from "angular";

@@ -1,4 +1,7 @@
-/** @ng1api @module ng1 */ /** */
+/**
+ * @ng1api
+ * @module ng1
+ */ /** */
 import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult } from "ui-router-core";
 
 

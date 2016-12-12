@@ -3,7 +3,7 @@
   "description": "State-based routing for AngularJS 1.x",
   "version": "1.0.0-beta.4",
   "scripts": {
-    "clean": "shx rm -rf lib lib-esm _doc release",
+    "clean": "shx rm -rf lib lib-esm _doc build release *.log",
     "build": "tsc && tsc -m es6 --outDir lib-esm && npm run fixdts",
     "fixdts": "dts-downlevel 'lib/**/*.d.ts' 'lib-esm/**/*.d.ts'",
     "package": "npm run clean && npm run build && webpack --hide-modules",
@@ -15,7 +15,7 @@
     "test:integrate": "tsc && npm run test:ng12 && npm run test:ng13 && npm run test:ng14 && npm run test:ng15",
     "watch": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1",
     "debug": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1 --browsers=Chrome",
-    "docs": "typedoc --tsconfig tsconfig.typedoc.json --readme README.md --name 'angular-ui-router' --theme node_modules/ui-router-typedoc-themes/bin/default --out _doc --internal-aliases internal,coreapi,ng1api --external-aliases internalapi,external --navigation-label-globals angular-ui-router"
+    "docs": "./scripts/docs.js"
   },
   "homepage": "https://ui-router.github.io",
   "contributors": [
@@ -98,7 +98,7 @@
     "typedoc-plugin-internal-external": "^1.0.0",
     "typedoc-plugin-ui-router": "^1.0.0",
     "typescript": "^2.1.4",
-    "ui-router-typedoc-themes": "^1.0.0",
+    "ui-router-typedoc-themes": "^1.0.1",
     "watch": "^0.18.0",
     "webpack": "1.x",
     "webpack-dev-server": "1.x",

@@ -1,4 +1,7 @@
-/** @ng1api @module directives */ /** for typedoc */
+/** 
+ * @ng1api 
+ * @module directives 
+ */ /** for typedoc */
 import { ng as angular } from "../angular";
 import {
     IInterpolateService, IScope, ITranscludeFunction, IAugmentedJQuery,

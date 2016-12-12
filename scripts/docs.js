@@ -16,45 +16,41 @@ let typedocCmd = [
 ].join(" ");
 
 let PROJECTDIR = path.join(__dirname, '..');
-// let DOCGENDIR = '_docsgen';
 let PROJ2 = 'ui-router-core';
 
 shelljs.pushd(PROJECTDIR);
 
-// shelljs.rm('-rf', DOCGENDIR);
-// shelljs.mkdir(DOCGENDIR);
-
-// shelljs.cp('-R', 'src', DOCGENDIR);
-// shelljs.mkdir(path.join(DOCGENDIR, PROJ2));
-// shelljs.cp('-R', path.join('..', PROJ2, '.git'), path.join(DOCGENDIR, PROJ2, '.git'));
-// shelljs.cp('-R', path.join('..', PROJ2, 'src'), path.join(DOCGENDIR, PROJ2, 'src'));
-
-// shelljs.ln('-s', path.join('..', '..', PROJ2), path.join(DOCGENDIR, PROJ2));
-
+// Make a backup of the source directory
 shelljs.mv('src', 'src.bak');
 shelljs.cp('-r', 'src.bak', 'src');
 
 let arr = [];
+// This replaces "ui-router-core" with "../../../ui-router-core"
+// while accounting for how many "../../" should be prepended
 for (var i = 0; i < 5; i++) {
   arr.push(arr.length);
   
   let dots = arr.map((val) => '..').join('/');
   let stars = arr.map((val) => '*').join('/');
 
+  // Replace references to "ui-router-core/lib" with "../ui-router-core/lib" for typedoc
   replaceInFiles.sync({
     replace: / (['"])ui-router-core\/lib/,
-    with: ' $1' + dots + '/ui-router-core/src',
+    with: ' $1' + dots + '/../ui-router-core/src',
     files: 'src/' + stars + '.ts'
   });
 
+  // Replace references to "ui-router-core" with "../ui-router-core" for typedoc
   replaceInFiles.sync({
     replace: / (['"])ui-router-core/,
-    with: ' $1' + dots + '/ui-router-core/src',
+    with: ' $1' + dots + '/../ui-router-core/src',
     files: 'src/' + stars + '.ts'
   });
 }
 
+// Run typedoc
 shelljs.exec(typedocCmd);
 
+// Restore original sources
 shelljs.rm('-rf', 'src');
 shelljs.mv('src.bak', 'src');
