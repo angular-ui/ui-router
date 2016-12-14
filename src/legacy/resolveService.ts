@@ -1,5 +1,6 @@
 /** @module ng1 */ /** */
 import { State, PathNode, ResolveContext, Obj, mapObj, resolvablesBuilder } from "ui-router-core";
+import * as angular from "angular";
 
 /**
  * Implementation of the legacy `$resolve` service for angular 1.
@@ -9,6 +10,14 @@ var $resolve = {
    * Asynchronously injects a resolve block.
    *
    * This emulates most of the behavior of the ui-router 0.2.x $resolve.resolve() service API.
+   *
+  * ### Not bundled by default
+   *
+   * This API is no longer not part of the standard `angular-ui-router` bundle.
+   * For users of the prebuilt bundles, add the `release/resolveService.min.js` UMD bundle.
+   * For bundlers (webpack, browserify, etc), add `angular-ui-router/lib/legacy/resolveService`.
+   *
+   * ---
    *
    * Given an object `invocables`, where keys are strings and values are injectable functions,
    * injects each function, and waits for the resulting promise to resolve.
@@ -58,3 +67,6 @@ var $resolve = {
 
 /** @hidden */
 export const resolveFactory = () => $resolve;
+
+// The old $resolve service
+angular.module('ui.router').factory('$resolve', <any> resolveFactory);

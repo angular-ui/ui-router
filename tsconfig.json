@@ -13,6 +13,7 @@
   },
   "files": [
     "src/index.ts",
-    "src/legacy/stateEvents.ts"
+    "src/legacy/stateEvents.ts",
+    "src/legacy/resolveService.ts"
   ]
 }

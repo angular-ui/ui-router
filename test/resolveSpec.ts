@@ -8,6 +8,7 @@ import "./util/matchers";
 import { resolvedValue, resolvedError, caught } from './util/testUtilsNg1';
 import { ResolveContext, State, PathNode, omit, pick, extend, forEach } from "../src/index";
 import { Resolvable, services, StateDeclaration } from "ui-router-core";
+import "../src/legacy/resolveService";
 
 let module = angular['mock'].module;
 ///////////////////////////////////////////////

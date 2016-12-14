@@ -19,7 +19,6 @@ import {
     UIRouter, IInjectable, StateParams, TransitionService, StateService, UrlRouterProvider,
     UrlRouter, UrlMatcherFactory, ResolveContext, TypedMap
 } from "ui-router-core";
-import { resolveFactory } from "./legacy/resolveService";
 import { ng1ViewsBuilder, ng1ViewConfigFactory } from "./statebuilders/views";
 import { TemplateFactory } from "./templateFactory";
 import { StateProvider } from "./stateProvider";
@@ -175,9 +174,6 @@ angular.module('ui.router.util').factory('$templateFactory', ['$uiRouter', () =>
 
 // The $view service
 angular.module('ui.router').factory('$view', () => router.viewService);
-
-// The old $resolve service
-angular.module('ui.router').factory('$resolve', <any> resolveFactory);
 
 // $trace service
 angular.module("ui.router").service("$trace", () => trace);
