@@ -1,9 +1,10 @@
 /**
  * Main entry point for angular 1.x build
  * @module ng1
- */
-/** for typedoc */
+ */ /** */
 
+import * as core from "ui-router-core";
+export { core };
 export * from "ui-router-core";
 
 export * from "./interface";

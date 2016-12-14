@@ -1,6 +1,3 @@
-// <package>/../../src/ is copied to <package>/src
-// This config is then copied to <package>/src/webpack.config.js
-
 var pkg = require('./package.json');
 var banner = pkg.description + '\n' +
     '@version v' + pkg.version + '\n' +
