@@ -289,7 +289,7 @@ describe('uiView', function () {
 
       animateFlush($animate);
 
-      expect($uiViewScroll).toHaveBeenCalledWith(elem.find('span').parent());
+      expect($uiViewScroll).toHaveBeenCalledWith(elem.find('ui-view'));
     }));
 
     it('should autoscroll based on expression', inject(function ($state, $q, $uiViewScroll, $animate) {

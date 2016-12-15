@@ -65,6 +65,7 @@ describe("UrlRouter", function () {
       angular.module('ui.router.router.test', []).config(function ($urlRouterProvider, $locationProvider) {
         $urp = $urlRouterProvider;
         $lp  = $locationProvider;
+        $locationProvider.hashPrefix('');
 
         $urp.rule(function ($injector, $location) {
           var path = $location.path();

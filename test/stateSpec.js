@@ -17,6 +17,7 @@ describe('state', function () {
     errors = [];
     locationProvider = $locationProvider;
     $locationProvider.html5Mode(false);
+    $locationProvider.hashPrefix('');
     $uiRouter = $uiRouterProvider.router;
   }));
 

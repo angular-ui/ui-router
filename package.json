@@ -16,7 +16,8 @@
     "test:ng13": "karma start --ngversion 1.3.16",
     "test:ng14": "karma start --ngversion 1.4.9",
     "test:ng15": "karma start --ngversion 1.5.0",
-    "test:integrate": "tsc && npm run test:ng12 && npm run test:ng13 && npm run test:ng14 && npm run test:ng15",
+    "test:ng16": "karma start --ngversion 1.6.0",
+    "test:integrate": "tsc && npm run test:ng12 && npm run test:ng13 && npm run test:ng14 && npm run test:ng15 && npm run test:ng16",
     "watch": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1",
     "debug": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1 --browsers=Chrome",
     "docs": "./scripts/docs.js"

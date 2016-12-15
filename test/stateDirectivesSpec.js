@@ -10,6 +10,7 @@ describe('uiStateRef', function() {
 
   beforeEach(module(function($stateProvider, $locationProvider) {
     _locationProvider = $locationProvider;
+    $locationProvider.hashPrefix('');
     $stateProvider.state('top', {
       url: ''
     }).state('other', {
