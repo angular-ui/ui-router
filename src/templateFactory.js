@@ -8,7 +8,7 @@
  * use, and will default to the most recent one ($templateRequest on Angular
  * versions starting from 1.3, $http otherwise).
  */
-function $TemplateFactoryProvider() {
+function TemplateFactoryProvider() {
   var shouldUnsafelyUseHttp = angular.version.minor < 3;
 
   /**
@@ -45,7 +45,7 @@ function $TemplateFactoryProvider() {
    * Service. Manages loading of templates.
    */
   this.$get = ['$http', '$templateCache', '$injector', function($http, $templateCache, $injector){
-    return new $TemplateFactory($http, $templateCache, $injector, shouldUnsafelyUseHttp);}];
+    return new TemplateFactory($http, $templateCache, $injector, shouldUnsafelyUseHttp);}];
 }
 
 
@@ -60,7 +60,7 @@ function $TemplateFactoryProvider() {
  * @description
  * Service. Manages loading of templates.
  */
-function $TemplateFactory($http, $templateCache, $injector, shouldUnsafelyUseHttp) {
+function TemplateFactory($http, $templateCache, $injector, shouldUnsafelyUseHttp) {
 
   /**
    * @ngdoc function
@@ -161,6 +161,6 @@ function $TemplateFactory($http, $templateCache, $injector, shouldUnsafelyUseHtt
   this.fromProvider = function (provider, params, locals) {
     return $injector.invoke(provider, null, locals || { params: params });
   };
-};
+}
 
-angular.module('ui.router.util').provider('$templateFactory', $TemplateFactoryProvider);
+angular.module('ui.router.util').provider('$templateFactory', TemplateFactoryProvider);
