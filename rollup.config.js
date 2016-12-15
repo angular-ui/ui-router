@@ -1,5 +1,8 @@
 import nodeResolve from 'rollup-plugin-node-resolve';
 import uglify from 'rollup-plugin-uglify';
+import progress from 'rollup-plugin-progress';
+import sourcemaps from 'rollup-plugin-sourcemaps';
+import visualizer from 'rollup-plugin-visualizer';
 
 var MINIFY = process.env.MINIFY;
 var ROUTER = process.env.ROUTER;
@@ -19,7 +22,15 @@ var uglifyOpts = { output: {} };
 // retain multiline comment with @license
 uglifyOpts.output.comments = (node, comment) =>
 comment.type === 'comment2' && /@license/i.test(comment.value);
-var plugins = (MINIFY ? [uglify(uglifyOpts)] : []).concat(nodeResolve({jsnext: true}));
+
+var plugins = [
+  nodeResolve({jsnext: true}),
+  progress(),
+  sourcemaps(),
+];
+
+if (MINIFY) plugins.push(uglify(uglifyOpts));
+if (ROUTER && MINIFY) plugins.push(visualizer({ sourcemap: false }));
 
 var extension = MINIFY ? ".min.js" : ".js";
 
