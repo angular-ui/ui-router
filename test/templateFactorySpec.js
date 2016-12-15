@@ -55,3 +55,26 @@ describe('templateFactory', function () {
    }));
   }
 });
+
+describe('templateFactory with $http use forced', function () {
+
+  beforeEach(function() {
+    angular
+      .module('forceHttpInTemplateFactory', [])
+      .config(function($templateFactoryProvider) {
+          $templateFactoryProvider.shouldUnsafelyUseHttp(true);
+      });
+    module('ui.router.util');
+    module('forceHttpInTemplateFactory');
+  });
+
+  it('does not restrict URL loading', inject(function($templateFactory, $httpBackend) {
+    $httpBackend.expectGET('http://evil.com/views/view.html').respond(200,  'template!');
+    $templateFactory.fromUrl('http://evil.com/views/view.html');
+    $httpBackend.flush();
+
+    $httpBackend.expectGET('data:text/html,foo').respond(200,  'template!');
+    $templateFactory.fromUrl('data:text/html,foo');
+    $httpBackend.flush();
+  }));
+});
