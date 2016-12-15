@@ -1,3 +1,54 @@
+
+/**
+ * @ngdoc object
+ * @name ui.router.util.$templateFactoryProvider
+ *
+ * @description
+ * Provider for $templateFactory. Manages which template-loading mechanism to
+ * use, and will default to the most recent one ($templateRequest on Angular
+ * versions starting from 1.3, $http otherwise).
+ */
+function $TemplateFactoryProvider() {
+  var shouldUnsafelyUseHttp = angular.version.minor < 3;
+
+  /**
+   * @ngdoc function
+   * @name ui.router.util.$templateFactoryProvider#shouldUnsafelyUseHttp
+   * @methodOf ui.router.util.$templateFactoryProvider
+   *
+   * @description
+   * Forces $templateFactory to use $http instead of $templateRequest. This
+   * might cause XSS, as $http doesn't enforce the regular security checks for
+   * templates that have been introduced in Angular 1.3. Note that setting this
+   * to false on Angular older than 1.3.x will crash, as the $templateRequest
+   * service (and the security checks) are not implemented on these versions.
+   *
+   * See the $sce documentation, section
+   * <a href="https://docs.angularjs.org/api/ng/service/$sce#impact-on-loading-templates">
+   * Impact on loading templates</a> for more details about this mechanism.
+   *
+   * @param {boolean} value
+   */
+  this.shouldUnsafelyUseHttp = function(value) {
+    shouldUnsafelyUseHttp = !!value;
+  };
+
+  /**
+   * @ngdoc object
+   * @name ui.router.util.$templateFactory
+   *
+   * @requires $http
+   * @requires $templateCache
+   * @requires $injector
+   *
+   * @description
+   * Service. Manages loading of templates.
+   */
+  this.$get = ['$http', '$templateCache', '$injector', function($http, $templateCache, $injector){
+    return new $TemplateFactory($http, $templateCache, $injector, shouldUnsafelyUseHttp);}];
+}
+
+
 /**
  * @ngdoc object
  * @name ui.router.util.$templateFactory
@@ -9,8 +60,7 @@
  * @description
  * Service. Manages loading of templates.
  */
-$TemplateFactory.$inject = ['$http', '$templateCache', '$injector'];
-function $TemplateFactory(  $http,   $templateCache,   $injector) {
+function $TemplateFactory($http, $templateCache, $injector, shouldUnsafelyUseHttp) {
 
   /**
    * @ngdoc function
@@ -83,7 +133,7 @@ function $TemplateFactory(  $http,   $templateCache,   $injector) {
     if (isFunction(url)) url = url(params);
     if (url == null) return null;
     else {
-      if($injector.has && $injector.has('$templateRequest')) {
+      if(!shouldUnsafelyUseHttp) {
         return $injector.get('$templateRequest')(url);
       } else {
         return $http
@@ -111,6 +161,6 @@ function $TemplateFactory(  $http,   $templateCache,   $injector) {
   this.fromProvider = function (provider, params, locals) {
     return $injector.invoke(provider, null, locals || { params: params });
   };
-}
+};
 
-angular.module('ui.router.util').service('$templateFactory', $TemplateFactory);
+angular.module('ui.router.util').provider('$templateFactory', $TemplateFactoryProvider);
