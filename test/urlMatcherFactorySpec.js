@@ -1,5 +1,7 @@
 var module      = angular.mock.module;
 var uiRouter    = require("../src/index");
+var services    = require("ui-router-core").services;
+var $location   = services.location;
 var Param       = uiRouter.Param;
 var ParamTypes  = uiRouter.ParamTypes;
 var UrlMatcher  = uiRouter.UrlMatcher;
@@ -15,7 +17,7 @@ function makeMatcher(url, config) {
 
 beforeEach(function() {
   var app = angular.module('ui.router.router.test', []);
-  app.config(function ($urlMatcherFactoryProvider) {
+  app.config(function ($urlMatcherFactoryProvider, $uiRouterProvider) {
     provider = $urlMatcherFactoryProvider;
     UrlMatcher = provider.UrlMatcher;
   });
@@ -26,7 +28,9 @@ describe("UrlMatcher", function () {
     module('ui.router.router', 'ui.router.router.test');
 
     inject(function($injector) {
+      $injector.get('$uiRouter');
       $injector.invoke(provider.$get, provider);
+      $location = services.location;
     });
   });
 
@@ -310,13 +314,13 @@ describe("UrlMatcher", function () {
 
 
   describe("multivalue-query-parameters", function() {
-    it("should handle .is() for an array of values", inject(function($location) {
+    it("should handle .is() for an array of values", (function() {
       var m = makeMatcher('/foo?{param1:int}'), param = m.parameter('param1');
       expect(param.type.is([1, 2, 3])).toBe(true);
       expect(param.type.is([1, "2", 3])).toBe(false);
     }));
 
-    it("should handle .equals() for two arrays of values", inject(function($location) {
+    it("should handle .equals() for two arrays of values", (function() {
       var m = makeMatcher('/foo?{param1:int}&{param2:date}'),
           param1 = m.parameter('param1'),
           param2 = m.parameter('param2');
@@ -333,7 +337,7 @@ describe("UrlMatcher", function () {
       ).toBe(false);
     }));
 
-    it("should conditionally be wrapped in an array by default", inject(function($location) {
+    it("should conditionally be wrapped in an array by default", (function() {
       var m = makeMatcher('/foo?param1');
 
       // empty array [] is treated like "undefined"
@@ -350,13 +354,13 @@ describe("UrlMatcher", function () {
       expect(m.exec("/foo", { param1: "1" })).toEqual({ param1: "1" }); // auto unwrap single values
       expect(m.exec("/foo", { param1: ["1", "2"]})).toEqual({ param1: ["1", "2"] });
 
-      $location.url("/foo");
+      $location.setUrl("/foo");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: undefined } );
-      $location.url("/foo?param1=bar");
+      $location.setUrl("/foo?param1=bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: 'bar' } ); // auto unwrap
-      $location.url("/foo?param1=");
+      $location.setUrl("/foo?param1=");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: undefined } );
-      $location.url("/foo?param1=bar&param1=baz");
+      $location.setUrl("/foo?param1=bar&param1=baz");
       if (angular.isArray($location.search())) // conditional for angular 1.0.8
         expect(m.exec($location.path(), $location.search())).toEqual( { param1: ['bar', 'baz'] } );
 
@@ -369,7 +373,7 @@ describe("UrlMatcher", function () {
 
     }));
 
-    it("should be wrapped in an array if array: true", inject(function($location) {
+    it("should be wrapped in an array if array: true", (function() {
       var m = makeMatcher('/foo?param1', { params: { param1: { array: true } } });
 
       // empty array [] is treated like "undefined"
@@ -386,13 +390,13 @@ describe("UrlMatcher", function () {
       expect(m.exec("/foo", {param1: "1"})).toEqual({ param1: [ "1" ] });
       expect(m.exec("/foo", {param1: [ "1", "2" ]})).toEqual({ param1: [ "1", "2" ] });
 
-      $location.url("/foo");
+      $location.setUrl("/foo");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: undefined } );
-      $location.url("/foo?param1=");
+      $location.setUrl("/foo?param1=");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: undefined } );
-      $location.url("/foo?param1=bar");
+      $location.setUrl("/foo?param1=bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: [ 'bar' ] } );
-      $location.url("/foo?param1=bar&param1=baz");
+      $location.setUrl("/foo?param1=bar&param1=baz");
       if (angular.isArray($location.search())) // conditional for angular 1.0.8
         expect(m.exec($location.path(), $location.search())).toEqual( { param1: ['bar', 'baz'] } );
 
@@ -404,24 +408,24 @@ describe("UrlMatcher", function () {
       expect(m.format({ param1: ['bar', 'baz'] })).toBe("/foo?param1=bar&param1=baz");
     }));
 
-    it("should be wrapped in an array if paramname looks like param[]", inject(function($location) {
+    it("should be wrapped in an array if paramname looks like param[]", (function() {
       var m = makeMatcher('/foo?param1[]');
 
       expect(m.exec("/foo")).toEqualData({});
 
-      $location.url("/foo?param1[]=bar");
+      $location.setUrl("/foo?param1[]=bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { "param1[]": [ 'bar' ] } );
       expect(m.format({ "param1[]": 'bar' })).toBe("/foo?param1[]=bar");
       expect(m.format({ "param1[]": [ 'bar' ] })).toBe("/foo?param1[]=bar");
 
-      $location.url("/foo?param1[]=bar&param1[]=baz");
+      $location.setUrl("/foo?param1[]=bar&param1[]=baz");
       if (angular.isArray($location.search())) // conditional for angular 1.0.8
         expect(m.exec($location.path(), $location.search())).toEqual( { "param1[]": ['bar', 'baz'] } );
       expect(m.format({ "param1[]": ['bar', 'baz'] })).toBe("/foo?param1[]=bar&param1[]=baz");
     }));
 
     // Test for issue #2222
-    it("should return default value, if query param is missing.", inject(function($location) {
+    it("should return default value, if query param is missing.", (function() {
       var m = makeMatcher('/state?param1&param2&param3&param5', {
         params: {
           param1 : 'value1',
@@ -450,17 +454,17 @@ describe("UrlMatcher", function () {
       expect(values).toEqualData(expected);
     }));
 
-    it("should not be wrapped by ui-router into an array if array: false", inject(function($location) {
+    it("should not be wrapped by ui-router into an array if array: false", (function() {
       var m = makeMatcher('/foo?param1', { params: { param1: { array: false } } });
 
       expect(m.exec("/foo")).toEqualData({});
 
-      $location.url("/foo?param1=bar");
+      $location.setUrl("/foo?param1=bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { param1: 'bar' } );
       expect(m.format({ param1: 'bar' })).toBe("/foo?param1=bar");
       expect(m.format({ param1: [ 'bar' ] })).toBe("/foo?param1=bar");
 
-      $location.url("/foo?param1=bar&param1=baz");
+      $location.setUrl("/foo?param1=bar&param1=baz");
       if (angular.isArray($location.search())) // conditional for angular 1.0.8
         expect(m.exec($location.path(), $location.search())).toEqual( { param1: 'bar,baz' } ); // coerced to string
       expect(m.format({ param1: ['bar', 'baz'] })).toBe("/foo?param1=bar%2Cbaz"); // coerced to string
@@ -468,7 +472,7 @@ describe("UrlMatcher", function () {
   });
 
   describe("multivalue-path-parameters", function() {
-    it("should behave as a single-value by default", inject(function($location) {
+    it("should behave as a single-value by default", (function() {
       var m = makeMatcher('/foo/:param1');
 
       expect(m.exec("/foo/")).toEqual({ param1: ""});
@@ -478,12 +482,12 @@ describe("UrlMatcher", function () {
       expect(m.format({ param1: ['bar', 'baz'] })).toBe("/foo/bar%2Cbaz"); // coerced to string
     }));
 
-    it("should be split on - in url and wrapped in an array if array: true", inject(function($location) {
+    it("should be split on - in url and wrapped in an array if array: true", (function() {
       var m = makeMatcher('/foo/:param1', { params: { param1: { array: true } } });
 
       expect(m.exec("/foo/")).toEqual({ param1: undefined });
       expect(m.exec("/foo/bar")).toEqual({ param1: [ "bar" ] });
-      $location.url("/foo/bar-baz");
+      $location.setUrl("/foo/bar-baz");
       expect(m.exec($location.url())).toEqual({ param1: [ "bar", "baz" ] });
 
       expect(m.format({ param1: [] })).toEqual("/foo/");
@@ -491,7 +495,7 @@ describe("UrlMatcher", function () {
       expect(m.format({ param1: [ 'bar', 'baz' ] })).toEqual("/foo/bar-baz");
     }));
 
-    it("should behave similar to multi-value query params", inject(function($location) {
+    it("should behave similar to multi-value query params", (function() {
       var m = makeMatcher('/foo/:param1[]');
 
       // empty array [] is treated like "undefined"
@@ -506,11 +510,11 @@ describe("UrlMatcher", function () {
       expect(m.exec("/foo/1")).toEqual({ "param1[]": [ "1" ] });
       expect(m.exec("/foo/1-2")).toEqual({ "param1[]": [ "1", "2" ] });
 
-      $location.url("/foo/");
+      $location.setUrl("/foo/");
       expect(m.exec($location.path(), $location.search())).toEqual( { "param1[]": undefined } );
-      $location.url("/foo/bar");
+      $location.setUrl("/foo/bar");
       expect(m.exec($location.path(), $location.search())).toEqual( { "param1[]": [ 'bar' ] } );
-      $location.url("/foo/bar-baz");
+      $location.setUrl("/foo/bar-baz");
       expect(m.exec($location.path(), $location.search())).toEqual( { "param1[]": ['bar', 'baz'] } );
 
       expect(m.format({ })).toBe("/foo/");
@@ -521,7 +525,7 @@ describe("UrlMatcher", function () {
       expect(m.format({ "param1[]": ['bar', 'baz'] })).toBe("/foo/bar-baz");
     }));
 
-    it("should be split on - in url and wrapped in an array if paramname looks like param[]", inject(function($location) {
+    it("should be split on - in url and wrapped in an array if paramname looks like param[]", (function() {
       var m = makeMatcher('/foo/:param1[]');
 
       expect(m.exec("/foo/")).toEqual({ "param1[]": undefined });
@@ -533,7 +537,7 @@ describe("UrlMatcher", function () {
       expect(m.format({ "param1[]": [ 'bar', 'baz' ] })).toEqual("/foo/bar-baz");
     }));
 
-    it("should allow path param arrays with '-' in the values", inject(function($location) {
+    it("should allow path param arrays with '-' in the values", (function() {
       var m = makeMatcher('/foo/:param1[]');
 
       expect(m.exec("/foo/")).toEqual({ "param1[]": undefined });
@@ -547,15 +551,15 @@ describe("UrlMatcher", function () {
         .toEqual("/foo/bar%5C%2Dbar%5C%2Dbar%5C%2D-%5C%2Dbaz%5C%2Dbaz%5C%2Dbaz");
 
       // check that we handle $location.url decodes correctly
-      $location.url(m.format({ "param1[]": [ 'bar-', '-baz' ] }));
+      $location.setUrl(m.format({ "param1[]": [ 'bar-', '-baz' ] }));
       expect(m.exec($location.path(), $location.search())).toEqual({ "param1[]": [ 'bar-', '-baz' ] });
 
       // check that we handle $location.url decodes correctly for multiple hyphens
-      $location.url(m.format({ "param1[]": [ 'bar-bar-bar-', '-baz-baz-baz' ] }));
+      $location.setUrl(m.format({ "param1[]": [ 'bar-bar-bar-', '-baz-baz-baz' ] }));
       expect(m.exec($location.path(), $location.search())).toEqual({ "param1[]": [ 'bar-bar-bar-', '-baz-baz-baz' ] });
 
       // check that pre-encoded values are passed correctly
-      $location.url(m.format({ "param1[]": [ '%2C%20%5C%2C', '-baz' ] }));
+      $location.setUrl(m.format({ "param1[]": [ '%2C%20%5C%2C', '-baz' ] }));
       expect(m.exec($location.path(), $location.search())).toEqual({ "param1[]": [ '%2C%20%5C%2C', '-baz' ] });
 
     }));
@@ -734,14 +738,14 @@ describe("urlMatcherFactory", function () {
       expect(m.format({ id: "alpha" })).toBeNull();
     });
 
-    it("should automatically handle multiple search param values", inject(function($location) {
+    it("should automatically handle multiple search param values", (function() {
       var m = makeMatcher("/foo/{fooid:int}?{bar:int}");
 
-      $location.url("/foo/5?bar=1");
+      $location.setUrl("/foo/5?bar=1");
       expect(m.exec($location.path(), $location.search())).toEqual( { fooid: 5, bar: 1 } );
       expect(m.format({ fooid: 5, bar: 1 })).toEqual("/foo/5?bar=1");
 
-      $location.url("/foo/5?bar=1&bar=2&bar=3");
+      $location.setUrl("/foo/5?bar=1&bar=2&bar=3");
       if (angular.isArray($location.search())) // conditional for angular 1.0.8
         expect(m.exec($location.path(), $location.search())).toEqual( { fooid: 5, bar: [ 1, 2, 3 ] } );
       expect(m.format({ fooid: 5, bar: [ 1, 2, 3 ] })).toEqual("/foo/5?bar=1&bar=2&bar=3");
@@ -749,7 +753,7 @@ describe("urlMatcherFactory", function () {
       m.format()
     }));
 
-    it("should allow custom types to handle multiple search param values manually", inject(function($location) {
+    it("should allow custom types to handle multiple search param values manually", (function() {
       $umf.type("custArray", {
         encode: function(array)  { return array.join("-"); },
         decode: function(val) { return angular.isArray(val) ? val : val.split(/-/); },
@@ -759,11 +763,11 @@ describe("urlMatcherFactory", function () {
 
       var m = makeMatcher("/foo?{bar:custArray}", { params: { bar: { array: false } } } );
 
-      $location.url("/foo?bar=fox");
+      $location.setUrl("/foo?bar=fox");
       expect(m.exec($location.path(), $location.search())).toEqual( { bar: [ 'fox' ] } );
       expect(m.format({ bar: [ 'fox' ] })).toEqual("/foo?bar=fox");
 
-      $location.url("/foo?bar=quick-brown-fox");
+      $location.setUrl("/foo?bar=quick-brown-fox");
       expect(m.exec($location.path(), $location.search())).toEqual( { bar: [ 'quick', 'brown', 'fox' ] } );
       expect(m.format({ bar: [ 'quick', 'brown', 'fox' ] })).toEqual("/foo?bar=quick-brown-fox");
     }));
