@@ -1,14 +1,17 @@
 import * as angular from "angular";
-import {ILocationService, ILocationProvider} from "angular";
+import { ILocationService, ILocationProvider } from "angular";
 import "./util/matchers";
-import { html5Compat } from './util/testUtilsNg1';
-declare var inject;
+import { html5Compat } from "./util/testUtilsNg1";
+import {
+    UrlMatcher, UrlMatcherFactory, services, UrlRouterProvider, UrlRouter, StateService, UIRouter
+} from "../src/index";
 
-import {UrlMatcher, UrlMatcherFactory, services, UrlRouterProvider, UrlRouter, StateService} from "../src/index";
+declare var inject;
 
 var module = angular['mock'].module;
 
 describe("UrlRouter", function () {
+  var router: UIRouter;
   var $urp: UrlRouterProvider, $lp: ILocationProvider, $umf: UrlMatcherFactory,
       $s: StateService, $ur: UrlRouter, location: ILocationService, match, scope;
 
@@ -19,18 +22,18 @@ describe("UrlRouter", function () {
   describe("provider", function () {
 
     beforeEach(function() {
-      angular.module('ui.router.router.test', []).config(function ($urlRouterProvider) {
-        $urlRouterProvider.deferIntercept();
-        $urp = $urlRouterProvider;
+      angular.module('ui.router.router.test', []).config(function ($uiRouterProvider) {
+        router = $uiRouterProvider;
+        $umf = router.urlMatcherFactory;
+        $urp = router.urlRouterProvider;
+        $urp.deferIntercept();
       });
 
       module('ui.router.router', 'ui.router.router.test');
 
-      inject(function($rootScope, $location, $injector, $urlMatcherFactory) {
+      inject(function($rootScope, $location) {
         scope = $rootScope.$new();
         location = $location;
-        $ur = $injector.invoke($urp['$get'], $urp);
-        $umf = $urlMatcherFactory;
       });
     });
 
@@ -62,8 +65,10 @@ describe("UrlRouter", function () {
   describe("service", function() {
 
     beforeEach(function() {
-      angular.module('ui.router.router.test', []).config(function ($urlRouterProvider, $locationProvider) {
-        $urp = $urlRouterProvider;
+      angular.module('ui.router.router.test', []).config(function ($uiRouterProvider, $locationProvider) {
+        router = $uiRouterProvider;
+        $umf = router.urlMatcherFactory;
+        $urp = router.urlRouterProvider;
         $lp  = $locationProvider;
         $locationProvider.hashPrefix('');
 
@@ -160,7 +165,7 @@ describe("UrlRouter", function () {
       scope.$on('$locationChangeSuccess', function (ev) {
         ev.preventDefault();
         called = true;
-        $timeout($urlRouter.sync, 2000);
+        $timeout(() => $urlRouter.sync(), 2000);
       });
       scope.$emit("$locationChangeSuccess");
       $timeout.flush();
@@ -199,21 +204,21 @@ describe("UrlRouter", function () {
 
     describe("location updates", function() {
       it('can push location changes', inject(function($urlRouter) {
-        spyOn(services.location, "setUrl");
+        spyOn(router.locationService, "setUrl");
         $urlRouter.push(makeMatcher("/hello/:name"), { name: "world" });
-        expect(services.location.setUrl).toHaveBeenCalledWith("/hello/world", undefined);
+        expect(router.locationService.setUrl).toHaveBeenCalledWith("/hello/world", undefined);
       }));
 
       it('can push a replacement location', inject(function($urlRouter, $location) {
-        spyOn(services.location, "setUrl");
+        spyOn(router.locationService, "setUrl");
         $urlRouter.push(makeMatcher("/hello/:name"), { name: "world" }, { replace: true });
-        expect(services.location.setUrl).toHaveBeenCalledWith("/hello/world", true);
+        expect(router.locationService.setUrl).toHaveBeenCalledWith("/hello/world", true);
       }));
 
       it('can push location changes with no parameters', inject(function($urlRouter, $location) {
-        spyOn(services.location, "setUrl");
+        spyOn(router.locationService, "setUrl");
         $urlRouter.push(makeMatcher("/hello/:name", {params:{name: ""}}));
-        expect(services.location.setUrl).toHaveBeenCalledWith("/hello/", undefined);
+        expect(router.locationService.setUrl).toHaveBeenCalledWith("/hello/", undefined);
       }));
 
       it('can push location changes that include a #fragment', inject(function($urlRouter, $location) {
@@ -235,9 +240,9 @@ describe("UrlRouter", function () {
       it('can read and sync a copy of location URL', inject(function($urlRouter, $location) {
         $location.url('/old');
 
-        spyOn(services.location, 'path').and.callThrough();
+        spyOn(router.locationService, 'path').and.callThrough();
         $urlRouter.update(true);
-        expect(services.location.path).toHaveBeenCalled();
+        expect(router.locationService.path).toHaveBeenCalled();
 
         $location.url('/new');
         $urlRouter.update();

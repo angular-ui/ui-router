@@ -18,7 +18,7 @@ describe('state', function () {
     locationProvider = $locationProvider;
     $locationProvider.html5Mode(false);
     $locationProvider.hashPrefix('');
-    $uiRouter = $uiRouterProvider.router;
+    $uiRouter = $uiRouterProvider;
   }));
 
   var log, logEvents, logEnterExit;
@@ -1088,7 +1088,7 @@ describe('state', function () {
 
     describe('when $browser.baseHref() exists', function() {
       beforeEach(inject(function($browser) {
-        spyOn(services.locationConfig, 'baseHref').and.callFake(function() {
+        spyOn($uiRouter.locationConfig, 'baseHref').and.callFake(function() {
           return '/base/';
         });
       }));
@@ -1500,25 +1500,22 @@ describe('state', function () {
     }));
 
     it('should replace browser history when "replace" enabled', inject(function ($state, $rootScope, $location, $q) {
-
-      spyOn(services.location, 'setUrl');
+      spyOn($uiRouter.locationService, 'setUrl');
 
       $state.transitionTo('about', {}, { location: 'replace' });
       $q.flush();
 
-      expect(services.location.setUrl).toHaveBeenCalled();
-      expect(services.location.setUrl.calls.argsFor(0)[1]).toBe(true);
+      expect($uiRouter.locationService.setUrl).toHaveBeenCalled();
+      expect($uiRouter.locationService.setUrl.calls.argsFor(0)[1]).toBe(true);
     }));
 
     it('should not replace history normally', inject(function ($state, $rootScope, $location, $q) {
-
-      spyOn(services.location, 'replace');
+      spyOn($location, 'replace');
 
       $state.transitionTo('about');
       $q.flush();
 
-      expect(services.location.replace).not.toHaveBeenCalled();
-
+      expect($location.replace).not.toHaveBeenCalled();
     }));
   });
 
