@@ -1,5 +1,5 @@
-import { ng as angular } from "./angular";
 /** @module view */ /** for typedoc */
+import { ng as angular } from "./angular";
 import {
     isArray, isDefined, isFunction, isObject, services, Obj, IInjectable, tail, kebobString, unnestR, ResolveContext, Resolvable, RawParams
 } from "ui-router-core";

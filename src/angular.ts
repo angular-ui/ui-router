@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ * @module ng1
+ */ /** */
 declare var angular;
 import * as ng_from_import from "angular";
 let ng_from_global = angular;
