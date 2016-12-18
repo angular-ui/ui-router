@@ -24,7 +24,7 @@ import { StateProvider } from "./stateProvider";
 import { getStateHookBuilder } from "./statebuilders/onEnterExitRetain";
 import IInjectorService = angular.auto.IInjectorService;
 import { Ng1LocationServices } from "./locationServices";
-// has or is using
+import { TypedMap } from "ui-router-core"; // has or is using
 
 angular.module("ui.router.angular1", []);
 let mod_init  = angular.module('ui.router.init',   []);
@@ -52,14 +52,16 @@ function $uiRouter($locationProvider: ILocationProvider) {
   router.stateProvider = new StateProvider(router.stateRegistry, router.stateService);
 
   // Apply ng1 specific StateBuilder code for `views`, `resolve`, and `onExit/Retain/Enter` properties
-  router.stateRegistry.decorator("views", ng1ViewsBuilder);
-  router.stateRegistry.decorator("onExit", getStateHookBuilder("onExit"));
+  router.stateRegistry.decorator("views",    ng1ViewsBuilder);
+  router.stateRegistry.decorator("onExit",   getStateHookBuilder("onExit"));
   router.stateRegistry.decorator("onRetain", getStateHookBuilder("onRetain"));
-  router.stateRegistry.decorator("onEnter", getStateHookBuilder("onEnter"));
+  router.stateRegistry.decorator("onEnter",  getStateHookBuilder("onEnter"));
 
   router.viewService._pluginapi._viewConfigFactory('ng1', ng1ViewConfigFactory);
 
   let ng1LocationService = router.locationService = router.locationConfig = new Ng1LocationServices($locationProvider);
+
+  Ng1LocationServices.monkeyPatchPathParameterType(router);
 
   // backwards compat: also expose router instance as $uiRouterProvider.router
   router['router'] = router;

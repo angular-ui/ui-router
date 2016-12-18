@@ -2,7 +2,7 @@
  * @internalapi
  * @module ng1
  */ /** */
-import { LocationConfig, LocationServices } from "ui-router-core";
+import { LocationConfig, LocationServices, UIRouter, ParamType } from "ui-router-core";
 import { createProxyFunctions, removeFrom, isObject } from "ui-router-core";
 import { ILocationService, ILocationProvider } from "angular";
 
@@ -62,5 +62,28 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
     createProxyFunctions($location, this, $location, ['port', 'protocol', 'host']);
     // Bind these LocationConfig functions to $browser
     createProxyFunctions($browser, this, $browser, ['baseHref']);
+  }
+
+  /**
+   * Applys ng1-specific path parameter encoding
+   *
+   * The Angular 1 `$location` service is a bit weird.
+   * It doesn't allow slashes to be encoded/decoded bi-directionally.
+   *
+   * See the writeup at https://github.com/angular-ui/ui-router/issues/2598
+   *
+   * This code patches the `path` parameter type so it encoded/decodes slashes as ~2F
+   *
+   * @param router
+   */
+  static monkeyPatchPathParameterType(router: UIRouter) {
+    let pathType: ParamType = router.urlMatcherFactory.type('path');
+
+    pathType.encode = (val: any) =>
+        val != null ? val.toString().replace(/(~|\/)/g, m => ({ '~': '~~', '/': '~2F' }[m])) : val;
+
+    pathType.decode = (val: string) =>
+        val != null ? val.toString().replace(/(~~|~2F)/g, m => ({ '~~': '~', '~2F': '/' }[m])) : val;
+
   }
 }
