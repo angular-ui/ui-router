@@ -1,6 +1,6 @@
 /** @module ng1 */ /** for typedoc */
 import {
-    isObject, createProxyFunctions, BuilderFunction, StateRegistry, StateService, OnInvalidCallback
+    val, isObject, createProxyFunctions, BuilderFunction, StateRegistry, StateService, OnInvalidCallback
 } from "ui-router-core";
 import { Ng1StateDeclaration } from "./interface";
 
@@ -27,7 +27,7 @@ import { Ng1StateDeclaration } from "./interface";
  */
 export class StateProvider {
   constructor(private stateRegistry: StateRegistry, private stateService: StateService) {
-    createProxyFunctions(StateProvider.prototype, this, this);
+    createProxyFunctions(val(StateProvider.prototype), this, val(this));
   }
 
   /**

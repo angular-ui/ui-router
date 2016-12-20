@@ -3,7 +3,7 @@
  * @module ng1
  */ /** */
 import { LocationConfig, LocationServices, UIRouter, ParamType } from "ui-router-core";
-import { createProxyFunctions, removeFrom, isObject } from "ui-router-core";
+import { val, createProxyFunctions, removeFrom, isObject } from "ui-router-core";
 import { ILocationService, ILocationProvider } from "angular";
 
 /**
@@ -30,7 +30,8 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
 
   constructor($locationProvider: ILocationProvider) {
     this.$locationProvider = $locationProvider;
-    createProxyFunctions($locationProvider, this, $locationProvider, ['hashPrefix']);
+    let _lp = val($locationProvider);
+    createProxyFunctions(_lp, this, _lp, ['hashPrefix']);
   }
 
   onChange(callback: Function) {
@@ -55,13 +56,15 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
 
     // Bind $locationChangeSuccess to the listeners registered in LocationService.onChange
     $rootScope.$on("$locationChangeSuccess", evt => this._urlListeners.forEach(fn => fn(evt)));
+    let _loc = val($location);
+    let _browser = val($browser);
 
     // Bind these LocationService functions to $location
-    createProxyFunctions($location, this, $location, ["replace", "url", "path", "search", "hash"]);
+    createProxyFunctions(_loc, this, _loc, ["replace", "url", "path", "search", "hash"]);
     // Bind these LocationConfig functions to $location
-    createProxyFunctions($location, this, $location, ['port', 'protocol', 'host']);
+    createProxyFunctions(_loc, this, _loc, ['port', 'protocol', 'host']);
     // Bind these LocationConfig functions to $browser
-    createProxyFunctions($browser, this, $browser, ['baseHref']);
+    createProxyFunctions(_browser, this, _browser, ['baseHref']);
   }
 
   /**
