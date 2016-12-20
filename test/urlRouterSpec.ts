@@ -3,7 +3,7 @@ import { ILocationService, ILocationProvider } from "angular";
 import "./util/matchers";
 import { html5Compat } from "./util/testUtilsNg1";
 import {
-    UrlMatcher, UrlMatcherFactory, services, UrlRouterProvider, UrlRouter, StateService, UIRouter
+    UrlMatcher, UrlMatcherFactory, UrlRouterProvider, UrlRouter, StateService, UIRouter
 } from "../src/index";
 
 declare var inject;
@@ -118,33 +118,6 @@ describe("UrlRouter", function () {
       location.path("/lastrule");
       scope.$emit("$locationChangeSuccess");
       expect(location.path()).toBe("/lastrule");
-    });
-
-    it("should allow custom URL matchers", function () {
-      var custom = {
-        url: {
-          exec:       function() {},
-          isRoot:     function() {},
-          format:     function() {},
-          append:     function() {},
-          validates:  function() {},
-          parameter:  function() {},
-          parameters: function() {}
-        } as any as UrlMatcher,
-        handler: function() {}
-      };
-
-      spyOn(custom.url, "exec").and.returnValue({});
-      spyOn(custom.url, "format").and.returnValue("/foo-bar");
-      spyOn(custom, "handler").and.returnValue(true);
-
-      $urp.when(custom.url, custom.handler);
-      scope.$broadcast("$locationChangeSuccess");
-      scope.$apply();
-
-      expect(custom.url.exec).toHaveBeenCalled();
-      expect(custom.url.format).not.toHaveBeenCalled();
-      expect(custom.handler).toHaveBeenCalled();
     });
 
     it('can be cancelled by preventDefault() in $locationChangeSuccess', inject(function () {
