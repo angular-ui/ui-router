@@ -11,7 +11,7 @@ import {
 import {
     extend, unnestR, filter, tail, isDefined, isFunction, isString, trace, parse,
     ActiveUIView, TransitionService, ResolveContext, Transition, PathNode,
-    Param, kebobString, HookRegOptions, ViewService, $QLike, Obj
+    Param, kebobString, HookRegOptions, ViewService, $QLike, Obj, TypedMap
 } from "ui-router-core";
 import {Ng1ViewConfig} from "../statebuilders/views";
 import {Ng1Controller, Ng1StateDeclaration} from "../interface";
@@ -419,8 +419,8 @@ function registerControllerCallbacks($transitions: TransitionService, controller
       // Exit early if the $transition$ will exit the state the view is for.
       if ($transition$ === viewCreationTrans || $transition$.exiting().indexOf(viewState) !== -1) return;
 
-      let toParams = $transition$.params("to");
-      let fromParams = $transition$.params("from");
+      let toParams = $transition$.params("to") as TypedMap<any>;
+      let fromParams = $transition$.params<TypedMap<any>>("from") as TypedMap<any>;
       let toSchema: Param[] = $transition$.treeChanges().to.map((node: PathNode) => node.paramSchema).reduce(unnestR, []);
       let fromSchema: Param[] = $transition$.treeChanges().from.map((node: PathNode) => node.paramSchema).reduce(unnestR, []);
 
@@ -432,9 +432,10 @@ function registerControllerCallbacks($transitions: TransitionService, controller
 
       // Only trigger callback if a to param has changed or is new
       if (changedToParams.length) {
-        let changedKeys = changedToParams.map(x => x.id);
+        let changedKeys: string[] = changedToParams.map(x => x.id);
         // Filter the params to only changed/new to params.  `$transition$.params()` may be used to get all params.
-        controllerInstance.uiOnParamsChanged(filter(toParams, (val, key) => changedKeys.indexOf(key) !== -1), $transition$);
+        var newValues = filter(toParams, (val, key) => changedKeys.indexOf(key) !== -1);
+        controllerInstance.uiOnParamsChanged(newValues, $transition$);
       }
     };
     $scope.$on('$destroy', <any> $transitions.onSuccess({}, paramsUpdated, hookOptions));
