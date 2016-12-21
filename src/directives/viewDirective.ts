@@ -285,6 +285,20 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
             $$animLeave: animLeave
           };
 
+          /**
+           * @ngdoc event
+           * @name ui.router.state.directive:ui-view#$viewContentLoading
+           * @eventOf ui.router.state.directive:ui-view
+           * @eventType emits on ui-view directive scope
+           * @description
+           *
+           * Fired once the view **begins loading**, *before* the DOM is rendered.
+           *
+           * @param {Object} event Event object.
+           * @param {string} viewName Name of the view.
+           */
+          newScope.$emit('$viewContentLoading', name);
+
           let cloned = $transclude(newScope, function(clone) {
             clone.data('$uiViewAnim', $uiViewAnim);
             clone.data('$uiView', $uiViewData);
