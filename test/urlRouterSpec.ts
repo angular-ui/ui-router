@@ -147,9 +147,29 @@ describe("UrlRouter", function () {
     }));
     
 
+    it('addRule should return a deregistration function', function() {
+      var count = 0, rule = {
+        match: () => count++,
+        handler: match => match,
+      };
+      let dereg = $urp.addRule(rule as any);
+
+      $ur.sync();
+      expect(count).toBe(1);
+      $ur.sync();
+      expect(count).toBe(2);
+
+      dereg();
+      $ur.sync();
+      expect(count).toBe(2);
+    });
+
     it('removeRule should remove a previously registered rule', function() {
-      var count = 0, rule = function ($injector, $location) { count++; };
-      $urp.rule(rule);
+      var count = 0, rule = {
+        match: () => count++,
+        handler: match => match,
+      };
+      $urp.addRule(rule as any);
 
       $ur.sync();
       expect(count).toBe(1);
@@ -165,7 +185,7 @@ describe("UrlRouter", function () {
       var _rule, calls = 0;
       location.url('/foo');
       $urp.when('/foo', function() { calls++; }, function(rule) { _rule = rule; });
-      expect(typeof _rule).toBe('function');
+      expect(_rule.constructor.name).toBe('UrlMatcherRule');
 
       $ur.sync();
       expect(calls).toBe(1);

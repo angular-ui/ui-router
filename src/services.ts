@@ -15,8 +15,8 @@ import {
     IRootScopeService, IQService, ILocationService, ILocationProvider, IHttpService, ITemplateCacheService
 } from "angular";
 import {
-    services, applyPairs, prop, isString, trace, UIRouter, StateService,
-    UrlRouter, UrlMatcherFactory, ResolveContext
+    services, applyPairs, prop, isString, trace, extend,
+    UIRouter, StateService, UrlRouter, UrlMatcherFactory, ResolveContext
 } from "ui-router-core";
 import { ng1ViewsBuilder, ng1ViewConfigFactory } from "./statebuilders/views";
 import { TemplateFactory } from "./templateFactory";
@@ -106,14 +106,8 @@ function getUrlRouterProvider() {
 
 // $state service and $stateProvider
 // $urlRouter service and $urlRouterProvider
-function getStateProvider() {
-  router.stateProvider["$get"] = function() {
-    // Autoflush once we are in runtime
-    router.stateRegistry.stateQueue.autoFlush(router.stateService);
-    return router.stateService;
-  };
-  return router.stateProvider;
-}
+const getStateProvider = () =>
+    extend(router.stateProvider, { $get: () => router.stateService });
 
 watchDigests.$inject = ['$rootScope'];
 export function watchDigests($rootScope: IRootScopeService) {
