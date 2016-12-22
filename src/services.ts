@@ -11,20 +11,21 @@
 
 /** for typedoc */
 import { ng as angular } from "./angular";
+import { TypedMap } from "ui-router-core"; // has or is using
 import {
     IRootScopeService, IQService, ILocationService, ILocationProvider, IHttpService, ITemplateCacheService
 } from "angular";
 import {
-    services, applyPairs, prop, isString, trace, extend,
-    UIRouter, StateService, UrlRouter, UrlMatcherFactory, ResolveContext
+    services, applyPairs, prop, isString, trace, extend, UIRouter, StateService, UrlRouter, UrlMatcherFactory,
+    ResolveContext
 } from "ui-router-core";
 import { ng1ViewsBuilder, ng1ViewConfigFactory } from "./statebuilders/views";
 import { TemplateFactory } from "./templateFactory";
 import { StateProvider } from "./stateProvider";
 import { getStateHookBuilder } from "./statebuilders/onEnterExitRetain";
-import IInjectorService = angular.auto.IInjectorService;
 import { Ng1LocationServices } from "./locationServices";
-import { TypedMap } from "ui-router-core"; // has or is using
+import { UrlRouterProvider } from "./urlRouterProvider";
+import IInjectorService = angular.auto.IInjectorService;
 
 angular.module("ui.router.angular1", []);
 let mod_init  = angular.module('ui.router.init',   []);
@@ -38,6 +39,8 @@ declare module 'ui-router-core/lib/router' {
   interface UIRouter {
     /** @hidden */
     stateProvider: StateProvider;
+    /** @hidden */
+    urlRouterProvider: UrlRouterProvider;
   }
 }
 
@@ -95,14 +98,8 @@ function runBlock($injector: IInjectorService, $q: IQService, $uiRouter: UIRoute
 }
 
 // $urlRouter service and $urlRouterProvider
-function getUrlRouterProvider() {
-  router.urlRouterProvider["$get"] = function() {
-    router.urlRouter.update(true);
-    if (!this.interceptDeferred) router.urlRouter.listen();
-    return router.urlRouter;
-  };
-  return router.urlRouterProvider;
-}
+const getUrlRouterProvider = (router: UIRouter) =>
+  router.urlRouterProvider = new UrlRouterProvider(router);
 
 // $state service and $stateProvider
 // $urlRouter service and $urlRouterProvider

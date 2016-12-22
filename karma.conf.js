@@ -35,7 +35,7 @@ webpackConfig.plugins = [];
 webpackConfig.devtool = 'inline-source-map';
 
 module.exports = function(config) {
-  var ngVersion = config.ngversion || "1.6.0";
+  var ngVersion = config.ngversion || "1.2.28";
 
   config.set({
     singleRun: true,

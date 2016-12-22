@@ -2,9 +2,8 @@ import * as angular from "angular";
 import { ILocationService, ILocationProvider } from "angular";
 import "./util/matchers";
 import { html5Compat } from "./util/testUtilsNg1";
-import {
-    UrlMatcher, UrlMatcherFactory, UrlRouterProvider, UrlRouter, StateService, UIRouter
-} from "../src/index";
+import { UrlMatcher, UrlMatcherFactory, UrlRouter, StateService, UIRouter } from "../src/index";
+import { UrlRouterProvider } from "../src/urlRouterProvider";
 
 declare var inject;
 
@@ -151,8 +150,10 @@ describe("UrlRouter", function () {
       var count = 0, rule = {
         match: () => count++,
         handler: match => match,
+        priority: 0,
+        type: 0,
       };
-      let dereg = $urp.addRule(rule as any);
+      let dereg = $ur.addRule(rule as any);
 
       $ur.sync();
       expect(count).toBe(1);
@@ -168,31 +169,19 @@ describe("UrlRouter", function () {
       var count = 0, rule = {
         match: () => count++,
         handler: match => match,
+        priority: 0,
+        type: 0,
       };
-      $urp.addRule(rule as any);
+      $ur.addRule(rule as any);
 
       $ur.sync();
       expect(count).toBe(1);
       $ur.sync();
       expect(count).toBe(2);
 
-      $urp.removeRule(rule);
+      $ur.removeRule(rule);
       $ur.sync();
       expect(count).toBe(2);
-    });
-
-    it('when should provide the new rule to the callback argument', function() {
-      var _rule, calls = 0;
-      location.url('/foo');
-      $urp.when('/foo', function() { calls++; }, function(rule) { _rule = rule; });
-      expect(_rule.constructor.name).toBe('UrlMatcherRule');
-
-      $ur.sync();
-      expect(calls).toBe(1);
-
-      $urp.removeRule(_rule);
-      $ur.sync();
-      expect(calls).toBe(1);
     });
 
     describe("location updates", function() {

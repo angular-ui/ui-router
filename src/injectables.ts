@@ -49,10 +49,11 @@
 
 import { StateProvider } from "./stateProvider";
 import {
-    StateService, TransitionService, Transition, UrlRouter, UrlRouterProvider, UrlMatcherFactory,
+    StateService, TransitionService, Transition, UrlRouter, UrlMatcherFactory,
     StateParams, StateRegistry, UIRouterGlobals, UIRouter, Trace
 } from "ui-router-core";
 import { UIViewScrollProvider } from "./viewScroll";
+import { UrlRouterProvider } from "./urlRouterProvider";
 
 /**
  * The current (or pending) State Parameters
