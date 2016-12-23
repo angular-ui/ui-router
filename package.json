@@ -94,7 +94,7 @@
     "lodash": "^4.5.1",
     "remap-istanbul": "^0.6.3",
     "replace-in-file": "^2.0.3",
-    "rollup": "^0.37.0",
+    "rollup": "^0.38.0",
     "rollup-plugin-node-resolve": "^2.0.0",
     "rollup-plugin-progress": "^0.1.0",
     "rollup-plugin-sourcemaps": "^0.4.1",

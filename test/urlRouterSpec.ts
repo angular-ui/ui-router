@@ -11,12 +11,13 @@ var module = angular['mock'].module;
 
 describe("UrlRouter", function () {
   var router: UIRouter;
-  var $urp: UrlRouterProvider, $lp: ILocationProvider, $umf: UrlMatcherFactory,
-      $s: StateService, $ur: UrlRouter, location: ILocationService, match, scope;
-
-  function makeMatcher(url, config?) {
-    return new UrlMatcher(url, $umf.paramTypes, config);
-  }
+  var $urp: UrlRouterProvider,
+      $lp: ILocationProvider,
+      $umf: UrlMatcherFactory,
+      $s: StateService,
+      $ur: UrlRouter,
+      location: ILocationService,
+      match, scope;
 
   describe("provider", function () {
 
@@ -186,35 +187,35 @@ describe("UrlRouter", function () {
 
     describe("location updates", function() {
       it('can push location changes', inject(function($urlRouter) {
-        spyOn(router.locationService, "setUrl");
-        $urlRouter.push(makeMatcher("/hello/:name"), { name: "world" });
-        expect(router.locationService.setUrl).toHaveBeenCalledWith("/hello/world", undefined);
+        spyOn(router.locationService, "url");
+        $urlRouter.push($umf.compile("/hello/:name"), { name: "world" });
+        expect(router.locationService.url).toHaveBeenCalledWith("/hello/world", undefined);
       }));
 
       it('can push a replacement location', inject(function($urlRouter, $location) {
-        spyOn(router.locationService, "setUrl");
-        $urlRouter.push(makeMatcher("/hello/:name"), { name: "world" }, { replace: true });
-        expect(router.locationService.setUrl).toHaveBeenCalledWith("/hello/world", true);
+        spyOn(router.locationService, "url");
+        $urlRouter.push($umf.compile("/hello/:name"), { name: "world" }, { replace: true });
+        expect(router.locationService.url).toHaveBeenCalledWith("/hello/world", true);
       }));
 
       it('can push location changes with no parameters', inject(function($urlRouter, $location) {
-        spyOn(router.locationService, "setUrl");
-        $urlRouter.push(makeMatcher("/hello/:name", {params:{name: ""}}));
-        expect(router.locationService.setUrl).toHaveBeenCalledWith("/hello/", undefined);
+        spyOn(router.locationService, "url");
+        $urlRouter.push($umf.compile("/hello/:name", {params:{name: ""}}));
+        expect(router.locationService.url).toHaveBeenCalledWith("/hello/", undefined);
       }));
 
       it('can push location changes that include a #fragment', inject(function($urlRouter, $location) {
         // html5mode disabled
         $lp.html5Mode(false);
         expect(html5Compat($lp.html5Mode())).toBe(false);
-        $urlRouter.push(makeMatcher('/hello/:name'), {name: 'world', '#': 'frag'});
+        $urlRouter.push($umf.compile('/hello/:name'), {name: 'world', '#': 'frag'});
         expect($location.url()).toBe('/hello/world#frag');
         expect($location.hash()).toBe('frag');
 
         // html5mode enabled
         $lp.html5Mode(true);
         expect(html5Compat($lp.html5Mode())).toBe(true);
-        $urlRouter.push(makeMatcher('/hello/:name'), {name: 'world', '#': 'frag'});
+        $urlRouter.push($umf.compile('/hello/:name'), {name: 'world', '#': 'frag'});
         expect($location.url()).toBe('/hello/world#frag');
         expect($location.hash()).toBe('frag');
       }));
@@ -236,7 +237,7 @@ describe("UrlRouter", function () {
     describe("URL generation", function() {
       it("should return null when UrlMatcher rejects parameters", inject(function($urlRouter) {
         $umf.type("custom", <any> { is: val => val === 1138 });
-        var matcher = makeMatcher("/foo/{param:custom}");
+        var matcher = $umf.compile("/foo/{param:custom}");
 
         expect($urlRouter.href(matcher, { param: 1138 })).toBe('#/foo/1138');
         expect($urlRouter.href(matcher, { param: 5 })).toBeNull();
@@ -248,26 +249,26 @@ describe("UrlRouter", function () {
           enabled: false
         });
 
-        expect($urlRouter.href(makeMatcher('/hello'))).toBe('#/hello');
+        expect($urlRouter.href($umf.compile('/hello'))).toBe('#/hello');
       }));
 
       it('should return URLs with #fragments', inject(function($urlRouter) {
         // html5mode disabled
         $lp.html5Mode(false);
         expect(html5Compat($lp.html5Mode())).toBe(false);
-        expect($urlRouter.href(makeMatcher('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('#/hello/world#frag');
+        expect($urlRouter.href($umf.compile('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('#/hello/world#frag');
 
         // html5mode enabled
         $lp.html5Mode(true);
         expect(html5Compat($lp.html5Mode())).toBe(true);
-        expect($urlRouter.href(makeMatcher('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('/hello/world#frag');
+        expect($urlRouter.href($umf.compile('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('/hello/world#frag');
       }));
 
       it('should return URLs with #fragments when html5Mode is true & browser does not support pushState', inject(function($urlRouter) {
         $lp.html5Mode(true);
         $s['history'] = false;
         expect(html5Compat($lp.html5Mode())).toBe(true);
-        expect($urlRouter.href(makeMatcher('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('#/hello/world#frag');
+        expect($urlRouter.href($umf.compile('/hello/:name'), {name: 'world', '#': 'frag'})).toBe('#/hello/world#frag');
       }));
     });
   });

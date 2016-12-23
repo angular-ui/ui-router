@@ -205,7 +205,7 @@ export class UrlRouterProvider {
 }
 
 export class RawNg1UrlRule implements UrlRule {
-  type = UrlRuleType.RAW;
+  type: UrlRuleType = "RAW";
   priority = 0;
 
   constructor(public ruleFn: RawNg1RuleFunction, public router: UIRouter) {

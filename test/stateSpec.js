@@ -1500,13 +1500,13 @@ describe('state', function () {
     }));
 
     it('should replace browser history when "replace" enabled', inject(function ($state, $rootScope, $location, $q) {
-      spyOn($uiRouter.locationService, 'setUrl');
+      spyOn($uiRouter.locationService, 'url');
 
       $state.transitionTo('about', {}, { location: 'replace' });
       $q.flush();
 
-      expect($uiRouter.locationService.setUrl).toHaveBeenCalled();
-      expect($uiRouter.locationService.setUrl.calls.argsFor(0)[1]).toBe(true);
+      expect($uiRouter.locationService.url).toHaveBeenCalled();
+      expect($uiRouter.locationService.url.calls.argsFor(0)[1]).toBe(true);
     }));
 
     it('should not replace history normally', inject(function ($state, $rootScope, $location, $q) {

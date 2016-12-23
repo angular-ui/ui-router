@@ -45,9 +45,11 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
     return html5Mode && this.$sniffer.history;
   }
 
-  setUrl(newUrl: string, replace = false) {
-    this.$location.url(newUrl);
+  url(newUrl?: string, replace = false, state?) {
+    if (newUrl) this.$location.url(newUrl);
     if (replace) this.$location.replace();
+    if (state) this.$location.state(state);
+    return this.$location.url();
   }
 
   _runtimeServices($rootScope, $location: ILocationService, $sniffer, $browser) {
@@ -60,7 +62,7 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
     let _browser = val($browser);
 
     // Bind these LocationService functions to $location
-    createProxyFunctions(_loc, this, _loc, ["replace", "url", "path", "search", "hash"]);
+    createProxyFunctions(_loc, this, _loc, ["replace", "path", "search", "hash"]);
     // Bind these LocationConfig functions to $location
     createProxyFunctions(_loc, this, _loc, ['port', 'protocol', 'host']);
     // Bind these LocationConfig functions to $browser
