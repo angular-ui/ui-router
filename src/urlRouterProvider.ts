@@ -208,10 +208,9 @@ export class RawNg1UrlRule implements UrlRule {
   type: UrlRuleType = "RAW";
   priority = 0;
 
-  constructor(public ruleFn: RawNg1RuleFunction, public router: UIRouter) {
-  }
+  constructor(public ruleFn: RawNg1RuleFunction, public router: UIRouter) { }
 
-  match = (path: string, search: any, hash: string) =>
+  match = () =>
       this.ruleFn(services.$injector, this.router.locationService);
 
   handler = identity
