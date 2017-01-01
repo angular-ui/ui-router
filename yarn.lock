@@ -32,20 +32,20 @@
   resolved "https://registry.yarnpkg.com/@types/handlebars/-/handlebars-4.0.31.tgz#a7fba66fafe42713aee88eeca8db91192efe6e72"
 
 "@types/highlight.js@^9.1.8":
-  version "9.1.8"
-  resolved "https://registry.yarnpkg.com/@types/highlight.js/-/highlight.js-9.1.8.tgz#d227f18bcb8f3f187e16965f2444859a04689758"
+  version "9.1.9"
+  resolved "https://registry.yarnpkg.com/@types/highlight.js/-/highlight.js-9.1.9.tgz#ed6336955eaf233b75eb7923b9b1f373d045ef01"
 
 "@types/jasmine@^2.2.34":
-  version "2.5.38"
-  resolved "https://registry.yarnpkg.com/@types/jasmine/-/jasmine-2.5.38.tgz#a4379124c4921d4e21de54ec74669c9e9b356717"
+  version "2.5.40"
+  resolved "https://registry.yarnpkg.com/@types/jasmine/-/jasmine-2.5.40.tgz#875c7ae739dcab1342794f51231c4aadcda6eb79"
 
 "@types/jquery@*", "@types/jquery@^1.10.31":
   version "1.10.31"
   resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-1.10.31.tgz#cebc68d369ded05344000a9b7bc62fcca7131de5"
 
 "@types/lodash@^4.14.37":
-  version "4.14.44"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.44.tgz#04585ff0b80d5e434a5f86f15e7964be4f775cba"
+  version "4.14.45"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.45.tgz#db20238f23fa195d6fb8f9ff7988e8651fc8c302"
 
 "@types/marked@0.0.28":
   version "0.0.28"
@@ -56,8 +56,8 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-2.0.29.tgz#5002e14f75e2d71e564281df0431c8c1b4a2a36a"
 
 "@types/node@*":
-  version "6.0.52"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-6.0.52.tgz#1ac3a99b42320f9e463482f25af4c2359473aaa6"
+  version "6.0.55"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-6.0.55.tgz#e5cb679a43561f42afd1bd6d58d3992ec8f31720"
 
 "@types/shelljs@^0.3.32":
   version "0.3.33"
@@ -983,8 +983,8 @@ debug@2.2.0, debug@~2.2.0:
     ms "0.7.1"
 
 debug@^2.1.1, debug@^2.2.0:
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-2.5.1.tgz#9107bb4a506052ec2a02314bc606313ed2b921c1"
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.0.tgz#bc596bcabe7617f11d9fa15361eded5608b8499b"
   dependencies:
     ms "0.7.2"
 
@@ -1212,8 +1212,8 @@ esprima@2.7.x, esprima@^2.6.0, esprima@^2.7.1:
   resolved "https://registry.yarnpkg.com/esprima/-/esprima-2.7.3.tgz#96e3b70d5779f6ad49cd032673d1c312767ba581"
 
 esprima@~3.1.0:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/esprima/-/esprima-3.1.2.tgz#954b5d19321ca436092fa90f06d6798531fe8184"
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/esprima/-/esprima-3.1.3.tgz#fdca51cee6133895e3c88d535ce49dbff62a4633"
 
 estraverse@^1.9.1:
   version "1.9.3"
@@ -1333,15 +1333,15 @@ extsprintf@1.0.2:
   resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.0.2.tgz#e1080e0658e300b06294990cc70e1502235fd550"
 
 fancy-log@^1.1.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/fancy-log/-/fancy-log-1.2.0.tgz#d5a51b53e9ab22ca07d558f2b67ae55fdb5fcbd8"
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/fancy-log/-/fancy-log-1.3.0.tgz#45be17d02bb9917d60ccffd4995c999e6c8c9948"
   dependencies:
     chalk "^1.1.1"
     time-stamp "^1.0.0"
 
 fast-levenshtein@~2.0.4:
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.5.tgz#bd33145744519ab1c36c3ee9f31f08e9079b67f2"
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
 
 faye-websocket@^0.10.0:
   version "0.10.0"
@@ -2348,8 +2348,8 @@ lodash@^3.10.0, lodash@^3.8.0, lodash@^3.9.3:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
 
 lodash@^4.0.0, lodash@^4.0.1, lodash@^4.1.0, lodash@^4.13.1, lodash@^4.17.2, lodash@^4.2.1, lodash@^4.5.0, lodash@^4.5.1:
-  version "4.17.2"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.2.tgz#34a3055babe04ce42467b607d700072c7ff6bf42"
+  version "4.17.4"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
 
 log4js@^0.6.31:
   version "0.6.38"
@@ -3235,8 +3235,8 @@ rollup-pluginutils@^1.5.0, rollup-pluginutils@^1.5.1:
     minimatch "^3.0.2"
 
 rollup@^0.38.0:
-  version "0.38.0"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.38.0.tgz#b58d99538ad96dd1c0239f1de383a80b0e067f70"
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.38.3.tgz#8a8695d416fe713ff354b7fd3c487f8da4b5c1ad"
   dependencies:
     source-map-support "^0.4.0"
 
@@ -3440,8 +3440,8 @@ source-map-support@^0.2.10:
     source-map "0.1.32"
 
 source-map-support@^0.4.0:
-  version "0.4.7"
-  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.4.7.tgz#7a7988e0e66241c778c78dd179199bb6bcd35bd6"
+  version "0.4.8"
+  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.4.8.tgz#4871918d8a3af07289182e974e32844327b2e98b"
   dependencies:
     source-map "^0.5.3"
 
@@ -3773,29 +3773,29 @@ typedoc-default-themes@^0.4.0:
   resolved "https://registry.yarnpkg.com/typedoc-default-themes/-/typedoc-default-themes-0.4.1.tgz#98ebcf2202aac7711a06a9a8638f05ebd28b0e26"
 
 typedoc-plugin-external-module-name@^1.0.2:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-external-module-name/-/typedoc-plugin-external-module-name-1.0.5.tgz#4141b67724b2509dfa63b22691cb52aed8961f9b"
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-external-module-name/-/typedoc-plugin-external-module-name-1.0.7.tgz#eefeed7ff7c7d1a9aafb3907c2951b6b2b489c72"
   dependencies:
-    typedoc "^0.5.0"
-    typescript "^2.0.3"
+    typedoc "^0.5.3"
+    typescript "^2.1.1"
 
 typedoc-plugin-internal-external@^1.0.0:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-internal-external/-/typedoc-plugin-internal-external-1.0.4.tgz#97a382eae7c46c2eb326f23a1f5b7a9d1a43fb28"
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-internal-external/-/typedoc-plugin-internal-external-1.0.6.tgz#e431eea7e67493bf85cb59637b477d56e4e603d0"
   dependencies:
-    typedoc "^0.5.0"
-    typescript "^2.0.3"
+    typedoc "^0.5.3"
+    typescript "^2.1.1"
 
 typedoc-plugin-ui-router@^1.0.0:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-ui-router/-/typedoc-plugin-ui-router-1.0.3.tgz#efb39bc8c75a1066829ce00a6f8d537dbd9b6d35"
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-ui-router/-/typedoc-plugin-ui-router-1.0.5.tgz#1ffd79127b1b9aecf360cff568a42b5f59280086"
   dependencies:
-    typedoc "^0.5.0"
-    typescript "^2.0.3"
+    typedoc "^0.5.3"
+    typescript "^2.1.1"
 
-typedoc@^0.5.0, typedoc@~0.5.0:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.5.1.tgz#150f92bdc4a36d8e114b27f1d296329d27e837dd"
+typedoc@^0.5.3, typedoc@~0.5.0:
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.5.3.tgz#83d9d42017f41c0406deb2e25fc5c7ba6d7672c0"
   dependencies:
     "@types/fs-extra" "0.0.33"
     "@types/handlebars" "^4.0.31"
@@ -3813,13 +3813,9 @@ typedoc@^0.5.0, typedoc@~0.5.0:
     progress "^1.1.8"
     shelljs "^0.7.0"
     typedoc-default-themes "^0.4.0"
-    typescript "2.0.6"
+    typescript "2.1.4"
 
-typescript@2.0.6:
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.0.6.tgz#5385499ac9811508c2c43e0ea07a1ddca435e111"
-
-typescript@^2.0.3, typescript@^2.1.4:
+typescript@2.1.4, typescript@^2.1.1, typescript@^2.1.4:
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.1.4.tgz#b53b69fb841126acb1dd4b397d21daba87572251"
 

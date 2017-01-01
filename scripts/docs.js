@@ -35,14 +35,14 @@ for (var i = 0; i < 5; i++) {
 
   // Replace references to "ui-router-core/lib" with "../ui-router-core/lib" for typedoc
   replaceInFiles.sync({
-    replace: / (['"])ui-router-core\/lib/,
+    replace: / (['"])ui-router-core\/lib/g,
     with: ' $1' + dots + '/../ui-router-core/src',
     files: 'src/' + stars + '.ts'
   });
 
   // Replace references to "ui-router-core" with "../ui-router-core" for typedoc
   replaceInFiles.sync({
-    replace: / (['"])ui-router-core/,
+    replace: / (['"])ui-router-core/g,
     with: ' $1' + dots + '/../ui-router-core/src',
     files: 'src/' + stars + '.ts'
   });

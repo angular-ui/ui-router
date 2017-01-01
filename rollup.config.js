@@ -30,7 +30,7 @@ var plugins = [
 ];
 
 if (MINIFY) plugins.push(uglify(uglifyOpts));
-if (ROUTER && MINIFY) plugins.push(visualizer({ sourcemap: false }));
+if (ROUTER && MINIFY) plugins.push(visualizer({ sourcemap: true }));
 
 var extension = MINIFY ? ".min.js" : ".js";
 
