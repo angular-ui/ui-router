@@ -10,10 +10,12 @@
  *
  * - [[$uiRouterProvider]]: The UI-Router instance
  * - [[$stateProvider]]: State registration
- * - [[$urlRouterProvider]]: Url matching rules
- * - [[$urlMatcherFactoryProvider]]: Url parsing config
  * - [[$transitionsProvider]]: Transition hooks
+ * - [[$urlServiceProvider]]: All URL related public APIs
+ *
  * - [[$uiViewScrollProvider]]: Disable ui-router view scrolling
+ * - [[$urlRouterProvider]]: (deprecated) Url matching rules
+ * - [[$urlMatcherFactoryProvider]]: (deprecated) Url parsing config
  *
  * ## **Service** objects
  * #### injectable globally during runtime
@@ -23,20 +25,22 @@
  * - [[$transitions]]: Transition hooks
  * - [[$state]]: Imperative state related APIs
  * - [[$stateRegistry]]: State registration
- * - [[$urlRouter]]: URL synchronization (mainly internal)
- * - [[$urlMatcherFactory]]: URL parsing config
+ * - [[$urlService]]: All URL related public APIs
  * - [[$uiRouterGlobals]]: Global variables
  * - [[$uiViewScroll]]: Scroll an element into view
- * - [[$stateParams]]: Global state param values (deprecated)
+ *
+ * - [[$stateParams]]: (deprecated) Global state param values
+ * - [[$urlRouter]]: (deprecated) URL synchronization
+ * - [[$urlMatcherFactory]]: (deprecated) URL parsing config
  *
  * ## **Per-Transition** objects
  *
- * - injectable into:
+ * - These kind of objects are injectable into:
  *   - Resolves ([[Ng1StateDeclaration.resolve]]),
  *   - Transition Hooks ([[TransitionService.onStart]], etc),
  *   - Routed Controllers ([[Ng1ViewDeclaration.controller]])
  *
- * #### different instances are injected based on the [[Transition]]
+ * #### Different instances are injected based on the [[Transition]]
  *
  * - [[$transition$]]: The current Transition object
  * - [[$stateParams]]: State param values for pending Transition (deprecated)
@@ -50,7 +54,7 @@
 import { StateProvider } from "./stateProvider";
 import {
     StateService, TransitionService, Transition, UrlRouter, UrlMatcherFactory,
-    StateParams, StateRegistry, UIRouterGlobals, UIRouter, Trace
+    StateParams, StateRegistry, UIRouterGlobals, UIRouter, Trace, UrlService
 } from "ui-router-core";
 import { UIViewScrollProvider } from "./viewScroll";
 import { UrlRouterProvider } from "./urlRouterProvider";
@@ -120,7 +124,7 @@ var $stateParams: StateParams;
 /**
  * Global UI-Router variables
  *
- * An injectable global **Service Object** which holds global variables.
+ * The router global state as a **Service Object** (injectable during runtime).
  *
  * This object contains globals such as the current state and current parameter values.
  */
@@ -129,29 +133,31 @@ var $uiRouterGlobals: UIRouterGlobals;
 /**
  * The UI-Router instance
  *
- * The UI-Router instance as an injectable global **Service Object**.
+ * The [[UIRouter]] singleton (the router instance) as a **Service Object** (injectable during runtime).
  *
  * This object is the UI-Router singleton instance, created by angular dependency injection during application bootstrap.
  * It has references to the other UI-Router services
  *
- * The same object is also exposed as [[$uiRouterProvider]] for injection during angular config time.
+ * #### Note: This object is also exposed as [[$uiRouterProvider]] for injection during angular config time.
  */
 let $uiRouter: UIRouter ;
 
 /**
  * The UI-Router instance
  *
- * The UI-Router instance as an injectable global **Service Object**.
+ * The [[UIRouter]] singleton (the router instance) as a **Provider Object** (injectable during config phase).
  *
  * This object is the UI-Router singleton instance, created by angular dependency injection during application bootstrap.
  * It has references to the other UI-Router services
  *
- * The same object is also exposed as [[$uiRouter]] for injection during angular config time.
+ * #### Note: This object is also exposed as [[$uiRouter]] for injection during runtime.
  */
 var $uiRouterProvider: UIRouter;
 
 /**
  * Transition debug/tracing
+ *
+ * The [[Trace]] singleton as a **Service Object** (injectable during runtime).
  *
  * Enables or disables Transition tracing which can help to debug issues.
  */
@@ -160,18 +166,31 @@ var $trace: Trace;
 /**
  * The Transition Service
  *
- * An injectable **Service Object** primarily used to register transition hooks
+ * The [[TransitionService]] singleton as a **Service Object** (injectable during runtime).
  *
- * This angular service exposes the [[TransitionService]] singleton, which is used to register global transition hooks.
+ * This angular service exposes the [[TransitionService]] singleton, which is primarily
+ * used to register global transition hooks.
  *
- * The same object is also exposed as [[$transitionsProvider]] for injection during angular config time.
+ * #### Note: This object is also exposed as [[$transitionsProvider]] for injection during the config phase.
  */
 var $transitions: TransitionService;
 
 /**
+ * The Transition Service
+ *
+ * The [[TransitionService]] singleton as a **Provider Object** (injectable during config phase)
+ *
+ * This angular service exposes the [[TransitionService]] singleton, which is primarily
+ * used to register global transition hooks.
+ *
+ * #### Note: This object is also exposed as [[$transitions]] for injection during runtime.
+ */
+var $transitionsProvider: TransitionService;
+
+/**
  * The current [[Transition]] object
  *
- * An injectable **Per-Transition Object** which is the currently running [[Transition]].
+ * The current [[Transition]] object as a **Per-Transition Object** (injectable into Resolve, Hooks, Controllers)
  *
  * This object returns information about the current transition, including:
  *
@@ -187,22 +206,12 @@ var $transitions: TransitionService;
 var $transition$: Transition;
 
 /**
- * The Transition Service
- *
- * An injectable **Provider Object** primarily used to register transition hooks
- *
- * This angular provider exposes the [[TransitionService]] singleton, which is used to register global transition hooks.
- *
- * The same object is also exposed as [[$transitions]] for injection during runtime.
- */
-var $transitionsProvider: TransitionService;
-
-/**
  * The State Service
  *
- * An injectable global **Service Object** used to manage and query information on registered states.
+ * The [[StateService]] singleton as a **Service Object** (injectable during runtime).
  *
- * This service exposes state related APIs including:
+ * This service used to manage and query information on registered states.
+ * It exposes state related APIs including:
  *
  * - Start a [[Transition]]
  * - Imperatively lazy load states
@@ -218,28 +227,51 @@ var $state: StateService;
 /**
  * The State Registry
  *
- * An injectable global **Service Object** used to register/deregister states
+ * The [[StateRegistry]] singleton as a **Service Object** (injectable during runtime).
  *
- * This service exposes the [[StateRegistry]] singleton which has state registration related APIs including:
+ * This service is used to register/deregister states.
+ * It has state registration related APIs including:
  *
  * - Register/deregister states
  * - Listen for state registration/deregistration
  * - Get states by name
  * - Add state decorators (to customize the state creation process)
+ *
+ * #### Note: This object is also exposed as [[$stateRegistryProvider]] for injection during the config phase.
  */
 var $stateRegistry: StateRegistry;
 
 /**
+ * The State Registry
+ *
+ * The [[StateRegistry]] singleton as a **Provider Object** (injectable during config time).
+ *
+ * This service is used to register/deregister states.
+ * It has state registration related APIs including:
+ *
+ * - Register/deregister states
+ * - Listen for state registration/deregistration
+ * - Get states by name
+ * - Add state decorators (to customize the state creation process)
+ *
+ * #### Note: This object is also exposed as [[$stateRegistry]] for injection during runtime.
+ */
+var $stateRegistryProvider: StateRegistry;
+
+/**
  * The View Scroll provider
  *
- * An injectable **Provider Object** used to disable UI-Router's scroll behavior.
+ * The [[UIViewScrollProvider]] as a **Provider Object** (injectable during config time).
  *
- * This angular service exposes the [[UIViewScrollProvider]] singleton.
+ * This angular service exposes the [[UIViewScrollProvider]] singleton and is
+ * used to disable UI-Router's scroll behavior.
  */
 var $uiViewScrollProvider: UIViewScrollProvider;
 
 /**
- * Scrolls an element into view
+ * The View Scroll function
+ *
+ * The View Scroll function as a **Service Object** (injectable during runtime).
  *
  * This is a function that scrolls an element into view.
  * The element is scrolled after a `$timeout` so the DOM has time to refresh.
@@ -254,7 +286,7 @@ var $uiViewScroll: ($element: JQuery) => void;
 /**
  * The StateProvider
  *
- * An angular1 only injectable **Provider Object** used to register states.
+ * An angular1-only [[StateProvider]] as a **Provider Object** (injectable during config time).
  *
  * This angular service exposes the [[StateProvider]] singleton.
  *
@@ -266,44 +298,87 @@ var $uiViewScroll: ($element: JQuery) => void;
 var $stateProvider: StateProvider;
 
 /**
+ * The URL Service Provider
+ *
+ * The [[UrlService]] singleton as a **Provider Object** (injectable during the angular config phase).
+ *
+ * A service used to configure and interact with the URL.
+ * It has URL related APIs including:
+ *
+ * - add URL rules [[UrlService.rules.when]]
+ * - configure behavior when no url matches [[UrlService.rules.otherwise]]
+ * - delay initial URL synchronization [[UrlService.deferIntercept]].
+ * - get or set the current url: [[UrlService.url]]
+ *
+ * ##### Note: This service can also be injected during runtime as [[$urlService]].
+ */
+var $urlServiceProvider: UrlService;
+
+/**
+ * The URL Service
+ *
+ * The [[UrlService]] singleton as a **Service Object** (injectable during runtime).
+ *
+ * Note: This service can also be injected during the config phase as [[$urlServiceProvider]].
+ *
+ * Used to configure the URL.
+ * It has URL related APIs including:
+ *
+ * - register custom Parameter types [[UrlService.rules.when]]
+ * - add URL rules [[UrlService.rules.when]]
+ * - configure behavior when no url matches [[UrlService.rules.otherwise]]
+ * - delay initial URL synchronization [[UrlService.deferIntercept]].
+ * - get or set the current url: [[UrlService.url]]
+ *
+ * ##### Note: This service can also be injected during the config phase as [[$urlServiceProvider]].
+ */
+var $urlService: UrlService;
+
+/**
  * The URL Router Provider
  *
- * An injectable **Provider Object** used to add URL rules.
+ * The [[UrlRouter]] singleton as a **Provider Object** (injectable during config time).
  *
- * This angular provider exposes the [[UrlRouterProvider]] singleton.
- * It is used to add URL rules, configure behavior when no url matches, and delay initial URL synchronization.
+ * #### Note: This object is also exposed as [[$urlRouter]] for injection during runtime.
+ *
+ * @deprecated This object is now considered internal. Use [[$urlServiceProvider]] instead.
  */
 var $urlRouterProvider: UrlRouterProvider;
 
 /**
  * The Url Router
  *
- * An injectable global **Service Object** used to configure URL redirects.
+ * The [[UrlRouter]] singleton as a **Service Object** (injectable during runtime).
  *
- * This angular service exposes the [[UrlRouter]] singleton.
- * It is used (mainly internally) to manage interaction with the URL.
+ * #### Note: This object is also exposed as [[$urlRouterProvider]] for injection during angular config time.
+ *
+ * @deprecated This object is now considered internal. Use [[$urlService]] instead.
  */
 var $urlRouter: UrlRouter;
 
 /**
  * The URL Matcher Factory
  *
- * An injectable global **Service Object** used to configure how the URL.
+ * The [[UrlMatcherFactory]] singleton as a **Service Object** (injectable during runtime).
  *
- * This service is used to set url mapping options, and create [[UrlMatcher]] objects.
+ * This service is used to set url mapping options, define custom parameter types, and create [[UrlMatcher]] objects.
  *
- * This angular service exposes the [[UrlMatcherFactory]] singleton.
- * The singleton is also exposed at config-time as the [[$urlMatcherFactoryProvider]].
+ * #### Note: This object is also exposed as [[$urlMatcherFactoryProvider]] for injection during angular config time.
+ *
+ * @deprecated This object is now considered internal. Use [[$urlService]] instead.
  */
 var $urlMatcherFactory: UrlMatcherFactory;
 
 /**
- * An injectable **Service Object** used to configure how the URL is matched.
+ * The URL Matcher Factory
  *
- * This angular service exposes the [[UrlMatcherFactory]] singleton at config-time.
- * It is used to set url mapping options, define custom parameter types, and create [[UrlMatcher]] objects.
+ * The [[UrlMatcherFactory]] singleton as a **Provider Object** (injectable during config time).
  *
- * The singleton is also exposed at runtime as the [[$urlMatcherFactory]].
+ * This service is used to set url mapping options, define custom parameter types, and create [[UrlMatcher]] objects.
+ *
+ * #### Note: This object is also exposed as [[$urlMatcherFactory]] for injection during runtime.
+ *
+ * @deprecated This object is now considered internal. Use [[$urlService]] instead.
  */
 var $urlMatcherFactoryProvider: UrlMatcherFactory;
 

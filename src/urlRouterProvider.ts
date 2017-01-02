@@ -1,6 +1,6 @@
 /** @module url */ /** */
 import {
-    UIRouter, UrlRouter, LocationServices, $InjectorLike, UrlRule, UrlRuleType, UrlRuleHandlerFn, UrlMatcher,
+    UIRouter, UrlRouter, LocationServices, $InjectorLike, BaseUrlRule, UrlRule, UrlRuleType, UrlRuleHandlerFn, UrlMatcher,
     IInjectable
 } from "ui-router-core";
 import { services, isString, isFunction, isArray, identity } from "ui-router-core";
@@ -41,8 +41,8 @@ export class UrlRouterProvider {
   /**
    * Registers a url handler function.
    *
-   * Registers a low level url handler (a `rule`). A rule detects specific URL patterns and returns
-   * a redirect, or performs some action.
+   * Registers a low level url handler (a `rule`).
+   * A rule detects specific URL patterns and returns a redirect, or performs some action.
    *
    * If a rule returns a string, the URL is replaced with the string, and all rules are fired again.
    *
@@ -67,12 +67,16 @@ export class UrlRouterProvider {
    * Handler function that takes `$injector` and `$location` services as arguments.
    * You can use them to detect a url and return a different url as a string.
    *
-   * @return [[$urlRouterProvider]] (`this`)
+   * @return [[UrlRouterProvider]] (`this`)
    */
   rule(ruleFn: RawNg1RuleFunction): UrlRouterProvider {
     if (!isFunction(ruleFn)) throw new Error("'rule' must be a function");
-    let rule = new RawNg1UrlRule(ruleFn, this._router);
-    this._urlRouter.addRule(rule);
+
+    const match = () =>
+        ruleFn(services.$injector, this._router.locationService);
+
+    let rule = new BaseUrlRule(match, identity);
+    this._urlRouter.rule(rule);
     return this;
   };
 
@@ -202,16 +206,4 @@ export class UrlRouterProvider {
   deferIntercept(defer?: boolean) {
     this._urlRouter.deferIntercept(defer);
   };
-}
-
-export class RawNg1UrlRule implements UrlRule {
-  type: UrlRuleType = "RAW";
-  priority = 0;
-
-  constructor(public ruleFn: RawNg1RuleFunction, public router: UIRouter) { }
-
-  match = () =>
-      this.ruleFn(services.$injector, this.router.locationService);
-
-  handler = identity
 }

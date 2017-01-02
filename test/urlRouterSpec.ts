@@ -2,7 +2,7 @@ import * as angular from "angular";
 import { ILocationService, ILocationProvider } from "angular";
 import "./util/matchers";
 import { html5Compat } from "./util/testUtilsNg1";
-import { UrlMatcher, UrlMatcherFactory, UrlRouter, StateService, UIRouter } from "../src/index";
+import { UrlRule, UrlMatcher, UrlMatcherFactory, UrlRouter, StateService, UIRouter } from "../src/index";
 import { UrlRouterProvider } from "../src/urlRouterProvider";
 
 declare var inject;
@@ -147,14 +147,16 @@ describe("UrlRouter", function () {
     }));
     
 
-    it('addRule should return a deregistration function', function() {
-      var count = 0, rule = {
+    it('rule should return a deregistration function', function() {
+      var count = 0, rule: UrlRule = {
         match: () => count++,
         handler: match => match,
+        matchPriority: () => 0,
+        $id: 0,
         priority: 0,
-        type: 0,
+        type: 'RAW',
       };
-      let dereg = $ur.addRule(rule as any);
+      let dereg = $ur.rule(rule as any);
 
       $ur.sync();
       expect(count).toBe(1);
@@ -170,10 +172,12 @@ describe("UrlRouter", function () {
       var count = 0, rule = {
         match: () => count++,
         handler: match => match,
+        matchPriority: () => 0,
+        $id: 0,
         priority: 0,
-        type: 0,
+        type: 'RAW',
       };
-      $ur.addRule(rule as any);
+      $ur.rule(rule as any);
 
       $ur.sync();
       expect(count).toBe(1);
