@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.3.16
+ * @license AngularJS v1.3.17
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -2244,7 +2244,8 @@ if (window.jasmine || window.mocha) {
 
     if (injector) {
       injector.get('$rootElement').off();
-      injector.get('$browser').pollFns.length = 0;
+      var $browser = injector.get('$browser');
+      if ($browser.pollFns) $browser.pollFns.length = 0;
     }
 
     // clean up jquery's fragment cache
