@@ -67,7 +67,9 @@ export class Ng1ViewConfig implements ViewConfig {
   loaded: boolean = false;
   controller: Function; // actually IInjectable|string
   template: string;
+  component: string;
   locals: any; // TODO: delete me
+  factory = new TemplateFactory();
 
   constructor(public path: PathNode[], public viewDecl: Ng1ViewDeclaration) {
   }
@@ -78,31 +80,20 @@ export class Ng1ViewConfig implements ViewConfig {
     let params = this.path.reduce((acc, node) => extend(acc, node.paramValues), {});
 
     let promises: any = {
-      template: $q.when(this.getTemplate(params, new TemplateFactory(), context)),
+      template: $q.when(this.factory.fromConfig(this.viewDecl, params, context)),
       controller: $q.when(this.getController(context))
     };
 
     return $q.all(promises).then((results) => {
       trace.traceViewServiceEvent("Loaded", this);
       this.controller = results.controller;
-      this.template = results.template;
+      extend(this, results.template); // Either { template: "tpl" } or { component: "cmpName" }
       return this;
     });
   }
 
-  /**
-   * Checks a view configuration to ensure that it specifies a template.
-   *
-   * @return {boolean} Returns `true` if the configuration contains a valid template, otherwise `false`.
-   */
-  hasTemplate() {
-    var templateKeys = ['template', 'templateUrl', 'templateProvider', 'component', 'componentProvider'];
-    return hasAnyKey(templateKeys, this.viewDecl);
-  }
-
-  getTemplate(params: RawParams, $factory: TemplateFactory, context: ResolveContext) {
-    return $factory.fromConfig(this.viewDecl, params, context);
-  }
+  getTemplate = (uiView, context: ResolveContext) =>
+    this.component ? this.factory.makeComponentTemplate(uiView, context, this.component, this.viewDecl.bindings) : this.template;
 
   /**
    * Gets the controller for a view configuration.

@@ -5,7 +5,7 @@
 import { ng as angular } from "../angular";
 import {
     IInterpolateService, IScope, ITranscludeFunction, IAugmentedJQuery,
-    ICompileService, IControllerService, ITimeoutService
+    ICompileService, IControllerService, ITimeoutService, noop
 } from "angular";
 
 import {
@@ -357,15 +357,15 @@ function $ViewDirectiveFill ($compile: ICompileService, $controller: IController
             return;
         }
 
-        let cfg: Ng1ViewConfig = data.$cfg || <any> { viewDecl: {} };
-        $element.html(cfg.template || initial);
+        let cfg: Ng1ViewConfig = data.$cfg || <any> { viewDecl: {}, getTemplate: noop };
+        let resolveCtx: ResolveContext = cfg.path && new ResolveContext(cfg.path);
+        $element.html(cfg.getTemplate($element, resolveCtx) || initial);
         trace.traceUIViewFill(data.$uiView, $element.html());
 
         let link = $compile($element.contents());
         let controller = cfg.controller;
         let controllerAs: string = getControllerAs(cfg);
         let resolveAs: string = getResolveAs(cfg);
-        let resolveCtx: ResolveContext = cfg.path && new ResolveContext(cfg.path);
         let locals = resolveCtx && getLocals(resolveCtx);
 
         scope[resolveAs] = locals;

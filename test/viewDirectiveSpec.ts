@@ -908,6 +908,27 @@ describe('angular 1.5+ style .component()', function() {
         template: 'eventCmp',
       });
 
+      app.component('parentCallbackComponent', {
+        controller: function($rootScope) {
+          this.handleEvent = function(foo, bar) {
+            $rootScope.log.push(foo);
+            $rootScope.log.push(bar);
+          }
+        },
+        template: `
+          <h1>parentCmp</h1>
+          <ui-view on-event="$ctrl.handleEvent(foo, bar)"></ui-view>
+          `,
+      });
+
+      app.component('childEventComponent', {
+        bindings: { onEvent: '&' },
+        template: `
+          <h1>childCmp</h1>
+          <button id="eventbtn" ng-click="$ctrl.onEvent({ foo: 123, bar: 456 })">Button</button>
+          `,
+      });
+
       app.component('dynamicComponent', {
         template: 'dynamicComponent'
       })
@@ -1148,6 +1169,142 @@ describe('angular 1.5+ style .component()', function() {
 
         expect(el.text()).toBe('eventCmp');
       });
+
+      // Test for #3239
+      it('should pass any bindings (wired from a parent component template via the ui-view) through to the child', inject(function ($rootScope) {
+        let $state = svcs.$state, $q = svcs.$q;
+
+        $stateProvider.state('parent', {
+          template: '<ui-view oneway="data1w" twoway="data2w" attr="attrval"></ui-view>',
+          controller: function($scope) {
+            $scope.data1w = "1w";
+            $scope.data2w = "2w";
+          }
+        });
+
+        $stateProvider.state('parent.child', {
+          component: 'bindingTypes',
+        });
+
+        $state.transitionTo('parent.child'); $q.flush();
+        expect(el.text()).toEqual('-1w,2w,attrval-');
+      }));
+
+      // Test for #3239
+      it('should prefer ui-view bindings over resolve data', inject(function ($rootScope) {
+        let $state = svcs.$state, $q = svcs.$q;
+
+        $stateProvider.state('parent', {
+          template: '<ui-view oneway="data1w" twoway="data2w" attr="attrval"></ui-view>',
+          resolve: {
+            oneway: () => "asfasfd",
+            twoway: () => "asfasfd",
+            attr: () => "asfasfd",
+          },
+          controller: function($scope) {
+            $scope.data1w = "1w";
+            $scope.data2w = "2w";
+          }
+        });
+
+        $stateProvider.state('parent.child', {
+          component: 'bindingTypes',
+        });
+
+        $state.transitionTo('parent.child'); $q.flush();
+        expect(el.text()).toEqual('-1w,2w,attrval-');
+      }));
+
+      // Test for #3239
+      it('should prefer ui-view bindings over resolve data unless a bindings exists', inject(function ($rootScope) {
+        let $state = svcs.$state, $q = svcs.$q;
+
+        $stateProvider.state('parent', {
+          template: '<ui-view oneway="data1w" twoway="data2w" attr="attrval"></ui-view>',
+          resolve: {
+            oneway: () => "asfasfd",
+            twoway: () => "asfasfd",
+            attr: () => "asfasfd",
+          },
+          controller: function($scope) {
+            $scope.data1w = "1w";
+            $scope.data2w = "2w";
+          }
+        });
+
+        $stateProvider.state('parent.child', {
+          component: 'bindingTypes',
+          bindings: { oneway: 'oneway' }
+        });
+
+        $state.transitionTo('parent.child'); $q.flush();
+        expect(el.text()).toEqual('-asfasfd,2w,attrval-');
+      }));
+
+      // Test for #3239
+      it('should pass & bindings (wired from a parent component via the ui-view) through to the child', inject(function ($rootScope) {
+        let $state = svcs.$state, $q = svcs.$q;
+        $rootScope.log = [];
+
+        $stateProvider.state('parent', {
+          component: 'parentCallbackComponent',
+        });
+
+        $stateProvider.state('parent.child', {
+          component: 'childEventComponent',
+        });
+
+        $state.transitionTo('parent.child'); $q.flush();
+        expect($rootScope.log).toEqual([]);
+        expect(el.text().split(/\s+/).filter(x => x)).toEqual(['parentCmp', 'childCmp', 'Button']);
+
+        // - Click button
+        // - ng-click handler calls $ctrl.onEvent({ foo: 123, bar: 456 })
+        // - on-event is bound to $ctrl.handleEvent(foo, bar) on parentCallbackComponent
+        // - handleEvent pushes param values to the log
+        el.find("button")[0].click();
+        expect($rootScope.log).toEqual([123, 456]);
+      }));
+
+      // Test for #3111
+      it('should bind & bindings to a resolve that returns a function', inject(function ($rootScope) {
+        let $state = svcs.$state, $q = svcs.$q, log = [];
+
+        $stateProvider.state('resolve', {
+          component: 'childEventComponent',
+          resolve: {
+            onEvent: () => (foo, bar) => {
+              log.push(foo);
+              log.push(bar);
+            }
+          }
+        });
+
+        $state.transitionTo('resolve'); $q.flush();
+        expect(log).toEqual([]);
+        el.find("button")[0].click();
+        expect(log).toEqual([123, 456]);
+      }));
+
+      // Test for #3111
+      it('should bind & bindings to a resolve that returns an array-style function', inject(function ($rootScope) {
+        let $state = svcs.$state, $q = svcs.$q, log = [];
+
+        $stateProvider.state('resolve', {
+          component: 'childEventComponent',
+          resolve: {
+            onEvent: () => ['foo', 'bar', (foo, bar) => {
+              log.push(foo);
+              log.push(bar);
+            } ]
+          }
+        });
+
+        $state.transitionTo('resolve'); $q.flush();
+        expect(log).toEqual([]);
+        el.find("button")[0].click();
+        expect(log).toEqual([123, 456]);
+      }));
     }
   });
 
@@ -1172,12 +1329,12 @@ describe('angular 1.5+ style .component()', function() {
       });
 
       it('should disallow controller/template configuration in the view', function () {
+        expect(function () { $stateProvider.state('route2cmp', stateDef); }).not.toThrow();
         expect(function () {
           let state = extend({}, stateDef);
           state.views.header.template = "fails";
           $stateProvider.state('route2cmp', state);
         }).toThrow();
-        expect(function () { $stateProvider.state('route2cmp', stateDef); }).not.toThrow();
       });
 
       it('should render components as views', function () {
