@@ -8,18 +8,16 @@
  * @module ng1
  * @preferred
  */
-
 /** for typedoc */
 import { ng as angular } from "./angular";
 import { TypedMap } from "ui-router-core"; // has or is using
 import {
-    IRootScopeService, IQService, ILocationService, ILocationProvider, IHttpService, ITemplateCacheService
+  IRootScopeService, IQService, ILocationService, ILocationProvider, IHttpService, ITemplateCacheService
 } from "angular";
 import {
-    services, applyPairs, prop, isString, trace, extend, UIRouter, StateService, UrlRouter, UrlMatcherFactory,
-    ResolveContext
+  services, applyPairs, isString, trace, extend, UIRouter, StateService, UrlRouter, UrlMatcherFactory, ResolveContext
 } from "ui-router-core";
-import { ng1ViewsBuilder, ng1ViewConfigFactory } from "./statebuilders/views";
+import { ng1ViewsBuilder, getNg1ViewConfigFactory } from "./statebuilders/views";
 import { TemplateFactory } from "./templateFactory";
 import { StateProvider } from "./stateProvider";
 import { getStateHookBuilder } from "./statebuilders/onEnterExitRetain";
@@ -60,7 +58,7 @@ function $uiRouter($locationProvider: ILocationProvider) {
   router.stateRegistry.decorator("onRetain", getStateHookBuilder("onRetain"));
   router.stateRegistry.decorator("onEnter",  getStateHookBuilder("onEnter"));
 
-  router.viewService._pluginapi._viewConfigFactory('ng1', ng1ViewConfigFactory);
+  router.viewService._pluginapi._viewConfigFactory('ng1', getNg1ViewConfigFactory());
 
   let ng1LocationService = router.locationService = router.locationConfig = new Ng1LocationServices($locationProvider);
 
@@ -109,13 +107,13 @@ export function watchDigests($rootScope: IRootScopeService) {
 mod_init .provider("$uiRouter",          <any> $uiRouter);
 mod_rtr  .provider('$urlRouter',         ['$uiRouterProvider', getUrlRouterProvider]);
 mod_util .provider('$urlMatcherFactory', ['$uiRouterProvider', () => router.urlMatcherFactory]);
+mod_util .provider('$templateFactory',   () => new TemplateFactory());
 mod_state.provider('$stateRegistry',     getProviderFor('stateRegistry'));
 mod_state.provider('$uiRouterGlobals',   getProviderFor('globals'));
 mod_state.provider('$transitions',       getProviderFor('transitionService'));
 mod_state.provider('$state',             ['$uiRouterProvider', getStateProvider]);
 
 mod_state.factory ('$stateParams',       ['$uiRouter', ($uiRouter: UIRouter) => $uiRouter.globals.params]);
-mod_util .factory ('$templateFactory',   ['$uiRouter', () => new TemplateFactory()]);
 mod_main .factory ('$view',              () => router.viewService);
 mod_main .service ("$trace",             () => trace);
 

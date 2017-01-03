@@ -9,8 +9,13 @@ import { Ng1ViewDeclaration } from "../interface";
 import { TemplateFactory } from "../templateFactory";
 import IInjectorService = angular.auto.IInjectorService;
 
-export const ng1ViewConfigFactory: ViewConfigFactory = (path, view) =>
-    [new Ng1ViewConfig(path, view)];
+export function getNg1ViewConfigFactory(): ViewConfigFactory {
+  let templateFactory: TemplateFactory = null;
+  return (path, view) => {
+    templateFactory = templateFactory || services.$injector.get("$templateFactory");
+    return [new Ng1ViewConfig(path, view, templateFactory)];
+  };
+}
 
 const hasAnyKey = (keys, obj) =>
     keys.reduce((acc, key) => acc || isDefined(obj[key]), false);
@@ -69,10 +74,8 @@ export class Ng1ViewConfig implements ViewConfig {
   template: string;
   component: string;
   locals: any; // TODO: delete me
-  factory = new TemplateFactory();
 
-  constructor(public path: PathNode[], public viewDecl: Ng1ViewDeclaration) {
-  }
+  constructor(public path: PathNode[], public viewDecl: Ng1ViewDeclaration, public factory: TemplateFactory) { }
 
   load() {
     let $q = services.$q;

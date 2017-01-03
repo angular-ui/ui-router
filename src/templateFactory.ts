@@ -6,20 +6,28 @@ import {
   isArray, isDefined, isFunction, isObject, services, Obj, IInjectable, tail, kebobString, unnestR, ResolveContext,
   Resolvable, RawParams, prop
 } from "ui-router-core";
-import { Ng1ViewDeclaration } from "./interface";
-
-const service = (token) => {
-  const $injector = services.$injector;
-  return $injector.has ? ($injector.has(token) && $injector.get(token)) : $injector.get(token);
-};
+import { Ng1ViewDeclaration, TemplateFactoryProvider } from "./interface";
 
 /**
  * Service which manages loading of templates from a ViewConfig.
  */
-export class TemplateFactory {
-  private $templateRequest = service('$templateRequest');
-  private $templateCache = service('$templateCache');
-  private $http = service('$http');
+export class TemplateFactory implements TemplateFactoryProvider {
+  /** @hidden */ private _useHttp = angular.version.minor < 3;
+  /** @hidden */ private $templateRequest;
+  /** @hidden */ private $templateCache;
+  /** @hidden */ private $http;
+
+  /** @hidden */ $get = ['$http', '$templateCache', '$injector', ($http, $templateCache, $injector) => {
+    this.$templateRequest = $injector.has && $injector.has('$templateRequest') && $injector.get('$templateRequest');
+    this.$http = $http;
+    this.$templateCache = $templateCache;
+    return this;
+  }];
+
+  /** @hidden */
+  useHttpService(value: boolean) {
+    this._useHttp = value;
+  };
 
   /**
    * Creates a template from a configuration object.
@@ -76,12 +84,12 @@ export class TemplateFactory {
     if (isFunction(url)) url = (<any> url)(params);
     if (url == null) return null;
 
-    if(this.$templateRequest) {
-      return this.$templateRequest(url);
+    if (this._useHttp) {
+      return this.$http.get(url, { cache: this.$templateCache, headers: { Accept: 'text/html' }})
+          .then(function(response) { return response.data; });
     }
 
-    return this.$http.get(url, { cache: this.$templateCache, headers: { Accept: 'text/html' }})
-        .then(function(response) { return response.data; });
+    return this.$templateRequest(url);
   };
 
   /**
@@ -115,6 +123,11 @@ export class TemplateFactory {
 
   /**
    * Creates a template from a component's name
+   *
+   * This implements route-to-component.
+   * It works by retrieving the component (directive) metadata from the injector.
+   * It analyses the component's bindings, then constructs a template that instantiates the component.
+   * The template wires input and output bindings to resolves or from the parent component.
    *
    * @param uiView {object} The parent ui-view (for binding outputs to callbacks)
    * @param context The ResolveContext (for binding outputs to callbacks returned from resolves)
@@ -150,6 +163,7 @@ export class TemplateFactory {
         let res = context.getResolvable(resolveName);
         let fn = res && res.data;
         let args = fn && services.$injector.annotate(fn) || [];
+        // account for array style injection, i.e., ['foo', function(foo) {}]
         let arrayIdxStr = isArray(fn) ? `[${fn.length - 1}]` : '';
         return `${attrName}='$resolve.${resolveName}${arrayIdxStr}(${args.join(",")})'`;
       }

@@ -1,17 +1,11 @@
 import * as angular from "angular";
 import "./util/matchers";
+import {
+  inherit, extend, tail, curry, PathNode, PathFactory, ViewService, StateMatcher, StateBuilder, State
+} from "ui-router-core";
+import { ng1ViewsBuilder, getNg1ViewConfigFactory } from "../src/statebuilders/views";
+import { Ng1StateDeclaration } from "../src/interface";
 declare var inject;
-
-import {inherit, extend, tail} from "ui-router-core";
-import {curry} from "ui-router-core";
-import {PathNode} from "ui-router-core";
-import {ResolveContext} from "ui-router-core";
-import {PathFactory} from "ui-router-core";
-import {ng1ViewsBuilder, ng1ViewConfigFactory} from "../src/statebuilders/views";
-import {ViewService} from "ui-router-core";
-import {StateMatcher, StateBuilder} from "ui-router-core";
-import {State} from "ui-router-core";
-import {Ng1StateDeclaration} from "../src/interface";
 
 describe('view', function() {
   var scope, $compile, $injector, elem, $controllerProvider, $urlMatcherFactoryProvider;
@@ -64,7 +58,7 @@ describe('view', function() {
 
       state = register(stateDeclaration);
       let $view = new ViewService();
-      $view._pluginapi._viewConfigFactory("ng1", ng1ViewConfigFactory);
+      $view._pluginapi._viewConfigFactory("ng1", getNg1ViewConfigFactory());
 
       let states = [root, state];
       path = states.map(_state => new PathNode(_state));
