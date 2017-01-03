@@ -4,14 +4,23 @@ import { ng as angular } from "./angular";
 import { IAugmentedJQuery } from "angular";
 import {
   isArray, isDefined, isFunction, isObject, services, Obj, IInjectable, tail, kebobString, unnestR, ResolveContext,
-  Resolvable, RawParams, identity
+  Resolvable, RawParams, prop
 } from "ui-router-core";
 import { Ng1ViewDeclaration } from "./interface";
+
+const service = (token) => {
+  const $injector = services.$injector;
+  return $injector.has ? ($injector.has(token) && $injector.get(token)) : $injector.get(token);
+};
 
 /**
  * Service which manages loading of templates from a ViewConfig.
  */
 export class TemplateFactory {
+  private $templateRequest = service('$templateRequest');
+  private $templateCache = service('$templateCache');
+  private $http = service('$http');
+
   /**
    * Creates a template from a configuration object.
    *
@@ -66,7 +75,13 @@ export class TemplateFactory {
   fromUrl(url: (string|Function), params: any) {
     if (isFunction(url)) url = (<any> url)(params);
     if (url == null) return null;
-    return services.template.get(<string> url);
+
+    if(this.$templateRequest) {
+      return this.$templateRequest(url);
+    }
+
+    return this.$http.get(url, { cache: this.$templateCache, headers: { Accept: 'text/html' }})
+        .then(function(response) { return response.data; });
   };
 
   /**

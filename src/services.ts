@@ -71,14 +71,9 @@ function $uiRouter($locationProvider: ILocationProvider) {
   router['$get'] = $get;
   $get.$inject = ['$location', '$browser', '$sniffer', '$rootScope', '$http', '$templateCache'];
   function $get($location: ILocationService, $browser: any, $sniffer: any, $rootScope: ng.IScope, $http: IHttpService, $templateCache: ITemplateCacheService) {
+    ng1LocationService._runtimeServices($rootScope, $location, $sniffer, $browser);
     delete router['router'];
     delete router['$get'];
-
-    services.template.get = (url: string) =>
-        $http.get(url, { cache: $templateCache, headers: { Accept: 'text/html' }}).then(prop("data")) as any;
-
-    ng1LocationService._runtimeServices($rootScope, $location, $sniffer, $browser);
-
     return router;
   }
   return router;
