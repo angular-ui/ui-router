@@ -1,5 +1,10 @@
-var module = angular.mock.module;
-var uiRouter = require("../src/index");
+import * as angular from "angular";
+import "./util/matchers";
+import { extend } from "ui-router-core";
+
+declare let inject, jasmine;
+
+let module = angular.mock.module;
 
 function animateFlush($animate) {
   $animate && $animate.triggerCallbacks && $animate.triggerCallbacks(); // 1.2-1.3
@@ -9,10 +14,10 @@ function animateFlush($animate) {
 describe('uiView', function () {
   'use strict';
 
-  var $stateProvider, scope, $compile, elem, log;
+  let $stateProvider, scope, $compile, elem, log;
 
   beforeEach(function() {
-    var depends = ['ui.router'];
+    let depends = ['ui.router'];
     log = "";
 
     try {
@@ -33,7 +38,7 @@ describe('uiView', function () {
     });
   }));
 
-  var aState = {
+  let aState = {
     template: 'aState template'
   },
   bState = {
@@ -113,7 +118,7 @@ describe('uiView', function () {
   nState = {
     template: 'nState',
     controller: function ($scope, $element) {
-      var data = $element.data('$uiViewAnim');
+      let data = $element.data('$uiViewAnim');
       $scope.$on("$destroy", function() { log += 'destroy;'});
       data.$animEnter.then(function() { log += "animEnter;"});
       data.$animLeave.then(function() { log += "animLeave;"});
@@ -207,7 +212,7 @@ describe('uiView', function () {
 
   describe('handling initial view', function () {
     it('initial view should be compiled if the view is empty', inject(function ($state, $q) {
-      var content = 'inner content';
+      let content = 'inner content';
       scope.content = content;
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
 
@@ -218,7 +223,7 @@ describe('uiView', function () {
     }));
 
     it('initial view should be put back after removal of the view', inject(function ($state, $q) {
-      var content = 'inner content';
+      let content = 'inner content';
       scope.content = content;
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
 
@@ -310,12 +315,12 @@ describe('uiView', function () {
 
       animateFlush($animate);
 
-      var target,
+      let target,
           index   = -1,
           uiViews = elem.find('ui-view');
 
       while (index++ < uiViews.length) {
-        var uiView = angular.element(uiViews[index]);
+        let uiView = angular.element(uiViews[index]);
         if (uiView.text() === bState.template) target = uiView;
       }
 
@@ -340,10 +345,10 @@ describe('uiView', function () {
   }));
 
   describe('(resolved data)', function() {
-    var _scope;
+    let _scope;
     function controller($scope) { _scope = $scope; }
 
-    var _state = {
+    let _state = {
       name: 'resolve',
       resolve: {
         user: function($timeout) {
@@ -353,7 +358,7 @@ describe('uiView', function () {
     };
 
     it('should provide the resolved data on the $scope', inject(function ($state, $q, $timeout) {
-      var state = angular.extend({}, _state, { template: '{{$resolve.user}}', controller: controller });
+      let state = angular.extend({}, _state, { template: '{{$resolve.user}}', controller: controller });
       $stateProvider.state(state);
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
 
@@ -365,7 +370,7 @@ describe('uiView', function () {
 
     // Test for #2626
     it('should provide the resolved data on the $scope even if there is no controller', inject(function ($state, $q, $timeout) {
-      var state = angular.extend({}, _state, { template: '{{$resolve.user}}' });
+      let state = angular.extend({}, _state, { template: '{{$resolve.user}}' });
       $stateProvider.state(state);
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
       expect(elem.text()).toBe('');
@@ -375,7 +380,7 @@ describe('uiView', function () {
     }));
 
     it('should put the resolved data on the resolveAs variable', inject(function ($state, $q, $timeout) {
-      var state = angular.extend({}, _state, { template: '{{$$$resolve.user}}', resolveAs: '$$$resolve', controller: controller });
+      let state = angular.extend({}, _state, { template: '{{$$$resolve.user}}', resolveAs: '$$$resolve', controller: controller });
       $stateProvider.state(state);
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
 
@@ -386,7 +391,7 @@ describe('uiView', function () {
     }));
 
     it('should put the resolved data on the controllerAs', inject(function ($state, $q, $timeout) {
-      var state = angular.extend({}, _state, { template: '{{$ctrl.$resolve.user}}', controllerAs: '$ctrl', controller: controller });
+      let state = angular.extend({}, _state, { template: '{{$ctrl.$resolve.user}}', controllerAs: '$ctrl', controller: controller });
       $stateProvider.state(state);
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
 
@@ -399,14 +404,14 @@ describe('uiView', function () {
     }));
 
     it('should use the view-level resolveAs over the state-level resolveAs', inject(function ($state, $q, $timeout) {
-      var views = {
+      let views = {
         "$default": {
           controller: controller,
           template: '{{$$$resolve.user}}',
           resolveAs: '$$$resolve'
         }
       };
-      var state = angular.extend({}, _state, { resolveAs: 'foo', views: views })
+      let state = angular.extend({}, _state, { resolveAs: 'foo', views: views })
       $stateProvider.state(state);
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
 
@@ -418,7 +423,7 @@ describe('uiView', function () {
   });
 
   it('should call the existing $onInit after instantiating a controller', inject(function ($state, $q) {
-    var $onInit = jasmine.createSpy();
+    let $onInit = jasmine.createSpy();
     $stateProvider.state('onInit', {
       controller: function() { this.$onInit = $onInit; },
       template: "hi",
@@ -540,7 +545,7 @@ describe('uiView', function () {
 
         scope.$digest();
 
-        var uiViews = elem.find('ui-view');
+        let uiViews = elem.find('ui-view');
 
         expect(uiViews.eq(0).text()).toBe(lState.views.view1.template);
         expect(uiViews.eq(1).text()).toBe(lState.views.view2.template);
@@ -570,7 +575,7 @@ describe('uiView', function () {
 
         scope.$digest();
 
-        var uiViews = elem.find('ui-view');
+        let uiViews = elem.find('ui-view');
 
         expect(uiViews.eq(0).text()).toBe(lState.views.view1.template);
         expect(uiViews.eq(1).text()).toBe(lState.views.view2.template);
@@ -590,7 +595,7 @@ describe('uiView', function () {
 
   describe('AngularJS Animations', function() {
     it ('should do transition animations', inject(function($state, $q, $compile, $animate) {
-      var content = 'Initial Content',
+      let content = 'Initial Content',
           animation;
       elem.append($compile('<div><ui-view>' + content + '</ui-view></div>')(scope));
 
@@ -629,7 +634,7 @@ describe('uiView', function () {
 
     it ('should do ngClass animations', inject(function($state, $q, $compile, $animate) {
       scope.classOn = false;
-      var content = 'Initial Content',
+      let content = 'Initial Content',
           className = 'yay',
           animation;
       elem.append($compile('<div><ui-view ng-class="{\'' + className + '\': classOn}">' + content + '</ui-view></div>')(scope));
@@ -656,7 +661,7 @@ describe('uiView', function () {
 
     it ('should do ngIf animations', inject(function($state, $q, $compile, $animate) {
       scope.shouldShow = false;
-      var content = 'Initial Content',
+      let content = 'Initial Content',
           animation;
       elem.append($compile('<div><ui-view ng-if="shouldShow">' + content + '</ui-view></div>')(scope));
 
@@ -693,7 +698,7 @@ describe('uiView', function () {
       $transitions.onFinish({}, function($transition$) { log += 'finish:' + $transition$.to().name + ';'; });
       $transitions.onSuccess({}, function($transition$) { log += 'success:' + $transition$.to().name + ';'; });
 
-      var content = 'Initial Content';
+      let content = 'Initial Content';
       elem.append($compile('<div><ui-view>' + content + '</ui-view></div>')(scope));
       $state.transitionTo('n');
       $q.flush();
@@ -737,10 +742,10 @@ describe("UiView", function() {
 });
 
 describe('uiView transclusion', function() {
-  var scope, $compile, elem;
+  let scope, $compile, elem;
 
   beforeEach(function() {
-    app = angular.module('foo', []);
+    let app = angular.module('foo', []);
 
     app.directive('scopeObserver', function() {
       return {
@@ -770,7 +775,7 @@ describe('uiView transclusion', function() {
   }));
 
   it('should not link the initial view and leave its scope undestroyed when a subview is activated', inject(function($state, $q) {
-    var aliveCount = 0;
+    let aliveCount = 0;
     scope.$on('directiveCreated', function() {
       aliveCount++;
     });
@@ -785,7 +790,7 @@ describe('uiView transclusion', function() {
 });
 
 describe('uiView controllers or onEnter handlers', function() {
-  var el, template, scope, document, count;
+  let el, template, scope, document, count;
 
   beforeEach(module('ui.router'));
 
@@ -833,7 +838,7 @@ describe('uiView controllers or onEnter handlers', function() {
 
 
 describe('angular 1.5+ style .component()', function() {
-  var el, app, scope, log, svcs, $stateProvider;
+  let el, app, scope, log, svcs, $stateProvider;
 
   beforeEach((function() {
     app = angular.module('foo', []);
@@ -933,7 +938,7 @@ describe('angular 1.5+ style .component()', function() {
     });
 
     it('should work with directives which themselves have templateUrls', function() {
-      var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+      let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
       $httpBackend.expectGET('/state_tpl.html').respond('x<ng12-directive data="$resolve.data"></ng12-directive>x');
       $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
@@ -941,7 +946,7 @@ describe('angular 1.5+ style .component()', function() {
       $state.transitionTo('cmp_tpl'); $q.flush();
 
       // Template has not yet been fetched
-      var directiveEl = el[0].querySelector('div ui-view ng12-directive');
+      let directiveEl = el[0].querySelector('div ui-view ng12-directive');
       expect(directiveEl).toBeNull();
       expect($state.current.name).toBe('');
 
@@ -957,14 +962,14 @@ describe('angular 1.5+ style .component()', function() {
 
     if (angular.version.minor >= 3) {
       it('should work with ng 1.3+ bindToController directives', function () {
-        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+        let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
         $httpBackend.expectGET('/state_tpl.html').respond('x<ng13-directive data="$resolve.data"></ng13-directive>x');
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
 
         $state.transitionTo('cmp_tpl'); $q.flush(); $httpBackend.flush();
 
-        directiveEl = el[0].querySelector('div ui-view ng13-directive');
+        let directiveEl = el[0].querySelector('div ui-view ng13-directive');
         expect(directiveEl).toBeDefined();
         expect($state.current.name).toBe('cmp_tpl');
 
@@ -975,14 +980,14 @@ describe('angular 1.5+ style .component()', function() {
 
     if (angular.version.minor >= 5) {
       it('should work with ng 1.5+ .component()s', function () {
-        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+        let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
         $httpBackend.expectGET('/state_tpl.html').respond('x<ng-component data="$resolve.data"></ng-component>x');
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
 
         $state.transitionTo('cmp_tpl'); $q.flush(); $httpBackend.flush();
 
-        directiveEl = el[0].querySelector('div ui-view ng-component');
+        let directiveEl = el[0].querySelector('div ui-view ng-component');
         expect(directiveEl).toBeDefined();
         expect($state.current.name).toBe('cmp_tpl');
 
@@ -994,7 +999,7 @@ describe('angular 1.5+ style .component()', function() {
 
   describe('+ component: declaration', function() {
     it('should disallow controller/template configuration', function () {
-      var stateDef = {
+      let stateDef = {
         url: '/route2cmp',
         component: 'ng12Directive',
         resolve: { data: function() { return "DATA!"; } }
@@ -1017,12 +1022,12 @@ describe('angular 1.5+ style .component()', function() {
         resolve: { data: function() { return "DATA!"; } }
       });
 
-      var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+      let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
       $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
       $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
 
-      directiveEl = el[0].querySelector('div ui-view ng12-directive');
+      let directiveEl = el[0].querySelector('div ui-view ng12-directive');
       expect(directiveEl).toBeDefined();
       expect($state.current.name).toBe('route2cmp');
       expect(el.text()).toBe('-DATA!-');
@@ -1036,12 +1041,12 @@ describe('angular 1.5+ style .component()', function() {
           resolve: { data: function() { return "DATA!"; } }
         });
 
-        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+        let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
         $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
 
-        directiveEl = el[0].querySelector('div ui-view ng13-directive');
+        let directiveEl = el[0].querySelector('div ui-view ng13-directive');
         expect(directiveEl).toBeDefined();
         expect($state.current.name).toBe('route2cmp');
         expect(el.text()).toBe('-DATA!-');
@@ -1054,7 +1059,7 @@ describe('angular 1.5+ style .component()', function() {
           resolve: { data: function() { return "DATA!"; } }
         });
 
-        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+        let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
         $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
@@ -1071,12 +1076,12 @@ describe('angular 1.5+ style .component()', function() {
           resolve: { data: function() { return "DATA!"; } }
         });
 
-        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+        let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
         $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
 
-        directiveEl = el[0].querySelector('div ui-view ng-component');
+        let directiveEl = el[0].querySelector('div ui-view ng-component');
         expect(directiveEl).toBeDefined();
         expect($state.current.name).toBe('route2cmp');
         expect(el.text()).toBe('-DATA!-');
@@ -1088,7 +1093,7 @@ describe('angular 1.5+ style .component()', function() {
           resolve: { data: function() { return "DATA!"; } }
         });
 
-        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+        let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
         $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
@@ -1107,7 +1112,7 @@ describe('angular 1.5+ style .component()', function() {
           bindings: { attr: 'attribute' }
         });
 
-        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+        let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
         $state.transitionTo('bindingtypes'); $q.flush();
 
@@ -1125,7 +1130,7 @@ describe('angular 1.5+ style .component()', function() {
           bindings: { attr: 'attribute' }
         });
 
-        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+        let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
         $state.transitionTo('optionalbindingtypes'); $q.flush();
 
@@ -1138,7 +1143,7 @@ describe('angular 1.5+ style .component()', function() {
           component: 'eventComponent',
         });
 
-        var $state = svcs.$state, $q = svcs.$q;
+        let $state = svcs.$state, $q = svcs.$q;
         $state.transitionTo('nothrow'); $q.flush();
 
         expect(el.text()).toBe('eventCmp');
@@ -1148,7 +1153,7 @@ describe('angular 1.5+ style .component()', function() {
 
   if (angular.version.minor >= 5) {
     describe('+ named views with component: declaration', function () {
-      var stateDef;
+      let stateDef;
       beforeEach(function () {
         stateDef = {
           url: '/route2cmp',
@@ -1168,7 +1173,7 @@ describe('angular 1.5+ style .component()', function() {
 
       it('should disallow controller/template configuration in the view', function () {
         expect(function () {
-          var state = extend({}, stateDef);
+          let state = extend({}, stateDef);
           state.views.header.template = "fails";
           $stateProvider.state('route2cmp', state);
         }).toThrow();
@@ -1177,13 +1182,13 @@ describe('angular 1.5+ style .component()', function() {
 
       it('should render components as views', function () {
         $stateProvider.state('route2cmp', stateDef);
-        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+        let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
         $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
 
-        var header = el[0].querySelector('[ui-view=header]');
-        var content = el[0].querySelector('[ui-view=content]');
+        let header = el[0].querySelector('[ui-view=header]');
+        let content = el[0].querySelector('[ui-view=content]');
 
         expect(header.textContent).toBe('#awesome#');
         expect(content.textContent).toBe('-DATA!-');
@@ -1199,13 +1204,13 @@ describe('angular 1.5+ style .component()', function() {
           }
         };
         $stateProvider.state('route2cmp', stateDef);
-        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+        let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
         $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
 
-        var header = el[0].querySelector('[ui-view=header]');
-        var content = el[0].querySelector('[ui-view=content]');
+        let header = el[0].querySelector('[ui-view=header]');
+        let content = el[0].querySelector('[ui-view=content]');
 
         expect(header.textContent).toBe('#awesome#');
         expect(content.textContent).toBe('-DATA!-');
@@ -1222,12 +1227,12 @@ describe('angular 1.5+ style .component()', function() {
         resolve: { foo: function() { return "DATA!"; } }
       });
 
-      var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+      let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
       $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
       $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
 
-      directiveEl = el[0].querySelector('div ui-view ng12-directive');
+      let directiveEl = el[0].querySelector('div ui-view ng12-directive');
       expect(directiveEl).toBeDefined();
       expect($state.current.name).toBe('route2cmp');
       expect(el.text()).toBe('-DATA!-');
@@ -1245,12 +1250,12 @@ describe('angular 1.5+ style .component()', function() {
           }
         });
 
-        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+        let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
         $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}.{{ $ctrl.data2 }}-');
         $state.transitionTo('route2cmp'); $q.flush(); $httpBackend.flush();
 
-        directiveEl = el[0].querySelector('div ui-view ng-component');
+        let directiveEl = el[0].querySelector('div ui-view ng-component');
         expect(directiveEl).toBeDefined();
         expect($state.current.name).toBe('route2cmp');
         expect(el.text()).toBe('-DATA!.DATA2!-');
@@ -1267,11 +1272,11 @@ describe('angular 1.5+ style .component()', function() {
         }]
       });
 
-      var $state = svcs.$state, $q = svcs.$q;
+      let $state = svcs.$state, $q = svcs.$q;
 
       $state.transitionTo('ng12-dynamic-directive', {type: 'ng12DynamicDirective'}); $q.flush();
 
-      directiveEl = el[0].querySelector('div ui-view ng12-dynamic-directive');
+      let directiveEl = el[0].querySelector('div ui-view ng12-dynamic-directive');
       expect(directiveEl).toBeDefined();
       expect($state.current.name).toBe('ng12-dynamic-directive');
       expect(el.text()).toBe('dynamic directive');
@@ -1286,12 +1291,12 @@ describe('angular 1.5+ style .component()', function() {
           }]
         });
 
-        var $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
+        let $state = svcs.$state, $httpBackend = svcs.$httpBackend, $q = svcs.$q;
 
         $state.transitionTo('dynamicComponent', {type: 'dynamicComponent'});
         $q.flush();
 
-        directiveEl = el[0].querySelector('div ui-view dynamic-component');
+        let directiveEl = el[0].querySelector('div ui-view dynamic-component');
         expect(directiveEl).toBeDefined();
         expect($state.current.name).toBe('dynamicComponent');
         expect(el.text()).toBe('dynamicComponent');
