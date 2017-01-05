@@ -15,7 +15,7 @@ import {
   IRootScopeService, IQService, ILocationService, ILocationProvider, IHttpService, ITemplateCacheService
 } from "angular";
 import {
-  services, applyPairs, isString, trace, extend, UIRouter, StateService, UrlRouter, UrlMatcherFactory, ResolveContext
+  services, applyPairs, isString, trace, extend, UIRouter, StateService, UrlRouter, UrlMatcherFactory, ResolveContext, unnestR
 } from "ui-router-core";
 import { ng1ViewsBuilder, getNg1ViewConfigFactory } from "./statebuilders/views";
 import { TemplateFactory } from "./templateFactory";
@@ -88,6 +88,14 @@ runBlock.$inject = ['$injector', '$q', '$uiRouter'];
 function runBlock($injector: IInjectorService, $q: IQService, $uiRouter: UIRouter) {
   services.$injector = $injector;
   services.$q = <any> $q;
+
+  // The $injector is now available.
+  // Find any resolvables that had dependency annotation deferred
+  $uiRouter.stateRegistry.get()
+      .map(x => x.$$state().resolvables)
+      .reduce(unnestR, [])
+      .filter(x => x.deps === "deferred")
+      .forEach(resolvable => resolvable.deps = $injector.annotate(resolvable.resolveFn));
 }
 
 // $urlRouter service and $urlRouterProvider
@@ -106,6 +114,7 @@ export function watchDigests($rootScope: IRootScopeService) {
 
 mod_init .provider("$uiRouter",          <any> $uiRouter);
 mod_rtr  .provider('$urlRouter',         ['$uiRouterProvider', getUrlRouterProvider]);
+mod_util .provider('$urlService',        getProviderFor('urlService'));
 mod_util .provider('$urlMatcherFactory', ['$uiRouterProvider', () => router.urlMatcherFactory]);
 mod_util .provider('$templateFactory',   () => new TemplateFactory());
 mod_state.provider('$stateRegistry',     getProviderFor('stateRegistry'));
