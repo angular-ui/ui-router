@@ -18,7 +18,7 @@ function stateHookBuilder(state: State, parentFn: BuilderFunction): TransitionSt
 
   function decoratedNg1Hook(trans: Transition, state: State): HookResult {
     let resolveContext = new ResolveContext(trans.treeChanges(pathname));
-    var locals = extend(getLocals(resolveContext), { $state$: state, $transition$: trans });
+    let locals = extend(getLocals(resolveContext), { $state$: state, $transition$: trans });
     return services.$injector.invoke(hook, this, locals);
   }
 
