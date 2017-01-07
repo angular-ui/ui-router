@@ -7,7 +7,7 @@ import Spy = jasmine.Spy;
 import "./util/matchers";
 import { resolvedValue, resolvedError, caught } from './util/testUtilsNg1';
 import { ResolveContext, State, PathNode, omit, pick, extend, forEach } from "../src/index";
-import { Resolvable, services, StateDeclaration } from "ui-router-core";
+import { UIRouter, Resolvable, services, StateDeclaration } from "ui-router-core";
 import "../src/legacy/resolveService";
 
 let module = angular['mock'].module;
@@ -44,10 +44,6 @@ function getStates() {
           M: { resolve: { _M: function(_L) { counts['_M']++; return _L + "M"; }} }
         }
       },
-      N: {
-        resolve: { _N: function(_J) { return _J + "N"; }, _N2: function(_J) { return _J + "N2"; }, _N3: function(_J) { return _J + "N3"; } },
-        resolvePolicy: { _N: "EAGER", _N2: "LAZY", _N3: "LAZY" }
-      }
     },
     O: { resolve: { _O: function(_O2) { return _O2 + "O"; }, _O2: function(_O) { return _O + "O2"; } } },
     P: { resolve: { $state: function($state) { return $state } },
@@ -427,6 +423,21 @@ describe("$resolve", function () {
 
 // Integration tests
 describe("Integration: Resolvables system", () => {
+  beforeEach(module(function() {
+    let app = angular.module('test', ['ui.router']);
+    if (angular.version.minor >= 5) {
+      app.component('nowait', {
+        bindings: { wait: '<', nowait: '<' },
+        template: '{{ $ctrl.wait }}-{{ $ctrl.data }}',
+        controller: function () {
+          this.$onInit = () => {
+            this.nowait.then(result => this.data = result)
+          }
+        }
+      });
+    }
+  }));
+
   beforeEach(module(function ($stateProvider) {
     let copy = {};
     forEach(statesMap, (stateDef, name) => {
@@ -438,12 +449,16 @@ describe("Integration: Resolvables system", () => {
     });
   }));
 
-  let $state, $rootScope, $transitions, $trace;
-  beforeEach(inject((_$state_, _$rootScope_, _$transitions_, _$trace_) => {
+  beforeEach(module('test'));
+
+  let router: UIRouter, $state, $rootScope, $transitions, $trace, $q;
+  beforeEach(inject((_$uiRouter_, _$state_, _$rootScope_, _$transitions_, _$trace_, _$q_) => {
+    router = _$uiRouter_;
     $state = _$state_;
     $rootScope = _$rootScope_;
     $transitions = _$transitions_;
     $trace = _$trace_;
+    $q = _$q_;
   }));
 
 
@@ -460,4 +475,81 @@ describe("Integration: Resolvables system", () => {
     expect($state.current.name).toBe("K");
     expect(counts._J).toEqualData(1);
   });
+
+  it("should inject a promise for NOWAIT resolve into a controller", inject(function($compile, $rootScope) {
+    let scope = $rootScope.$new();
+    let el = $compile('<div><ui-view></ui-view></div>')(scope);
+
+    let deferWait = $q.defer();
+    let deferNowait = $q.defer();
+    let onEnterNowait;
+
+    router.stateProvider.state({
+      name: 'policies',
+      resolve: [
+        { token: 'nowait', resolveFn: () => deferNowait.promise, policy: { async: 'NOWAIT' } },
+        { token: 'wait', resolveFn: () => deferWait.promise },
+      ],
+      onEnter: function(nowait)  {
+        onEnterNowait = nowait;
+      },
+      controller: function($scope, wait, nowait) {
+        $scope.wait = wait;
+        nowait.then(result => $scope.nowait = result);
+      },
+      template: '{{ wait }}-{{ nowait }}'
+    });
+
+    $state.go("policies");
+    $q.flush();
+
+    expect($state.current.name).toBe("");
+
+    deferWait.resolve('wait for this');
+    $q.flush();
+
+    expect($state.current.name).toBe("policies");
+    expect(el.text()).toBe('wait for this-');
+    expect(typeof onEnterNowait.then).toBe('function');
+
+    deferNowait.resolve('dont wait for this');
+    $q.flush();
+
+    expect(el.text()).toBe('wait for this-dont wait for this');
+  }));
+
+  if (angular.version.minor >= 5) {
+    it("should bind a promise for NOWAIT resolve onto a component controller", inject(function ($compile, $rootScope) {
+      let scope = $rootScope.$new();
+      let el = $compile('<div><ui-view></ui-view></div>')(scope);
+
+      let deferWait = $q.defer();
+      let deferNowait = $q.defer();
+
+      router.stateProvider.state({
+        name: 'policies',
+        resolve: [
+          { token: 'nowait', resolveFn: () => deferNowait.promise, policy: { async: 'NOWAIT' } },
+          { token: 'wait', resolveFn: () => deferWait.promise },
+        ],
+        component: 'nowait'
+      });
+
+      $state.go("policies");
+      $q.flush();
+
+      expect($state.current.name).toBe("");
+
+      deferWait.resolve('wait for this');
+      $q.flush();
+
+      expect($state.current.name).toBe("policies");
+      expect(el.text()).toBe('wait for this-');
+
+      deferNowait.resolve('dont wait for this');
+      $q.flush();
+
+      expect(el.text()).toBe('wait for this-dont wait for this');
+    }));
+  }
 });

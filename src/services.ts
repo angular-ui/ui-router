@@ -135,7 +135,13 @@ mod_init .run     (runBlock);
 /** @hidden TODO: find a place to move this */
 export const getLocals = (ctx: ResolveContext) => {
   let tokens = ctx.getTokens().filter(isString);
-  let tuples = tokens.map(key => [ key, ctx.getResolvable(key).data ]);
+
+  let tuples = tokens .map(key => {
+    let resolvable = ctx.getResolvable(key);
+    let waitPolicy = ctx.getPolicy(resolvable).async;
+    return [ key, waitPolicy === 'NOWAIT' ? resolvable.promise : resolvable.data ]
+  });
+
   return tuples.reduce(applyPairs, {});
 };
 
