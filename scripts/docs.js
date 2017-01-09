@@ -49,6 +49,9 @@ for (var i = 0; i < 5; i++) {
 }
 
 // Run typedoc
+console.log("");
+console.log(typedocCmd);
+console.log("");
 shelljs.exec(typedocCmd);
 
 // Restore original sources
