@@ -85,7 +85,10 @@ Its most common usage is with the UI-Bootstrap `$modal` service.
 
 # BREAKING CHANGE: remove component.json
 
-# ui-router-core changes
+
+
+
+## ui-router-core changes
 
 This release of angular-ui-router (1.0.0-rc.1) updates ui-router-core to 3.1.0
 These are the changes in ui-router-core from 1.0.0-beta.3 to 3.1.0
@@ -169,7 +172,7 @@ These are the changes in ui-router-core from 1.0.0-beta.3 to 3.1.0
 
 ### BREAKING CHANGES
 
-* Remove `getResolveValue` and `getResolvable`  methods from `Transition` in favor of `injector().get()` and `injector().getAsync()`
+# BREAKING CHANGE: Remove `getResolveValue` and `getResolvable`  methods from `Transition` in favor of `injector().get()` and `injector().getAsync()`
 
 In beta.3, the Transition APIs: `injector()`, `getResolvable`, and `getResolveValue` duplicated functionality.
 
@@ -181,7 +184,7 @@ use:
 ```js
 trans.injector().get('myResolve')
 ```
-* Hook errors are all normalized to a "Rejection" type.  To access the  detail of the error thrown (`throw "Error 123"`), use `.detail`, i.e.:
+# BREAKING CHANGE: Hook errors are all normalized to a "Rejection" type.  To access the  detail of the error thrown (`throw "Error 123"`), use `.detail`, i.e.:
 ### Before
 ```js
 $state.go('foo').catch(err => { if (err === "Error 123") .. });
@@ -190,17 +193,17 @@ $state.go('foo').catch(err => { if (err === "Error 123") .. });
 ```js
 $state.go('foo').catch(err => { if (err.detail === "Error 123") .. });
 ```
-* Replace `LocationServices.setUrl` with `LocationServices.url`
+# BREAKING CHANGE: Replace `LocationServices.setUrl` with `LocationServices.url`
 
 This makes `url()` a getter/setter.  It also adds the optional `state` parameter to pass through to the browser history when using pushstate.
 End users should not notice this change, but plugin authors may.
-* Replace UrlRouterProvider/UrlRouter with just UrlRouter
+# BREAKING CHANGE: Replace UrlRouterProvider/UrlRouter with just UrlRouter
 
 The configuration functions from the provider object have been integrated into the normal UrlRouter object.
 The `UIRouter` object no longer has a `uriRouterProvider`, but the equivalent functions can be found on `uiRouter`
 
 One difference between the old functions on `urlRouterProvider` and the new ones on `uriRouter` is that new functions do not accept injectable functions.
-* Built-in `string` parameter type no longer encodes slashes as `~2F` nor tildes as `~~`
+# BREAKING CHANGE: Built-in `string` parameter type no longer encodes slashes as `~2F` nor tildes as `~~`
 
 Previously, the `string` parameter type pre-encoded tilde chars (`~`) as two tilde chars (`~~`) and slashes (`/`) as `~2F`.
 
@@ -216,14 +219,14 @@ urlMatcherFactory.type('tildes', {
   pattern: /[^/]*/
 });
 ```
-* Path/Query parameters no longer default to `string` param type
+# BREAKING CHANGE: Path/Query parameters no longer default to `string` param type
 
 Previously, if a url parameter's type  was not specified (in either the path or query), it defaulted to the `string` type.
 
 Now, path parameters default to the new `path` type and query parameters default to the new `query` type.
 
 **In Angular 1 only**, the new `path` parameter type retains the old behavior of pre-encoding `~` to `~~` and `/` to `~2F`
-* Order URL Matching Rules by priority, not registration order
+# BREAKING CHANGE: Order URL Matching Rules by priority, not registration order
 
 URL Rules can come from registered states' `.url`s, calling `.when()`, or calling `.rule()`.
 It's possible that two or more URL Rules could match the URL.
@@ -307,13 +310,16 @@ myApp.config(function ($urlServiceProvider) {
 
 });
 ```
-* Move `html5Mode` and `hashPrefix` from `LocationServices` to `LocationConfig` interface
+# BREAKING CHANGE: Move `html5Mode` and `hashPrefix` from `LocationServices` to `LocationConfig` interface
 
 ### End users should not notice
-* move `ViewService.viewConfigFactory` and `rootContext`  to `_pluginapi.*`
+
+# BREAKING CHANGE: move `ViewService.viewConfigFactory` and `rootContext`  to `_pluginapi.*`
 This BC happened in commit 6c42285
-* Move html5Mode and hashPrefix to LocationServices from LocationConfig
-* Previously, a state with a `lazyLoad` function was considered a future state.
+
+# BREAKING CHANGE: Move html5Mode and hashPrefix to LocationServices from LocationConfig
+
+# BREAKING CHANGE: Previously, a state with a `lazyLoad` function was considered a future state.
 Now, a state whose name ends with `.**` (i.e., a glob pattern which matches all children) is a future state.
 
 ### All future states should be given a name that ends in `.**`.
@@ -326,7 +332,7 @@ to:
 ```
 { name: 'future.**', url: '/future', lazyLoad: () => ... }
 ```
-* (CoreServices) Move `location` and `locationConfig` from `services` to `UIRouter.locationService` and `UIRouter.locationConfig`.
+# BREAKING CHANGE: (CoreServices) Move `location` and `locationConfig` from `services` to `UIRouter.locationService` and `UIRouter.locationConfig`.
 
 The core `services` object is a mutable object which each framework was monkey patching.
 This change removes the requirement to monkey patch a global mutable object.
@@ -335,6 +341,8 @@ Instead, framework implementors should pass the `LocationServices` and `Location
 ### End Users
 
 End users who were accessing `services.location` or `services.locationConfig` should access these off the `UIRouter` instance instead.
+
+
 
 
 
