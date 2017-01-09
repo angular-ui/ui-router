@@ -63,10 +63,10 @@
   "jsnext:main": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "ui-router-core": "2.0.0"
+    "ui-router-core": "3.1.0"
   },
   "peerDependencies": {
-    "angular": ">=1.2.0 <2.0.0"
+    "angular": ">=1.2.0"
   },
   "devDependencies": {
     "@types/angular": "^1.5.14",
