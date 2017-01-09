@@ -1,3 +1,343 @@
+<a name="1.0.0-rc.1"></a>
+# [1.0.0-rc.1](https://github.com/angular-ui/ui-router/compare/1.0.0-beta.3...v1.0.0-rc.1) (2017-01-09)
+
+
+### Bug Fixes
+
+* Post-process .d.ts files to make them compatible with TS 1.8 ([c8162ee](https://github.com/angular-ui/ui-router/commit/c8162ee)), closes [#3070](https://github.com/angular-ui/ui-router/issues/3070)
+* **$stateChangeSuccess:** fire polyfill `$stateChangeSuccess` right after global state are updated ([3984f9b](https://github.com/angular-ui/ui-router/commit/3984f9b)), closes [#3144](https://github.com/angular-ui/ui-router/issues/3144)
+* **$viewContentLoading:** Add $viewContentLoading event back ([c346a28](https://github.com/angular-ui/ui-router/commit/c346a28))
+* **build:** Use global `angular` reference if require('angular') is falsey or empty ([2982613](https://github.com/angular-ui/ui-router/commit/2982613)), closes [#3113](https://github.com/angular-ui/ui-router/issues/3113)
+* **component:** Do not throw err when component has `&` binding ([b5c731d](https://github.com/angular-ui/ui-router/commit/b5c731d)), closes [#3099](https://github.com/angular-ui/ui-router/issues/3099)
+* **Ng1ViewDeclaration:** Make controllerProvider IInjectable ([#3056](https://github.com/angular-ui/ui-router/issues/3056)) ([a3136ae](https://github.com/angular-ui/ui-router/commit/a3136ae)), closes [#3044](https://github.com/angular-ui/ui-router/issues/3044)
+* **ng2.uiSrefActive:** Allow ng-if on nested uiSrefs ([e3051f5](https://github.com/angular-ui/ui-router/commit/e3051f5)), closes [#3046](https://github.com/angular-ui/ui-router/issues/3046)
+* **onExit:** inject resolve values using the "from path" ([c91b65a](https://github.com/angular-ui/ui-router/commit/c91b65a))
+* **onExit:** inject the current transition as `$transition$` ([c91b65a](https://github.com/angular-ui/ui-router/commit/c91b65a)), closes [#3081](https://github.com/angular-ui/ui-router/issues/3081)
+* **package:** use engines: node: >=4.0.0 ([6801b0c](https://github.com/angular-ui/ui-router/commit/6801b0c)), closes [#3086](https://github.com/angular-ui/ui-router/issues/3086)
+* **Resolve:** Fix NOWAIT resolve injection into controllers and bindings to components. ([cb57ce9](https://github.com/angular-ui/ui-router/commit/cb57ce9))
+* **typings:** Change Ng1ViewDeclaration.controller type to IInjectable|string ([d2b5d84](https://github.com/angular-ui/ui-router/commit/d2b5d84)), closes [#3089](https://github.com/angular-ui/ui-router/issues/3089)
+* **typings:** Change Ng1ViewDeclaration.controller type to IInjectable|string ([8e91dc9](https://github.com/angular-ui/ui-router/commit/8e91dc9))
+* **ui-sref:** Update `ui-sref/state` href when states are added/removed ([389dfd5](https://github.com/angular-ui/ui-router/commit/389dfd5))
+* **ui-sref:** Update params-only sref when state changes ([3c1bd0e](https://github.com/angular-ui/ui-router/commit/3c1bd0e)), closes [#1031](https://github.com/angular-ui/ui-router/issues/1031) [#2541](https://github.com/angular-ui/ui-router/issues/2541)
+* **ui-sref:** Use either .on or .bind for click handlers ([b00f044](https://github.com/angular-ui/ui-router/commit/b00f044)), closes [#3035](https://github.com/angular-ui/ui-router/issues/3035)
+* **ui-sref-active:** Add CSS class immediately (avoid delay) ([27eb5e9](https://github.com/angular-ui/ui-router/commit/27eb5e9)), closes [#2503](https://github.com/angular-ui/ui-router/issues/2503)
+* **ui-sref-active:** Avoid add/remove class race condition ([126a4ad](https://github.com/angular-ui/ui-router/commit/126a4ad))
+* **ui-sref-active:** Use `$scope.$evalAsync` to apply css class ([6a9d9ae](https://github.com/angular-ui/ui-router/commit/6a9d9ae)), closes [#2503](https://github.com/angular-ui/ui-router/issues/2503) [#1997](https://github.com/angular-ui/ui-router/issues/1997) [#2503](https://github.com/angular-ui/ui-router/issues/2503) [#1997](https://github.com/angular-ui/ui-router/issues/1997)
+* **ui-state:** Process ui-state links relative to where they are created ([cae4dc4](https://github.com/angular-ui/ui-router/commit/cae4dc4))
+* **ui-state:** Support one time bindings in ng 1.3 ([389dfd5](https://github.com/angular-ui/ui-router/commit/389dfd5)), closes [#3131](https://github.com/angular-ui/ui-router/issues/3131) [#3054](https://github.com/angular-ui/ui-router/issues/3054)
+* **uiView:** do not leave initial view scope undestroyed ([#3164](https://github.com/angular-ui/ui-router/issues/3164)) ([37d6f9a](https://github.com/angular-ui/ui-router/commit/37d6f9a)), closes [#1896](https://github.com/angular-ui/ui-router/issues/1896)
+
+
+### Features
+
+* bundle using rollupjs for smaller bundle and faster init times ([a4b5500](https://github.com/angular-ui/ui-router/commit/a4b5500))
+* Deprecate public use of `$urlRouter` and `$urlMatcherFactory` in favor of `$urlService` ([6ee7f21](https://github.com/angular-ui/ui-router/commit/6ee7f21))
+* Move imperative `$resolve` service out of main bundle ([cae6d03](https://github.com/angular-ui/ui-router/commit/cae6d03))
+* remove component.json ([af736c4](https://github.com/angular-ui/ui-router/commit/af736c4))
+* Use angular 1.3+ `$templateRequest` service to fetch templates ([7e1f36e](https://github.com/angular-ui/ui-router/commit/7e1f36e)), closes [#3193](https://github.com/angular-ui/ui-router/issues/3193) [#1882](https://github.com/angular-ui/ui-router/issues/1882)
+* **$uiRouter:** expose router instance at config-time as `$uiRouterProvider.router` ([9d2661c](https://github.com/angular-ui/ui-router/commit/9d2661c))
+* **injectables:** Expose `$uiRouterProvider`, `$uiRouterGlobals`, and `$stateRegistry` injectables ([7fa72a6](https://github.com/angular-ui/ui-router/commit/7fa72a6))
+* **ui-sref-active:** improve performance by reducing $watches ([126a4ad](https://github.com/angular-ui/ui-router/commit/126a4ad))
+* **ui-view:** Route-to-component: Wire component "&" bindings ([af95206](https://github.com/angular-ui/ui-router/commit/af95206)), closes [#3239](https://github.com/angular-ui/ui-router/issues/3239) [#3111](https://github.com/angular-ui/ui-router/issues/3111)
+* **UrlService:** Create UrlService API (facade) for easier access to URL based APIs ([6ee7f21](https://github.com/angular-ui/ui-router/commit/6ee7f21))
+* **view:** A view without anything to render defaults to `<ui-view></ui-view>` ([7d28fdd](https://github.com/angular-ui/ui-router/commit/7d28fdd)), closes [#3178](https://github.com/angular-ui/ui-router/issues/3178)
+* **view:** Route a view to a directive using `componentProvider` ([#3165](https://github.com/angular-ui/ui-router/issues/3165)) ([090d2e3](https://github.com/angular-ui/ui-router/commit/090d2e3))
+
+
+### BREAKING CHANGES
+
+# BREAKING CHANGE: Deprecate public use of `$urlRouter` and `$urlMatcherFactory` in favor of `$urlService`
+
+The `UrlService` combines the commonly used URL APIs in a single place.
+The service may be injected in a run block as `$urlService`, or in a config block as `$urlServiceProvider`.
+
+The service object has two nested API objects, `rules` and `config`. An example usage is `$urlService.rules.otherwise('/home')`
+
+The existing API for `$urlRouter` and `$urlMatcherFactory` will continue to function as before, but are now considered an "internal API".\
+The new `$urlService` is a facade which delegates to the appropriate internal APIs.
+
+# BREAKING CHANGE: Use angular 1.3+ `$templateRequest` service to fetch templates
+
+We now fetch templates using `$templateRequest` when it is available (angular 1.3+).
+You can revert to previous template fetching behavior using `$http` by configuring the ui-router `$templateFactoryProvider`.
+
+```js
+.config(function($templateFactoryProvider) {
+  $templateFactoryProvider.shouldUnsafelyUseHttp(true);
+});
+```
+
+There are security ramifications to using `$http` to fetch templates.
+Read
+[Impact on loading templates](https://docs.angularjs.org/api/ng/service/$sce#impact-on-loading-templates)
+for more details
+
+# BREAKING CHANGE: Move imperative `$resolve` service out of main bundle
+
+The `$resolve` service's `.resolve()` method can be used to perform async dependency injection imperatively.
+
+The code has been moved out of the main angular-ui-router codebase and is now opt-in.
+For prebuilt bundle users, add `release/resolveService.js` to your project.
+For self-bundlers (e.g., webpack), add `angular-ui-router/lib/resolveService` as an `import` or `require()`.
+
+It's unlikely you use this service.
+Its most common usage is with the UI-Bootstrap `$modal` service.
+
+# BREAKING CHANGE: remove component.json
+
+# ui-router-core changes
+
+This release of angular-ui-router (1.0.0-rc.1) updates ui-router-core to 3.1.0
+These are the changes in ui-router-core from 1.0.0-beta.3 to 3.1.0
+
+# [3.1.0](https://github.com/ui-router/core/compare/1.0.0-beta.3...3.1.0) (2017-01-09)
+
+
+### Bug Fixes
+
+* **lazyLoad:** Sync by URL after nested lazy load triggered by URL ([1c6220c](https://github.com/ui-router/core/commit/1c6220c))
+* **lazyLoad:** Use UrlService.match() to retry url sync after successful lazy load triggered by url ([8c2461d](https://github.com/ui-router/core/commit/8c2461d)), closes [#19](https://github.com/ui-router/core/issues/19)
+* **Ng1ViewDeclaration:** Make controllerProvider IInjectable ([#3056](https://github.com/ui-router/core/issues/3056)) ([a3136ae](https://github.com/ui-router/core/commit/a3136ae)), closes [#3044](https://github.com/ui-router/core/issues/3044)
+* **ng2.uiSrefActive:** Allow ng-if on nested uiSrefs ([e3051f5](https://github.com/ui-router/core/commit/e3051f5)), closes [#3046](https://github.com/ui-router/core/issues/3046)
+* **onBefore:** Skip remaining hooks after the ([#2](https://github.com/ui-router/core/issues/2)) ([8a45d04](https://github.com/ui-router/core/commit/8a45d04))
+* **param:** `params: { foo: { raw: true } }` overrides `ParamType.raw` ([aefeabf](https://github.com/ui-router/core/commit/aefeabf))
+* **Param:** Mark all query parameters as optional ([7334d98](https://github.com/ui-router/core/commit/7334d98))
+* **params:** Check for null in `int` param type `is()` check ([aa551e4](https://github.com/ui-router/core/commit/aa551e4)), closes [#3197](https://github.com/ui-router/core/issues/3197)
+* **redirect:** Do not allow `onBefore` hooks to cause infinite redirect loops ([5c5f7eb](https://github.com/ui-router/core/commit/5c5f7eb)), closes [#6](https://github.com/ui-router/core/issues/6)
+* **redirectTo:** Do not puke when redirectTo returns undefined ([bde9c0f](https://github.com/ui-router/core/commit/bde9c0f))
+* **redirectTo:** fix TS type signature of `redirectTo` ([2c059c4](https://github.com/ui-router/core/commit/2c059c4))
+* **StateQueueManager:** Compare parsed url parameters using typed parameters ([beca1f5](https://github.com/ui-router/core/commit/beca1f5))
+* **StateRegistry:** Fix error message: State '' is already defined ([f5bd96b](https://github.com/ui-router/core/commit/f5bd96b))
+* **StateService:** Compare typed parameters in .is() and .includes() ([b1a5155](https://github.com/ui-router/core/commit/b1a5155))
+* **TargetState:** Narrow `name()` return type to `String` ([a02f4a7](https://github.com/ui-router/core/commit/a02f4a7))
+* **Transition:** Use { location: replace } when redirecting a transtition in response to a URL sync ([23e2b78](https://github.com/ui-router/core/commit/23e2b78))
+* **typescript:** Emit TS 1.8 compatible .d.ts files ([65badf4](https://github.com/ui-router/core/commit/65badf4))
+* **typings:** Allow urlRouter.rule to return void ([0b78bdf](https://github.com/ui-router/core/commit/0b78bdf))
+* **ui-sref:** Use either .on or .bind for click handlers ([b00f044](https://github.com/ui-router/core/commit/b00f044)), closes [#3035](https://github.com/ui-router/core/issues/3035)
+* **UrlRouter:** Use { location: 'replace' } whenever a url redirect happens ([6cf9b8f](https://github.com/ui-router/core/commit/6cf9b8f))
+* **UrlService:** Wire urlMatcherFactory and urlRouter functions ([a7b58d6](https://github.com/ui-router/core/commit/a7b58d6))
+* **vanilla:** vanilla locations: do not parse "empty string" query key parameter ([f949480](https://github.com/ui-router/core/commit/f949480))
+* **view:** Load view prerequisites in `onFinish` ([cc85e76](https://github.com/ui-router/core/commit/cc85e76))
+* **view.load:** Allow view.load to return synchronously ([8619cf9](https://github.com/ui-router/core/commit/8619cf9))
+
+
+### Features
+
+* (CoreServices) Move `location` and `locationConfig` from `services` to `UIRouter.locationService` and `UIRouter.locationConfig`. ([029fb00](https://github.com/ui-router/core/commit/029fb00))
+* Built-in `string` parameter type no longer encodes slashes as `~2F` nor tildes as `~~` ([72bb2d8](https://github.com/ui-router/core/commit/72bb2d8))
+* Create router.dispose() to dispose a router instance and resources. ([0690917](https://github.com/ui-router/core/commit/0690917))
+* Hook errors are all normalized to a "Rejection" type.  To access the  detail of the error thrown (`throw "Error 123"`), use `.detail`, i.e.: ([f486ced](https://github.com/ui-router/core/commit/f486ced))
+* Move `html5Mode` and `hashPrefix` from `LocationServices` to `LocationConfig` interface ([9d316a7](https://github.com/ui-router/core/commit/9d316a7))
+* move `ViewService.viewConfigFactory` and `rootContext`  to `_pluginapi.*` ([65badf4](https://github.com/ui-router/core/commit/65badf4))
+* Move html5Mode and hashPrefix to LocationServices from LocationConfig ([f7ac2bb](https://github.com/ui-router/core/commit/f7ac2bb))
+* Order URL Matching Rules by priority, not registration order ([eb2f5d7](https://github.com/ui-router/core/commit/eb2f5d7))
+* Path/Query parameters no longer default to `string` param type ([72bb2d8](https://github.com/ui-router/core/commit/72bb2d8))
+* Previously, a state with a `lazyLoad` function was considered a future state. ([ec50da4](https://github.com/ui-router/core/commit/ec50da4))
+* Remove `getResolveValue` and `getResolvable`  methods from `Transition` in favor of `injector().get()` and `injector().getAsync()` ([111d259](https://github.com/ui-router/core/commit/111d259))
+* Replace `LocationServices.setUrl` with `LocationServices.url` ([4c39dcb](https://github.com/ui-router/core/commit/4c39dcb))
+* Replace UrlRouterProvider/UrlRouter with just UrlRouter ([fddd1e2](https://github.com/ui-router/core/commit/fddd1e2))
+* **assertMap:** Add a [].map() helper that asserts that each element is truthy ([f044f53](https://github.com/ui-router/core/commit/f044f53))
+* **futureState:** States with a `.**` name suffix (i.e., `foo.**`) are considered future states ([ec50da4](https://github.com/ui-router/core/commit/ec50da4))
+* **hash:** Change the hash parameter type (`'#'`) to `inherit: false` so it is cleared out when another transition occurs. ([849f84f](https://github.com/ui-router/core/commit/849f84f)), closes [#3245](https://github.com/ui-router/core/issues/3245) [#3218](https://github.com/ui-router/core/issues/3218) [#3017](https://github.com/ui-router/core/issues/3017)
+* **HookBuilder:** Allow custom hook types (to be defined by a plugin) ([3f146e6](https://github.com/ui-router/core/commit/3f146e6))
+* **lazyLoad:** Created `StateService.lazyLoad` method to imperatively lazy load a state ([ec50da4](https://github.com/ui-router/core/commit/ec50da4)), closes [#8](https://github.com/ui-router/core/issues/8)
+* **lazyLoad:** Exported/exposed the `lazyLoadState` function ([ec50da4](https://github.com/ui-router/core/commit/ec50da4))
+* **lazyLoad:** the `lazyLoad` hook can be used to lazy load anything (component code, etc) ([ec50da4](https://github.com/ui-router/core/commit/ec50da4)), closes [#4](https://github.com/ui-router/core/issues/4)
+* **LocationServices:** Add a `parts()` method which returns the URL parts as an object ([32e64f0](https://github.com/ui-router/core/commit/32e64f0))
+* **onCreate:** Add onCreate transition hook ([f486ced](https://github.com/ui-router/core/commit/f486ced))
+* **params:** Add `path` and `query` param types ([72bb2d8](https://github.com/ui-router/core/commit/72bb2d8))
+* **params:** add option to use generic type for Transition.params ([#17](https://github.com/ui-router/core/issues/17)) ([eb12ec8](https://github.com/ui-router/core/commit/eb12ec8)), closes [#16](https://github.com/ui-router/core/issues/16)
+* **Params:** Allow `inherit: false` specified per parameter or type ([849f84f](https://github.com/ui-router/core/commit/849f84f))
+* **plugin:** Allow all plugins to be gotted. ([e324973](https://github.com/ui-router/core/commit/e324973))
+* **plugin:** Allow registration by ES6 class, JS constructor fn, JS factory fn ([b9f4541](https://github.com/ui-router/core/commit/b9f4541))
+* **plugin:** Create plugin API ([36a5215](https://github.com/ui-router/core/commit/36a5215)), closes [#7](https://github.com/ui-router/core/issues/7)
+* **Resolve:** implement NOWAIT policy: Do not wait for resolves before completing a transition. ([05d4c73](https://github.com/ui-router/core/commit/05d4c73)), closes [#3243](https://github.com/ui-router/core/issues/3243) [#2691](https://github.com/ui-router/core/issues/2691)
+* **State:** add .parameters() option for filtering to matching keys ([beca1f5](https://github.com/ui-router/core/commit/beca1f5))
+* **transition:** Allow plugins to define own transition events like `onEnter` ([0dc2c19](https://github.com/ui-router/core/commit/0dc2c19))
+* **transition:** Create ([2673406](https://github.com/ui-router/core/commit/2673406))
+* **Transition:** Add Transition.originalTransition() to return the initial transition in a chain of redirects ([4fe39e3](https://github.com/ui-router/core/commit/4fe39e3))
+* **Transition:** Allow `injector()` to retrieve resolves for the exiting states/path ([df502e8](https://github.com/ui-router/core/commit/df502e8))
+* **Transition:** Allow a plain object `ResolvableLiteral` in `Transition.addResolvable` ([ad9ae81](https://github.com/ui-router/core/commit/ad9ae81))
+* **Transition:** Make Transition.params() immutable to avoid confusion about mutability ([0162212](https://github.com/ui-router/core/commit/0162212))
+* **Transition:** Support treechange paths in API for Resolve+transition ([beedc82](https://github.com/ui-router/core/commit/beedc82))
+* **UrlMatcher:** Add comparison function by UrlMatcher specificity ([eb2f5d7](https://github.com/ui-router/core/commit/eb2f5d7))
+* **UrlRouter:** sort url rules by specificity, not by registration order. ([eb2f5d7](https://github.com/ui-router/core/commit/eb2f5d7))
+* **UrlService:** allow eager or lazy binding of location objects during construction ([7e0a8af](https://github.com/ui-router/core/commit/7e0a8af))
+* **UrlServices:** Add `match()`: given a URL, return the best matching Url Rule ([32e64f0](https://github.com/ui-router/core/commit/32e64f0))
+* **vanilla:** Implement in-memory-only location api ([f64aace](https://github.com/ui-router/core/commit/f64aace))
+
+
+### BREAKING CHANGES
+
+* Remove `getResolveValue` and `getResolvable`  methods from `Transition` in favor of `injector().get()` and `injector().getAsync()`
+
+In beta.3, the Transition APIs: `injector()`, `getResolvable`, and `getResolveValue` duplicated functionality.
+
+Instead of:
+```js
+trans.getResolveValue('myResolve');
+```
+use:
+```js
+trans.injector().get('myResolve')
+```
+* Hook errors are all normalized to a "Rejection" type.  To access the  detail of the error thrown (`throw "Error 123"`), use `.detail`, i.e.:
+### Before
+```js
+$state.go('foo').catch(err => { if (err === "Error 123") .. });
+```
+### New way
+```js
+$state.go('foo').catch(err => { if (err.detail === "Error 123") .. });
+```
+* Replace `LocationServices.setUrl` with `LocationServices.url`
+
+This makes `url()` a getter/setter.  It also adds the optional `state` parameter to pass through to the browser history when using pushstate.
+End users should not notice this change, but plugin authors may.
+* Replace UrlRouterProvider/UrlRouter with just UrlRouter
+
+The configuration functions from the provider object have been integrated into the normal UrlRouter object.
+The `UIRouter` object no longer has a `uriRouterProvider`, but the equivalent functions can be found on `uiRouter`
+
+One difference between the old functions on `urlRouterProvider` and the new ones on `uriRouter` is that new functions do not accept injectable functions.
+* Built-in `string` parameter type no longer encodes slashes as `~2F` nor tildes as `~~`
+
+Previously, the `string` parameter type pre-encoded tilde chars (`~`) as two tilde chars (`~~`) and slashes (`/`) as `~2F`.
+
+Now, the `string` parameter type does not pre-encode slashes nor tildes.
+If you rely on the previous encoding, create a custom parameter type that implements the behavior:
+
+```js
+urlMatcherFactory.type('tildes', {
+  encode: (val: any) =>
+      val != null ? val.toString().replace(/(~|\/)/g, m => ({ '~': '~~', '/': '~2F' }[m])) : val;
+  decode: (val: string) =>
+      val != null ? val.toString().replace(/(~~|~2F)/g, m => ({ '~~': '~', '~2F': '/' }[m])) : val;
+  pattern: /[^/]*/
+});
+```
+* Path/Query parameters no longer default to `string` param type
+
+Previously, if a url parameter's type  was not specified (in either the path or query), it defaulted to the `string` type.
+
+Now, path parameters default to the new `path` type and query parameters default to the new `query` type.
+
+**In Angular 1 only**, the new `path` parameter type retains the old behavior of pre-encoding `~` to `~~` and `/` to `~2F`
+* Order URL Matching Rules by priority, not registration order
+
+URL Rules can come from registered states' `.url`s, calling `.when()`, or calling `.rule()`.
+It's possible that two or more URL Rules could match the URL.
+
+### Previously
+
+Previously, url rules were matched in the order in which they were registered.
+The rule which was registered first would handle the URL change.
+
+### Now
+
+Now, the URL rules are sorted according to a sort function.
+More specific rules are preferred over less specific rules
+
+### Why
+
+It's possible to have multiple url rules that match a given URL.
+Consider the following states:
+
+ - `{ name: 'books', url: '/books/index' }''`
+ - `{ name: 'book', url: '/books/:bookId' }''`
+
+Both states match when the url is `/books/index`.
+Additionally, you might have some custom url rewrite rules such as:
+
+ `.when('/books/list', '/books/index')`.
+
+The `book` state also matches when the rewrite rule is matched.
+
+Previously, we simply used the first rule that matched.  However, now that lazy loading is officially supported, it can be difficult for developers to ensure the rules are registered in the right order.
+
+Instead, we now prioritize url rules by how specific they are.  More specific rules are matched earlier than less specific rules.
+We split the path on `/`.  A static segment (such as `index` in the example) is more specific than a parameter (such as`:bookId`).
+
+### More Details
+
+The built-in rule sorting function (see `UrlRouter.defaultRuleSortFn`) sorts rules in this order:
+
+- Explicit priority: `.when('/foo', '/bar', { priority: 1 })` (default priority is 0)
+- Rule Type:
+  - UrlMatchers first (registered states and `.when(string, ...)`)
+  - then regular Expressions (`.when(regexp, ...)`)
+  - finally, everything else (`.rule()`)
+- UrlMatcher specificity: static path segments are more specific than variables (see `UrlMatcher.compare`)
+- Registration order (except for UrlMatcher based rules)
+
+For complete control, a custom sort function can be registered with `UrlService.rules.sort(sortFn)`
+
+### Query params
+
+Because query parameters are optional, they are not considered during sorting.
+For example, both these rules will match when the url is `'/foo/bar'`:
+
+```
+.when('/foo/bar', doSomething);
+.when('/foo/bar?queryparam', doSomethingElse);
+```
+
+To choose the most specific rule, we match both rules, then choose the rule with the "best ratio" of matched optional parameters (see `UrlRuleFactory.fromUrlMatcher`)
+
+This allows child states to be defined with only query params for a URL.
+The state only activates when the query parameter is present.
+
+```
+.state('parent', { url: '/parent' });
+.state('parent.child', { url: '?queryParam' });
+```
+
+## Restoring the previous behavior
+
+For backwards compatibility, register a sort function which sorts by the registration order:
+
+```js
+myApp.config(function ($urlServiceProvider) {
+
+  function sortByRegistrationOrder(a, b) {
+   return a.$id - b.$id;
+  }
+
+  $urlServiceProvider.rules.sort(sortByRegistrationOrder);
+
+});
+```
+* Move `html5Mode` and `hashPrefix` from `LocationServices` to `LocationConfig` interface
+
+### End users should not notice
+* move `ViewService.viewConfigFactory` and `rootContext`  to `_pluginapi.*`
+This BC happened in commit 6c42285
+* Move html5Mode and hashPrefix to LocationServices from LocationConfig
+* Previously, a state with a `lazyLoad` function was considered a future state.
+Now, a state whose name ends with `.**` (i.e., a glob pattern which matches all children) is a future state.
+
+### All future states should be given a name that ends in `.**`.
+
+Change your future states from:
+```
+{ name: 'future', url: '/future', lazyLoad: () => ... }
+```
+to:
+```
+{ name: 'future.**', url: '/future', lazyLoad: () => ... }
+```
+* (CoreServices) Move `location` and `locationConfig` from `services` to `UIRouter.locationService` and `UIRouter.locationConfig`.
+
+The core `services` object is a mutable object which each framework was monkey patching.
+This change removes the requirement to monkey patch a global mutable object.
+Instead, framework implementors should pass the `LocationServices` and `LocationConfig` implementations into the `UIRouter` constructor.
+
+### End Users
+
+End users who were accessing `services.location` or `services.locationConfig` should access these off the `UIRouter` instance instead.
+
+
+
 <a name="1.0.0-beta.3"></a>
 # [1.0.0-beta.3 commits](https://github.com/angular-ui/ui-router/compare/1.0.0-beta.2...1.0.0-beta.3) (2016-09-23)
 
