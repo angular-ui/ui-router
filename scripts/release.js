@@ -24,6 +24,10 @@ if (!readlineSync.keyInYN('Did you push all changes back to origin?')) {
   process.exit(1);
 }
 
+if (!readlineSync.keyInYN('Ready to publish?')) {
+  process.exit(1);
+}
+
 util.ensureCleanMaster('master');
 
 _exec('npm run package');
@@ -31,21 +35,22 @@ _exec(`npm run docs`);
 
 console.log('Updating version in bower.json to ${version}');
 
-let bowerJson = JSON.parse(fs.readFileSync(BOWER_JSON, 'UTF-8'));
+let bowerJson = JSON.parse(fs.readFileSync('bower.json', 'UTF-8'));
 bowerJson.version = version;
-fs.writeFileSync(BOWER_JSON, asJson(bowerJson));
-_exec(`git commit -m "Release ${version}"`);
+fs.writeFileSync('bower.json', JSON.stringify(bowerJson));
+_exec(`git commit -m "Release ${version}" bower.json`);
 
 util.ensureCleanMaster('master');
 
 // publish to npm first
 _exec(`npm publish`);
 
-// then branch, add/commit release files, tag, and push
+// then tag and push tag 
 _exec(`git tag ${version}`);
 _exec(`git push`);
 _exec(`git push origin ${version}`);
 
+// branch, add/commit release files, and push to bower repository
 _exec(`git checkout -b bower-${version}`);
 _exec(`git add --force release`);
 _exec(`git commit -m "bower release ${version}"`);
