@@ -92,6 +92,7 @@
     "karma-systemjs": "^0.7.2",
     "karma-webpack": "^1.8.0",
     "lodash": "^4.5.1",
+    "readline-sync": "^1.4.5",
     "remap-istanbul": "^0.6.3",
     "replace-in-file": "^2.0.3",
     "rollup": "^0.38.0",

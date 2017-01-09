@@ -2994,6 +2994,10 @@ readdirp@^2.0.0:
     readable-stream "^2.0.2"
     set-immediate-shim "^1.0.1"
 
+readline-sync@^1.4.5:
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/readline-sync/-/readline-sync-1.4.5.tgz#c70d2b1473ecabc1e4d533cbaf3e8249fb77e992"
+
 recast@0.10.33, recast@^0.10.10:
   version "0.10.33"
   resolved "https://registry.yarnpkg.com/recast/-/recast-0.10.33.tgz#942808f7aa016f1fa7142c461d7e5704aaa8d697"
@@ -3227,13 +3231,13 @@ rollup@^0.38.0:
   dependencies:
     source-map-support "^0.4.0"
 
-"semver@2 || 3 || 4 || 5", semver@~4.3.3:
-  version "4.3.6"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-4.3.6.tgz#300bc6e0e86374f7ba61068b5b1ecd57fc6532da"
-
-semver@^5.0.1, semver@~5.3.0:
+"semver@2 || 3 || 4 || 5", semver@^5.0.1, semver@~5.3.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.3.0.tgz#9b2ce5d3de02d17c6012ad326aa6b4d0cf54f94f"
+
+semver@~4.3.3:
+  version "4.3.6"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-4.3.6.tgz#300bc6e0e86374f7ba61068b5b1ecd57fc6532da"
 
 send@0.14.1:
   version "0.14.1"
