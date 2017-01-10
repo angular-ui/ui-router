@@ -146,8 +146,8 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    *
    * ## View targeting details
    *
-   * There are a few styles of view addressing/targeting.  The most common is a simple `ui-view` name
-   *
+   * There are a few styles of view addressing/targeting.
+   * The most common is a simple `ui-view` name
    *
    * #### Simple ui-view name
    *
@@ -156,7 +156,9 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    * #### Example:
    * ```js
    * // target the `<div ui-view='foo'></div>` created in the parent state's view
-   * views: { foo: {...} }
+   * views: {
+   *   foo: {...}
+   * }
    * ```
    *
    * #### View name anchored to a state
@@ -164,42 +166,65 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    * You can anchor the `ui-view` name to a specific state by including an `@`
    *
    * #### Example:
+   * targets the `<div ui-view='foo'></div>` which was created in a view owned by the state `bar.baz`
    * ```js
-   * // target the `<div ui-view='foo'></div>` which was created in a
-   * // view owned by the state `bar.baz`
-   * views: { 'foo@bar.baz': {...} }
+   * views: {
+   *   'foo@bar.baz': {...}
+   * }
    * ```
    *
    * #### Absolute addressing
    *
-   * You can address a `ui-view` absolutely, using dotted notation, by prefixing the address with a `!`.  Dotted
-   * addresses map to the hierarchy of `ui-view`s active in the DOM:
+   * You can address a `ui-view` absolutely, using dotted notation, by prefixing the address with a `!`.
+   * Dotted addresses traverse the hierarchy of `ui-view`s active in the DOM:
    *
    * #### Example:
+   * absolutely targets the `<div ui-view='nested'></div>`
+   * ... which was created in the unnamed/$default root `<ui-view></ui-view>`
    * ```js
-   * // absolutely target the `<div ui-view='nested'></div>`... which was created
-   * // in the unnamed/$default root `<ui-view></ui-view>`
-   * views: { '!$default.nested': {...} }
+   * views: {
+   *   '!$default.nested': {...}
+   * }
    * ```
    *
    * #### Relative addressing
    *
-   * Absolute addressing is actually relative addressing, only anchored to the unnamed root state.  You can also use
-   * relative addressing anchored to any state, in order to target a target deeply nested `ui-views`:
+   * Absolute addressing is actually relative addressing, anchored to the unnamed root state (`""`).
+   * You can also use relative addressing anchored to *any state*, in order to target a target deeply nested `ui-views`:
+   * The `ui-view` is targeted relative to the anchored state by traversing the nested `ui-view` names.
    *
    * #### Example:
+   * targets the `<div ui-view='bar'></div>`
+   * ... which was created inside the
+   * `<div ui-view='foo'></div>`
+   * ... which was created inside the parent state's template.
    * ```js
-   *
-   * // target the `<div ui-view='bar'></div>`... which was created inside the
-   * // `<div ui-view='bar'></div>`... which was created inside the parent state's template.
-   * views: { 'foo.bar': {...} }
+   * views: {
+   *   'foo.bar': {...}
+   * }
    * ```
    *
    * #### Example:
+   * targets the `<div ui-view='bar'></div>`
+   * ... which was created in `<div ui-view='foo'></div>`
+   * ... which was created in a template from the state `baz.qux`
    * ```js
-   * // target the `<div ui-view='bar'></div>`...  which was created in
-   * // `<div ui-view='foo'></div>`... which was created in a template crom the state `baz.qux`
-   * views: { 'foo.bar@baz.qux': {...} }
+   * views: {
+   *   'foo.bar@baz.qux': {...}
+   * }
+   * ```
+   *
+   * #### Example:
+   * a view can relatively target a named `ui-view` defined on an ancestor using `^` (meaning "parent")
+   * ```js
+   * views: {
+   *   'foo@^': {...}, // foo@(parent state) (same as simply 'foo')
+   *   'bar@^.^': {...}, // bar@(grandparent state)
+   *   'baz@^.^.^': {...}, // baz@(great-grandparent state)
+   * }
+   * ```
+   *
+   * For additional in-depth details about how `ui-view` addressing works, see the internal api [[ViewService.match]].
    *
    * ---
    *
