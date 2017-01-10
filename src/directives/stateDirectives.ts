@@ -107,7 +107,9 @@ function defaultOpts(el: IAugmentedJQuery, $state: StateService) {
  *
  * #### Example:
  * This will activate the `home` state when the link is clicked.
+ * ```html
  * <a ui-sref="home">Home</a>
+ * ```
  *
  * ### Relative Links
  * You can also use relative state paths within `ui-sref`, just like a relative path passed to `$state.go()` ([[StateService.go]]).
@@ -121,7 +123,7 @@ function defaultOpts(el: IAugmentedJQuery, $state: StateService) {
  * <a ui-sref=".child2">child 2 state</a>
  * ```
  *
- * This link activates the parent class.
+ * This link activates the parent state.
  * ```html
  * <a ui-sref="^">Return</a>
  * ```
