@@ -287,7 +287,7 @@ uiSref = ['$uiRouter', '$timeout',
  * Create a list of links.
  * ```html
  * <li ng-repeat="link in navlinks">
- *   <a ui-sref="link.state">{{ link.displayName }}</a>
+ *   <a ui-state="link.state">{{ link.displayName }}</a>
  * </li>
  * ```
  *
