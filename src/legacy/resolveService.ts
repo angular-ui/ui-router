@@ -38,7 +38,7 @@ var $resolve = {
    * // { id: 456, barData: 'bar data' }
    * ```
    *
-   * @param invocables an object which looks like an [[StateDefinition.resolve]] object; keys are resolve names and values are injectable functions
+   * @param invocables an object which looks like an [[StateDeclaration.resolve]] object; keys are resolve names and values are injectable functions
    * @param locals key/value pre-resolved data (locals)
    * @param parent a promise for a "parent resolve"
    */

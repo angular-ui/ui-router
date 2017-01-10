@@ -5,14 +5,9 @@ import {
 import { Ng1StateDeclaration } from "./interface";
 
 /**
- * @ngdoc object
- * @name ui.router.state.$stateProvider
+ * The Angular 1 `StateProvider`
  *
- * @requires ui.router.router.$urlRouterProvider
- * @requires ui.router.util.$urlMatcherFactoryProvider
- *
- * @description
- * The new `$stateProvider` works similar to Angular's v1 router, but it focuses purely
+ * The `$stateProvider` works similar to Angular's v1 router, but it focuses purely
  * on state.
  *
  * A state corresponds to a "place" in the application in terms of the overall UI and
@@ -31,15 +26,12 @@ export class StateProvider {
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.state.$stateProvider#decorator
-   * @methodOf ui.router.state.$stateProvider
+   * Decorates states when they are registered
    *
-   * @description
    * Allows you to extend (carefully) or override (at your own peril) the
-   * `stateBuilder` object used internally by `$stateProvider`. This can be used
-   * to add custom functionality to ui-router, for example inferring templateUrl
-   * based on the state name.
+   * `stateBuilder` object used internally by [[StateRegistry]].
+   * This can be used to add custom functionality to ui-router,
+   * for example inferring templateUrl based on the state name.
    *
    * When passing only a name, it returns the current (original or decorated) builder
    * function that matches `name`.
@@ -82,10 +74,10 @@ export class StateProvider {
    * - **includes** `{object}` - returns an object that includes every state that
    *   would pass a `$state.includes()` test.
    *
-   * @example
-   * <pre>
-   * // Override the internal 'views' builder with a function that takes the state
-   * // definition, and a reference to the internal function being overridden:
+   * #### Example:
+   * Override the internal 'views' builder with a function that takes the state
+   * definition, and a reference to the internal function being overridden:
+   * ```js
    * $stateProvider.decorator('views', function (state, parent) {
    *   let result = {},
    *       views = parent(state);
@@ -104,13 +96,14 @@ export class StateProvider {
    *     'contact.item': { controller: 'ItemController' }
    *   }
    * });
+   * ```
    *
-   * // ...
    *
-   * $state.go('home');
+   * ```js
    * // Auto-populates list and item views with /partials/home/contact/list.html,
    * // and /partials/home/contact/item.html, respectively.
-   * </pre>
+   * $state.go('home');
+   * ```
    *
    * @param {string} name The name of the builder function to decorate.
    * @param {object} func A function that is responsible for decorating the original
@@ -126,13 +119,12 @@ export class StateProvider {
   }
 
   /**
-   * @ngdoc function
-   * @name ui.router.state.$stateProvider#state
-   * @methodOf ui.router.state.$stateProvider
+   * Registers a state
    *
-   * @description
-   * Registers a state configuration under a given state name. The stateConfig object
-   * has the following acceptable properties.
+   * ### This is a passthrough to [[StateRegistry.register]].
+   *
+   * Registers a state configuration under a given state name.
+   * The stateConfig object has the following acceptable properties.
    *
    * <a id='template'></a>
    *
@@ -234,10 +226,9 @@ export class StateProvider {
    *
    * - **`data`** - {object=} - Arbitrary data object, useful for custom configuration.
    *
-   * @example
-   * <pre>
-   * // Some state name examples
-   *
+   * #### Example:
+   * Some state name examples
+   * ```js
    * // stateName can be a single top-level name (must be unique).
    * $stateProvider.state("home", {});
    *
@@ -253,7 +244,7 @@ export class StateProvider {
    *   .state("home", {})
    *   .state("about", {})
    *   .state("contacts", {});
-   * </pre>
+   * ```
    *
    * @param {string} name A unique state name, e.g. "home", "about", "contacts".
    * To create a parent/child state use a dot, e.g. "about.sales", "home.newest".

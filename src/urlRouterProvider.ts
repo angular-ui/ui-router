@@ -12,13 +12,13 @@ export interface RawNg1RuleFunction {
 /**
  * Manages rules for client-side URL
  *
+ * ### Deprecation warning Use [[UrlService]] instead
+ *
  * This class manages the router rules for what to do when the URL changes.
  *
- * ## Deprecation warning
- *
- * Use [[UrlService]]
- *
  * This provider remains for backwards compatibility.
+ *
+ * @deprecated
  */
 export class UrlRouterProvider {
   /** @hidden */ _router: UIRouter;
@@ -138,9 +138,8 @@ export class UrlRouterProvider {
    * - **string** which is treated as a redirect and passed to `$location.url()`
    * - **void** or any **truthy** value tells `$urlRouter` that the url was handled.
    *
-   * @example
+   * #### Example:
    * ```js
-   *
    * var app = angular.module('app', ['ui.router.router']);
    *
    * app.config(function ($urlRouterProvider) {

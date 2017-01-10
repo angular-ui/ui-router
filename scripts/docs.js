@@ -6,7 +6,7 @@ let replaceInFiles = require('replace-in-file');
 
 let typedocCmd = [
   "./node_modules/typedoc/bin/typedoc --tsconfig tsconfig.typedoc.json ",
-  " --readme README.md ",
+  " --readme DOCS.md ",
   " --name 'angular-ui-router' ",
   " --theme node_modules/ui-router-typedoc-themes/bin/default ",
   " --out _doc ",

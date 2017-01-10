@@ -1,5 +1,7 @@
 /**
- * Provides implementation of the UI-Router 0.2.x state events.
+ * # Legacy state events
+ *
+ * Polyfill implementation of the UI-Router 0.2.x state events.
  *
  * The 0.2.x state events are deprecated.  We recommend moving to Transition Hooks instead, as they
  * provide much more flexibility, support async, and provide the context (the Transition, etc) necessary
@@ -26,6 +28,8 @@ import { StateProvider } from "../stateProvider";
 /**
  * An event broadcast on `$rootScope` when the state transition **begins**.
  *
+ * ### Deprecation warning: use [[TransitionService.onStart]] instead
+ *
  * You can use `event.preventDefault()`
  * to prevent the transition from happening and then the transition promise will be
  * rejected with a `'transition prevented'` value.
@@ -38,9 +42,8 @@ import { StateProvider } from "../stateProvider";
  * - `options`: any Transition Options
  * - `$transition$`: the [[Transition]]
  *
- * @example
- * ```
- *
+ * #### Example:
+ * ```js
  * $rootScope.$on('$stateChangeStart', function(event, transition) {
  *   event.preventDefault();
  *   // transitionTo() promise will be rejected with
@@ -48,13 +51,15 @@ import { StateProvider } from "../stateProvider";
  * })
  * ```
  *
- * @deprecated use [[TransitionService.onStart]]
  * @event $stateChangeStart
+ * @deprecated
  */
 export var $stateChangeStart: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` if a transition is **cancelled**.
+ *
+ * ### Deprecation warning: use [[TransitionService.onStart]] instead
  *
  * Additional arguments to the event handler are provided:
  * - `toState`: the Transition Target state
@@ -64,14 +69,15 @@ export var $stateChangeStart: IAngularEvent;
  * - `options`: any Transition Options
  * - `$transition$`: the [[Transition]] that was cancelled
  *
- * @deprecated
  * @event $stateChangeCancel
+ * @deprecated
  */
 export var $stateChangeCancel: IAngularEvent;
 
 /**
- *
  * An event broadcast on `$rootScope` once the state transition is **complete**.
+ *
+ * ### Deprecation warning: use [[TransitionService.onStart]] and [[Transition.promise]], or [[Transition.onSuccess]]
  *
  * Additional arguments to the event handler are provided:
  * - `toState`: the Transition Target state
@@ -81,13 +87,15 @@ export var $stateChangeCancel: IAngularEvent;
  * - `options`: any Transition Options
  * - `$transition$`: the [[Transition]] that just succeeded
  *
- * @deprecated use [[TransitionService.onStart]] and [[Transition.promise]], or [[Transition.onSuccess]]
  * @event $stateChangeSuccess
+ * @deprecated
  */
 export var $stateChangeSuccess: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` when an **error occurs** during transition.
+ *
+ * ### Deprecation warning: use [[TransitionService.onStart]] and [[Transition.promise]], or [[Transition.onError]]
  *
  * It's important to note that if you
  * have any errors in your resolve functions (javascript errors, non-existent services, etc)
@@ -103,13 +111,15 @@ export var $stateChangeSuccess: IAngularEvent;
  * - `options`: any Transition Options
  * - `$transition$`: the [[Transition]] that errored
  *
- * @deprecated use [[TransitionService.onStart]] and [[Transition.promise]], or [[Transition.onError]]
  * @event $stateChangeError
+ * @deprecated
  */
 export var $stateChangeError: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` when a requested state **cannot be found** using the provided state name.
+ *
+ * ### Deprecation warning: use [[StateService.onInvalid]] instead
  *
  * The event is broadcast allowing any handlers a single chance to deal with the error (usually by
  * lazy-loading the unfound state). A `TargetState` object is passed to the listener handler,
@@ -122,9 +132,9 @@ export var $stateChangeError: IAngularEvent;
  * - `fromState`: the state the transition is coming from
  * - `fromParams`: the parameters from the state the transition is coming from
  * - `options`: any Transition Options
- * @example
  *
- * <pre>
+ * #### Example:
+ * ```js
  * // somewhere, assume lazy.state has not been defined
  * $state.go("lazy.state", { a: 1, b: 2 }, { inherit: false });
  *
@@ -135,10 +145,10 @@ export var $stateChangeError: IAngularEvent;
  *     console.log(unfoundState.toParams); // {a:1, b:2}
  *     console.log(unfoundState.options); // {inherit:false} + default options
  * });
- * </pre>
+ * ```
  *
- * @deprecated use [[StateProvider.onInvalid]] // TODO: Move to [[StateService.onInvalid]]
  * @event $stateNotFound
+ * @deprecated
  */
 export var $stateNotFound: IAngularEvent;
 

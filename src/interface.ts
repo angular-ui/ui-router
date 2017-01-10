@@ -163,10 +163,8 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    *
    * You can anchor the `ui-view` name to a specific state by including an `@`
    *
-   * @example
-   *
+   * #### Example:
    * ```js
-   *
    * // target the `<div ui-view='foo'></div>` which was created in a
    * // view owned by the state `bar.baz`
    * views: { 'foo@bar.baz': {...} }
@@ -270,7 +268,9 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
   /**
    * Makes all search/query parameters `dynamic`
    *
-   * @deprecated use [[ParamDeclaration.dynamic]]
+   * ### Deprecation warning: use [[ParamDeclaration.dynamic]] instead
+   *
+   * @deprecated
    */
   reloadOnSearch?: boolean;
 }
@@ -400,7 +400,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
    *
    * The controller function, or the name of a registered controller.  The controller function will be used
-   * to control the contents of the [[ui-view]] directive.
+   * to control the contents of the [[directives.uiView]] directive.
    *
    * If specified as a string, controllerAs can be declared here, i.e., "FooController as foo" instead of in
    * a separate [[controllerAs]] property.
@@ -463,7 +463,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
    *
    * HTML template as a string, or a function which returns an html template as a string.
-   * This template will be used to render the corresponding [[ui-view]] directive.
+   * This template will be used to render the corresponding [[directives.uiView]] directive.
    *
    * This property takes precedence over templateUrl.
    *
@@ -489,7 +489,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
    *
    * A path or a function that returns a path to an html template.
-   * The template will be fetched and used to render the corresponding [[ui-view]] directive.
+   * The template will be fetched and used to render the corresponding [[directives.uiView]] directive.
    *
    * If `templateUrl` is a function, it will be called with the Transition parameters as the first argument.
    *
@@ -513,7 +513,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
    *
    * Injected function which returns the HTML template.
-   * The template will be used to render the corresponding [[ui-view]] directive.
+   * The template will be used to render the corresponding [[directives.uiView]] directive.
    *
    * #### Example:
    * ```js
@@ -558,9 +558,8 @@ export interface Ng1Controller {
    * @param newValues an object containing the changed parameter values
    * @param $transition$ the new Transition which triggered this callback
    *
-   * @example:
+   * #### Example:
    * ```js
-   *
    * angular.module('foo').controller('FancyCtrl', function() {
    *   this.uiOnParamsChanged = function(newParams) {
    *     console.log("new params: ", newParams);

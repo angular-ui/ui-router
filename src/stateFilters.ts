@@ -1,16 +1,17 @@
-/** @module state */ /** for typedoc */
+/** @module ng1 */ /** for typedoc */
 
 import { ng as angular } from "./angular";
 import { Obj, StateService, StateOrName } from "ui-router-core";
 
 /**
- * @ngdoc filter
- * @name ui.router.state.filter:isState
+ * `isState` Filter: truthy if the current state is the parameter
  *
- * @requires ui.router.state.$state
+ * Translates to [[StateService.is]] `$state.is("stateName")`.
  *
- * @description
- * Translates to {@link ui.router.state.$state#methods_is $state.is("stateName")}.
+ * #### Example:
+ * ```html
+ * <div ng-if="'stateName' | isState">show if state is 'stateName'</div>
+ * ```
  */
 $IsStateFilter.$inject = ['$state'];
 export function $IsStateFilter($state: StateService) {
@@ -22,13 +23,14 @@ export function $IsStateFilter($state: StateService) {
 }
 
 /**
- * @ngdoc filter
- * @name ui.router.state.filter:includedByState
+ * `includedByState` Filter: truthy if the current state includes the parameter
  *
- * @requires ui.router.state.$state
+ * Translates to [[StateService.includes]]` $state.is("fullOrPartialStateName")`.
  *
- * @description
- * Translates to {@link ui.router.state.$state#methods_includes $state.includes('fullOrPartialStateName')}.
+ * #### Example:
+ * ```html
+ * <div ng-if="'fullOrPartialStateName' | includedByState">show if state includes 'fullOrPartialStateName'</div>
+ * ```
  */
 $IncludedByStateFilter.$inject = ['$state'];
 export function $IncludedByStateFilter($state: StateService) {

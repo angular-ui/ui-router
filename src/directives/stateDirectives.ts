@@ -1,7 +1,8 @@
 /**
- * These are the UI-Router angular 1 directives.
+ * # Angular 1 Directives
  *
- * These directives are used in templates to create viewports and navigate to states
+ * These are the directives included in UI-Router for Angular 1.
+ * These directives are used in templates to create viewports and link/navigate to states.
  *
  * @ng1api
  * @preferred
@@ -288,6 +289,7 @@ uiSref = ['$uiRouter', '$timeout',
  * <li ng-repeat="link in navlinks">
  *   <a ui-sref="link.state">{{ link.displayName }}</a>
  * </li>
+ * ```
  *
  * ### Relative Links
  * If the expression evaluates to a relative path, it is processed like [[uiSref]].
@@ -430,7 +432,7 @@ uiState = ['$uiRouter', '$timeout',
  * ### Examples
  *
  * Given the following template:
- * @example
+ * #### Example:
  * ```html
  * <ul>
  *   <li ui-sref-active="active" class="item">

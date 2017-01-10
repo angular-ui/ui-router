@@ -68,7 +68,7 @@ import { UrlRouterProvider } from "./urlRouterProvider";
  *
  * **Also:** an injectable **Per-Transition Object** object which holds the pending state parameters for the pending `Transition` currently running.
  *
- * ## Deprecation warning:
+ * ### Deprecation warning:
  *
  * The value injected for `$stateParams` is different depending on where it is injected.
  *
@@ -77,7 +77,7 @@ import { UrlRouterProvider } from "./urlRouterProvider";
  *
  * Because of these confusing details, this service is deprecated.
  *
- * @deprecated Instead of using the global `$stateParams` service object,
+ * ### Instead of using the global `$stateParams` service object,
  * inject [[$uiRouterGlobals]] and use [[UIRouterGlobals.params]]
  *
  * ```js
@@ -91,7 +91,7 @@ import { UrlRouterProvider } from "./urlRouterProvider";
  * }
  * ```
  *
- * @deprecated Instead of using the per-transition `$stateParams` object,
+ * ### Instead of using the per-transition `$stateParams` object,
  * inject the current `Transition` (as [[$transition$]]) and use [[Transition.params]]
  *
  * ```js
@@ -118,6 +118,7 @@ import { UrlRouterProvider } from "./urlRouterProvider";
  * };
  * angular.service('SomeService', SomeService);
  * ```
+ * @deprecated
  */
 var $stateParams: StateParams;
 
@@ -279,7 +280,7 @@ var $uiViewScrollProvider: UIViewScrollProvider;
  * If you prefer to rely on `$anchorScroll` to scroll the view to the anchor,
  * this can be enabled by calling [[UIViewScrollProvider.useAnchorScroll]].
  *
- * Note: this function is used by the [[uiView]] when the `autoscroll` expression evaluates to true.
+ * Note: this function is used by the [[directives.uiView]] when the `autoscroll` expression evaluates to true.
  */
 var $uiViewScroll: ($element: JQuery) => void;
 
@@ -305,8 +306,9 @@ var $stateProvider: StateProvider;
  * A service used to configure and interact with the URL.
  * It has URL related APIs including:
  *
- * - add URL rules [[UrlService.rules.when]]
- * - configure behavior when no url matches [[UrlService.rules.otherwise]]
+ * - register custom Parameter types `UrlService.config.type` ([[UrlConfigApi.type]])
+ * - add URL rules: `UrlService.rules.when` ([[UrlRulesApi.when]])
+ * - configure behavior when no url matches: `UrlService.rules.otherwise` ([[UrlRulesApi.otherwise]])
  * - delay initial URL synchronization [[UrlService.deferIntercept]].
  * - get or set the current url: [[UrlService.url]]
  *
@@ -324,9 +326,9 @@ var $urlServiceProvider: UrlService;
  * Used to configure the URL.
  * It has URL related APIs including:
  *
- * - register custom Parameter types [[UrlService.rules.when]]
- * - add URL rules [[UrlService.rules.when]]
- * - configure behavior when no url matches [[UrlService.rules.otherwise]]
+ * - register custom Parameter types `UrlService.config.type` ([[UrlConfigApi.type]])
+ * - add URL rules: `UrlService.rules.when` ([[UrlRulesApi.when]])
+ * - configure behavior when no url matches: `UrlService.rules.otherwise` ([[UrlRulesApi.otherwise]])
  * - delay initial URL synchronization [[UrlService.deferIntercept]].
  * - get or set the current url: [[UrlService.url]]
  *
@@ -337,27 +339,33 @@ var $urlService: UrlService;
 /**
  * The URL Router Provider
  *
+ * ### Deprecation warning: This object is now considered internal. Use [[$urlServiceProvider]] instead.
+ *
  * The [[UrlRouter]] singleton as a **Provider Object** (injectable during config time).
  *
  * #### Note: This object is also exposed as [[$urlRouter]] for injection during runtime.
  *
- * @deprecated This object is now considered internal. Use [[$urlServiceProvider]] instead.
+ * @deprecated
  */
 var $urlRouterProvider: UrlRouterProvider;
 
 /**
  * The Url Router
  *
+ * ### Deprecation warning: This object is now considered internal. Use [[$urlService]] instead.
+ *
  * The [[UrlRouter]] singleton as a **Service Object** (injectable during runtime).
  *
  * #### Note: This object is also exposed as [[$urlRouterProvider]] for injection during angular config time.
  *
- * @deprecated This object is now considered internal. Use [[$urlService]] instead.
+ * @deprecated
  */
 var $urlRouter: UrlRouter;
 
 /**
  * The URL Matcher Factory
+ *
+ * ### Deprecation warning: This object is now considered internal. Use [[$urlService]] instead.
  *
  * The [[UrlMatcherFactory]] singleton as a **Service Object** (injectable during runtime).
  *
@@ -365,12 +373,14 @@ var $urlRouter: UrlRouter;
  *
  * #### Note: This object is also exposed as [[$urlMatcherFactoryProvider]] for injection during angular config time.
  *
- * @deprecated This object is now considered internal. Use [[$urlService]] instead.
+ * @deprecated
  */
 var $urlMatcherFactory: UrlMatcherFactory;
 
 /**
  * The URL Matcher Factory
+ *
+ * ### Deprecation warning: This object is now considered internal. Use [[$urlService]] instead.
  *
  * The [[UrlMatcherFactory]] singleton as a **Provider Object** (injectable during config time).
  *
@@ -378,7 +388,7 @@ var $urlMatcherFactory: UrlMatcherFactory;
  *
  * #### Note: This object is also exposed as [[$urlMatcherFactory]] for injection during runtime.
  *
- * @deprecated This object is now considered internal. Use [[$urlService]] instead.
+ * @deprecated
  */
 var $urlMatcherFactoryProvider: UrlMatcherFactory;
 

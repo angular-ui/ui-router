@@ -1,9 +1,10 @@
 /**
- * # UI-Router for Angular 1
+ * # Angular 1 types
  *
- * - Provides an implementation for the [[CoreServices]] API, based on angular 1 services.
- * - Also registers some services with the angular 1 injector.
- * - Creates and bootstraps a new [[UIRouter]] object.  Ties it to the the angular 1 lifecycle.
+ * UI-Router core provides various Typescript types which you can use for code completion and validating parameter values, etc.
+ * The customizations to the core types for Angular UI-Router are documented here.
+ *
+ * The optional [[$resolve]] service is also documented here.
  *
  * @module ng1
  * @preferred

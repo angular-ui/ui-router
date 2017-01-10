@@ -46,10 +46,9 @@ export type UIViewAnimData = {
  *
  * - `onload`: Expression to evaluate whenever the view updates.
  *
+ * #### Example:
  * A view can be unnamed or named.
- * @example
  * ```html
- *
  * <!-- Unnamed -->
  * <div ui-view></div>
  *
@@ -62,18 +61,18 @@ export type UIViewAnimData = {
  *
  * You can only have one unnamed view within any template (or root html). If you are only using a
  * single view and it is unnamed then you can populate it like so:
- * ```
  *
+ * ```html
  * <div ui-view></div>
  * $stateProvider.state("home", {
  *   template: "<h1>HELLO!</h1>"
  * })
  * ```
  *
- * The above is a convenient shortcut equivalent to specifying your view explicitly with the {@link ui.router.state.$stateProvider#views `views`}
- * config property, by name, in this case an empty name:
- * ```js
+ * The above is a convenient shortcut equivalent to specifying your view explicitly with the
+ * [[Ng1StateDeclaration.views]] config property, by name, in this case an empty name:
  *
+ * ```js
  * $stateProvider.state("home", {
  *   views: {
  *     "": {
@@ -88,12 +87,10 @@ export type UIViewAnimData = {
  * but you could if you wanted, like so:
  *
  * ```html
- *
  * <div ui-view="main"></div>
  * ```
  *
  * ```js
- *
  * $stateProvider.state("home", {
  *   views: {
  *     "main": {
@@ -104,8 +101,8 @@ export type UIViewAnimData = {
  * ```
  *
  * Really though, you'll use views to set up multiple views:
- * ```html
  *
+ * ```html
  * <div ui-view></div>
  * <div ui-view="chart"></div>
  * <div ui-view="data"></div>
@@ -127,10 +124,8 @@ export type UIViewAnimData = {
  * })
  * ```
  *
- * Examples for `autoscroll`:
- *
+ * #### Examples for `autoscroll`:
  * ```html
- *
  * <!-- If autoscroll present with no expression,
  *      then scroll ui-view into view -->
  * <ui-view autoscroll/>
@@ -145,7 +140,7 @@ export type UIViewAnimData = {
  * Resolve data:
  *
  * The resolved data from the state's `resolve` block is placed on the scope as `$resolve` (this
- * can be customized using [[ViewDeclaration.resolveAs]]).  This can be then accessed from the template.
+ * can be customized using [[Ng1ViewDeclaration.resolveAs]]).  This can be then accessed from the template.
  *
  * Note that when `controllerAs` is being used, `$resolve` is set on the controller instance *after* the
  * controller is instantiated.  The `$onInit()` hook can be used to perform initialization code which
@@ -161,7 +156,7 @@ export type UIViewAnimData = {
  * });
  * ```
  */
-let uiView: ng1_directive;
+export let uiView: ng1_directive;
 uiView = ['$view', '$animate', '$uiViewScroll', '$interpolate', '$q',
 function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $interpolate: IInterpolateService, $q: $QLike) {
 
