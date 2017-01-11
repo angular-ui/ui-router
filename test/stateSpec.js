@@ -1794,6 +1794,10 @@ describe("Targeted Views", function() {
     } },
     { name: 'A.b.i.2', views: {
       "@": { template: "rooted!" }
+    } },
+    { name: 'B', views: {
+      "$default": { template: "<ui-view name='named'></ui-view>" },
+      "named@.": { template: "Targeted view on own state"}
     } }
 
   ];
@@ -1846,6 +1850,12 @@ describe("Targeted Views", function() {
     it("should target the unnamed ui-view at the root context (named ''), when the view's name is '@'", inject(function() {
       $state.go("A.b.i.2"); $q.flush();
       expect(elem[0].textContent).toBe("rooted!");
+    }));
+
+    // Test for https://github.com/ui-router/core/issues/25
+    it("should target ui-views on own state when the state anchor is '.' (view name ends with '@.')", inject(function() {
+      $state.go("B"); $q.flush();
+      expect(elem[0].textContent).toBe("Targeted view on own state");
     }));
   });
 });
