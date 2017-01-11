@@ -77,8 +77,8 @@ for more details
 The `$resolve` service's `.resolve()` method can be used to perform async dependency injection imperatively.
 
 The code has been moved out of the main angular-ui-router codebase and is now opt-in.
-For prebuilt bundle users, add `release/resolveService.js` to your project.
-For self-bundlers (e.g., webpack), add `angular-ui-router/lib/resolveService` as an `import` or `require()`.
+For prebuilt bundle users, add `release/legacy/resolveService.js` to your project.
+For self-bundlers (e.g., webpack), add `angular-ui-router/lib/legacy/resolveService` as an `import` or `require()`.
 
 It's unlikely you use this service.
 Its most common usage is with the UI-Bootstrap `$modal` service.
