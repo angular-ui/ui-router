@@ -12,7 +12,10 @@ export interface RawNg1RuleFunction {
 /**
  * Manages rules for client-side URL
  *
- * ### Deprecation warning Use [[UrlService]] instead
+ * ### Deprecation warning:
+ * This class is now considered to be an internal API
+ * Use the [[UrlService]] instead.
+ * For configuring URL rules, use the [[UrlRulesApi]] which can be found as [[UrlService.rules]].
  *
  * This class manages the router rules for what to do when the URL changes.
  *
