@@ -1,3 +1,36 @@
+<a name="0.4.0"></a>
+## 0.4.0 (2017-01-17)
+
+
+#### Bug Fixes
+
+* **$state:** Fix "Possibly unhandled rejection" by catch()ing the transition promise ([f2910e9b](https://github.com/angular-ui/ui-router/commit/f2910e9b00ebcf652abab2af8a405b5b5fbca054), closes [#3246](https://github.com/angular-ui/ui-router/issues/3246), [#2889](https://github.com/angular-ui/ui-router/issues/2889))
+* **ui-sref-active-eq:** Compare parameter values using typed parameters ([67e4997e](https://github.com/angular-ui/ui-router/commit/67e4997eadfc1f7f5af8efd7cb676218cc69129e))
+* **uiView:** do not leave initial view scope undestroyed (fix unhandled rejection) ([5be98e04](https://github.com/angular-ui/ui-router/commit/5be98e047a096012762096922a2756a0a0a0ea60), closes [#3164](https://github.com/angular-ui/ui-router/issues/3164))
+* **urlMatcherFactory:** Check for null in int.is() Fixes message: Cannot read property 'toString' of nul ([61728d71](https://github.com/angular-ui/ui-router/commit/61728d717ab4f7b03a017c4666ab1a5a1ffe4620), closes [#3197](https://github.com/angular-ui/ui-router/issues/3197))
+
+#### Features
+
+* **$templateFactory:** use $templateRequest from AngularJS ([9a1af98](https://github.com/angular-ui/ui-router/commit/9a1af98)), closes [#]
+* **$templateFactory:** refactor to a Provider to have a $http/$templateRequest switch ([7f1dec00](https://github.com/angular-ui/ui-router/commit/7f1dec008e98ae206c53d67268c330846c4d227d))
+
+# BREAKING CHANGE: Use angular 1.3+ `$templateRequest` service to fetch templates
+
+We now fetch templates using `$templateRequest` when it is available (angular 1.3+).
+You can revert to previous template fetching behavior using `$http` by configuring the ui-router `$templateFactoryProvider`.
+
+```js
+.config(function($templateFactoryProvider) {
+  $templateFactoryProvider.shouldUnsafelyUseHttp(true);
+});
+```
+
+There are security ramifications to using `$http` to fetch templates.
+Read
+[Impact on loading templates](https://docs.angularjs.org/api/ng/service/$sce#impact-on-loading-templates)
+for more details.
+
+
 <a name="0.3.2"></a>
 ## [0.3.2](https://github.com/angular-ui/ui-router/compare/0.3.1...0.3.2) (2016-11-03)
 
