@@ -1,7 +1,7 @@
 {
   "name": "angular-ui-router",
   "description": "State-based routing for AngularJS",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "homepage": "http://angular-ui.github.com/",
   "contributors": [
     {
@@ -32,6 +32,11 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/angular-ui/ui-router.git"
+  },
+  "scripts": {
+    "test": "grunt integrate",
+    "build": "grunt dist",
+    "prepublish": "grunt prepare-release dist"
   },
   "bugs": {
     "url": "https://github.com/angular-ui/ui-router/issues"
