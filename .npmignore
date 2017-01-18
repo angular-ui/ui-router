@@ -1,6 +1,11 @@
 # Any hidden files
 **/.*
 
+# Jetbrains files
+*.ipr
+*.iws
+*.iml
+
 # Build related stuff
 /build
 /config
