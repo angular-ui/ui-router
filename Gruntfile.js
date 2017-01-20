@@ -175,6 +175,11 @@ module.exports = function (grunt) {
     );
   });
 
+  grunt.registerTask('prepublish', function () {
+    grunt.config('buildtag', '');
+    grunt.config('builddir', 'release');
+  });
+
   grunt.registerTask('prepare-release', function () {
     var bower = grunt.file.readJSON('bower.json'),
         component = grunt.file.readJSON('component.json'),
