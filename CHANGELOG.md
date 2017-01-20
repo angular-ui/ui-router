@@ -1,5 +1,15 @@
+<a name="0.4.1"></a>
+### 0.4.1 (2017-01-19)
+## [0.4.1](https://github.com/angular-ui/ui-router/compare/0.4.0...0.4.1) (2016-11-03)
+
+#### Bug Fixes
+
+* **resolve:** Fix 'possibly unhandled rejection' in rejected resolves ([f73e5516](https://github.com/angular-ui/ui-router/commit/f73e5516d8232d8307690c70f53d4a20eb486479), closes [#2889](https://github.com/angular-ui/ui-router/issues/2889))
+
+
 <a name="0.4.0"></a>
 ## 0.4.0 (2017-01-17)
+## [0.4.0](https://github.com/angular-ui/ui-router/compare/0.3.2...0.4.0) (2016-11-03)
 
 
 #### Bug Fixes
