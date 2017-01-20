@@ -1,3 +1,12 @@
+<a name="0.4.2"></a>
+### 0.4.2 (2017-01-20)
+
+
+#### Bug Fixes
+
+* **state:** avoid promise.catch() in favor of silenceUncaughtInPromise() ([86df71e7](https://github.com/angular-ui/ui-router/commit/86df71e74bcf166847053a3c590991fc774f2100))
+
+
 <a name="0.4.1"></a>
 ### 0.4.1 (2017-01-19)
 ## [0.4.1](https://github.com/angular-ui/ui-router/compare/0.4.0...0.4.1) (2016-11-03)
