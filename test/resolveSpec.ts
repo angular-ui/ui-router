@@ -6,7 +6,7 @@ declare var inject;
 import Spy = jasmine.Spy;
 import "./util/matchers";
 import { resolvedValue, resolvedError, caught } from './util/testUtilsNg1';
-import { ResolveContext, State, PathNode, omit, pick, extend, forEach } from "../src/index";
+import { ResolveContext, State, PathNode, omit, pick, inherit, forEach } from "ui-router-core";
 import { UIRouter, Resolvable, services, StateDeclaration } from "ui-router-core";
 import "../src/legacy/resolveService";
 
@@ -441,11 +441,11 @@ describe("Integration: Resolvables system", () => {
   beforeEach(module(function ($stateProvider) {
     let copy = {};
     forEach(statesMap, (stateDef, name) => {
-      copy[name] = extend({}, stateDef);
+      copy[name] = stateDef;
     });
 
-    angular.forEach(copy, (stateDef: StateDeclaration) => {
-      if (stateDef.name) $stateProvider.state(stateDef);
+    angular.forEach(copy, (stateDef: State) => {
+      if (stateDef.name) $stateProvider.state(stateDef.self);
     });
   }));
 

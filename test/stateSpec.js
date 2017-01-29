@@ -1585,11 +1585,6 @@ describe('state', function () {
       expect($state.$current.toString()).toBe('A');
     }));
 
-    it('should always have a resolve object', inject(function ($state) {
-      expect($state.$current.resolve).toBeDefined();
-      expect(typeof $state.$current.resolve).toBe('object');
-    }));
-
     it('should include itself and parent states', inject(function ($state, $q) {
       $state.transitionTo(DD); $q.flush();
       expect($state.$current.includes).toEqual({ '': true, D: true, DD: true });
