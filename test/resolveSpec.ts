@@ -63,8 +63,8 @@ beforeEach(function () {
   statesTree = loadStates({}, states, '');
 
   function loadStates(parent, state, name) {
-    var thisState = pick.apply(null, [state].concat(stateProps));
-    var substates = omit.apply(null, [state].concat(stateProps));
+    var thisState: any = pick(state, stateProps);
+    var substates: any = omit(state, stateProps);
 
     thisState.template = thisState.template || "empty";
     thisState.name = name;
