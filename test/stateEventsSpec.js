@@ -36,7 +36,10 @@ describe('UI-Router v0.2.x $state events', function () {
     C = {},
     D = { params: { x: {}, y: {} } },
     DD = { parent: D, params: { z: {} } },
-    E = { params: { i: {} } };
+    E = { params: { i: {} } },
+    F = { resolve: {
+        delay: function($timeout) { return $timeout(50); }
+    }};
 
   beforeEach(module(function ($stateProvider, $provide) {
     angular.forEach([ A, B, C, D, DD ], function (state) {
@@ -51,7 +54,8 @@ describe('UI-Router v0.2.x $state events', function () {
       .state('C', C)
       .state('D', D)
       .state('DD', DD)
-      .state('E', E);
+      .state('E', E)
+      .state('F', F);
   }));
 
   beforeEach(inject(function ($rootScope, _$injector_) {
@@ -299,31 +303,38 @@ describe('UI-Router v0.2.x $state events', function () {
     }));
 
 
-    it('aborts pending transitions even when going back to the current state', inject(function ($state, $q) {
+    it('aborts pending transitions even when going back to the current state', inject(function ($state, $q, $timeout) {
       initStateTo(A);
       logEvents = true;
       $state.defaultErrorHandler(function() {});
 
-      var superseded = $state.transitionTo(B, {});
-      $state.transitionTo(A, {});
+      var superseded = $state.transitionTo(F, {});
       $q.flush();
       expect($state.current).toBe(A);
+
+      $state.transitionTo(A, {});
+      $q.flush();
+      $timeout.flush();
+      expect($state.current).toBe(A);
       expect(resolvedError(superseded)).toBeTruthy();
-      expect(log).toBe('$stateChangeStart(B,A);');
+      expect(log).toBe('$stateChangeStart(F,A);');
     }));
 
-    it('aborts pending transitions (last call wins)', inject(function ($state, $q) {
+    it('aborts pending transitions (last call wins)', inject(function ($state, $q, $timeout) {
       initStateTo(A);
       logEvents = true;
       $state.defaultErrorHandler(function() {});
 
-      var superseded = $state.transitionTo(B, {});
+      var superseded = $state.transitionTo(F, {});
+      $q.flush();
+
       $state.transitionTo(C, {});
       $q.flush();
+      $timeout.flush();
       expect($state.current).toBe(C);
       expect(resolvedError(superseded)).toBeTruthy();
       expect(log).toBe(
-        '$stateChangeStart(B,A);' +
+        '$stateChangeStart(F,A);' +
         '$stateChangeStart(C,A);' +
         '$stateChangeSuccess(C,A);');
     }));
