@@ -1,5 +1,6 @@
 // Karma configuration file
 var karma = require("karma");
+var DEFAULT_NG_VERSION = "1.5";
 
 /**
  * This returns a Karma 'files configuration'.
@@ -35,7 +36,7 @@ webpackConfig.plugins = [];
 webpackConfig.devtool = 'inline-source-map';
 
 module.exports = function(config) {
-  var ngVersion = config.ngversion || "1.5";
+  var ngVersion = config.ngversion || DEFAULT_NG_VERSION;
 
   config.set({
     singleRun: true,

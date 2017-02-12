@@ -9,7 +9,8 @@
     "allowSyntheticDefaultImports": true,
     "outDir": "lib",
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "skipLibCheck": true
   },
   "files": [
     "src/index.ts",

@@ -38,7 +38,7 @@ describe('UI-Router v0.2.x $state events', function () {
     DD = { parent: D, params: { z: {} } },
     E = { params: { i: {} } },
     F = { resolve: {
-        delay: function($timeout) { return $timeout(50); }
+        delay: function($timeout) { return $timeout(angular.noop, 50); }
     }};
 
   beforeEach(module(function ($stateProvider, $provide) {

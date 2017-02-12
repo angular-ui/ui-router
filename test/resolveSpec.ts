@@ -75,7 +75,7 @@ beforeEach(function () {
     angular.forEach(substates, function (value, key) {
       thisState.data.children.push(loadStates(thisState, value, key));
     });
-    thisState = new State(thisState);
+    thisState = angular.extend(new State(thisState), { self: thisState });
     statesMap[name] = thisState;
     return thisState;
   }
