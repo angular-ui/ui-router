@@ -4,16 +4,20 @@ var extend = uiRouter.extend;
 var forEach = uiRouter.forEach;
 var services = uiRouter.services;
 var UrlMatcher = uiRouter.UrlMatcher;
-var obj = require('./util/testUtilsNg1').obj;
-var resolvedError = require('./util/testUtilsNg1').resolvedError;
-var resolvedValue = require('./util/testUtilsNg1').resolvedValue;
-var html5Compat = require('./util/testUtilsNg1').html5Compat;
+
+var testUtils = require('./util/testUtilsNg1');
+var obj = testUtils.obj;
+var resolvedError = testUtils.resolvedError;
+var resolvedValue = testUtils.resolvedValue;
+var html5Compat = testUtils.html5Compat;
+var decorateExceptionHandler = testUtils.decorateExceptionHandler;
 
 describe('state', function () {
 
   var $uiRouter, $injector, $stateProvider, locationProvider, templateParams, template, ctrlName, errors;
 
-  beforeEach(module('ui.router', function($locationProvider, $uiRouterProvider) {
+  beforeEach(module('ui.router', function($exceptionHandlerProvider, $locationProvider, $uiRouterProvider) {
+    decorateExceptionHandler($exceptionHandlerProvider);
     errors = [];
     locationProvider = $locationProvider;
     $locationProvider.html5Mode(false);
@@ -1202,7 +1206,9 @@ describe('state', function () {
 
   // TODO: Enforce by default in next major release (1.0.0)
   describe('non-optional parameters', function() {
-    it("should cause transition failure, when unspecified.", inject(function($state, $transitions, $q) {
+    it("should cause transition failure, when unspecified.", inject(function($state, $transitions, $q, $exceptionHandler) {
+      $exceptionHandler.disabled = true;
+      
       var count = 0;
       $transitions.onEnter({ entering: 'OPT' }, function() { count++ });
       $transitions.onEnter({ entering: 'OPT.OPT2' }, function() { count++ });
@@ -1382,7 +1388,9 @@ describe('state', function () {
         expect($state.current.name).toBe("about");
       }));
 
-      it('should ignore bad state parameters', inject(function ($state, $rootScope, $location, $stateParams) {
+      it('should ignore bad state parameters', inject(function ($state, $rootScope, $location, $stateParams, $exceptionHandler) {
+        $exceptionHandler.disabled = true;
+        
         $state.go("badParam", { param: 5 });
         $rootScope.$apply();
         expect($state.current.name).toBe("badParam");
@@ -1456,7 +1464,9 @@ describe('state', function () {
         expect($stateParams.myparam).toBe(1);
       }));
 
-      it('should not transition if a required non-url parameter is missing', inject(function($state, $q, $stateParams) {
+      it('should not transition if a required non-url parameter is missing', inject(function($state, $q, $exceptionHandler) {
+        $exceptionHandler.disabled = true;
+
         $state.transitionTo(A); $q.flush();
         expect($state.current.name).toBe("A");
 
@@ -1464,7 +1474,9 @@ describe('state', function () {
         expect($state.current.name).toBe("A");
       }));
 
-      it('should not transition if a required non-url parameter is invalid', inject(function($state, $q, $stateParams) {
+      it('should not transition if a required non-url parameter is invalid', inject(function($state, $q, $exceptionHandler) {
+        $exceptionHandler.disabled = true;
+
         $state.transitionTo(A); $q.flush();
         expect($state.current.name).toBe("A");
 
