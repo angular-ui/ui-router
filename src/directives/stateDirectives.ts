@@ -12,7 +12,7 @@ import { ng as angular } from "../angular";
 import { IAugmentedJQuery, ITimeoutService, IScope, IInterpolateService } from "angular";
 
 import {
-    Obj, extend, forEach, tail, isString, isObject, parse, noop, unnestR, identity, uniqR, inArray, removeFrom,
+    Obj, extend, forEach, tail, isString, isObject, isArray, parse, noop, unnestR, identity, uniqR, inArray, removeFrom,
     RawParams, PathNode, StateOrName, StateService, StateDeclaration, UIRouter
 } from "ui-router-core";
 import { UIViewData } from "./viewDirective";
@@ -96,6 +96,31 @@ function defaultOpts(el: IAugmentedJQuery, $state: StateService) {
   };
 }
 
+/** @hidden */
+function bindEvents(element: IAugmentedJQuery, scope: IScope, hookFn: (e: JQueryMouseEventObject) => void, uiStateOpts: any): void {
+  let events;
+
+  if (uiStateOpts) {
+    events = uiStateOpts.event;
+  }
+
+  if (!isArray(events)) {
+    events = ['click'];
+  }
+
+  let on = element.on ? 'on' : 'bind';
+  for (let event of events) {
+    element[on](event, hookFn);
+  }
+
+  scope.$on('$destroy', function() {
+    let off = element.off ? 'off' : 'unbind';
+    for (let event of events) {
+      element[off](event, hookFn);
+    }
+  });
+}
+
 /**
  * `ui-sref`: A directive for linking to a state
  *
@@ -157,7 +182,7 @@ function defaultOpts(el: IAugmentedJQuery, $state: StateService) {
  *
  * ### Transition Options
  * You can specify [[TransitionOptions]] to pass to [[StateService.go]] by using the `ui-sref-opts` attribute.
- * Options are restricted to `location`, `inherit`, and `reload`.
+ * Options are restricted to `location`, `inherit`, `reload`, and `event`.
  *
  * #### Example:
  * ```html
@@ -262,10 +287,7 @@ uiSref = ['$uiRouter', '$timeout',
 
         if (!type.clickable) return;
         hookFn = clickHook(element, $state, $timeout, type, getDef);
-        element[element.on ? 'on' : 'bind']("click", hookFn);
-        scope.$on('$destroy', function () {
-          element[element.off ? 'off' : 'unbind']("click", hookFn);
-        });
+        bindEvents(element, scope, hookFn, rawDef.uiStateOpts);
       }
     };
   }];
@@ -318,7 +340,7 @@ uiSref = ['$uiRouter', '$timeout',
  *
  * ### Transition Options
  * You can specify [[TransitionOptions]] to pass to [[StateService.go]] by using the `ui-state-opts` attribute.
- * Options are restricted to `location`, `inherit`, and `reload`.
+ * Options are restricted to `location`, `inherit`, `reload`, and `event`.
  * The value of the `ui-state-opts` is `$watch`ed and evaluated as an expression.
  *
  * #### Example:
@@ -390,10 +412,7 @@ uiState = ['$uiRouter', '$timeout',
 
         if (!type.clickable) return;
         hookFn = clickHook(element, $state, $timeout, type, getDef);
-        element[element.on ? 'on' : 'bind']("click", hookFn);
-        scope.$on('$destroy', function () {
-          element[element.off ? 'off' : 'unbind']("click", hookFn);
-        });
+        bindEvents(element, scope, hookFn, rawDef.uiStateOpts);
       }
     };
   }];

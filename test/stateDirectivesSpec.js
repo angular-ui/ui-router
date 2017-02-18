@@ -72,6 +72,18 @@ describe('uiStateRef', function() {
     el[0].dispatchEvent(e);
   }
 
+  function triggerHTMLEvent(name) {
+    var event = document.createEvent('HTMLEvents');
+    event.initEvent(name, false, true);
+    el[0].dispatchEvent(event);
+  }
+
+  function triggerMouseEvent(name) {
+    var event = document.createEvent('MouseEvents');
+    event.initEvent(name, true, true);
+    el[0].dispatchEvent(event);
+  }
+
   describe('links with promises', function() {
 
     it('should update the href when promises on parameters change before scope is applied', inject(function($rootScope, $compile, $q) {
@@ -523,6 +535,84 @@ describe('uiStateRef', function() {
       expect(transitionOptions.reload).toEqual(true);
       expect(transitionOptions.absolute).toBeUndefined();
     }));
+
+    describe('option event', function() {
+      it('should bind click event by default', inject(function($compile, $state, $timeout) {
+        expect($state.current.name).toBe('top');
+
+        el = angular.element('<a ui-state="state"></a>');
+
+        scope.state = 'contacts';
+        $compile(el)(scope);
+        scope.$digest();
+
+        triggerClick(el);
+        $timeout.flush();
+
+        expect($state.current.name).toBe('contacts');
+      }));
+
+      it('should bind single HTML events', inject(function($compile, $state, $timeout) {
+        expect($state.current.name).toEqual('top');
+
+        el = angular.element('<input type="text" ui-state="state" ui-state-opts="{ event: [\'change\'] }">');
+
+        scope.state = 'contacts';
+        $compile(el)(scope);
+        scope.$digest();
+
+        triggerHTMLEvent('change');
+        $timeout.flush();
+
+        expect($state.current.name).toEqual('contacts');
+      }));
+
+      it('should bind multiple HTML events', inject(function($compile, $state, $timeout) {
+        expect($state.current.name).toEqual('top');
+
+        el = angular.element('<input type="text" ui-state="state" ui-state-opts="{ event: [\'change\', \'blur\'] }">');
+
+        scope.state = 'contacts';
+        $compile(el)(scope);
+        scope.$digest();
+
+        triggerHTMLEvent('change');
+        $timeout.flush();
+        expect($state.current.name).toEqual('contacts');
+
+        $state.go('top');
+        scope.$digest();
+
+        expect($state.current.name).toEqual('top');
+
+        triggerHTMLEvent('blur');
+        $timeout.flush();
+        expect($state.current.name).toEqual('contacts');
+      }));
+
+      it('should bind multiple Mouse events', inject(function($compile, $state, $timeout) {
+        expect($state.current.name).toEqual('top');
+
+        el = angular.element('<a ui-state="state" ui-state-opts="{ event: [\'mouseover\', \'mousedown\'] }">');
+
+        scope.state = 'contacts';
+        $compile(el)(scope);
+        scope.$digest();
+
+        triggerMouseEvent('mouseover');
+        $timeout.flush();
+        expect($state.current.name).toEqual('contacts');
+
+        $state.go('top');
+        scope.$digest();
+
+        expect($state.current.name).toEqual('top');
+
+        triggerMouseEvent('mousedown');
+        $timeout.flush();
+        expect($state.current.name).toEqual('contacts');
+      }));
+    });
   });
 
   describe('forms', function() {
@@ -595,6 +685,76 @@ describe('uiStateRef', function() {
       $timeout.flush();
       $q.flush();
       expect($state.$current.name).toBe("contacts");
+    }));
+  });
+
+  describe('option event', function() {
+    it('should bind click event by default', inject(function($rootScope, $compile, $state, $timeout) {
+      el = angular.element('<a ui-sref="contacts"></a>');
+      $compile(el)($rootScope);
+      $rootScope.$digest();
+
+      expect($state.current.name).toEqual('top');
+
+      triggerClick(el);
+      $timeout.flush();
+
+      expect($state.current.name).toEqual('contacts');
+    }));
+
+    it('should bind single HTML events', inject(function($rootScope, $compile, $state, $timeout) {
+      el = angular.element('<input type="text" ui-sref="contacts" ui-sref-opts="{ event: [\'change\'] }">');
+      $compile(el)($rootScope);
+      $rootScope.$digest();
+
+      expect($state.current.name).toEqual('top');
+
+      triggerHTMLEvent('change');
+      $timeout.flush();
+
+      expect($state.current.name).toEqual('contacts');
+    }));
+
+    it('should bind multiple HTML events', inject(function($rootScope, $compile, $state, $timeout) {
+      el = angular.element('<input type="text" ui-sref="contacts" ui-sref-opts="{ event: [\'change\', \'blur\'] }">');
+      $compile(el)($rootScope);
+      $rootScope.$digest();
+
+      expect($state.current.name).toEqual('top');
+
+      triggerHTMLEvent('change');
+      $timeout.flush();
+      expect($state.current.name).toEqual('contacts');
+
+      $state.go('top');
+      $rootScope.$digest();
+
+      expect($state.current.name).toEqual('top');
+
+      triggerHTMLEvent('blur');
+      $timeout.flush();
+      expect($state.current.name).toEqual('contacts');
+    }));
+
+    it('should bind multiple Mouse events', inject(function($rootScope, $compile, $state, $timeout) {
+      el = angular.element('<a ui-sref="contacts" ui-sref-opts="{ event: [\'mouseover\', \'mousedown\'] }">');
+      $compile(el)($rootScope);
+      $rootScope.$digest();
+
+      expect($state.current.name).toEqual('top');
+
+      triggerMouseEvent('mouseover');
+      $timeout.flush();
+      expect($state.current.name).toEqual('contacts');
+
+      $state.go('top');
+      $rootScope.$digest();
+
+      expect($state.current.name).toEqual('top');
+
+      triggerMouseEvent('mousedown');
+      $timeout.flush();
+      expect($state.current.name).toEqual('contacts');
     }));
   });
 });
