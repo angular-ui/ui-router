@@ -672,3 +672,9 @@ export interface TemplateFactoryProvider {
    */
   useHttpService(useUnsafeHttpService: boolean);
 }
+
+declare module "ui-router-core/lib/state/stateRegistry" {
+  interface StateRegistry {
+    register(state: Ng1StateDeclaration)
+  }
+}
