@@ -635,6 +635,7 @@ export interface Ng1Controller {
    *       }
    *     }
    *   }
+   * }
    * ```
    *
    *
