@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "./util/matchers";
 import {
-  inherit, extend, tail, curry, PathNode, PathFactory, ViewService, StateMatcher, StateBuilder, State
+  inherit, extend, tail, curry, PathNode, PathFactory, ViewService, StateMatcher, StateBuilder, StateObject
 } from "ui-router-core";
 import { ng1ViewsBuilder, getNg1ViewConfigFactory } from "../src/statebuilders/views";
 import { Ng1StateDeclaration } from "../src/interface";
@@ -9,7 +9,7 @@ declare var inject;
 
 describe('view', function() {
   var scope, $compile, $injector, elem, $controllerProvider, $urlMatcherFactoryProvider;
-  let root: State, states: {[key: string]: State};
+  let root: StateObject, states: {[key: string]: StateObject};
 
   beforeEach(angular['mock'].module('ui.router', function(_$provide_, _$controllerProvider_, _$urlMatcherFactoryProvider_) {
     _$provide_.factory('foo', function() {
@@ -21,11 +21,8 @@ describe('view', function() {
 
   let register;
   let registerState = curry(function(_states, stateBuilder, config) {
-    let state = inherit(new State(), extend({}, config, {
-      self: config,
-      resolve: config.resolve || []
-    }));
-    let built: State  = stateBuilder.build(state);
+    let state = StateObject.create(config);
+    let built: StateObject = stateBuilder.build(state);
     return _states[built.name] = built;
   });
 

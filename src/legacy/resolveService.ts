@@ -1,5 +1,5 @@
 /** @module ng1 */ /** */
-import { State, PathNode, ResolveContext, Obj, mapObj, resolvablesBuilder } from "ui-router-core";
+import { StateObject, PathNode, ResolveContext, Obj, mapObj, resolvablesBuilder } from "ui-router-core";
 import * as angular from "angular";
 
 /**
@@ -43,8 +43,8 @@ var $resolve = {
    * @param parent a promise for a "parent resolve"
    */
   resolve: (invocables: { [key: string]: Function }, locals = {}, parent?: Promise<any>) => {
-    let parentNode = new PathNode(new State(<any> { params: {}, resolvables: [] }));
-    let node = new PathNode(new State(<any> { params: {}, resolvables: [] }));
+    let parentNode = new PathNode(new StateObject(<any> { params: {}, resolvables: [] }));
+    let node = new PathNode(new StateObject(<any> { params: {}, resolvables: [] }));
     let context = new ResolveContext([parentNode, node]);
 
     context.addResolvables(resolvablesBuilder(<any> { resolve: invocables }), node.state);

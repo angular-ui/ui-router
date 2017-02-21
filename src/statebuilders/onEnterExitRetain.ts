@@ -1,8 +1,9 @@
 /** @module ng1 */ /** */
 import {
-    State, TransitionStateHookFn, HookResult, Transition, services, ResolveContext, extend, BuilderFunction
+  StateObject, TransitionStateHookFn, HookResult, Transition, services, ResolveContext, extend, BuilderFunction
 } from "ui-router-core";
 import { getLocals } from "../services";
+import { Ng1StateDeclaration } from '../interface';
 
 /**
  * This is a [[StateBuilder.builder]] function for angular1 `onEnter`, `onExit`,
@@ -12,11 +13,11 @@ import { getLocals } from "../services";
  * ensures that those hooks are injectable for angular-ui-router (ng1).
  */
 export const getStateHookBuilder = (hookName: "onEnter"|"onExit"|"onRetain") =>
-function stateHookBuilder(state: State, parentFn: BuilderFunction): TransitionStateHookFn {
+function stateHookBuilder(state: StateObject, parentFn: BuilderFunction): TransitionStateHookFn {
   let hook = state[hookName];
   let pathname = hookName === 'onExit' ? 'from' : 'to';
 
-  function decoratedNg1Hook(trans: Transition, state: State): HookResult {
+  function decoratedNg1Hook(trans: Transition, state: Ng1StateDeclaration): HookResult {
     let resolveContext = new ResolveContext(trans.treeChanges(pathname));
     let locals = extend(getLocals(resolveContext), { $state$: state, $transition$: trans });
     return services.$injector.invoke(hook, this, locals);

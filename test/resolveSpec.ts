@@ -6,14 +6,14 @@ declare var inject;
 import Spy = jasmine.Spy;
 import "./util/matchers";
 import { resolvedValue, resolvedError, caught } from './util/testUtilsNg1';
-import { ResolveContext, State, PathNode, omit, pick, inherit, forEach } from "ui-router-core";
+import { ResolveContext, StateObject, PathNode, omit, pick, inherit, forEach } from "ui-router-core";
 import { UIRouter, Resolvable, services, StateDeclaration } from "ui-router-core";
 import "../src/legacy/resolveService";
 
 let module = angular['mock'].module;
 ///////////////////////////////////////////////
 
-var states, statesTree, statesMap: { [key:string]: State } = {};
+var states, statesTree, statesMap: { [key:string]: StateObject } = {};
 var emptyPath;
 var vals, counts, expectCounts;
 var asyncCount;
@@ -75,7 +75,7 @@ beforeEach(function () {
     angular.forEach(substates, function (value, key) {
       thisState.data.children.push(loadStates(thisState, value, key));
     });
-    thisState = angular.extend(new State(thisState), { self: thisState });
+    thisState = StateObject.create(thisState);
     statesMap[name] = thisState;
     return thisState;
   }
@@ -444,7 +444,7 @@ describe("Integration: Resolvables system", () => {
       copy[name] = stateDef;
     });
 
-    angular.forEach(copy, (stateDef: State) => {
+    angular.forEach(copy, (stateDef: StateObject) => {
       if (stateDef.name) $stateProvider.state(stateDef.self);
     });
   }));

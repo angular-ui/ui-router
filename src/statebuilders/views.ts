@@ -1,9 +1,9 @@
 /** @module ng1 */ /** */
 import { ng as angular } from "../angular";
 import {
-    State, pick, forEach, anyTrueR, tail, extend,
+    StateObject, pick, forEach, tail, extend,
     isArray, isInjectable, isDefined, isString, services, trace,
-    ViewConfig, ViewService, ViewConfigFactory, PathNode, ResolveContext, Resolvable, RawParams, IInjectable
+    ViewConfig, ViewService, ViewConfigFactory, PathNode, ResolveContext, Resolvable, IInjectable
 } from "ui-router-core";
 import { Ng1ViewDeclaration } from "../interface";
 import { TemplateFactory } from "../templateFactory";
@@ -29,7 +29,7 @@ const hasAnyKey = (keys, obj) =>
  * If no `views: {}` property exists on the [[StateDeclaration]], then it creates the `views` object
  * and applies the state-level configuration to a view named `$default`.
  */
-export function ng1ViewsBuilder(state: State) {
+export function ng1ViewsBuilder(state: StateObject) {
   // Do not process root state
   if (!state.parent) return {};
 
