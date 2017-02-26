@@ -652,7 +652,7 @@ describe('state', function () {
           expect($transition$.to().name).toBe('A');
           expect($transition$.from().name).toBe('design');
 
-          expect($state$.self).toBe(registry.get('design'));
+          expect($state$).toBe(registry.get('design'));
 
           expect(cc).toBe('cc resolve');
 
