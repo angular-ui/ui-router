@@ -611,7 +611,7 @@ function $UrlMatcherFactory() {
       encode: valToString,
       decode: function(val) { return parseInt(val, 10); },
       is: function(val) { return val !== undefined && val !== null && this.decode(val.toString()) === val; },
-      pattern: /\d+/
+      pattern: /-?\d+/
     },
     "bool": {
       encode: function(val) { return val ? 1 : 0; },
