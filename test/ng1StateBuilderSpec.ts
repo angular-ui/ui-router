@@ -23,7 +23,7 @@ describe('Ng1 StateBuilder', function() {
     expect(built.$default).toEqualData({ templateUrl: "/foo.html", controller: "FooController", resolveAs: '$resolve' });
   });
 
-  it('It should use the views object to build views, when defined, function() {
+  it('It should use the views object to build views, when defined', function() {
     var config = { a: { foo: "bar", controller: "FooController" } };
     let builtViews = builder.builder('views')({ parent: parent, views: config });
     expect(builtViews.a.foo).toEqualData(config.a.foo);
