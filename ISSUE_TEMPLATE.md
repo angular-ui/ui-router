@@ -1,3 +1,6 @@
+This issue tracker is for Bug Reports and Feature Requests only.
+Please direct requests for help to StackOverflow.  See http://bit.ly/UIR-SOF for details.
+
 This is a:
 
 - [ ] Bug Report
