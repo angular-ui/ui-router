@@ -555,7 +555,7 @@ describe('uiStateRef', function() {
       it('should bind single HTML events', inject(function($compile, $state, $timeout) {
         expect($state.current.name).toEqual('top');
 
-        el = angular.element('<input type="text" ui-state="state" ui-state-opts="{ event: [\'change\'] }">');
+        el = angular.element('<input type="text" ui-state="state" ui-state-opts="{ events: [\'change\'] }">');
 
         scope.state = 'contacts';
         $compile(el)(scope);
@@ -570,7 +570,7 @@ describe('uiStateRef', function() {
       it('should bind multiple HTML events', inject(function($compile, $state, $timeout) {
         expect($state.current.name).toEqual('top');
 
-        el = angular.element('<input type="text" ui-state="state" ui-state-opts="{ event: [\'change\', \'blur\'] }">');
+        el = angular.element('<input type="text" ui-state="state" ui-state-opts="{ events: [\'change\', \'blur\'] }">');
 
         scope.state = 'contacts';
         $compile(el)(scope);
@@ -593,7 +593,7 @@ describe('uiStateRef', function() {
       it('should bind multiple Mouse events', inject(function($compile, $state, $timeout) {
         expect($state.current.name).toEqual('top');
 
-        el = angular.element('<a ui-state="state" ui-state-opts="{ event: [\'mouseover\', \'mousedown\'] }">');
+        el = angular.element('<a ui-state="state" ui-state-opts="{ events: [\'mouseover\', \'mousedown\'] }">');
 
         scope.state = 'contacts';
         $compile(el)(scope);
@@ -703,7 +703,7 @@ describe('uiStateRef', function() {
     }));
 
     it('should bind single HTML events', inject(function($rootScope, $compile, $state, $timeout) {
-      el = angular.element('<input type="text" ui-sref="contacts" ui-sref-opts="{ event: [\'change\'] }">');
+      el = angular.element('<input type="text" ui-sref="contacts" ui-sref-opts="{ events: [\'change\'] }">');
       $compile(el)($rootScope);
       $rootScope.$digest();
 
@@ -716,7 +716,7 @@ describe('uiStateRef', function() {
     }));
 
     it('should bind multiple HTML events', inject(function($rootScope, $compile, $state, $timeout) {
-      el = angular.element('<input type="text" ui-sref="contacts" ui-sref-opts="{ event: [\'change\', \'blur\'] }">');
+      el = angular.element('<input type="text" ui-sref="contacts" ui-sref-opts="{ events: [\'change\', \'blur\'] }">');
       $compile(el)($rootScope);
       $rootScope.$digest();
 
@@ -737,7 +737,7 @@ describe('uiStateRef', function() {
     }));
 
     it('should bind multiple Mouse events', inject(function($rootScope, $compile, $state, $timeout) {
-      el = angular.element('<a ui-sref="contacts" ui-sref-opts="{ event: [\'mouseover\', \'mousedown\'] }">');
+      el = angular.element('<a ui-sref="contacts" ui-sref-opts="{ events: [\'mouseover\', \'mousedown\'] }">');
       $compile(el)($rootScope);
       $rootScope.$digest();
 

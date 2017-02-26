@@ -101,7 +101,7 @@ function bindEvents(element: IAugmentedJQuery, scope: IScope, hookFn: (e: JQuery
   let events;
 
   if (uiStateOpts) {
-    events = uiStateOpts.event;
+    events = uiStateOpts.events;
   }
 
   if (!isArray(events)) {
@@ -182,11 +182,21 @@ function bindEvents(element: IAugmentedJQuery, scope: IScope, hookFn: (e: JQuery
  *
  * ### Transition Options
  * You can specify [[TransitionOptions]] to pass to [[StateService.go]] by using the `ui-sref-opts` attribute.
- * Options are restricted to `location`, `inherit`, `reload`, and `event`.
+ * Options are restricted to `location`, `inherit`, and `reload`.
  *
  * #### Example:
  * ```html
  * <a ui-sref="home" ui-sref-opts="{ reload: true }">Home</a>
+ * ```
+ *
+ * ### Other DOM Events
+ *
+ * You can also customize which DOM events to respond to (instead of `click`) by
+ * providing an `events` array in the `ui-sref-opts` attribute.
+ *
+ * #### Example:
+ * ```html
+ * <input type="text" ui-sref="contacts" ui-sref-opts="{ events: ['change', 'blur'] }">
  * ```
  *
  * ### Highlighting the active link
@@ -340,12 +350,22 @@ uiSref = ['$uiRouter', '$timeout',
  *
  * ### Transition Options
  * You can specify [[TransitionOptions]] to pass to [[StateService.go]] by using the `ui-state-opts` attribute.
- * Options are restricted to `location`, `inherit`, `reload`, and `event`.
+ * Options are restricted to `location`, `inherit`, and `reload`.
  * The value of the `ui-state-opts` is `$watch`ed and evaluated as an expression.
  *
  * #### Example:
  * ```html
  * <a ui-state="returnto.state" ui-state-opts="{ reload: true }">Home</a>
+ * ```
+ *
+ * ### Other DOM Events
+ *
+ * You can also customize which DOM events to respond to (instead of `click`) by
+ * providing an `events` array in the `ui-state-opts` attribute.
+ *
+ * #### Example:
+ * ```html
+ * <input type="text" ui-state="contacts" ui-state-opts="{ events: ['change', 'blur'] }">
  * ```
  *
  * ### Highlighting the active link
