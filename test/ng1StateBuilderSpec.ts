@@ -15,7 +15,7 @@ describe('Ng1 StateBuilder', function() {
     builder.builder('views', ng1ViewsBuilder);
   });
 
-  it('should return a new views object, and copy keys from state def, if no `views` is defined in the state def', function() {
+  it('should use the state object to build a default view, when no `views` property is found', function() {
     var config = { url: "/foo", templateUrl: "/foo.html", controller: "FooController", parent: parent };
     var built = builder.builder('views')(config);
 
@@ -23,9 +23,11 @@ describe('Ng1 StateBuilder', function() {
     expect(built.$default).toEqualData({ templateUrl: "/foo.html", controller: "FooController", resolveAs: '$resolve' });
   });
 
-  it("should return modified view config object if `views` is defined in the state def", function() {
+  it('It should use the views object to build views, when defined, function() {
     var config = { a: { foo: "bar", controller: "FooController" } };
-    expect(builder.builder('views')({ parent: parent, views: config })).toEqual(config);
+    let builtViews = builder.builder('views')({ parent: parent, views: config });
+    expect(builtViews.a.foo).toEqualData(config.a.foo);
+    expect(builtViews.a.controller).toEqualData(config.a.controller);
   });
 
   it("should not allow a view config with both component and template keys", inject(function($injector) {

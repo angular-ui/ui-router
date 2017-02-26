@@ -48,6 +48,9 @@ export function ng1ViewsBuilder(state: StateObject) {
     // Account for views: { header: "headerComponent" }
     if (isString(config)) config = { component: <string> config };
 
+    // Make a shallow copy of the config object
+    config = extend({}, config);
+
     if (hasAnyKey(compKeys, config) && hasAnyKey(nonCompKeys, config)) {
       throw new Error(`Cannot combine: ${compKeys.join("|")} with: ${nonCompKeys.join("|")} in stateview: '${name}@${state.name}'`);
     }
