@@ -284,10 +284,10 @@ uiSref = ['$uiRouter', '$timeout',
 
         if (ref.paramExpr) {
           scope.$watch(ref.paramExpr, function (val) {
-            rawDef.uiStateParams = angular.copy(val);
+            rawDef.uiStateParams = extend({}, val);
             update();
           }, true);
-          rawDef.uiStateParams = angular.copy(scope.$eval(ref.paramExpr));
+          rawDef.uiStateParams = extend({}, scope.$eval(ref.paramExpr));
         }
 
         update();
