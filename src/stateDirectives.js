@@ -1,5 +1,7 @@
 function parseStateRef(ref, current) {
-  var preparsed = ref.match(/^\s*({[^}]*})\s*$/), parsed;
+  var preparsed, parsed;
+  ref = ref.replace(/^\s+|\s+$/g, '');
+  preparsed = ref.match(/^\s*({[^}]*})\s*$/);
   if (preparsed) ref = current + '(' + preparsed[1] + ')';
   parsed = ref.replace(/\n/g, " ").match(/^([^(]+?)\s*(\((.*)\))?$/);
   if (!parsed || parsed.length !== 4) throw new Error("Invalid state ref '" + ref + "'");
