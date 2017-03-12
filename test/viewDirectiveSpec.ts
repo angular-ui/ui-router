@@ -902,6 +902,15 @@ describe('angular 1.5+ style .component()', function() {
         template: 'eventCmp',
       });
 
+      app.component('mydataComponent', {
+        bindings: { dataUser: '<' },
+        template: '-{{ $ctrl.dataUser }}-',
+      });
+
+      app.component('dataComponent', {
+        template: 'DataComponent',
+      });
+
       app.component('parentCallbackComponent', {
         controller: function($rootScope) {
           this.handleEvent = function(foo, bar) {
@@ -1162,6 +1171,31 @@ describe('angular 1.5+ style .component()', function() {
         $state.transitionTo('nothrow'); $q.flush();
 
         expect(el.text()).toBe('eventCmp');
+      });
+
+      // Test for #3276
+      it('should route to a component that is prefixed with "data"', function () {
+        $stateProvider.state('data', {
+          component: 'dataComponent',
+        });
+
+        let $state = svcs.$state, $q = svcs.$q;
+        $state.transitionTo('data'); $q.flush();
+
+        expect(el.text()).toBe('DataComponent');
+      });
+
+      // Test for #3276
+      it('should bind a resolve that is prefixed with "data"', function () {
+        $stateProvider.state('data', {
+          component: 'mydataComponent',
+          resolve: { dataUser: () => 'user' }
+        });
+
+        let $state = svcs.$state, $q = svcs.$q;
+        $state.transitionTo('data'); $q.flush();
+        
+        expect(el.text()).toBe('-user-');
       });
 
       // Test for #3239

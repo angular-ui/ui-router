@@ -148,13 +148,13 @@ export class TemplateFactory implements TemplateFactoryProvider {
       // then pass that attribute through to the routed component template.
       // Prefer ui-view wired mappings to resolve data, unless the resolve was explicitly bound using `bindings:`
       if (uiView.attr(attrName) && !bindings[name])
-        return `${attrName}='${uiView.attr(attrName)}'`;
+        return `x-${attrName}='${uiView.attr(attrName)}'`;
 
       let resolveName = bindings[name] || name;
       // Pre-evaluate the expression for "@" bindings by enclosing in {{ }}
       // some-attr="{{ ::$resolve.someResolveName }}"
       if (type === '@')
-        return `${attrName}='{{${prefix}$resolve.${resolveName}}}'`;
+        return `x-${attrName}='{{${prefix}$resolve.${resolveName}}}'`;
 
       // Wire "&" callbacks to resolves that return a callback function
       // Get the result of the resolve (should be a function) and annotate it to get its arguments.
@@ -165,15 +165,15 @@ export class TemplateFactory implements TemplateFactoryProvider {
         let args = fn && services.$injector.annotate(fn) || [];
         // account for array style injection, i.e., ['foo', function(foo) {}]
         let arrayIdxStr = isArray(fn) ? `[${fn.length - 1}]` : '';
-        return `${attrName}='$resolve.${resolveName}${arrayIdxStr}(${args.join(",")})'`;
+        return `x-${attrName}='$resolve.${resolveName}${arrayIdxStr}(${args.join(",")})'`;
       }
 
       // some-attr="::$resolve.someResolveName"
-      return `${attrName}='${prefix}$resolve.${resolveName}'`;
+      return `x-${attrName}='${prefix}$resolve.${resolveName}'`;
     };
 
     let attrs = getComponentBindings(component).map(attributeTpl).join(" ");
-    let kebobName = kebobString(component);
+    let kebobName = "x-" + kebobString(component);
     return `<${kebobName} ${attrs}></${kebobName}>`;
   };
 }

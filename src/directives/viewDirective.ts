@@ -387,9 +387,12 @@ function $ViewDirectiveFill ($compile: ICompileService, $controller: IController
         if (isString(cfg.viewDecl.component)) {
           let cmp = cfg.viewDecl.component;
           let kebobName = kebobString(cmp);
+          let tagRegexp = new RegExp(`^(x-|data-)?${kebobName}$`, "i");
+
           let getComponentController = () => {
             let directiveEl = [].slice.call($element[0].children)
-                .filter((el: Element) => el && el.tagName && el.tagName.toLowerCase() === kebobName) ;
+                .filter((el: Element) => el && el.tagName && tagRegexp.exec(el.tagName)) ;
+            
             return directiveEl && angular.element(directiveEl).data(`$${cmp}Controller`);
           };
 
