@@ -10,7 +10,7 @@ import {
 
 import {
     extend, unnestR, filter, tail, isDefined, isFunction, isString, trace, parse,
-    ActiveUIView, TransitionService, ResolveContext, Transition, PathNode,
+    ActiveUIView, TransitionService, ResolveContext, Transition, PathNode, StateDeclaration,
     Param, kebobString, HookRegOptions, ViewService, $QLike, Obj, TypedMap
 } from "ui-router-core";
 import {Ng1ViewConfig} from "../statebuilders/views";
@@ -429,7 +429,7 @@ function registerControllerCallbacks($transitions: TransitionService, controller
     const paramsUpdated = ($transition$: Transition) => {
       // Exit early if the $transition$ is the same as the view was created within.
       // Exit early if the $transition$ will exit the state the view is for.
-      if ($transition$ === viewCreationTrans || $transition$.exiting().indexOf(viewState) !== -1) return;
+      if ($transition$ === viewCreationTrans || $transition$.exiting().indexOf(viewState as StateDeclaration) !== -1) return;
 
       let toParams = $transition$.params("to") as TypedMap<any>;
       let fromParams = $transition$.params<TypedMap<any>>("from") as TypedMap<any>;

@@ -10,24 +10,53 @@ import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult
  *
  * State hooks are registered as onEnter/onRetain/onExit in state declarations.
  * State hooks can additionally be injected with $transition$ and $state$ for
- * the current [[Transition]] and [[State]] in the transition.
+ * the current [[Transition]] and [[StateObject]] in the transition.
  *
  * Transition State Hooks are callback functions that hook into the lifecycle events of specific states during a transition.
  * As a transition runs, it may exit some states, retain (keep) states, and enter states.
  * As each lifecycle event occurs, the hooks which are registered for the event and that state are called (in priority order).
  *
- * @param injectables list of services to inject into the function
- *
- * @returns a [[HookResult]] which may alter the transition
- *
- * @see
+ * #### See also:
  *
  * - [[IHookRegistry.onExit]]
  * - [[IHookRegistry.onRetain]]
  * - [[IHookRegistry.onEnter]]
+ *
+ * #### Example:
+ * ```js
+ * onEnter: function() { console.log('Entering'); }
+ * ```
+ *
+ * Not minification-safe
+ * ```js
+ * onRetain: function($state$) { console.log('Retained ' + $state$.name); }
+ * ```
+ *
+ * Annotated for minification-safety
+ * ```js
+ * onExit: [ '$transition$', '$state', function($transition$, $state) {
+ *   // always redirect to 'foo' state when being exited
+ *   if ($transition$.to().name !== 'foo') {
+ *     return $state.target('foo');
+ *   }
+ * } ]
+ * ```
+ *
+ * @returns an optional [[HookResult]] which may alter the transition
  */
 export interface Ng1StateTransitionHook {
   (...injectables: any[]) : HookResult
+}
+
+/**
+ * @internalapi
+ * an intermediate interface.
+ *
+ * Used to reset [[StateDeclaration]] typings to `any` so the [[Ng1StateDeclaration]] interface can then narrow them */
+export interface _Ng1StateDeclaration extends StateDeclaration {
+  onExit?: any;
+  onRetain?: any;
+  onEnter?: any;
 }
 
 /**
@@ -95,7 +124,7 @@ export interface Ng1StateTransitionHook {
  * }
  * ```
  */
-export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaration {
+export interface Ng1StateDeclaration extends _Ng1StateDeclaration, Ng1ViewDeclaration {
   /**
    * An optional object which defines multiple named views.
    *
@@ -246,7 +275,10 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
   views?: { [key: string]: Ng1ViewDeclaration; };
 
   /**
-   * State hook that can be injected with `$transition$` or `$state$` for the current transition.
+   * A state hook invoked when a state is being entered.
+   *
+   * The hook can inject global services.
+   * It can also inject `$transition$` or `$state$` (from the current transition).
    * 
    * ### Example:
    * ```js
@@ -257,12 +289,25 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    *   }
    * });
    * ```
+   *
+   * #### Example:`
+   * ```js
+   * $stateProvider.state({
+   *   name: 'mystate',
+   *   onEnter: [ 'MyService', '$transition$', '$state$', function (MyService, $transition$, $state$) {
+   *     return MyService.doSomething($state$.name, $transition$.params());
+   *   } ]
+   * });
+   * ```
    */
-  onEnter?: Ng1StateTransitionHook;
+  onEnter?: Ng1StateTransitionHook | IInjectable;
 
   /**
-   * State hook that can be injected with `$transition$` or `$state$` for the current transition.
-   * 
+   * A state hook invoked when a state is being exited.
+   *
+   * The hook can inject global services.
+   * It can also inject `$transition$` or `$state$` (from the current transition).
+   *
    * ### Example:
    * ```js
    * $stateProvider.state({
@@ -272,13 +317,26 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    *   }
    * });
    * ```
+   *
+   * #### Example:`
+   * ```js
+   * $stateProvider.state({
+   *   name: 'mystate',
+   *   onExit: [ 'MyService', '$transition$', '$state$', function (MyService, $transition$, $state$) {
+   *     return MyService.doSomething($state$.name, $transition$.params());
+   *   } ]
+   * });
+   * ```
    */
-  onExit?: Ng1StateTransitionHook;
+  onExit?: Ng1StateTransitionHook | IInjectable;
 
   /**
-   * State hook that can be injected with `$transition$` or `$state$` for the current transition.
-   * 
-   * ### Example:
+   * A state hook invoked when a state is being retained.
+   *
+   * The hook can inject global services.
+   * It can also inject `$transition$` or `$state$` (from the current transition).
+   *
+   * #### Example:
    * ```js
    * $stateProvider.state({
    *   name: 'mystate',
@@ -287,8 +345,18 @@ export interface Ng1StateDeclaration extends StateDeclaration, Ng1ViewDeclaratio
    *   }
    * });
    * ```
+   *
+   * #### Example:`
+   * ```js
+   * $stateProvider.state({
+   *   name: 'mystate',
+   *   onRetain: [ 'MyService', '$transition$', '$state$', function (MyService, $transition$, $state$) {
+   *     return MyService.doSomething($state$.name, $transition$.params());
+   *   } ]
+   * });
+   * ```
    */
-  onRetain?: Ng1StateTransitionHook;
+  onRetain?: Ng1StateTransitionHook | IInjectable;
 
   /**
    * Makes all search/query parameters `dynamic`

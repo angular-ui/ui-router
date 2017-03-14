@@ -23,7 +23,7 @@ const hasAnyKey = (keys, obj) =>
 /**
  * This is a [[StateBuilder.builder]] function for angular1 `views`.
  *
- * When the [[StateBuilder]] builds a [[State]] object from a raw [[StateDeclaration]], this builder
+ * When the [[StateBuilder]] builds a [[StateObject]] object from a raw [[StateDeclaration]], this builder
  * handles the `views` property with logic specific to angular-ui-router (ng1).
  *
  * If no `views: {}` property exists on the [[StateDeclaration]], then it creates the `views` object
