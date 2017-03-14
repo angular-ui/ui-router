@@ -14,6 +14,6 @@
     "../ui-router-core/src/index.ts",
     "src/legacy/stateEvents.ts",
     "src/legacy/resolveService.ts",
-    "node_modules/typescript/lib/lib.es6.d.ts"
+    "node_modules/typedoc/node_modules/typescript/lib/lib.es6.d.ts"
   ]
 }
