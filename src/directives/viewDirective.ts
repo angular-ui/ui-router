@@ -214,7 +214,11 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
           config: null,                                            // The ViewConfig loaded (from a state.views definition)
           configUpdated: configUpdatedCallback,                    // Called when the matching ViewConfig changes
           get creationContext() {                                  // The context in which this ui-view "tag" was created
-            return parse('$cfg.viewDecl.$context')(inherited);
+            let fromParentTagConfig = parse('$cfg.viewDecl.$context')(inherited);
+            // Allow <ui-view name="foo"><ui-view name="bar"></ui-view></ui-view>
+            // See https://github.com/angular-ui/ui-router/issues/3355
+            let fromParentTag = parse('$uiView.creationContext')(inherited);
+            return fromParentTagConfig || fromParentTag;
           }
         };
 

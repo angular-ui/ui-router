@@ -722,16 +722,38 @@ describe("UiView", function() {
   beforeEach(module(function($stateProvider) {
     $stateProvider
         .state('main', { abstract: true, views: { main: {} } })
-        .state('main.home', { views: { content: { template: 'home.html' } } });
+        .state('main.home', { views: { content: { template: 'HOME' } } })
+        .state('test', { views: { 'nest': { template: 'TEST' } } });
   }));
 
-  it("shouldn't puke on weird view setups", inject(function($compile, $rootScope, $q, $state) {
+  it("shouldn't puke on weird nested view setups", inject(function($compile, $rootScope, $q, $state) {
     $compile('<div ui-view="main"><div ui-view="content"></div></div>')($rootScope);
 
     $state.go('main.home');
     $q.flush();
 
     expect($state.current.name).toBe('main.home');
+  }));
+
+  // Test for https://github.com/angular-ui/ui-router/issues/3355
+  it("should target weird nested view setups using the view's simple name", inject(function($compile, $rootScope, $q, $state) {
+    let tpl = `
+      <div>
+        <div ui-view="main">
+          MAIN-DEFAULT-
+          <div ui-view="content">
+            <div ui-view="nest"></div>
+          </div>
+        </div>
+      </div>
+    `;
+    let el = $compile(tpl)($rootScope);
+
+    $state.go('test');
+    $q.flush();
+
+    expect($state.current.name).toBe('test');
+    expect(el.text().replace(/\s*/g, "")).toBe('MAIN-DEFAULT-TEST');
   }));
 });
 
