@@ -335,9 +335,14 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
   return directive;
 }];
 
-$ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view', '$timeout'];
+$ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view', '$q', '$timeout'];
 /** @hidden */
-function $ViewDirectiveFill ($compile: ICompileService, $controller: IControllerService, $transitions: TransitionService, $view: ViewService, $timeout: ITimeoutService) {
+function $ViewDirectiveFill($compile: angular.ICompileService,
+                            $controller: angular.IControllerService,
+                            $transitions: TransitionService,
+                            $view: ViewService,
+                            $q: angular.IQService,
+                            $timeout: ITimeoutService) {
   const getControllerAs = parse('viewDecl.controllerAs');
   const getResolveAs = parse('viewDecl.resolveAs');
 
@@ -384,7 +389,7 @@ function $ViewDirectiveFill ($compile: ICompileService, $controller: IController
           $element.data('$ngControllerController', controllerInstance);
           $element.children().data('$ngControllerController', controllerInstance);
 
-          registerControllerCallbacks($transitions, controllerInstance, scope, cfg);
+          registerControllerCallbacks($q, $transitions, controllerInstance, scope, cfg);
         }
 
         // Wait for the component to appear in the DOM
@@ -402,7 +407,7 @@ function $ViewDirectiveFill ($compile: ICompileService, $controller: IController
 
           let deregisterWatch = scope.$watch(getComponentController, function(ctrlInstance) {
             if (!ctrlInstance) return;
-            registerControllerCallbacks($transitions, ctrlInstance, scope, cfg);
+            registerControllerCallbacks($q, $transitions, ctrlInstance, scope, cfg);
             deregisterWatch();
           });
         }
@@ -415,15 +420,23 @@ function $ViewDirectiveFill ($compile: ICompileService, $controller: IController
 
 /** @hidden */
 let hasComponentImpl = typeof (angular as any).module('ui.router')['component'] === 'function';
+/** @hidden incrementing id */
+let _uiCanExitId = 0;
 
 /** @hidden TODO: move these callbacks to $view and/or `/hooks/components.ts` or something */
-function registerControllerCallbacks($transitions: TransitionService, controllerInstance: Ng1Controller, $scope: IScope, cfg: Ng1ViewConfig) {
+function registerControllerCallbacks($q: angular.IQService,
+                                     $transitions: TransitionService,
+                                     controllerInstance: Ng1Controller,
+                                     $scope: IScope,
+                                     cfg: Ng1ViewConfig) {
   // Call $onInit() ASAP
-  if (isFunction(controllerInstance.$onInit) && !(cfg.viewDecl.component && hasComponentImpl)) controllerInstance.$onInit();
+  if (isFunction(controllerInstance.$onInit) && !(cfg.viewDecl.component && hasComponentImpl)) {
+    controllerInstance.$onInit();
+  }
 
   let viewState: Ng1StateDeclaration = tail(cfg.path).state.self;
 
-  var hookOptions: HookRegOptions = { bind: controllerInstance };
+  let hookOptions: HookRegOptions = { bind: controllerInstance };
   // Add component-level hook for onParamsChange
   if (isFunction(controllerInstance.uiOnParamsChanged)) {
     let resolveContext: ResolveContext = new ResolveContext(cfg.path);
@@ -450,7 +463,7 @@ function registerControllerCallbacks($transitions: TransitionService, controller
       if (changedToParams.length) {
         let changedKeys: string[] = changedToParams.map(x => x.id);
         // Filter the params to only changed/new to params.  `$transition$.params()` may be used to get all params.
-        var newValues = filter(toParams, (val, key) => changedKeys.indexOf(key) !== -1);
+        let newValues = filter(toParams, (val, key) => changedKeys.indexOf(key) !== -1);
         controllerInstance.uiOnParamsChanged(newValues, $transition$);
       }
     };
@@ -459,8 +472,25 @@ function registerControllerCallbacks($transitions: TransitionService, controller
 
   // Add component-level hook for uiCanExit
   if (isFunction(controllerInstance.uiCanExit)) {
-    var criteria = {exiting: viewState.name};
-    $scope.$on('$destroy', <any> $transitions.onBefore(criteria, controllerInstance.uiCanExit, hookOptions));
+    let id = _uiCanExitId++;
+    let cacheProp = '_uiCanExitIds';
+
+    // Returns true if a redirect transition already answered truthy
+    const prevTruthyAnswer = (trans: Transition) =>
+        !!trans && (trans[cacheProp] && trans[cacheProp][id] === true || prevTruthyAnswer(trans.redirectedFrom()));
+
+    // If a user answered yes, but the transition was later redirected, don't also ask for the new redirect transition
+    const wrappedHook = (trans: Transition) => {
+      let promise, ids = trans[cacheProp] = trans[cacheProp] || {};
+      if (!prevTruthyAnswer(trans)) {
+        promise = $q.when(controllerInstance.uiCanExit(trans));
+        promise.then(val => ids[id] = (val !== false));
+      }
+      return promise;
+    };
+
+    let criteria = {exiting: viewState.name};
+    $scope.$on('$destroy', <any> $transitions.onBefore(criteria, wrappedHook, hookOptions));
   }
 }
 

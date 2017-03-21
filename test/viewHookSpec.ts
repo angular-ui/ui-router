@@ -1,9 +1,11 @@
 import * as angular from "angular";
 import "./util/matchers";
+import { StateService } from "ui-router-core";
+
 declare var inject;
 
 describe("view hooks", () => {
-  let app, ctrl, $state, $q, $timeout, log = "";
+  let app, ctrl, $state: StateService, $q, $timeout: angular.ITimeoutService, log = "";
   let component = {
     bindings: { cmpdata: '<' },
     template: '{{$ctrl.cmpdata}}',
@@ -40,6 +42,7 @@ describe("view hooks", () => {
     $stateProvider.state({ name: "foo", url: "/foo", component: 'foo' });
     $stateProvider.state({ name: "bar", url: "/bar", component: 'bar' });
     $stateProvider.state({ name: "baz", url: "/baz", component: 'baz' });
+    $stateProvider.state({ name: "redirect", redirectTo: 'baz' });
   }));
 
   beforeEach(angular['mock'].module('viewhooks', 'ui.router'));
@@ -93,14 +96,12 @@ describe("view hooks", () => {
     it("can redirect the transition", () => {
       ctrl.prototype.uiCanExit = function(trans) {
         log += "canexit;";
-        if (trans.to().name !== 'baz')  {
-          return trans.router.stateService.target('baz');
-        }
+        return trans.router.stateService.target('baz');
       };
       initial();
 
       $state.go('bar'); $q.flush(); $timeout.flush();
-      expect(log).toBe('canexit;canexit;'); // first: redirects, second: allows the transition
+      expect(log).toBe('canexit;');
       expect($state.current.name).toBe('baz');
     });
 
@@ -162,5 +163,27 @@ describe("view hooks", () => {
       expect($state.current.name).toBe('bar');
     });
 
+    // Test for https://github.com/angular-ui/ui-router/issues/3308
+    it('should trigger once when answered truthy even if redirected', () => {
+      ctrl.prototype.uiCanExit = function() { log += "canexit;"; return true; };
+      initial();
+
+      $state.go('redirect'); $q.flush(); $timeout.flush();
+      expect(log).toBe('canexit;');
+      expect($state.current.name).toBe('baz');
+    });
+
+    // Test for https://github.com/angular-ui/ui-router/issues/3308
+    it('should trigger only once if returns a redirect', () => {
+      ctrl.prototype.uiCanExit = function() {
+        log += "canexit;";
+        return $state.target('bar');
+      };
+      initial();
+
+      $state.go('redirect'); $q.flush(); $timeout.flush();
+      expect(log).toBe('canexit;');
+      expect($state.current.name).toBe('bar');
+    });
   });
 });

@@ -677,14 +677,13 @@ export interface Ng1Controller {
    * - The new Transition will exit the view's state
    *
    * Called with:
-   * - This callback is injected in the new Transition's context
+   * - The new Transition
    *
    * Relevant return Values:
    * - `false`: The transition is cancelled.
    * - A rejected promise: The transition is cancelled.
    * - [[TargetState]]: The transition is redirected to the new target state.
    * - Anything else: the transition will continue normally (the state and view will be deactivated)
-   *
    *
    * #### Example:
    * ```js
@@ -706,10 +705,10 @@ export interface Ng1Controller {
    * }
    * ```
    *
-   *
-   * @return a value, or a promise for a value.
+   * @param transition the new Transition that is about to exit the component's state
+   * @return a HookResult, or a promise for a HookResult
    */
-  uiCanExit(): HookResult;
+  uiCanExit(transition: Transition): HookResult;
 }
 
 /**
