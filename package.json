@@ -21,7 +21,8 @@
     "test:integrate": "tsc && npm run noimplicitany && npm run test:ng12 && npm run test:ng13 && npm run test:ng14 && npm run test:ng15 && npm run test:ng16",
     "watch": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1",
     "debug": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1 --browsers=Chrome",
-    "docs": "./scripts/docs.js"
+    "docs": "./scripts/docs.js",
+    "artifacts": "node scripts/artifact_tagging.js"
   },
   "homepage": "https://ui-router.github.io",
   "contributors": [
