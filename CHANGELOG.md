@@ -1,3 +1,13 @@
+<a name="0.4.3"></a>
+### 0.4.3 (2017-03-25)
+
+
+#### Bug Fixes
+
+* **int:** Negative parameter values  (PR #3301) ([b3950ead](https://github.com/angular-ui/ui-router/commit/b3950ead2c040117101ec48b8e87ef33050af93b), closes [#2422](https://github.com/angular-ui/ui-router/issues/2422))
+* **state:** Check if state.resolve is object ([37bfe6b3](https://github.com/angular-ui/ui-router/commit/37bfe6b3981f958536afab41bb191ae27e6109b8))
+
+
 <a name="0.4.2"></a>
 ### 0.4.2 (2017-01-20)
 
