@@ -2423,6 +2423,8 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
     var name = state.name;
     if (!isString(name) || name.indexOf('@') >= 0) throw new Error("State must have a valid name");
     if (states.hasOwnProperty(name)) throw new Error("State '" + name + "' is already defined");
+    if (typeof state.resolve !== 'object' || state.resolve.constructor !== Object)
+      throw new Error("In state '" + name + "' resolve should be an object");
 
     // Get parent name
     var parentName = (name.indexOf('.') !== -1) ? name.substring(0, name.lastIndexOf('.'))
