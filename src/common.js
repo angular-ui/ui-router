@@ -13,7 +13,7 @@ var isDefined = angular.isDefined,
     toJson = angular.toJson;
 
 function inherit(parent, extra) {
-  return extend(new (extend(function() {}, { prototype: parent }))(), extra);
+  return extend(new (extend(new Function(), { prototype: parent }))(), extra);
 }
 
 function merge(dst) {
