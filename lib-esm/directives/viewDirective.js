@@ -302,8 +302,9 @@ function $ViewDirectiveFill($compile, $controller, $transitions, $view, $q, $tim
                     return;
                 }
                 var cfg = data.$cfg || { viewDecl: {}, getTemplate: noop };
-                if (!cfg.getTemplate)
-                    cfg.getTemplate = noop;
+                if (!cfg.getTemplate) {
+                  return;
+                }
                 var resolveCtx = cfg.path && new ResolveContext(cfg.path);
                 $element.html(cfg.getTemplate($element, resolveCtx) || initial);
                 trace.traceUIViewFill(data.$uiView, $element.html());
