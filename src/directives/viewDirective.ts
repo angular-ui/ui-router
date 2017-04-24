@@ -1,6 +1,6 @@
-/** 
- * @ng1api 
- * @module directives 
+/**
+ * @ng1api
+ * @module directives
  */ /** for typedoc */
 import { ng as angular } from "../angular";
 import {
@@ -362,7 +362,9 @@ function $ViewDirectiveFill($compile: angular.ICompileService,
         }
 
         let cfg: Ng1ViewConfig = data.$cfg || <any> { viewDecl: {}, getTemplate: noop };
-        if(!cfg.getTemplate) cfg.getTemplate = noop as any;
+        if(!cfg.getTemplate) {
+          return;
+        }
         let resolveCtx: ResolveContext = cfg.path && new ResolveContext(cfg.path);
         $element.html(cfg.getTemplate($element, resolveCtx) || initial);
         trace.traceUIViewFill(data.$uiView, $element.html());
@@ -402,7 +404,7 @@ function $ViewDirectiveFill($compile: angular.ICompileService,
           let getComponentController = () => {
             let directiveEl = [].slice.call($element[0].children)
                 .filter((el: Element) => el && el.tagName && tagRegexp.exec(el.tagName)) ;
-            
+
             return directiveEl && angular.element(directiveEl).data(`$${cmp}Controller`);
           };
 
