@@ -1,0 +1,4 @@
+{
+  "old": "angular-ui-router",
+  "new": "@uirouter/angularjs"
+}
