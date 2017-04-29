@@ -1,7 +1,7 @@
 /** @module ng1 */ /** for typedoc */
 import {
     val, isObject, createProxyFunctions, BuilderFunction, StateRegistry, StateService, OnInvalidCallback
-} from "ui-router-core";
+} from "@uirouter/core";
 import { Ng1StateDeclaration } from "./interface";
 
 /**

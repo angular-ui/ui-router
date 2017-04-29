@@ -22,7 +22,7 @@ import { ng as angular } from "../angular";
 import { IScope, IAngularEvent, IServiceProviderFactory } from "angular";
 import {
     Obj, TargetState, StateService, Transition, TransitionService, UrlRouter, HookResult, UIInjector
-} from "ui-router-core";
+} from "@uirouter/core";
 import { StateProvider } from "../stateProvider";
 
 /**

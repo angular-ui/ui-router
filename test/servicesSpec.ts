@@ -1,5 +1,5 @@
 import * as angular from "angular";
-import { UIRouter, trace } from "ui-router-core";
+import { UIRouter, trace } from "@uirouter/core";
 
 declare var inject;
 

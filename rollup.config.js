@@ -54,16 +54,16 @@ const EVENTS_CONFIG = Object.assign({}, BASE_CONFIG, {
   moduleName: 'angular-ui-router-state-events',
   entry: 'lib-esm/legacy/stateEvents.js',
   dest: 'release/stateEvents' + extension,
-  globals: { angular: 'angular', 'ui-router-core': 'ui-router-core' },
-  external: ['angular', 'ui-router-core'],
+  globals: { angular: 'angular', '@uirouter/core': '@uirouter/core' },
+  external: ['angular', '@uirouter/core'],
 });
 
 const RESOLVE_CONFIG = Object.assign({}, BASE_CONFIG, {
   moduleName: 'angular-ui-router-resolve-service',
   entry: 'lib-esm/legacy/resolveService.js',
   dest: 'release/resolveService' + extension,
-  globals: { angular: 'angular', 'ui-router-core': 'ui-router-core' },
-  external: ['angular', 'ui-router-core'],
+  globals: { angular: 'angular', '@uirouter/core': '@uirouter/core' },
+  external: ['angular', '@uirouter/core'],
 });
 
 const CONFIG =

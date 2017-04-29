@@ -1,9 +1,9 @@
 /** @module url */ /** */
 import {
-    UIRouter, UrlRouter, LocationServices, $InjectorLike, BaseUrlRule, UrlRule, UrlRuleType, UrlRuleHandlerFn, UrlMatcher,
+    UIRouter, UrlRouter, LocationServices, $InjectorLike, BaseUrlRule, UrlRuleHandlerFn, UrlMatcher,
     IInjectable
-} from "ui-router-core";
-import { services, isString, isFunction, isArray, identity } from "ui-router-core";
+} from "@uirouter/core";
+import { services, isString, isFunction, isArray, identity } from "@uirouter/core";
 
 export interface RawNg1RuleFunction {
   ($injector: $InjectorLike, $location: LocationServices): string|void;

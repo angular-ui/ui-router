@@ -49,63 +49,65 @@ If your issue gets labeled with purple label, no further action will be taken un
 
 # Developing
 
-UI-Router uses <code>npm</code> and <code>webpack</code>.
+UI-Router uses <code>npm</code> and <code>Rollup</code>.
 
 ## Fetch the source code
 
 The code for Angular UI-Router is split into two source repositories:
 
-* [UI-Router Core](https://github.com/ui-router/core) (`ui-router-core` on npm)
-* [UI-Router for Angular 1](https://github.com/angular-ui/ui-router) (`angular-ui-router` on npm)
+* [UI-Router Core](https://github.com/ui-router/core) (`@uirouter/core` on npm)
+* [UI-Router for Angular 1](https://github.com/angular-ui/ui-router) (`@ui-router/angularjs` on npm)
 
 Clone both repositories into directories next to each other.
 
 ```
-git clone https://github.com/angular-ui/ui-router.git angular-ui-router
-git clone https://github.com/ui-router/core.git ui-router-core
+mkdir uirouter
+cd uirouter
+git clone https://github.com/angular-ui/ui-router.git angularjs
+git clone https://github.com/ui-router/core.git core
 ```
 
 ## Install dependencies
 
-Use `npm` to install the development dependencies for each repositor.
+Use `npm` to install the development dependencies for each repository.
 
 ```
-cd ui-router-core
+cd core
 npm install
-cd ../angular-ui-router
+cd ../angularjs
 npm install
 cd ..
 ```
 
 ## Link the directories
 
-This step is necessary if you need to modify any code in `ui-router-core`.
-Using `npm`, link `ui-router-core` into `angular-ui-router` 
+This step is necessary if you need to modify any code in `@uirouter/core`.
+Using `npm`, link `@uirouter/core` into `angular-ui-router`
 
 ```
-cd ui-router-core
+cd core
 npm link
-cd ../angular-ui-router
-npm link ui-router-core
+cd ../angularjs
+npm link '@uirouter/core'
 ```
 
-After executing these steps, `angular-ui-router` will be built using your local copy of `ui-router-core`.
+After executing these steps, `@uirouter/angularjs` will be depend on your local copy of `@uirouter/core` instead of the version listed in `package.json`.
 
 ## Develop
 
-These scripts may be run in `angular-ui-router`:
+These scripts may be run in the `angularjs` directory:
 
 * `npm run build`: Compiles TypeScript source
-* `npm run package`: Compiles TypeScript source and creates webpack bundles.
-* `npm test`: Runs the `angular-ui-router` test suite (against Angular 1.2 through 1.5).
-* `npm run watch`: Continuously compiles the source and runs the `angular-ui-router` tests (when source or tests change).
+* `npm run package`: Compiles TypeScript source and creates the Rollup bundles.
+* `npm test`: Runs the test suite (against Angular 1.2 through 1.5).
+* `npm run watch`: Continuously compiles the source and runs the test suite (when either source or tests change).
 
-Scripts of the same name (in `ui-router-core`) can be used.
+Scripts of the same name (in the `core` directory) can be used.
 
-* `npm run build`: Compiles `ui-router-core` TypeScript source
-* `npm test`: Runs the `ui-router-core` test suite
-* `npm run watch`: Continuously compiles the source and runs the `ui-router-core` test suite (when core source or tests change).
+* `npm run build`: Compiles `@uirouter/core` TypeScript source
+* `npm test`: Runs the `@uirouter/core` test suite
+* `npm run watch`: Continuously compiles the source and runs the `@uirouter/core` test suite (when core source or tests change).
 
 If you've followed the [linking instructions](#link-the-directories), it's useful to run both
-`npm run watch` tasks (each task from `ui-router-core` *and* `angular-ui-router`).
-This ensures that changes to either `ui-router-core` and `angular-ui-router` compile successfully and are run against the test suite.
+`npm run watch` tasks (each task from `@uirouter/core` *and* `@uirouter/angularjs`).
+This ensures that changes to either `@uirouter/core` and `@uirouter/angularjs` compile successfully and are run against their test suites.

@@ -1,7 +1,7 @@
 /** @module ng1 */ /** for typedoc */
 
 import { ng as angular } from "./angular";
-import { Obj, StateService, StateOrName } from "ui-router-core";
+import { Obj, StateService, StateOrName } from "@uirouter/core";
 
 /**
  * `isState` Filter: truthy if the current state is the parameter

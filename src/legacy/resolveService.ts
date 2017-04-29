@@ -1,5 +1,5 @@
 /** @module ng1 */ /** */
-import { StateObject, PathNode, ResolveContext, Obj, mapObj, resolvablesBuilder } from "ui-router-core";
+import { StateObject, PathNode, ResolveContext, Obj, mapObj, resolvablesBuilder } from "@uirouter/core";
 import * as angular from "angular";
 
 /**

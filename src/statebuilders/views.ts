@@ -4,7 +4,7 @@ import {
     StateObject, pick, forEach, tail, extend,
     isArray, isInjectable, isDefined, isString, services, trace,
     ViewConfig, ViewService, ViewConfigFactory, PathNode, ResolveContext, Resolvable, IInjectable
-} from "ui-router-core";
+} from "@uirouter/core";
 import { Ng1ViewDeclaration } from "../interface";
 import { TemplateFactory } from "../templateFactory";
 import IInjectorService = angular.auto.IInjectorService;

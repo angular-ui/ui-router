@@ -2,7 +2,7 @@
  * @ng1api
  * @module ng1
  */ /** */
-import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult } from "ui-router-core";
+import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult } from "@uirouter/core";
 
 
 /**
@@ -45,7 +45,7 @@ import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult
  * @returns an optional [[HookResult]] which may alter the transition
  */
 export interface Ng1StateTransitionHook {
-  (...injectables: any[]) : HookResult
+  (...injectables: any[]) : HookResult;
 }
 
 /**
@@ -741,8 +741,8 @@ export interface TemplateFactoryProvider {
   useHttpService(useUnsafeHttpService: boolean);
 }
 
-declare module "ui-router-core/lib/state/stateRegistry" {
+declare module "@uirouter/core/lib/state/stateRegistry" {
   interface StateRegistry {
-    register(state: Ng1StateDeclaration)
+    register(state: Ng1StateDeclaration);
   }
 }

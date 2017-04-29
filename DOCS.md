@@ -37,11 +37,11 @@ The documentation reflects the Typescript classes, interfaces, and parameter typ
 
 #### Contributing
 
-Angular UI-Router depends on the framework agnostic `ui-router-core`.
+Angular UI-Router depends on the framework agnostic `@uirouter/core`.
 To contribute to the documentation, please submit a PR to either 
-[angular-ui-router](http://github.com/angular-ui/ui-router)
+[@uirouter/angularjs](http://github.com/angular-ui/ui-router)
 or
-[ui-router-core](http://github.com/ui-router/core).
+[@uirouter/core](http://github.com/ui-router/core).
 To find where a specific piece of documentation is written, follow the links that say:
  > _Defined in ui-router/somedir/somefile.ts_
 

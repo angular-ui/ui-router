@@ -55,7 +55,7 @@ import { StateProvider } from "./stateProvider";
 import {
     StateService, TransitionService, Transition, UrlRouter, UrlMatcherFactory,
     StateParams, StateRegistry, UIRouterGlobals, UIRouter, Trace, UrlService
-} from "ui-router-core";
+} from "@uirouter/core";
 import { UIViewScrollProvider } from "./viewScroll";
 import { UrlRouterProvider } from "./urlRouterProvider";
 

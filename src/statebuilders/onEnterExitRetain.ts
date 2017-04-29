@@ -1,7 +1,7 @@
 /** @module ng1 */ /** */
 import {
   StateObject, TransitionStateHookFn, HookResult, Transition, services, ResolveContext, extend, BuilderFunction
-} from "ui-router-core";
+} from "@uirouter/core";
 import { getLocals } from "../services";
 import { Ng1StateDeclaration } from '../interface';
 

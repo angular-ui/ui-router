@@ -1,6 +1,6 @@
 var module      = angular.mock.module;
 var uiRouter    = require("../src/index");
-var services    = require("ui-router-core").services;
+var services    = require("@uirouter/core").services;
 var Param       = uiRouter.Param;
 var ParamTypes  = uiRouter.ParamTypes;
 var UrlMatcher  = uiRouter.UrlMatcher;

@@ -30,7 +30,7 @@
     "no-eval": true,
     "no-internal-module": true,
     "no-require-imports": true,
-    "no-string-literal": true,
+    "no-string-literal": false,
     "no-switch-case-fall-through": true,
     "no-trailing-comma": true,
     "no-trailing-whitespace": false,

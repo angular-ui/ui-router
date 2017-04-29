@@ -14,7 +14,7 @@ import { IAugmentedJQuery, ITimeoutService, IScope, IInterpolateService } from "
 import {
     Obj, extend, forEach, tail, isString, isObject, isArray, parse, noop, unnestR, identity, uniqR, inArray, removeFrom,
     RawParams, PathNode, StateOrName, StateService, StateDeclaration, UIRouter
-} from "ui-router-core";
+} from "@uirouter/core";
 import { UIViewData } from "./viewDirective";
 
 /** @hidden Used for typedoc */

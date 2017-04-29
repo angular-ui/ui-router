@@ -11,20 +11,20 @@
  */
 /** for typedoc */
 import { ng as angular } from "./angular";
-import { TypedMap } from "ui-router-core"; // has or is using
 import {
   IRootScopeService, IQService, ILocationService, ILocationProvider, IHttpService, ITemplateCacheService
 } from "angular";
 import {
-  services, applyPairs, isString, trace, extend, UIRouter, StateService, UrlRouter, UrlMatcherFactory, ResolveContext, unnestR
-} from "ui-router-core";
+  services, applyPairs, isString, trace, extend, UIRouter, StateService, UrlRouter, UrlMatcherFactory, ResolveContext,
+  unnestR, TypedMap
+} from "@uirouter/core";
 import { ng1ViewsBuilder, getNg1ViewConfigFactory } from "./statebuilders/views";
 import { TemplateFactory } from "./templateFactory";
 import { StateProvider } from "./stateProvider";
 import { getStateHookBuilder } from "./statebuilders/onEnterExitRetain";
 import { Ng1LocationServices } from "./locationServices";
 import { UrlRouterProvider } from "./urlRouterProvider";
-import IInjectorService = angular.auto.IInjectorService;
+import IInjectorService = angular.auto.IInjectorService; // tslint:disable-line
 
 angular.module("ui.router.angular1", []);
 let mod_init  = angular.module('ui.router.init',   []);
@@ -32,9 +32,9 @@ let mod_util  = angular.module('ui.router.util',   ['ng', 'ui.router.init']);
 let mod_rtr   = angular.module('ui.router.router', ['ui.router.util']);
 let mod_state = angular.module('ui.router.state',  ['ui.router.router', 'ui.router.util', 'ui.router.angular1']);
 let mod_main  = angular.module('ui.router',        ['ui.router.init', 'ui.router.state', 'ui.router.angular1']);
-let mod_cmpt  = angular.module('ui.router.compat', ['ui.router']);
+let mod_cmpt  = angular.module('ui.router.compat', ['ui.router']); // tslint:disable-line
 
-declare module 'ui-router-core/lib/router' {
+declare module '@uirouter/core/lib/router' {
   interface UIRouter {
     /** @hidden */
     stateProvider: StateProvider;
@@ -100,8 +100,8 @@ function runBlock($injector: IInjectorService, $q: IQService, $uiRouter: UIRoute
 }
 
 // $urlRouter service and $urlRouterProvider
-const getUrlRouterProvider = (router: UIRouter) =>
-  router.urlRouterProvider = new UrlRouterProvider(router);
+const getUrlRouterProvider = (uiRouter: UIRouter) =>
+  uiRouter.urlRouterProvider = new UrlRouterProvider(uiRouter);
 
 // $state service and $stateProvider
 // $urlRouter service and $urlRouterProvider
@@ -134,13 +134,13 @@ mod_rtr  .run     (['$urlRouter', function ($urlRouter: UrlRouter) { }]);
 mod_init .run     (runBlock);
 
 /** @hidden TODO: find a place to move this */
-export const getLocals = (ctx: ResolveContext) => {
+export const getLocals = (ctx: ResolveContext): TypedMap<any> => {
   let tokens = ctx.getTokens().filter(isString);
 
   let tuples = tokens .map(key => {
     let resolvable = ctx.getResolvable(key);
     let waitPolicy = ctx.getPolicy(resolvable).async;
-    return [ key, waitPolicy === 'NOWAIT' ? resolvable.promise : resolvable.data ]
+    return [ key, waitPolicy === 'NOWAIT' ? resolvable.promise : resolvable.data ];
   });
 
   return tuples.reduce(applyPairs, {});

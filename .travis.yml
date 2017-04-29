@@ -21,16 +21,16 @@ before_script:
 
 script:
   - echo "CORE_BRANCH = x${CORE_BRANCH}x";
-  # Fetch and build the ui-router-core branch from github, then install it
+  # Fetch and build the @uirouter/core branch from github, then install it
   - >
     if [ "x${CORE_BRANCH}x" != "xx" ] ; then
-      echo "Installing ui-router-core from ${CORE_BRANCH}" && \
-      git clone --depth=10 --branch="${CORE_BRANCH}" https://github.com/ui-router/core.git ui-router-core && \
-      pushd ui-router-core && \
+      echo "Installing @uirouter/core from ${CORE_BRANCH}" && \
+      git clone --depth=10 --branch="${CORE_BRANCH}" https://github.com/ui-router/core.git @uirouter/core && \
+      pushd @uirouter/core && \
       yarn > /dev/null && \
       yarn build && \
       popd && \
-      npm install ./ui-router-core ;
+      npm install ./@uirouter/core ;
     fi
   - tsc && npm test
 
@@ -40,11 +40,11 @@ matrix:
 
 env:
   matrix:
-    # CORE_BRANCH env variable specifies the branch of ui-router-core to use during build/test
+    # CORE_BRANCH env variable specifies the branch of @uirouter/core to use during build/test
     # Each CORE_BRANCH listed here will trigger a SEPARATE job in travis
     - CORE_BRANCH=master
 
-    # If CORE_BRANCH is empty, it will use the ui-router-core from npm dependencies
+    # If CORE_BRANCH is empty, it will use the @uirouter/core from npm dependencies
     # (as specified in package.json)
     - CORE_BRANCH=
 

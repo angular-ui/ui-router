@@ -1,17 +1,15 @@
 import * as angular from "angular";
 import "./util/matchers";
-import {
-  inherit, extend, tail, curry, PathNode, PathFactory, ViewService, StateMatcher, StateBuilder, StateObject
-} from "ui-router-core";
+import { tail, curry, PathNode, PathUtils, ViewService, StateMatcher, StateBuilder, StateObject } from "@uirouter/core";
 import { ng1ViewsBuilder, getNg1ViewConfigFactory } from "../src/statebuilders/views";
 import { Ng1StateDeclaration } from "../src/interface";
 declare var inject;
 
 describe('view', function() {
-  var scope, $compile, $injector, elem, $controllerProvider, $urlMatcherFactoryProvider;
+  let scope, $compile, $injector, elem, $controllerProvider, $urlMatcherFactoryProvider;
   let root: StateObject, states: {[key: string]: StateObject};
 
-  beforeEach(angular['mock'].module('ui.router', function(_$provide_, _$controllerProvider_, _$urlMatcherFactoryProvider_) {
+  beforeEach(angular.mock.module('ui.router', function(_$provide_, _$controllerProvider_, _$urlMatcherFactoryProvider_) {
     _$provide_.factory('foo', function() {
       return "Foo";
     });
@@ -57,9 +55,9 @@ describe('view', function() {
       let $view = new ViewService();
       $view._pluginapi._viewConfigFactory("ng1", getNg1ViewConfigFactory());
 
-      let states = [root, state];
-      path = states.map(_state => new PathNode(_state));
-      PathFactory.applyViewConfigs($view, path, states);
+      let _states = [root, state];
+      path = _states.map(_state => new PathNode(_state));
+      PathUtils.applyViewConfigs($view, path, _states);
     });
 
     it('uses the controllerProvider to get controller dynamically', inject(function ($view, $q) {

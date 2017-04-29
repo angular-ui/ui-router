@@ -2,8 +2,8 @@
  * @internalapi
  * @module ng1
  */ /** */
-import { LocationConfig, LocationServices, UIRouter, ParamType } from "ui-router-core";
-import { val, createProxyFunctions, removeFrom, isObject } from "ui-router-core";
+import { LocationConfig, LocationServices, UIRouter, ParamType } from "@uirouter/core";
+import { val, createProxyFunctions, removeFrom, isObject } from "@uirouter/core";
 import { ILocationService, ILocationProvider } from "angular";
 
 /**

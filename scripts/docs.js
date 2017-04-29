@@ -16,7 +16,6 @@ let typedocCmd = [
 ].join(" ");
 
 let PROJECTDIR = path.join(__dirname, '..');
-let PROJ2 = 'ui-router-core';
 
 shelljs.pushd(PROJECTDIR);
 
@@ -25,7 +24,7 @@ shelljs.mv('src', 'src.bak');
 shelljs.cp('-r', 'src.bak', 'src');
 
 let arr = [];
-// This replaces "ui-router-core" with "../../../ui-router-core"
+// This replaces "@uirouter/core" with "../../../core"
 // while accounting for how many "../../" should be prepended
 for (var i = 0; i < 5; i++) {
   arr.push(arr.length);
@@ -33,17 +32,17 @@ for (var i = 0; i < 5; i++) {
   let dots = arr.map((val) => '..').join('/');
   let stars = arr.map((val) => '*').join('/');
 
-  // Replace references to "ui-router-core/lib" with "../ui-router-core/lib" for typedoc
+  // Replace references to "@uirouter/core/lib" with "../core/lib" for typedoc
   replaceInFiles.sync({
-    replace: / (['"])ui-router-core\/lib/g,
-    with: ' $1' + dots + '/../ui-router-core/src',
+    from: / (['"])\@uirouter\/core\/lib/g,
+    to: ' $1' + dots + '/../core/src',
     files: 'src/' + stars + '.ts'
   });
 
-  // Replace references to "ui-router-core" with "../ui-router-core" for typedoc
+  // Replace references to "@uirouter/core" with "../core" for typedoc
   replaceInFiles.sync({
-    replace: / (['"])ui-router-core/g,
-    with: ' $1' + dots + '/../ui-router-core/src',
+    from: / (['"])\@uirouter\/core/g,
+    to: ' $1' + dots + '/../core/src',
     files: 'src/' + stars + '.ts'
   });
 }

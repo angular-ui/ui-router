@@ -1,6 +1,6 @@
 import * as angular from "angular";
 import "./util/matchers";
-import { StateService } from "ui-router-core";
+import { StateService } from "@uirouter/core";
 
 declare var inject;
 

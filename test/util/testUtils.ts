@@ -1,4 +1,4 @@
-import {map, pick, extend, forEach, omit} from "ui-router-core";
+import {map, pick, forEach, omit} from "@uirouter/core";
 
 let stateProps = ["resolve", "resolvePolicy", "data", "template", "templateUrl", "url", "name", "params"];
 

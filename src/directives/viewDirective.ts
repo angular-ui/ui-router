@@ -12,7 +12,7 @@ import {
     extend, unnestR, filter, tail, isDefined, isFunction, isString, trace, parse,
     ActiveUIView, TransitionService, ResolveContext, Transition, PathNode, StateDeclaration,
     Param, kebobString, HookRegOptions, ViewService, $QLike, Obj, TypedMap
-} from "ui-router-core";
+} from "@uirouter/core";
 import {Ng1ViewConfig} from "../statebuilders/views";
 import {Ng1Controller, Ng1StateDeclaration} from "../interface";
 import {getLocals} from "../services";

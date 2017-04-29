@@ -1,6 +1,6 @@
 import * as angular from 'angular';
 import './util/matchers';
-import { extend } from 'ui-router-core';
+import { extend } from '@uirouter/core';
 
 declare let inject, jasmine;
 

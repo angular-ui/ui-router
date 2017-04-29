@@ -3,9 +3,9 @@
  * @module ng1
  */ /** */
 
-import * as core from "ui-router-core";
+import * as core from "@uirouter/core";
 export { core };
-export * from "ui-router-core";
+export * from "@uirouter/core";
 
 export * from "./interface";
 export * from "./services";

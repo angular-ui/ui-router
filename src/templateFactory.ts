@@ -5,7 +5,7 @@ import { IAugmentedJQuery } from "angular";
 import {
   isArray, isDefined, isFunction, isObject, services, Obj, IInjectable, tail, kebobString, unnestR, ResolveContext,
   Resolvable, RawParams, prop
-} from "ui-router-core";
+} from "@uirouter/core";
 import { Ng1ViewDeclaration, TemplateFactoryProvider } from "./interface";
 
 /**

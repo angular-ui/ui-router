@@ -1,5 +1,5 @@
 import {StateBuilder, StateMatcher, ng1ViewsBuilder, extend} from "../src/index";
-import {Resolvable} from "ui-router-core";
+import {Resolvable} from "@uirouter/core";
 declare var inject;
 
 describe('Ng1 StateBuilder', function() {

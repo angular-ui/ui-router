@@ -3,7 +3,7 @@
 /// <reference path='../../node_modules/@types/jasmine/index.d.ts' />
 /// <reference path='./matchers.types.d.ts' />
 
-import {equals} from "ui-router-core";
+import {equals} from "@uirouter/core";
 import {testablePromise} from "./testUtilsNg1";
 
 beforeEach(function() {
