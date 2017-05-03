@@ -10,7 +10,7 @@ import { Ng1StateDeclaration } from '../interface';
  * `onRetain` callback hooks on a [[Ng1StateDeclaration]].
  *
  * When the [[StateBuilder]] builds a [[StateObject]] object from a raw [[StateDeclaration]], this builder
- * ensures that those hooks are injectable for angular-ui-router (ng1).
+ * ensures that those hooks are injectable for @uirouter/angularjs (ng1).
  */
 export const getStateHookBuilder = (hookName: "onEnter"|"onExit"|"onRetain") =>
 function stateHookBuilder(state: StateObject, parentFn: BuilderFunction): TransitionStateHookFn {

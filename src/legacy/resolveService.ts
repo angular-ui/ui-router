@@ -13,9 +13,9 @@ var $resolve = {
    *
   * ### Not bundled by default
    *
-   * This API is no longer not part of the standard `angular-ui-router` bundle.
+   * This API is no longer not part of the standard `@uirouter/angularjs` bundle.
    * For users of the prebuilt bundles, add the `release/resolveService.min.js` UMD bundle.
-   * For bundlers (webpack, browserify, etc), add `angular-ui-router/lib/legacy/resolveService`.
+   * For bundlers (webpack, browserify, etc), add `@uirouter/angularjs/lib/legacy/resolveService`.
    *
    * ---
    *

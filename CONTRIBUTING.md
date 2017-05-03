@@ -82,7 +82,7 @@ cd ..
 ## Link the directories
 
 This step is necessary if you need to modify any code in `@uirouter/core`.
-Using `npm`, link `@uirouter/core` into `angular-ui-router`
+Using `npm`, link `@uirouter/core` into `@uirouter/angularjs`
 
 ```
 cd core

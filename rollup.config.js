@@ -51,7 +51,7 @@ const ROUTER_CONFIG = Object.assign({
 }, BASE_CONFIG);
 
 const EVENTS_CONFIG = Object.assign({}, BASE_CONFIG, {
-  moduleName: 'angular-ui-router-state-events',
+  moduleName: '@uirouter/angularjs-state-events',
   entry: 'lib-esm/legacy/stateEvents.js',
   dest: 'release/stateEvents' + extension,
   globals: { angular: 'angular', '@uirouter/core': '@uirouter/core' },
@@ -59,7 +59,7 @@ const EVENTS_CONFIG = Object.assign({}, BASE_CONFIG, {
 });
 
 const RESOLVE_CONFIG = Object.assign({}, BASE_CONFIG, {
-  moduleName: 'angular-ui-router-resolve-service',
+  moduleName: '@uirouter/angularjs-resolve-service',
   entry: 'lib-esm/legacy/resolveService.js',
   dest: 'release/resolveService' + extension,
   globals: { angular: 'angular', '@uirouter/core': '@uirouter/core' },

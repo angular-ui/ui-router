@@ -17,7 +17,7 @@ module.exports = {
     path: __dirname + "/release",
     filename: "[name].js",
     libraryTarget: "umd",
-    library: "angular-ui-router",
+    library: "@uirouter/angularjs",
     umdNamedDefine: true
   },
 

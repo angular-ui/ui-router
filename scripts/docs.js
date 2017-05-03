@@ -7,12 +7,12 @@ let replaceInFiles = require('replace-in-file');
 let typedocCmd = [
   "./node_modules/typedoc/bin/typedoc --tsconfig tsconfig.typedoc.json ",
   " --readme DOCS.md ",
-  " --name 'angular-ui-router' ",
+  " --name '@uirouter/angularjs' ",
   " --theme node_modules/ui-router-typedoc-themes/bin/default ",
   " --out _doc ",
   " --internal-aliases internal,coreapi,ng1api ",
   " --external-aliases internalapi,external ",
-  " --navigation-label-globals angular-ui-router",
+  " --navigation-label-globals @uirouter/angularjs",
 ].join(" ");
 
 let PROJECTDIR = path.join(__dirname, '..');
