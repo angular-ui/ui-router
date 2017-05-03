@@ -1,5 +1,5 @@
 {
-  "name": "angular-ui-router",
+  "name": "@uirouter/angularjs",
   "description": "State-based routing for AngularJS 1.x",
   "version": "1.0.0",
   "scripts": {
@@ -7,10 +7,11 @@
     "build": "tsc && tsc -m es6 --outDir lib-esm && npm run fixdts",
     "fixdts": "dts-downlevel 'lib/**/*.d.ts' 'lib-esm/**/*.d.ts'",
     "package": "npm run clean && npm run build && npm run bundle",
-    "bundle": "npm run bundle_router && npm run bundle_events && npm run bundle_resolve",
+    "bundle": "npm run bundle_router && npm run bundle_events && npm run bundle_resolve && npm run bundle_core",
     "bundle_router": "rollup -c --environment ROUTER  && rollup -c --environment ROUTER,MINIFY",
     "bundle_events": "rollup -c --environment EVENTS  && rollup -c --environment EVENTS,MINIFY",
     "bundle_resolve": "rollup -c --environment RESOLVE && rollup -c --environment RESOLVE,MINIFY",
+    "bundle_core": "webpack --config webpack.core-adapter.js",
     "prepare": "npm run package",
     "install": "node migrate/migratewarn.js",
     "noimplicitany": "tsc --noEmit --noImplicitAny --moduleResolution node --target es6 test/noimplicitany.ts",

@@ -43,7 +43,7 @@ const BASE_CONFIG = {
 };
 
 const ROUTER_CONFIG = Object.assign({
-  moduleName: 'angular-ui-router',
+  moduleName: '@uirouter/angularjs',
   entry: 'lib-esm/index.js',
   dest: 'release/angular-ui-router' + extension,
   globals: { angular: 'angular' },
