@@ -1,2 +1,2 @@
-var core = require('angular-ui-router');
+var core = require('@uirouter/angularjs').core;
 module.exports = core;
