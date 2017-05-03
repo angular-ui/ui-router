@@ -1,4 +1,5 @@
 import * as angular from "angular";
+import { UIRouter } from '@uirouter/core';
 
 declare let inject;
 
@@ -83,4 +84,46 @@ describe('templateFactory', function () {
       $httpBackend.flush();
     }));
   });
+
+  if (angular.version.minor >= 5) {
+    describe('component template builder', () => {
+      let router: UIRouter, el, rootScope;
+      let cmp = { template: 'hi' };
+
+      beforeEach(() => {
+        let mod = angular.module('foo', []);
+        mod.component('myComponent', cmp);
+        mod.component('dataComponent', cmp);
+        mod.component('xComponent', cmp);
+      });
+      beforeEach(module('foo'));
+
+      beforeEach(inject(($uiRouter, $compile, $rootScope) => {
+        router = $uiRouter;
+        rootScope = $rootScope;
+        el = $compile(angular.element('<div><ui-view></ui-view></div>'))($rootScope.$new());
+      }));
+
+      it('should not prefix the components dom element with anything', () => {
+        router.stateRegistry.register({ name: 'cmp', component: 'myComponent' });
+        router.stateService.go('cmp');
+        rootScope.$digest();
+        expect(el.html()).toMatch(/\<my-component/);
+      });
+
+      it('should prefix the components dom element with x- for components named dataFoo', () => {
+        router.stateRegistry.register({ name: 'cmp', component: 'dataComponent' });
+        router.stateService.go('cmp');
+        rootScope.$digest();
+        expect(el.html()).toMatch(/\<x-data-component/);
+      });
+
+      it('should prefix the components dom element with x- for components named xFoo', () => {
+        router.stateRegistry.register({ name: 'cmp', component: 'xComponent' });
+        router.stateService.go('cmp');
+        rootScope.$digest();
+        expect(el.html()).toMatch(/\<x-x-component/);
+      })
+    });
+  }
 });

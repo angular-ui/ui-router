@@ -173,7 +173,10 @@ export class TemplateFactory implements TemplateFactoryProvider {
     };
 
     let attrs = getComponentBindings(component).map(attributeTpl).join(" ");
-    let kebobName = "x-" + kebobString(component);
+    let kebobName = kebobString(component);
+    if (/^(x|data)-/.exec(kebobName)) {
+      kebobName = "x-" + kebobName;
+    }
     return `<${kebobName} ${attrs}></${kebobName}>`;
   };
 }
