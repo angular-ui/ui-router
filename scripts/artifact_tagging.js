@@ -26,5 +26,5 @@ _exec(`git add --force lib lib-esm release`);
 _exec(`git commit -m 'chore(*): commiting build files'`);
 _exec(`git tag ${version}-artifacts`);
 _exec(`git push -u origin ${version}-artifacts`);
-_exec(`git checkout -b master`);
+_exec(`git checkout master`);
 _exec(`git branch -D ${version}-artifacts-prep`);
