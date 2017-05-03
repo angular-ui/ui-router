@@ -25,6 +25,7 @@
     "watch": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1",
     "debug": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1 --browsers=Chrome",
     "docs": "./scripts/docs.js",
+    "publishdocs": "node scripts/publishdocs.js",
     "artifacts": "node scripts/artifact_tagging.js"
   },
   "homepage": "https://ui-router.github.io",
