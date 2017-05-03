@@ -25,7 +25,7 @@ comment.type === 'comment2' && /@license/i.test(comment.value);
 
 var plugins = [
   nodeResolve({jsnext: true}),
-  progress(),
+  progress({ clearLine: false }),
   sourcemaps(),
 ];
 
