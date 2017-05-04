@@ -1,3 +1,12 @@
+<a name="1.0.1"></a>
+## [1.0.1](https://github.com/angular-ui/ui-router/compare/1.0.0...1.0.1) (2017-05-04)
+
+
+### Bug Fixes
+
+* **routeToComponent:** Do not prefix component element with `x-` unless necessary. ([60b9ef9](https://github.com/angular-ui/ui-router/commit/60b9ef9))
+
+
 <a name="1.0.0"></a>
 # [1.0.0](https://github.com/angular-ui/ui-router/compare/1.0.0-rc.1...1.0.0) (2017-04-30)
 
