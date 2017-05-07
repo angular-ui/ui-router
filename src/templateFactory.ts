@@ -4,7 +4,7 @@ import { ng as angular } from "./angular";
 import { IAugmentedJQuery } from "angular";
 import {
   isArray, isDefined, isFunction, isObject, services, Obj, IInjectable, tail, kebobString, unnestR, ResolveContext,
-  Resolvable, RawParams, prop
+  Resolvable, RawParams
 } from "@uirouter/core";
 import { Ng1ViewDeclaration, TemplateFactoryProvider } from "./interface";
 
@@ -33,13 +33,13 @@ export class TemplateFactory implements TemplateFactoryProvider {
    * Creates a template from a configuration object.
    *
    * @param config Configuration object for which to load a template.
-   * The following properties are search in the specified order, and the first one 
+   * The following properties are search in the specified order, and the first one
    * that is defined is used to create the template:
    *
    * @param params  Parameters to pass to the template function.
    * @param context The resolve context associated with the template's view
    *
-   * @return {string|object}  The template html as a string, or a promise for 
+   * @return {string|object}  The template html as a string, or a promise for
    * that string,or `null` if no template is configured.
    */
   fromConfig(config: Ng1ViewDeclaration, params: any, context: ResolveContext) {
@@ -49,12 +49,12 @@ export class TemplateFactory implements TemplateFactoryProvider {
     const asComponent = (result) => services.$q.when(result).then(str => ({ component: str }));
 
     return (
-      isDefined(config.template)          ? asTemplate(this.fromString(config.template, params)) :
-      isDefined(config.templateUrl)       ? asTemplate(this.fromUrl(config.templateUrl, params)) :
-      isDefined(config.templateProvider)  ? asTemplate(this.fromProvider(config.templateProvider, params, context)) :
-      isDefined(config.component)         ? asComponent(config.component) :
-      isDefined(config.componentProvider) ? asComponent(this.fromComponentProvider(config.componentProvider, params, context)) :
-      asTemplate(defaultTemplate)
+        isDefined(config.template) ? asTemplate(this.fromString(config.template, params)) :
+            isDefined(config.templateUrl) ? asTemplate(this.fromUrl(config.templateUrl, params)) :
+                isDefined(config.templateProvider) ? asTemplate(this.fromProvider(config.templateProvider, params, context)) :
+                    isDefined(config.component) ? asComponent(config.component) :
+                        isDefined(config.componentProvider) ? asComponent(this.fromComponentProvider(config.componentProvider, params, context)) :
+                            asTemplate(defaultTemplate)
     );
   };
 
@@ -64,29 +64,31 @@ export class TemplateFactory implements TemplateFactoryProvider {
    * @param template html template as a string or function that returns an html template as a string.
    * @param params Parameters to pass to the template function.
    *
-   * @return {string|object} The template html as a string, or a promise for that 
+   * @return {string|object} The template html as a string, or a promise for that
    * string.
    */
-  fromString(template: (string|Function), params?: RawParams) {
+  fromString(template: (string | Function), params?: RawParams) {
     return isFunction(template) ? (<any> template)(params) : template;
   };
 
   /**
    * Loads a template from the a URL via `$http` and `$templateCache`.
    *
-   * @param {string|Function} url url of the template to load, or a function 
+   * @param {string|Function} url url of the template to load, or a function
    * that returns a url.
    * @param {Object} params Parameters to pass to the url function.
-   * @return {string|Promise.<string>} The template html as a string, or a promise 
+   * @return {string|Promise.<string>} The template html as a string, or a promise
    * for that string.
    */
-  fromUrl(url: (string|Function), params: any) {
+  fromUrl(url: (string | Function), params: any) {
     if (isFunction(url)) url = (<any> url)(params);
     if (url == null) return null;
 
     if (this._useHttp) {
-      return this.$http.get(url, { cache: this.$templateCache, headers: { Accept: 'text/html' }})
-          .then(function(response) { return response.data; });
+      return this.$http.get(url, { cache: this.$templateCache, headers: { Accept: 'text/html' } })
+          .then(function (response) {
+            return response.data;
+          });
     }
 
     return this.$templateRequest(url);
@@ -97,7 +99,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
    *
    * @param provider Function to invoke via `locals`
    * @param {Function} injectFn a function used to invoke the template provider
-   * @return {string|Promise.<string>} The template html as a string, or a promise 
+   * @return {string|Promise.<string>} The template html as a string, or a promise
    * for that string.
    */
   fromProvider(provider: IInjectable, params: any, context: ResolveContext) {
@@ -140,21 +142,27 @@ export class TemplateFactory implements TemplateFactoryProvider {
 
     // Bind once prefix
     const prefix = angular.version.minor >= 3 ? "::" : "";
+    // Convert to kebob name. Add x- prefix if the string starts with `x-` or `data-`
+    const kebob = (camelCase: string) => {
+      const kebobed = kebobString(camelCase);
+      return /^(x|data)-/.exec(kebobed) ? `x-${kebobed}` : kebobed;
+    };
+
 
     const attributeTpl = (input: BindingTuple) => {
-      let {name, type } = input;
-      let attrName = kebobString(name);
+      let { name, type } = input;
+      let attrName = kebob(name);
       // If the ui-view has an attribute which matches a binding on the routed component
       // then pass that attribute through to the routed component template.
       // Prefer ui-view wired mappings to resolve data, unless the resolve was explicitly bound using `bindings:`
       if (uiView.attr(attrName) && !bindings[name])
-        return `x-${attrName}='${uiView.attr(attrName)}'`;
+        return `${attrName}='${uiView.attr(attrName)}'`;
 
       let resolveName = bindings[name] || name;
       // Pre-evaluate the expression for "@" bindings by enclosing in {{ }}
       // some-attr="{{ ::$resolve.someResolveName }}"
       if (type === '@')
-        return `x-${attrName}='{{${prefix}$resolve.${resolveName}}}'`;
+        return `${attrName}='{{${prefix}$resolve.${resolveName}}}'`;
 
       // Wire "&" callbacks to resolves that return a callback function
       // Get the result of the resolve (should be a function) and annotate it to get its arguments.
@@ -165,18 +173,15 @@ export class TemplateFactory implements TemplateFactoryProvider {
         let args = fn && services.$injector.annotate(fn) || [];
         // account for array style injection, i.e., ['foo', function(foo) {}]
         let arrayIdxStr = isArray(fn) ? `[${fn.length - 1}]` : '';
-        return `x-${attrName}='$resolve.${resolveName}${arrayIdxStr}(${args.join(",")})'`;
+        return `${attrName}='$resolve.${resolveName}${arrayIdxStr}(${args.join(",")})'`;
       }
 
       // some-attr="::$resolve.someResolveName"
-      return `x-${attrName}='${prefix}$resolve.${resolveName}'`;
+      return `${attrName}='${prefix}$resolve.${resolveName}'`;
     };
 
     let attrs = getComponentBindings(component).map(attributeTpl).join(" ");
-    let kebobName = kebobString(component);
-    if (/^(x|data)-/.exec(kebobName)) {
-      kebobName = "x-" + kebobName;
-    }
+    let kebobName = kebob(component);
     return `<${kebobName} ${attrs}></${kebobName}>`;
   };
 }
