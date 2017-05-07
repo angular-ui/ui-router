@@ -3,15 +3,16 @@
 
 let pkg = require('../package.json');
 let version = pkg.version;
+let hybridVersion = require('../../angular-hybrid/package.json').version;
 
-require('shelljs/global');
+let shx = require('shelljs');
 let readlineSync = require('readline-sync');
 let fs = require('fs');
 let path = require('path');
 let util = require('./util');
 let _exec = util._exec;
 
-cd(path.join(__dirname, '..'));
+shx.cd(path.join(__dirname, '..'));
 
 var widen = false;
 var coreDep = pkg.dependencies['@uirouter/core'];
@@ -22,14 +23,17 @@ if (isNarrow && readlineSync.keyInYN('Widen @uirouter/core dependency from ' + c
   widen = false;
 }
 
-if (!readlineSync.keyInYN('Ready to publish to ' + version + '-artifacts tag?')) {
+let tagname = `${version}+hybrid-${hybridVersion}`;
+tagname += readlineSync.question(`Suffix for tag ${tagname} (optional)?`);
+
+if (!readlineSync.keyInYN(`Ready to publish ${tagname} tag?`)) {
   process.exit(1);
 }
 
 util.ensureCleanMaster('master');
 
 // then tag and push tag
-_exec(`git checkout -b ${version}-artifacts-prep`);
+_exec(`git checkout -b ${tagname}-prep`);
 
 pkg.dependencies['@uirouter/core'] = widenedDep;
 fs.writeFileSync("package.json", JSON.stringify(pkg, undefined, 2));
@@ -39,7 +43,7 @@ _exec('npm run package');
 
 _exec(`git add --force lib lib-esm release package.json`);
 _exec(`git commit -m 'chore(*): commiting build files'`);
-_exec(`git tag ${version}-artifacts`);
-_exec(`git push -u origin ${version}-artifacts`);
+_exec(`git tag ${tagname}`);
+_exec(`git push -u origin ${tagname}`);
 _exec(`git checkout master`);
-_exec(`git branch -D ${version}-artifacts-prep`);
+_exec(`git branch -D ${tagname}-prep`);
