@@ -1,3 +1,35 @@
+<a name="1.0.3"></a>
+## [1.0.3](https://github.com/angular-ui/ui-router/compare/1.0.1...1.0.3) (2017-05-07)
+
+
+### Bug Fixes
+
+* **templateFactory:** Do not prepend x- to attribute names unless necessary. ([e573f06](https://github.com/angular-ui/ui-router/commit/e573f06))
+
+
+### Features
+
+* **build:** Publish non-monolithic @uirouter/angularjs UMD bundle `ui-router-angularjs.js` ([8db3696](https://github.com/angular-ui/ui-router/commit/8db3696))
+  ** Note: this change is necessary to properly support plugins which depend on @uirouter/core
+
+
+
+### @uirouter/core changes
+## [5.0.3](https://github.com/ui-router/core/compare/5.0.1...5.0.3) (2017-05-07)
+
+
+### Bug Fixes
+
+* **common:** Fix implementation of 'pick' -- use hasOwnProperty ([09848a4](https://github.com/ui-router/core/commit/09848a4))
+* **common:** Re-fix implementation of 'pick' using for .. in ([f2da7f4](https://github.com/ui-router/core/commit/f2da7f4))
+
+
+### Features
+
+* **build:** Build and distribute @uirouter/core UMD bundles ([0a8da85](https://github.com/ui-router/core/commit/0a8da85))
+
+
+
 <a name="1.0.1"></a>
 ## [1.0.1](https://github.com/angular-ui/ui-router/compare/1.0.0...1.0.1) (2017-05-04)
 

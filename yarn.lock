@@ -65,9 +65,9 @@
   dependencies:
     "@types/node" "*"
 
-"@uirouter/core@5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.2.tgz#1259a15a69e3462a4b36f6d9600d08bca6e7b0dc"
+"@uirouter/core@5.0.3":
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.3.tgz#e2b5b1e45190e20c67ba4e15c013de5d4e0ccab3"
 
 JSONStream@^1.0.4:
   version "1.3.1"
