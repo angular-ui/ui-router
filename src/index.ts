@@ -3,10 +3,6 @@
  * @module ng1
  */ /** */
 
-import * as core from "@uirouter/core";
-export { core };
-export * from "@uirouter/core";
-
 export * from "./interface";
 export * from "./services";
 export * from "./statebuilders/views";
@@ -20,3 +16,8 @@ import "./directives/viewDirective";
 import "./viewScroll";
 
 export default "ui.router";
+
+import * as core from "@uirouter/core";
+export { core };
+export * from "@uirouter/core";
+
