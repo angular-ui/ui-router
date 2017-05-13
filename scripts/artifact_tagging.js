@@ -36,6 +36,8 @@ util.ensureCleanMaster('master');
 _exec(`git checkout -b ${tagname}-prep`);
 
 pkg.dependencies['@uirouter/core'] = widenedDep;
+pkg.version = tagname;
+
 fs.writeFileSync("package.json", JSON.stringify(pkg, undefined, 2));
 _exec('git commit -m "Widening @uirouter/core dependency range to ' + widenedDep + '" package.json');
 
