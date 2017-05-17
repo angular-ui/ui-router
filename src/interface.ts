@@ -695,7 +695,7 @@ export interface Ng1Controller {
    *     this.originalData = angular.copy(this.data);
    *
    *     this.uiCanExit = function() {
-   *       if (!angular.equals(this.data, this.originalData) {
+   *       if (!angular.equals(this.data, this.originalData)) {
    *         // Note: This could also return a Promise and request async
    *         // confirmation using something like ui-bootstrap $modal
    *         return window.confirm("Data has changed.  Exit anyway and lose changes?");
