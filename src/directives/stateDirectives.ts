@@ -564,7 +564,7 @@ uiSrefActive = ['$state', '$stateParams', '$interpolate', '$uiRouter',
           };
 
           function updateAfterTransition(trans) {
-            trans.promise.then(update);
+            trans.promise.then(update, noop);
           }
 
           $scope.$on('$stateChangeSuccess', update);
