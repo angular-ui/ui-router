@@ -1,3 +1,31 @@
+<a name="1.0.4"></a>
+## [1.0.4](https://github.com/angular-ui/ui-router/compare/1.0.3...1.0.4) (2017-06-09)
+
+
+### Bug Fixes
+
+* **bundle:** work around rollup bug https://github.com/rollup/rollup/issues/1322 ([befb50a](https://github.com/angular-ui/ui-router/commit/befb50a))
+* **uiSrefActive:** Avoid "Possibly unhandled rejection" in console ([5c09e28](https://github.com/angular-ui/ui-router/commit/5c09e28))
+
+
+
+### @uirouter/core changes
+## [5.0.4](https://github.com/ui-router/core/compare/5.0.3...5.0.4) (2017-06-09)
+
+
+### Bug Fixes
+
+* **future:** Allow future states to specify a `parent:` ([828fe1b](https://github.com/ui-router/core/commit/828fe1b))
+* **view:** only sync views which are of the same name *and type* ([c48da4a](https://github.com/ui-router/core/commit/c48da4a))
+
+
+### Features
+
+* **invalidTransition:** Better error messaging when param values are invalid ([2a15d1a](https://github.com/ui-router/core/commit/2a15d1a))
+* **trace:** Trace view synchronization. Allow trace.enable(...string) ([284392d](https://github.com/ui-router/core/commit/284392d))
+
+
+
 <a name="1.0.3"></a>
 ## [1.0.3](https://github.com/angular-ui/ui-router/compare/1.0.1...1.0.3) (2017-05-07)
 
