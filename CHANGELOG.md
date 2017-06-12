@@ -97,8 +97,8 @@
 UI-Router for AngularJS version 1.0.0 updates `ui-router-core@3.1.0` to `@uirouter/core@5.0.1`.
 Please keep reading to see if the breaking changes from core between 3.1.0 and 5.0.1 affect you.
 
-### @uirouter/core changes
-# [5.0.0](https://github.com/ui-router/core/compare/3.1.0...5.0.1) (2017-04-30)
+### `@uirouter/core` changes
+# [diff to 3.1.0](https://github.com/ui-router/core/compare/3.1.0...5.0.1) (2017-04-30)
 
 ### Bug Fixes
 
