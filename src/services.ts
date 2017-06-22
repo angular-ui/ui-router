@@ -96,7 +96,7 @@ function runBlock($injector: IInjectorService, $q: IQService, $uiRouter: UIRoute
       .map(x => x.$$state().resolvables)
       .reduce(unnestR, [])
       .filter(x => x.deps === "deferred")
-      .forEach(resolvable => resolvable.deps = $injector.annotate(resolvable.resolveFn));
+      .forEach(resolvable => resolvable.deps = $injector.annotate(resolvable.resolveFn, $injector.strictDi));
 }
 
 // $urlRouter service and $urlRouterProvider
