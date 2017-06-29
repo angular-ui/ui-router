@@ -10,11 +10,8 @@ let path = require('path');
 let util = require('./util');
 let _exec = util._exec;
 
-let HYBRIDPKG = process.argv[2] || readlineSync.question(`Hybrid package name (e.g.: angular-hybrid or react-hybrid)`);
-
 let pkg = require('../package.json');
 let version = pkg.version;
-let hybridVersion = require(`../../${HYBRIDPKG}/package.json`).version;
 
 shx.cd(path.join(__dirname, '..'));
 
