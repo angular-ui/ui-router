@@ -42,19 +42,19 @@ export class TemplateFactory implements TemplateFactoryProvider {
    * @return {string|object}  The template html as a string, or a promise for
    * that string,or `null` if no template is configured.
    */
-  fromConfig(config: Ng1ViewDeclaration, params: any, context: ResolveContext) {
+  fromConfig(config: Ng1ViewDeclaration, params: any, context: ResolveContext): Promise<{ template?: string, component?: string }> {
     const defaultTemplate = "<ui-view></ui-view>";
 
-    const asTemplate = (result) => services.$q.when(result).then(str => ({ template: str }));
+    const asTemplate  = (result) => services.$q.when(result).then(str => ({ template:  str }));
     const asComponent = (result) => services.$q.when(result).then(str => ({ component: str }));
 
     return (
-        isDefined(config.template) ? asTemplate(this.fromString(config.template, params)) :
-            isDefined(config.templateUrl) ? asTemplate(this.fromUrl(config.templateUrl, params)) :
-                isDefined(config.templateProvider) ? asTemplate(this.fromProvider(config.templateProvider, params, context)) :
-                    isDefined(config.component) ? asComponent(config.component) :
-                        isDefined(config.componentProvider) ? asComponent(this.fromComponentProvider(config.componentProvider, params, context)) :
-                            asTemplate(defaultTemplate)
+        isDefined(config.template)          ? asTemplate(this.fromString(config.template, params)) :
+        isDefined(config.templateUrl)       ? asTemplate(this.fromUrl(config.templateUrl, params)) :
+        isDefined(config.templateProvider)  ? asTemplate(this.fromProvider(config.templateProvider, params, context)) :
+        isDefined(config.component)         ? asComponent(config.component) :
+        isDefined(config.componentProvider) ? asComponent(this.fromComponentProvider(config.componentProvider, params, context)) :
+        asTemplate(defaultTemplate)
     );
   };
 

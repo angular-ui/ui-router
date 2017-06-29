@@ -69,7 +69,7 @@
   "jsnext:main": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@uirouter/core": "5.0.3"
+    "@uirouter/core": "5.0.5"
   },
   "peerDependencies": {
     "angular": ">=1.2.0"
@@ -115,7 +115,7 @@
     "typedoc-plugin-external-module-name": "^1.0.2",
     "typedoc-plugin-internal-external": "^1.0.0",
     "typedoc-plugin-ui-router": "^1.0.0",
-    "typescript": "^2.1.4",
+    "typescript": "~2.4.0",
     "ui-router-typedoc-themes": "^1.0.1",
     "watch": "^0.18.0",
     "webpack": "1.x",
