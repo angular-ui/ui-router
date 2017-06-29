@@ -1,9 +1,7 @@
 #!env node
 "use strict";
 
-let pkg = require('../package.json');
-let version = pkg.version;
-let hybridVersion = require('../../angular-hybrid/package.json').version;
+const COMMIT_ARTIFACTS = ['lib', 'lib-esm', 'release', 'package.json'];
 
 let shx = require('shelljs');
 let readlineSync = require('readline-sync');
@@ -11,6 +9,12 @@ let fs = require('fs');
 let path = require('path');
 let util = require('./util');
 let _exec = util._exec;
+
+let HYBRIDPKG = process.argv[2] || readlineSync.question(`Hybrid package name (e.g.: angular-hybrid or react-hybrid)`);
+
+let pkg = require('../package.json');
+let version = pkg.version;
+let hybridVersion = require(`../../${HYBRIDPKG}/package.json`).version;
 
 shx.cd(path.join(__dirname, '..'));
 
@@ -56,7 +60,7 @@ _exec('git commit -m "Widening @uirouter/core dependency range to ' + widenedDep
 
 _exec('npm run package');
 
-_exec(`git add --force lib lib-esm release package.json`);
+_exec(`git add --force ${COMMIT_ARTIFACTS.join(' ')}`);
 _exec(`git rm yarn.lock`);
 
 _exec(`git commit -m 'chore(*): commiting build files'`);
