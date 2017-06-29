@@ -1,3 +1,26 @@
+<a name="1.0.5"></a>
+## [1.0.5](https://github.com/angular-ui/ui-router/compare/1.0.4...1.0.5) (2017-06-29)
+
+Updated to @uirouter/core 5.0.5 and addressed typescript 2.4 breaking changes
+
+## Changes in `@uirouter/core` between versions [5.0.3 and 5.0.5](https://github.com/ui-router/core/compare/5.0.3...5.0.5) (2017-06-29)
+
+
+### Bug Fixes
+
+* **future:** Allow future states to specify a `parent:` ([828fe1b](https://github.com/ui-router/core/commit/828fe1b))
+* **typescript:** Update to typescript 2.4 ([ce1669b](https://github.com/ui-router/core/commit/ce1669b))
+* **view:** only sync views which are of the same name *and type* ([c48da4a](https://github.com/ui-router/core/commit/c48da4a))
+
+
+### Features
+
+* **invalidTransition:** Better error messaging when param values are invalid ([2a15d1a](https://github.com/ui-router/core/commit/2a15d1a))
+* **trace:** Trace view synchronization. Allow trace.enable(...string) ([284392d](https://github.com/ui-router/core/commit/284392d))
+* **urlMatcher:** add support for multiline urls ([5b11ce0](https://github.com/ui-router/core/commit/5b11ce0))
+
+
+
 <a name="1.0.4"></a>
 ## [1.0.4](https://github.com/angular-ui/ui-router/compare/1.0.3...1.0.4) (2017-06-09)
 
