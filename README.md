@@ -10,7 +10,7 @@ version 0.2.x, it can be found [here](https://github.com/angular-ui/ui-router/tr
 ---
 **[Tutorials](https://ui-router.github.io/tutorials/)** |
 **[API Docs](https://ui-router.github.io/docs/latest/)** |
-**[Download stable](http://unpkg.com/@uirouter/angularjs@latest/release/angular-ui-router.js)** (or **[Minified](http://unpkg.com/angular-ui-router@latest/release/angular-ui-router.min.js)**) **|**
+**[Download stable](http://unpkg.com/@uirouter/angularjs@latest/release/angular-ui-router.js)** (or **[Minified](http://unpkg.com/@uirouter/angularjs@latest/release/angular-ui-router.min.js)**) **|**
 **[Guide](https://github.com/angular-ui/ui-router/wiki) |**
 **[Sample App](http://ui-router.github.io/resources/sampleapp/) |**
 **[FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions) |**
