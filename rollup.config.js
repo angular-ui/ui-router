@@ -19,7 +19,7 @@ if (ROUTER && MONOLITHIC) {
  * NOTICE: This monolithic bundle also bundles the @uirouter/core code.
  *         This causes it to be incompatible with plugins that depend on @uirouter/core.
  *         We recommend switching to the ui-router-core.js and ui-router-angularjs.js bundles instead.
- *         For more information, see http://ui-router.github.io/blog/angular-ui-router-umd-bundles`
+ *         For more information, see https://ui-router.github.io/blog/uirouter-for-angularjs-umd-bundles`
 } else if (ROUTER) {
   banner += `
  * This bundle requires the ui-router-core.js bundle from the @uirouter/core package.`
