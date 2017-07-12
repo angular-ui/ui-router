@@ -1,0 +1,8 @@
+{
+  "COMMIT_ARTIFACTS": [
+    "lib",
+    "lib-esm",
+    "release",
+    "package.json"
+  ]
+}
