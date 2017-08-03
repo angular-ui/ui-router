@@ -1,5 +1,5 @@
 {
-  "COMMIT_ARTIFACTS": [
+  "ARTIFACTS": [
     "lib",
     "lib-esm",
     "release",

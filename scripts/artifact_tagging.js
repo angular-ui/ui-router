@@ -1,8 +1,8 @@
 #!env node
 "use strict";
 
-const CONFIG = require('./artifact_tagging.json');
-const COMMIT_ARTIFACTS = CONFIG.COMMIT_ARTIFACTS;
+const CONFIG = require('./artifacts.json');
+const COMMIT_ARTIFACTS = CONFIG.ARTIFACTS;
 
 let shx = require('shelljs');
 let readlineSync = require('readline-sync');
