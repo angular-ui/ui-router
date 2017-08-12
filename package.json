@@ -65,11 +65,11 @@
     "node": ">=4.0.0"
   },
   "license": "MIT",
-  "main": "lib/index.js",
+  "main": "release/ui-router-angularjs.js",
   "jsnext:main": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@uirouter/core": "5.0.5"
+    "@uirouter/core": "=5.0.6"
   },
   "peerDependencies": {
     "angular": ">=1.2.0"
