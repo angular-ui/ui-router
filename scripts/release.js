@@ -7,7 +7,7 @@ require('shelljs/global');
 let readlineSync = require('readline-sync');
 let fs = require('fs');
 let path = require('path');
-let util = require('./util');
+let util = require('@uirouter/publish-scripts/util');
 let _exec = util._exec;
 
 cd(path.join(__dirname, '..'));
@@ -30,7 +30,7 @@ if (!readlineSync.keyInYN('Ready to publish?')) {
 
 util.ensureCleanMaster('master');
 
-_exec('npm run package');
+_exec('npm run build');
 _exec(`npm run docs`);
 
 console.log('Updating version in bower.json to ${version}');
