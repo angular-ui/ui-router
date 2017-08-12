@@ -1,3 +1,24 @@
+## `@uirouter/angularjs` 1.0.6 (2017-08-12)
+[Compare `@uirouter/angularjs` versions 1.0.5 and 1.0.6](https://github.com/angular-ui/ui-router/compare/1.0.5...1.0.6)
+
+### Bug Fixes
+
+* **sourcemaps:** Embed sources inline into sourcemaps ([4baa430](https://github.com/angular-ui/ui-router/commit/4baa430))
+
+
+
+## Changes in `@uirouter/core` between versions [5.0.5 and 5.0.6](https://github.com/ui-router/core/compare/5.0.5...5.0.6) (2017-08-12)
+
+
+### Bug Fixes
+
+* **sourceMaps:** Embed typescript sources in sourcemaps ([10558a3](https://github.com/ui-router/core/commit/10558a3))
+* **typescript:** Fix strictNullCheck type error ([0ae585e](https://github.com/ui-router/core/commit/0ae585e))
+* **urlRouter:** Fix absolute 'href' generation by using location.hostname (not location.host) ([a28b68a](https://github.com/ui-router/core/commit/a28b68a))
+* **urlService:** Fix priority sorting of URL rules ([73a1fe0](https://github.com/ui-router/core/commit/73a1fe0))
+
+
+
 <a name="1.0.5"></a>
 ## [1.0.5](https://github.com/angular-ui/ui-router/compare/1.0.4...1.0.5) (2017-06-29)
 
