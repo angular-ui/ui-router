@@ -10,7 +10,7 @@
     "outDir": "lib",
     "declaration": true,
     "skipLibCheck": true,
-    "inlineSourceMap": true,
+    "sourceMap": true,
     "inlineSources": true
   },
   "files": [

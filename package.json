@@ -84,7 +84,7 @@
     "@types/angular-mocks": "^1.5.5",
     "@types/jasmine": "^2.2.34",
     "@types/jquery": "^1.10.31",
-    "@uirouter/publish-scripts": "^1.0.5",
+    "@uirouter/publish-scripts": "^1.0.6",
     "awesome-typescript-loader": "3.0.0-beta.10",
     "babel-core": "^5.8.14",
     "clone": "^1.0.2",
