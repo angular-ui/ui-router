@@ -272,7 +272,7 @@ export interface Ng1StateDeclaration extends _Ng1StateDeclaration, Ng1ViewDeclar
    * - controllerAs
    * - controllerProvider
    */
-  views?: { [key: string]: Ng1ViewDeclaration; };
+  views?: { [key: string]: Ng1ViewDeclaration | string; };
 
   /**
    * A state hook invoked when a state is being entered.
