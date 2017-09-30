@@ -1,3 +1,32 @@
+## 1.0.7 (2017-09-30)
+[Compare `@uirouter/angularjs` versions 1.0.6 and 1.0.7](https://github.com/angular-ui/ui-router/compare/1.0.6...1.0.7)
+
+### Bug Fixes
+
+* **typings:** Allow views: { foo: 'string' } in Ng1StateDeclaration ([2f7a3f2](https://github.com/angular-ui/ui-router/commit/2f7a3f2))
+
+### Updated `@uirouter/core` from 5.0.6 to 5.0.8 (2017-09-30)
+[Compare `@uirouter/core` versions 5.0.6 and 5.0.8](https://github.com/ui-router/core/compare/5.0.6...5.0.8)
+
+### Bug Fixes
+
+* **bundle:** Rollup: Do not warn on THIS_IS_UNDEFINED ([a4581b1](https://github.com/ui-router/core/commit/a4581b1))
+* **globals:** Use shallow copy to update the globals.params / $state.params object ([e883afc](https://github.com/ui-router/core/commit/e883afc))
+* **Injector:** When getting tokens from native injector, only throw on undefined (not on falsey values) ([ada9ca2](https://github.com/ui-router/core/commit/ada9ca2))
+* **redirectTo:** Fix typings for redirectTo. Allow a function that returns a target state or a promise for one. ([3904487](https://github.com/ui-router/core/commit/3904487))
+* **trace:** Fall back to console.log if .table is unavailable (IE) ([c8110fc](https://github.com/ui-router/core/commit/c8110fc))
+* **trace:** Support tracing of object-parameters with circular references ([2f1ae9a](https://github.com/ui-router/core/commit/2f1ae9a))
+* **url:** Add CustomEvent polyfill for IE ([a50db21](https://github.com/ui-router/core/commit/a50db21))
+* **vanilla:** fix base path handling for vanilla push state ([ad61d74](https://github.com/ui-router/core/commit/ad61d74))
+* **vanilla:** Use `self` instead of `window` for webworker compat ([a4629ee](https://github.com/ui-router/core/commit/a4629ee))
+
+
+### Features
+
+* **TargetState:** Add builder methods .withState, .withParams, and .withOptions ([6b93142](https://github.com/ui-router/core/commit/6b93142))
+
+
+
 ## `@uirouter/angularjs` 1.0.6 (2017-08-12)
 [Compare `@uirouter/angularjs` versions 1.0.5 and 1.0.6](https://github.com/angular-ui/ui-router/compare/1.0.5...1.0.6)
 
