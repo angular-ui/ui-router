@@ -73,7 +73,7 @@
   "jsnext:main": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@uirouter/core": "5.0.7"
+    "@uirouter/core": "5.0.8"
   },
   "peerDependencies": {
     "angular": ">=1.2.0"
