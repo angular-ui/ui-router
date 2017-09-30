@@ -57,6 +57,7 @@ export interface _Ng1StateDeclaration extends StateDeclaration {
   onExit?: any;
   onRetain?: any;
   onEnter?: any;
+  views?: any;
 }
 
 /**
@@ -272,7 +273,7 @@ export interface Ng1StateDeclaration extends _Ng1StateDeclaration, Ng1ViewDeclar
    * - controllerAs
    * - controllerProvider
    */
-  views?: { [key: string]: Ng1ViewDeclaration; };
+  views?: { [key: string]: string | Ng1ViewDeclaration; };
 
   /**
    * A state hook invoked when a state is being entered.
