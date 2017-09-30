@@ -1413,6 +1413,18 @@ describe('state', function () {
         expect($state.current.name).toBe("about");
       }));
 
+      // test for https://github.com/ui-router/core/issues/74
+      it('should allow param objects containing $scope', inject(function ($state, $q, $rootScope, $transitions) {
+        var errorhandler = jasmine.createSpy('errorhandler');
+        $state.defaultErrorHandler(errorhandler);
+
+        $state.go('types', { nonurl: { errorscope: $rootScope } });
+        $q.flush();
+
+        expect(errorhandler).not.toHaveBeenCalled();
+        expect($state.params.nonurl && $state.params.nonurl.errorscope).toBe($rootScope);
+      }));
+
       function expectStateUrlMappingFn($state, $rootScope, $q, $location) {
         return function (state, url, params, defaults, nonurlparams) {
           $state.go(state, extend({}, nonurlparams, params));
@@ -1937,10 +1949,12 @@ describe('$stateParams', function () {
   it('should start empty', inject(function ($stateParams) {
     expect($stateParams.foo).toBeUndefined();
   }));
+
   it('should allow setting values on it', inject(function ($stateParams) {
     $stateParams.foo = 'bar';
     expect($stateParams.foo).toBeDefined();
   }));
+
   it('should be cleared between tests', inject(function ($stateParams) {
     expect($stateParams.foo).toBeUndefined();
   }));
