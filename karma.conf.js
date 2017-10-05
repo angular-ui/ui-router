@@ -1,6 +1,7 @@
 // Karma configuration file
 var karma = require("karma");
-var DEFAULT_NG_VERSION = "1.5";
+var ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+var DEFAULT_NG_VERSION = "1.6";
 
 /**
  * This returns a Karma 'files configuration'.
@@ -30,8 +31,28 @@ function karmaServedFiles(ngVersion) {
   return angularFiles.concat('test/index.js');
 }
 
-var webpackConfig = require('./webpack.config.js');
-webpackConfig.devtool = 'inline-source-map';
+var webpackConfig = module.exports = {
+  resolve: {
+    modules: ['node_modules'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx']
+  },
+
+  devtool: 'inline-source-map',
+
+  module: {
+    rules: [
+      { test: /\.tsx?$/, loader: 'ts-loader', options: { transpileOnly: true } }
+    ]
+  },
+
+  stats: false,
+
+  plugins: [
+    new ForkTsCheckerWebpackPlugin(),
+  ],
+
+  externals: [ 'angular' ]
+};
 
 module.exports = function(config) {
   var ngVersion = config.ngversion || DEFAULT_NG_VERSION;
