@@ -1,3 +1,10 @@
+<a name="0.4.3"></a>
+### 0.4.3 (2017-10-04)
+
+#### Bug Fixes
+
+* **state:** $state.is no longer wrongly return true
+
 <a name="0.4.2"></a>
 ### 0.4.2 (2017-01-20)
 
