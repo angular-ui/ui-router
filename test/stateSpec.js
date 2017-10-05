@@ -817,6 +817,13 @@ describe('state', function () {
       options.relative = $state.get('about.person.item');
       expect($state.is('^', undefined, options)).toBe(true);
     }));
+
+    it('should return false when the current state is passed with non matching parameters', inject(function ($state, $q) {
+      $state.transitionTo(D, {x: 'foo', y: 'qux'});
+      $q.flush();
+
+      expect($state.is(D, {x: 'bar', y: 'qux'})).toBe(false);
+    }));
   });
 
   describe('.includes()', function () {

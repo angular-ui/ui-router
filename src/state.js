@@ -1266,7 +1266,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
 
       return !params || objectKeys(params).reduce(function(acc, key) {
         var paramDef = state.params[key];
-        return acc && !paramDef || paramDef.type.equals($stateParams[key], params[key]);
+        return acc && (!paramDef || paramDef.type.equals($stateParams[key], params[key]));
       }, true);
     };
 
