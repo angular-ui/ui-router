@@ -1,7 +1,7 @@
 {
   "name": "@uirouter/angularjs",
   "description": "State-based routing for AngularJS 1.x",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "scripts": {
     "clean": "shx rm -rf lib lib-esm _doc build release *.log",
     "compile": "tsc && tsc -m es6 --outDir lib-esm && npm run fixdts",
@@ -73,7 +73,7 @@
   "jsnext:main": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@uirouter/core": "5.0.8"
+    "@uirouter/core": "5.0.10"
   },
   "peerDependencies": {
     "angular": ">=1.2.0"

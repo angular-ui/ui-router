@@ -1,3 +1,23 @@
+## 1.0.8 (2017-10-07)
+[Compare `@uirouter/angularjs` versions 1.0.7 and 1.0.8](https://github.com/angular-ui/ui-router/compare/1.0.7...1.0.8)
+
+
+## 5.0.10 (2017-10-07)
+[Compare `@uirouter/core` versions 5.0.8 and 5.0.10](https://github.com/ui-router/core/compare/5.0.8...5.0.10)
+
+### Bug Fixes
+
+* **angular/cli:** Use package.json fields: 'typings', 'main', 'jsnext:main' ([74143d9](https://github.com/ui-router/core/commit/74143d9))
+* **isomorphic:** Remove use of CustomEvent. Detect root scope (global/window/self) for nodejs, browser, or web-worker. ([2d206ba](https://github.com/ui-router/core/commit/2d206ba))
+* **typings:** Use StateObject for parameter to hook criteria functions ([5b58566](https://github.com/ui-router/core/commit/5b58566))
+
+
+### Features
+
+* **TransitionHook:** Add hook registration option `invokeLimit` to limit the number of times a hook is invoked before being auto-deregistered. ([2cb17ef](https://github.com/ui-router/core/commit/2cb17ef))
+
+
+
 ## 1.0.7 (2017-09-30)
 [Compare `@uirouter/angularjs` versions 1.0.6 and 1.0.7](https://github.com/angular-ui/ui-router/compare/1.0.6...1.0.7)
 
