@@ -14,7 +14,7 @@
     "bundle_router": "rollup -c --environment ROUTER  && rollup -c --environment ROUTER,MINIFY",
     "bundle_events": "rollup -c --environment EVENTS  && rollup -c --environment EVENTS,MINIFY",
     "bundle_resolve": "rollup -c --environment RESOLVE && rollup -c --environment RESOLVE,MINIFY",
-    "prepublish": "npm run build",
+    "prepublishOnly": "npm run build",
     "changelog": "update_changelog --include-core",
     "release": "npm run noimplicitany && node ./scripts/release.js",
     "noimplicitany": "tsc --noEmit --noImplicitAny --moduleResolution node --target es6 test/noimplicitany.ts",
