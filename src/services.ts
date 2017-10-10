@@ -27,8 +27,8 @@ import { UrlRouterProvider } from "./urlRouterProvider";
 import IInjectorService = angular.auto.IInjectorService; // tslint:disable-line
 
 angular.module("ui.router.angular1", []);
-let mod_init  = angular.module('ui.router.init',   []);
-let mod_util  = angular.module('ui.router.util',   ['ng', 'ui.router.init']);
+let mod_init  = angular.module('ui.router.init',   ['ng']);
+let mod_util  = angular.module('ui.router.util',   ['ui.router.init']);
 let mod_rtr   = angular.module('ui.router.router', ['ui.router.util']);
 let mod_state = angular.module('ui.router.state',  ['ui.router.router', 'ui.router.util', 'ui.router.angular1']);
 let mod_main  = angular.module('ui.router',        ['ui.router.init', 'ui.router.state', 'ui.router.angular1']);
