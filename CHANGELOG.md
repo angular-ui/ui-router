@@ -1,3 +1,14 @@
+## 1.0.9 (2017-10-17)
+[Compare `@uirouter/angularjs` versions 1.0.8 and 1.0.9](https://github.com/angular-ui/ui-router/compare/1.0.8...1.0.9)
+
+
+### Updated `@uirouter/core` from 5.0.10 to 5.0.11
+[Compare `@uirouter/core` versions 5.0.10 and 5.0.11](https://github.com/ui-router/core/compare/5.0.10...5.0.11)
+
+### Bug Fixes
+
+* **ie9:** make console.bind work in ie9 ([#85](https://github.com/ui-router/core/issues/85)) ([318214b](https://github.com/ui-router/core/commit/318214b))
+
 ## 1.0.8 (2017-10-07)
 [Compare `@uirouter/angularjs` versions 1.0.7 and 1.0.8](https://github.com/angular-ui/ui-router/compare/1.0.7...1.0.8)
 
