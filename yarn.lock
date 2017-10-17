@@ -66,9 +66,9 @@
   version "5.0.10"
   resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.10.tgz#1a39eacbe33f3b44ab2c8fa4520cb1da92026cc3"
 
-"@uirouter/publish-scripts@1.0.9":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-1.0.9.tgz#e4e95f4acf4b1678d70189db741c0431ab6c724f"
+"@uirouter/publish-scripts@2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.0.2.tgz#dcdcd158623c8151b9ca4d71aeca97c917469c51"
   dependencies:
     conventional-changelog "^1.1.4"
     conventional-changelog-ui-router-core "^1.4.2"
@@ -76,6 +76,9 @@
     git-semver-tags "^1.2.1"
     readline-sync "^1.4.7"
     shelljs "^0.7.8"
+    shx "^0.2.2"
+    tweak-sourcemap-paths "0.0.3"
+    yargs "^9.0.1"
 
 JSONStream@^1.0.4:
   version "1.3.1"
@@ -3205,7 +3208,7 @@ shelljs@^0.7.0, shelljs@^0.7.3, shelljs@^0.7.8:
     interpret "^1.0.0"
     rechoir "^0.6.2"
 
-shx@0.2.2:
+shx@0.2.2, shx@^0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/shx/-/shx-0.2.2.tgz#0a304d020b0edf1306ad81570e80f0346df58a39"
   dependencies:
@@ -3580,6 +3583,13 @@ tunnel-agent@~0.4.1:
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/tunnel-agent/-/tunnel-agent-0.4.3.tgz#6373db76909fe570e08d73583365ed828a74eeeb"
 
+tweak-sourcemap-paths@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/tweak-sourcemap-paths/-/tweak-sourcemap-paths-0.0.3.tgz#a06bf69768e71966c4e0e7664749bdeac8922522"
+  dependencies:
+    glob "^7.1.2"
+    yargs "^9.0.1"
+
 tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.5"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
@@ -3921,6 +3931,24 @@ yargs@^4.2.0:
 yargs@^8.0.2:
   version "8.0.2"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-8.0.2.tgz#6299a9055b1cefc969ff7e79c1d918dceb22c360"
+  dependencies:
+    camelcase "^4.1.0"
+    cliui "^3.2.0"
+    decamelize "^1.1.1"
+    get-caller-file "^1.0.1"
+    os-locale "^2.0.0"
+    read-pkg-up "^2.0.0"
+    require-directory "^2.1.1"
+    require-main-filename "^1.0.1"
+    set-blocking "^2.0.0"
+    string-width "^2.0.0"
+    which-module "^2.0.0"
+    y18n "^3.2.1"
+    yargs-parser "^7.0.0"
+
+yargs@^9.0.1:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/yargs/-/yargs-9.0.1.tgz#52acc23feecac34042078ee78c0c007f5085db4c"
   dependencies:
     camelcase "^4.1.0"
     cliui "^3.2.0"
