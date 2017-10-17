@@ -62,9 +62,9 @@
   dependencies:
     "@types/node" "*"
 
-"@uirouter/core@5.0.10":
-  version "5.0.10"
-  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.10.tgz#1a39eacbe33f3b44ab2c8fa4520cb1da92026cc3"
+"@uirouter/core@5.0.11":
+  version "5.0.11"
+  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.11.tgz#bec461fcda767d79c98f6647cc9313ef9e5de03a"
 
 "@uirouter/publish-scripts@2.0.2":
   version "2.0.2"
