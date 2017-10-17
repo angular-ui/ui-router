@@ -14,9 +14,6 @@
     "bundle_router": "rollup -c --environment ROUTER  && rollup -c --environment ROUTER,MINIFY",
     "bundle_events": "rollup -c --environment EVENTS  && rollup -c --environment EVENTS,MINIFY",
     "bundle_resolve": "rollup -c --environment RESOLVE && rollup -c --environment RESOLVE,MINIFY",
-    "prepublishOnly": "npm run build",
-    "changelog": "update_changelog --include-core",
-    "release": "npm run noimplicitany && node ./scripts/release.js",
     "noimplicitany": "tsc --noEmit --noImplicitAny --moduleResolution node --target es6 test/noimplicitany.ts",
     "test": "npm run test:integrate",
     "test:ng12": "karma start --ngversion 1.2",
@@ -28,6 +25,8 @@
     "watch": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1",
     "debug": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1 --browsers=Chrome",
     "docs": "./scripts/docs.js",
+    "release": "npm run noimplicitany && release --deps @uirouter/core && node ./scripts/bower_release.js",
+    "prepublishOnly": "npm run build",
     "publishdocs": "node scripts/publishdocs.js",
     "artifacts": "artifact_tagging"
   },
