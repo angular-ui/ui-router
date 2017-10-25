@@ -107,7 +107,7 @@
     "shx": "0.2.2",
     "ts-loader": "3.0.5",
     "tslint": "5.8.0",
-    "typedoc": "~0.5.0",
+    "typedoc": "^0.8.0",
     "typedoc-plugin-external-module-name": "^1.0.2",
     "typedoc-plugin-internal-external": "^1.0.0",
     "typedoc-plugin-ui-router": "^1.0.0",
