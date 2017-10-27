@@ -3804,13 +3804,17 @@ typedoc-default-themes@^0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/typedoc-default-themes/-/typedoc-default-themes-0.5.0.tgz#6dc2433e78ed8bea8e887a3acde2f31785bd6227"
 
-typedoc-plugin-external-module-name@^1.0.2:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-external-module-name/-/typedoc-plugin-external-module-name-1.0.9.tgz#8e95e4b6680ef36c8da678c63edeb770e408959e"
+typedoc-plugin-external-module-name@1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-external-module-name/-/typedoc-plugin-external-module-name-1.0.10.tgz#f97c1df450d9ec75bf06b72bf3f9a12382184135"
 
-typedoc-plugin-internal-external@^1.0.0:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-internal-external/-/typedoc-plugin-internal-external-1.0.9.tgz#ba476d138e81c50836e982665cdfea815bc83d1a"
+typedoc-plugin-internal-external@1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-internal-external/-/typedoc-plugin-internal-external-1.0.10.tgz#df9fd6ee1743f009c39b8746a3c26edc36ce8bcd"
+
+typedoc-plugin-single-line-tags@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-single-line-tags/-/typedoc-plugin-single-line-tags-1.0.0.tgz#4210b4fbd18d9b8f753e151047965195b4081261"
 
 typedoc-plugin-ui-router@^1.0.0:
   version "1.0.6"
