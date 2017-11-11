@@ -11,7 +11,7 @@ let sh = require('shelljs');
 let readlineSync = require('readline-sync');
 let fs = require('fs');
 let path = require('path');
-let util = require('./util');
+let util = require('@uirouter/publish-scripts/util');
 let _exec = util._exec;
 
 
