@@ -3,15 +3,12 @@
  * @module directives 
  */ /** for typedoc */
 import { ng as angular } from "../angular";
-import {
-    IInterpolateService, IScope, ITranscludeFunction, IAugmentedJQuery,
-    ICompileService, IControllerService, ITimeoutService, noop
-} from "angular";
+import { IInterpolateService, IScope, ITranscludeFunction, IAugmentedJQuery, ITimeoutService } from "angular";
 
 import {
     extend, unnestR, filter, tail, isDefined, isFunction, isString, trace, parse,
     ActiveUIView, TransitionService, ResolveContext, Transition, PathNode, StateDeclaration,
-    Param, kebobString, HookRegOptions, ViewService, $QLike, Obj, TypedMap
+    Param, kebobString, HookRegOptions, ViewService, $QLike, Obj, TypedMap, noop,
 } from "@uirouter/core";
 import {Ng1ViewConfig} from "../statebuilders/views";
 import {Ng1Controller, Ng1StateDeclaration} from "../interface";
