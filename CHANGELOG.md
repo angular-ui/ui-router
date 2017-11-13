@@ -1,3 +1,10 @@
+## 1.0.11 (2017-11-13)
+[Compare `@uirouter/angularjs` versions 1.0.10 and 1.0.11](https://github.com/angular-ui/ui-router/compare/1.0.10...1.0.11)
+
+### Bug Fixes
+
+* **uiView:** Fix cfg.getTemplate is undefined ([f4d99b0](https://github.com/angular-ui/ui-router/commit/f4d99b0))
+
 ## 1.0.10 (2017-10-18)
 [Compare `@uirouter/angularjs` versions 1.0.9 and 1.0.10](https://github.com/angular-ui/ui-router/compare/1.0.9...1.0.10)
 
