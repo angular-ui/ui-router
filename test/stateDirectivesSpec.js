@@ -810,7 +810,7 @@ describe('uiSrefActive', function() {
     template = $compile(el)($rootScope);
     $rootScope.$digest();
 
-    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
     $state.transitionTo('contacts.item', { id: 1 });
     $q.flush();
     timeoutFlush();
@@ -819,7 +819,7 @@ describe('uiSrefActive', function() {
     $state.transitionTo('contacts.item', { id: 2 });
     $q.flush();
     timeoutFlush();
-    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
   }));
 
   it('should match state\'s parameters', inject(function($rootScope, $q, $compile, $state) {
@@ -827,7 +827,7 @@ describe('uiSrefActive', function() {
     template = $compile(el)($rootScope);
     $rootScope.$digest();
 
-    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
     $state.transitionTo('contacts.item.detail', { id: 5, foo: 'bar' });
     $q.flush();
     timeoutFlush();
@@ -836,7 +836,7 @@ describe('uiSrefActive', function() {
     $state.transitionTo('contacts.item.detail', { id: 5, foo: 'baz' });
     $q.flush();
     timeoutFlush();
-    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
   }));
 
 
@@ -846,7 +846,7 @@ describe('uiSrefActive', function() {
     template = $compile(el)($rootScope);
     $rootScope.$digest();
 
-    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
 
     $state.transitionTo('arrayparam', {foo: [1,2,3] });
     $q.flush();
@@ -861,7 +861,7 @@ describe('uiSrefActive', function() {
     $state.transitionTo('arrayparam', {foo: [1,2] });
     $q.flush();
     timeoutFlush();
-    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
   }));
 
   // Test for #3154
@@ -870,7 +870,7 @@ describe('uiSrefActive', function() {
     template = $compile(el)($rootScope);
     $rootScope.$digest();
 
-    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
 
     $state.transitionTo('arrayparam', {foo: [1,2,3] });
     $q.flush();
@@ -885,7 +885,7 @@ describe('uiSrefActive', function() {
     $state.transitionTo('arrayparam', {foo: [1,2] });
     $q.flush();
     timeoutFlush();
-    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
   }));
 
 
@@ -896,7 +896,7 @@ describe('uiSrefActive', function() {
     $rootScope.fooId = 'bar'
     $rootScope.$digest();
 
-    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
     $state.transitionTo('contacts.item.detail', { id: 5, foo: 'bar' });
     $q.flush();
     timeoutFlush();
@@ -905,7 +905,7 @@ describe('uiSrefActive', function() {
     $rootScope.fooId = 'baz'
     $q.flush();
     timeoutFlush();
-    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
   }));
 
   it('should match on child states', inject(function($rootScope, $q, $compile, $state) {
@@ -1014,7 +1014,7 @@ describe('uiSrefActive', function() {
     $state.transitionTo('contacts.item', { id: 1 });
     $q.flush();
     timeoutFlush();
-    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
 
     $state.transitionTo('contacts.lazy');
     $q.flush();
@@ -1037,7 +1037,7 @@ describe('uiSrefActive', function() {
     $state.transitionTo('contacts.item', { id: 1 });
     $q.flush();
     timeoutFlush();
-    expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('');
+    expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
 
     $state.transitionTo('contacts.lazy');
     $q.flush();
