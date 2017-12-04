@@ -1350,22 +1350,36 @@ describe('state', function () {
 
     describe("typed parameter handling", function() {
       var checkStateUrl;
-      
+      var nov15 = new Date(2014,10,15);
+
+      var defaults = {
+        p1: [ 'defaultValue' ],
+        p2: nov15,
+        nonurl: null,
+      };
+
+      var substateDefaults = extend({
+        "p3[]": ['a'],
+        p4: null,
+      }, defaults);
+
       beforeEach(function () {
         $stateProvider.state({
           name: "types",
           url: "/types/{p1:string}/{p2:date}",
           params: {
-            p1: { value: [ "defaultValue" ], array: true },
-            p2: new Date(2014, 10, 15),
-            nonurl: null
+            p1: { value: defaults.p1, array: true },
+            p2: defaults.p2,
+            nonurl: defaults.nonurl,
           }
         });
+
         $stateProvider.state({
           name: "types.substate",
-          url: "/sub/{p3[]:int}/{p4:json}?{p5:bool}",
+          url: "/sub/{p3[]}/{p4:json}?{p5:bool}",
           params: {
-            "p3[]": [ 10 ]
+            "p3[]": substateDefaults['p3[]'],
+            p4: substateDefaults.p4,
           }
         });
       });
@@ -1449,22 +1463,45 @@ describe('state', function () {
         expect($state.params.nonurl && $state.params.nonurl.errorscope).toBe($rootScope);
       }));
 
-      it('should map to/from the $location.url() and $stateParams', inject(function($state, $location, $q, $rootScope) {
-        var nov15 = new Date(2014,10,15);
-        var defaults = { p1: [ 'defaultValue' ], p2: nov15, nonurl: null };
-        var params = { p1: [ "foo" ], p2: nov15  };
+      it('should map default param values to/from the $location.url() and $stateParams', function () {
+        checkStateUrl('types', '/types/defaultValue/2014-11-15', {}, defaults);
+      });
+
+      it('should combine and map params and default param values to/from the $location.url() and $stateParams, except for nonurl params', function () {
+        var params = { p1: [ "foo" ] };
         var nonurl = { nonurl: { foo: 'bar' } };
-
-        checkStateUrl('types', '/types/defaultValue/2014-11-15', { }, defaults);
         checkStateUrl('types', "/types/foo/2014-11-15", params, defaults, nonurl);
+      });
 
-        extend(defaults, { "p3[]": [ 10 ] });
-        extend(params, { p4: { baz: "qux" }});
-        checkStateUrl('types.substate', "/types/foo/2014-11-15/sub/10/%7B%22baz%22:%22qux%22%7D", params, defaults, nonurl);
+      it('should map json param values to/from the $location.url() and $stateParams', function () {
+        var params = { p4: { baz: "qux" } };
+        checkStateUrl('types.substate', "/types/defaultValue/2014-11-15/sub/a/%7B%22baz%22:%22qux%22%7D", params, substateDefaults);
+      });
 
-        extend(params, { p5: true });
-        checkStateUrl('types.substate', "/types/foo/2014-11-15/sub/10/%7B%22baz%22:%22qux%22%7D?p5=1", params, defaults, nonurl);
-      }));
+      it('should combine and map array default param values and normal param values to/from the $location.url() and $stateParams', function () {
+        var params = { p1: [ "foo" ], p2: nov15, p4: { baz: "qux" } };
+        checkStateUrl('types.substate', "/types/foo/2014-11-15/sub/a/%7B%22baz%22:%22qux%22%7D", params, substateDefaults);
+      });
+
+      it('should map array default param values to/from the $location.url() and $stateParams', function () {
+        checkStateUrl('types.substate', "/types/defaultValue/2014-11-15/sub/a/null", {}, substateDefaults);
+      });
+
+      it('should map multi-value array default param values to/from the $location.url() and $stateParams', function () {
+        var params = { "p3[]": ['a', 'b'] };
+        var arrayDefaults = extend({}, substateDefaults, params);
+        checkStateUrl('types.substate', "/types/defaultValue/2014-11-15/sub/a-b/null", params, arrayDefaults);
+      });
+
+      it('should map boolean as integers to/from the $location.url() and $stateParams', function () {
+        var params = { p5: true };
+        checkStateUrl('types.substate', "/types/defaultValue/2014-11-15/sub/a/null?p5=1", params, substateDefaults);
+      });
+
+      it('should map all the things to/from the $location.url() and $stateParams', function () {
+        var params = { p1: [ "foo" ], p4: { baz: "qux" }, p5: true };
+        checkStateUrl('types.substate', "/types/foo/2014-11-15/sub/a/%7B%22baz%22:%22qux%22%7D?p5=1", params, substateDefaults);
+      });
 
       it('should support non-url parameters', inject(function($state, $q, $stateParams) {
         $state.transitionTo(A); $q.flush();
