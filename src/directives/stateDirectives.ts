@@ -509,7 +509,7 @@ uiState = ['$uiRouter', '$timeout',
  * </div>
  * ```
  *
- * When the current state is "admin.roles" the "active" class will be applied to both the <div> and <a> elements.
+ * When the current state is "admin.roles" the "active" class will be applied to both the `<div>` and `<a>` elements.
  * It is important to note that the state names/globs passed to `ui-sref-active` override any state provided by a linked `ui-sref`.
  *
  * ### Notes:
