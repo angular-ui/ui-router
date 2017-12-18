@@ -83,7 +83,7 @@
     "@types/angular-mocks": "1.5.11",
     "@types/jasmine": "2.6.0",
     "@types/jquery": "^1.10.31",
-    "@uirouter/publish-scripts": "2.0.6",
+    "@uirouter/publish-scripts": "2.0.8",
     "conventional-changelog": "1.1.6",
     "conventional-changelog-cli": "1.3.4",
     "dts-downlevel": "^0.3.0",
