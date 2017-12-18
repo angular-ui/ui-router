@@ -227,14 +227,27 @@ describe("UrlRouter", function () {
       it('can read and sync a copy of location URL', inject(function($urlRouter, $location) {
         $location.url('/old');
 
-        spyOn(router.locationService, 'path').and.callThrough();
+        spyOn(router.locationService, 'url').and.callThrough();
         $urlRouter.update(true);
-        expect(router.locationService.path).toHaveBeenCalled();
+        expect(router.locationService.url).toHaveBeenCalled();
 
         $location.url('/new');
         $urlRouter.update();
 
         expect($location.url()).toBe('/old');
+      }));
+
+      it('can read and sync a copy of location URL including query params', inject(function($urlRouter, $location) {
+        $location.url('/old?param=foo');
+
+        spyOn(router.locationService, 'url').and.callThrough();
+        $urlRouter.update(true);
+        expect(router.locationService.url).toHaveBeenCalled();
+
+        $location.url('/new?param=bar');
+        $urlRouter.update();
+
+        expect($location.url()).toBe('/old?param=foo');
       }));
     });
 
