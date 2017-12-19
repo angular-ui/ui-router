@@ -7,8 +7,11 @@ declare let inject, jasmine;
 let module = angular.mock.module;
 
 function animateFlush($animate) {
-  $animate && $animate.triggerCallbacks && $animate.triggerCallbacks(); // 1.2-1.3
-  $animate && $animate.flush && $animate.flush(); // 1.4
+  if ($animate && $animate.flush) {
+    $animate.flush(); // 1.4
+  } else if ($animate && $animate.triggerCallbacks) {
+    $animate.triggerCallbacks(); // 1.2-1.3
+  }
 }
 
 describe('uiView', function () {
