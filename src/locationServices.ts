@@ -2,7 +2,7 @@
  * @internalapi
  * @module ng1
  */ /** */
-import { LocationConfig, LocationServices, UIRouter, ParamType } from "@uirouter/core";
+import { LocationConfig, LocationServices, UIRouter, ParamType, isDefined } from "@uirouter/core";
 import { val, createProxyFunctions, removeFrom, isObject } from "@uirouter/core";
 import { ILocationService, ILocationProvider } from "angular";
 
@@ -46,7 +46,7 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
   }
 
   url(newUrl?: string, replace = false, state?) {
-    if (newUrl) this.$location.url(newUrl);
+    if (isDefined(newUrl)) this.$location.url(newUrl);
     if (replace) this.$location.replace();
     if (state) this.$location.state(state);
     return this.$location.url();

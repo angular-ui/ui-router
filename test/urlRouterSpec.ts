@@ -208,6 +208,37 @@ describe("UrlRouter", function () {
         expect(router.locationService.url).toHaveBeenCalledWith("/hello/", undefined);
       }));
 
+      it('can push an empty url', inject(function($urlRouter, $location) {
+        spyOn(router.locationService, "url");
+        $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
+        expect(router.locationService.url).toHaveBeenCalledWith("", undefined);
+      }));
+
+      // Angular 1.2 doesn't seem to support $location.url("")
+      if (angular.version.minor >= 3) {
+        // Test for https://github.com/angular-ui/ui-router/issues/3563
+        it('updates url after an empty url is pushed', inject(function($urlRouter, $location) {
+          $lp.html5Mode(false);
+          spyOn(router.locationService, "url").and.callThrough();
+          $urlRouter.push($umf.compile('/foobar'));
+          expect(router.locationService.url).toHaveBeenCalledWith("/foobar", undefined);
+          $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
+          expect(router.locationService.url).toHaveBeenCalledWith("", undefined);
+          expect(router.locationService.url()).toBe('/');
+        }));
+
+        // Test #2 for https://github.com/angular-ui/ui-router/issues/3563
+        it('updates html5mode url after an empty url is pushed', inject(function($urlRouter, $location) {
+          $lp.html5Mode(true);
+          spyOn(router.locationService, "url").and.callThrough();
+          $urlRouter.push($umf.compile('/foobar'));
+          expect(router.locationService.url).toHaveBeenCalledWith("/foobar", undefined);
+          $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
+          expect(router.locationService.url).toHaveBeenCalledWith("", undefined);
+          expect(router.locationService.url()).toBe('/');
+        }));
+      }
+
       it('can push location changes that include a #fragment', inject(function($urlRouter, $location) {
         // html5mode disabled
         $lp.html5Mode(false);
