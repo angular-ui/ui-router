@@ -1,38 +1,28 @@
 language: node_js
 node_js:
-  - "6.9.2"
-
-#cache:
-#  directories:
-#    - $HOME/.npm
-#    - $HOME/.yarn-cache
-#    - node_modules
-
+- 6.9.2
 before_install:
-  - time npm i -g yarn
-
+- time npm i -g yarn
 install:
-  - time yarn > /dev/null
-
+- time yarn > /dev/null
 before_script:
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
-  - ./nodeserver.sh > /dev/null &
-
+- export DISPLAY=:99.0
+- sh -e /etc/init.d/xvfb start
+- "./nodeserver.sh > /dev/null &"
 script:
-  - echo "CORE_BRANCH = x${CORE_BRANCH}x";
+- echo "CORE_BRANCH = x${CORE_BRANCH}x";
   # Fetch and build the @uirouter/core branch from github, then install it
   - >
-    if [ "x${CORE_BRANCH}x" != "xx" ] ; then
-      echo "Installing @uirouter/core from ${CORE_BRANCH}" && \
-      git clone --depth=10 --branch="${CORE_BRANCH}" https://github.com/ui-router/core.git @uirouter/core && \
-      pushd @uirouter/core && \
-      yarn > /dev/null && \
-      yarn build && \
-      popd && \
-      npm install ./@uirouter/core ;
-    fi
-  - tsc && npm test
+  if [ "x${CORE_BRANCH}x" != "xx" ] ; then
+    echo "Installing @uirouter/core from ${CORE_BRANCH}" && \
+    git clone --depth=10 --branch="${CORE_BRANCH}" https://github.com/ui-router/core.git @uirouter/core && \
+    pushd @uirouter/core && \
+    yarn > /dev/null && \
+    yarn build && \
+    popd && \
+    npm install ./@uirouter/core ;
+  fi
+- tsc && npm test
 
 matrix:
   allow_failures:
@@ -42,11 +32,11 @@ env:
   matrix:
     # CORE_BRANCH env variable specifies the branch of @uirouter/core to use during build/test
     # Each CORE_BRANCH listed here will trigger a SEPARATE job in travis
-    - CORE_BRANCH=master
+  - CORE_BRANCH=master
 
     # If CORE_BRANCH is empty, it will use the @uirouter/core from npm dependencies
     # (as specified in package.json)
-    - CORE_BRANCH=
+  - CORE_BRANCH=
 
 sudo: false
 
@@ -54,4 +44,5 @@ git:
   depth: 3
 
 notifications:
-  slack: angularbuddies:b6leQM9gkBCW0S7MNDsELpqU
+  slack:
+    secure: LqlW9u5Lyh7eHffLqfrIEyIdpqJmPg29NQHqjM6ij2BUFOs9se+NgpRagfICukCEMimOdzEiIE6S4DXNhCcy6hoA24cpswb84vHRuZ4pFz8USq13rX72AgygR1tPKB9sbXLp+XIjRaLPO5z8asECCr7jxSCpMvHRylPAGL4DduI=
