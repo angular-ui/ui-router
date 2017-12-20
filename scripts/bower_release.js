@@ -4,18 +4,18 @@ const fs = require('fs');
 const path = require('path');
 const util = require('@uirouter/publish-scripts/util');
 const version = require('../package.json').version;
-// const _exec = util._exec;
-const _exec = console.log.bind(console);
+const _exec = util._exec;
 
 util.packageDir();
 const bowerPath = path.resolve(__dirname, '..', 'bower.json');
 const bower = JSON.parse(fs.readFileSync(bowerPath));
-// util.ensureCleanMaster('master');
+util.ensureCleanMaster('master');
 
-// update bower.json
+// update bower.json and push
 bower.version = version;
 fs.writeFileSync(bowerPath, JSON.stringify(bower, null, 2));
 _exec(`git commit -m 'chore(bower): Update bower.json' bower.json`);
+_exec(`git push`);
 
 // branch, add/commit release files, and push to bower repository
 _exec(`git checkout -b bower-${version}`);
