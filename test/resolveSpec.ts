@@ -476,6 +476,30 @@ describe("Integration: Resolvables system", () => {
     expect(counts._J).toEqualData(1);
   });
 
+  it("should not inject child data into parent", () => {
+    let injectedData;
+    router.stateRegistry.register({
+      name: 'foo',
+      resolve: {
+        myresolve: () => 'foodata',
+      },
+      onEnter: (myresolve) => injectedData = myresolve,
+    });
+
+    router.stateRegistry.register({
+      name: 'foo.bar',
+      resolve: {
+        myresolve: () => 'bardata',
+      },
+    });
+
+    $state.go("foo.bar");
+    $rootScope.$digest();
+
+    expect($state.current.name).toBe("foo.bar");
+    expect(injectedData).toBe('foodata');
+  });
+
   it("should inject a promise for NOWAIT resolve into a controller", inject(function($compile, $rootScope) {
     let scope = $rootScope.$new();
     let el = $compile('<div><ui-view></ui-view></div>')(scope);

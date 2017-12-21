@@ -14,12 +14,13 @@ import { Ng1StateDeclaration } from '../interface';
  */
 export const getStateHookBuilder = (hookName: "onEnter"|"onExit"|"onRetain") =>
 function stateHookBuilder(state: StateObject, parentFn: BuilderFunction): TransitionStateHookFn {
-  let hook = state[hookName];
-  let pathname = hookName === 'onExit' ? 'from' : 'to';
+  const hook = state[hookName];
+  const pathname = hookName === 'onExit' ? 'from' : 'to';
 
   function decoratedNg1Hook(trans: Transition, state: Ng1StateDeclaration): HookResult {
-    let resolveContext = new ResolveContext(trans.treeChanges(pathname));
-    let locals = extend(getLocals(resolveContext), { $state$: state, $transition$: trans });
+    const resolveContext = new ResolveContext(trans.treeChanges(pathname));
+    const subContext = resolveContext.subContext(state.$$state());
+    const locals = extend(getLocals(subContext), { $state$: state, $transition$: trans });
     return services.$injector.invoke(hook, this, locals);
   }
 
