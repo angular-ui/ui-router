@@ -12,7 +12,7 @@ before_script:
 script:
 - echo "CORE_BRANCH = x${CORE_BRANCH}x";
   # Fetch and build the @uirouter/core branch from github, then install it
-  - >
+- >
   if [ "x${CORE_BRANCH}x" != "xx" ] ; then
     echo "Installing @uirouter/core from ${CORE_BRANCH}" && \
     git clone --depth=10 --branch="${CORE_BRANCH}" https://github.com/ui-router/core.git @uirouter/core && \
