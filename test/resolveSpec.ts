@@ -476,6 +476,7 @@ describe("Integration: Resolvables system", () => {
     expect(counts._J).toEqualData(1);
   });
 
+  // Test for https://github.com/angular-ui/ui-router/issues/3546
   it("should not inject child data into parent", () => {
     let injectedData;
     router.stateRegistry.register({
