@@ -38,7 +38,8 @@ env:
     # If CORE_BRANCH is empty, it will use the @uirouter/core from npm dependencies
     # (as specified in package.json)
   - CORE_BRANCH=
-
+  global:
+    secure: TanWbkSRljYf0ENPiF3LDM+6RDYyUZoVIIQjUk9UDZ1MBvzEiqISB/zKSXSoYY1JNZpNcXgje2Sl08yGhAugRVodH+FJa/khSkXwRsZAlJuG8qPFAevW4gffvJvPAE7O0uy4jLyyu+Fi9dptdi1zDGsOps/Q+WURH9jWPGmQpj8=
 sudo: false
 
 git:
