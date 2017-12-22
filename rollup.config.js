@@ -1,8 +1,6 @@
 import nodeResolve from 'rollup-plugin-node-resolve';
 import uglify from 'rollup-plugin-uglify';
-import progress from 'rollup-plugin-progress';
 import sourcemaps from 'rollup-plugin-sourcemaps';
-import visualizer from 'rollup-plugin-visualizer';
 
 const MINIFY = process.env.MINIFY;
 const MONOLITHIC = process.env.MONOLITHIC;
@@ -45,12 +43,10 @@ const onwarn = (warning) => {
 
 const plugins = [
   nodeResolve({jsnext: true}),
-  progress({ clearLine: false }),
   sourcemaps(),
 ];
 
 if (MINIFY) plugins.push(uglify(uglifyOpts));
-if (ROUTER && MINIFY) plugins.push(visualizer({ sourcemap: true }));
 
 const extension = MINIFY ? ".min.js" : ".js";
 

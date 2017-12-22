@@ -1,28 +1,37 @@
 language: node_js
 node_js:
-- 6.9.2
+- 8.9.1
+
 before_install:
 - time npm i -g yarn
+- yarn global add greenkeeper-lockfile@1
+
 install:
 - time yarn > /dev/null
+
 before_script:
 - export DISPLAY=:99.0
 - sh -e /etc/init.d/xvfb start
 - "./nodeserver.sh > /dev/null &"
+- greenkeeper-lockfile-update
+
 script:
 - echo "CORE_BRANCH = x${CORE_BRANCH}x";
   # Fetch and build the @uirouter/core branch from github, then install it
 - >
   if [ "x${CORE_BRANCH}x" != "xx" ] ; then
     echo "Installing @uirouter/core from ${CORE_BRANCH}" && \
-    git clone --depth=10 --branch="${CORE_BRANCH}" https://github.com/ui-router/core.git @uirouter/core && \
-    pushd @uirouter/core && \
-    yarn > /dev/null && \
+    git clone --depth=10 --branch="${CORE_BRANCH}" https://github.com/ui-router/core.git ui-router-core && \
+    pushd ui-router-core && \
+    yarn && \
     yarn build && \
+    CORE_PACK_FILENAME=`npm pack` && \
     popd && \
-    npm install ./@uirouter/core ;
+    yarn add ./ui-router-core/${CORE_PACK_FILENAME} ;
   fi
 - tsc && npm test
+
+after_script: greenkeeper-lockfile-upload
 
 matrix:
   allow_failures:
@@ -37,7 +46,8 @@ env:
     # If CORE_BRANCH is empty, it will use the @uirouter/core from npm dependencies
     # (as specified in package.json)
   - CORE_BRANCH=
-
+  global:
+    secure: TanWbkSRljYf0ENPiF3LDM+6RDYyUZoVIIQjUk9UDZ1MBvzEiqISB/zKSXSoYY1JNZpNcXgje2Sl08yGhAugRVodH+FJa/khSkXwRsZAlJuG8qPFAevW4gffvJvPAE7O0uy4jLyyu+Fi9dptdi1zDGsOps/Q+WURH9jWPGmQpj8=
 sudo: false
 
 git:

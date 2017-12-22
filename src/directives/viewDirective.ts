@@ -354,7 +354,7 @@ function $ViewDirectiveFill($compile: angular.ICompileService,
         let data: UIViewData = $element.data('$uiView');
         if (!data) {
             $element.html(initial);
-            $compile($element.contents())(scope);
+            $compile($element.contents() as any)(scope);
             return;
         }
 
@@ -363,7 +363,7 @@ function $ViewDirectiveFill($compile: angular.ICompileService,
         $element.html(cfg.getTemplate($element, resolveCtx) || initial);
         trace.traceUIViewFill(data.$uiView, $element.html());
 
-        let link = $compile($element.contents());
+        let link = $compile($element.contents() as any);
         let controller = cfg.controller;
         let controllerAs: string = getControllerAs(cfg);
         let resolveAs: string = getResolveAs(cfg);
