@@ -1,14 +1,20 @@
 language: node_js
 node_js:
 - 8.9.1
+
 before_install:
 - time npm i -g yarn
+- yarn global add greenkeeper-lockfile@1
+
 install:
 - time yarn > /dev/null
+
 before_script:
 - export DISPLAY=:99.0
 - sh -e /etc/init.d/xvfb start
 - "./nodeserver.sh > /dev/null &"
+- greenkeeper-lockfile-update
+
 script:
 - echo "CORE_BRANCH = x${CORE_BRANCH}x";
   # Fetch and build the @uirouter/core branch from github, then install it
@@ -24,6 +30,8 @@ script:
     yarn add ./ui-router-core/${CORE_PACK_FILENAME} ;
   fi
 - tsc && npm test
+
+after_script: greenkeeper-lockfile-upload
 
 matrix:
   allow_failures:
