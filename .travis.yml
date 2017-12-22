@@ -15,12 +15,13 @@ script:
 - >
   if [ "x${CORE_BRANCH}x" != "xx" ] ; then
     echo "Installing @uirouter/core from ${CORE_BRANCH}" && \
-    git clone --depth=10 --branch="${CORE_BRANCH}" https://github.com/ui-router/core.git @uirouter/core && \
-    pushd @uirouter/core && \
-    yarn > /dev/null && \
+    git clone --depth=10 --branch="${CORE_BRANCH}" https://github.com/ui-router/core.git ui-router-core && \
+    pushd ui-router-core && \
+    yarn && \
     yarn build && \
+    CORE_PACK_FILENAME=`npm pack` && \
     popd && \
-    npm install ./@uirouter/core ;
+    yarn add ./ui-router-core/${CORE_PACK_FILENAME} ;
   fi
 - tsc && npm test
 
