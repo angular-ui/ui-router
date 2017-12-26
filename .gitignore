@@ -1,6 +1,8 @@
 # common
 node_modules
 bower_components
+downstream_projects
+
 .DS_Store
 *~
 **/.*

@@ -4,16 +4,16 @@ node_js:
 
 before_install:
 - time npm i -g yarn
-- yarn global add greenkeeper-lockfile@1
+- yarn global add greenkeeper-lockfile@1 yalc
 
-install:
-- time yarn > /dev/null
+cache:
+  directories:
+  - downstream_projects
+  - node_modules
 
-before_script:
-- export DISPLAY=:99.0
-- sh -e /etc/init.d/xvfb start
-- "./nodeserver.sh > /dev/null &"
-- greenkeeper-lockfile-update
+install: yarn --check-files
+
+before_script: greenkeeper-lockfile-update
 
 script:
 - echo "CORE_BRANCH = x${CORE_BRANCH}x";
@@ -25,9 +25,9 @@ script:
     pushd ui-router-core && \
     yarn && \
     yarn build && \
-    CORE_PACK_FILENAME=`npm pack` && \
+    yalc publish && \
     popd && \
-    yarn add ./ui-router-core/${CORE_PACK_FILENAME} ;
+    yarn add @uirouter/core ;
   fi
 - tsc && npm test
 
