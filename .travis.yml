@@ -3,10 +3,12 @@ node_js:
 - 8.9.1
 
 before_install:
-- time npm i -g yarn
+- curl -o- -L https://yarnpkg.com/install.sh | bash
+- export PATH="$HOME/.yarn/bin:$PATH"
 - yarn global add greenkeeper-lockfile@1 yalc
 
 cache:
+  yarn: true
   directories:
   - downstream_projects
   - node_modules
