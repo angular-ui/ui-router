@@ -32,9 +32,9 @@
   version "9.1.8"
   resolved "https://registry.yarnpkg.com/@types/highlight.js/-/highlight.js-9.1.8.tgz#d227f18bcb8f3f187e16965f2444859a04689758"
 
-"@types/jasmine@2.8.2":
-  version "2.8.2"
-  resolved "https://registry.yarnpkg.com/@types/jasmine/-/jasmine-2.8.2.tgz#6ae4d8740c0da5d5a627df725b4eed71b8e36668"
+"@types/jasmine@2.8.3":
+  version "2.8.3"
+  resolved "https://registry.yarnpkg.com/@types/jasmine/-/jasmine-2.8.3.tgz#f910edc67d69393d562d10f8f3d205ea3f3306bf"
 
 "@types/jquery@^3.2.17":
   version "3.2.17"
