@@ -23,8 +23,9 @@ My version of UI-Router is: (type version)
 
 (type expected behavior here)
 
-#### Link to Plunker or stackblitz that reproduces the issue (if you want a response to your issue, provide a reproduction):
+#### Link to Plunker or stackblitz that reproduces the issue:
 
+( if you want a response to your issue, provide a way to reproduce it )
 ( http://bit.ly/UIR-Plunk1 )
 ( https://stackblitz.com/edit/ui-router-angularjs )
 
