@@ -1,4 +1,5 @@
 This issue tracker is for Bug Reports and Feature Requests only.
+
 Please direct requests for help to StackOverflow.
 See http://bit.ly/UIR-SOF for details.
 
@@ -22,9 +23,10 @@ My version of UI-Router is: (type version)
 
 (type expected behavior here)
 
-#### Link to Plunker that reproduces the issue:
+#### Link to Plunker or stackblitz that reproduces the issue (if you want a response to your issue, provide a reproduction):
 
-http://bit.ly/UIR-Plunk
+( fork this plunk http://bit.ly/UIR-Plunk )
+( or fork this http://stackblitz.com/ui-router-angularjs )
 
 
 
