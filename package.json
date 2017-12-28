@@ -81,7 +81,7 @@
     "@types/angular": "^1.5.14",
     "@types/angular-animate": "^1.5.5",
     "@types/angular-mocks": "1.5.11",
-    "@types/jasmine": "2.8.2",
+    "@types/jasmine": "2.8.3",
     "@types/jquery": "^3.2.17",
     "@uirouter/publish-scripts": "2.2.2",
     "conventional-changelog": "1.1.7",
