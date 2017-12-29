@@ -1,7 +1,6 @@
 # common
 node_modules
 bower_components
-downstream_projects
 
 .DS_Store
 *~
@@ -15,8 +14,6 @@ idea-out
 
 # generated files
 _doc
-.testlib
 lib
 lib-esm
 release
-stats.html
