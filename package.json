@@ -91,7 +91,7 @@
     "jasmine-core": "2.8.0",
     "karma": "2.0.0",
     "karma-chrome-launcher": "2.2.0",
-    "karma-jasmine": "^1.0.2",
+    "karma-jasmine": "1.1.1",
     "karma-phantomjs-launcher": "^1.0.2",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "2.0.9",
