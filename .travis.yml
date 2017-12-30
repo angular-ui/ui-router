@@ -18,6 +18,7 @@ env:
   - CORE_BRANCH=master
   - CORE_BRANCH=master UPSTREAM_PKGS=@uirouter/core DOWNSTREAM_PKGS=sample-app-angularjs
   - DOWNSTREAM_PKGS=sample-app-angularjs
+  - DOWNSTREAM_PKGS=typescript2.2,typescript2.3,typescript2.4,typescript2.5,typescript2.6
 
 matrix:
   fast_finish: true
