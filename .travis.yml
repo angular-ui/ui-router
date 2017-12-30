@@ -1,22 +1,10 @@
 language: node_js
 node_js: '8.9.1'
 
-cache:
-  yarn: true
-  directories:
-  - downstream_projects
-  - node_modules
-  - ui-router-core
-
-before_install:
-- curl -o- -L https://yarnpkg.com/install.sh | bash
-- export PATH="$HOME/.yarn/bin:$PATH"
-- yarn global add greenkeeper-lockfile@1 yalc
-
+before_install: yarn global add greenkeeper-lockfile@1 yalc
 install: yarn --check-files
 
 before_script: greenkeeper-lockfile-update && greenkeeper-lockfile-upload
-
 script:
 # If CORE_BRANCH is set, fetch and build the @uirouter/core branch from github, then install it
 - if [ "x${CORE_BRANCH}x" != "xx" ] ; then ./node_modules/.bin/publish_yalc_package ui-router-core https://github.com/ui-router/core.git && yalc add @uirouter/core ; fi
@@ -26,13 +14,11 @@ env:
   global:
     secure: TanWbkSRljYf0ENPiF3LDM+6RDYyUZoVIIQjUk9UDZ1MBvzEiqISB/zKSXSoYY1JNZpNcXgje2Sl08yGhAugRVodH+FJa/khSkXwRsZAlJuG8qPFAevW4gffvJvPAE7O0uy4jLyyu+Fi9dptdi1zDGsOps/Q+WURH9jWPGmQpj8=
   matrix:
-    # When CORE_BRANCH env variable is set, it will fetch, build, and test using that branch of @uirouter/core
   - CORE_BRANCH=
   - CORE_BRANCH=master
+  - CORE_BRANCH=master UPSTREAM_PKGS=@uirouter/core DOWNSTREAM_PKGS=sample-app-angularjs
   - DOWNSTREAM_PKGS=sample-app-angularjs
-  - DOWNSTREAM_PKGS=sample-app-angularjs CORE_BRANCH=master
-
-sudo: false
+  - DOWNSTREAM_PKGS=typescript2.2,typescript2.3,typescript2.4,typescript2.5,typescript2.6
 
 matrix:
   fast_finish: true
@@ -43,3 +29,12 @@ matrix:
 notifications:
   slack:
     secure: LqlW9u5Lyh7eHffLqfrIEyIdpqJmPg29NQHqjM6ij2BUFOs9se+NgpRagfICukCEMimOdzEiIE6S4DXNhCcy6hoA24cpswb84vHRuZ4pFz8USq13rX72AgygR1tPKB9sbXLp+XIjRaLPO5z8asECCr7jxSCpMvHRylPAGL4DduI=
+
+sudo: false
+
+cache:
+  yarn: true
+  directories:
+  - .downstream_cache
+  - node_modules
+  - ui-router-core
