@@ -51,56 +51,56 @@ if (MINIFY) plugins.push(uglify(uglifyOpts));
 const extension = MINIFY ? ".min.js" : ".js";
 
 const BASE_CONFIG = {
-  sourcemap: true,
-  exports: 'named',
-  plugins: plugins,
-  banner: banner,
   onwarn: onwarn,
+  plugins: plugins,
 };
+
+const BASE_OUTPUT = {
+  banner: banner,
+  exports: 'named',
+  format: 'umd',
+  sourcemap: true,
+}
 
 const ROUTER_CONFIG = Object.assign({
   input: 'lib-esm/index.js',
   external: ['angular', '@uirouter/core'],
-  output: {
+  output: Object.assign({
     file: 'release/ui-router-angularjs' + extension,
-    format: 'umd',
     name: '@uirouter/angularjs',
     globals: { angular: 'angular', '@uirouter/core': '@uirouter/core' },
-  },
+  }, BASE_OUTPUT),
 }, BASE_CONFIG);
 
 // Also bundles the code from @uirouter/core into the same bundle
 const MONOLITHIC_ROUTER_CONFIG = Object.assign({
   input: 'lib-esm/index.js',
   external: 'angular',
-  output: {
+  output: Object.assign({
     file: 'release/angular-ui-router' + extension,
-    format: 'umd',
     name: '@uirouter/angularjs',
     globals: { angular: 'angular' },
-  },
+  }, BASE_OUTPUT),
 }, BASE_CONFIG);
 
 const EVENTS_CONFIG = Object.assign({}, BASE_CONFIG, {
   input: 'lib-esm/legacy/stateEvents.js',
   external: ['angular', '@uirouter/core'],
-  output: {
+  output: Object.assign({
     file: 'release/stateEvents' + extension,
-    format: 'umd',
     name: '@uirouter/angularjs-state-events',
     globals: { angular: 'angular', '@uirouter/core': '@uirouter/core' },
-  },
+  }, BASE_OUTPUT),
 });
 
 const RESOLVE_CONFIG = Object.assign({}, BASE_CONFIG, {
   input: 'lib-esm/legacy/resolveService.js',
   external: ['angular', '@uirouter/core'],
-  output: {
+  output: Object.assign({
     file: 'release/resolveService' + extension,
-    format: 'umd',
     name: '@uirouter/angularjs-resolve-service',
     globals: { angular: 'angular', '@uirouter/core': '@uirouter/core' },
-  },
+  }, BASE_OUTPUT),
 });
 
 const CONFIG =
