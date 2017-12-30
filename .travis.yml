@@ -8,23 +8,24 @@ before_script: greenkeeper-lockfile-update && greenkeeper-lockfile-upload
 script:
 # If CORE_BRANCH is set, fetch and build the @uirouter/core branch from github, then install it
 - if [ "x${CORE_BRANCH}x" != "xx" ] ; then ./node_modules/.bin/publish_yalc_package ui-router-core https://github.com/ui-router/core.git && yalc add @uirouter/core ; fi
-- if [ "x${DOWNSTREAM_PKGS}x" != "xx" ] ; then npm run test:downstream ; else tsc && npm test ; fi
+# If DOWNSTREAM or DOWNSTREAM_PKGS is set, run downstream packages' tests instead
+- if [ "x${DOWNSTREAM_PKGS}${DOWNSTREAM}x" != "xx" ] ; then npm run test:downstream ; else tsc && npm test ; fi
 
 env:
   global:
     secure: TanWbkSRljYf0ENPiF3LDM+6RDYyUZoVIIQjUk9UDZ1MBvzEiqISB/zKSXSoYY1JNZpNcXgje2Sl08yGhAugRVodH+FJa/khSkXwRsZAlJuG8qPFAevW4gffvJvPAE7O0uy4jLyyu+Fi9dptdi1zDGsOps/Q+WURH9jWPGmQpj8=
   matrix:
-  - CORE_BRANCH=
   - CORE_BRANCH=master
-  - CORE_BRANCH=master UPSTREAM_PKGS=@uirouter/core DOWNSTREAM_PKGS=sample-app-angularjs
-  - DOWNSTREAM_PKGS=sample-app-angularjs
-  - DOWNSTREAM_PKGS=typescript2.2,typescript2.3,typescript2.4,typescript2.5,typescript2.6
+  - CORE_BRANCH=
+  - DOWNSTREAM=true
+  - CORE_BRANCH=master UPSTREAM_PKGS=@uirouter/core DOWNSTREAM=true
 
 matrix:
   fast_finish: true
   allow_failures:
   - env: CORE_BRANCH=
-  - env: DOWNSTREAM_PKGS=sample-app-angularjs
+  - env: DOWNSTREAM=true
+  - env: CORE_BRANCH=master UPSTREAM_PKGS=@uirouter/core DOWNSTREAM=true
 
 notifications:
   slack:
