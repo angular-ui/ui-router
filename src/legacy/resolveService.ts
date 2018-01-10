@@ -5,7 +5,7 @@ import * as angular from "angular";
 /**
  * Implementation of the legacy `$resolve` service for angular 1.
  */
-let $resolve = {
+const $resolve = {
   /**
    * Asynchronously injects a resolve block.
    *
@@ -43,9 +43,9 @@ let $resolve = {
    * @param parent a promise for a "parent resolve"
    */
   resolve: (invocables: { [key: string]: Function }, locals = {}, parent?: Promise<any>) => {
-    let parentNode = new PathNode(new StateObject(<any> { params: {}, resolvables: [] }));
-    let node = new PathNode(new StateObject(<any> { params: {}, resolvables: [] }));
-    let context = new ResolveContext([parentNode, node]);
+    const parentNode = new PathNode(new StateObject(<any> { params: {}, resolvables: [] }));
+    const node = new PathNode(new StateObject(<any> { params: {}, resolvables: [] }));
+    const context = new ResolveContext([parentNode, node]);
 
     context.addResolvables(resolvablesBuilder(<any> { resolve: invocables }), node.state);
 

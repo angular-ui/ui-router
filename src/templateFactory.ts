@@ -103,9 +103,9 @@ export class TemplateFactory implements TemplateFactoryProvider {
    * for that string.
    */
   fromProvider(provider: IInjectable, params: any, context: ResolveContext) {
-    let deps = services.$injector.annotate(provider);
-    let providerFn = isArray(provider) ? tail(<any[]> provider) : provider;
-    let resolvable = new Resolvable("", <Function> providerFn, deps);
+    const deps = services.$injector.annotate(provider);
+    const providerFn = isArray(provider) ? tail(<any[]> provider) : provider;
+    const resolvable = new Resolvable("", <Function> providerFn, deps);
     return resolvable.get(context);
   };
 
@@ -117,9 +117,9 @@ export class TemplateFactory implements TemplateFactoryProvider {
    * @return {string} The template html as a string: "<component-name input1='::$resolve.foo'></component-name>".
    */
   fromComponentProvider(provider: IInjectable, params: any, context: ResolveContext) {
-    let deps = services.$injector.annotate(provider);
-    let providerFn = isArray(provider) ? tail(<any[]> provider) : provider;
-    let resolvable = new Resolvable("", <Function> providerFn, deps);
+    const deps = services.$injector.annotate(provider);
+    const providerFn = isArray(provider) ? tail(<any[]> provider) : provider;
+    const resolvable = new Resolvable("", <Function> providerFn, deps);
     return resolvable.get(context);
   };
 
@@ -150,15 +150,15 @@ export class TemplateFactory implements TemplateFactoryProvider {
 
 
     const attributeTpl = (input: BindingTuple) => {
-      let { name, type } = input;
-      let attrName = kebob(name);
+      const { name, type } = input;
+      const attrName = kebob(name);
       // If the ui-view has an attribute which matches a binding on the routed component
       // then pass that attribute through to the routed component template.
       // Prefer ui-view wired mappings to resolve data, unless the resolve was explicitly bound using `bindings:`
       if (uiView.attr(attrName) && !bindings[name])
         return `${attrName}='${uiView.attr(attrName)}'`;
 
-      let resolveName = bindings[name] || name;
+      const resolveName = bindings[name] || name;
       // Pre-evaluate the expression for "@" bindings by enclosing in {{ }}
       // some-attr="{{ ::$resolve.someResolveName }}"
       if (type === '@')
@@ -168,11 +168,11 @@ export class TemplateFactory implements TemplateFactoryProvider {
       // Get the result of the resolve (should be a function) and annotate it to get its arguments.
       // some-attr="$resolve.someResolveResultName(foo, bar)"
       if (type === '&') {
-        let res = context.getResolvable(resolveName);
-        let fn = res && res.data;
-        let args = fn && services.$injector.annotate(fn) || [];
+        const res = context.getResolvable(resolveName);
+        const fn = res && res.data;
+        const args = fn && services.$injector.annotate(fn) || [];
         // account for array style injection, i.e., ['foo', function(foo) {}]
-        let arrayIdxStr = isArray(fn) ? `[${fn.length - 1}]` : '';
+        const arrayIdxStr = isArray(fn) ? `[${fn.length - 1}]` : '';
         return `${attrName}='$resolve.${resolveName}${arrayIdxStr}(${args.join(",")})'`;
       }
 
@@ -180,15 +180,15 @@ export class TemplateFactory implements TemplateFactoryProvider {
       return `${attrName}='${prefix}$resolve.${resolveName}'`;
     };
 
-    let attrs = getComponentBindings(component).map(attributeTpl).join(" ");
-    let kebobName = kebob(component);
+    const attrs = getComponentBindings(component).map(attributeTpl).join(" ");
+    const kebobName = kebob(component);
     return `<${kebobName} ${attrs}></${kebobName}>`;
   };
 }
 
 // Gets all the directive(s)' inputs ('@', '=', and '<') and outputs ('&')
 function getComponentBindings(name: string) {
-  let cmpDefs = <any[]> services.$injector.get(name + "Directive"); // could be multiple
+  const cmpDefs = <any[]> services.$injector.get(name + "Directive"); // could be multiple
   if (!cmpDefs || !cmpDefs.length) throw new Error(`Unable to find component named '${name}'`);
   return cmpDefs.map(getBindings).reduce(unnestR, []);
 }

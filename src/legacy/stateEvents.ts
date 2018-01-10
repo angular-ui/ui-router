@@ -154,7 +154,7 @@ export let $stateNotFound: IAngularEvent;
 
 
 (function () {
-  let { isFunction, isString } = angular;
+  const { isFunction, isString } = angular;
 
   function applyPairs(memo: Obj, keyValTuple: any[]) {
     let key: string, value: any;
@@ -168,20 +168,20 @@ export let $stateNotFound: IAngularEvent;
     if (!$transition$.options().notify || !$transition$.valid() || $transition$.ignored())
       return;
 
-    let $injector = $transition$.injector();
-    let $stateEvents = $injector.get('$stateEvents');
-    let $rootScope = $injector.get('$rootScope');
-    let $state = $injector.get('$state');
-    let $urlRouter = $injector.get('$urlRouter');
+    const $injector = $transition$.injector();
+    const $stateEvents = $injector.get('$stateEvents');
+    const $rootScope = $injector.get('$rootScope');
+    const $state = $injector.get('$state');
+    const $urlRouter = $injector.get('$urlRouter');
 
-    let enabledEvents = $stateEvents.provider.enabled();
+    const enabledEvents = $stateEvents.provider.enabled();
 
 
-    let toParams = $transition$.params("to");
-    let fromParams = $transition$.params("from");
+    const toParams = $transition$.params("to");
+    const fromParams = $transition$.params("from");
 
     if (enabledEvents.$stateChangeSuccess) {
-      let startEvent = $rootScope.$broadcast('$stateChangeStart', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$.options(), $transition$);
+      const startEvent = $rootScope.$broadcast('$stateChangeStart', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$.options(), $transition$);
 
       if (startEvent.defaultPrevented) {
         if (enabledEvents.$stateChangeCancel) {
@@ -193,7 +193,7 @@ export let $stateNotFound: IAngularEvent;
       }
 
       // right after global state is updated
-      let successOpts = { priority: 9999 };
+      const successOpts = { priority: 9999 };
       $transition$.onSuccess({}, function () {
         $rootScope.$broadcast('$stateChangeSuccess', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$.options(), $transition$);
       }, successOpts);
@@ -205,7 +205,7 @@ export let $stateNotFound: IAngularEvent;
           return;
 
 
-        let evt = $rootScope.$broadcast('$stateChangeError', $transition$.to(), toParams, $transition$.from(), fromParams, error, $transition$.options(), $transition$);
+        const evt = $rootScope.$broadcast('$stateChangeError', $transition$.to(), toParams, $transition$.from(), fromParams, error, $transition$.options(), $transition$);
 
         if (!evt.defaultPrevented) {
           $urlRouter.update();
@@ -216,16 +216,16 @@ export let $stateNotFound: IAngularEvent;
 
   stateNotFoundHandler.$inject = ['$to$', '$from$', '$state', '$rootScope', '$urlRouter'];
   function stateNotFoundHandler($to$: TargetState, $from$: TargetState, injector: UIInjector): HookResult {
-    let $state: StateService = injector.get('$state');
-    let $rootScope: IScope = injector.get('$rootScope');
-    let $urlRouter: UrlRouter = injector.get('$urlRouter');
+    const $state: StateService = injector.get('$state');
+    const $rootScope: IScope = injector.get('$rootScope');
+    const $urlRouter: UrlRouter = injector.get('$urlRouter');
 
     interface StateNotFoundEvent extends IAngularEvent {
       retry: Promise<any>;
     }
 
-    let redirect = { to: $to$.identifier(), toParams: $to$.params(), options: $to$.options() };
-    let e = <StateNotFoundEvent> $rootScope.$broadcast('$stateNotFound', redirect, $from$.state(), $from$.params());
+    const redirect = { to: $to$.identifier(), toParams: $to$.params(), options: $to$.options() };
+    const e = <StateNotFoundEvent> $rootScope.$broadcast('$stateNotFound', redirect, $from$.state(), $from$.params());
 
     if (e.defaultPrevented || e.retry)
       $urlRouter.update();
@@ -254,8 +254,8 @@ export let $stateNotFound: IAngularEvent;
     }
 
     let runtime = false;
-    let allEvents = ['$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError'];
-    let enabledStateEvents = <IEventsToggle> allEvents.map(e => [e, true]).reduce(applyPairs, {});
+    const allEvents = ['$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError'];
+    const enabledStateEvents = <IEventsToggle> allEvents.map(e => [e, true]).reduce(applyPairs, {});
 
     function assertNotRuntime() {
       if (runtime) throw new Error("Cannot enable events at runtime (use $stateEventsProvider");

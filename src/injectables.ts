@@ -50,7 +50,7 @@
  * @preferred
  * @module injectables
  */ /** */
-
+/* tslint:disable:prefer-const */
 import { StateProvider } from "./stateProvider";
 import {
     StateService, TransitionService, Transition, UrlRouter, UrlMatcherFactory,

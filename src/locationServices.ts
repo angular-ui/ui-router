@@ -39,7 +39,7 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
    * @param router
    */
   static monkeyPatchPathParameterType(router: UIRouter) {
-    let pathType: ParamType = router.urlMatcherFactory.type('path');
+    const pathType: ParamType = router.urlMatcherFactory.type('path');
 
     pathType.encode = (x: any) =>
         x != null ? x.toString().replace(/(~|\/)/g, m => ({ '~': '~~', '/': '~2F' }[m])) : x;
@@ -53,7 +53,7 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
 
   constructor($locationProvider: ILocationProvider) {
     this.$locationProvider = $locationProvider;
-    let _lp = val($locationProvider);
+    const _lp = val($locationProvider);
     createProxyFunctions(_lp, this, _lp, ['hashPrefix']);
   }
 
@@ -81,8 +81,8 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
 
     // Bind $locationChangeSuccess to the listeners registered in LocationService.onChange
     $rootScope.$on("$locationChangeSuccess", evt => this._urlListeners.forEach(fn => fn(evt)));
-    let _loc = val($location);
-    let _browser = val($browser);
+    const _loc = val($location);
+    const _browser = val($browser);
 
     // Bind these LocationService functions to $location
     createProxyFunctions(_loc, this, _loc, ["replace", "path", "search", "hash"]);

@@ -180,12 +180,12 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
     return config1 === config2;
   }
 
-  let rootData = {
+  const rootData = {
     $cfg: { viewDecl: { $context: $view._pluginapi._rootViewContext() } },
     $uiView: { }
   };
 
-  let directive = {
+  const directive = {
     count: 0,
     restrict: 'ECA',
     terminal: true,
@@ -194,16 +194,19 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
     compile: function (tElement: JQuery, tAttrs: Obj, $transclude: ITranscludeFunction) {
 
       return function (scope: IScope, $element: IAugmentedJQuery, attrs: Obj) {
-        let previousEl: JQuery, currentEl: JQuery,
-            currentScope: IScope, unregister: Function,
-            onloadExp     = attrs['onload'] || '',
+        const onloadExp     = attrs['onload'] || '',
             autoScrollExp = attrs['autoscroll'],
             renderer      = getRenderer(attrs, scope),
             viewConfig    = undefined as Ng1ViewConfig,
             inherited     = $element.inheritedData('$uiView') || rootData,
             name          = $interpolate(attrs['uiView'] || attrs['name'] || '')(scope) || '$default';
 
-        let activeUIView: ActiveUIView = {
+        let previousEl: JQuery,
+            currentEl: JQuery,
+            currentScope: IScope,
+            unregister: Function;
+
+        const activeUIView: ActiveUIView = {
           $type: 'ng1',
           id: directive.count++,                                   // Global sequential ID for ui-view tags added to DOM
           name: name,                                              // ui-view name (<div ui-view="name"></div>
@@ -211,10 +214,10 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
           config: null,                                            // The ViewConfig loaded (from a state.views definition)
           configUpdated: configUpdatedCallback,                    // Called when the matching ViewConfig changes
           get creationContext() {                                  // The context in which this ui-view "tag" was created
-            let fromParentTagConfig = parse('$cfg.viewDecl.$context')(inherited);
+            const fromParentTagConfig = parse('$cfg.viewDecl.$context')(inherited);
             // Allow <ui-view name="foo"><ui-view name="bar"></ui-view></ui-view>
             // See https://github.com/angular-ui/ui-router/issues/3355
-            let fromParentTag = parse('$uiView.creationContext')(inherited);
+            const fromParentTag = parse('$uiView.creationContext')(inherited);
             return fromParentTagConfig || fromParentTag;
           }
         };
@@ -254,7 +257,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
           }
 
           if (currentEl) {
-            let _viewData = currentEl.data('$uiViewAnim');
+            const _viewData = currentEl.data('$uiViewAnim');
             trace.traceUIViewEvent("Animate out", _viewData);
             renderer.leave(currentEl, function() {
               _viewData.$$animLeave.resolve();
@@ -267,15 +270,15 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
         }
 
         function updateView(config?: Ng1ViewConfig) {
-          let newScope = scope.$new();
-          let animEnter = $q.defer(), animLeave = $q.defer();
+          const newScope = scope.$new();
+          const animEnter = $q.defer(), animLeave = $q.defer();
 
-          let $uiViewData: UIViewData = {
+          const $uiViewData: UIViewData = {
             $cfg: config,
             $uiView: activeUIView,
           };
 
-          let $uiViewAnim: UIViewAnimData = {
+          const $uiViewAnim: UIViewAnimData = {
             $animEnter: animEnter.promise,
             $animLeave: animLeave.promise,
             $$animLeave: animLeave
@@ -295,7 +298,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
            */
           newScope.$emit('$viewContentLoading', name);
 
-          let cloned = $transclude(newScope, function(clone) {
+          const cloned = $transclude(newScope, function(clone) {
             clone.data('$uiViewAnim', $uiViewAnim);
             clone.data('$uiView', $uiViewData);
             renderer.enter(clone, $element, function onUIViewEnter() {
@@ -347,32 +350,32 @@ function $ViewDirectiveFill($compile: angular.ICompileService,
     restrict: 'ECA',
     priority: -400,
     compile: function (tElement: JQuery) {
-      let initial = tElement.html();
+      const initial = tElement.html();
       tElement.empty();
 
       return function (scope: IScope, $element: JQuery) {
-        let data: UIViewData = $element.data('$uiView');
+        const data: UIViewData = $element.data('$uiView');
         if (!data) {
             $element.html(initial);
             $compile($element.contents() as any)(scope);
             return;
         }
 
-        let cfg: Ng1ViewConfig = data.$cfg || <any> { viewDecl: {}, getTemplate: noop };
-        let resolveCtx: ResolveContext = cfg.path && new ResolveContext(cfg.path);
+        const cfg: Ng1ViewConfig = data.$cfg || <any> { viewDecl: {}, getTemplate: noop };
+        const resolveCtx: ResolveContext = cfg.path && new ResolveContext(cfg.path);
         $element.html(cfg.getTemplate($element, resolveCtx) || initial);
         trace.traceUIViewFill(data.$uiView, $element.html());
 
-        let link = $compile($element.contents() as any);
-        let controller = cfg.controller;
-        let controllerAs: string = getControllerAs(cfg);
-        let resolveAs: string = getResolveAs(cfg);
-        let locals = resolveCtx && getLocals(resolveCtx);
+        const link = $compile($element.contents() as any);
+        const controller = cfg.controller;
+        const controllerAs: string = getControllerAs(cfg);
+        const resolveAs: string = getResolveAs(cfg);
+        const locals = resolveCtx && getLocals(resolveCtx);
 
         scope[resolveAs] = locals;
 
         if (controller) {
-          let controllerInstance = <Ng1Controller> $controller(controller, extend({}, locals, { $scope: scope, $element: $element }));
+          const controllerInstance = <Ng1Controller> $controller(controller, extend({}, locals, { $scope: scope, $element: $element }));
           if (controllerAs) {
             scope[controllerAs] = controllerInstance;
             scope[controllerAs][resolveAs] = locals;
@@ -391,18 +394,18 @@ function $ViewDirectiveFill($compile: angular.ICompileService,
 
         // Wait for the component to appear in the DOM
         if (isString(cfg.viewDecl.component)) {
-          let cmp = cfg.viewDecl.component;
-          let kebobName = kebobString(cmp);
-          let tagRegexp = new RegExp(`^(x-|data-)?${kebobName}$`, "i");
+          const cmp = cfg.viewDecl.component;
+          const kebobName = kebobString(cmp);
+          const tagRegexp = new RegExp(`^(x-|data-)?${kebobName}$`, "i");
 
-          let getComponentController = () => {
-            let directiveEl = [].slice.call($element[0].children)
+          const getComponentController = () => {
+            const directiveEl = [].slice.call($element[0].children)
                 .filter((el: Element) => el && el.tagName && tagRegexp.exec(el.tagName)) ;
 
             return directiveEl && angular.element(directiveEl).data(`$${cmp}Controller`);
           };
 
-          let deregisterWatch = scope.$watch(getComponentController, function(ctrlInstance) {
+          const deregisterWatch = scope.$watch(getComponentController, function(ctrlInstance) {
             if (!ctrlInstance) return;
             registerControllerCallbacks($q, $transitions, ctrlInstance, scope, cfg);
             deregisterWatch();
@@ -416,7 +419,7 @@ function $ViewDirectiveFill($compile: angular.ICompileService,
 }
 
 /** @hidden */
-let hasComponentImpl = typeof (angular as any).module('ui.router')['component'] === 'function';
+const hasComponentImpl = typeof (angular as any).module('ui.router')['component'] === 'function';
 /** @hidden incrementing id */
 let _uiCanExitId = 0;
 
@@ -431,13 +434,13 @@ function registerControllerCallbacks($q: angular.IQService,
     controllerInstance.$onInit();
   }
 
-  let viewState: Ng1StateDeclaration = tail(cfg.path).state.self;
+  const viewState: Ng1StateDeclaration = tail(cfg.path).state.self;
 
-  let hookOptions: HookRegOptions = { bind: controllerInstance };
+  const hookOptions: HookRegOptions = { bind: controllerInstance };
   // Add component-level hook for onParamsChange
   if (isFunction(controllerInstance.uiOnParamsChanged)) {
-    let resolveContext: ResolveContext = new ResolveContext(cfg.path);
-    let viewCreationTrans = resolveContext.getResolvable('$transition$').data;
+    const resolveContext: ResolveContext = new ResolveContext(cfg.path);
+    const viewCreationTrans = resolveContext.getResolvable('$transition$').data;
 
     // Fire callback on any successful transition
     const paramsUpdated = ($transition$: Transition) => {
@@ -445,22 +448,22 @@ function registerControllerCallbacks($q: angular.IQService,
       // Exit early if the $transition$ will exit the state the view is for.
       if ($transition$ === viewCreationTrans || $transition$.exiting().indexOf(viewState as StateDeclaration) !== -1) return;
 
-      let toParams = $transition$.params("to") as TypedMap<any>;
-      let fromParams = $transition$.params<TypedMap<any>>("from") as TypedMap<any>;
-      let toSchema: Param[] = $transition$.treeChanges().to.map((node: PathNode) => node.paramSchema).reduce(unnestR, []);
-      let fromSchema: Param[] = $transition$.treeChanges().from.map((node: PathNode) => node.paramSchema).reduce(unnestR, []);
+      const toParams = $transition$.params("to") as TypedMap<any>;
+      const fromParams = $transition$.params<TypedMap<any>>("from") as TypedMap<any>;
+      const toSchema: Param[] = $transition$.treeChanges().to.map((node: PathNode) => node.paramSchema).reduce(unnestR, []);
+      const fromSchema: Param[] = $transition$.treeChanges().from.map((node: PathNode) => node.paramSchema).reduce(unnestR, []);
 
       // Find the to params that have different values than the from params
-      let changedToParams = toSchema.filter((param: Param) => {
-        let idx = fromSchema.indexOf(param);
+      const changedToParams = toSchema.filter((param: Param) => {
+        const idx = fromSchema.indexOf(param);
         return idx === -1 || !fromSchema[idx].type.equals(toParams[param.id], fromParams[param.id]);
       });
 
       // Only trigger callback if a to param has changed or is new
       if (changedToParams.length) {
-        let changedKeys: string[] = changedToParams.map(x => x.id);
+        const changedKeys: string[] = changedToParams.map(x => x.id);
         // Filter the params to only changed/new to params.  `$transition$.params()` may be used to get all params.
-        let newValues = filter(toParams, (val, key) => changedKeys.indexOf(key) !== -1);
+        const newValues = filter(toParams, (val, key) => changedKeys.indexOf(key) !== -1);
         controllerInstance.uiOnParamsChanged(newValues, $transition$);
       }
     };
@@ -469,8 +472,8 @@ function registerControllerCallbacks($q: angular.IQService,
 
   // Add component-level hook for uiCanExit
   if (isFunction(controllerInstance.uiCanExit)) {
-    let id = _uiCanExitId++;
-    let cacheProp = '_uiCanExitIds';
+    const id = _uiCanExitId++;
+    const cacheProp = '_uiCanExitIds';
 
     // Returns true if a redirect transition already answered truthy
     const prevTruthyAnswer = (trans: Transition) =>
@@ -478,7 +481,9 @@ function registerControllerCallbacks($q: angular.IQService,
 
     // If a user answered yes, but the transition was later redirected, don't also ask for the new redirect transition
     const wrappedHook = (trans: Transition) => {
-      let promise, ids = trans[cacheProp] = trans[cacheProp] || {};
+      let promise;
+      const ids = trans[cacheProp] = trans[cacheProp] || {};
+
       if (!prevTruthyAnswer(trans)) {
         promise = $q.when(controllerInstance.uiCanExit(trans));
         promise.then(val => ids[id] = (val !== false));
@@ -486,7 +491,7 @@ function registerControllerCallbacks($q: angular.IQService,
       return promise;
     };
 
-    let criteria = { exiting: viewState.name };
+    const criteria = { exiting: viewState.name };
     $scope.$on('$destroy', <any> $transitions.onBefore(criteria, wrappedHook, hookOptions));
   }
 }

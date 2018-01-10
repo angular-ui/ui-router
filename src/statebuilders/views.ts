@@ -33,7 +33,7 @@ export function ng1ViewsBuilder(state: StateObject) {
   // Do not process root state
   if (!state.parent) return {};
 
-  let tplKeys = ['templateProvider', 'templateUrl', 'template', 'notify', 'async'],
+  const tplKeys = ['templateProvider', 'templateUrl', 'template', 'notify', 'async'],
       ctrlKeys = ['controller', 'controllerProvider', 'controllerAs', 'resolveAs'],
       compKeys = ['component', 'bindings', 'componentProvider'],
       nonCompKeys = tplKeys.concat(ctrlKeys),
@@ -49,7 +49,7 @@ export function ng1ViewsBuilder(state: StateObject) {
         ` ${allViewKeys.filter(key => isDefined(state[key])).join(", ")}`);
   }
 
-  let views: { [key: string]: Ng1ViewDeclaration } = {},
+  const views: { [key: string]: Ng1ViewDeclaration } = {},
       viewsObject = state.views || { "$default": pick(state, allViewKeys) };
 
   forEach(viewsObject, function (config: Ng1ViewDeclaration, name: string) {
@@ -71,7 +71,7 @@ export function ng1ViewsBuilder(state: StateObject) {
     config.$context = state;
     config.$name = name;
 
-    let normalized = ViewService.normalizeUIViewTarget(config.$context, config.$name);
+    const normalized = ViewService.normalizeUIViewTarget(config.$context, config.$name);
     config.$uiViewName = normalized.uiViewName;
     config.$uiViewContextAnchor = normalized.uiViewContextAnchor;
 
@@ -92,11 +92,11 @@ export class Ng1ViewConfig implements ViewConfig {
   constructor(public path: PathNode[], public viewDecl: Ng1ViewDeclaration, public factory: TemplateFactory) { }
 
   load() {
-    let $q = services.$q;
-    let context = new ResolveContext(this.path);
-    let params = this.path.reduce((acc, node) => extend(acc, node.paramValues), {});
+    const $q = services.$q;
+    const context = new ResolveContext(this.path);
+    const params = this.path.reduce((acc, node) => extend(acc, node.paramValues), {});
 
-    let promises: any = {
+    const promises: any = {
       template: $q.when(this.factory.fromConfig(this.viewDecl, params, context)),
       controller: $q.when(this.getController(context))
     };
@@ -118,11 +118,11 @@ export class Ng1ViewConfig implements ViewConfig {
    * @returns {Function|Promise.<Function>} Returns a controller, or a promise that resolves to a controller.
    */
   getController(context: ResolveContext): (IInjectable|string|Promise<IInjectable|string>) {
-    let provider = this.viewDecl.controllerProvider;
+    const provider = this.viewDecl.controllerProvider;
     if (!isInjectable(provider)) return this.viewDecl.controller;
-    let deps = services.$injector.annotate(provider);
-    let providerFn = isArray(provider) ? tail(<any> provider) : provider;
-    let resolvable = new Resolvable("", <any> providerFn, deps);
+    const deps = services.$injector.annotate(provider);
+    const providerFn = isArray(provider) ? tail(<any> provider) : provider;
+    const resolvable = new Resolvable("", <any> providerFn, deps);
     return resolvable.get(context);
   }
 }

@@ -15,7 +15,7 @@ import { Obj, StateService, StateOrName } from "@uirouter/core";
  */
 $IsStateFilter.$inject = ['$state'];
 export function $IsStateFilter($state: StateService) {
-  let isFilter: any = function(state: StateOrName, params: Obj, options?: { relative?: StateOrName }) {
+  const isFilter: any = function(state: StateOrName, params: Obj, options?: { relative?: StateOrName }) {
     return $state.is(state, params, options);
   };
   isFilter.$stateful = true;
@@ -34,7 +34,7 @@ export function $IsStateFilter($state: StateService) {
  */
 $IncludedByStateFilter.$inject = ['$state'];
 export function $IncludedByStateFilter($state: StateService) {
-  let includesFilter: any = function(state: StateOrName, params: Obj, options: { relative?: StateOrName }) {
+  const includesFilter: any = function(state: StateOrName, params: Obj, options: { relative?: StateOrName }) {
     return $state.includes(state, params, options);
   };
   includesFilter.$stateful = true;

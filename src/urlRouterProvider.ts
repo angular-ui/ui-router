@@ -40,7 +40,7 @@ export class UrlRouterProvider {
 
   /** @hidden */
   $get() {
-    let urlRouter = this._urlRouter;
+    const urlRouter = this._urlRouter;
     urlRouter.update(true);
     if (!urlRouter.interceptDeferred) urlRouter.listen();
     return urlRouter;
@@ -83,7 +83,7 @@ export class UrlRouterProvider {
     const match = () =>
         ruleFn(services.$injector, this._router.locationService);
 
-    let rule = new BaseUrlRule(match, identity);
+    const rule = new BaseUrlRule(match, identity);
     this._urlRouter.rule(rule);
     return this;
   };
@@ -115,7 +115,7 @@ export class UrlRouterProvider {
    * @return {object} `$urlRouterProvider` - `$urlRouterProvider` instance
    */
   otherwise(rule: string | RawNg1RuleFunction): UrlRouterProvider {
-    let urlRouter = this._urlRouter;
+    const urlRouter = this._urlRouter;
 
     if (isString(rule)) {
       urlRouter.otherwise(rule);

@@ -27,11 +27,11 @@ import { UrlRouterProvider } from "./urlRouterProvider";
 import IInjectorService = angular.auto.IInjectorService; // tslint:disable-line
 
 angular.module("ui.router.angular1", []);
-let mod_init  = angular.module('ui.router.init',   []);
-let mod_util  = angular.module('ui.router.util',   ['ng', 'ui.router.init']);
-let mod_rtr   = angular.module('ui.router.router', ['ui.router.util']);
-let mod_state = angular.module('ui.router.state',  ['ui.router.router', 'ui.router.util', 'ui.router.angular1']);
-let mod_main  = angular.module('ui.router',        ['ui.router.init', 'ui.router.state', 'ui.router.angular1']);
+const mod_init  = angular.module('ui.router.init',   []);
+const mod_util  = angular.module('ui.router.util',   ['ng', 'ui.router.init']);
+const mod_rtr   = angular.module('ui.router.router', ['ui.router.util']);
+const mod_state = angular.module('ui.router.state',  ['ui.router.router', 'ui.router.util', 'ui.router.angular1']);
+const mod_main  = angular.module('ui.router',        ['ui.router.init', 'ui.router.state', 'ui.router.angular1']);
 let mod_cmpt  = angular.module('ui.router.compat', ['ui.router']); // tslint:disable-line
 
 declare module '@uirouter/core/lib/router' {
@@ -61,7 +61,7 @@ function $uiRouterProvider($locationProvider: ILocationProvider) {
 
   router.viewService._pluginapi._viewConfigFactory('ng1', getNg1ViewConfigFactory());
 
-  let ng1LocationService = router.locationService = router.locationConfig = new Ng1LocationServices($locationProvider);
+  const ng1LocationService = router.locationService = router.locationConfig = new Ng1LocationServices($locationProvider);
 
   Ng1LocationServices.monkeyPatchPathParameterType(router);
 
@@ -79,7 +79,7 @@ function $uiRouterProvider($locationProvider: ILocationProvider) {
 }
 
 const getProviderFor = (serviceName) => [ '$uiRouterProvider', ($urp) => {
-  let service = $urp.router[serviceName];
+  const service = $urp.router[serviceName];
   service["$get"] = () => service;
   return service;
 }];
@@ -135,11 +135,11 @@ mod_init .run     (runBlock);
 
 /** @hidden TODO: find a place to move this */
 export const getLocals = (ctx: ResolveContext): TypedMap<any> => {
-  let tokens = ctx.getTokens().filter(isString);
+  const tokens = ctx.getTokens().filter(isString);
 
-  let tuples = tokens .map(key => {
-    let resolvable = ctx.getResolvable(key);
-    let waitPolicy = ctx.getPolicy(resolvable).async;
+  const tuples = tokens .map(key => {
+    const resolvable = ctx.getResolvable(key);
+    const waitPolicy = ctx.getPolicy(resolvable).async;
     return [ key, waitPolicy === 'NOWAIT' ? resolvable.promise : resolvable.data ];
   });
 
