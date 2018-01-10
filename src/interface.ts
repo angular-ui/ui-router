@@ -45,7 +45,7 @@ import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult
  * @returns an optional [[HookResult]] which may alter the transition
  */
 export interface Ng1StateTransitionHook {
-  (...injectables: any[]) : HookResult;
+  (...injectables: any[]): HookResult;
 }
 
 /**
