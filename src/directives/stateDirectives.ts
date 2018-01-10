@@ -254,8 +254,8 @@ function bindEvents(element: IAugmentedJQuery, scope: IScope, hookFn: (e: JQuery
  * - Unlike the parameter values expression, the state name is not `$watch`ed (for performance reasons).
  * If you need to dynamically update the state being linked to, use the fully dynamic [[uiState]] directive.
  */
-let uiSref: ng1_directive;
-uiSref = ['$uiRouter', '$timeout',
+let uiSrefDirective: ng1_directive;
+uiSrefDirective = ['$uiRouter', '$timeout',
   function $StateRefDirective($uiRouter: UIRouter, $timeout: ITimeoutService) {
     let $state = $uiRouter.stateService;
 
@@ -386,8 +386,8 @@ uiSref = ['$uiRouter', '$timeout',
  * - A middle-click, right-click, or ctrl-click is handled (natively) by the browser to open the href in a new window, for example.
  * ```
  */
-let uiState: ng1_directive;
-uiState = ['$uiRouter', '$timeout',
+let uiStateDirective: ng1_directive;
+uiStateDirective = ['$uiRouter', '$timeout',
   function $StateRefDynamicDirective($uiRouter: UIRouter, $timeout: ITimeoutService) {
     let $state = $uiRouter.stateService;
 
@@ -519,8 +519,8 @@ uiState = ['$uiRouter', '$timeout',
  *
  * - Multiple classes may be specified in a space-separated format: `ui-sref-active='class1 class2 class3'`
  */
-let uiSrefActive: ng1_directive;
-uiSrefActive = ['$state', '$stateParams', '$interpolate', '$uiRouter',
+let uiSrefActiveDirective: ng1_directive;
+uiSrefActiveDirective = ['$state', '$stateParams', '$interpolate', '$uiRouter',
   function $StateRefActiveDirective($state: StateService, $stateParams: Obj, $interpolate: IInterpolateService, $uiRouter: UIRouter) {
     return {
       restrict: "A",
@@ -621,7 +621,7 @@ interface Def { uiState: string; href: string; uiStateParams: Obj; uiStateOpts: 
 interface StateData { state: StateDeclaration; params: RawParams; activeClass: string; }
 
 angular.module('ui.router.state')
-    .directive('uiSref', uiSref)
-    .directive('uiSrefActive', uiSrefActive)
-    .directive('uiSrefActiveEq', uiSrefActive)
-    .directive('uiState', uiState);
+    .directive('uiSref', uiSrefDirective)
+    .directive('uiSrefActive', uiSrefActiveDirective)
+    .directive('uiSrefActiveEq', uiSrefActiveDirective)
+    .directive('uiState', uiStateDirective);

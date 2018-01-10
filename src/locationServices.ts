@@ -41,11 +41,11 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
   static monkeyPatchPathParameterType(router: UIRouter) {
     let pathType: ParamType = router.urlMatcherFactory.type('path');
 
-    pathType.encode = (val: any) =>
-        val != null ? val.toString().replace(/(~|\/)/g, m => ({ '~': '~~', '/': '~2F' }[m])) : val;
+    pathType.encode = (x: any) =>
+        x != null ? x.toString().replace(/(~|\/)/g, m => ({ '~': '~~', '/': '~2F' }[m])) : x;
 
-    pathType.decode = (val: string) =>
-        val != null ? val.toString().replace(/(~~|~2F)/g, m => ({ '~~': '~', '~2F': '/' }[m])) : val;
+    pathType.decode = (x: string) =>
+        x != null ? x.toString().replace(/(~~|~2F)/g, m => ({ '~~': '~', '~2F': '/' }[m])) : x;
 
   }
 

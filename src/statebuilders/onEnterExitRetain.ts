@@ -13,8 +13,8 @@ import { Ng1StateDeclaration } from '../interface';
  * ensures that those hooks are injectable for @uirouter/angularjs (ng1).
  */
 export const getStateHookBuilder = (hookName: "onEnter"|"onExit"|"onRetain") =>
-function stateHookBuilder(state: StateObject, parentFn: BuilderFunction): TransitionStateHookFn {
-  const hook = state[hookName];
+function stateHookBuilder(stateObject: StateObject, parentFn: BuilderFunction): TransitionStateHookFn {
+  const hook = stateObject[hookName];
   const pathname = hookName === 'onExit' ? 'from' : 'to';
 
   function decoratedNg1Hook(trans: Transition, state: Ng1StateDeclaration): HookResult {

@@ -35,7 +35,7 @@ let mod_main  = angular.module('ui.router',        ['ui.router.init', 'ui.router
 let mod_cmpt  = angular.module('ui.router.compat', ['ui.router']); // tslint:disable-line
 
 declare module '@uirouter/core/lib/router' {
-  interface UIRouter {
+  interface UIRouter { // tslint:disable-line:no-shadowed-variable
     /** @hidden */
     stateProvider: StateProvider;
     /** @hidden */
@@ -45,9 +45,9 @@ declare module '@uirouter/core/lib/router' {
 
 let router: UIRouter = null;
 
-$uiRouter.$inject = ['$locationProvider'];
+$uiRouterProvider.$inject = ['$locationProvider'];
 /** This angular 1 provider instantiates a Router and exposes its services via the angular injector */
-function $uiRouter($locationProvider: ILocationProvider) {
+function $uiRouterProvider($locationProvider: ILocationProvider) {
 
   // Create a new instance of the Router when the $uiRouterProvider is initialized
   router = this.router = new UIRouter();
@@ -113,7 +113,7 @@ export function watchDigests($rootScope: IRootScopeService) {
   $rootScope.$watch(function() { trace.approximateDigests++; });
 }
 
-mod_init .provider("$uiRouter",          <any> $uiRouter);
+mod_init .provider("$uiRouter",          <any> $uiRouterProvider);
 mod_rtr  .provider('$urlRouter',         ['$uiRouterProvider', getUrlRouterProvider]);
 mod_util .provider('$urlService',        getProviderFor('urlService'));
 mod_util .provider('$urlMatcherFactory', ['$uiRouterProvider', () => router.urlMatcherFactory]);
