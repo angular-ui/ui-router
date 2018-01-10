@@ -2,7 +2,7 @@
  * @ng1api
  * @module ng1
  */ /** */
-import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult } from "@uirouter/core";
+import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult } from '@uirouter/core';
 
 
 /**
@@ -742,7 +742,7 @@ export interface TemplateFactoryProvider {
   useHttpService(useUnsafeHttpService: boolean);
 }
 
-declare module "@uirouter/core/lib/state/stateRegistry" {
+declare module '@uirouter/core/lib/state/stateRegistry' {
   interface StateRegistry {
     register(state: Ng1StateDeclaration);
   }

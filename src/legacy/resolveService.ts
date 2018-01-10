@@ -1,6 +1,6 @@
 /** @module ng1 */ /** */
-import { StateObject, PathNode, ResolveContext, Obj, mapObj, resolvablesBuilder } from "@uirouter/core";
-import * as angular from "angular";
+import { StateObject, PathNode, ResolveContext, Obj, mapObj, resolvablesBuilder } from '@uirouter/core';
+import * as angular from 'angular';
 
 /**
  * Implementation of the legacy `$resolve` service for angular 1.

@@ -1,8 +1,8 @@
 /** @module ng1 */ /** */
 import {
   StateObject, TransitionStateHookFn, HookResult, Transition, services, ResolveContext, extend, BuilderFunction
-} from "@uirouter/core";
-import { getLocals } from "../services";
+} from '@uirouter/core';
+import { getLocals } from '../services';
 import { Ng1StateDeclaration } from '../interface';
 
 /**
@@ -12,7 +12,7 @@ import { Ng1StateDeclaration } from '../interface';
  * When the [[StateBuilder]] builds a [[StateObject]] object from a raw [[StateDeclaration]], this builder
  * ensures that those hooks are injectable for @uirouter/angularjs (ng1).
  */
-export const getStateHookBuilder = (hookName: "onEnter"|"onExit"|"onRetain") =>
+export const getStateHookBuilder = (hookName: 'onEnter'|'onExit'|'onRetain') =>
 function stateHookBuilder(stateObject: StateObject, parentFn: BuilderFunction): TransitionStateHookFn {
   const hook = stateObject[hookName];
   const pathname = hookName === 'onExit' ? 'from' : 'to';

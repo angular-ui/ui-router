@@ -2,9 +2,9 @@
  * @internalapi
  * @module ng1
  */ /** */
-import { LocationConfig, LocationServices, UIRouter, ParamType, isDefined } from "@uirouter/core";
-import { val, createProxyFunctions, removeFrom, isObject } from "@uirouter/core";
-import { ILocationService, ILocationProvider } from "angular";
+import { LocationConfig, LocationServices, UIRouter, ParamType, isDefined } from '@uirouter/core';
+import { val, createProxyFunctions, removeFrom, isObject } from '@uirouter/core';
+import { ILocationService, ILocationProvider } from 'angular';
 
 /**
  * Implements UI-Router LocationServices and LocationConfig using Angular 1's $location service
@@ -80,12 +80,12 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
     this.$sniffer = $sniffer;
 
     // Bind $locationChangeSuccess to the listeners registered in LocationService.onChange
-    $rootScope.$on("$locationChangeSuccess", evt => this._urlListeners.forEach(fn => fn(evt)));
+    $rootScope.$on('$locationChangeSuccess', evt => this._urlListeners.forEach(fn => fn(evt)));
     const _loc = val($location);
     const _browser = val($browser);
 
     // Bind these LocationService functions to $location
-    createProxyFunctions(_loc, this, _loc, ["replace", "path", "search", "hash"]);
+    createProxyFunctions(_loc, this, _loc, ['replace', 'path', 'search', 'hash']);
     // Bind these LocationConfig functions to $location
     createProxyFunctions(_loc, this, _loc, ['port', 'protocol', 'host']);
     // Bind these LocationConfig functions to $browser

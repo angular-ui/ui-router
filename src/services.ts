@@ -10,23 +10,23 @@
  * @preferred
  */
 /** for typedoc */
-import { ng as angular } from "./angular";
+import { ng as angular } from './angular';
 import {
   IRootScopeService, IQService, ILocationService, ILocationProvider, IHttpService, ITemplateCacheService
-} from "angular";
+} from 'angular';
 import {
   services, applyPairs, isString, trace, extend, UIRouter, StateService, UrlRouter, UrlMatcherFactory, ResolveContext,
   unnestR, TypedMap
-} from "@uirouter/core";
-import { ng1ViewsBuilder, getNg1ViewConfigFactory } from "./statebuilders/views";
-import { TemplateFactory } from "./templateFactory";
-import { StateProvider } from "./stateProvider";
-import { getStateHookBuilder } from "./statebuilders/onEnterExitRetain";
-import { Ng1LocationServices } from "./locationServices";
-import { UrlRouterProvider } from "./urlRouterProvider";
+} from '@uirouter/core';
+import { ng1ViewsBuilder, getNg1ViewConfigFactory } from './statebuilders/views';
+import { TemplateFactory } from './templateFactory';
+import { StateProvider } from './stateProvider';
+import { getStateHookBuilder } from './statebuilders/onEnterExitRetain';
+import { Ng1LocationServices } from './locationServices';
+import { UrlRouterProvider } from './urlRouterProvider';
 import IInjectorService = angular.auto.IInjectorService; // tslint:disable-line
 
-angular.module("ui.router.angular1", []);
+angular.module('ui.router.angular1', []);
 const mod_init  = angular.module('ui.router.init',   []);
 const mod_util  = angular.module('ui.router.util',   ['ng', 'ui.router.init']);
 const mod_rtr   = angular.module('ui.router.router', ['ui.router.util']);
@@ -54,10 +54,10 @@ function $uiRouterProvider($locationProvider: ILocationProvider) {
   router.stateProvider = new StateProvider(router.stateRegistry, router.stateService);
 
   // Apply ng1 specific StateBuilder code for `views`, `resolve`, and `onExit/Retain/Enter` properties
-  router.stateRegistry.decorator("views",    ng1ViewsBuilder);
-  router.stateRegistry.decorator("onExit",   getStateHookBuilder("onExit"));
-  router.stateRegistry.decorator("onRetain", getStateHookBuilder("onRetain"));
-  router.stateRegistry.decorator("onEnter",  getStateHookBuilder("onEnter"));
+  router.stateRegistry.decorator('views',    ng1ViewsBuilder);
+  router.stateRegistry.decorator('onExit',   getStateHookBuilder('onExit'));
+  router.stateRegistry.decorator('onRetain', getStateHookBuilder('onRetain'));
+  router.stateRegistry.decorator('onEnter',  getStateHookBuilder('onEnter'));
 
   router.viewService._pluginapi._viewConfigFactory('ng1', getNg1ViewConfigFactory());
 
@@ -80,7 +80,7 @@ function $uiRouterProvider($locationProvider: ILocationProvider) {
 
 const getProviderFor = (serviceName) => [ '$uiRouterProvider', ($urp) => {
   const service = $urp.router[serviceName];
-  service["$get"] = () => service;
+  service['$get'] = () => service;
   return service;
 }];
 
@@ -95,7 +95,7 @@ function runBlock($injector: IInjectorService, $q: IQService, $uiRouter: UIRoute
   $uiRouter.stateRegistry.get()
       .map(x => x.$$state().resolvables)
       .reduce(unnestR, [])
-      .filter(x => x.deps === "deferred")
+      .filter(x => x.deps === 'deferred')
       .forEach(resolvable => resolvable.deps = $injector.annotate(resolvable.resolveFn, $injector.strictDi));
 }
 
@@ -113,7 +113,7 @@ export function watchDigests($rootScope: IRootScopeService) {
   $rootScope.$watch(function() { trace.approximateDigests++; });
 }
 
-mod_init .provider("$uiRouter",          <any> $uiRouterProvider);
+mod_init .provider('$uiRouter',          <any> $uiRouterProvider);
 mod_rtr  .provider('$urlRouter',         ['$uiRouterProvider', getUrlRouterProvider]);
 mod_util .provider('$urlService',        getProviderFor('urlService'));
 mod_util .provider('$urlMatcherFactory', ['$uiRouterProvider', () => router.urlMatcherFactory]);
@@ -125,7 +125,7 @@ mod_state.provider('$state',             ['$uiRouterProvider', getStateProvider]
 
 mod_state.factory ('$stateParams',       ['$uiRouter', ($uiRouter: UIRouter) => $uiRouter.globals.params]);
 mod_main .factory ('$view',              () => router.viewService);
-mod_main .service ("$trace",             () => trace);
+mod_main .service ('$trace',             () => trace);
 
 mod_main .run     (watchDigests);
 mod_util .run     (['$urlMatcherFactory', function ($urlMatcherFactory: UrlMatcherFactory) { }]);

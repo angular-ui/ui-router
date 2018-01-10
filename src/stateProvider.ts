@@ -1,8 +1,8 @@
 /** @module ng1 */ /** for typedoc */
 import {
     val, isObject, createProxyFunctions, BuilderFunction, StateRegistry, StateService, OnInvalidCallback
-} from "@uirouter/core";
-import { Ng1StateDeclaration } from "./interface";
+} from '@uirouter/core';
+import { Ng1StateDeclaration } from './interface';
 
 /**
  * The Angular 1 `StateProvider`

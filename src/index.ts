@@ -3,21 +3,21 @@
  * @module ng1
  */ /** */
 
-export * from "./interface";
-export * from "./services";
-export * from "./statebuilders/views";
-export * from "./stateProvider";
-export * from "./urlRouterProvider";
+export * from './interface';
+export * from './services';
+export * from './statebuilders/views';
+export * from './stateProvider';
+export * from './urlRouterProvider';
 
-import "./injectables";
-import "./directives/stateDirectives";
-import "./stateFilters";
-import "./directives/viewDirective";
-import "./viewScroll";
+import './injectables';
+import './directives/stateDirectives';
+import './stateFilters';
+import './directives/viewDirective';
+import './viewScroll';
 
-export default "ui.router";
+export default 'ui.router';
 
-import * as core from "@uirouter/core";
+import * as core from '@uirouter/core';
 export { core };
-export * from "@uirouter/core";
+export * from '@uirouter/core';
 

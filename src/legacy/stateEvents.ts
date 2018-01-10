@@ -18,12 +18,12 @@
  *
  * @module ng1_state_events
  */ /** */
-import { ng as angular } from "../angular";
-import { IScope, IAngularEvent, IServiceProviderFactory } from "angular";
+import { ng as angular } from '../angular';
+import { IScope, IAngularEvent, IServiceProviderFactory } from 'angular';
 import {
     Obj, TargetState, StateService, Transition, TransitionService, UrlRouter, HookResult, UIInjector
-} from "@uirouter/core";
-import { StateProvider } from "../stateProvider";
+} from '@uirouter/core';
+import { StateProvider } from '../stateProvider';
 
 /**
  * An event broadcast on `$rootScope` when the state transition **begins**.
@@ -159,7 +159,7 @@ export let $stateNotFound: IAngularEvent;
   function applyPairs(memo: Obj, keyValTuple: any[]) {
     let key: string, value: any;
     if (Array.isArray(keyValTuple)) [key, value] = keyValTuple;
-    if (!isString(key)) throw new Error("invalid parameters to applyPairs");
+    if (!isString(key)) throw new Error('invalid parameters to applyPairs');
     memo[key] = value;
     return memo;
   }
@@ -177,8 +177,8 @@ export let $stateNotFound: IAngularEvent;
     const enabledEvents = $stateEvents.provider.enabled();
 
 
-    const toParams = $transition$.params("to");
-    const fromParams = $transition$.params("from");
+    const toParams = $transition$.params('to');
+    const fromParams = $transition$.params('from');
 
     if (enabledEvents.$stateChangeSuccess) {
       const startEvent = $rootScope.$broadcast('$stateChangeStart', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$.options(), $transition$);
@@ -200,7 +200,7 @@ export let $stateNotFound: IAngularEvent;
     }
 
     if (enabledEvents.$stateChangeError) {
-      $transition$.promise["catch"](function (error) {
+      $transition$.promise['catch'](function (error) {
         if (error && (error.type === 2 /* RejectType.SUPERSEDED */ || error.type === 3 /* RejectType.ABORTED */))
           return;
 
@@ -258,7 +258,7 @@ export let $stateNotFound: IAngularEvent;
     const enabledStateEvents = <IEventsToggle> allEvents.map(e => [e, true]).reduce(applyPairs, {});
 
     function assertNotRuntime() {
-      if (runtime) throw new Error("Cannot enable events at runtime (use $stateEventsProvider");
+      if (runtime) throw new Error('Cannot enable events at runtime (use $stateEventsProvider');
     }
 
     /**
@@ -288,7 +288,7 @@ export let $stateNotFound: IAngularEvent;
     function $get($transitions: TransitionService) {
       runtime = true;
 
-      if (enabledStateEvents["$stateNotFound"])
+      if (enabledStateEvents['$stateNotFound'])
         $stateProvider.onInvalid(stateNotFoundHandler);
       if (enabledStateEvents.$stateChangeStart)
         $transitions.onBefore({}, stateChangeStartHandler, { priority: 1000 });
@@ -301,7 +301,7 @@ export let $stateNotFound: IAngularEvent;
 
 
   angular.module('ui.router.state.events', ['ui.router.state'])
-      .provider("$stateEvents", <IServiceProviderFactory> $StateEventsProvider)
+      .provider('$stateEvents', <IServiceProviderFactory> $StateEventsProvider)
       .run(['$stateEvents', function ($stateEvents: any) { /* Invokes $get() */
       }]);
 })();

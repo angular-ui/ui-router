@@ -1,18 +1,18 @@
 /** @module ng1 */ /** */
-import { ng as angular } from "../angular";
+import { ng as angular } from '../angular';
 import {
     StateObject, pick, forEach, tail, extend,
     isArray, isInjectable, isDefined, isString, services, trace,
     ViewConfig, ViewService, ViewConfigFactory, PathNode, ResolveContext, Resolvable, IInjectable
-} from "@uirouter/core";
-import { Ng1ViewDeclaration } from "../interface";
-import { TemplateFactory } from "../templateFactory";
+} from '@uirouter/core';
+import { Ng1ViewDeclaration } from '../interface';
+import { TemplateFactory } from '../templateFactory';
 import IInjectorService = angular.auto.IInjectorService;
 
 export function getNg1ViewConfigFactory(): ViewConfigFactory {
   let templateFactory: TemplateFactory = null;
   return (path, view) => {
-    templateFactory = templateFactory || services.$injector.get("$templateFactory");
+    templateFactory = templateFactory || services.$injector.get('$templateFactory');
     return [new Ng1ViewConfig(path, view, templateFactory)];
   };
 }
@@ -46,15 +46,15 @@ export function ng1ViewsBuilder(state: StateObject) {
     throw new Error(`State '${state.name}' has a 'views' object. ` +
         `It cannot also have "view properties" at the state level.  ` +
         `Move the following properties into a view (in the 'views' object): ` +
-        ` ${allViewKeys.filter(key => isDefined(state[key])).join(", ")}`);
+        ` ${allViewKeys.filter(key => isDefined(state[key])).join(', ')}`);
   }
 
   const views: { [key: string]: Ng1ViewDeclaration } = {},
-      viewsObject = state.views || { "$default": pick(state, allViewKeys) };
+      viewsObject = state.views || { '$default': pick(state, allViewKeys) };
 
   forEach(viewsObject, function (config: Ng1ViewDeclaration, name: string) {
     // Account for views: { "": { template... } }
-    name = name || "$default";
+    name = name || '$default';
     // Account for views: { header: "headerComponent" }
     if (isString(config)) config = { component: <string> config };
 
@@ -63,11 +63,11 @@ export function ng1ViewsBuilder(state: StateObject) {
 
     // Do not allow a view to mix props for component-style view with props for template/controller-style view
     if (hasAnyKey(compKeys, config) && hasAnyKey(nonCompKeys, config)) {
-      throw new Error(`Cannot combine: ${compKeys.join("|")} with: ${nonCompKeys.join("|")} in stateview: '${name}@${state.name}'`);
+      throw new Error(`Cannot combine: ${compKeys.join('|')} with: ${nonCompKeys.join('|')} in stateview: '${name}@${state.name}'`);
     }
 
     config.resolveAs = config.resolveAs || '$resolve';
-    config.$type = "ng1";
+    config.$type = 'ng1';
     config.$context = state;
     config.$name = name;
 
@@ -102,7 +102,7 @@ export class Ng1ViewConfig implements ViewConfig {
     };
 
     return $q.all(promises).then((results) => {
-      trace.traceViewServiceEvent("Loaded", this);
+      trace.traceViewServiceEvent('Loaded', this);
       this.controller = results.controller;
       extend(this, results.template); // Either { template: "tpl" } or { component: "cmpName" }
       return this;
@@ -122,7 +122,7 @@ export class Ng1ViewConfig implements ViewConfig {
     if (!isInjectable(provider)) return this.viewDecl.controller;
     const deps = services.$injector.annotate(provider);
     const providerFn = isArray(provider) ? tail(<any> provider) : provider;
-    const resolvable = new Resolvable("", <any> providerFn, deps);
+    const resolvable = new Resolvable('', <any> providerFn, deps);
     return resolvable.get(context);
   }
 }

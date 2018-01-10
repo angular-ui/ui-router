@@ -8,14 +8,14 @@
  * @preferred
  * @module directives
  */ /** for typedoc */
-import { ng as angular } from "../angular";
-import { IAugmentedJQuery, ITimeoutService, IScope, IInterpolateService } from "angular";
+import { ng as angular } from '../angular';
+import { IAugmentedJQuery, ITimeoutService, IScope, IInterpolateService } from 'angular';
 
 import {
     Obj, extend, forEach, tail, isString, isObject, isArray, parse, noop, unnestR, identity, uniqR, inArray, removeFrom,
     RawParams, PathNode, StateOrName, StateService, StateDeclaration, UIRouter
-} from "@uirouter/core";
-import { UIViewData } from "./viewDirective";
+} from '@uirouter/core';
+import { UIViewData } from './viewDirective';
 
 /** @hidden Used for typedoc */
 export interface ng1_directive {} // tslint:disable-line:class-name
@@ -26,7 +26,7 @@ function parseStateRef(ref: string) {
   const paramsOnly = ref.match(/^\s*({[^}]*})\s*$/);
   if (paramsOnly) ref = '(' + paramsOnly[1] + ')';
 
-  parsed = ref.replace(/\n/g, " ").match(/^\s*([^(]*?)\s*(\((.*)\))?\s*$/);
+  parsed = ref.replace(/\n/g, ' ').match(/^\s*([^(]*?)\s*(\((.*)\))?\s*$/);
   if (!parsed || parsed.length !== 4) throw new Error("Invalid state ref '" + ref + "'");
   return { state: parsed[1] || null, paramExpr: parsed[3] || null };
 }
@@ -57,11 +57,11 @@ interface TypeInfo {
 function getTypeInfo(el: IAugmentedJQuery): TypeInfo {
   // SVGAElement does not use the href attribute, but rather the 'xlinkHref' attribute.
   const isSvg = Object.prototype.toString.call(el.prop('href')) === '[object SVGAnimatedString]';
-  const isForm = el[0].nodeName === "FORM";
+  const isForm = el[0].nodeName === 'FORM';
 
   return {
-    attr: isForm ? "action" : (isSvg ? 'xlink:href' : 'href'),
-    isAnchor: el.prop("tagName").toUpperCase() === "A",
+    attr: isForm ? 'action' : (isSvg ? 'xlink:href' : 'href'),
+    isAnchor: el.prop('tagName').toUpperCase() === 'A',
     clickable: !isForm
   };
 }
@@ -93,7 +93,7 @@ function defaultOpts(el: IAugmentedJQuery, $state: StateService) {
   return {
     relative: stateContext(el) || $state.$current,
     inherit: true,
-    source: "sref"
+    source: 'sref'
   };
 }
 
@@ -524,7 +524,7 @@ let uiSrefActiveDirective: ng1_directive;
 uiSrefActiveDirective = ['$state', '$stateParams', '$interpolate', '$uiRouter',
   function $StateRefActiveDirective($state: StateService, $stateParams: Obj, $interpolate: IInterpolateService, $uiRouter: UIRouter) {
     return {
-      restrict: "A",
+      restrict: 'A',
       controller: ['$scope', '$element', '$attrs',
         function ($scope: IScope, $element: IAugmentedJQuery, $attrs: any) {
           const states: StateData[] = [];

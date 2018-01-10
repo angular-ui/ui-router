@@ -51,13 +51,13 @@
  * @module injectables
  */ /** */
 /* tslint:disable:prefer-const */
-import { StateProvider } from "./stateProvider";
+import { StateProvider } from './stateProvider';
 import {
     StateService, TransitionService, Transition, UrlRouter, UrlMatcherFactory,
     StateParams, StateRegistry, UIRouterGlobals, UIRouter, Trace, UrlService
-} from "@uirouter/core";
-import { UIViewScrollProvider } from "./viewScroll";
-import { UrlRouterProvider } from "./urlRouterProvider";
+} from '@uirouter/core';
+import { UIViewScrollProvider } from './viewScroll';
+import { UrlRouterProvider } from './urlRouterProvider';
 
 /**
  * The current (or pending) State Parameters

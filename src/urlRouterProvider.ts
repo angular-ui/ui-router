@@ -2,8 +2,8 @@
 import {
     UIRouter, UrlRouter, LocationServices, $InjectorLike, BaseUrlRule, UrlRuleHandlerFn, UrlMatcher,
     IInjectable
-} from "@uirouter/core";
-import { services, isString, isFunction, isArray, identity } from "@uirouter/core";
+} from '@uirouter/core';
+import { services, isString, isFunction, isArray, identity } from '@uirouter/core';
 
 export interface RawNg1RuleFunction {
   ($injector: $InjectorLike, $location: LocationServices): string|void;

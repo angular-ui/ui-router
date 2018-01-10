@@ -2,18 +2,18 @@
  * @ng1api
  * @module directives
  */ /** for typedoc */
-import { ng as angular } from "../angular";
-import { IInterpolateService, IScope, ITranscludeFunction, IAugmentedJQuery, ITimeoutService } from "angular";
+import { ng as angular } from '../angular';
+import { IInterpolateService, IScope, ITranscludeFunction, IAugmentedJQuery, ITimeoutService } from 'angular';
 
 import {
     extend, unnestR, filter, tail, isDefined, isFunction, isString, trace, parse,
     ActiveUIView, TransitionService, ResolveContext, Transition, PathNode, StateDeclaration,
     Param, kebobString, HookRegOptions, ViewService, $QLike, Obj, TypedMap, noop,
-} from "@uirouter/core";
-import { Ng1ViewConfig } from "../statebuilders/views";
-import { Ng1Controller, Ng1StateDeclaration } from "../interface";
-import { getLocals } from "../services";
-import { ng1_directive } from "./stateDirectives";
+} from '@uirouter/core';
+import { Ng1ViewConfig } from '../statebuilders/views';
+import { Ng1Controller, Ng1StateDeclaration } from '../interface';
+import { getLocals } from '../services';
+import { ng1_directive } from './stateDirectives';
 
 /** @hidden */
 export type UIViewData = {
@@ -210,7 +210,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
           $type: 'ng1',
           id: directive.count++,                                   // Global sequential ID for ui-view tags added to DOM
           name: name,                                              // ui-view name (<div ui-view="name"></div>
-          fqn: inherited.$uiView.fqn ? inherited.$uiView.fqn + "." + name : name, // fully qualified name, describes location in DOM
+          fqn: inherited.$uiView.fqn ? inherited.$uiView.fqn + '.' + name : name, // fully qualified name, describes location in DOM
           config: null,                                            // The ViewConfig loaded (from a state.views definition)
           configUpdated: configUpdatedCallback,                    // Called when the matching ViewConfig changes
           get creationContext() {                                  // The context in which this ui-view "tag" was created
@@ -222,7 +222,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
           }
         };
 
-        trace.traceUIViewEvent("Linking", activeUIView);
+        trace.traceUIViewEvent('Linking', activeUIView);
 
         function configUpdatedCallback(config?: Ng1ViewConfig) {
           if (config && !(config instanceof Ng1ViewConfig)) return;
@@ -238,27 +238,27 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
         updateView();
 
         unregister = $view.registerUIView(activeUIView);
-        scope.$on("$destroy", function() {
-          trace.traceUIViewEvent("Destroying/Unregistering", activeUIView);
+        scope.$on('$destroy', function() {
+          trace.traceUIViewEvent('Destroying/Unregistering', activeUIView);
           unregister();
         });
 
         function cleanupLastView() {
           if (previousEl) {
-            trace.traceUIViewEvent("Removing (previous) el", previousEl.data('$uiView'));
+            trace.traceUIViewEvent('Removing (previous) el', previousEl.data('$uiView'));
             previousEl.remove();
             previousEl = null;
           }
 
           if (currentScope) {
-            trace.traceUIViewEvent("Destroying scope", activeUIView);
+            trace.traceUIViewEvent('Destroying scope', activeUIView);
             currentScope.$destroy();
             currentScope = null;
           }
 
           if (currentEl) {
             const _viewData = currentEl.data('$uiViewAnim');
-            trace.traceUIViewEvent("Animate out", _viewData);
+            trace.traceUIViewEvent('Animate out', _viewData);
             renderer.leave(currentEl, function() {
               _viewData.$$animLeave.resolve();
               previousEl = null;
@@ -396,7 +396,7 @@ function $ViewDirectiveFill($compile: angular.ICompileService,
         if (isString(cfg.viewDecl.component)) {
           const cmp = cfg.viewDecl.component;
           const kebobName = kebobString(cmp);
-          const tagRegexp = new RegExp(`^(x-|data-)?${kebobName}$`, "i");
+          const tagRegexp = new RegExp(`^(x-|data-)?${kebobName}$`, 'i');
 
           const getComponentController = () => {
             const directiveEl = [].slice.call($element[0].children)
@@ -448,8 +448,8 @@ function registerControllerCallbacks($q: angular.IQService,
       // Exit early if the $transition$ will exit the state the view is for.
       if ($transition$ === viewCreationTrans || $transition$.exiting().indexOf(viewState as StateDeclaration) !== -1) return;
 
-      const toParams = $transition$.params("to") as TypedMap<any>;
-      const fromParams = $transition$.params<TypedMap<any>>("from") as TypedMap<any>;
+      const toParams = $transition$.params('to') as TypedMap<any>;
+      const fromParams = $transition$.params<TypedMap<any>>('from') as TypedMap<any>;
       const toSchema: Param[] = $transition$.treeChanges().to.map((node: PathNode) => node.paramSchema).reduce(unnestR, []);
       const fromSchema: Param[] = $transition$.treeChanges().from.map((node: PathNode) => node.paramSchema).reduce(unnestR, []);
 

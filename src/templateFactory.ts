@@ -1,12 +1,12 @@
 /** @module view */
 /** for typedoc */
-import { ng as angular } from "./angular";
-import { IAugmentedJQuery } from "angular";
+import { ng as angular } from './angular';
+import { IAugmentedJQuery } from 'angular';
 import {
   isArray, isDefined, isFunction, isObject, services, Obj, IInjectable, tail, kebobString, unnestR, ResolveContext,
   Resolvable, RawParams
-} from "@uirouter/core";
-import { Ng1ViewDeclaration, TemplateFactoryProvider } from "./interface";
+} from '@uirouter/core';
+import { Ng1ViewDeclaration, TemplateFactoryProvider } from './interface';
 
 /**
  * Service which manages loading of templates from a ViewConfig.
@@ -43,7 +43,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
    * that string,or `null` if no template is configured.
    */
   fromConfig(config: Ng1ViewDeclaration, params: any, context: ResolveContext): Promise<{ template?: string, component?: string }> {
-    const defaultTemplate = "<ui-view></ui-view>";
+    const defaultTemplate = '<ui-view></ui-view>';
 
     const asTemplate  = (result) => services.$q.when(result).then(str => ({ template:  str }));
     const asComponent = (result) => services.$q.when(result).then(str => ({ component: str }));
@@ -105,7 +105,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
   fromProvider(provider: IInjectable, params: any, context: ResolveContext) {
     const deps = services.$injector.annotate(provider);
     const providerFn = isArray(provider) ? tail(<any[]> provider) : provider;
-    const resolvable = new Resolvable("", <Function> providerFn, deps);
+    const resolvable = new Resolvable('', <Function> providerFn, deps);
     return resolvable.get(context);
   };
 
@@ -119,7 +119,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
   fromComponentProvider(provider: IInjectable, params: any, context: ResolveContext) {
     const deps = services.$injector.annotate(provider);
     const providerFn = isArray(provider) ? tail(<any[]> provider) : provider;
-    const resolvable = new Resolvable("", <Function> providerFn, deps);
+    const resolvable = new Resolvable('', <Function> providerFn, deps);
     return resolvable.get(context);
   };
 
@@ -141,7 +141,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
     bindings = bindings || {};
 
     // Bind once prefix
-    const prefix = angular.version.minor >= 3 ? "::" : "";
+    const prefix = angular.version.minor >= 3 ? '::' : '';
     // Convert to kebob name. Add x- prefix if the string starts with `x-` or `data-`
     const kebob = (camelCase: string) => {
       const kebobed = kebobString(camelCase);
@@ -173,14 +173,14 @@ export class TemplateFactory implements TemplateFactoryProvider {
         const args = fn && services.$injector.annotate(fn) || [];
         // account for array style injection, i.e., ['foo', function(foo) {}]
         const arrayIdxStr = isArray(fn) ? `[${fn.length - 1}]` : '';
-        return `${attrName}='$resolve.${resolveName}${arrayIdxStr}(${args.join(",")})'`;
+        return `${attrName}='$resolve.${resolveName}${arrayIdxStr}(${args.join(',')})'`;
       }
 
       // some-attr="::$resolve.someResolveName"
       return `${attrName}='${prefix}$resolve.${resolveName}'`;
     };
 
-    const attrs = getComponentBindings(component).map(attributeTpl).join(" ");
+    const attrs = getComponentBindings(component).map(attributeTpl).join(' ');
     const kebobName = kebob(component);
     return `<${kebobName} ${attrs}></${kebobName}>`;
   };
@@ -188,7 +188,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
 
 // Gets all the directive(s)' inputs ('@', '=', and '<') and outputs ('&')
 function getComponentBindings(name: string) {
-  const cmpDefs = <any[]> services.$injector.get(name + "Directive"); // could be multiple
+  const cmpDefs = <any[]> services.$injector.get(name + 'Directive'); // could be multiple
   if (!cmpDefs || !cmpDefs.length) throw new Error(`Unable to find component named '${name}'`);
   return cmpDefs.map(getBindings).reduce(unnestR, []);
 }
