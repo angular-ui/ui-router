@@ -83,7 +83,7 @@ export function ng1ViewsBuilder(state: StateObject) {
 let id = 0;
 export class Ng1ViewConfig implements ViewConfig {
   $id = id++;
-  loaded: boolean = false;
+  loaded = false;
   controller: Function; // actually IInjectable|string
   template: string;
   component: string;
