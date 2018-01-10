@@ -18,7 +18,7 @@ import {
 import { UIViewData } from "./viewDirective";
 
 /** @hidden Used for typedoc */
-export interface ng1_directive {}
+export interface ng1_directive {} // tslint:disable-line:class-name
 
 /** @hidden */
 function parseStateRef(ref: string) {
