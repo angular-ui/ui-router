@@ -5,7 +5,7 @@ import * as angular from "angular";
 /**
  * Implementation of the legacy `$resolve` service for angular 1.
  */
-var $resolve = {
+let $resolve = {
   /**
    * Asynchronously injects a resolve block.
    *

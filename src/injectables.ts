@@ -120,7 +120,7 @@ import { UrlRouterProvider } from "./urlRouterProvider";
  * ```
  * @deprecated
  */
-var $stateParams: StateParams;
+let $stateParams: StateParams;
 
 /**
  * Global UI-Router variables
@@ -129,7 +129,7 @@ var $stateParams: StateParams;
  *
  * This object contains globals such as the current state and current parameter values.
  */
-var $uiRouterGlobals: UIRouterGlobals;
+let $uiRouterGlobals: UIRouterGlobals;
 
 /**
  * The UI-Router instance
@@ -153,7 +153,7 @@ let $uiRouter: UIRouter ;
  *
  * #### Note: This object is also exposed as [[$uiRouter]] for injection during runtime.
  */
-var $uiRouterProvider: UIRouter;
+let $uiRouterProvider: UIRouter;
 
 /**
  * Transition debug/tracing
@@ -162,7 +162,7 @@ var $uiRouterProvider: UIRouter;
  *
  * Enables or disables Transition tracing which can help to debug issues.
  */
-var $trace: Trace;
+let $trace: Trace;
 
 /**
  * The Transition Service
@@ -174,7 +174,7 @@ var $trace: Trace;
  *
  * #### Note: This object is also exposed as [[$transitionsProvider]] for injection during the config phase.
  */
-var $transitions: TransitionService;
+let $transitions: TransitionService;
 
 /**
  * The Transition Service
@@ -186,7 +186,7 @@ var $transitions: TransitionService;
  *
  * #### Note: This object is also exposed as [[$transitions]] for injection during runtime.
  */
-var $transitionsProvider: TransitionService;
+let $transitionsProvider: TransitionService;
 
 /**
  * The current [[Transition]] object
@@ -204,7 +204,7 @@ var $transitionsProvider: TransitionService;
  * - Any transition failure information
  * - An injector for both Service and Per-Transition Objects
  */
-var $transition$: Transition;
+let $transition$: Transition;
 
 /**
  * The State Service
@@ -223,7 +223,7 @@ var $transition$: Transition;
  *
  * This angular service exposes the [[StateService]] singleton.
  */
-var $state: StateService;
+let $state: StateService;
 
 /**
  * The State Registry
@@ -240,7 +240,7 @@ var $state: StateService;
  *
  * #### Note: This object is also exposed as [[$stateRegistryProvider]] for injection during the config phase.
  */
-var $stateRegistry: StateRegistry;
+let $stateRegistry: StateRegistry;
 
 /**
  * The State Registry
@@ -257,7 +257,7 @@ var $stateRegistry: StateRegistry;
  *
  * #### Note: This object is also exposed as [[$stateRegistry]] for injection during runtime.
  */
-var $stateRegistryProvider: StateRegistry;
+let $stateRegistryProvider: StateRegistry;
 
 /**
  * The View Scroll provider
@@ -267,7 +267,7 @@ var $stateRegistryProvider: StateRegistry;
  * This angular service exposes the [[UIViewScrollProvider]] singleton and is
  * used to disable UI-Router's scroll behavior.
  */
-var $uiViewScrollProvider: UIViewScrollProvider;
+let $uiViewScrollProvider: UIViewScrollProvider;
 
 /**
  * The View Scroll function
@@ -282,7 +282,7 @@ var $uiViewScrollProvider: UIViewScrollProvider;
  *
  * Note: this function is used by the [[directives.uiView]] when the `autoscroll` expression evaluates to true.
  */
-var $uiViewScroll: ($element: JQuery) => void;
+let $uiViewScroll: ($element: JQuery) => void;
 
 /**
  * The StateProvider
@@ -296,7 +296,7 @@ var $uiViewScroll: ($element: JQuery) => void;
  * ##### Note: This provider is a ng1 vestige.
  * It is a passthrough to [[$stateRegistry]] and [[$state]].
  */
-var $stateProvider: StateProvider;
+let $stateProvider: StateProvider;
 
 /**
  * The URL Service Provider
@@ -314,7 +314,7 @@ var $stateProvider: StateProvider;
  *
  * ##### Note: This service can also be injected during runtime as [[$urlService]].
  */
-var $urlServiceProvider: UrlService;
+let $urlServiceProvider: UrlService;
 
 /**
  * The URL Service
@@ -334,7 +334,7 @@ var $urlServiceProvider: UrlService;
  *
  * ##### Note: This service can also be injected during the config phase as [[$urlServiceProvider]].
  */
-var $urlService: UrlService;
+let $urlService: UrlService;
 
 /**
  * The URL Router Provider
@@ -347,7 +347,7 @@ var $urlService: UrlService;
  *
  * @deprecated
  */
-var $urlRouterProvider: UrlRouterProvider;
+let $urlRouterProvider: UrlRouterProvider;
 
 /**
  * The Url Router
@@ -360,7 +360,7 @@ var $urlRouterProvider: UrlRouterProvider;
  *
  * @deprecated
  */
-var $urlRouter: UrlRouter;
+let $urlRouter: UrlRouter;
 
 /**
  * The URL Matcher Factory
@@ -375,7 +375,7 @@ var $urlRouter: UrlRouter;
  *
  * @deprecated
  */
-var $urlMatcherFactory: UrlMatcherFactory;
+let $urlMatcherFactory: UrlMatcherFactory;
 
 /**
  * The URL Matcher Factory
@@ -390,7 +390,7 @@ var $urlMatcherFactory: UrlMatcherFactory;
  *
  * @deprecated
  */
-var $urlMatcherFactoryProvider: UrlMatcherFactory;
+let $urlMatcherFactoryProvider: UrlMatcherFactory;
 
 
 

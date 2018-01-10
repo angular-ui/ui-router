@@ -18,7 +18,7 @@ export interface UIViewScrollProvider {
 /** @hidden */
 function $ViewScrollProvider() {
 
-  var useAnchorScroll = false;
+  let useAnchorScroll = false;
 
   this.useAnchorScroll = function () {
     useAnchorScroll = true;

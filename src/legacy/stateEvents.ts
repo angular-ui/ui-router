@@ -54,7 +54,7 @@ import { StateProvider } from "../stateProvider";
  * @event $stateChangeStart
  * @deprecated
  */
-export var $stateChangeStart: IAngularEvent;
+export let $stateChangeStart: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` if a transition is **cancelled**.
@@ -72,7 +72,7 @@ export var $stateChangeStart: IAngularEvent;
  * @event $stateChangeCancel
  * @deprecated
  */
-export var $stateChangeCancel: IAngularEvent;
+export let $stateChangeCancel: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` once the state transition is **complete**.
@@ -90,7 +90,7 @@ export var $stateChangeCancel: IAngularEvent;
  * @event $stateChangeSuccess
  * @deprecated
  */
-export var $stateChangeSuccess: IAngularEvent;
+export let $stateChangeSuccess: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` when an **error occurs** during transition.
@@ -114,7 +114,7 @@ export var $stateChangeSuccess: IAngularEvent;
  * @event $stateChangeError
  * @deprecated
  */
-export var $stateChangeError: IAngularEvent;
+export let $stateChangeError: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` when a requested state **cannot be found** using the provided state name.
@@ -150,7 +150,7 @@ export var $stateChangeError: IAngularEvent;
  * @event $stateNotFound
  * @deprecated
  */
-export var $stateNotFound: IAngularEvent;
+export let $stateNotFound: IAngularEvent;
 
 
 (function () {

@@ -55,8 +55,8 @@ interface TypeInfo {
 /** @hidden */
 function getTypeInfo(el: IAugmentedJQuery): TypeInfo {
   // SVGAElement does not use the href attribute, but rather the 'xlinkHref' attribute.
-  var isSvg = Object.prototype.toString.call(el.prop('href')) === '[object SVGAnimatedString]';
-  var isForm = el[0].nodeName === "FORM";
+  let isSvg = Object.prototype.toString.call(el.prop('href')) === '[object SVGAnimatedString]';
+  let isForm = el[0].nodeName === "FORM";
 
   return {
     attr: isForm ? "action" : (isSvg ? 'xlink:href' : 'href'),
@@ -68,17 +68,17 @@ function getTypeInfo(el: IAugmentedJQuery): TypeInfo {
 /** @hidden */
 function clickHook(el: IAugmentedJQuery, $state: StateService, $timeout: ITimeoutService, type: TypeInfo, getDef: () => Def) {
   return function (e: JQueryMouseEventObject) {
-    var button = e.which || e.button, target = getDef();
+    let button = e.which || e.button, target = getDef();
 
     if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || el.attr('target'))) {
       // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
-      var transition = $timeout(function () {
+      let transition = $timeout(function () {
         $state.go(target.uiState, target.uiStateParams, target.uiStateOpts);
       });
       e.preventDefault();
 
       // if the state has no URL, ignore one preventDefault from the <a> directive.
-      var ignorePreventDefaultCount = type.isAnchor && !target.href ? 1 : 0;
+      let ignorePreventDefaultCount = type.isAnchor && !target.href ? 1 : 0;
 
       e.preventDefault = function () {
         if (ignorePreventDefaultCount-- <= 0) $timeout.cancel(transition);
@@ -574,9 +574,9 @@ uiSrefActiveDirective = ['$state', '$stateParams', '$interpolate', '$uiRouter',
           }
 
           function addState(stateName: string, stateParams: Obj, activeClass: string) {
-            var state = $state.get(stateName, stateContext($element));
+            let state = $state.get(stateName, stateContext($element));
 
-            var stateInfo = {
+            let stateInfo = {
               state: state || { name: stateName },
               params: stateParams,
               activeClass: activeClass
