@@ -27,6 +27,11 @@ export class UrlRouterProvider {
   /** @hidden */ _router: UIRouter;
   /** @hidden */ _urlRouter: UrlRouter;
 
+  static injectableHandler(router: UIRouter, handler): UrlRuleHandlerFn {
+    return match =>
+        services.$injector.invoke(handler, null, { $match: match, $stateParams: router.globals.params });
+  }
+
   /** @hidden */
   constructor(router: UIRouter) {
     this._router = router;
@@ -169,11 +174,6 @@ export class UrlRouterProvider {
     this._urlRouter.when(what, handler as any);
     return this;
   };
-
-  static injectableHandler(router: UIRouter, handler): UrlRuleHandlerFn {
-    return match =>
-        services.$injector.invoke(handler, null, { $match: match, $stateParams: router.globals.params });
-  }
 
   /**
    * Disables monitoring of the URL.

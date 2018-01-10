@@ -26,6 +26,29 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
   // .onChange() registry
   private _urlListeners: Function[] = [];
 
+  /**
+   * Applys ng1-specific path parameter encoding
+   *
+   * The Angular 1 `$location` service is a bit weird.
+   * It doesn't allow slashes to be encoded/decoded bi-directionally.
+   *
+   * See the writeup at https://github.com/angular-ui/ui-router/issues/2598
+   *
+   * This code patches the `path` parameter type so it encoded/decodes slashes as ~2F
+   *
+   * @param router
+   */
+  static monkeyPatchPathParameterType(router: UIRouter) {
+    let pathType: ParamType = router.urlMatcherFactory.type('path');
+
+    pathType.encode = (val: any) =>
+        val != null ? val.toString().replace(/(~|\/)/g, m => ({ '~': '~~', '/': '~2F' }[m])) : val;
+
+    pathType.decode = (val: string) =>
+        val != null ? val.toString().replace(/(~~|~2F)/g, m => ({ '~~': '~', '~2F': '/' }[m])) : val;
+
+  }
+
   dispose() { }
 
   constructor($locationProvider: ILocationProvider) {
@@ -67,28 +90,5 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
     createProxyFunctions(_loc, this, _loc, ['port', 'protocol', 'host']);
     // Bind these LocationConfig functions to $browser
     createProxyFunctions(_browser, this, _browser, ['baseHref']);
-  }
-
-  /**
-   * Applys ng1-specific path parameter encoding
-   *
-   * The Angular 1 `$location` service is a bit weird.
-   * It doesn't allow slashes to be encoded/decoded bi-directionally.
-   *
-   * See the writeup at https://github.com/angular-ui/ui-router/issues/2598
-   *
-   * This code patches the `path` parameter type so it encoded/decodes slashes as ~2F
-   *
-   * @param router
-   */
-  static monkeyPatchPathParameterType(router: UIRouter) {
-    let pathType: ParamType = router.urlMatcherFactory.type('path');
-
-    pathType.encode = (val: any) =>
-        val != null ? val.toString().replace(/(~|\/)/g, m => ({ '~': '~~', '/': '~2F' }[m])) : val;
-
-    pathType.decode = (val: string) =>
-        val != null ? val.toString().replace(/(~~|~2F)/g, m => ({ '~~': '~', '~2F': '/' }[m])) : val;
-
   }
 }
