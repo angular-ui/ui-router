@@ -1,6 +1,6 @@
-/** 
- * @ng1api 
- * @module directives 
+/**
+ * @ng1api
+ * @module directives
  */ /** for typedoc */
 import { ng as angular } from "../angular";
 import { IInterpolateService, IScope, ITranscludeFunction, IAugmentedJQuery, ITimeoutService } from "angular";
@@ -398,7 +398,7 @@ function $ViewDirectiveFill($compile: angular.ICompileService,
           let getComponentController = () => {
             let directiveEl = [].slice.call($element[0].children)
                 .filter((el: Element) => el && el.tagName && tagRegexp.exec(el.tagName)) ;
-            
+
             return directiveEl && angular.element(directiveEl).data(`$${cmp}Controller`);
           };
 
