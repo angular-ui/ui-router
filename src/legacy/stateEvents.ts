@@ -187,7 +187,7 @@ export var $stateNotFound: IAngularEvent;
         if (enabledEvents.$stateChangeCancel) {
           $rootScope.$broadcast('$stateChangeCancel', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$.options(), $transition$);
         }
-        //Don't update and resync url if there's been a new transition started. see issue #2238, #600
+        // Don't update and resync url if there's been a new transition started. see issue #2238, #600
         if ($state.transition == null) $urlRouter.update();
         return false;
       }
