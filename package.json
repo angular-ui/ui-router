@@ -1,7 +1,7 @@
 {
   "name": "@uirouter/angularjs",
   "description": "State-based routing for AngularJS 1.x",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "scripts": {
     "clean": "shx rm -rf lib lib-esm _doc build release *.log",
     "compile": "tsc && tsc -m es6 --outDir lib-esm && npm run fixdts",
