@@ -423,7 +423,7 @@ uiStateDirective = ['$uiRouter', '$timeout',
               rawDef[field] = newval;
               update();
             }, true);
-          })
+          });
         });
 
         update();
@@ -587,7 +587,7 @@ uiSrefActiveDirective = ['$state', '$stateParams', '$interpolate', '$uiRouter',
 
             return function removeState() {
               removeFrom(states)(stateInfo);
-            }
+            };
           }
 
           // Update route state

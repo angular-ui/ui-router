@@ -27,7 +27,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
   /** @hidden */
   useHttpService(value: boolean) {
     this._useHttp = value;
-  };
+  }
 
   /**
    * Creates a template from a configuration object.
@@ -56,7 +56,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
         isDefined(config.componentProvider) ? asComponent(this.fromComponentProvider(config.componentProvider, params, context)) :
         asTemplate(defaultTemplate)
     );
-  };
+  }
 
   /**
    * Creates a template from a string or a function returning a string.
@@ -69,7 +69,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
    */
   fromString(template: (string | Function), params?: RawParams) {
     return isFunction(template) ? (<any> template)(params) : template;
-  };
+  }
 
   /**
    * Loads a template from the a URL via `$http` and `$templateCache`.
@@ -92,7 +92,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
     }
 
     return this.$templateRequest(url);
-  };
+  }
 
   /**
    * Creates a template by invoking an injectable provider function.
@@ -107,7 +107,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
     const providerFn = isArray(provider) ? tail(<any[]> provider) : provider;
     const resolvable = new Resolvable('', <Function> providerFn, deps);
     return resolvable.get(context);
-  };
+  }
 
   /**
    * Creates a component's template by invoking an injectable provider function.
@@ -121,7 +121,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
     const providerFn = isArray(provider) ? tail(<any[]> provider) : provider;
     const resolvable = new Resolvable('', <Function> providerFn, deps);
     return resolvable.get(context);
-  };
+  }
 
   /**
    * Creates a template from a component's name
@@ -183,7 +183,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
     const attrs = getComponentBindings(component).map(attributeTpl).join(' ');
     const kebobName = kebob(component);
     return `<${kebobName} ${attrs}></${kebobName}>`;
-  };
+  }
 }
 
 // Gets all the directive(s)' inputs ('@', '=', and '<') and outputs ('&')

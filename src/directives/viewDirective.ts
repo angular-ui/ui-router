@@ -19,14 +19,14 @@ import { ng1_directive } from './stateDirectives';
 export type UIViewData = {
   $cfg: Ng1ViewConfig;
   $uiView: ActiveUIView;
-}
+};
 
 /** @hidden */
 export type UIViewAnimData = {
   $animEnter: Promise<any>;
   $animLeave: Promise<any>;
   $$animLeave: { resolve: () => any; } // "deferred"
-}
+};
 
 /**
  * `ui-view`: A viewport directive which is filled in by a view from the active state.

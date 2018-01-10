@@ -86,7 +86,7 @@ export class UrlRouterProvider {
     const rule = new BaseUrlRule(match, identity);
     this._urlRouter.rule(rule);
     return this;
-  };
+  }
 
   /**
    * Defines the path or behavior to use when no url can be matched.
@@ -126,7 +126,7 @@ export class UrlRouterProvider {
     }
 
     return this;
-  };
+  }
 
   /**
    * Registers a handler for a given url matching.
@@ -173,7 +173,7 @@ export class UrlRouterProvider {
 
     this._urlRouter.when(what, handler as any);
     return this;
-  };
+  }
 
   /**
    * Disables monitoring of the URL.
@@ -207,5 +207,5 @@ export class UrlRouterProvider {
    */
   deferIntercept(defer?: boolean) {
     this._urlRouter.deferIntercept(defer);
-  };
+  }
 }
