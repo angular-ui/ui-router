@@ -13,7 +13,7 @@ import { IAugmentedJQuery, ITimeoutService, IScope, IInterpolateService } from '
 
 import {
     Obj, extend, forEach, tail, isString, isObject, isArray, parse, noop, unnestR, identity, uniqR, inArray, removeFrom,
-    RawParams, PathNode, StateOrName, StateService, StateDeclaration, UIRouter
+    RawParams, PathNode, StateOrName, StateService, StateDeclaration, UIRouter,
 } from '@uirouter/core';
 import { UIViewData } from './viewDirective';
 
@@ -62,7 +62,7 @@ function getTypeInfo(el: IAugmentedJQuery): TypeInfo {
   return {
     attr: isForm ? 'action' : (isSvg ? 'xlink:href' : 'href'),
     isAnchor: el.prop('tagName').toUpperCase() === 'A',
-    clickable: !isForm
+    clickable: !isForm,
   };
 }
 
@@ -93,7 +93,7 @@ function defaultOpts(el: IAugmentedJQuery, $state: StateService) {
   return {
     relative: stateContext(el) || $state.$current,
     inherit: true,
-    source: 'sref'
+    source: 'sref',
   };
 }
 
@@ -299,7 +299,7 @@ uiSrefDirective = ['$uiRouter', '$timeout',
         if (!type.clickable) return;
         hookFn = clickHook(element, $state, $timeout, type, getDef);
         bindEvents(element, scope, hookFn, rawDef.uiStateOpts);
-      }
+      },
     };
   }];
 
@@ -434,7 +434,7 @@ uiStateDirective = ['$uiRouter', '$timeout',
         if (!type.clickable) return;
         hookFn = clickHook(element, $state, $timeout, type, getDef);
         bindEvents(element, scope, hookFn, rawDef.uiStateOpts);
-      }
+      },
     };
   }];
 
@@ -580,7 +580,7 @@ uiSrefActiveDirective = ['$state', '$stateParams', '$interpolate', '$uiRouter',
             const stateInfo = {
               state: state || { name: stateName },
               params: stateParams,
-              activeClass: activeClass
+              activeClass: activeClass,
             };
 
             states.push(stateInfo);
@@ -612,7 +612,7 @@ uiSrefActiveDirective = ['$state', '$stateParams', '$interpolate', '$uiRouter',
           }
 
           update();
-        }]
+        }],
     };
   }];
 

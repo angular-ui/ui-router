@@ -1,7 +1,7 @@
 /** @module url */ /** */
 import {
     UIRouter, UrlRouter, LocationServices, $InjectorLike, BaseUrlRule, UrlRuleHandlerFn, UrlMatcher,
-    IInjectable
+    IInjectable,
 } from '@uirouter/core';
 import { services, isString, isFunction, isArray, identity } from '@uirouter/core';
 

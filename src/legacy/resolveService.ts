@@ -62,7 +62,7 @@ const $resolve = {
     };
 
     return parent ? parent.then(resolveData) : resolveData({});
-  }
+  },
 };
 
 /** @hidden */

@@ -172,7 +172,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
         } else {
           $animate.leave(element, cb);
         }
-      }
+      },
     };
   }
 
@@ -182,7 +182,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
 
   const rootData = {
     $cfg: { viewDecl: { $context: $view._pluginapi._rootViewContext() } },
-    $uiView: { }
+    $uiView: { },
   };
 
   const directive = {
@@ -219,7 +219,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
             // See https://github.com/angular-ui/ui-router/issues/3355
             const fromParentTag = parse('$uiView.creationContext')(inherited);
             return fromParentTagConfig || fromParentTag;
-          }
+          },
         };
 
         trace.traceUIViewEvent('Linking', activeUIView);
@@ -281,7 +281,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
           const $uiViewAnim: UIViewAnimData = {
             $animEnter: animEnter.promise,
             $animLeave: animLeave.promise,
-            $$animLeave: animLeave
+            $$animLeave: animLeave,
           };
 
           /**
@@ -329,7 +329,7 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
           currentScope.$eval(onloadExp);
         }
       };
-    }
+    },
   };
 
   return directive;
@@ -414,7 +414,7 @@ function $ViewDirectiveFill($compile: angular.ICompileService,
 
         link(scope);
       };
-    }
+    },
   };
 }
 

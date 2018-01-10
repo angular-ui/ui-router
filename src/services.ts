@@ -12,11 +12,11 @@
 /** for typedoc */
 import { ng as angular } from './angular';
 import {
-  IRootScopeService, IQService, ILocationService, ILocationProvider, IHttpService, ITemplateCacheService
+  IRootScopeService, IQService, ILocationService, ILocationProvider, IHttpService, ITemplateCacheService,
 } from 'angular';
 import {
   services, applyPairs, isString, trace, extend, UIRouter, StateService, UrlRouter, UrlMatcherFactory, ResolveContext,
-  unnestR, TypedMap
+  unnestR, TypedMap,
 } from '@uirouter/core';
 import { ng1ViewsBuilder, getNg1ViewConfigFactory } from './statebuilders/views';
 import { TemplateFactory } from './templateFactory';

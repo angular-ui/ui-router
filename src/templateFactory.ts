@@ -4,7 +4,7 @@ import { ng as angular } from './angular';
 import { IAugmentedJQuery } from 'angular';
 import {
   isArray, isDefined, isFunction, isObject, services, Obj, IInjectable, tail, kebobString, unnestR, ResolveContext,
-  Resolvable, RawParams
+  Resolvable, RawParams,
 } from '@uirouter/core';
 import { Ng1ViewDeclaration, TemplateFactoryProvider } from './interface';
 

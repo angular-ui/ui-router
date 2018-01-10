@@ -3,7 +3,7 @@ import { ng as angular } from '../angular';
 import {
     StateObject, pick, forEach, tail, extend,
     isArray, isInjectable, isDefined, isString, services, trace,
-    ViewConfig, ViewService, ViewConfigFactory, PathNode, ResolveContext, Resolvable, IInjectable
+    ViewConfig, ViewService, ViewConfigFactory, PathNode, ResolveContext, Resolvable, IInjectable,
 } from '@uirouter/core';
 import { Ng1ViewDeclaration } from '../interface';
 import { TemplateFactory } from '../templateFactory';
@@ -98,7 +98,7 @@ export class Ng1ViewConfig implements ViewConfig {
 
     const promises: any = {
       template: $q.when(this.factory.fromConfig(this.viewDecl, params, context)),
-      controller: $q.when(this.getController(context))
+      controller: $q.when(this.getController(context)),
     };
 
     return $q.all(promises).then((results) => {

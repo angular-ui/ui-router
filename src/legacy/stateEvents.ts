@@ -21,7 +21,7 @@
 import { ng as angular } from '../angular';
 import { IScope, IAngularEvent, IServiceProviderFactory } from 'angular';
 import {
-    Obj, TargetState, StateService, Transition, TransitionService, UrlRouter, HookResult, UIInjector
+    Obj, TargetState, StateService, Transition, TransitionService, UrlRouter, HookResult, UIInjector,
 } from '@uirouter/core';
 import { StateProvider } from '../stateProvider';
 
@@ -294,7 +294,7 @@ export let $stateNotFound: IAngularEvent;
         $transitions.onBefore({}, stateChangeStartHandler, { priority: 1000 });
 
       return {
-        provider: $StateEventsProvider.prototype.instance
+        provider: $StateEventsProvider.prototype.instance,
       };
     }
   }
