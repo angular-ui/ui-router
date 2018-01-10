@@ -10,9 +10,9 @@ import {
     ActiveUIView, TransitionService, ResolveContext, Transition, PathNode, StateDeclaration,
     Param, kebobString, HookRegOptions, ViewService, $QLike, Obj, TypedMap, noop,
 } from "@uirouter/core";
-import {Ng1ViewConfig} from "../statebuilders/views";
-import {Ng1Controller, Ng1StateDeclaration} from "../interface";
-import {getLocals} from "../services";
+import { Ng1ViewConfig } from "../statebuilders/views";
+import { Ng1Controller, Ng1StateDeclaration } from "../interface";
+import { getLocals } from "../services";
 import { ng1_directive } from "./stateDirectives";
 
 /** @hidden */
@@ -486,7 +486,7 @@ function registerControllerCallbacks($q: angular.IQService,
       return promise;
     };
 
-    let criteria = {exiting: viewState.name};
+    let criteria = { exiting: viewState.name };
     $scope.$on('$destroy', <any> $transitions.onBefore(criteria, wrappedHook, hookOptions));
   }
 }
