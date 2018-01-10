@@ -194,16 +194,16 @@ function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $
     compile: function (tElement: JQuery, tAttrs: Obj, $transclude: ITranscludeFunction) {
 
       return function (scope: IScope, $element: IAugmentedJQuery, attrs: Obj) {
-        const onloadExp     = attrs['onload'] || '',
+        const onloadExp = attrs['onload'] || '',
             autoScrollExp = attrs['autoscroll'],
-            renderer      = getRenderer(attrs, scope),
-            viewConfig    = undefined as Ng1ViewConfig,
-            inherited     = $element.inheritedData('$uiView') || rootData,
-            name          = $interpolate(attrs['uiView'] || attrs['name'] || '')(scope) || '$default';
+            renderer = getRenderer(attrs, scope),
+            inherited = $element.inheritedData('$uiView') || rootData,
+            name = $interpolate(attrs['uiView'] || attrs['name'] || '')(scope) || '$default';
 
         let previousEl: JQuery,
             currentEl: JQuery,
             currentScope: IScope,
+            viewConfig: Ng1ViewConfig,
             unregister: Function;
 
         const activeUIView: ActiveUIView = {
