@@ -101,7 +101,7 @@
     "rollup-plugin-node-resolve": "3.0.1",
     "rollup-plugin-sourcemaps": "^0.4.1",
     "rollup-plugin-uglify": "2.0.1",
-    "shelljs": "^0.7.0",
+    "shelljs": "^0.8.0",
     "shx": "0.2.2",
     "ts-loader": "3.2.0",
     "tslint": "5.9.0",
