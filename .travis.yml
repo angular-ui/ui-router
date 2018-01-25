@@ -29,6 +29,7 @@ matrix:
 
 notifications:
   slack:
+    on_success: change
     secure: LqlW9u5Lyh7eHffLqfrIEyIdpqJmPg29NQHqjM6ij2BUFOs9se+NgpRagfICukCEMimOdzEiIE6S4DXNhCcy6hoA24cpswb84vHRuZ4pFz8USq13rX72AgygR1tPKB9sbXLp+XIjRaLPO5z8asECCr7jxSCpMvHRylPAGL4DduI=
 
 sudo: false
