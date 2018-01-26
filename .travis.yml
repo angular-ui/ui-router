@@ -1,16 +1,14 @@
 language: node_js
-node_js: '8.9.1'
-
+node_js: 8.9.1
 before_install: yarn global add greenkeeper-lockfile@1 yalc
 install: yarn --check-files
-
 before_script: greenkeeper-lockfile-update && greenkeeper-lockfile-upload
 script:
-# If CORE_BRANCH is set, fetch and build the @uirouter/core branch from github, then install it
-- if [ "x${CORE_BRANCH}x" != "xx" ] ; then ./node_modules/.bin/publish_yalc_package .downstream_cache/core https://github.com/ui-router/core.git && yalc add @uirouter/core ; fi
-# If DOWNSTREAM or DOWNSTREAM_PKGS is set, run downstream packages' tests instead
-- if [ "x${DOWNSTREAM_PKGS}${DOWNSTREAM}x" != "xx" ] ; then npm run test:downstream ; else tsc && npm test ; fi
-
+- if [ "x${CORE_BRANCH}x" != "xx" ] ; then ./node_modules/.bin/publish_yalc_package
+  .downstream_cache/core https://github.com/ui-router/core.git && yalc add @uirouter/core
+  ; fi
+- if [ "x${DOWNSTREAM_PKGS}${DOWNSTREAM}x" != "xx" ] ; then npm run test:downstream
+  ; else tsc && npm test ; fi
 env:
   global:
     secure: TanWbkSRljYf0ENPiF3LDM+6RDYyUZoVIIQjUk9UDZ1MBvzEiqISB/zKSXSoYY1JNZpNcXgje2Sl08yGhAugRVodH+FJa/khSkXwRsZAlJuG8qPFAevW4gffvJvPAE7O0uy4jLyyu+Fi9dptdi1zDGsOps/Q+WURH9jWPGmQpj8=
@@ -19,23 +17,20 @@ env:
   - CORE_BRANCH=master
   - CORE_BRANCH=master UPSTREAM_PKGS=@uirouter/core DOWNSTREAM=true
   - DOWNSTREAM=true
-
 matrix:
   fast_finish: true
   allow_failures:
   - env: CORE_BRANCH=
   - env: DOWNSTREAM=true
   - env: CORE_BRANCH=master UPSTREAM_PKGS=@uirouter/core DOWNSTREAM=true
-
 notifications:
   slack:
     on_success: change
-    secure: LqlW9u5Lyh7eHffLqfrIEyIdpqJmPg29NQHqjM6ij2BUFOs9se+NgpRagfICukCEMimOdzEiIE6S4DXNhCcy6hoA24cpswb84vHRuZ4pFz8USq13rX72AgygR1tPKB9sbXLp+XIjRaLPO5z8asECCr7jxSCpMvHRylPAGL4DduI=
-
+    rooms:
+      secure: alXA+pERLtF4DNctl+WaISO3uzUA/JzVCzSrDlNsV9Jvx1HdAqRNbrrnNYzCZBIU6OOv5YBGFbq79v5NPKzMPzoR8dp3PahlxRgucxALweoTCXY5DuDHVSI9ULLl2PND7QOfKyUALuAz5nmT7omPVxRKCpBkVsqewLfMeW1MRgE=
 sudo: false
-
 cache:
   yarn: true
   directories:
-  - .downstream_cache
+  - ".downstream_cache"
   - node_modules
