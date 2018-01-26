@@ -528,7 +528,7 @@ uiSrefActiveDirective = ['$state', '$stateParams', '$interpolate', '$uiRouter',
       restrict: 'A',
       controller: ['$scope', '$element', '$attrs',
         function ($scope: IScope, $element: IAugmentedJQuery, $attrs: any) {
-          const states: StateData[] = [];
+          let states: StateData[] = [];
           let activeEqClass: string;
           let uiSrefActive: any;
 
@@ -543,15 +543,10 @@ uiSrefActiveDirective = ['$state', '$stateParams', '$interpolate', '$uiRouter',
             // Do nothing. uiSrefActive is not a valid expression.
             // Fall back to using $interpolate below
           }
-          uiSrefActive = uiSrefActive || $interpolate($attrs.uiSrefActive || '', false)($scope);
-          if (isObject(uiSrefActive)) {
-            forEach(uiSrefActive, function (stateOrName: StateOrName, activeClass: string) {
-              if (isString(stateOrName)) {
-                const ref = parseStateRef(stateOrName);
-                addState(ref.state, $scope.$eval(ref.paramExpr), activeClass);
-              }
-            });
+          if (!uiSrefActive) {
+            uiSrefActive = $interpolate($attrs.uiSrefActive || '', false)($scope);
           }
+          setStatesFromDefinitionObject(uiSrefActive);
 
           // Allow uiSref to communicate with uiSrefActive[Equals]
           this.$$addStateInfo = function (newState: string, newParams: Obj) {
@@ -568,11 +563,36 @@ uiSrefActiveDirective = ['$state', '$stateParams', '$interpolate', '$uiRouter',
           function updateAfterTransition(trans) {
             trans.promise.then(update, noop);
           }
-
-          $scope.$on('$stateChangeSuccess', update);
-          $scope.$on('$destroy', <any> $uiRouter.transitionService.onStart({}, updateAfterTransition));
+          $scope.$on('$destroy', setupEventListeners());
           if ($uiRouter.globals.transition) {
             updateAfterTransition($uiRouter.globals.transition);
+          }
+
+          function setupEventListeners () {
+            const deregisterStatesChangedListener = $uiRouter.stateRegistry.onStatesChanged(handleStatesChanged);
+            const deregisterOnStartListener = $uiRouter.transitionService.onStart({}, updateAfterTransition);
+            const deregisterStateChangeSuccessListener = $scope.$on('$stateChangeSuccess', update);
+            return function cleanUp () {
+              deregisterStatesChangedListener();
+              deregisterOnStartListener();
+              deregisterStateChangeSuccessListener();
+            };
+          }
+
+          function handleStatesChanged () {
+            setStatesFromDefinitionObject(uiSrefActive);
+          }
+
+          function setStatesFromDefinitionObject (statesDefinition: any) {
+            if (isObject(statesDefinition)) {
+              states = [];
+              forEach(statesDefinition, function (stateOrName: StateOrName, activeClass: string) {
+                if (isString(stateOrName)) {
+                  const ref = parseStateRef(stateOrName);
+                  addState(ref.state, $scope.$eval(ref.paramExpr), activeClass);
+                }
+              });
+            }
           }
 
           function addState(stateName: string, stateParams: Obj, activeClass: string) {
