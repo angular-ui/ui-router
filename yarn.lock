@@ -62,9 +62,9 @@
   dependencies:
     "@types/node" "*"
 
-"@uirouter/core@5.0.14":
-  version "5.0.14"
-  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.14.tgz#621477f779886c9287fcc606a4082157fc0ffa65"
+"@uirouter/core@5.0.15":
+  version "5.0.15"
+  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.15.tgz#09f5f76368f76274e64af3ab8080a77f1c0ca304"
 
 "@uirouter/publish-scripts@2.2.4":
   version "2.2.4"
@@ -1871,7 +1871,7 @@ forever-agent@~0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/forever-agent/-/forever-agent-0.6.1.tgz#fbc71f0c41adeb37f96c577ad1ed42d8fdacca91"
 
-fork-ts-checker-webpack-plugin@0.3.0:
+fork-ts-checker-webpack-plugin@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/fork-ts-checker-webpack-plugin/-/fork-ts-checker-webpack-plugin-0.3.0.tgz#3c7339b981f9194c89f38c223258e0c702f99369"
   dependencies:
