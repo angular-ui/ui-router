@@ -71,20 +71,18 @@
   "jsnext:main": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@uirouter/core": "5.0.15"
+    "@uirouter/core": "5.0.16"
   },
   "peerDependencies": {
     "angular": ">=1.2.0"
   },
   "devDependencies": {
-    "@types/angular": "^1.6.41",
+    "@types/angular": "^1.6.42",
     "@types/angular-animate": "1.5.9",
     "@types/angular-mocks": "1.5.11",
     "@types/jasmine": "2.8.6",
     "@types/jquery": "3.3.0",
-    "@uirouter/publish-scripts": "2.2.4",
-    "conventional-changelog": "1.1.7",
-    "conventional-changelog-cli": "1.3.5",
+    "@uirouter/publish-scripts": "2.2.6",
     "dts-downlevel": "0.3.0",
     "fork-ts-checker-webpack-plugin": "0.3.0",
     "jasmine-core": "2.9.1",
