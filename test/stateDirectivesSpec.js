@@ -1056,6 +1056,31 @@ describe('uiSrefActive', function() {
     expect(a.attr('class')).toMatch(/active also-active/);
   }));
 
+  it('should not match fuzzy on lazy loaded future states', inject(function($rootScope, $compile, $q, $state) {
+    _stateProvider.state('contacts.lazy.**', {
+      url: '/lazy',
+      lazyLoad: function() {
+        return $q.when().then(function() {
+          _stateProvider.state('contacts.lazy', {
+            abstract: true,
+            url: '/lazy'
+          }).state('contacts.lazy.s1', {
+            url: '/s1'
+          }).state('contacts.lazy.s2', {
+            url: '/s2'
+          });
+        });
+      }
+    });
+    template = $compile('<div ui-sref-active="active"><a ui-sref="contacts.lazy.s1">Lazy</a></div><div ui-sref-active="active"><a ui-sref="contacts.lazy.s2"></a></div>')($rootScope);
+    $rootScope.$digest();
+    $state.transitionTo('contacts.lazy.s1');
+    $q.flush();
+    timeoutFlush();
+    expect(template.eq(0).hasClass('active')).toBeTruthy();
+    expect(template.eq(1).hasClass('active')).toBeFalsy();
+  }));
+
   describe('ng-{class,style} interface', function() {
     it('should match on abstract states that are included by the current state', inject(function($rootScope, $compile, $state, $q) {
       el = $compile('<div ui-sref-active="{active: \'admin.*\'}"><a ui-sref-active="active" ui-sref="admin.roles">Roles</a></div>')($rootScope);
@@ -1110,6 +1135,31 @@ describe('uiSrefActive', function() {
       $rootScope.$digest();
       timeoutFlush();
       expect(el.hasClass('active')).toBeTruthy();
+    }));
+
+    it('should not match fuzzy on lazy loaded future states', inject(function($rootScope, $compile, $q, $state) {
+      _stateProvider.state('contacts.lazy.**', {
+        url: '/lazy',
+        lazyLoad: function() {
+          return $q.when().then(function() {
+            _stateProvider.state('contacts.lazy', {
+              abstract: true,
+              url: '/lazy'
+            }).state('contacts.lazy.s1', {
+              url: '/s1'
+            }).state('contacts.lazy.s2', {
+              url: '/s2'
+            });
+          });
+        }
+      });
+      template = $compile('<div ui-sref-active="{ active: \'contacts.lazy.s1\' }"><a ui-sref="contacts.lazy.s1">Lazy</a></div><div ui-sref-active="{ active: \'contacts.lazy.s2\' }"></div>')($rootScope);
+      $rootScope.$digest();
+      $state.transitionTo('contacts.lazy.s1');
+      $q.flush();
+      timeoutFlush();
+      expect(template.eq(0).hasClass('active')).toBeTruthy();
+      expect(template.eq(1).hasClass('active')).toBeFalsy();
     }));
   });
 });
