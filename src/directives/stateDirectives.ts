@@ -511,6 +511,17 @@ uiStateDirective = ['$uiRouter', '$timeout',
  * </div>
  * ```
  *
+ * Arrays are also supported as values in the `ngClass`-like interface.
+ * This allows multiple states to add `active` class.
+ *
+ * #### Example:
+ * Given the following template, with "admin.roles" being the current state, the class will be added too:
+ * ```html
+ * <div ui-sref-active="{'active': ['owner.**', 'admin.**']}">
+ *   <a ui-sref-active="active" ui-sref="admin.roles">Roles</a>
+ * </div>
+ * ```
+ *
  * When the current state is "admin.roles" the "active" class will be applied to both the `<div>` and `<a>` elements.
  * It is important to note that the state names/globs passed to `ui-sref-active` override any state provided by a linked `ui-sref`.
  *
@@ -543,9 +554,7 @@ uiSrefActiveDirective = ['$state', '$stateParams', '$interpolate', '$uiRouter',
             // Do nothing. uiSrefActive is not a valid expression.
             // Fall back to using $interpolate below
           }
-          if (!uiSrefActive) {
-            uiSrefActive = $interpolate($attrs.uiSrefActive || '', false)($scope);
-          }
+          uiSrefActive = uiSrefActive || $interpolate($attrs.uiSrefActive || '', false)($scope);
           setStatesFromDefinitionObject(uiSrefActive);
 
           // Allow uiSref to communicate with uiSrefActive[Equals]
@@ -583,13 +592,24 @@ uiSrefActiveDirective = ['$state', '$stateParams', '$interpolate', '$uiRouter',
             setStatesFromDefinitionObject(uiSrefActive);
           }
 
-          function setStatesFromDefinitionObject (statesDefinition: any) {
+          function setStatesFromDefinitionObject (statesDefinition: object) {
             if (isObject(statesDefinition)) {
               states = [];
-              forEach(statesDefinition, function (stateOrName: StateOrName, activeClass: string) {
-                if (isString(stateOrName)) {
+              forEach(statesDefinition, function (stateOrName: StateOrName | Array<StateOrName>, activeClass: string) {
+                // Helper function to abstract adding state.
+                const addStateForClass = function (stateOrName: string, activeClass: string) {
                   const ref = parseStateRef(stateOrName);
                   addState(ref.state, $scope.$eval(ref.paramExpr), activeClass);
+                };
+
+                if (isString(stateOrName)) {
+                  // If state is string, just add it.
+                  addStateForClass(stateOrName as string, activeClass)
+                } else if (isArray(stateOrName)) {
+                  // If state is an array, iterate over it and add each array item individually.
+                  forEach(stateOrName, function (stateOrName: string) {
+                    addStateForClass(stateOrName, activeClass)
+                  });
                 }
               });
             }
