@@ -1162,4 +1162,49 @@ describe('uiSrefActive', function() {
       expect(template.eq(1).hasClass('active')).toBeFalsy();
     }));
   });
+
+  describe('ng-{class,style} interface, and handle values as arrays', function() {
+    it('should match on abstract states that are included by the current state', inject(function($rootScope, $compile, $state, $q) {
+      el = $compile('<div ui-sref-active="{active: [\'randomState.**\', \'admin.roles\']}"><a ui-sref-active="active" ui-sref="admin.roles">Roles</a></div>')($rootScope);
+      $state.transitionTo('admin.roles');
+      $q.flush();
+      timeoutFlush();
+      var abstractParent = el[0];
+      expect(abstractParent.className).toMatch(/active/);
+      var child = el[0].querySelector('a');
+      expect(child.className).toMatch(/active/);
+    }));
+
+    it('should match on state parameters', inject(function($compile, $rootScope, $state, $q) {
+      el = $compile('<div ui-sref-active="{active: [\'admin.roles({page: 1})\']}"></div>')($rootScope);
+      $state.transitionTo('admin.roles', {page: 1});
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).toMatch(/active/);
+    }));
+
+    it('should support multiple <className, stateOrName> pairs', inject(function($compile, $rootScope, $state, $q) {
+      el = $compile('<div ui-sref-active="{contacts: [\'contacts.item\', \'contacts.item.detail\'], admin: \'admin.roles({page: 1})\'}"></div>')($rootScope);
+      $state.transitionTo('contacts.item.detail', {id: 1, foo: 'bar'});
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).toMatch(/contacts/);
+      expect(el[0].className).not.toMatch(/admin/);
+      $state.transitionTo('admin.roles', {page: 1});
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).toMatch(/admin/);
+      expect(el[0].className).not.toMatch(/contacts/);
+    }));
+
+    it('should update the active classes when compiled', inject(function($compile, $rootScope, $document, $state, $q) {
+      $state.transitionTo('admin.roles');
+      $q.flush();
+      timeoutFlush();
+      el = $compile('<div ui-sref-active="{active: [\'admin.roles\', \'admin.someOtherState\']}"/>')($rootScope);
+      $rootScope.$digest();
+      timeoutFlush();
+      expect(el.hasClass('active')).toBeTruthy();
+    }));
+  });
 });
