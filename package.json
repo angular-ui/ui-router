@@ -82,7 +82,7 @@
     "@types/angular-mocks": "1.5.11",
     "@types/jasmine": "2.8.6",
     "@types/jquery": "3.3.0",
-    "@uirouter/publish-scripts": "2.2.9",
+    "@uirouter/publish-scripts": "2.2.10",
     "dts-downlevel": "0.3.0",
     "fork-ts-checker-webpack-plugin": "0.3.0",
     "jasmine-core": "2.9.1",
