@@ -1,3 +1,31 @@
+## 1.0.14 (2018-01-31)
+[Compare `@uirouter/angularjs` versions 1.0.13 and 1.0.14](https://github.com/angular-ui/ui-router/compare/1.0.13...1.0.14)
+
+### Bug Fixes
+
+* **uiSrefActive:** don't match fuzzy on lazy loaded future states ([01430ee](https://github.com/angular-ui/ui-router/commit/01430ee))
+
+
+### Features
+
+* **uiSrefActive:** Support arrays of globs for ng-class style ([b215343](https://github.com/angular-ui/ui-router/commit/b215343))
+
+
+### Updated `@uirouter/core` from 5.0.14 to 5.0.16
+[Compare `@uirouter/core` versions 5.0.14 and 5.0.16](https://github.com/ui-router/core/compare/5.0.14...5.0.16)
+
+### Bug Fixes
+
+* **common:** Fix signature of  for objects (make target optional) ([61d0afc](https://github.com/ui-router/core/commit/61d0afc))
+* **core:** Fix memory leak of resolve data from ALL transitions ever ([7f2aed1](https://github.com/ui-router/core/commit/7f2aed1))
+* **pathNode:** add backwards compat for PathNode.clone(). Add retainedWithToParams to treeChanges interface. ([4833a32](https://github.com/ui-router/core/commit/4833a32))
+
+
+### Features
+
+* **common:** Add map-in-place support to map() ([12bc7d8](https://github.com/ui-router/core/commit/12bc7d8))
+* **common:** Add onEvict() callback registry for queues with max length ([c19d007](https://github.com/ui-router/core/commit/c19d007))
+
 ## 1.0.13 (2018-01-10)
 [Compare `@uirouter/angularjs` versions 1.0.12 and 1.0.13](https://github.com/angular-ui/ui-router/compare/1.0.12...1.0.13)
 
