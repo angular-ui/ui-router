@@ -85,7 +85,7 @@
     "@uirouter/publish-scripts": "2.2.10",
     "dts-downlevel": "0.3.0",
     "fork-ts-checker-webpack-plugin": "0.3.0",
-    "jasmine-core": "2.9.1",
+    "jasmine-core": "3.0.0",
     "karma": "2.0.0",
     "karma-chrome-launcher": "2.2.0",
     "karma-jasmine": "1.1.1",
