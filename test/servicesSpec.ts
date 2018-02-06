@@ -3,7 +3,8 @@ import { UIRouter, trace } from '@uirouter/core';
 
 declare var inject;
 
-let module = angular.mock.module;
+const module = angular['mock'].module;
+
 describe('UI-Router services', () => {
   let $uiRouterProvider: UIRouter, $uiRouter: UIRouter;
   let providers;

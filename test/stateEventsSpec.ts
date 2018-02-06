@@ -1,25 +1,26 @@
-var module = angular.mock.module;
-var uiRouter = require("../src/index");
-var stateEvents = require("../src/legacy/stateEvents.ts");
-var decorateExceptionHandler = require("./util/testUtilsNg1").decorateExceptionHandler;
-var obj = require('./util/testUtilsNg1').obj;
+import * as angular from 'angular';
+import { StateDeclaration } from '@uirouter/core';
+import { resolvedError, obj, decorateExceptionHandler } from './util/testUtilsNg1';
+import './util/matchers';
 
-var resolvedValue = require('./util/testUtilsNg1').resolvedValue;
-var resolvedError = require('./util/testUtilsNg1').resolvedError;
-var caught = require('./util/testUtilsNg1').caught;
+import '../src/legacy/stateEvents';
+
+declare var inject;
+
+const module = angular['mock'].module;
 
 describe('UI-Router v0.2.x $state events', function () {
-  var $injector, stateProvider;
+  let $injector, stateProvider;
 
   beforeEach(module('ui.router.state.events', function($stateEventsProvider, $exceptionHandlerProvider) {
     $stateEventsProvider.enable();
-    decorateExceptionHandler($exceptionHandlerProvider)
+    decorateExceptionHandler($exceptionHandlerProvider);
   }));
 
-  var log, logEvents, logEnterExit;
+  let log, logEvents, logEnterExit;
   function eventLogger(event, to, toParams, from, fromParams) {
     if (logEvents && angular.isFunction(to.to)) {
-      var transition = to;
+      const transition = to;
       log += event.name + '(' + transition.to().name + ',' + transition.from().name + ');';
     } else if (logEvents) {
       log += event.name + '(' + (angular.isString(to.name) ? to.name : to)  + ',' + (angular.isString(from.name) ? from.name : from) + ');';
@@ -31,14 +32,14 @@ describe('UI-Router v0.2.x $state events', function () {
     };
   }
 
-  var A = { data: {} },
-    B = {},
-    C = {},
-    D = { params: { x: {}, y: {} } },
-    DD = { parent: D, params: { z: {} } },
-    E = { params: { i: {} } },
-    F = { resolve: {
-        delay: function($timeout) { return $timeout(angular.noop, 50); }
+  const A: StateDeclaration = { data: {} },
+    B: StateDeclaration = {},
+    C: StateDeclaration = {},
+    D: StateDeclaration = { params: { x: {}, y: {} } },
+    DD: StateDeclaration = { parent: D, params: { z: {} } },
+    E: StateDeclaration = { params: { i: {} } },
+    F: StateDeclaration = { resolve: {
+        delay: function($timeout) { return $timeout(angular.noop, 50); },
     }};
 
   beforeEach(module(function ($stateProvider, $provide) {
@@ -73,8 +74,8 @@ describe('UI-Router v0.2.x $state events', function () {
     return $injector.get(what);
   }
 
-  function initStateTo(state, optionalParams, optionalOptions) {
-    var $state = $get('$state'), $q = $get('$q');
+  function initStateTo(state, optionalParams?, optionalOptions?) {
+    const $state = $get('$state'), $q = $get('$q');
     $state.transitionTo(state, optionalParams || {}, optionalOptions || {});
     $q.flush();
     expect($state.current).toBe(state);
@@ -82,16 +83,16 @@ describe('UI-Router v0.2.x $state events', function () {
 
   describe('.transitionTo()', function () {
     it('triggers $stateChangeStart', inject(function ($state, $q, $rootScope) {
-      initStateTo(E, {i: 'iii'}, { anOption: true });
-      var called;
+      initStateTo(E, { i: 'iii' }, { anOption: true });
+      let called;
       $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, options) {
         expect(from).toBe(E);
 
-        expect(obj(fromParams)).toEqual({i: 'iii'});
+        expect(obj(fromParams)).toEqual({ i: 'iii' });
 
         expect(to).toBe(D);
 
-        expect(obj(toParams)).toEqual({x: '1', y: '2'});
+        expect(obj(toParams)).toEqual({ x: '1', y: '2' });
 
         expect(options.custom.anOption).toBe(false);
 
@@ -99,7 +100,7 @@ describe('UI-Router v0.2.x $state events', function () {
         expect(obj($state.params)).toEqual(obj(fromParams));
         called = true;
       });
-      $state.transitionTo(D, {x: '1', y: '2'}, { custom: { anOption: false } });
+      $state.transitionTo(D, { x: '1', y: '2' }, { custom: { anOption: false } });
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(D);
@@ -108,12 +109,12 @@ describe('UI-Router v0.2.x $state events', function () {
     it('can be cancelled by preventDefault() in $stateChangeStart', inject(function ($state, $q, $rootScope) {
       $state.defaultErrorHandler(function() {});
       initStateTo(A);
-      var called;
+      let called;
       $rootScope.$on('$stateChangeStart', function (ev) {
         ev.preventDefault();
         called = true;
       });
-      var promise = $state.transitionTo(B, {});
+      const promise = $state.transitionTo(B, {});
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(A);
@@ -121,20 +122,20 @@ describe('UI-Router v0.2.x $state events', function () {
     }));
 
     it('triggers $stateNotFound', inject(function ($state, $q, $rootScope) {
-      initStateTo(E, {i: 'iii'});
-      var called;
+      initStateTo(E, { i: 'iii' });
+      let called;
       $rootScope.$on('$stateNotFound', function (ev, unfoundState, fromState, fromParams) {
         expect(fromState).toBe(E);
-        expect(obj(fromParams)).toEqual({i: 'iii'});
+        expect(obj(fromParams)).toEqual({ i: 'iii' });
         expect(unfoundState.to).toEqual('never_defined');
-        expect(unfoundState.toParams).toEqual({x: '1', y: '2'});
+        expect(unfoundState.toParams).toEqual({ x: '1', y: '2' });
 
         expect($state.current).toBe(E); // $state not updated yet
-        expect(obj($state.params)).toEqual({i: 'iii'});
+        expect(obj($state.params)).toEqual({ i: 'iii' });
         called = true;
       });
-      var message;
-      $state.transitionTo('never_defined', {x: '1', y: '2'})
+      let message;
+      $state.transitionTo('never_defined', { x: '1', y: '2' })
           .catch(function(e) { message = e.detail; });
       $q.flush();
       expect(message).toEqual('No such state \'never_defined\'');
@@ -144,11 +145,11 @@ describe('UI-Router v0.2.x $state events', function () {
 
     it('throws Error on failed relative state resolution', inject(function ($state, $q) {
       $state.transitionTo(DD); $q.flush();
-      var error, promise = $state.transitionTo("^.Z", null, { relative: $state.$current });
+      let error, promise = $state.transitionTo('^.Z', null, { relative: $state.$current });
       promise.catch(function(e) { error = e.detail; });
       $q.flush();
 
-      var err = "Could not resolve '^.Z' from state 'DD'";
+      const err = "Could not resolve '^.Z' from state 'DD'";
       expect(error).toBe(err);
     }));
 
@@ -159,10 +160,10 @@ describe('UI-Router v0.2.x $state events', function () {
       stateProvider.state('onEnterFail', {
         onEnter: function() {
           throw new Error('negative onEnter');
-        }
+        },
       });
 
-      var called;
+      let called;
       $rootScope.$on('$stateChangeError', function (ev, to, toParams, from, fromParams, options) {
         called = true;
       });
@@ -177,12 +178,12 @@ describe('UI-Router v0.2.x $state events', function () {
 
     it('can be cancelled by preventDefault() in $stateNotFound', inject(function ($state, $q, $rootScope) {
       initStateTo(A);
-      var called;
+      let called;
       $rootScope.$on('$stateNotFound', function (ev) {
         ev.preventDefault();
         called = true;
       });
-      var promise = $state.transitionTo('never_defined', {});
+      const promise = $state.transitionTo('never_defined', {});
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(A);
@@ -191,61 +192,61 @@ describe('UI-Router v0.2.x $state events', function () {
 
     it('can be redirected in $stateNotFound', inject(function ($state, $q, $rootScope) {
       initStateTo(A);
-      var called;
+      let called;
       $rootScope.$on('$stateNotFound', function (ev, redirect) {
         redirect.to = D;
-        redirect.toParams = {x: '1', y: '2'};
+        redirect.toParams = { x: '1', y: '2' };
         called = true;
       });
-      var promise = $state.transitionTo('never_defined', {z: 3});
+      const promise = $state.transitionTo('never_defined', { z: 3 });
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(D);
-      expect(obj($state.params)).toEqual({x: '1', y: '2'});
+      expect(obj($state.params)).toEqual({ x: '1', y: '2' });
     }));
 
     it('can lazy-define a state in $stateNotFound', inject(function ($state, $q, $rootScope) {
-      initStateTo(DD, {x: 1, y: 2, z: 3});
-      var called;
+      initStateTo(DD, { x: 1, y: 2, z: 3 });
+      let called;
       $rootScope.$on('$stateNotFound', function (ev, redirect) {
-        stateProvider.state(redirect.to, {parent: DD, params: { w: {}}});
+        stateProvider.state(redirect.to, { parent: DD, params: { w: {} } });
         ev.retry = called = true;
       });
-      var promise = $state.go('DDD', {w: 4});
+      const promise = $state.go('DDD', { w: 4 });
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('DDD');
-      expect(obj($state.params)).toEqual({x: 1, y: 2, z: 3, w: 4});
+      expect(obj($state.params)).toEqual({ x: 1, y: 2, z: 3, w: 4 });
     }));
 
     it('can defer a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
       initStateTo(A);
-      var called;
-      var deferred = $q.defer();
+      let called;
+      const deferred = $q.defer();
       $rootScope.$on('$stateNotFound', function (ev, redirect) {
         ev.retry = deferred.promise;
         called = true;
       });
-      var promise = $state.go('AA', {a: 1});
-      stateProvider.state('AA', {parent: A, params: {a: {}}});
+      const promise = $state.go('AA', { a: 1 });
+      stateProvider.state('AA', { parent: A, params: { a: {} } });
       deferred.resolve();
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('AA');
-      expect(obj($state.params)).toEqual({a: 1});
+      expect(obj($state.params)).toEqual({ a: 1 });
     }));
 
     it('can defer and supersede a state transition in $stateNotFound', inject(function ($state, $q, $rootScope) {
       initStateTo(A);
-      var called;
-      var deferred = $q.defer();
+      let called;
+      const deferred = $q.defer();
       $rootScope.$on('$stateNotFound', function (ev, redirect) {
         ev.retry = deferred.promise;
         called = true;
       });
-      var promise = $state.go('AA', {a: 1});
+      const promise = $state.go('AA', { a: 1 });
       $state.go(B);
-      stateProvider.state('AA', {parent: A, params: {a: {}}});
+      stateProvider.state('AA', { parent: A, params: { a: {} } });
       deferred.resolve();
       $q.flush();
       expect(called).toBeTruthy();
@@ -254,33 +255,33 @@ describe('UI-Router v0.2.x $state events', function () {
     }));
 
     it('triggers $stateChangeSuccess', inject(function ($state, $q, $rootScope) {
-      initStateTo(E, {i: 'iii'});
-      var called;
+      initStateTo(E, { i: 'iii' });
+      let called;
       $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {
         expect(from).toBe(E);
-        expect(obj(fromParams)).toEqual({i: 'iii'});
+        expect(obj(fromParams)).toEqual({ i: 'iii' });
         expect(to).toBe(D);
-        expect(obj(toParams)).toEqual({x: '1', y: '2'});
+        expect(obj(toParams)).toEqual({ x: '1', y: '2' });
 
         expect($state.current).toBe(to); // $state has been updated
         expect(obj($state.params)).toEqual(obj(toParams));
         called = true;
       });
-      $state.transitionTo(D, {x: '1', y: '2'});
+      $state.transitionTo(D, { x: '1', y: '2' });
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(D);
     }));
 
     it('does not trigger $stateChangeSuccess when suppressed, but changes state', inject(function ($state, $q, $rootScope) {
-      initStateTo(E, {i: 'iii'});
-      var called;
+      initStateTo(E, { i: 'iii' });
+      let called;
 
       $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {
         called = true;
       });
 
-      $state.transitionTo(D, {x: '1', y: '2'}, {notify: false});
+      $state.transitionTo(D, { x: '1', y: '2' }, { notify: false });
       $q.flush();
 
       expect(called).toBeFalsy();
@@ -288,13 +289,13 @@ describe('UI-Router v0.2.x $state events', function () {
     }));
 
     it('does not trigger $stateChangeSuccess when suppressed, but updates params', inject(function ($state, $q, $rootScope) {
-      initStateTo(E, {x: 'iii'});
-      var called;
+      initStateTo(E, { x: 'iii' });
+      let called;
 
       $rootScope.$on('$stateChangeSuccess', function (ev, transition) {
         called = true;
       });
-      $state.transitionTo(E, {i: '1', y: '2'}, {notify: false});
+      $state.transitionTo(E, { i: '1', y: '2' }, { notify: false });
       $q.flush();
 
       expect(called).toBeFalsy();
@@ -308,7 +309,7 @@ describe('UI-Router v0.2.x $state events', function () {
       logEvents = true;
       $state.defaultErrorHandler(function() {});
 
-      var superseded = $state.transitionTo(F, {});
+      const superseded = $state.transitionTo(F, {});
       $q.flush();
       expect($state.current).toBe(A);
 
@@ -325,7 +326,7 @@ describe('UI-Router v0.2.x $state events', function () {
       logEvents = true;
       $state.defaultErrorHandler(function() {});
 
-      var superseded = $state.transitionTo(F, {});
+      const superseded = $state.transitionTo(F, {});
       $q.flush();
 
       $state.transitionTo(C, {});

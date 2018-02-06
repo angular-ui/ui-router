@@ -1,5 +1,9 @@
-var module = angular.mock.module;
-var uiRouter = require("../src/index");
+import * as angular from 'angular';
+import './util/matchers';
+
+declare var inject;
+
+const module = angular['mock'].module;
 
 describe('isState filter', function() {
   beforeEach(module('ui.router'));
@@ -21,15 +25,15 @@ describe('isState filter', function() {
     $q.flush();
     expect($parse('"a" | isState')($rootScope)).toBe(false);
   }));
-  
+
   it('should return true if the current state and param matches the input state', inject(function($parse, $state, $q, $rootScope) {
-    $state.go('with-param', {param: 'a'});
+    $state.go('with-param', { param: 'a' });
     $q.flush();
     expect($parse('"with-param" | isState: {param: "a"}')($rootScope)).toBe(true);
   }));
 
   it('should return false if the current state and param does not match the input state', inject(function($parse, $state, $q, $rootScope) {
-    $state.go('with-param', {param: 'b'});
+    $state.go('with-param', { param: 'b' });
     $q.flush();
     expect($parse('"with-param" | isState: {param: "a"}')($rootScope)).toBe(false);
   }));

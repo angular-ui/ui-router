@@ -1,5 +1,9 @@
-var module = angular.mock.module;
-var uiRouter = require("../src/index");
+import * as angular from 'angular';
+import './util/matchers';
+
+declare var inject;
+
+const module = angular['mock'].module;
 
 describe('uiView', function () {
   'use strict';
@@ -7,7 +11,7 @@ describe('uiView', function () {
   beforeEach(module('ui.router'));
 
   describe('scrollIntoView', function () {
-    var elem;
+    let elem;
 
     beforeEach(function () {
       elem = [{ scrollIntoView: jasmine.createSpy('scrollIntoView') }];
@@ -21,12 +25,12 @@ describe('uiView', function () {
       expect(elem[0].scrollIntoView).toHaveBeenCalled();
     }));
 
-	  it('should return the promise from the timeout', inject(function ($uiViewScroll, $timeout) {
-		  var promise = $uiViewScroll(elem);
+	   it('should return the promise from the timeout', inject(function ($uiViewScroll, $timeout) {
+      const promise = $uiViewScroll(elem);
 
-		  $timeout.flush();
-		  expect(elem[0].scrollIntoView).toHaveBeenCalled();
-		  expect(promise).toBeDefined();
+      $timeout.flush();
+		    expect(elem[0].scrollIntoView).toHaveBeenCalled();
+		    expect(promise).toBeDefined();
 	  }));
   });
 
