@@ -7,27 +7,16 @@ declare var inject;
 
 var module = angular['mock'].module;
 
-var router: UIRouter;
-var $umf: UrlMatcherFactory;
-var $url: UrlService;
-
-beforeEach(function() {
-  var app = angular.module('ui.router.router.test', []);
-  app.config(function ($uiRouterProvider) {
-    $umf = $uiRouterProvider.urlMatcherFactory;
-    $url = $uiRouterProvider.urlService;
-  });
-});
-
 describe("UrlMatcher", function () {
-  beforeEach(function() {
-    module('ui.router.router', 'ui.router.router.test');
+  var router: UIRouter;
+  var $umf: UrlMatcherFactory;
+  var $url: UrlService;
 
-    inject(function($injector) {
-      router = $injector.get('$uiRouter');
-      $injector.invoke($umf.$get, $umf);
-    });
-  });
+  beforeEach(inject(function($uiRouter, $urlMatcherFactory, $urlService) {
+    router = $uiRouter;
+    $umf = $urlMatcherFactory;
+    $url = $urlService;
+  }));
 
   describe("provider", function () {
 
@@ -563,7 +552,7 @@ describe("UrlMatcher", function () {
 
 describe("urlMatcherFactoryProvider", function () {
   describe(".type()", function () {
-    var m;
+    var $umf;
     beforeEach(module('ui.router.util', function($urlMatcherFactoryProvider) {
       $umf = $urlMatcherFactoryProvider;
       $urlMatcherFactoryProvider.type("myType", {}, function() {
@@ -572,10 +561,10 @@ describe("urlMatcherFactoryProvider", function () {
             is: angular.isObject
           };
       });
-      m = $umf.compile("/test?{foo:myType}");
     }));
 
     it("should handle arrays properly with config-time custom type definitions", inject(function ($stateParams) {
+      var m = $umf.compile("/test?{foo:myType}");
       expect(m.exec("/test", {foo: '1'})).toEqual({ foo: { status: 'decoded' } });
       expect(m.exec("/test", {foo: ['1', '2']})).toEqual({ foo: [ { status: 'decoded' }, { status: 'decoded' }] });
     }));
@@ -588,15 +577,12 @@ describe("urlMatcherFactoryProvider", function () {
 });
 
 describe("urlMatcherFactory", function () {
+  var $umf: UrlMatcherFactory;
+  var $url: UrlService;
 
-  var $umf;
-
-  beforeEach(module('ui.router.util', function($urlMatcherFactoryProvider) {
-    $umf = $urlMatcherFactoryProvider;
-  }));
-
-  beforeEach(inject(function($urlMatcherFactory) {
+  beforeEach(inject(function($urlMatcherFactory, $urlService) {
     $umf = $urlMatcherFactory;
+    $url = $urlService;
   }));
 
   it("compiles patterns", function () {
@@ -630,35 +616,35 @@ describe("urlMatcherFactory", function () {
 
   describe("typed parameters", function() {
     it("should accept object definitions", function () {
-      var type = { encode: function() {}, decode: function() {} };
+      var type = { encode: function() {}, decode: function() {} } as any;
       $umf.type("myType1", type);
       expect($umf.type("myType1").encode).toBe(type.encode);
     });
 
     it("should reject duplicate definitions", function () {
-      $umf.type("myType2", { encode: function () {}, decode: function () {} });
-      expect(function() { $umf.type("myType2", {}); }).toThrowError("A type named 'myType2' has already been defined.");
+      $umf.type("myType2", { encode: function () {}, decode: function () {} } as any);
+      expect(function() { $umf.type("myType2", {} as any); }).toThrowError("A type named 'myType2' has already been defined.");
     });
 
     it("should accept injected function definitions", inject(function ($stateParams) {
-      $umf.type("myType3", {}, function($stateParams) {
+      $umf.type("myType3", {} as any, function($stateParams) {
         return {
           decode: function() {
             return $stateParams;
           }
         };
-      });
+      } as any);
       expect($umf.type("myType3").decode()).toBe($stateParams);
     }));
 
     it("should accept annotated function definitions", inject(function ($stateParams) {
-      $umf.type("myAnnotatedType", {},['$stateParams', function(s) {
+      $umf.type("myAnnotatedType", {} as any, ['$stateParams', function(s) {
         return {
           decode: function() {
             return s;
           }
         };
-      }]);
+      }] as any);
       expect($umf.type("myAnnotatedType").decode()).toBe($stateParams);
     }));
 
@@ -995,30 +981,6 @@ describe("urlMatcherFactory", function () {
       expect(m.exec('/users/bob')).toEqual({ name: "bob" });
       expect(m.exec('/users/bob/')).toEqual({ name: "bob" });
       expect(m.exec('/users/bob//')).toBeNull();
-    });
-  });
-
-  xdescribe("parameter isolation", function() {
-    it("should allow parameters of the same name in different segments", function() {
-      var m = $umf.compile('/users/:id').append($umf.compile('/photos/:id'));
-      expect(m.exec('/users/11/photos/38', {}, { isolate: true })).toEqual([{ id: '11' }, { id: '38' }]);
-    });
-
-    it("should prioritize the last child when non-isolated", function() {
-      var m = $umf.compile('/users/:id').append($umf.compile('/photos/:id'));
-      expect(m.exec('/users/11/photos/38')).toEqual({ id: '38' });
-    });
-
-    it("should copy search parameter values to all matching segments", function() {
-      var m = $umf.compile('/users/:id?from').append($umf.compile('/photos/:id?from'));
-      var result = m.exec('/users/11/photos/38', { from: "bob" }, { isolate: true });
-      expect(result).toEqual([{ from: "bob", id: "11" }, { from: "bob", id: "38" }]);
-    });
-
-    it("should pair empty objects with static segments", function() {
-      var m = $umf.compile('/users/:id').append($umf.compile('/foo')).append($umf.compile('/photos/:id'));
-      var result = m.exec('/users/11/foo/photos/38', {}, { isolate: true });
-      expect(result).toEqual([{ id: '11' }, {}, { id: '38' }]);
     });
   });
 });
