@@ -1,16 +1,15 @@
-var module      = angular.mock.module;
-var uiRouter    = require("../src/index");
-var services    = require("@uirouter/core").services;
-var Param       = uiRouter.Param;
-var ParamTypes  = uiRouter.ParamTypes;
-var UrlMatcher  = uiRouter.UrlMatcher;
-var prop        = uiRouter.prop;
-var map         = uiRouter.map;
-var find        = uiRouter.find;
+import * as angular from "angular";
+import { find, map, prop, UrlMatcher, } from "../src/index";
+import { UIRouter, UrlMatcherFactory, UrlService } from '@uirouter/core';
+import "./util/matchers";
 
-var router;
-var $umf;
-var $url;
+declare var inject;
+
+var module = angular['mock'].module;
+
+var router: UIRouter;
+var $umf: UrlMatcherFactory;
+var $url: UrlService;
 
 beforeEach(function() {
   var app = angular.module('ui.router.router.test', []);
@@ -148,7 +147,7 @@ describe("UrlMatcher", function () {
       err = new Error("Invalid parameter name 'periods.' in pattern '/users/?from&to&periods.'");
       expect(function() { $umf.compile('/users/?from&to&periods.'); }).toThrow(err);
     });
-  });  
+  });
 
   describe(".exec()", function() {
     it("should capture parameter values", function () {
@@ -166,12 +165,12 @@ describe("UrlMatcher", function () {
       var m = $umf.compile('/users/:id/details/{type}/{repeat:[0-9]+}?from&to');
       expect(m.exec('/users/123/details/what/thisShouldBeDigits', {})).toBeNull();
     });
-	
+
     it("should not use optional regexp for '/'", function () {
       var m = $umf.compile('/{language:(?:fr|en|de)}');
       expect(m.exec('/', {})).toBeNull();
     });
-	
+
     it("should work with empty default value", function () {
       var m = $umf.compile('/foo/:str', { params: { str: { value: "" } } });
       expect(m.exec('/foo/', {})).toEqual({ str: "" });
@@ -181,7 +180,7 @@ describe("UrlMatcher", function () {
       var m = $umf.compile('/foo/{param:(?:foo|bar|)}', { params: { param: { value: "" } } });
       expect(m.exec('/foo/', {})).toEqual({ param: "" });
     });
-	
+
     it("should treat the URL as already decoded and does not decode it further", function () {
       expect($umf.compile('/users/:id').exec('/users/100%25', {})).toEqual({ id: '100%25'});
     });
