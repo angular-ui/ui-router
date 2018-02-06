@@ -1,9 +1,9 @@
-import * as angular from "angular";
+import * as angular from 'angular';
 import { UIRouter } from '@uirouter/core';
 
 declare let inject;
 
-let module = angular['mock'].module;
+const module = angular['mock'].module;
 
 describe('templateFactory', function () {
   beforeEach(module('ui.router'));
@@ -88,10 +88,10 @@ describe('templateFactory', function () {
   if (angular.version.minor >= 5) {
     describe('component template builder', () => {
       let router: UIRouter, el, rootScope;
-      let cmp = { template: 'hi' };
+      const cmp = { template: 'hi' };
 
       beforeEach(() => {
-        let mod = angular.module('foo', []);
+        const mod = angular.module('foo', []);
         mod.component('myComponent', cmp);
         mod.component('dataComponent', cmp);
         mod.component('xComponent', cmp);
@@ -123,7 +123,7 @@ describe('templateFactory', function () {
         router.stateService.go('cmp');
         rootScope.$digest();
         expect(el.html()).toMatch(/\<x-x-component/);
-      })
+      });
     });
   }
 });
