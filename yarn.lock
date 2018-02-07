@@ -14,27 +14,35 @@
   dependencies:
     "@types/angular" "*"
 
-"@types/angular@*":
+"@types/angular@*", "@types/angular@1.6.25":
   version "1.6.25"
   resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.6.25.tgz#d403e94b40e06af3d9b76da5031795a9b929d08a"
 
-"@types/angular@^1.6.42":
-  version "1.6.42"
-  resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.6.42.tgz#8d587afeccff635900ffb04a10a0cae894704ef2"
+"@types/events@*":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/events/-/events-1.1.0.tgz#93b1be91f63c184450385272c47b6496fd028e02"
 
-"@types/fs-extra@4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-4.0.0.tgz#1dd742ad5c9bce308f7a52d02ebc01421bc9102f"
+"@types/fs-extra@^4.0.0":
+  version "4.0.7"
+  resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-4.0.7.tgz#02533262386b5a6b9a49797dc82feffdf269140a"
   dependencies:
     "@types/node" "*"
 
-"@types/handlebars@4.0.31":
-  version "4.0.31"
-  resolved "https://registry.yarnpkg.com/@types/handlebars/-/handlebars-4.0.31.tgz#a7fba66fafe42713aee88eeca8db91192efe6e72"
+"@types/glob@*":
+  version "5.0.35"
+  resolved "https://registry.yarnpkg.com/@types/glob/-/glob-5.0.35.tgz#1ae151c802cece940443b5ac246925c85189f32a"
+  dependencies:
+    "@types/events" "*"
+    "@types/minimatch" "*"
+    "@types/node" "*"
 
-"@types/highlight.js@9.1.8":
-  version "9.1.8"
-  resolved "https://registry.yarnpkg.com/@types/highlight.js/-/highlight.js-9.1.8.tgz#d227f18bcb8f3f187e16965f2444859a04689758"
+"@types/handlebars@^4.0.31":
+  version "4.0.36"
+  resolved "https://registry.yarnpkg.com/@types/handlebars/-/handlebars-4.0.36.tgz#ff57c77fa1ab6713bb446534ddc4d979707a3a79"
+
+"@types/highlight.js@^9.1.8":
+  version "9.12.2"
+  resolved "https://registry.yarnpkg.com/@types/highlight.js/-/highlight.js-9.12.2.tgz#6ee7cd395effe5ec80b515d3ff1699068cd0cd1d"
 
 "@types/jasmine@2.8.6":
   version "2.8.6"
@@ -44,15 +52,19 @@
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.3.0.tgz#6316ac20a1a13c5d521a2dc661befc7184f73f5b"
 
-"@types/lodash@4.14.74":
-  version "4.14.74"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.74.tgz#ac3bd8db988e7f7038e5d22bd76a7ba13f876168"
+"@types/lodash@^4.14.37":
+  version "4.14.102"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.102.tgz#586a3e22385fc79b07cef9c5a1c8a5387986fbc8"
 
-"@types/marked@0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@types/marked/-/marked-0.3.0.tgz#583c223dd33385a1dda01aaf77b0cd0411c4b524"
+"@types/marked@0.0.28":
+  version "0.0.28"
+  resolved "https://registry.yarnpkg.com/@types/marked/-/marked-0.0.28.tgz#44ba754e9fa51432583e8eb30a7c4dd249b52faa"
 
-"@types/minimatch@2.0.29":
+"@types/minimatch@*":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
+
+"@types/minimatch@^2.0.29":
   version "2.0.29"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-2.0.29.tgz#5002e14f75e2d71e564281df0431c8c1b4a2a36a"
 
@@ -60,24 +72,26 @@
   version "8.0.6"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-8.0.6.tgz#ed2c3e011cb51ccd3cf874989130f1b9ffe06069"
 
-"@types/shelljs@0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@types/shelljs/-/shelljs-0.7.0.tgz#229c157c6bc1e67d6b990e6c5e18dbd2ff58cff0"
+"@types/shelljs@^0.7.0":
+  version "0.7.8"
+  resolved "https://registry.yarnpkg.com/@types/shelljs/-/shelljs-0.7.8.tgz#4b4d6ee7926e58d7bca448a50ba442fd9f6715bd"
   dependencies:
+    "@types/glob" "*"
     "@types/node" "*"
 
 "@uirouter/core@5.0.16":
   version "5.0.16"
   resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.16.tgz#c6f9e2041df1b6ad3bc28b089e55241a1cb4610f"
 
-"@uirouter/publish-scripts@2.2.10":
-  version "2.2.10"
-  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.2.10.tgz#08db3cfeacb1961b7668eb55d70956a7853aea28"
+"@uirouter/publish-scripts@2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.3.0.tgz#63c00cbd126cb38d9e94a6f8299cf92e6e303e6f"
   dependencies:
     conventional-changelog "^1.1.4"
     conventional-changelog-ui-router-core "^1.4.2"
     find-parent-dir "^0.3.0"
     git-semver-tags "^1.2.1"
+    lodash "^4.17.5"
     npm-run-all "^4.1.1"
     open "^0.0.5"
     readline-sync "^1.4.7"
@@ -85,6 +99,11 @@
     shx "^0.2.2"
     tmp "^0.0.33"
     tweak-sourcemap-paths "0.0.3"
+    typedoc "0.8.0"
+    typedoc-plugin-external-module-name "1.1.1"
+    typedoc-plugin-internal-external "1.0.10"
+    typedoc-plugin-ui-router "1.0.6"
+    ui-router-typedoc-themes "1.0.2"
     yargs "^9.0.1"
 
 JSONStream@^1.0.3, JSONStream@^1.0.4:
@@ -3034,6 +3053,10 @@ lodash@^3.8.0:
   version "3.10.1"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
 
+lodash@^4.17.5:
+  version "4.17.5"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.5.tgz#99a92d65c0272debe8c96b6057bc8fbfa3bed511"
+
 log4js@^2.3.9:
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/log4js/-/log4js-2.4.1.tgz#b0c4e88133e0e3056afdc6f91f7f377576158778"
@@ -5088,33 +5111,29 @@ typedoc-default-themes@^0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/typedoc-default-themes/-/typedoc-default-themes-0.5.0.tgz#6dc2433e78ed8bea8e887a3acde2f31785bd6227"
 
-typedoc-plugin-external-module-name@1.0.10:
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-external-module-name/-/typedoc-plugin-external-module-name-1.0.10.tgz#f97c1df450d9ec75bf06b72bf3f9a12382184135"
+typedoc-plugin-external-module-name@1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-external-module-name/-/typedoc-plugin-external-module-name-1.1.1.tgz#0ef2d6a760b42c703519c474258b6f062983aa83"
 
 typedoc-plugin-internal-external@1.0.10:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/typedoc-plugin-internal-external/-/typedoc-plugin-internal-external-1.0.10.tgz#df9fd6ee1743f009c39b8746a3c26edc36ce8bcd"
 
-typedoc-plugin-single-line-tags@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-single-line-tags/-/typedoc-plugin-single-line-tags-1.0.0.tgz#4210b4fbd18d9b8f753e151047965195b4081261"
-
 typedoc-plugin-ui-router@1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/typedoc-plugin-ui-router/-/typedoc-plugin-ui-router-1.0.6.tgz#6d452d499d1bd35701ebfdeb2beee670d8530e8b"
 
-typedoc@0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.9.0.tgz#159bff7c7784ce5b91d86f3e4cc8928e62040957"
+typedoc@0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.8.0.tgz#d7172bc6a29964f451b7609c005beadadefe2361"
   dependencies:
-    "@types/fs-extra" "4.0.0"
-    "@types/handlebars" "4.0.31"
-    "@types/highlight.js" "9.1.8"
-    "@types/lodash" "4.14.74"
-    "@types/marked" "0.3.0"
-    "@types/minimatch" "2.0.29"
-    "@types/shelljs" "0.7.0"
+    "@types/fs-extra" "^4.0.0"
+    "@types/handlebars" "^4.0.31"
+    "@types/highlight.js" "^9.1.8"
+    "@types/lodash" "^4.14.37"
+    "@types/marked" "0.0.28"
+    "@types/minimatch" "^2.0.29"
+    "@types/shelljs" "^0.7.0"
     fs-extra "^4.0.0"
     handlebars "^4.0.6"
     highlight.js "^9.0.0"

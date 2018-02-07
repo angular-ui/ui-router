@@ -24,10 +24,9 @@
     "test:downstream": "npm run build && test_downstream_projects",
     "watch": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1",
     "debug": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1 --browsers=Chrome",
-    "docs": "./scripts/docs.js",
+    "docs": "generate_docs && publish_docs",
     "release": "release --deps @uirouter/core && node ./scripts/bower_release.js",
     "prepublishOnly": "npm run build",
-    "publishdocs": "node scripts/publishdocs.js",
     "artifacts": "artifact_tagging"
   },
   "homepage": "https://ui-router.github.io",
@@ -77,12 +76,12 @@
     "angular": ">=1.2.0"
   },
   "devDependencies": {
-    "@types/angular": "^1.6.42",
+    "@types/angular": "1.6.25",
     "@types/angular-animate": "1.5.9",
     "@types/angular-mocks": "1.5.11",
     "@types/jasmine": "2.8.6",
     "@types/jquery": "3.3.0",
-    "@uirouter/publish-scripts": "2.2.10",
+    "@uirouter/publish-scripts": "2.3.0",
     "dts-downlevel": "0.3.0",
     "fork-ts-checker-webpack-plugin": "0.3.0",
     "jasmine-core": "3.0.0",
@@ -103,13 +102,7 @@
     "ts-loader": "3.3.1",
     "tslint": "5.9.1",
     "tslint-eslint-rules": "4.1.1",
-    "typedoc": "0.9.0",
-    "typedoc-plugin-external-module-name": "1.0.10",
-    "typedoc-plugin-internal-external": "1.0.10",
-    "typedoc-plugin-single-line-tags": "1.0.0",
-    "typedoc-plugin-ui-router": "1.0.6",
     "typescript": "2.6.2",
-    "ui-router-typedoc-themes": "1.0.2",
     "webpack": "3.10.0"
   }
 }
