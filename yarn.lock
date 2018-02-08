@@ -83,9 +83,9 @@
   version "5.0.16"
   resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.16.tgz#c6f9e2041df1b6ad3bc28b089e55241a1cb4610f"
 
-"@uirouter/publish-scripts@2.3.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.3.0.tgz#63c00cbd126cb38d9e94a6f8299cf92e6e303e6f"
+"@uirouter/publish-scripts@2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.3.1.tgz#0b380d81ae410f950010bdf964dd402b03cb30f4"
   dependencies:
     conventional-changelog "^1.1.4"
     conventional-changelog-ui-router-core "^1.4.2"
