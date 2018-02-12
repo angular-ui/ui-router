@@ -1,3 +1,18 @@
+## 1.0.15 (2018-02-12)
+[Compare `@uirouter/angularjs` versions 1.0.14 and 1.0.15](https://github.com/angular-ui/ui-router/compare/1.0.14...1.0.15)
+
+### Bug Fixes
+
+* **package:** update [@uirouter](https://github.com/uirouter)/core to version 5.0.17 ([1b54264](https://github.com/angular-ui/ui-router/commit/1b54264))
+
+
+### Updated `@uirouter/core` from 5.0.16 to 5.0.17
+[Compare `@uirouter/core` versions 5.0.16 and 5.0.17](https://github.com/ui-router/core/compare/5.0.16...5.0.17)
+
+### Bug Fixes
+
+* **core:** Fix leak of old transitions by mutating pathnode*.resolvables*.data ([0a1f518](https://github.com/ui-router/core/commit/0a1f518))
+
 ## 1.0.14 (2018-01-31)
 [Compare `@uirouter/angularjs` versions 1.0.13 and 1.0.14](https://github.com/angular-ui/ui-router/compare/1.0.13...1.0.14)
 
