@@ -90,7 +90,7 @@
     "karma-jasmine": "1.1.1",
     "karma-phantomjs-launcher": "1.0.4",
     "karma-sourcemap-loader": "0.3.7",
-    "karma-webpack": "2.0.9",
+    "karma-webpack": "2.0.10",
     "lodash": "4.17.5",
     "rollup": "0.55.5",
     "rollup-plugin-node-resolve": "3.0.2",
