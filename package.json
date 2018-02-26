@@ -82,15 +82,16 @@
     "@types/jasmine": "2.8.6",
     "@types/jquery": "3.3.0",
     "@uirouter/publish-scripts": "2.3.1",
+    "babel-runtime": "^6.26.0",
     "dts-downlevel": "0.3.0",
-    "fork-ts-checker-webpack-plugin": "0.3.0",
+    "fork-ts-checker-webpack-plugin": "0.4.0",
     "jasmine-core": "3.0.0",
     "karma": "2.0.0",
     "karma-chrome-launcher": "2.2.0",
     "karma-jasmine": "1.1.1",
     "karma-phantomjs-launcher": "1.0.4",
     "karma-sourcemap-loader": "0.3.7",
-    "karma-webpack": "2.0.9",
+    "karma-webpack": "2.0.11",
     "lodash": "4.17.5",
     "rollup": "0.55.5",
     "rollup-plugin-node-resolve": "3.0.2",
@@ -98,10 +99,10 @@
     "rollup-plugin-uglify": "3.0.0",
     "shelljs": "0.8.1",
     "shx": "0.2.2",
-    "ts-loader": "3.5.0",
+    "ts-loader": "4.0.0",
     "tslint": "5.9.1",
     "tslint-eslint-rules": "4.1.1",
-    "typescript": "2.7.1",
-    "webpack": "3.11.0"
+    "typescript": "2.7.2",
+    "webpack": "4.0.0"
   }
 }

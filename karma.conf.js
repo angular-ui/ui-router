@@ -32,6 +32,7 @@ function karmaServedFiles(ngVersion) {
 }
 
 var webpackConfig = module.exports = {
+  mode: 'development',
   resolve: {
     modules: ['node_modules'],
     extensions: ['.js', '.jsx', '.ts', '.tsx']
@@ -76,7 +77,7 @@ module.exports = function(config) {
 
     // Start these browsers, currently available:
     // Chrome, ChromeCanary, Firefox, Opera, Safari, PhantomJS
-    browsers: ['PhantomJS'],
+    browsers: ['ChromeHeadless'],
 
     frameworks: ['jasmine'],
 
@@ -84,7 +85,6 @@ module.exports = function(config) {
       require('karma-webpack'),
       require('karma-sourcemap-loader'),
       require('karma-jasmine'),
-      require('karma-phantomjs-launcher'),
       require('karma-chrome-launcher')
     ],
 
