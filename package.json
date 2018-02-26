@@ -103,6 +103,6 @@
     "tslint": "5.9.1",
     "tslint-eslint-rules": "5.1.0",
     "typescript": "2.7.2",
-    "webpack": "4.0.0"
+    "webpack": "4.0.1"
   }
 }
