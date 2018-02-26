@@ -1479,7 +1479,7 @@ diffie-hellman@^5.0.0:
     miller-rabin "^4.0.0"
     randombytes "^2.0.0"
 
-doctrine@^0.7.2:
+doctrine@0.7.2:
   version "0.7.2"
   resolved "https://registry.yarnpkg.com/doctrine/-/doctrine-0.7.2.tgz#7cb860359ba3be90e040b26b729ce4bfa654c523"
   dependencies:
@@ -4579,9 +4579,9 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^2.0.0"
     inherits "^2.0.1"
 
-rollup-plugin-node-resolve@3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-node-resolve/-/rollup-plugin-node-resolve-3.0.2.tgz#38babc12fd404cc2ba1ff68648fe43fa3ffee6b0"
+rollup-plugin-node-resolve@3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-node-resolve/-/rollup-plugin-node-resolve-3.0.3.tgz#8f57b253edd00e5b0ad0aed7b7e9cf5982e98fa4"
   dependencies:
     builtin-modules "^1.1.0"
     is-module "^1.0.0"
@@ -4607,9 +4607,9 @@ rollup-pluginutils@^2.0.1:
     estree-walker "^0.3.0"
     micromatch "^2.3.11"
 
-rollup@0.55.5:
-  version "0.55.5"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.55.5.tgz#2f88c300f7cf24b5ec2dca8a6aba73b04e087e93"
+rollup@0.56.3:
+  version "0.56.3"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.56.3.tgz#7900695531afa1badd3235f285cc4aa0d49ce254"
 
 run-queue@^1.0.0, run-queue@^1.0.3:
   version "1.0.3"
@@ -5267,17 +5267,21 @@ ts-loader@4.0.0:
     micromatch "^3.1.4"
     semver "^5.0.1"
 
-tslib@^1.0.0, tslib@^1.8.0, tslib@^1.8.1:
+tslib@1.9.0, tslib@^1.7.1:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.9.0.tgz#e37a86fda8cbbaf23a057f473c9f4dc64e5fc2e8"
+
+tslib@^1.8.0, tslib@^1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.8.1.tgz#6946af2d1d651a7b1863b531d6e5afa41aa44eac"
 
-tslint-eslint-rules@4.1.1:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/tslint-eslint-rules/-/tslint-eslint-rules-4.1.1.tgz#7c30e7882f26bc276bff91d2384975c69daf88ba"
+tslint-eslint-rules@5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/tslint-eslint-rules/-/tslint-eslint-rules-5.1.0.tgz#3232b318da55dbb5a83e3f5d657c1ddbb27b9ff2"
   dependencies:
-    doctrine "^0.7.2"
-    tslib "^1.0.0"
-    tsutils "^1.4.0"
+    doctrine "0.7.2"
+    tslib "1.9.0"
+    tsutils "2.8.0"
 
 tslint@5.9.1:
   version "5.9.1"
@@ -5300,9 +5304,11 @@ tsscmp@~1.0.0:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/tsscmp/-/tsscmp-1.0.5.tgz#7dc4a33af71581ab4337da91d85ca5427ebd9a97"
 
-tsutils@^1.4.0:
-  version "1.9.1"
-  resolved "https://registry.yarnpkg.com/tsutils/-/tsutils-1.9.1.tgz#b9f9ab44e55af9681831d5f28d0aeeaf5c750cb0"
+tsutils@2.8.0:
+  version "2.8.0"
+  resolved "https://registry.yarnpkg.com/tsutils/-/tsutils-2.8.0.tgz#0160173729b3bf138628dd14a1537e00851d814a"
+  dependencies:
+    tslib "^1.7.1"
 
 tsutils@^2.12.1:
   version "2.16.0"
