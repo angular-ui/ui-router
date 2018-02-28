@@ -409,7 +409,7 @@ babel-code-frame@^6.22.0:
     esutils "^2.0.2"
     js-tokens "^3.0.2"
 
-babel-runtime@^6.26.0:
+babel-runtime@^6.0.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.26.0.tgz#965c7058668e82b55d7bfe04ff2337bc8b5647fe"
   dependencies:
@@ -2926,14 +2926,15 @@ karma-sourcemap-loader@0.3.7:
   dependencies:
     graceful-fs "^4.1.2"
 
-karma-webpack@2.0.11:
-  version "2.0.11"
-  resolved "https://registry.yarnpkg.com/karma-webpack/-/karma-webpack-2.0.11.tgz#c699e8ad7cedfb045573e161ffe1d12bde181f07"
+karma-webpack@^2.0.13:
+  version "2.0.13"
+  resolved "https://registry.yarnpkg.com/karma-webpack/-/karma-webpack-2.0.13.tgz#cf56e3056c15b7747a0bb2140fc9a6be41dd9f02"
   dependencies:
     async "^2.0.0"
+    babel-runtime "^6.0.0"
     loader-utils "^1.0.0"
     lodash "^4.0.0"
-    source-map "^0.7.0"
+    source-map "^0.5.6"
     webpack-dev-middleware "^1.12.0"
 
 karma@2.0.0:
@@ -4894,10 +4895,6 @@ source-map@^0.5.6:
 source-map@^0.6.1, source-map@~0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
-
-source-map@^0.7.0:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.7.1.tgz#493620ba1692945d680b93862435bf0ed95a2aa4"
 
 source-map@~0.5.1, source-map@~0.5.3, source-map@~0.5.6:
   version "0.5.7"
