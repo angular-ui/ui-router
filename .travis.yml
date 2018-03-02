@@ -25,7 +25,7 @@ matrix:
   - env: CORE_BRANCH=master UPSTREAM_PKGS=@uirouter/core DOWNSTREAM=true
 notifications:
   slack:
-    on_success: change
+    on_success: never
     rooms:
       secure: alXA+pERLtF4DNctl+WaISO3uzUA/JzVCzSrDlNsV9Jvx1HdAqRNbrrnNYzCZBIU6OOv5YBGFbq79v5NPKzMPzoR8dp3PahlxRgucxALweoTCXY5DuDHVSI9ULLl2PND7QOfKyUALuAz5nmT7omPVxRKCpBkVsqewLfMeW1MRgE=
 sudo: false
