@@ -83,7 +83,7 @@
     "@types/jquery": "3.3.1",
     "@uirouter/publish-scripts": "2.3.1",
     "dts-downlevel": "0.3.0",
-    "fork-ts-checker-webpack-plugin": "0.4.0",
+    "fork-ts-checker-webpack-plugin": "0.4.1",
     "jasmine-core": "3.1.0",
     "karma": "2.0.0",
     "karma-chrome-launcher": "2.2.0",
