@@ -1966,9 +1966,9 @@ forever-agent@~0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/forever-agent/-/forever-agent-0.6.1.tgz#fbc71f0c41adeb37f96c577ad1ed42d8fdacca91"
 
-fork-ts-checker-webpack-plugin@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/fork-ts-checker-webpack-plugin/-/fork-ts-checker-webpack-plugin-0.4.0.tgz#a2a549d24368f209d8c0d8e366ddedbb1a070cb6"
+fork-ts-checker-webpack-plugin@0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/fork-ts-checker-webpack-plugin/-/fork-ts-checker-webpack-plugin-0.4.1.tgz#718801621c50c7f20de9c8e6a68a2db228a4081f"
   dependencies:
     babel-code-frame "^6.22.0"
     chalk "^1.1.3"
