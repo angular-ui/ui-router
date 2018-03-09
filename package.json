@@ -80,7 +80,7 @@
     "@types/angular-animate": "1.5.9",
     "@types/angular-mocks": "1.5.11",
     "@types/jasmine": "2.8.6",
-    "@types/jquery": "3.3.0",
+    "@types/jquery": "3.3.1",
     "@uirouter/publish-scripts": "2.3.1",
     "dts-downlevel": "0.3.0",
     "fork-ts-checker-webpack-plugin": "0.4.0",
