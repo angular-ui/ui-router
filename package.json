@@ -83,7 +83,7 @@
     "@types/jquery": "3.3.1",
     "@uirouter/publish-scripts": "2.3.1",
     "dts-downlevel": "0.3.0",
-    "fork-ts-checker-webpack-plugin": "0.4.0",
+    "fork-ts-checker-webpack-plugin": "0.4.1",
     "jasmine-core": "3.1.0",
     "karma": "2.0.0",
     "karma-chrome-launcher": "2.2.0",
@@ -92,16 +92,16 @@
     "karma-sourcemap-loader": "0.3.7",
     "karma-webpack": "^2.0.13",
     "lodash": "4.17.5",
-    "rollup": "0.56.3",
-    "rollup-plugin-node-resolve": "3.0.3",
+    "rollup": "0.56.5",
+    "rollup-plugin-node-resolve": "3.2.0",
     "rollup-plugin-sourcemaps": "0.4.2",
     "rollup-plugin-uglify": "3.0.0",
     "shelljs": "0.8.1",
     "shx": "0.2.2",
-    "ts-loader": "4.0.0",
+    "ts-loader": "4.0.1",
     "tslint": "5.9.1",
     "tslint-eslint-rules": "5.1.0",
     "typescript": "2.7.2",
-    "webpack": "4.0.0"
+    "webpack": "4.1.1"
   }
 }
