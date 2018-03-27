@@ -31,30 +31,6 @@ function karmaServedFiles(ngVersion) {
   return angularFiles.concat('test/index.js');
 }
 
-var webpackConfig = module.exports = {
-  mode: 'development',
-  resolve: {
-    modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.ts', '.tsx']
-  },
-
-  devtool: 'inline-source-map',
-
-  module: {
-    rules: [
-      { test: /\.tsx?$/, loader: 'ts-loader', options: { transpileOnly: true } }
-    ]
-  },
-
-  stats: false,
-
-  plugins: [
-    new ForkTsCheckerWebpackPlugin(),
-  ],
-
-  externals: [ 'angular' ]
-};
-
 module.exports = function(config) {
   var ngVersion = config.ngversion || DEFAULT_NG_VERSION;
 
@@ -96,9 +72,30 @@ module.exports = function(config) {
       require('karma-chrome-launcher')
     ],
 
-    webpack: webpackConfig,
+    webpack: {
+      mode: 'development',
+      resolve: {
+        modules: ['node_modules'],
+        extensions: ['.js', '.jsx', '.ts', '.tsx']
+      },
+
+      devtool: 'inline-source-map',
+
+      module: {
+        rules: [
+          { test: /\.tsx?$/, loader: 'ts-loader', options: { transpileOnly: true } }
+        ]
+      },
+
+      plugins: [
+        new ForkTsCheckerWebpackPlugin(),
+      ],
+
+      externals: [ 'angular' ]
+    },
+
     webpackMiddleware: {
-      stats: { chunks: false },
+      stats: 'minimal',
     },
 
     /* Files *available to be served* by karma, i.e., anything that will be require()'d */
