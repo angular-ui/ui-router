@@ -66,9 +66,12 @@ module.exports = function(config) {
     // level of logging
     // possible values: LOG_DISABLE, LOG_ERROR, LOG_WARN, LOG_INFO, LOG_DEBUG
     logLevel: "warn",
-    // possible values: 'dots', 'progress'
-    reporters: 'dots',
+
+    reporters: ['super-dots', 'mocha'],
     colors: true,
+    mochaReporter: {
+      output: 'minimal',
+    },
 
     port: 8080,
 
@@ -87,6 +90,8 @@ module.exports = function(config) {
     plugins: [
       require('karma-webpack'),
       require('karma-sourcemap-loader'),
+      require('karma-super-dots-reporter'),
+      require('karma-mocha-reporter'),
       require('karma-jasmine'),
       require('karma-chrome-launcher')
     ],
