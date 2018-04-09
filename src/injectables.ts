@@ -53,8 +53,17 @@
 /* tslint:disable:prefer-const */
 import { StateProvider } from './stateProvider';
 import {
-    StateService, TransitionService, Transition, UrlRouter, UrlMatcherFactory,
-    StateParams, StateRegistry, UIRouterGlobals, UIRouter, Trace, UrlService,
+  StateService,
+  TransitionService,
+  Transition,
+  UrlRouter,
+  UrlMatcherFactory,
+  StateParams,
+  StateRegistry,
+  UIRouterGlobals,
+  UIRouter,
+  Trace,
+  UrlService,
 } from '@uirouter/core';
 import { UIViewScrollProvider } from './viewScroll';
 import { UrlRouterProvider } from './urlRouterProvider';
@@ -141,7 +150,7 @@ let $uiRouterGlobals: UIRouterGlobals;
  *
  * #### Note: This object is also exposed as [[$uiRouterProvider]] for injection during angular config time.
  */
-let $uiRouter: UIRouter ;
+let $uiRouter: UIRouter;
 
 /**
  * The UI-Router instance
@@ -391,6 +400,3 @@ let $urlMatcherFactory: UrlMatcherFactory;
  * @deprecated
  */
 let $urlMatcherFactoryProvider: UrlMatcherFactory;
-
-
-

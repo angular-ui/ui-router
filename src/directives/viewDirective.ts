@@ -6,9 +6,29 @@ import { ng as angular } from '../angular';
 import { IInterpolateService, IScope, ITranscludeFunction, IAugmentedJQuery, ITimeoutService } from 'angular';
 
 import {
-    extend, unnestR, filter, tail, isDefined, isFunction, isString, trace, parse,
-    ActiveUIView, TransitionService, ResolveContext, Transition, PathNode, StateDeclaration,
-    Param, kebobString, HookRegOptions, ViewService, $QLike, Obj, TypedMap, noop,
+  extend,
+  unnestR,
+  filter,
+  tail,
+  isDefined,
+  isFunction,
+  isString,
+  trace,
+  parse,
+  ActiveUIView,
+  TransitionService,
+  ResolveContext,
+  Transition,
+  PathNode,
+  StateDeclaration,
+  Param,
+  kebobString,
+  HookRegOptions,
+  ViewService,
+  $QLike,
+  Obj,
+  TypedMap,
+  noop,
 } from '@uirouter/core';
 import { Ng1ViewConfig } from '../statebuilders/views';
 import { Ng1Controller, Ng1StateDeclaration } from '../interface';
@@ -25,7 +45,7 @@ export type UIViewData = {
 export type UIViewAnimData = {
   $animEnter: Promise<any>;
   $animLeave: Promise<any>;
-  $$animLeave: { resolve: () => any; } // "deferred"
+  $$animLeave: { resolve: () => any }; // "deferred"
 };
 
 /**
@@ -154,214 +174,228 @@ export type UIViewAnimData = {
  * ```
  */
 export let uiView: ng1_directive;
-uiView = ['$view', '$animate', '$uiViewScroll', '$interpolate', '$q',
-function $ViewDirective($view: ViewService, $animate: any, $uiViewScroll: any, $interpolate: IInterpolateService, $q: $QLike) {
+uiView = [
+  '$view',
+  '$animate',
+  '$uiViewScroll',
+  '$interpolate',
+  '$q',
+  function $ViewDirective(
+    $view: ViewService,
+    $animate: any,
+    $uiViewScroll: any,
+    $interpolate: IInterpolateService,
+    $q: $QLike,
+  ) {
+    function getRenderer(attrs: Obj, scope: IScope) {
+      return {
+        enter: function(element: JQuery, target: any, cb: Function) {
+          if (angular.version.minor > 2) {
+            $animate.enter(element, null, target).then(cb);
+          } else {
+            $animate.enter(element, null, target, cb);
+          }
+        },
+        leave: function(element: JQuery, cb: Function) {
+          if (angular.version.minor > 2) {
+            $animate.leave(element).then(cb);
+          } else {
+            $animate.leave(element, cb);
+          }
+        },
+      };
+    }
 
-  function getRenderer(attrs: Obj, scope: IScope) {
-    return {
-      enter: function(element: JQuery, target: any, cb: Function) {
-        if (angular.version.minor > 2) {
-          $animate.enter(element, null, target).then(cb);
-        } else {
-          $animate.enter(element, null, target, cb);
-        }
-      },
-      leave: function(element: JQuery, cb: Function) {
-        if (angular.version.minor > 2) {
-          $animate.leave(element).then(cb);
-        } else {
-          $animate.leave(element, cb);
-        }
-      },
+    function configsEqual(config1: Ng1ViewConfig, config2: Ng1ViewConfig) {
+      return config1 === config2;
+    }
+
+    const rootData = {
+      $cfg: { viewDecl: { $context: $view._pluginapi._rootViewContext() } },
+      $uiView: {},
     };
-  }
 
-  function configsEqual(config1: Ng1ViewConfig, config2: Ng1ViewConfig) {
-    return config1 === config2;
-  }
-
-  const rootData = {
-    $cfg: { viewDecl: { $context: $view._pluginapi._rootViewContext() } },
-    $uiView: { },
-  };
-
-  const directive = {
-    count: 0,
-    restrict: 'ECA',
-    terminal: true,
-    priority: 400,
-    transclude: 'element',
-    compile: function (tElement: JQuery, tAttrs: Obj, $transclude: ITranscludeFunction) {
-
-      return function (scope: IScope, $element: IAugmentedJQuery, attrs: Obj) {
-        const onloadExp = attrs['onload'] || '',
+    const directive = {
+      count: 0,
+      restrict: 'ECA',
+      terminal: true,
+      priority: 400,
+      transclude: 'element',
+      compile: function(tElement: JQuery, tAttrs: Obj, $transclude: ITranscludeFunction) {
+        return function(scope: IScope, $element: IAugmentedJQuery, attrs: Obj) {
+          const onloadExp = attrs['onload'] || '',
             autoScrollExp = attrs['autoscroll'],
             renderer = getRenderer(attrs, scope),
             inherited = $element.inheritedData('$uiView') || rootData,
             name = $interpolate(attrs['uiView'] || attrs['name'] || '')(scope) || '$default';
 
-        let previousEl: JQuery,
+          let previousEl: JQuery,
             currentEl: JQuery,
             currentScope: IScope,
             viewConfig: Ng1ViewConfig,
             unregister: Function;
 
-        const activeUIView: ActiveUIView = {
-          $type: 'ng1',
-          id: directive.count++,                                   // Global sequential ID for ui-view tags added to DOM
-          name: name,                                              // ui-view name (<div ui-view="name"></div>
-          fqn: inherited.$uiView.fqn ? inherited.$uiView.fqn + '.' + name : name, // fully qualified name, describes location in DOM
-          config: null,                                            // The ViewConfig loaded (from a state.views definition)
-          configUpdated: configUpdatedCallback,                    // Called when the matching ViewConfig changes
-          get creationContext() {                                  // The context in which this ui-view "tag" was created
-            const fromParentTagConfig = parse('$cfg.viewDecl.$context')(inherited);
-            // Allow <ui-view name="foo"><ui-view name="bar"></ui-view></ui-view>
-            // See https://github.com/angular-ui/ui-router/issues/3355
-            const fromParentTag = parse('$uiView.creationContext')(inherited);
-            return fromParentTagConfig || fromParentTag;
-          },
-        };
-
-        trace.traceUIViewEvent('Linking', activeUIView);
-
-        function configUpdatedCallback(config?: Ng1ViewConfig) {
-          if (config && !(config instanceof Ng1ViewConfig)) return;
-          if (configsEqual(viewConfig, config)) return;
-          trace.traceUIViewConfigUpdated(activeUIView, config && config.viewDecl && config.viewDecl.$context);
-
-          viewConfig = config;
-          updateView(config);
-        }
-
-        $element.data('$uiView', { $uiView: activeUIView });
-
-        updateView();
-
-        unregister = $view.registerUIView(activeUIView);
-        scope.$on('$destroy', function() {
-          trace.traceUIViewEvent('Destroying/Unregistering', activeUIView);
-          unregister();
-        });
-
-        function cleanupLastView() {
-          if (previousEl) {
-            trace.traceUIViewEvent('Removing (previous) el', previousEl.data('$uiView'));
-            previousEl.remove();
-            previousEl = null;
-          }
-
-          if (currentScope) {
-            trace.traceUIViewEvent('Destroying scope', activeUIView);
-            currentScope.$destroy();
-            currentScope = null;
-          }
-
-          if (currentEl) {
-            const _viewData = currentEl.data('$uiViewAnim');
-            trace.traceUIViewEvent('Animate out', _viewData);
-            renderer.leave(currentEl, function() {
-              _viewData.$$animLeave.resolve();
-              previousEl = null;
-            });
-
-            previousEl = currentEl;
-            currentEl = null;
-          }
-        }
-
-        function updateView(config?: Ng1ViewConfig) {
-          const newScope = scope.$new();
-          const animEnter = $q.defer(), animLeave = $q.defer();
-
-          const $uiViewData: UIViewData = {
-            $cfg: config,
-            $uiView: activeUIView,
+          const activeUIView: ActiveUIView = {
+            $type: 'ng1',
+            id: directive.count++, // Global sequential ID for ui-view tags added to DOM
+            name: name, // ui-view name (<div ui-view="name"></div>
+            fqn: inherited.$uiView.fqn ? inherited.$uiView.fqn + '.' + name : name, // fully qualified name, describes location in DOM
+            config: null, // The ViewConfig loaded (from a state.views definition)
+            configUpdated: configUpdatedCallback, // Called when the matching ViewConfig changes
+            get creationContext() {
+              // The context in which this ui-view "tag" was created
+              const fromParentTagConfig = parse('$cfg.viewDecl.$context')(inherited);
+              // Allow <ui-view name="foo"><ui-view name="bar"></ui-view></ui-view>
+              // See https://github.com/angular-ui/ui-router/issues/3355
+              const fromParentTag = parse('$uiView.creationContext')(inherited);
+              return fromParentTagConfig || fromParentTag;
+            },
           };
 
-          const $uiViewAnim: UIViewAnimData = {
-            $animEnter: animEnter.promise,
-            $animLeave: animLeave.promise,
-            $$animLeave: animLeave,
-          };
+          trace.traceUIViewEvent('Linking', activeUIView);
 
-          /**
-           * @ngdoc event
-           * @name ui.router.state.directive:ui-view#$viewContentLoading
-           * @eventOf ui.router.state.directive:ui-view
-           * @eventType emits on ui-view directive scope
-           * @description
-           *
-           * Fired once the view **begins loading**, *before* the DOM is rendered.
-           *
-           * @param {Object} event Event object.
-           * @param {string} viewName Name of the view.
-           */
-          newScope.$emit('$viewContentLoading', name);
+          function configUpdatedCallback(config?: Ng1ViewConfig) {
+            if (config && !(config instanceof Ng1ViewConfig)) return;
+            if (configsEqual(viewConfig, config)) return;
+            trace.traceUIViewConfigUpdated(activeUIView, config && config.viewDecl && config.viewDecl.$context);
 
-          const cloned = $transclude(newScope, function(clone) {
-            clone.data('$uiViewAnim', $uiViewAnim);
-            clone.data('$uiView', $uiViewData);
-            renderer.enter(clone, $element, function onUIViewEnter() {
-              animEnter.resolve();
-              if (currentScope) currentScope.$emit('$viewContentAnimationEnded');
+            viewConfig = config;
+            updateView(config);
+          }
 
-              if (isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
-                $uiViewScroll(clone);
-              }
-            });
+          $element.data('$uiView', { $uiView: activeUIView });
 
-            cleanupLastView();
+          updateView();
+
+          unregister = $view.registerUIView(activeUIView);
+          scope.$on('$destroy', function() {
+            trace.traceUIViewEvent('Destroying/Unregistering', activeUIView);
+            unregister();
           });
 
-          currentEl = cloned;
-          currentScope = newScope;
-          /**
-           * @ngdoc event
-           * @name ui.router.state.directive:ui-view#$viewContentLoaded
-           * @eventOf ui.router.state.directive:ui-view
-           * @eventType emits on ui-view directive scope
-           * @description           *
-           * Fired once the view is **loaded**, *after* the DOM is rendered.
-           *
-           * @param {Object} event Event object.
-           */
-          currentScope.$emit('$viewContentLoaded', config || viewConfig);
-          currentScope.$eval(onloadExp);
-        }
-      };
-    },
-  };
+          function cleanupLastView() {
+            if (previousEl) {
+              trace.traceUIViewEvent('Removing (previous) el', previousEl.data('$uiView'));
+              previousEl.remove();
+              previousEl = null;
+            }
 
-  return directive;
-}];
+            if (currentScope) {
+              trace.traceUIViewEvent('Destroying scope', activeUIView);
+              currentScope.$destroy();
+              currentScope = null;
+            }
+
+            if (currentEl) {
+              const _viewData = currentEl.data('$uiViewAnim');
+              trace.traceUIViewEvent('Animate out', _viewData);
+              renderer.leave(currentEl, function() {
+                _viewData.$$animLeave.resolve();
+                previousEl = null;
+              });
+
+              previousEl = currentEl;
+              currentEl = null;
+            }
+          }
+
+          function updateView(config?: Ng1ViewConfig) {
+            const newScope = scope.$new();
+            const animEnter = $q.defer(),
+              animLeave = $q.defer();
+
+            const $uiViewData: UIViewData = {
+              $cfg: config,
+              $uiView: activeUIView,
+            };
+
+            const $uiViewAnim: UIViewAnimData = {
+              $animEnter: animEnter.promise,
+              $animLeave: animLeave.promise,
+              $$animLeave: animLeave,
+            };
+
+            /**
+             * @ngdoc event
+             * @name ui.router.state.directive:ui-view#$viewContentLoading
+             * @eventOf ui.router.state.directive:ui-view
+             * @eventType emits on ui-view directive scope
+             * @description
+             *
+             * Fired once the view **begins loading**, *before* the DOM is rendered.
+             *
+             * @param {Object} event Event object.
+             * @param {string} viewName Name of the view.
+             */
+            newScope.$emit('$viewContentLoading', name);
+
+            const cloned = $transclude(newScope, function(clone) {
+              clone.data('$uiViewAnim', $uiViewAnim);
+              clone.data('$uiView', $uiViewData);
+              renderer.enter(clone, $element, function onUIViewEnter() {
+                animEnter.resolve();
+                if (currentScope) currentScope.$emit('$viewContentAnimationEnded');
+
+                if ((isDefined(autoScrollExp) && !autoScrollExp) || scope.$eval(autoScrollExp)) {
+                  $uiViewScroll(clone);
+                }
+              });
+
+              cleanupLastView();
+            });
+
+            currentEl = cloned;
+            currentScope = newScope;
+            /**
+             * @ngdoc event
+             * @name ui.router.state.directive:ui-view#$viewContentLoaded
+             * @eventOf ui.router.state.directive:ui-view
+             * @eventType emits on ui-view directive scope
+             * @description           *
+             * Fired once the view is **loaded**, *after* the DOM is rendered.
+             *
+             * @param {Object} event Event object.
+             */
+            currentScope.$emit('$viewContentLoaded', config || viewConfig);
+            currentScope.$eval(onloadExp);
+          }
+        };
+      },
+    };
+
+    return directive;
+  },
+];
 
 $ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view', '$q', '$timeout'];
 /** @hidden */
-function $ViewDirectiveFill($compile: angular.ICompileService,
-                            $controller: angular.IControllerService,
-                            $transitions: TransitionService,
-                            $view: ViewService,
-                            $q: angular.IQService,
-                            $timeout: ITimeoutService) {
+function $ViewDirectiveFill(
+  $compile: angular.ICompileService,
+  $controller: angular.IControllerService,
+  $transitions: TransitionService,
+  $view: ViewService,
+  $q: angular.IQService,
+  $timeout: ITimeoutService,
+) {
   const getControllerAs = parse('viewDecl.controllerAs');
   const getResolveAs = parse('viewDecl.resolveAs');
 
   return {
     restrict: 'ECA',
     priority: -400,
-    compile: function (tElement: JQuery) {
+    compile: function(tElement: JQuery) {
       const initial = tElement.html();
       tElement.empty();
 
-      return function (scope: IScope, $element: JQuery) {
+      return function(scope: IScope, $element: JQuery) {
         const data: UIViewData = $element.data('$uiView');
         if (!data) {
-            $element.html(initial);
-            $compile($element.contents() as any)(scope);
-            return;
+          $element.html(initial);
+          $compile($element.contents() as any)(scope);
+          return;
         }
 
-        const cfg: Ng1ViewConfig = data.$cfg || <any> { viewDecl: {}, getTemplate: noop };
+        const cfg: Ng1ViewConfig = data.$cfg || <any>{ viewDecl: {}, getTemplate: noop };
         const resolveCtx: ResolveContext = cfg.path && new ResolveContext(cfg.path);
         $element.html(cfg.getTemplate($element, resolveCtx) || initial);
         trace.traceUIViewFill(data.$uiView, $element.html());
@@ -375,7 +409,10 @@ function $ViewDirectiveFill($compile: angular.ICompileService,
         scope[resolveAs] = locals;
 
         if (controller) {
-          const controllerInstance = <Ng1Controller> $controller(controller, extend({}, locals, { $scope: scope, $element: $element }));
+          const controllerInstance = <Ng1Controller>$controller(
+            controller,
+            extend({}, locals, { $scope: scope, $element: $element }),
+          );
           if (controllerAs) {
             scope[controllerAs] = controllerInstance;
             scope[controllerAs][resolveAs] = locals;
@@ -399,8 +436,9 @@ function $ViewDirectiveFill($compile: angular.ICompileService,
           const tagRegexp = new RegExp(`^(x-|data-)?${kebobName}$`, 'i');
 
           const getComponentController = () => {
-            const directiveEl = [].slice.call($element[0].children)
-                .filter((el: Element) => el && el.tagName && tagRegexp.exec(el.tagName)) ;
+            const directiveEl = [].slice
+              .call($element[0].children)
+              .filter((el: Element) => el && el.tagName && tagRegexp.exec(el.tagName));
 
             return directiveEl && angular.element(directiveEl).data(`$${cmp}Controller`);
           };
@@ -424,11 +462,13 @@ const hasComponentImpl = typeof (angular as any).module('ui.router')['component'
 let _uiCanExitId = 0;
 
 /** @hidden TODO: move these callbacks to $view and/or `/hooks/components.ts` or something */
-function registerControllerCallbacks($q: angular.IQService,
-                                     $transitions: TransitionService,
-                                     controllerInstance: Ng1Controller,
-                                     $scope: IScope,
-                                     cfg: Ng1ViewConfig) {
+function registerControllerCallbacks(
+  $q: angular.IQService,
+  $transitions: TransitionService,
+  controllerInstance: Ng1Controller,
+  $scope: IScope,
+  cfg: Ng1ViewConfig,
+) {
   // Call $onInit() ASAP
   if (isFunction(controllerInstance.$onInit) && !(cfg.viewDecl.component && hasComponentImpl)) {
     controllerInstance.$onInit();
@@ -446,12 +486,19 @@ function registerControllerCallbacks($q: angular.IQService,
     const paramsUpdated = ($transition$: Transition) => {
       // Exit early if the $transition$ is the same as the view was created within.
       // Exit early if the $transition$ will exit the state the view is for.
-      if ($transition$ === viewCreationTrans || $transition$.exiting().indexOf(viewState as StateDeclaration) !== -1) return;
+      if ($transition$ === viewCreationTrans || $transition$.exiting().indexOf(viewState as StateDeclaration) !== -1)
+        return;
 
       const toParams = $transition$.params('to') as TypedMap<any>;
       const fromParams = $transition$.params<TypedMap<any>>('from') as TypedMap<any>;
-      const toSchema: Param[] = $transition$.treeChanges().to.map((node: PathNode) => node.paramSchema).reduce(unnestR, []);
-      const fromSchema: Param[] = $transition$.treeChanges().from.map((node: PathNode) => node.paramSchema).reduce(unnestR, []);
+      const toSchema: Param[] = $transition$
+        .treeChanges()
+        .to.map((node: PathNode) => node.paramSchema)
+        .reduce(unnestR, []);
+      const fromSchema: Param[] = $transition$
+        .treeChanges()
+        .from.map((node: PathNode) => node.paramSchema)
+        .reduce(unnestR, []);
 
       // Find the to params that have different values than the from params
       const changedToParams = toSchema.filter((param: Param) => {
@@ -467,7 +514,7 @@ function registerControllerCallbacks($q: angular.IQService,
         controllerInstance.uiOnParamsChanged(newValues, $transition$);
       }
     };
-    $scope.$on('$destroy', <any> $transitions.onSuccess({}, paramsUpdated, hookOptions));
+    $scope.$on('$destroy', <any>$transitions.onSuccess({}, paramsUpdated, hookOptions));
   }
 
   // Add component-level hook for uiCanExit
@@ -477,24 +524,24 @@ function registerControllerCallbacks($q: angular.IQService,
 
     // Returns true if a redirect transition already answered truthy
     const prevTruthyAnswer = (trans: Transition) =>
-        !!trans && (trans[cacheProp] && trans[cacheProp][id] === true || prevTruthyAnswer(trans.redirectedFrom()));
+      !!trans && ((trans[cacheProp] && trans[cacheProp][id] === true) || prevTruthyAnswer(trans.redirectedFrom()));
 
     // If a user answered yes, but the transition was later redirected, don't also ask for the new redirect transition
     const wrappedHook = (trans: Transition) => {
       let promise;
-      const ids = trans[cacheProp] = trans[cacheProp] || {};
+      const ids = (trans[cacheProp] = trans[cacheProp] || {});
 
       if (!prevTruthyAnswer(trans)) {
         promise = $q.when(controllerInstance.uiCanExit(trans));
-        promise.then(val => ids[id] = (val !== false));
+        promise.then(val => (ids[id] = val !== false));
       }
       return promise;
     };
 
     const criteria = { exiting: viewState.name };
-    $scope.$on('$destroy', <any> $transitions.onBefore(criteria, wrappedHook, hookOptions));
+    $scope.$on('$destroy', <any>$transitions.onBefore(criteria, wrappedHook, hookOptions));
   }
 }
 
-angular.module('ui.router.state').directive('uiView', <any> uiView);
-angular.module('ui.router.state').directive('uiView', <any> $ViewDirectiveFill);
+angular.module('ui.router.state').directive('uiView', <any>uiView);
+angular.module('ui.router.state').directive('uiView', <any>$ViewDirectiveFill);

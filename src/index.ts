@@ -20,4 +20,3 @@ export default 'ui.router';
 import * as core from '@uirouter/core';
 export { core };
 export * from '@uirouter/core';
-

@@ -1,14 +1,14 @@
-import * as angular from "angular";
+import * as angular from 'angular';
 
 // Promise testing support
-angular.module('ngMock').config(function ($provide, $locationProvider) {
+angular.module('ngMock').config(function($provide, $locationProvider) {
   var oldFn = $locationProvider.html5Mode;
   $locationProvider.html5Mode = function() {
     var retval = oldFn.apply($locationProvider, arguments);
-    return (angular.isDefined(retval) && angular.isDefined(retval.enabled)) ? retval.enabled : retval;
+    return angular.isDefined(retval) && angular.isDefined(retval.enabled) ? retval.enabled : retval;
   };
 
-  $provide.decorator('$q', function ($delegate, $rootScope) {
+  $provide.decorator('$q', function($delegate, $rootScope) {
     $delegate.flush = function() {
       $rootScope.$digest();
     };
@@ -18,15 +18,18 @@ angular.module('ngMock').config(function ($provide, $locationProvider) {
       // Don't add hooks to the same promise twice (shouldn't happen anyway)
       if (!promise.hasOwnProperty('$$resolved')) {
         promise.$$resolved = false;
-        promise.then(function (value) {
-          promise.$$resolved = { success: true, value: value };
-        }, function (error) {
-          promise.$$resolved = { success: false, error: error };
-        });
+        promise.then(
+          function(value) {
+            promise.$$resolved = { success: true, value: value };
+          },
+          function(error) {
+            promise.$$resolved = { success: false, error: error };
+          },
+        );
 
         // We need to expose() any then()ed promises recursively
         var qThen = promise.then;
-        promise.then = function () {
+        promise.then = function() {
           return expose(qThen.apply(this, arguments));
         };
       }
@@ -34,16 +37,16 @@ angular.module('ngMock').config(function ($provide, $locationProvider) {
     }
 
     // Wrap functions that return a promise
-    angular.forEach([ 'when', 'all', 'reject'], function (name) {
+    angular.forEach(['when', 'all', 'reject'], function(name) {
       var qFunc = $delegate[name];
-      $delegate[name] = function () {
+      $delegate[name] = function() {
         return expose(qFunc.apply(this, arguments));
       };
     });
 
     // Wrap defer()
     var qDefer = $delegate.defer;
-    $delegate.defer = function () {
+    $delegate.defer = function() {
       var deferred = qDefer();
       expose(deferred.promise);
       return deferred;
@@ -55,8 +58,8 @@ angular.module('ngMock').config(function ($provide, $locationProvider) {
 
 try {
   // Animation testing support
-  angular.module('mock.animate').config(function ($provide) {
-    $provide.decorator('$animate', function ($delegate) {
+  angular.module('mock.animate').config(function($provide) {
+    $provide.decorator('$animate', function($delegate) {
       $delegate.flush = function() {
         while (this.queue.length > 0) {
           this.flushNext(this.queue[0].method);
@@ -104,15 +107,14 @@ export function caught(fn) {
 // Usage of this helper should be replaced with a custom matcher in jasmine 2.0+
 export function obj(object) {
   var o = {};
-  angular.forEach(object, function (val, key) {
-    if (!/^\$/.test(key) && key != "#")
-      o[key] = val;
+  angular.forEach(object, function(val, key) {
+    if (!/^\$/.test(key) && key != '#') o[key] = val;
   });
   return o;
 }
 
 export function html5Compat(html5mode) {
-  return (angular.isObject(html5mode) && html5mode.hasOwnProperty("enabled") ? html5mode.enabled : html5mode);
+  return angular.isObject(html5mode) && html5mode.hasOwnProperty('enabled') ? html5mode.enabled : html5mode;
 }
 
 /**
@@ -133,6 +135,5 @@ export function decorateExceptionHandler($exceptionHandlerProvider) {
     return passThrough;
   };
 }
-
 
 beforeEach(angular['mock'].module('ui.router.compat'));

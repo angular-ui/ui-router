@@ -10,7 +10,8 @@ describe('UI-Router services', () => {
   let providers;
   let services;
 
-  beforeEach(module('ui.router', function(
+  beforeEach(
+    module('ui.router', function(
       _$uiRouterProvider_,
       $urlMatcherFactoryProvider,
       $urlRouterProvider,
@@ -18,23 +19,25 @@ describe('UI-Router services', () => {
       $uiRouterGlobalsProvider,
       $transitionsProvider,
       $stateProvider,
-  ) {
-    $uiRouterProvider = _$uiRouterProvider_;
+    ) {
+      $uiRouterProvider = _$uiRouterProvider_;
 
-    expect($uiRouterProvider['router']).toBe($uiRouterProvider);
+      expect($uiRouterProvider['router']).toBe($uiRouterProvider);
 
-    providers =  {
-      $uiRouterProvider,
-      $urlMatcherFactoryProvider,
-      $urlRouterProvider,
-      $stateRegistryProvider,
-      $uiRouterGlobalsProvider,
-      $transitionsProvider,
-      $stateProvider,
-    };
-  }));
+      providers = {
+        $uiRouterProvider,
+        $urlMatcherFactoryProvider,
+        $urlRouterProvider,
+        $stateRegistryProvider,
+        $uiRouterGlobalsProvider,
+        $transitionsProvider,
+        $stateProvider,
+      };
+    }),
+  );
 
-  beforeEach(inject(function(
+  beforeEach(
+    inject(function(
       _$uiRouter_,
       $urlMatcherFactory,
       $urlRouter,
@@ -46,22 +49,23 @@ describe('UI-Router services', () => {
       $templateFactory,
       $view,
       $trace,
-  ) {
-    $uiRouter = _$uiRouter_;
+    ) {
+      $uiRouter = _$uiRouter_;
 
-    services = {
-      $urlMatcherFactory,
-      $urlRouter,
-      $stateRegistry,
-      $uiRouterGlobals,
-      $transitions,
-      $state,
-      $stateParams,
-      $templateFactory,
-      $view,
-      $trace,
-    };
-  }));
+      services = {
+        $urlMatcherFactory,
+        $urlRouter,
+        $stateRegistry,
+        $uiRouterGlobals,
+        $transitions,
+        $state,
+        $stateParams,
+        $templateFactory,
+        $view,
+        $trace,
+      };
+    }),
+  );
 
   it('Should expose ui-router providers from the UIRouter instance', () => {
     expect(providers.$urlMatcherFactoryProvider).toBe($uiRouterProvider.urlMatcherFactory);

@@ -5,46 +5,57 @@ declare var inject;
 
 const module = angular['mock'].module;
 
-describe('uiView', function () {
+describe('uiView', function() {
   'use strict';
 
   beforeEach(module('ui.router'));
 
-  describe('scrollIntoView', function () {
+  describe('scrollIntoView', function() {
     let elem;
 
-    beforeEach(function () {
+    beforeEach(function() {
       elem = [{ scrollIntoView: jasmine.createSpy('scrollIntoView') }];
     });
 
-    it('should scroll element into view after timeout', inject(function ($uiViewScroll, $timeout) {
-      $uiViewScroll(elem);
-      expect(elem[0].scrollIntoView).not.toHaveBeenCalled();
+    it(
+      'should scroll element into view after timeout',
+      inject(function($uiViewScroll, $timeout) {
+        $uiViewScroll(elem);
+        expect(elem[0].scrollIntoView).not.toHaveBeenCalled();
 
-      $timeout.flush();
-      expect(elem[0].scrollIntoView).toHaveBeenCalled();
-    }));
+        $timeout.flush();
+        expect(elem[0].scrollIntoView).toHaveBeenCalled();
+      }),
+    );
 
-	   it('should return the promise from the timeout', inject(function ($uiViewScroll, $timeout) {
-      const promise = $uiViewScroll(elem);
+    it(
+      'should return the promise from the timeout',
+      inject(function($uiViewScroll, $timeout) {
+        const promise = $uiViewScroll(elem);
 
-      $timeout.flush();
-		    expect(elem[0].scrollIntoView).toHaveBeenCalled();
-		    expect(promise).toBeDefined();
-	  }));
+        $timeout.flush();
+        expect(elem[0].scrollIntoView).toHaveBeenCalled();
+        expect(promise).toBeDefined();
+      }),
+    );
   });
 
-  describe('useAnchorScroll', function () {
-    beforeEach(module(function ($provide, $uiViewScrollProvider) {
-      $provide.decorator('$anchorScroll', function ($delegate) {
-        return jasmine.createSpy('$anchorScroll');
-      });
-      $uiViewScrollProvider.useAnchorScroll();
-    }));
+  describe('useAnchorScroll', function() {
+    beforeEach(
+      module(function($provide, $uiViewScrollProvider) {
+        $provide.decorator('$anchorScroll', function($delegate) {
+          return jasmine.createSpy('$anchorScroll');
+        });
+        $uiViewScrollProvider.useAnchorScroll();
+      }),
+    );
 
-    it('should call $anchorScroll', inject(function ($uiViewScroll, $anchorScroll) {
-      $uiViewScroll();
-      expect($anchorScroll).toHaveBeenCalled();
-    }));
+    it(
+      'should call $anchorScroll',
+      inject(function($uiViewScroll, $anchorScroll) {
+        $uiViewScroll();
+        expect($anchorScroll).toHaveBeenCalled();
+      }),
+    );
   });
 });

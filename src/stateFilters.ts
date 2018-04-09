@@ -38,9 +38,10 @@ export function $IncludedByStateFilter($state: StateService) {
     return $state.includes(state, params, options);
   };
   includesFilter.$stateful = true;
-  return  includesFilter;
+  return includesFilter;
 }
 
-angular.module('ui.router.state')
+angular
+  .module('ui.router.state')
   .filter('isState', $IsStateFilter)
   .filter('includedByState', $IncludedByStateFilter);

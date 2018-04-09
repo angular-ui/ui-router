@@ -7,36 +7,40 @@ declare var inject;
 
 describe('view', function() {
   let scope, $compile, $injector, elem, $controllerProvider, $urlMatcherFactoryProvider;
-  let root: StateObject, states: {[key: string]: StateObject};
+  let root: StateObject, states: { [key: string]: StateObject };
 
-  beforeEach(angular.mock.module('ui.router', function(_$provide_, _$controllerProvider_, _$urlMatcherFactoryProvider_) {
-    _$provide_.factory('foo', function() {
-      return 'Foo';
-    });
-    $controllerProvider = _$controllerProvider_;
-    $urlMatcherFactoryProvider = _$urlMatcherFactoryProvider_;
-  }));
+  beforeEach(
+    angular.mock.module('ui.router', function(_$provide_, _$controllerProvider_, _$urlMatcherFactoryProvider_) {
+      _$provide_.factory('foo', function() {
+        return 'Foo';
+      });
+      $controllerProvider = _$controllerProvider_;
+      $urlMatcherFactoryProvider = _$urlMatcherFactoryProvider_;
+    }),
+  );
 
   let register;
   const registerState = curry(function(_states, stateBuilder, config) {
     const state = StateObject.create(config);
     const built: StateObject = stateBuilder.build(state);
-    return _states[built.name] = built;
+    return (_states[built.name] = built);
   });
 
-  beforeEach(inject(function ($rootScope, _$compile_, _$injector_) {
-    scope = $rootScope.$new();
-    $compile = _$compile_;
-    $injector = _$injector_;
-    elem = angular.element('<div>');
+  beforeEach(
+    inject(function($rootScope, _$compile_, _$injector_) {
+      scope = $rootScope.$new();
+      $compile = _$compile_;
+      $injector = _$injector_;
+      elem = angular.element('<div>');
 
-    states = {};
-    const matcher = new StateMatcher(states);
-    const stateBuilder = new StateBuilder(matcher, $urlMatcherFactoryProvider);
-    stateBuilder.builder('views', ng1ViewsBuilder);
-    register = registerState(states, stateBuilder);
-    root = register({ name: '' });
-  }));
+      states = {};
+      const matcher = new StateMatcher(states);
+      const stateBuilder = new StateBuilder(matcher, $urlMatcherFactoryProvider);
+      stateBuilder.builder('views', ng1ViewsBuilder);
+      register = registerState(states, stateBuilder);
+      root = register({ name: '' });
+    }),
+  );
 
   describe('controller handling', function() {
     let state, path: PathNode[], ctrlExpression;
@@ -45,10 +49,14 @@ describe('view', function() {
       const stateDeclaration: Ng1StateDeclaration = {
         name: 'foo',
         template: 'test',
-        controllerProvider: ['foo', function (/* $stateParams, */ foo) { // todo: reimplement localized $stateParams
-          ctrlExpression = /* $stateParams.type + */ foo + 'Controller as foo';
-          return ctrlExpression;
-        }],
+        controllerProvider: [
+          'foo',
+          function(/* $stateParams, */ foo) {
+            // todo: reimplement localized $stateParams
+            ctrlExpression = /* $stateParams.type + */ foo + 'Controller as foo';
+            return ctrlExpression;
+          },
+        ],
       };
 
       state = register(stateDeclaration);
@@ -60,14 +68,17 @@ describe('view', function() {
       PathUtils.applyViewConfigs($view, path, _states);
     });
 
-    it('uses the controllerProvider to get controller dynamically', inject(function ($view, $q) {
-      $controllerProvider.register('AcmeFooController', function($scope, foo) { });
-      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+    it(
+      'uses the controllerProvider to get controller dynamically',
+      inject(function($view, $q) {
+        $controllerProvider.register('AcmeFooController', function($scope, foo) {});
+        elem.append($compile('<div><ui-view></ui-view></div>')(scope));
 
-      const view = tail(path).views[0];
-      view.load();
-      $q.flush();
-      expect(ctrlExpression).toEqual('FooController as foo');
-    }));
+        const view = tail(path).views[0];
+        view.load();
+        $q.flush();
+        expect(ctrlExpression).toEqual('FooController as foo');
+      }),
+    );
   });
 });

@@ -14,27 +14,33 @@ export interface UIViewScrollProvider {
   useAnchorScroll(): void;
 }
 
-
 /** @hidden */
 function $ViewScrollProvider() {
-
   let useAnchorScroll = false;
 
-  this.useAnchorScroll = function () {
+  this.useAnchorScroll = function() {
     useAnchorScroll = true;
   };
 
-  this.$get = ['$anchorScroll', '$timeout', function ($anchorScroll: IAnchorScrollService, $timeout: ITimeoutService): Function {
-    if (useAnchorScroll) {
-      return $anchorScroll;
-    }
+  this.$get = [
+    '$anchorScroll',
+    '$timeout',
+    function($anchorScroll: IAnchorScrollService, $timeout: ITimeoutService): Function {
+      if (useAnchorScroll) {
+        return $anchorScroll;
+      }
 
-    return function ($element: JQuery) {
-      return $timeout(function () {
-        $element[0].scrollIntoView();
-      }, 0, false);
-    };
-  }];
+      return function($element: JQuery) {
+        return $timeout(
+          function() {
+            $element[0].scrollIntoView();
+          },
+          0,
+          false,
+        );
+      };
+    },
+  ];
 }
 
-angular.module('ui.router.state').provider('$uiViewScroll', <IServiceProviderFactory> $ViewScrollProvider);
+angular.module('ui.router.state').provider('$uiViewScroll', <IServiceProviderFactory>$ViewScrollProvider);

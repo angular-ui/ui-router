@@ -4,7 +4,6 @@
  */ /** */
 import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult } from '@uirouter/core';
 
-
 /**
  * The signature for Angular 1 State Transition Hooks.
  *
@@ -53,7 +52,8 @@ export interface Ng1StateTransitionHook {
  * an intermediate interface.
  *
  * Used to reset [[StateDeclaration]] typings to `any` so the [[Ng1StateDeclaration]] interface can then narrow them */
-export interface _Ng1StateDeclaration extends StateDeclaration { // tslint:disable-line:class-name
+export interface _Ng1StateDeclaration extends StateDeclaration {
+  // tslint:disable-line:class-name
   onExit?: any;
   onRetain?: any;
   onEnter?: any;
@@ -273,7 +273,7 @@ export interface Ng1StateDeclaration extends _Ng1StateDeclaration, Ng1ViewDeclar
    * - controllerAs
    * - controllerProvider
    */
-  views?: { [key: string]: string | Ng1ViewDeclaration; };
+  views?: { [key: string]: string | Ng1ViewDeclaration };
 
   /**
    * A state hook invoked when a state is being entered.
@@ -501,7 +501,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    *
    * See: [[Ng1Controller]] for information about component-level router hooks.
    */
-  controller?: (IInjectable|string);
+  controller?: IInjectable | string;
 
   /**
    * A controller alias name.
@@ -575,7 +575,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * }
    * ```
    */
-  template?: (Function|string);
+  template?: Function | string;
 
   /**
    * The URL for the HTML template for the view.
@@ -599,7 +599,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * }
    * ```
    */
-  templateUrl?: (string|Function);
+  templateUrl?: string | Function;
 
   /**
    * Injected function which returns the HTML template.
@@ -617,7 +617,6 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * ```
    */
   templateProvider?: IInjectable;
-
 }
 
 /**

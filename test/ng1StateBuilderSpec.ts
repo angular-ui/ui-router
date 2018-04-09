@@ -4,10 +4,12 @@ declare var inject;
 
 describe('Ng1 StateBuilder', function() {
   const parent = { name: '' };
-  let builder, matcher, urlMatcherFactoryProvider: any = {
-    compile: function() {},
-    isMatcher: function() {},
-  };
+  let builder,
+    matcher,
+    urlMatcherFactoryProvider: any = {
+      compile: function() {},
+      isMatcher: function() {},
+    };
 
   beforeEach(function() {
     matcher = new StateMatcher({});
@@ -20,7 +22,11 @@ describe('Ng1 StateBuilder', function() {
     const built = builder.builder('views')(config);
 
     expect(built.$default).not.toEqualData(config);
-    expect(built.$default).toEqualData({ templateUrl: '/foo.html', controller: 'FooController', resolveAs: '$resolve' });
+    expect(built.$default).toEqualData({
+      templateUrl: '/foo.html',
+      controller: 'FooController',
+      resolveAs: '$resolve',
+    });
   });
 
   it('It should use the views object to build views, when defined', function() {
@@ -30,18 +36,30 @@ describe('Ng1 StateBuilder', function() {
     expect(builtViews.a.controller).toEqualData(config.a.controller);
   });
 
-  it('should not allow a view config with both component and template keys', inject(function($injector) {
-    const config = { name: 'foo', url: '/foo', template: '<h1>hey</h1>', controller: 'FooController', parent: parent };
-    expect(() => builder.builder('views')(config)).not.toThrow();
-    expect(() => builder.builder('views')(extend({ component: 'fooComponent' }, config))).toThrow();
-    expect(() => builder.builder('views')(extend({ componentProvider: () => 'fooComponent' }, config))).toThrow();
-    expect(() => builder.builder('views')(extend({ bindings: {} }, config))).toThrow();
-  }));
+  it(
+    'should not allow a view config with both component and template keys',
+    inject(function($injector) {
+      const config = {
+        name: 'foo',
+        url: '/foo',
+        template: '<h1>hey</h1>',
+        controller: 'FooController',
+        parent: parent,
+      };
+      expect(() => builder.builder('views')(config)).not.toThrow();
+      expect(() => builder.builder('views')(extend({ component: 'fooComponent' }, config))).toThrow();
+      expect(() => builder.builder('views')(extend({ componentProvider: () => 'fooComponent' }, config))).toThrow();
+      expect(() => builder.builder('views')(extend({ bindings: {} }, config))).toThrow();
+    }),
+  );
 
-  it('should replace a resolve: string value with a function that injects the service of the same name', inject(function($injector) {
-    const config = { resolve: { foo: 'bar' } };
-    expect(builder.builder('resolvables')).toBeDefined();
-    const built: Resolvable[] = builder.builder('resolvables')(config);
-    expect(built[0].deps).toEqual(['bar']);
-  }));
+  it(
+    'should replace a resolve: string value with a function that injects the service of the same name',
+    inject(function($injector) {
+      const config = { resolve: { foo: 'bar' } };
+      expect(builder.builder('resolvables')).toBeDefined();
+      const built: Resolvable[] = builder.builder('resolvables')(config);
+      expect(built[0].deps).toEqual(['bar']);
+    }),
+  );
 });

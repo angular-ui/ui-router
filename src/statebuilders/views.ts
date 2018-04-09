@@ -1,9 +1,24 @@
 /** @module ng1 */ /** */
 import { ng as angular } from '../angular';
 import {
-    StateObject, pick, forEach, tail, extend,
-    isArray, isInjectable, isDefined, isString, services, trace,
-    ViewConfig, ViewService, ViewConfigFactory, PathNode, ResolveContext, Resolvable, IInjectable,
+  StateObject,
+  pick,
+  forEach,
+  tail,
+  extend,
+  isArray,
+  isInjectable,
+  isDefined,
+  isString,
+  services,
+  trace,
+  ViewConfig,
+  ViewService,
+  ViewConfigFactory,
+  PathNode,
+  ResolveContext,
+  Resolvable,
+  IInjectable,
 } from '@uirouter/core';
 import { Ng1ViewDeclaration } from '../interface';
 import { TemplateFactory } from '../templateFactory';
@@ -17,8 +32,7 @@ export function getNg1ViewConfigFactory(): ViewConfigFactory {
   };
 }
 
-const hasAnyKey = (keys, obj) =>
-    keys.reduce((acc, key) => acc || isDefined(obj[key]), false);
+const hasAnyKey = (keys, obj) => keys.reduce((acc, key) => acc || isDefined(obj[key]), false);
 
 /**
  * This is a [[StateBuilder.builder]] function for angular1 `views`.
@@ -34,36 +48,40 @@ export function ng1ViewsBuilder(state: StateObject) {
   if (!state.parent) return {};
 
   const tplKeys = ['templateProvider', 'templateUrl', 'template', 'notify', 'async'],
-      ctrlKeys = ['controller', 'controllerProvider', 'controllerAs', 'resolveAs'],
-      compKeys = ['component', 'bindings', 'componentProvider'],
-      nonCompKeys = tplKeys.concat(ctrlKeys),
-      allViewKeys = compKeys.concat(nonCompKeys);
+    ctrlKeys = ['controller', 'controllerProvider', 'controllerAs', 'resolveAs'],
+    compKeys = ['component', 'bindings', 'componentProvider'],
+    nonCompKeys = tplKeys.concat(ctrlKeys),
+    allViewKeys = compKeys.concat(nonCompKeys);
 
   // Do not allow a state to have both state-level props and also a `views: {}` property.
   // A state without a `views: {}` property can declare properties for the `$default` view as properties of the state.
   // However, the `$default` approach should not be mixed with a separate `views: ` block.
   if (isDefined(state.views) && hasAnyKey(allViewKeys, state)) {
-    throw new Error(`State '${state.name}' has a 'views' object. ` +
+    throw new Error(
+      `State '${state.name}' has a 'views' object. ` +
         `It cannot also have "view properties" at the state level.  ` +
         `Move the following properties into a view (in the 'views' object): ` +
-        ` ${allViewKeys.filter(key => isDefined(state[key])).join(', ')}`);
+        ` ${allViewKeys.filter(key => isDefined(state[key])).join(', ')}`,
+    );
   }
 
   const views: { [key: string]: Ng1ViewDeclaration } = {},
-      viewsObject = state.views || { '$default': pick(state, allViewKeys) };
+    viewsObject = state.views || { $default: pick(state, allViewKeys) };
 
-  forEach(viewsObject, function (config: Ng1ViewDeclaration, name: string) {
+  forEach(viewsObject, function(config: Ng1ViewDeclaration, name: string) {
     // Account for views: { "": { template... } }
     name = name || '$default';
     // Account for views: { header: "headerComponent" }
-    if (isString(config)) config = { component: <string> config };
+    if (isString(config)) config = { component: <string>config };
 
     // Make a shallow copy of the config object
     config = extend({}, config);
 
     // Do not allow a view to mix props for component-style view with props for template/controller-style view
     if (hasAnyKey(compKeys, config) && hasAnyKey(nonCompKeys, config)) {
-      throw new Error(`Cannot combine: ${compKeys.join('|')} with: ${nonCompKeys.join('|')} in stateview: '${name}@${state.name}'`);
+      throw new Error(
+        `Cannot combine: ${compKeys.join('|')} with: ${nonCompKeys.join('|')} in stateview: '${name}@${state.name}'`,
+      );
     }
 
     config.resolveAs = config.resolveAs || '$resolve';
@@ -89,7 +107,7 @@ export class Ng1ViewConfig implements ViewConfig {
   component: string;
   locals: any; // TODO: delete me
 
-  constructor(public path: PathNode[], public viewDecl: Ng1ViewDeclaration, public factory: TemplateFactory) { }
+  constructor(public path: PathNode[], public viewDecl: Ng1ViewDeclaration, public factory: TemplateFactory) {}
 
   load() {
     const $q = services.$q;
@@ -101,7 +119,7 @@ export class Ng1ViewConfig implements ViewConfig {
       controller: $q.when(this.getController(context)),
     };
 
-    return $q.all(promises).then((results) => {
+    return $q.all(promises).then(results => {
       trace.traceViewServiceEvent('Loaded', this);
       this.controller = results.controller;
       extend(this, results.template); // Either { template: "tpl" } or { component: "cmpName" }
@@ -110,19 +128,21 @@ export class Ng1ViewConfig implements ViewConfig {
   }
 
   getTemplate = (uiView, context: ResolveContext) =>
-    this.component ? this.factory.makeComponentTemplate(uiView, context, this.component, this.viewDecl.bindings) : this.template;
+    this.component
+      ? this.factory.makeComponentTemplate(uiView, context, this.component, this.viewDecl.bindings)
+      : this.template;
 
   /**
    * Gets the controller for a view configuration.
    *
    * @returns {Function|Promise.<Function>} Returns a controller, or a promise that resolves to a controller.
    */
-  getController(context: ResolveContext): (IInjectable|string|Promise<IInjectable|string>) {
+  getController(context: ResolveContext): IInjectable | string | Promise<IInjectable | string> {
     const provider = this.viewDecl.controllerProvider;
     if (!isInjectable(provider)) return this.viewDecl.controller;
     const deps = services.$injector.annotate(provider);
-    const providerFn = isArray(provider) ? tail(<any> provider) : provider;
-    const resolvable = new Resolvable('', <any> providerFn, deps);
+    const providerFn = isArray(provider) ? tail(<any>provider) : provider;
+    const resolvable = new Resolvable('', <any>providerFn, deps);
     return resolvable.get(context);
   }
 }

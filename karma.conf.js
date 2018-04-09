@@ -1,7 +1,7 @@
 // Karma configuration file
-var karma = require("karma");
+var karma = require('karma');
 var ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-var DEFAULT_NG_VERSION = "1.6";
+var DEFAULT_NG_VERSION = '1.6';
 
 /**
  * This returns a Karma 'files configuration'.
@@ -24,7 +24,7 @@ function karmaServedFiles(ngVersion) {
     ];
   }
 
-  var angularFiles = angular(ngVersion).map(function (pattern) {
+  var angularFiles = angular(ngVersion).map(function(pattern) {
     return { watched: false, included: true, nocache: true, pattern: pattern };
   });
 
@@ -41,7 +41,7 @@ module.exports = function(config) {
 
     // level of logging
     // possible values: LOG_DISABLE, LOG_ERROR, LOG_WARN, LOG_INFO, LOG_DEBUG
-    logLevel: "warn",
+    logLevel: 'warn',
 
     reporters: ['super-dots', 'mocha'],
     colors: true,
@@ -58,7 +58,7 @@ module.exports = function(config) {
     // Chrome, ChromeCanary, Firefox, Opera, Safari, PhantomJS
     browsers: ['ChromeHeadlessNoSandbox'],
     customLaunchers: {
-      ChromeHeadlessNoSandbox: { base: 'ChromeHeadless', flags: ['--no-sandbox'] }
+      ChromeHeadlessNoSandbox: { base: 'ChromeHeadless', flags: ['--no-sandbox'] },
     },
 
     frameworks: ['jasmine'],
@@ -69,29 +69,25 @@ module.exports = function(config) {
       require('karma-super-dots-reporter'),
       require('karma-mocha-reporter'),
       require('karma-jasmine'),
-      require('karma-chrome-launcher')
+      require('karma-chrome-launcher'),
     ],
 
     webpack: {
       mode: 'development',
       resolve: {
         modules: ['node_modules'],
-        extensions: ['.js', '.jsx', '.ts', '.tsx']
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
       },
 
       devtool: 'inline-source-map',
 
       module: {
-        rules: [
-          { test: /\.tsx?$/, loader: 'ts-loader', options: { transpileOnly: true } }
-        ]
+        rules: [{ test: /\.tsx?$/, loader: 'ts-loader', options: { transpileOnly: true } }],
       },
 
-      plugins: [
-        new ForkTsCheckerWebpackPlugin(),
-      ],
+      plugins: [new ForkTsCheckerWebpackPlugin()],
 
-      externals: [ 'angular' ]
+      externals: ['angular'],
     },
 
     webpackMiddleware: {
@@ -105,6 +101,5 @@ module.exports = function(config) {
       'test/index.js': ['webpack', 'sourcemap'],
       '../src/ng1': ['webpack', 'sourcemap'],
     },
-
   });
 };
