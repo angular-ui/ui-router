@@ -1,1 +1,4 @@
 package.json
+test/**/angular.js
+test/**/angular-mocks.js
+test/**/angular-animate.js
