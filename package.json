@@ -27,7 +27,8 @@
     "docs": "generate_docs && publish_docs",
     "release": "release --deps @uirouter/core && node ./scripts/bower_release.js",
     "prepublishOnly": "npm run build",
-    "artifacts": "artifact_tagging"
+    "artifacts": "artifact_tagging",
+    "precommit": "pretty-quick --staged"
   },
   "homepage": "https://ui-router.github.io",
   "contributors": [
@@ -84,6 +85,7 @@
     "@uirouter/publish-scripts": "2.3.1",
     "dts-downlevel": "0.3.0",
     "fork-ts-checker-webpack-plugin": "0.4.1",
+    "husky": "^0.14.3",
     "jasmine-core": "3.1.0",
     "karma": "2.0.0",
     "karma-chrome-launcher": "2.2.0",
@@ -94,6 +96,8 @@
     "karma-super-dots-reporter": "^0.1.0",
     "karma-webpack": "^3.0.0",
     "lodash": "4.17.5",
+    "prettier": "^1.11.1",
+    "pretty-quick": "^1.4.1",
     "rollup": "0.57.1",
     "rollup-plugin-node-resolve": "3.3.0",
     "rollup-plugin-sourcemaps": "0.4.2",
