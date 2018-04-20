@@ -1,6 +1,7 @@
 # common
 node_modules
 bower_components
+yarn-error.log
 
 .DS_Store
 *~
