@@ -88,7 +88,7 @@
     "fork-ts-checker-webpack-plugin": "^0.4.1",
     "husky": "^0.14.3",
     "jasmine-core": "^3.1.0",
-    "karma": "^2.0.0",
+    "karma": "^2.0.2",
     "karma-chrome-launcher": "^2.2.0",
     "karma-jasmine": "^1.1.1",
     "karma-mocha-reporter": "^2.2.5",
@@ -97,9 +97,9 @@
     "karma-super-dots-reporter": "^0.1.0",
     "karma-webpack": "^3.0.0",
     "lodash": "^4.17.5",
-    "prettier": "^1.11.1",
+    "prettier": "^1.12.1",
     "pretty-quick": "^1.4.1",
-    "rollup": "^0.57.1",
+    "rollup": "^0.58.1",
     "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup-plugin-uglify": "^3.0.0",
@@ -108,7 +108,7 @@
     "ts-loader": "^4.1.0",
     "tslint": "^5.9.1",
     "tslint-eslint-rules": "^5.1.0",
-    "typescript": "^2.8.1",
-    "webpack": "^4.3.0"
+    "typescript": "^2.8.3",
+    "webpack": "^4.6.0"
   }
 }
