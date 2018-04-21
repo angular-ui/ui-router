@@ -90,8 +90,8 @@
   resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.17.tgz#c85d422b1e9a45df885be8b84f9b7f53233a7973"
 
 "@uirouter/publish-scripts@^2.3.4":
-  version "2.3.10"
-  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.3.10.tgz#13d3ae41dfedcd71571dd118e0321a31d495ff76"
+  version "2.3.11"
+  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.3.11.tgz#ebc2e9083d359f5bf65d27ae1c229c8e18f1e9f1"
   dependencies:
     conventional-changelog "^1.1.4"
     conventional-changelog-ui-router-core "^1.4.2"
