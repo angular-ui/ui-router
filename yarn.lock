@@ -79,9 +79,9 @@
     "@types/glob" "*"
     "@types/node" "*"
 
-"@uirouter/core@5.0.17":
-  version "5.0.17"
-  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.17.tgz#c85d422b1e9a45df885be8b84f9b7f53233a7973"
+"@uirouter/core@5.0.18":
+  version "5.0.18"
+  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.18.tgz#6dd85654ebc7e25eba2c1b32f069829db351abab"
 
 "@uirouter/publish-scripts@^2.3.4":
   version "2.3.12"
