@@ -1,3 +1,8 @@
+/**
+ * @ng1api
+ * @module directives
+ */
+
 import {
   $QLike,
   ActiveUIView,
@@ -24,11 +29,6 @@ import {
   ViewService,
 } from '@uirouter/core';
 import { IAugmentedJQuery, IInterpolateService, IScope, ITimeoutService, ITranscludeFunction } from 'angular';
-/**
- * @ng1api
- * @module directives
- */
-/** for typedoc */
 import { ng as angular } from '../angular';
 import { Ng1Controller, Ng1StateDeclaration } from '../interface';
 import { getLocals } from '../services';
