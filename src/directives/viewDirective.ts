@@ -1,38 +1,38 @@
-/**
- * @ng1api
- * @module directives
- */ /** for typedoc */
-import { ng as angular } from '../angular';
-import { IInterpolateService, IScope, ITranscludeFunction, IAugmentedJQuery, ITimeoutService } from 'angular';
-
 import {
+  $QLike,
+  ActiveUIView,
   extend,
-  unnestR,
   filter,
-  tail,
+  HookRegOptions,
   isDefined,
   isFunction,
   isString,
-  trace,
-  parse,
-  ActiveUIView,
-  TransitionService,
-  ResolveContext,
-  Transition,
-  PathNode,
-  StateDeclaration,
-  Param,
   kebobString,
-  HookRegOptions,
-  ViewService,
-  $QLike,
-  Obj,
-  TypedMap,
   noop,
+  Obj,
+  Param,
+  parse,
+  PathNode,
+  ResolveContext,
+  StateDeclaration,
+  tail,
+  trace,
+  Transition,
+  TransitionService,
+  TypedMap,
+  unnestR,
+  ViewService,
 } from '@uirouter/core';
-import { Ng1ViewConfig } from '../statebuilders/views';
+import { IAugmentedJQuery, IInterpolateService, IScope, ITimeoutService, ITranscludeFunction } from 'angular';
+/**
+ * @ng1api
+ * @module directives
+ */
+/** for typedoc */
+import { ng as angular } from '../angular';
 import { Ng1Controller, Ng1StateDeclaration } from '../interface';
 import { getLocals } from '../services';
+import { Ng1ViewConfig } from '../statebuilders/views';
 import { ng1_directive } from './stateDirectives';
 
 /** @hidden */
@@ -368,6 +368,7 @@ uiView = [
 ];
 
 $ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view', '$q', '$timeout'];
+
 /** @hidden */
 function $ViewDirectiveFill(
   $compile: angular.ICompileService,
@@ -477,7 +478,7 @@ function registerControllerCallbacks(
   const viewState: Ng1StateDeclaration = tail(cfg.path).state.self;
 
   const hookOptions: HookRegOptions = { bind: controllerInstance };
-  // Add component-level hook for onParamsChange
+  // Add component-level hook for onUiParamsChanged
   if (isFunction(controllerInstance.uiOnParamsChanged)) {
     const resolveContext: ResolveContext = new ResolveContext(cfg.path);
     const viewCreationTrans = resolveContext.getResolvable('$transition$').data;
@@ -491,13 +492,14 @@ function registerControllerCallbacks(
 
       const toParams = $transition$.params('to') as TypedMap<any>;
       const fromParams = $transition$.params<TypedMap<any>>('from') as TypedMap<any>;
+      const getNodeSchema = (node: PathNode) => node.paramSchema;
       const toSchema: Param[] = $transition$
-        .treeChanges()
-        .to.map((node: PathNode) => node.paramSchema)
+        .treeChanges('to')
+        .map(getNodeSchema)
         .reduce(unnestR, []);
       const fromSchema: Param[] = $transition$
-        .treeChanges()
-        .from.map((node: PathNode) => node.paramSchema)
+        .treeChanges('from')
+        .map(getNodeSchema)
         .reduce(unnestR, []);
 
       // Find the to params that have different values than the from params
