@@ -72,7 +72,7 @@
   "jsnext:main": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@uirouter/core": "5.0.18"
+    "@uirouter/core": "5.0.19"
   },
   "peerDependencies": {
     "angular": ">=1.2.0"
@@ -81,9 +81,9 @@
     "@types/angular": "=1.6.25",
     "@types/angular-animate": "^1.5.9",
     "@types/angular-mocks": "^1.5.11",
-    "@types/jasmine": "^2.8.6",
+    "@types/jasmine": "^2.8.7",
     "@types/jquery": "^3.3.1",
-    "@uirouter/publish-scripts": "^2.3.13",
+    "@uirouter/publish-scripts": "^2.3.18",
     "dts-downlevel": "^0.3.0",
     "fork-ts-checker-webpack-plugin": "^0.4.1",
     "husky": "^0.14.3",
@@ -103,10 +103,10 @@
     "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup-plugin-uglify": "^3.0.0",
-    "ts-loader": "^4.1.0",
-    "tslint": "^5.9.1",
-    "tslint-eslint-rules": "^5.1.0",
+    "ts-loader": "^4.3.0",
+    "tslint": "^5.10.0",
+    "tslint-eslint-rules": "^5.2.0",
     "typescript": "^2.8.3",
-    "webpack": "^4.6.0"
+    "webpack": "^4.8.3"
   }
 }
