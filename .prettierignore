@@ -1,4 +1,5 @@
 package.json
+bower.json
 CHANGELOG.md
 test/**/angular.js
 test/**/angular-mocks.js
