@@ -1,3 +1,14 @@
+## 1.0.17 (2018-05-13)
+[Compare `@uirouter/angularjs` versions 1.0.16 and 1.0.17](https://github.com/angular-ui/ui-router/compare/1.0.16...1.0.17)
+
+
+### Updated `@uirouter/core` from 5.0.18 to 5.0.19
+[Compare `@uirouter/core` versions 5.0.18 and 5.0.19](https://github.com/ui-router/core/compare/5.0.18...5.0.19)
+
+### Bug Fixes
+
+* **enums:** Workaround angular compiler export issue https://github.com/angular/angular/issues/23759 ([38d25fa](https://github.com/ui-router/core/commit/38d25fa))
+
 ## 1.0.16 (2018-05-03)
 [Compare `@uirouter/angularjs` versions 1.0.15 and 1.0.16](https://github.com/angular-ui/ui-router/compare/1.0.15...1.0.16)
 
