@@ -100,7 +100,9 @@ function clickHook(
     if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || el.attr('target'))) {
       // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
       const transition = $timeout(function() {
-        $state.go(target.uiState, target.uiStateParams, target.uiStateOpts);
+          if (!el.attr('disabled')) {
+              $state.go(target.uiState, target.uiStateParams, target.uiStateOpts);
+          }
       });
       e.preventDefault();
 
