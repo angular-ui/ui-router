@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "target": "es5",
+    "allowSyntheticDefaultImports": true,
+    "outDir": "build/es5",
+    "declaration": false,
+    "sourceMap": false,
+    "importHelpers": true
+  },
+  "typedoc": {
+    "publishDir": "_ng1_docs",
+    "include": [
+      {
+        "package": "@uirouter/core",
+        "repo": "https://github.com/ui-router/core.git",
+        "entry": "src/index.ts"
+      }
+    ],
+    "generateOptions": {
+      "tsconfig": "typedoc.json",
+      "readme": "DOCS.md",
+      "name": "@uirouter/angularjs",
+      "theme": "node_modules/ui-router-typedoc-themes/bin/default",
+      "out": "_doc",
+      "internal-aliases": "internal,coreapi,ng1api",
+      "external-aliases": "internalapi,external",
+      "navigation-label-globals": "@uirouter/angularjs"
+    }
+  }
+}

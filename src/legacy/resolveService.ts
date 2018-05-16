@@ -1,17 +1,17 @@
 /** @module ng1 */ /** */
-import { StateObject, PathNode, ResolveContext, Obj, mapObj, resolvablesBuilder } from "@uirouter/core";
-import * as angular from "angular";
+import { StateObject, PathNode, ResolveContext, Obj, mapObj, resolvablesBuilder } from '@uirouter/core';
+import * as angular from 'angular';
 
 /**
  * Implementation of the legacy `$resolve` service for angular 1.
  */
-var $resolve = {
+const $resolve = {
   /**
    * Asynchronously injects a resolve block.
    *
    * This emulates most of the behavior of the ui-router 0.2.x $resolve.resolve() service API.
    *
-  * ### Not bundled by default
+   * ### Not bundled by default
    *
    * This API is no longer not part of the standard `@uirouter/angularjs` bundle.
    * For users of the prebuilt bundles, add the `release/resolveService.min.js` UMD bundle.
@@ -43,18 +43,18 @@ var $resolve = {
    * @param parent a promise for a "parent resolve"
    */
   resolve: (invocables: { [key: string]: Function }, locals = {}, parent?: Promise<any>) => {
-    let parentNode = new PathNode(new StateObject(<any> { params: {}, resolvables: [] }));
-    let node = new PathNode(new StateObject(<any> { params: {}, resolvables: [] }));
-    let context = new ResolveContext([parentNode, node]);
+    const parentNode = new PathNode(new StateObject(<any>{ params: {}, resolvables: [] }));
+    const node = new PathNode(new StateObject(<any>{ params: {}, resolvables: [] }));
+    const context = new ResolveContext([parentNode, node]);
 
-    context.addResolvables(resolvablesBuilder(<any> { resolve: invocables }), node.state);
+    context.addResolvables(resolvablesBuilder(<any>{ resolve: invocables }), node.state);
 
     const resolveData = (parentLocals: Obj) => {
-      const rewrap = (_locals: Obj) => resolvablesBuilder(<any> { resolve: mapObj(_locals, local => () => local) });
+      const rewrap = (_locals: Obj) => resolvablesBuilder(<any>{ resolve: mapObj(_locals, local => () => local) });
       context.addResolvables(rewrap(parentLocals), parentNode.state);
       context.addResolvables(rewrap(locals), node.state);
 
-      const tuples2ObjR = (acc: Obj, tuple: { token: any, value: any }) => {
+      const tuples2ObjR = (acc: Obj, tuple: { token: any; value: any }) => {
         acc[tuple.token] = tuple.value;
         return acc;
       };
@@ -62,11 +62,11 @@ var $resolve = {
     };
 
     return parent ? parent.then(resolveData) : resolveData({});
-  }
+  },
 };
 
 /** @hidden */
 export const resolveFactory = () => $resolve;
 
 // The old $resolve service
-angular.module('ui.router').factory('$resolve', <any> resolveFactory);
+angular.module('ui.router').factory('$resolve', <any>resolveFactory);

@@ -1,12 +1,18 @@
 /** @module url */ /** */
 import {
-    UIRouter, UrlRouter, LocationServices, $InjectorLike, BaseUrlRule, UrlRuleHandlerFn, UrlMatcher,
-    IInjectable
-} from "@uirouter/core";
-import { services, isString, isFunction, isArray, identity } from "@uirouter/core";
+  UIRouter,
+  UrlRouter,
+  LocationServices,
+  $InjectorLike,
+  BaseUrlRule,
+  UrlRuleHandlerFn,
+  UrlMatcher,
+  IInjectable,
+} from '@uirouter/core';
+import { services, isString, isFunction, isArray, identity } from '@uirouter/core';
 
 export interface RawNg1RuleFunction {
-  ($injector: $InjectorLike, $location: LocationServices): string|void;
+  ($injector: $InjectorLike, $location: LocationServices): string | void;
 }
 
 /**
@@ -27,6 +33,10 @@ export class UrlRouterProvider {
   /** @hidden */ _router: UIRouter;
   /** @hidden */ _urlRouter: UrlRouter;
 
+  static injectableHandler(router: UIRouter, handler): UrlRuleHandlerFn {
+    return match => services.$injector.invoke(handler, null, { $match: match, $stateParams: router.globals.params });
+  }
+
   /** @hidden */
   constructor(router: UIRouter) {
     this._router = router;
@@ -35,7 +45,7 @@ export class UrlRouterProvider {
 
   /** @hidden */
   $get() {
-    let urlRouter = this._urlRouter;
+    const urlRouter = this._urlRouter;
     urlRouter.update(true);
     if (!urlRouter.interceptDeferred) urlRouter.listen();
     return urlRouter;
@@ -75,13 +85,12 @@ export class UrlRouterProvider {
   rule(ruleFn: RawNg1RuleFunction): UrlRouterProvider {
     if (!isFunction(ruleFn)) throw new Error("'rule' must be a function");
 
-    const match = () =>
-        ruleFn(services.$injector, this._router.locationService);
+    const match = () => ruleFn(services.$injector, this._router.locationService);
 
-    let rule = new BaseUrlRule(match, identity);
+    const rule = new BaseUrlRule(match, identity);
     this._urlRouter.rule(rule);
     return this;
-  };
+  }
 
   /**
    * Defines the path or behavior to use when no url can be matched.
@@ -110,7 +119,7 @@ export class UrlRouterProvider {
    * @return {object} `$urlRouterProvider` - `$urlRouterProvider` instance
    */
   otherwise(rule: string | RawNg1RuleFunction): UrlRouterProvider {
-    let urlRouter = this._urlRouter;
+    const urlRouter = this._urlRouter;
 
     if (isString(rule)) {
       urlRouter.otherwise(rule);
@@ -121,7 +130,7 @@ export class UrlRouterProvider {
     }
 
     return this;
-  };
+  }
 
   /**
    * Registers a handler for a given url matching.
@@ -161,18 +170,13 @@ export class UrlRouterProvider {
    *
    * Note: the handler may also invoke arbitrary code, such as `$state.go()`
    */
-  when(what: (RegExp|UrlMatcher|string), handler: string|IInjectable) {
+  when(what: RegExp | UrlMatcher | string, handler: string | IInjectable) {
     if (isArray(handler) || isFunction(handler)) {
       handler = UrlRouterProvider.injectableHandler(this._router, handler);
     }
 
     this._urlRouter.when(what, handler as any);
     return this;
-  };
-
-  static injectableHandler(router: UIRouter, handler): UrlRuleHandlerFn {
-    return match =>
-        services.$injector.invoke(handler, null, { $match: match, $stateParams: router.globals.params });
   }
 
   /**
@@ -207,5 +211,5 @@ export class UrlRouterProvider {
    */
   deferIntercept(defer?: boolean) {
     this._urlRouter.deferIntercept(defer);
-  };
+  }
 }

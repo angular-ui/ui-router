@@ -1,6 +1,8 @@
 # common
 node_modules
 bower_components
+yarn-error.log
+
 .DS_Store
 *~
 **/.*
@@ -13,8 +15,6 @@ idea-out
 
 # generated files
 _doc
-.testlib
 lib
 lib-esm
 release
-stats.html

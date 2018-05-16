@@ -18,12 +18,19 @@
  *
  * @module ng1_state_events
  */ /** */
-import { ng as angular } from "../angular";
-import { IScope, IAngularEvent, IServiceProviderFactory } from "angular";
+import { ng as angular } from '../angular';
+import { IScope, IAngularEvent, IServiceProviderFactory } from 'angular';
 import {
-    Obj, TargetState, StateService, Transition, TransitionService, UrlRouter, HookResult, UIInjector
-} from "@uirouter/core";
-import { StateProvider } from "../stateProvider";
+  Obj,
+  TargetState,
+  StateService,
+  Transition,
+  TransitionService,
+  UrlRouter,
+  HookResult,
+  UIInjector,
+} from '@uirouter/core';
+import { StateProvider } from '../stateProvider';
 
 /**
  * An event broadcast on `$rootScope` when the state transition **begins**.
@@ -54,7 +61,7 @@ import { StateProvider } from "../stateProvider";
  * @event $stateChangeStart
  * @deprecated
  */
-export var $stateChangeStart: IAngularEvent;
+export let $stateChangeStart: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` if a transition is **cancelled**.
@@ -72,7 +79,7 @@ export var $stateChangeStart: IAngularEvent;
  * @event $stateChangeCancel
  * @deprecated
  */
-export var $stateChangeCancel: IAngularEvent;
+export let $stateChangeCancel: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` once the state transition is **complete**.
@@ -90,7 +97,7 @@ export var $stateChangeCancel: IAngularEvent;
  * @event $stateChangeSuccess
  * @deprecated
  */
-export var $stateChangeSuccess: IAngularEvent;
+export let $stateChangeSuccess: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` when an **error occurs** during transition.
@@ -114,7 +121,7 @@ export var $stateChangeSuccess: IAngularEvent;
  * @event $stateChangeError
  * @deprecated
  */
-export var $stateChangeError: IAngularEvent;
+export let $stateChangeError: IAngularEvent;
 
 /**
  * An event broadcast on `$rootScope` when a requested state **cannot be found** using the provided state name.
@@ -150,62 +157,95 @@ export var $stateChangeError: IAngularEvent;
  * @event $stateNotFound
  * @deprecated
  */
-export var $stateNotFound: IAngularEvent;
+export let $stateNotFound: IAngularEvent;
 
-
-(function () {
-  let { isFunction, isString } = angular;
+(function() {
+  const { isFunction, isString } = angular;
 
   function applyPairs(memo: Obj, keyValTuple: any[]) {
     let key: string, value: any;
     if (Array.isArray(keyValTuple)) [key, value] = keyValTuple;
-    if (!isString(key)) throw new Error("invalid parameters to applyPairs");
+    if (!isString(key)) throw new Error('invalid parameters to applyPairs');
     memo[key] = value;
     return memo;
   }
 
   function stateChangeStartHandler($transition$: Transition) {
-    if (!$transition$.options().notify || !$transition$.valid() || $transition$.ignored())
-      return;
+    if (!$transition$.options().notify || !$transition$.valid() || $transition$.ignored()) return;
 
-    let $injector = $transition$.injector();
-    let $stateEvents = $injector.get('$stateEvents');
-    let $rootScope = $injector.get('$rootScope');
-    let $state = $injector.get('$state');
-    let $urlRouter = $injector.get('$urlRouter');
+    const $injector = $transition$.injector();
+    const $stateEvents = $injector.get('$stateEvents');
+    const $rootScope = $injector.get('$rootScope');
+    const $state = $injector.get('$state');
+    const $urlRouter = $injector.get('$urlRouter');
 
-    let enabledEvents = $stateEvents.provider.enabled();
+    const enabledEvents = $stateEvents.provider.enabled();
 
-
-    let toParams = $transition$.params("to");
-    let fromParams = $transition$.params("from");
+    const toParams = $transition$.params('to');
+    const fromParams = $transition$.params('from');
 
     if (enabledEvents.$stateChangeSuccess) {
-      let startEvent = $rootScope.$broadcast('$stateChangeStart', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$.options(), $transition$);
+      const startEvent = $rootScope.$broadcast(
+        '$stateChangeStart',
+        $transition$.to(),
+        toParams,
+        $transition$.from(),
+        fromParams,
+        $transition$.options(),
+        $transition$
+      );
 
       if (startEvent.defaultPrevented) {
         if (enabledEvents.$stateChangeCancel) {
-          $rootScope.$broadcast('$stateChangeCancel', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$.options(), $transition$);
+          $rootScope.$broadcast(
+            '$stateChangeCancel',
+            $transition$.to(),
+            toParams,
+            $transition$.from(),
+            fromParams,
+            $transition$.options(),
+            $transition$
+          );
         }
-        //Don't update and resync url if there's been a new transition started. see issue #2238, #600
+        // Don't update and resync url if there's been a new transition started. see issue #2238, #600
         if ($state.transition == null) $urlRouter.update();
         return false;
       }
 
       // right after global state is updated
-      let successOpts = { priority: 9999 };
-      $transition$.onSuccess({}, function () {
-        $rootScope.$broadcast('$stateChangeSuccess', $transition$.to(), toParams, $transition$.from(), fromParams, $transition$.options(), $transition$);
-      }, successOpts);
+      const successOpts = { priority: 9999 };
+      $transition$.onSuccess(
+        {},
+        function() {
+          $rootScope.$broadcast(
+            '$stateChangeSuccess',
+            $transition$.to(),
+            toParams,
+            $transition$.from(),
+            fromParams,
+            $transition$.options(),
+            $transition$
+          );
+        },
+        successOpts
+      );
     }
 
     if (enabledEvents.$stateChangeError) {
-      $transition$.promise["catch"](function (error) {
-        if (error && (error.type === 2 /* RejectType.SUPERSEDED */ || error.type === 3 /* RejectType.ABORTED */))
+      $transition$.promise['catch'](function(error) {
+        if (error && (error.type === 2 /* RejectType.SUPERSEDED */ || error.type === 3) /* RejectType.ABORTED */)
           return;
 
-
-        let evt = $rootScope.$broadcast('$stateChangeError', $transition$.to(), toParams, $transition$.from(), fromParams, error, $transition$.options(), $transition$);
+        const evt = $rootScope.$broadcast(
+          '$stateChangeError',
+          $transition$.to(),
+          toParams,
+          $transition$.from(),
+          fromParams,
+          error,
+          $transition$.options(),
+          $transition$
+        );
 
         if (!evt.defaultPrevented) {
           $urlRouter.update();
@@ -216,19 +256,18 @@ export var $stateNotFound: IAngularEvent;
 
   stateNotFoundHandler.$inject = ['$to$', '$from$', '$state', '$rootScope', '$urlRouter'];
   function stateNotFoundHandler($to$: TargetState, $from$: TargetState, injector: UIInjector): HookResult {
-    let $state: StateService = injector.get('$state');
-    let $rootScope: IScope = injector.get('$rootScope');
-    let $urlRouter: UrlRouter = injector.get('$urlRouter');
+    const $state: StateService = injector.get('$state');
+    const $rootScope: IScope = injector.get('$rootScope');
+    const $urlRouter: UrlRouter = injector.get('$urlRouter');
 
     interface StateNotFoundEvent extends IAngularEvent {
       retry: Promise<any>;
     }
 
-    let redirect = { to: $to$.identifier(), toParams: $to$.params(), options: $to$.options() };
-    let e = <StateNotFoundEvent> $rootScope.$broadcast('$stateNotFound', redirect, $from$.state(), $from$.params());
+    const redirect = { to: $to$.identifier(), toParams: $to$.params(), options: $to$.options() };
+    const e = <StateNotFoundEvent>$rootScope.$broadcast('$stateNotFound', redirect, $from$.state(), $from$.params());
 
-    if (e.defaultPrevented || e.retry)
-      $urlRouter.update();
+    if (e.defaultPrevented || e.retry) $urlRouter.update();
 
     function redirectFn(): TargetState {
       return $state.target(redirect.to, redirect.toParams, redirect.options);
@@ -254,28 +293,28 @@ export var $stateNotFound: IAngularEvent;
     }
 
     let runtime = false;
-    let allEvents = ['$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError'];
-    let enabledStateEvents = <IEventsToggle> allEvents.map(e => [e, true]).reduce(applyPairs, {});
+    const allEvents = ['$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError'];
+    const enabledStateEvents = <IEventsToggle>allEvents.map(e => [e, true]).reduce(applyPairs, {});
 
     function assertNotRuntime() {
-      if (runtime) throw new Error("Cannot enable events at runtime (use $stateEventsProvider");
+      if (runtime) throw new Error('Cannot enable events at runtime (use $stateEventsProvider');
     }
 
     /**
      * Enables the deprecated UI-Router 0.2.x State Events
      * [ '$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError' ]
      */
-    this.enable = function (...events: string[]) {
+    this.enable = function(...events: string[]) {
       assertNotRuntime();
       if (!events || !events.length) events = allEvents;
-      events.forEach(event => enabledStateEvents[event] = true);
+      events.forEach(event => (enabledStateEvents[event] = true));
     };
 
     /**
      * Disables the deprecated UI-Router 0.2.x State Events
      * [ '$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError' ]
      */
-    this.disable = function (...events: string[]) {
+    this.disable = function(...events: string[]) {
       assertNotRuntime();
       if (!events || !events.length) events = allEvents;
       events.forEach(event => delete enabledStateEvents[event]);
@@ -288,20 +327,22 @@ export var $stateNotFound: IAngularEvent;
     function $get($transitions: TransitionService) {
       runtime = true;
 
-      if (enabledStateEvents["$stateNotFound"])
-        $stateProvider.onInvalid(stateNotFoundHandler);
-      if (enabledStateEvents.$stateChangeStart)
-        $transitions.onBefore({}, stateChangeStartHandler, { priority: 1000 });
+      if (enabledStateEvents['$stateNotFound']) $stateProvider.onInvalid(stateNotFoundHandler);
+      if (enabledStateEvents.$stateChangeStart) $transitions.onBefore({}, stateChangeStartHandler, { priority: 1000 });
 
       return {
-        provider: $StateEventsProvider.prototype.instance
+        provider: $StateEventsProvider.prototype.instance,
       };
     }
   }
 
-
-  angular.module('ui.router.state.events', ['ui.router.state'])
-      .provider("$stateEvents", <IServiceProviderFactory> $StateEventsProvider)
-      .run(['$stateEvents', function ($stateEvents: any) { /* Invokes $get() */
-      }]);
+  angular
+    .module('ui.router.state.events', ['ui.router.state'])
+    .provider('$stateEvents', <IServiceProviderFactory>$StateEventsProvider)
+    .run([
+      '$stateEvents',
+      function($stateEvents: any) {
+        /* Invokes $get() */
+      },
+    ]);
 })();

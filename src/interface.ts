@@ -2,8 +2,7 @@
  * @ng1api
  * @module ng1
  */ /** */
-import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult } from "@uirouter/core";
-
+import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult } from '@uirouter/core';
 
 /**
  * The signature for Angular 1 State Transition Hooks.
@@ -45,7 +44,7 @@ import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult
  * @returns an optional [[HookResult]] which may alter the transition
  */
 export interface Ng1StateTransitionHook {
-  (...injectables: any[]) : HookResult;
+  (...injectables: any[]): HookResult;
 }
 
 /**
@@ -54,6 +53,7 @@ export interface Ng1StateTransitionHook {
  *
  * Used to reset [[StateDeclaration]] typings to `any` so the [[Ng1StateDeclaration]] interface can then narrow them */
 export interface _Ng1StateDeclaration extends StateDeclaration {
+  // tslint:disable-line:class-name
   onExit?: any;
   onRetain?: any;
   onEnter?: any;
@@ -273,14 +273,14 @@ export interface Ng1StateDeclaration extends _Ng1StateDeclaration, Ng1ViewDeclar
    * - controllerAs
    * - controllerProvider
    */
-  views?: { [key: string]: string | Ng1ViewDeclaration; };
+  views?: { [key: string]: string | Ng1ViewDeclaration };
 
   /**
    * A state hook invoked when a state is being entered.
    *
    * The hook can inject global services.
    * It can also inject `$transition$` or `$state$` (from the current transition).
-   * 
+   *
    * ### Example:
    * ```js
    * $stateProvider.state({
@@ -375,12 +375,12 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    *
    * A property of [[Ng1StateDeclaration]] or [[Ng1ViewDeclaration]]:
    *
-   * The name of an [angular 1.5+ `.component()`](https://docs.angularjs.org/guide/component) (or directive with 
+   * The name of an [angular 1.5+ `.component()`](https://docs.angularjs.org/guide/component) (or directive with
    * bindToController and/or scope declaration) which will be used for this view.
    *
    * Resolve data can be provided to the component via the component's `bindings` object (for 1.3+ directives, the
-   * `bindToController` is used; for other directives, the `scope` declaration is used).  For each binding declared 
-   * on the component, any resolve with the same name is set on the component's controller instance.  The binding 
+   * `bindToController` is used; for other directives, the `scope` declaration is used).  For each binding declared
+   * on the component, any resolve with the same name is set on the component's controller instance.  The binding
    * is provided to the component as a one-time-binding.  In general, components should likewise declare their
    * input bindings as [one-way ("&lt;")](https://docs.angularjs.org/api/ng/service/$compile#-scope-).
    *
@@ -501,7 +501,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    *
    * See: [[Ng1Controller]] for information about component-level router hooks.
    */
-  controller?: (IInjectable|string);
+  controller?: IInjectable | string;
 
   /**
    * A controller alias name.
@@ -575,7 +575,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * }
    * ```
    */
-  template?: (Function|string);
+  template?: Function | string;
 
   /**
    * The URL for the HTML template for the view.
@@ -599,7 +599,7 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * }
    * ```
    */
-  templateUrl?: (string|Function);
+  templateUrl?: string | Function;
 
   /**
    * Injected function which returns the HTML template.
@@ -617,7 +617,6 @@ export interface Ng1ViewDeclaration extends _ViewDeclaration {
    * ```
    */
   templateProvider?: IInjectable;
-
 }
 
 /**
@@ -638,10 +637,10 @@ export interface Ng1Controller {
   $onInit(): void;
   /**
    * This callback is called when parameter values have changed.
-   * 
+   *
    * This callback can be used to respond to changing parameter values in the current state, or in parent/child states.
    * This callback is especially handy when using dynamic parameters ([[ParamDeclaration.dynamic]])
-   * 
+   *
    * Called when:
    * - The view is still active
    * - A new transition has completed successfully
@@ -742,7 +741,7 @@ export interface TemplateFactoryProvider {
   useHttpService(useUnsafeHttpService: boolean);
 }
 
-declare module "@uirouter/core/lib/state/stateRegistry" {
+declare module '@uirouter/core/lib/state/stateRegistry' {
   interface StateRegistry {
     register(state: Ng1StateDeclaration);
   }

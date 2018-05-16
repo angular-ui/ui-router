@@ -1,7 +1,7 @@
 // Karma configuration file
-var karma = require("karma");
+var karma = require('karma');
 var ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-var DEFAULT_NG_VERSION = "1.6";
+var DEFAULT_NG_VERSION = '1.6';
 
 /**
  * This returns a Karma 'files configuration'.
@@ -24,35 +24,12 @@ function karmaServedFiles(ngVersion) {
     ];
   }
 
-  var angularFiles = angular(ngVersion).map(function (pattern) {
+  var angularFiles = angular(ngVersion).map(function(pattern) {
     return { watched: false, included: true, nocache: true, pattern: pattern };
   });
 
   return angularFiles.concat('test/index.js');
 }
-
-var webpackConfig = module.exports = {
-  resolve: {
-    modules: ['node_modules'],
-    extensions: ['.js', '.jsx', '.ts', '.tsx']
-  },
-
-  devtool: 'inline-source-map',
-
-  module: {
-    rules: [
-      { test: /\.tsx?$/, loader: 'ts-loader', options: { transpileOnly: true } }
-    ]
-  },
-
-  stats: false,
-
-  plugins: [
-    new ForkTsCheckerWebpackPlugin(),
-  ],
-
-  externals: [ 'angular' ]
-};
 
 module.exports = function(config) {
   var ngVersion = config.ngversion || DEFAULT_NG_VERSION;
@@ -64,10 +41,13 @@ module.exports = function(config) {
 
     // level of logging
     // possible values: LOG_DISABLE, LOG_ERROR, LOG_WARN, LOG_INFO, LOG_DEBUG
-    logLevel: "warn",
-    // possible values: 'dots', 'progress'
-    reporters: 'dots',
+    logLevel: 'warn',
+
+    reporters: ['super-dots', 'mocha'],
     colors: true,
+    mochaReporter: {
+      output: 'minimal',
+    },
 
     port: 8080,
 
@@ -76,21 +56,42 @@ module.exports = function(config) {
 
     // Start these browsers, currently available:
     // Chrome, ChromeCanary, Firefox, Opera, Safari, PhantomJS
-    browsers: ['PhantomJS'],
+    browsers: ['ChromeHeadlessNoSandbox'],
+    customLaunchers: {
+      ChromeHeadlessNoSandbox: { base: 'ChromeHeadless', flags: ['--no-sandbox'] },
+    },
 
     frameworks: ['jasmine'],
 
     plugins: [
       require('karma-webpack'),
       require('karma-sourcemap-loader'),
+      require('karma-super-dots-reporter'),
+      require('karma-mocha-reporter'),
       require('karma-jasmine'),
-      require('karma-phantomjs-launcher'),
-      require('karma-chrome-launcher')
+      require('karma-chrome-launcher'),
     ],
 
-    webpack: webpackConfig,
+    webpack: {
+      mode: 'development',
+      resolve: {
+        modules: ['node_modules'],
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      },
+
+      devtool: 'inline-source-map',
+
+      module: {
+        rules: [{ test: /\.tsx?$/, loader: 'ts-loader', options: { transpileOnly: true } }],
+      },
+
+      plugins: [new ForkTsCheckerWebpackPlugin()],
+
+      externals: ['angular'],
+    },
+
     webpackMiddleware: {
-      stats: { chunks: false },
+      stats: 'minimal',
     },
 
     /* Files *available to be served* by karma, i.e., anything that will be require()'d */
@@ -100,6 +101,5 @@ module.exports = function(config) {
       'test/index.js': ['webpack', 'sourcemap'],
       '../src/ng1': ['webpack', 'sourcemap'],
     },
-
   });
 };

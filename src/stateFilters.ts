@@ -1,7 +1,7 @@
 /** @module ng1 */ /** for typedoc */
 
-import { ng as angular } from "./angular";
-import { Obj, StateService, StateOrName } from "@uirouter/core";
+import { ng as angular } from './angular';
+import { Obj, StateService, StateOrName } from '@uirouter/core';
 
 /**
  * `isState` Filter: truthy if the current state is the parameter
@@ -15,7 +15,7 @@ import { Obj, StateService, StateOrName } from "@uirouter/core";
  */
 $IsStateFilter.$inject = ['$state'];
 export function $IsStateFilter($state: StateService) {
-  var isFilter: any = function(state: StateOrName, params: Obj, options?: { relative?: StateOrName }) {
+  const isFilter: any = function(state: StateOrName, params: Obj, options?: { relative?: StateOrName }) {
     return $state.is(state, params, options);
   };
   isFilter.$stateful = true;
@@ -34,13 +34,14 @@ export function $IsStateFilter($state: StateService) {
  */
 $IncludedByStateFilter.$inject = ['$state'];
 export function $IncludedByStateFilter($state: StateService) {
-  var includesFilter: any = function(state: StateOrName, params: Obj, options: { relative?: StateOrName }) {
+  const includesFilter: any = function(state: StateOrName, params: Obj, options: { relative?: StateOrName }) {
     return $state.includes(state, params, options);
   };
   includesFilter.$stateful = true;
-  return  includesFilter;
+  return includesFilter;
 }
 
-angular.module('ui.router.state')
+angular
+  .module('ui.router.state')
   .filter('isState', $IsStateFilter)
   .filter('includedByState', $IncludedByStateFilter);

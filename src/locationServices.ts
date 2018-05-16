@@ -2,9 +2,9 @@
  * @internalapi
  * @module ng1
  */ /** */
-import { LocationConfig, LocationServices, UIRouter, ParamType } from "@uirouter/core";
-import { val, createProxyFunctions, removeFrom, isObject } from "@uirouter/core";
-import { ILocationService, ILocationProvider } from "angular";
+import { LocationConfig, LocationServices, UIRouter, ParamType, isDefined } from '@uirouter/core';
+import { val, createProxyFunctions, removeFrom, isObject } from '@uirouter/core';
+import { ILocationService, ILocationProvider } from 'angular';
 
 /**
  * Implements UI-Router LocationServices and LocationConfig using Angular 1's $location service
@@ -26,11 +26,33 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
   // .onChange() registry
   private _urlListeners: Function[] = [];
 
-  dispose() { }
+  /**
+   * Applys ng1-specific path parameter encoding
+   *
+   * The Angular 1 `$location` service is a bit weird.
+   * It doesn't allow slashes to be encoded/decoded bi-directionally.
+   *
+   * See the writeup at https://github.com/angular-ui/ui-router/issues/2598
+   *
+   * This code patches the `path` parameter type so it encoded/decodes slashes as ~2F
+   *
+   * @param router
+   */
+  static monkeyPatchPathParameterType(router: UIRouter) {
+    const pathType: ParamType = router.urlMatcherFactory.type('path');
+
+    pathType.encode = (x: any) =>
+      x != null ? x.toString().replace(/(~|\/)/g, m => ({ '~': '~~', '/': '~2F' }[m])) : x;
+
+    pathType.decode = (x: string) =>
+      x != null ? x.toString().replace(/(~~|~2F)/g, m => ({ '~~': '~', '~2F': '/' }[m])) : x;
+  }
+
+  dispose() {}
 
   constructor($locationProvider: ILocationProvider) {
     this.$locationProvider = $locationProvider;
-    let _lp = val($locationProvider);
+    const _lp = val($locationProvider);
     createProxyFunctions(_lp, this, _lp, ['hashPrefix']);
   }
 
@@ -46,7 +68,7 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
   }
 
   url(newUrl?: string, replace = false, state?) {
-    if (newUrl) this.$location.url(newUrl);
+    if (isDefined(newUrl)) this.$location.url(newUrl);
     if (replace) this.$location.replace();
     if (state) this.$location.state(state);
     return this.$location.url();
@@ -57,38 +79,15 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
     this.$sniffer = $sniffer;
 
     // Bind $locationChangeSuccess to the listeners registered in LocationService.onChange
-    $rootScope.$on("$locationChangeSuccess", evt => this._urlListeners.forEach(fn => fn(evt)));
-    let _loc = val($location);
-    let _browser = val($browser);
+    $rootScope.$on('$locationChangeSuccess', evt => this._urlListeners.forEach(fn => fn(evt)));
+    const _loc = val($location);
+    const _browser = val($browser);
 
     // Bind these LocationService functions to $location
-    createProxyFunctions(_loc, this, _loc, ["replace", "path", "search", "hash"]);
+    createProxyFunctions(_loc, this, _loc, ['replace', 'path', 'search', 'hash']);
     // Bind these LocationConfig functions to $location
     createProxyFunctions(_loc, this, _loc, ['port', 'protocol', 'host']);
     // Bind these LocationConfig functions to $browser
     createProxyFunctions(_browser, this, _browser, ['baseHref']);
-  }
-
-  /**
-   * Applys ng1-specific path parameter encoding
-   *
-   * The Angular 1 `$location` service is a bit weird.
-   * It doesn't allow slashes to be encoded/decoded bi-directionally.
-   *
-   * See the writeup at https://github.com/angular-ui/ui-router/issues/2598
-   *
-   * This code patches the `path` parameter type so it encoded/decodes slashes as ~2F
-   *
-   * @param router
-   */
-  static monkeyPatchPathParameterType(router: UIRouter) {
-    let pathType: ParamType = router.urlMatcherFactory.type('path');
-
-    pathType.encode = (val: any) =>
-        val != null ? val.toString().replace(/(~|\/)/g, m => ({ '~': '~~', '/': '~2F' }[m])) : val;
-
-    pathType.decode = (val: string) =>
-        val != null ? val.toString().replace(/(~~|~2F)/g, m => ({ '~~': '~', '~2F': '/' }[m])) : val;
-
   }
 }

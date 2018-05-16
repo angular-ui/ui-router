@@ -1,0 +1,8 @@
+{
+  "sample-app-angularjs": "https://github.com/ui-router/sample-app-angularjs.git",
+  "typescript2.2": "./test/typescript2.2",
+  "typescript2.3": "./test/typescript2.3",
+  "typescript2.4": "./test/typescript2.4",
+  "typescript2.5": "./test/typescript2.5",
+  "typescript2.6": "./test/typescript2.6"
+}

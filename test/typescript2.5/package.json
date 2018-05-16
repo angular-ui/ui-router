@@ -1,0 +1,16 @@
+{
+  "name": "@uirouter/angularjs-test-typescript2.5",
+  "version": "1.0.0",
+  "description": "Test against Typescript 2.5",
+  "scripts": {
+    "test": "tsc"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@types/angular": "latest",
+    "@uirouter/angularjs": "latest",
+    "typescript": "2.5"
+  },
+  "devDependencies": {}
+}

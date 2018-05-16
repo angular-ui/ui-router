@@ -1,13 +1,15 @@
 This issue tracker is for Bug Reports and Feature Requests only.
-Please direct requests for help to StackOverflow.  See http://bit.ly/UIR-SOF for details.
 
-This is a:
+Please direct requests for help to StackOverflow.
+See http://bit.ly/UIR-SOF for details.
+
+This is a (check one box):
 
 - [ ] Bug Report
 - [ ] Feature Request
 - [ ] General Query 
 
-My version of UI-Router is: (version)
+My version of UI-Router is: (type version)
 
 
 
@@ -15,22 +17,24 @@ My version of UI-Router is: (version)
 
 #### Current Behavior:
 
-(current behavior here)
+(type current behavior here)
 
 #### Expected Behavior:
 
-(expected behavior here)
+(type expected behavior here)
 
-#### Link to Plunker that reproduces the issue:
+#### Link to Plunker or stackblitz that reproduces the issue:
 
-http://bit.ly/UIR-Plunk
+( if you want a response to your issue, provide a way to reproduce it )
+( http://bit.ly/UIR-Plunk1 )
+( https://stackblitz.com/edit/ui-router-angularjs )
 
 
 
 
 # Feature Request
 
-(feature request here)
+(type feature request here)
 
 
 
@@ -41,7 +45,7 @@ Please direct general implementation questions to StackOverflow:
 http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router
 
 Please review the Sample Application which highlights common approaches:
-https://github.com/ui-router/sample-app-ng1
+https://github.com/ui-router/sample-app-angularjs
 
 - [ ] I have already asked my question on StackOverflow and nobody could answer the question
 
@@ -50,4 +54,4 @@ https://github.com/ui-router/sample-app-ng1
 - [ ] I believe my question can only be answered by the UI-Router maintainers
 
 
-(general query here)
+(type general query here)

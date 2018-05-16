@@ -1,0 +1,6 @@
+package.json
+bower.json
+CHANGELOG.md
+test/**/angular.js
+test/**/angular-mocks.js
+test/**/angular-animate.js
