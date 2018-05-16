@@ -94,7 +94,7 @@
     "karma-mocha-reporter": "^2.2.5",
     "karma-phantomjs-launcher": "^1.0.4",
     "karma-sourcemap-loader": "^0.3.7",
-    "karma-super-dots-reporter": "^0.1.0",
+    "karma-super-dots-reporter": "^0.2.0",
     "karma-webpack": "^3.0.0",
     "lodash": "^4.17.10",
     "prettier": "^1.12.1",
