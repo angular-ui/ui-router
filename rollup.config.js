@@ -67,10 +67,10 @@ const ROUTER_CONFIG = Object.assign(
         name: '@uirouter/angularjs',
         globals: { angular: 'angular', '@uirouter/core': '@uirouter/core' },
       },
-      BASE_OUTPUT,
+      BASE_OUTPUT
     ),
   },
-  BASE_CONFIG,
+  BASE_CONFIG
 );
 
 // Also bundles the code from @uirouter/core into the same bundle
@@ -84,10 +84,10 @@ const MONOLITHIC_ROUTER_CONFIG = Object.assign(
         name: '@uirouter/angularjs',
         globals: { angular: 'angular' },
       },
-      BASE_OUTPUT,
+      BASE_OUTPUT
     ),
   },
-  BASE_CONFIG,
+  BASE_CONFIG
 );
 
 const EVENTS_CONFIG = Object.assign({}, BASE_CONFIG, {
@@ -99,7 +99,7 @@ const EVENTS_CONFIG = Object.assign({}, BASE_CONFIG, {
       name: '@uirouter/angularjs-state-events',
       globals: { angular: 'angular', '@uirouter/core': '@uirouter/core' },
     },
-    BASE_OUTPUT,
+    BASE_OUTPUT
   ),
 });
 
@@ -112,12 +112,18 @@ const RESOLVE_CONFIG = Object.assign({}, BASE_CONFIG, {
       name: '@uirouter/angularjs-resolve-service',
       globals: { angular: 'angular', '@uirouter/core': '@uirouter/core' },
     },
-    BASE_OUTPUT,
+    BASE_OUTPUT
   ),
 });
 
 const CONFIG = RESOLVE
   ? RESOLVE_CONFIG
-  : EVENTS ? EVENTS_CONFIG : MONOLITHIC ? MONOLITHIC_ROUTER_CONFIG : ROUTER ? ROUTER_CONFIG : ROUTER_CONFIG;
+  : EVENTS
+    ? EVENTS_CONFIG
+    : MONOLITHIC
+      ? MONOLITHIC_ROUTER_CONFIG
+      : ROUTER
+        ? ROUTER_CONFIG
+        : ROUTER_CONFIG;
 
 export default CONFIG;

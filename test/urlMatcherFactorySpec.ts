@@ -17,7 +17,7 @@ describe('UrlMatcher', function() {
       router = $uiRouter;
       $umf = $urlMatcherFactory;
       $url = $urlService;
-    }),
+    })
   );
 
   describe('provider', function() {
@@ -328,14 +328,14 @@ describe('UrlMatcher', function() {
       expect(
         param2.type.equals(
           [new Date(2014, 11, 15), new Date(2014, 10, 15)],
-          [new Date(2014, 11, 15), new Date(2014, 10, 15)],
-        ),
+          [new Date(2014, 11, 15), new Date(2014, 10, 15)]
+        )
       ).toBe(true);
       expect(
         param2.type.equals(
           [new Date(2014, 11, 15), new Date(2014, 9, 15)],
-          [new Date(2014, 11, 15), new Date(2014, 10, 15)],
-        ),
+          [new Date(2014, 11, 15), new Date(2014, 10, 15)]
+        )
       ).toBe(false);
     });
 
@@ -507,7 +507,7 @@ describe('UrlMatcher', function() {
         expect(m.format({ param1: [] })).toEqual('/foo/');
         expect(m.format({ param1: ['bar'] })).toEqual('/foo/bar');
         expect(m.format({ param1: ['bar', 'baz'] })).toEqual('/foo/bar-baz');
-      }),
+      })
     );
 
     it('should behave similar to multi-value query params', function() {
@@ -563,7 +563,7 @@ describe('UrlMatcher', function() {
       expect(m.format({ 'param1[]': ['bar-'] })).toEqual('/foo/bar%5C%2D');
       expect(m.format({ 'param1[]': ['bar-', '-baz'] })).toEqual('/foo/bar%5C%2D-%5C%2Dbaz');
       expect(m.format({ 'param1[]': ['bar-bar-bar-', '-baz-baz-baz'] })).toEqual(
-        '/foo/bar%5C%2Dbar%5C%2Dbar%5C%2D-%5C%2Dbaz%5C%2Dbaz%5C%2Dbaz',
+        '/foo/bar%5C%2Dbar%5C%2Dbar%5C%2D-%5C%2Dbaz%5C%2Dbaz%5C%2Dbaz'
       );
 
       // check that we handle $location.url decodes correctly
@@ -595,7 +595,7 @@ describe('urlMatcherFactoryProvider', function() {
             is: angular.isObject,
           };
         });
-      }),
+      })
     );
 
     it(
@@ -604,7 +604,7 @@ describe('urlMatcherFactoryProvider', function() {
         const m = $umf.compile('/test?{foo:myType}');
         expect(m.exec('/test', { foo: '1' })).toEqual({ foo: { status: 'decoded' } });
         expect(m.exec('/test', { foo: ['1', '2'] })).toEqual({ foo: [{ status: 'decoded' }, { status: 'decoded' }] });
-      }),
+      })
     );
   });
 
@@ -612,7 +612,7 @@ describe('urlMatcherFactoryProvider', function() {
   afterEach(
     inject(function($urlMatcherFactory) {
       $urlMatcherFactory.caseInsensitive(false);
-    }),
+    })
   );
 });
 
@@ -624,7 +624,7 @@ describe('urlMatcherFactory', function() {
     inject(function($urlMatcherFactory, $urlService) {
       $umf = $urlMatcherFactory;
       $url = $urlService;
-    }),
+    })
   );
 
   it('compiles patterns', function() {
@@ -682,10 +682,10 @@ describe('urlMatcherFactory', function() {
                 return $stateParams;
               },
             };
-          } as any,
+          } as any
         );
         expect($umf.type('myType3').decode()).toBe($stateParams);
-      }),
+      })
     );
 
     it(
@@ -703,10 +703,10 @@ describe('urlMatcherFactory', function() {
                 },
               };
             },
-          ] as any,
+          ] as any
         );
         expect($umf.type('myAnnotatedType').decode()).toBe($stateParams);
-      }),
+      })
     );
 
     it('should match built-in types', function() {
@@ -959,7 +959,7 @@ describe('urlMatcherFactory', function() {
 
           $stateParams.user = user;
           expect(m.exec('/users/').user).toBe(user);
-        }),
+        })
       );
 
       xit('should match when used as prefix', function() {
@@ -999,7 +999,7 @@ describe('urlMatcherFactory', function() {
             const nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987' };
             expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
             expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
-          }),
+          })
         );
 
         it(
@@ -1014,7 +1014,7 @@ describe('urlMatcherFactory', function() {
             const nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987' };
             expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
             expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
-          }),
+          })
         );
 
         it(
@@ -1029,7 +1029,7 @@ describe('urlMatcherFactory', function() {
             const nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987' };
             expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
             expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
-          }),
+          })
         );
 
         it(
@@ -1045,7 +1045,7 @@ describe('urlMatcherFactory', function() {
             const nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987' };
             expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
             expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
-          }),
+          })
         );
       });
     });

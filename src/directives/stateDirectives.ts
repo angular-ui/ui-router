@@ -91,7 +91,7 @@ function clickHook(
   $state: StateService,
   $timeout: ITimeoutService,
   type: TypeInfo,
-  getDef: () => Def,
+  getDef: () => Def
 ) {
   return function(e: JQueryMouseEventObject) {
     const button = e.which || e.button,
@@ -318,7 +318,7 @@ uiSrefDirective = [
               rawDef.uiStateParams = extend({}, val);
               update();
             },
-            true,
+            true
           );
           rawDef.uiStateParams = extend({}, scope.$eval(ref.paramExpr));
         }
@@ -460,7 +460,7 @@ uiStateDirective = [
                 rawDef[field] = newval;
                 update();
               },
-              true,
+              true
             );
           });
         });
@@ -580,7 +580,7 @@ uiSrefActiveDirective = [
     $state: StateService,
     $stateParams: Obj,
     $interpolate: IInterpolateService,
-    $uiRouter: UIRouter,
+    $uiRouter: UIRouter
   ) {
     return {
       restrict: 'A',

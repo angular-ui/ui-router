@@ -50,7 +50,7 @@ describe('Ng1 StateBuilder', function() {
       expect(() => builder.builder('views')(extend({ component: 'fooComponent' }, config))).toThrow();
       expect(() => builder.builder('views')(extend({ componentProvider: () => 'fooComponent' }, config))).toThrow();
       expect(() => builder.builder('views')(extend({ bindings: {} }, config))).toThrow();
-    }),
+    })
   );
 
   it(
@@ -60,6 +60,6 @@ describe('Ng1 StateBuilder', function() {
       expect(builder.builder('resolvables')).toBeDefined();
       const built: Resolvable[] = builder.builder('resolvables')(config);
       expect(built[0].deps).toEqual(['bar']);
-    }),
+    })
   );
 });

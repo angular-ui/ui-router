@@ -25,7 +25,7 @@ describe('uiView', function() {
 
         $timeout.flush();
         expect(elem[0].scrollIntoView).toHaveBeenCalled();
-      }),
+      })
     );
 
     it(
@@ -36,7 +36,7 @@ describe('uiView', function() {
         $timeout.flush();
         expect(elem[0].scrollIntoView).toHaveBeenCalled();
         expect(promise).toBeDefined();
-      }),
+      })
     );
   });
 
@@ -47,7 +47,7 @@ describe('uiView', function() {
           return jasmine.createSpy('$anchorScroll');
         });
         $uiViewScrollProvider.useAnchorScroll();
-      }),
+      })
     );
 
     it(
@@ -55,7 +55,7 @@ describe('uiView', function() {
       inject(function($uiViewScroll, $anchorScroll) {
         $uiViewScroll();
         expect($anchorScroll).toHaveBeenCalled();
-      }),
+      })
     );
   });
 });

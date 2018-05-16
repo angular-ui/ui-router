@@ -192,7 +192,7 @@ export let $stateNotFound: IAngularEvent;
         $transition$.from(),
         fromParams,
         $transition$.options(),
-        $transition$,
+        $transition$
       );
 
       if (startEvent.defaultPrevented) {
@@ -204,7 +204,7 @@ export let $stateNotFound: IAngularEvent;
             $transition$.from(),
             fromParams,
             $transition$.options(),
-            $transition$,
+            $transition$
           );
         }
         // Don't update and resync url if there's been a new transition started. see issue #2238, #600
@@ -224,10 +224,10 @@ export let $stateNotFound: IAngularEvent;
             $transition$.from(),
             fromParams,
             $transition$.options(),
-            $transition$,
+            $transition$
           );
         },
-        successOpts,
+        successOpts
       );
     }
 
@@ -244,7 +244,7 @@ export let $stateNotFound: IAngularEvent;
           fromParams,
           error,
           $transition$.options(),
-          $transition$,
+          $transition$
         );
 
         if (!evt.defaultPrevented) {

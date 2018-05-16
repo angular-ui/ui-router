@@ -219,7 +219,7 @@ describe('Resolvables system:', function() {
     inject(function($transitions, $injector) {
       emptyPath = [];
       asyncCount = 0;
-    }),
+    })
   );
 
   describe('strictDi support', function() {
@@ -240,7 +240,7 @@ describe('Resolvables system:', function() {
           originalStrictDi = $injector.strictDi;
           $injector.strictDi = true;
         }
-      }),
+      })
     );
 
     afterEach(
@@ -248,7 +248,7 @@ describe('Resolvables system:', function() {
         if (supportsStrictDi) {
           $injector.strictDi = originalStrictDi;
         }
-      }),
+      })
     );
 
     it(
@@ -259,7 +259,7 @@ describe('Resolvables system:', function() {
             makePath(['P']);
           }).toThrowError(/strictdi/);
         }
-      }),
+      })
     );
 
     it(
@@ -270,7 +270,7 @@ describe('Resolvables system:', function() {
             makePath(['PAnnotated']);
           }).not.toThrowError(/strictdi/);
         }
-      }),
+      })
     );
   });
 });
@@ -285,14 +285,14 @@ describe('$resolve', function() {
       $provide.factory('Foo', function() {
         return 'Working';
       });
-    }),
+    })
   );
 
   beforeEach(
     inject(function($resolve, $q) {
       $r = $resolve;
       tick = $q.flush;
-    }),
+    })
   );
 
   describe('.resolve()', function() {
@@ -320,7 +320,7 @@ describe('$resolve', function() {
         d.resolve('async');
         tick();
         expect(resolvedValue(r)).toEqual({ fun: 'async' });
-      }),
+      })
     );
 
     it('resolves dependencies between functions', function() {
@@ -369,7 +369,7 @@ describe('$resolve', function() {
         expect(a.calls.count()).toBe(1);
         expect(b.calls.count()).toBe(1);
         expect(c.calls.count()).toBe(1);
-      }),
+      })
     );
 
     // TODO: Reimplement cycle detection
@@ -379,7 +379,7 @@ describe('$resolve', function() {
       expect(
         caught(function() {
           $r.resolve({ a: ['b', a], b: ['a', b] });
-        }),
+        })
       ).toMatch(/cyclic/i);
       expect(a).not.toHaveBeenCalled();
       expect(b).not.toHaveBeenCalled();
@@ -431,7 +431,7 @@ describe('$resolve', function() {
           },
         },
         {},
-        r,
+        r
       );
       tick();
       expect(r).toBeResolved();
@@ -475,7 +475,7 @@ describe('$resolve', function() {
 
         expect(s).toHaveBeenCalled();
         expect(s.calls.mostRecent().args).toEqual(['parent', 'grandparent']);
-      }),
+      })
     );
 
     // test for #1353
@@ -504,7 +504,7 @@ describe('$resolve', function() {
             ],
           },
           {},
-          g,
+          g
         );
         const s = jasmine.createSpy('s');
         const c = $r.resolve({ c: [s] }, {}, p);
@@ -516,7 +516,7 @@ describe('$resolve', function() {
 
         expect(s).toHaveBeenCalled();
         expect(item).toBe('parent');
-      }),
+      })
     );
 
     it('allows a function to override a parent value of the same name', function() {
@@ -538,7 +538,7 @@ describe('$resolve', function() {
           },
         },
         {},
-        r,
+        r
       );
       tick();
       expect(resolvedValue(s)).toEqual({ a: 'a:(B)', b: '(B)', c: 'c:(B)' });
@@ -568,13 +568,13 @@ describe('$resolve', function() {
             },
           },
           {},
-          r,
+          r
         );
         tick();
         bd.resolve('(' + superb + ')');
         tick();
         expect(resolvedValue(s)).toEqual({ a: 'a:(B)', b: '(B)', c: 'c:(B)' });
-      }),
+      })
     );
 
     it(
@@ -594,7 +594,7 @@ describe('$resolve', function() {
         tick();
         expect(resolvedValue(r)).toEqual({ c: 'ccc' });
         expect(resolvedValue(s)).toEqual({ b: 'bbb', c: 'ccc' });
-      }),
+      })
     );
 
     it('rejects missing dependencies but does not fail synchronously', function() {
@@ -628,7 +628,7 @@ describe('$resolve', function() {
             42;
           },
         },
-        r,
+        r
       );
       tick();
       expect(resolvedError(r)).toBe(error);
@@ -667,7 +667,7 @@ describe('$resolve', function() {
         cd.resolve('ccc');
         tick();
         expect(a).not.toHaveBeenCalled();
-      }),
+      })
     );
 
     it(
@@ -688,7 +688,7 @@ describe('$resolve', function() {
         cd.resolve('ccc');
         tick();
         expect(a).not.toHaveBeenCalled();
-      }),
+      })
     );
   });
 });
@@ -709,7 +709,7 @@ describe('Integration: Resolvables system', () => {
           },
         });
       }
-    }),
+    })
   );
 
   beforeEach(
@@ -722,7 +722,7 @@ describe('Integration: Resolvables system', () => {
       angular.forEach(copy, (stateDef: StateObject) => {
         if (stateDef.name) $stateProvider.state(stateDef.self);
       });
-    }),
+    })
   );
 
   beforeEach(module('test'));
@@ -736,7 +736,7 @@ describe('Integration: Resolvables system', () => {
       $transitions = _$transitions_;
       $trace = _$trace_;
       $q = _$q_;
-    }),
+    })
   );
 
   it('should not re-resolve data, when redirecting to a child', () => {
@@ -820,7 +820,7 @@ describe('Integration: Resolvables system', () => {
       $q.flush();
 
       expect(el.text()).toBe('wait for this-dont wait for this');
-    }),
+    })
   );
 
   if (angular.version.minor >= 5) {
@@ -857,7 +857,7 @@ describe('Integration: Resolvables system', () => {
         $q.flush();
 
         expect(el.text()).toBe('wait for this-dont wait for this');
-      }),
+      })
     );
   }
 });

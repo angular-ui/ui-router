@@ -40,7 +40,7 @@ describe('uiView', function() {
       $provide.decorator('$uiViewScroll', function() {
         return jasmine.createSpy('$uiViewScroll');
       });
-    }),
+    })
   );
 
   const aState = {
@@ -152,7 +152,7 @@ describe('uiView', function() {
         .state('l', lState)
         .state('m', mState)
         .state('n', nState);
-    }),
+    })
   );
 
   beforeEach(
@@ -160,7 +160,7 @@ describe('uiView', function() {
       scope = $rootScope.$new();
       $compile = _$compile_;
       elem = angular.element('<div>');
-    }),
+    })
   );
 
   describe('linking ui-directive', function() {
@@ -175,7 +175,7 @@ describe('uiView', function() {
         $q.flush();
 
         expect(elem.find('ui-view').text()).toBe(aState.template);
-      }),
+      })
     );
 
     it(
@@ -187,7 +187,7 @@ describe('uiView', function() {
         $q.flush();
 
         expect(elem.find('ui-view').text()).toBe(cState.views.cview.template);
-      }),
+      })
     );
 
     it(
@@ -205,7 +205,7 @@ describe('uiView', function() {
         $q.flush();
 
         expect(elem.find('ui-view').text()).toBe(bState.template);
-      }),
+      })
     );
 
     it(
@@ -213,20 +213,20 @@ describe('uiView', function() {
       inject(function($state, $q) {
         elem.append(
           $compile(
-            '<div><ui-view name="dview1" class="dview1"></ui-view><ui-view name="dview2" class="dview2"></ui-view></div>',
-          )(scope),
+            '<div><ui-view name="dview1" class="dview1"></ui-view><ui-view name="dview2" class="dview2"></ui-view></div>'
+          )(scope)
         );
         expect(
           elem
             .find('ui-view')
             .eq(0)
-            .text(),
+            .text()
         ).toBe('');
         expect(
           elem
             .find('ui-view')
             .eq(1)
-            .text(),
+            .text()
         ).toBe('');
 
         $state.transitionTo(dState);
@@ -236,15 +236,15 @@ describe('uiView', function() {
           elem
             .find('ui-view')
             .eq(0)
-            .text(),
+            .text()
         ).toBe(dState.views.dview1.template);
         expect(
           elem
             .find('ui-view')
             .eq(1)
-            .text(),
+            .text()
         ).toBe(dState.views.dview2.template);
-      }),
+      })
     );
 
     it(
@@ -257,7 +257,7 @@ describe('uiView', function() {
         $q.flush();
 
         expect(elem.find('ui-view').text()).toBe(fState.views.eview.template);
-      }),
+      })
     );
   });
 
@@ -273,7 +273,7 @@ describe('uiView', function() {
         $q.flush();
 
         expect(elem.find('ui-view').text()).toBe(content);
-      }),
+      })
     );
 
     it(
@@ -293,7 +293,7 @@ describe('uiView', function() {
         $q.flush();
 
         expect(elem.find('ui-view').text()).toBe(content);
-      }),
+      })
     );
 
     // related to issue #435
@@ -331,7 +331,7 @@ describe('uiView', function() {
 
         // verify if the initial view has been updated
         expect(elem.find('li').length).toBe(scope.items.length);
-      }),
+      })
     );
   });
 
@@ -347,7 +347,7 @@ describe('uiView', function() {
         animateFlush($animate);
 
         expect($uiViewScroll).not.toHaveBeenCalled();
-      }),
+      })
     );
 
     it(
@@ -360,7 +360,7 @@ describe('uiView', function() {
         animateFlush($animate);
 
         expect($uiViewScroll).toHaveBeenCalledWith(elem.find('ui-view'));
-      }),
+      })
     );
 
     it(
@@ -393,7 +393,7 @@ describe('uiView', function() {
         }
 
         expect($uiViewScroll).toHaveBeenCalledWith(target);
-      }),
+      })
     );
   });
 
@@ -405,7 +405,7 @@ describe('uiView', function() {
       $q.flush();
 
       expect(elem.text()).toBe('value');
-    }),
+    })
   );
 
   it(
@@ -416,7 +416,7 @@ describe('uiView', function() {
       $q.flush();
 
       expect(elem.text()).toBe('mState');
-    }),
+    })
   );
 
   describe('(resolved data)', function() {
@@ -449,7 +449,7 @@ describe('uiView', function() {
         expect(elem.text()).toBe('joeschmoe');
         expect(_scope.$resolve).toBeDefined();
         expect(_scope.$resolve.user).toBe('joeschmoe');
-      }),
+      })
     );
 
     // Test for #2626
@@ -465,7 +465,7 @@ describe('uiView', function() {
         $q.flush();
         $timeout.flush();
         expect(elem.text()).toBe('joeschmoe');
-      }),
+      })
     );
 
     it(
@@ -485,7 +485,7 @@ describe('uiView', function() {
         expect(elem.text()).toBe('joeschmoe');
         expect(_scope.$$$resolve).toBeDefined();
         expect(_scope.$$$resolve.user).toBe('joeschmoe');
-      }),
+      })
     );
 
     it(
@@ -507,7 +507,7 @@ describe('uiView', function() {
         expect(_scope.$ctrl).toBeDefined();
         expect(_scope.$ctrl.$resolve).toBeDefined();
         expect(_scope.$ctrl.$resolve.user).toBe('joeschmoe');
-      }),
+      })
     );
 
     it(
@@ -522,7 +522,7 @@ describe('uiView', function() {
         };
         const state = angular.extend({}, _state, { resolveAs: 'foo', views: views });
         expect(() => $stateProvider.state(state)).toThrowError(/resolveAs/);
-      }),
+      })
     );
   });
 
@@ -542,7 +542,7 @@ describe('uiView', function() {
       $q.flush();
 
       expect($onInit).toHaveBeenCalled();
-    }),
+    })
   );
 
   it(
@@ -555,7 +555,7 @@ describe('uiView', function() {
       $q.flush();
 
       expect(elem.text()).toBe('hello');
-    }),
+    })
   );
 
   describe('play nicely with other directives', function() {
@@ -595,7 +595,7 @@ describe('uiView', function() {
 
         // Verify that the ui-view is there and it has the correct content
         expect(elem.find('ui-view').text()).toBe(aState.template);
-      }),
+      })
     );
 
     it(
@@ -615,7 +615,7 @@ describe('uiView', function() {
         scope.$digest();
 
         expect(elem.find('ui-view')).not.toHaveClass('someClass');
-      }),
+      })
     );
 
     describe('working with ngRepeat', function() {
@@ -651,14 +651,14 @@ describe('uiView', function() {
 
           // Should have 2 ui-views
           expect(elem.find('ui-view').length).toBe(scope.views.length);
-        }),
+        })
       );
 
       it(
         'should populate each view with content',
         inject(function($state, $q, $compile) {
           elem.append(
-            $compile('<div><ui-view ng-repeat="view in views" name="{{view}}">defaultcontent</ui-view></div>')(scope),
+            $compile('<div><ui-view ng-repeat="view in views" name="{{view}}">defaultcontent</ui-view></div>')(scope)
           );
 
           $state.transitionTo(lState);
@@ -684,7 +684,7 @@ describe('uiView', function() {
           expect(uiViews.eq(0).text()).toBe(lState.views.view1.template);
           expect(uiViews.eq(1).text()).toBe(lState.views.view2.template);
           expect(uiViews.eq(2).text()).toBe(lState.views.view3.template);
-        }),
+        })
       );
 
       it(
@@ -692,8 +692,8 @@ describe('uiView', function() {
         inject(function($state, $q, $compile) {
           elem.append(
             $compile(
-              '<div ng-repeat="view in views">' + '<ui-view name="view{{$index + 1}}">hallo</ui-view>' + '</div>',
-            )(scope),
+              '<div ng-repeat="view in views">' + '<ui-view name="view{{$index + 1}}">hallo</ui-view>' + '</div>'
+            )(scope)
           );
 
           $state.transitionTo(lState);
@@ -719,7 +719,7 @@ describe('uiView', function() {
           expect(uiViews.eq(0).text()).toBe(lState.views.view1.template);
           expect(uiViews.eq(1).text()).toBe(lState.views.view2.template);
           expect(uiViews.eq(2).text()).toBe(lState.views.view3.template);
-        }),
+        })
       );
     });
   });
@@ -763,7 +763,7 @@ describe('uiView', function() {
 
         // No more animations
         expect($animate.queue.length).toBe(0);
-      }),
+      })
     );
 
     it(
@@ -774,7 +774,7 @@ describe('uiView', function() {
           className = 'yay',
           animation;
         elem.append(
-          $compile('<div><ui-view ng-class="{\'' + className + '\': classOn}">' + content + '</ui-view></div>')(scope),
+          $compile('<div><ui-view ng-class="{\'' + className + '\': classOn}">' + content + '</ui-view></div>')(scope)
         );
         // Don't care about enter class
         $animate.queue.shift();
@@ -795,7 +795,7 @@ describe('uiView', function() {
 
         // No more animations
         expect($animate.queue.length).toBe(0);
-      }),
+      })
     );
 
     it(
@@ -832,7 +832,7 @@ describe('uiView', function() {
 
         // No more animations
         expect($animate.queue.length).toBe(0);
-      }),
+      })
     );
 
     it(
@@ -868,7 +868,7 @@ describe('uiView', function() {
         animateFlush($animate);
         $q.flush();
         expect(log).toBe('start:n;finish:n;success:n;animEnter;start:a;finish:a;destroy;success:a;animLeave;');
-      }),
+      })
     );
   });
 });
@@ -881,7 +881,7 @@ describe('UiView', function() {
         .state('main', { abstract: true, views: { main: {} } })
         .state('main.home', { views: { content: { template: 'HOME' } } })
         .state('test', { views: { nest: { template: 'TEST' } } });
-    }),
+    })
   );
 
   it(
@@ -893,7 +893,7 @@ describe('UiView', function() {
       $q.flush();
 
       expect($state.current.name).toBe('main.home');
-    }),
+    })
   );
 
   // Test for https://github.com/angular-ui/ui-router/issues/3355
@@ -917,7 +917,7 @@ describe('UiView', function() {
 
       expect($state.current.name).toBe('test');
       expect(el.text().replace(/\s*/g, '')).toBe('MAIN-DEFAULT-TEST');
-    }),
+    })
   );
 });
 
@@ -947,7 +947,7 @@ describe('uiView transclusion', function() {
       $stateProvider
         .state('a', { template: '<ui-view><scope-observer></scope-observer></ui-view>' })
         .state('a.b', { template: 'anything' });
-    }),
+    })
   );
 
   beforeEach(
@@ -955,7 +955,7 @@ describe('uiView transclusion', function() {
       scope = $rootScope.$new();
       $compile = _$compile_;
       elem = angular.element('<div>');
-    }),
+    })
   );
 
   it(
@@ -972,7 +972,7 @@ describe('uiView transclusion', function() {
       $state.transitionTo('a.b');
       $q.flush();
       expect(aliveCount).toBe(0);
-    }),
+    })
   );
 });
 
@@ -999,13 +999,13 @@ describe('uiView controllers or onEnter handlers', function() {
           },
         })
         .state('A.fwd.nest', { url: '/nest', template: '<div class="nest"></div>' });
-    }),
+    })
   );
 
   beforeEach(
     inject(function($document) {
       document = $document[0];
-    }),
+    })
   );
 
   it(
@@ -1031,7 +1031,7 @@ describe('uiView controllers or onEnter handlers', function() {
       expect(template[0].querySelector('.fwd')).not.toBeNull();
       expect(template[0].querySelector('.nest')).not.toBeNull();
       expect(count).toBe(1);
-    }),
+    })
   );
 });
 
@@ -1148,7 +1148,7 @@ describe('angular 1.5+ style .component()', function() {
   beforeEach(
     module(function(_$stateProvider_) {
       $stateProvider = _$stateProvider_;
-    }),
+    })
   );
 
   beforeEach(
@@ -1158,7 +1158,7 @@ describe('angular 1.5+ style .component()', function() {
       log = '';
       el = angular.element('<div><ui-view></ui-view></div>');
       svcs.$compile(el)(scope);
-    }),
+    })
   );
 
   describe('routing using component templates', function() {
@@ -1527,7 +1527,7 @@ describe('angular 1.5+ style .component()', function() {
           $state.transitionTo('parent.child');
           $q.flush();
           expect(el.text()).toEqual('-1w,2w,attrval-');
-        }),
+        })
       );
 
       // Test for #3239
@@ -1557,7 +1557,7 @@ describe('angular 1.5+ style .component()', function() {
           $state.transitionTo('parent.child');
           $q.flush();
           expect(el.text()).toEqual('-1w,2w,attrval-');
-        }),
+        })
       );
 
       // Test for #3239
@@ -1588,7 +1588,7 @@ describe('angular 1.5+ style .component()', function() {
           $state.transitionTo('parent.child');
           $q.flush();
           expect(el.text()).toEqual('-asfasfd,2w,attrval-');
-        }),
+        })
       );
 
       // Test for #3239
@@ -1614,7 +1614,7 @@ describe('angular 1.5+ style .component()', function() {
             el
               .text()
               .split(/\s+/)
-              .filter(x => x),
+              .filter(x => x)
           ).toEqual(['parentCmp', 'childCmp', 'Button']);
 
           // - Click button
@@ -1623,7 +1623,7 @@ describe('angular 1.5+ style .component()', function() {
           // - handleEvent pushes param values to the log
           el.find('button')[0].click();
           expect($rootScope.log).toEqual([123, 456]);
-        }),
+        })
       );
 
       // Test for #3111
@@ -1649,7 +1649,7 @@ describe('angular 1.5+ style .component()', function() {
           expect(log).toEqual([]);
           el.find('button')[0].click();
           expect(log).toEqual([123, 456]);
-        }),
+        })
       );
 
       // Test for #3111
@@ -1679,7 +1679,7 @@ describe('angular 1.5+ style .component()', function() {
           expect(log).toEqual([]);
           el.find('button')[0].click();
           expect(log).toEqual([123, 456]);
-        }),
+        })
       );
     }
   });

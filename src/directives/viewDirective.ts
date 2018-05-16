@@ -185,7 +185,7 @@ uiView = [
     $animate: any,
     $uiViewScroll: any,
     $interpolate: IInterpolateService,
-    $q: $QLike,
+    $q: $QLike
   ) {
     function getRenderer(attrs: Obj, scope: IScope) {
       return {
@@ -376,7 +376,7 @@ function $ViewDirectiveFill(
   $transitions: TransitionService,
   $view: ViewService,
   $q: angular.IQService,
-  $timeout: ITimeoutService,
+  $timeout: ITimeoutService
 ) {
   const getControllerAs = parse('viewDecl.controllerAs');
   const getResolveAs = parse('viewDecl.resolveAs');
@@ -412,7 +412,7 @@ function $ViewDirectiveFill(
         if (controller) {
           const controllerInstance = <Ng1Controller>$controller(
             controller,
-            extend({}, locals, { $scope: scope, $element: $element }),
+            extend({}, locals, { $scope: scope, $element: $element })
           );
           if (controllerAs) {
             scope[controllerAs] = controllerInstance;
@@ -468,7 +468,7 @@ function registerControllerCallbacks(
   $transitions: TransitionService,
   controllerInstance: Ng1Controller,
   $scope: IScope,
-  cfg: Ng1ViewConfig,
+  cfg: Ng1ViewConfig
 ) {
   // Call $onInit() ASAP
   if (isFunction(controllerInstance.$onInit) && !(cfg.viewDecl.component && hasComponentImpl)) {

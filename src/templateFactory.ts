@@ -61,7 +61,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
   fromConfig(
     config: Ng1ViewDeclaration,
     params: any,
-    context: ResolveContext,
+    context: ResolveContext
   ): Promise<{ template?: string; component?: string }> {
     const defaultTemplate = '<ui-view></ui-view>';
 

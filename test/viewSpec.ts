@@ -16,7 +16,7 @@ describe('view', function() {
       });
       $controllerProvider = _$controllerProvider_;
       $urlMatcherFactoryProvider = _$urlMatcherFactoryProvider_;
-    }),
+    })
   );
 
   let register;
@@ -39,7 +39,7 @@ describe('view', function() {
       stateBuilder.builder('views', ng1ViewsBuilder);
       register = registerState(states, stateBuilder);
       root = register({ name: '' });
-    }),
+    })
   );
 
   describe('controller handling', function() {
@@ -78,7 +78,7 @@ describe('view', function() {
         view.load();
         $q.flush();
         expect(ctrlExpression).toEqual('FooController as foo');
-      }),
+      })
     );
   });
 });

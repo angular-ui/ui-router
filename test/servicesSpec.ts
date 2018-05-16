@@ -18,7 +18,7 @@ describe('UI-Router services', () => {
       $stateRegistryProvider,
       $uiRouterGlobalsProvider,
       $transitionsProvider,
-      $stateProvider,
+      $stateProvider
     ) {
       $uiRouterProvider = _$uiRouterProvider_;
 
@@ -33,7 +33,7 @@ describe('UI-Router services', () => {
         $transitionsProvider,
         $stateProvider,
       };
-    }),
+    })
   );
 
   beforeEach(
@@ -48,7 +48,7 @@ describe('UI-Router services', () => {
       $stateParams,
       $templateFactory,
       $view,
-      $trace,
+      $trace
     ) {
       $uiRouter = _$uiRouter_;
 
@@ -64,7 +64,7 @@ describe('UI-Router services', () => {
         $view,
         $trace,
       };
-    }),
+    })
   );
 
   it('Should expose ui-router providers from the UIRouter instance', () => {

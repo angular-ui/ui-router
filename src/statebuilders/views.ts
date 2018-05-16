@@ -61,7 +61,7 @@ export function ng1ViewsBuilder(state: StateObject) {
       `State '${state.name}' has a 'views' object. ` +
         `It cannot also have "view properties" at the state level.  ` +
         `Move the following properties into a view (in the 'views' object): ` +
-        ` ${allViewKeys.filter(key => isDefined(state[key])).join(', ')}`,
+        ` ${allViewKeys.filter(key => isDefined(state[key])).join(', ')}`
     );
   }
 
@@ -80,7 +80,7 @@ export function ng1ViewsBuilder(state: StateObject) {
     // Do not allow a view to mix props for component-style view with props for template/controller-style view
     if (hasAnyKey(compKeys, config) && hasAnyKey(nonCompKeys, config)) {
       throw new Error(
-        `Cannot combine: ${compKeys.join('|')} with: ${nonCompKeys.join('|')} in stateview: '${name}@${state.name}'`,
+        `Cannot combine: ${compKeys.join('|')} with: ${nonCompKeys.join('|')} in stateview: '${name}@${state.name}'`
       );
     }
 

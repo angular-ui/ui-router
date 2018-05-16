@@ -36,7 +36,7 @@ function $ViewScrollProvider() {
             $element[0].scrollIntoView();
           },
           0,
-          false,
+          false
         );
       };
     },

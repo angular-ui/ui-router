@@ -49,7 +49,7 @@ describe('view hooks', () => {
       $stateProvider.state({ name: 'bar', url: '/bar', component: 'bar' });
       $stateProvider.state({ name: 'baz', url: '/baz', component: 'baz' });
       $stateProvider.state({ name: 'redirect', redirectTo: 'baz' });
-    }),
+    })
   );
 
   beforeEach(angular['mock'].module('viewhooks', 'ui.router'));
@@ -60,7 +60,7 @@ describe('view hooks', () => {
       $q = _$q_;
       $timeout = _$timeout_;
       $compile('<div><ui-view></ui-view></div>')($rootScope.$new());
-    }),
+    })
   );
 
   describe('uiCanExit', () => {
@@ -147,7 +147,7 @@ describe('view hooks', () => {
         $timeout.flush();
         expect(log).toBe('canexit;');
         expect($state.current.name).toBe('foo');
-      }),
+      })
     );
 
     it(
@@ -168,7 +168,7 @@ describe('view hooks', () => {
         $timeout.flush();
         expect(log).toBe('canexit;delay;');
         expect($state.current.name).toBe('foo');
-      }),
+      })
     );
 
     it(
@@ -187,7 +187,7 @@ describe('view hooks', () => {
         $timeout.flush();
         expect(log).toBe('canexit;delay;');
         expect($state.current.name).toBe('bar');
-      }),
+      })
     );
 
     it("has 'this' bound to the controller", () => {

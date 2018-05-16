@@ -13,7 +13,7 @@ describe('isState filter', function() {
         .state('a', { url: '/' })
         .state('a.b', { url: '/b' })
         .state('with-param', { url: '/with/:param' });
-    }),
+    })
   );
 
   it(
@@ -22,7 +22,7 @@ describe('isState filter', function() {
       $state.go('a');
       $q.flush();
       expect($parse('"a" | isState')($rootScope)).toBe(true);
-    }),
+    })
   );
 
   it(
@@ -31,7 +31,7 @@ describe('isState filter', function() {
       $state.go('a.b');
       $q.flush();
       expect($parse('"a" | isState')($rootScope)).toBe(false);
-    }),
+    })
   );
 
   it(
@@ -40,7 +40,7 @@ describe('isState filter', function() {
       $state.go('with-param', { param: 'a' });
       $q.flush();
       expect($parse('"with-param" | isState: {param: "a"}')($rootScope)).toBe(true);
-    }),
+    })
   );
 
   it(
@@ -49,7 +49,7 @@ describe('isState filter', function() {
       $state.go('with-param', { param: 'b' });
       $q.flush();
       expect($parse('"with-param" | isState: {param: "a"}')($rootScope)).toBe(false);
-    }),
+    })
   );
 });
 
@@ -62,7 +62,7 @@ describe('includedByState filter', function() {
         .state('a.b', { url: '/b' })
         .state('c', { url: '/c' })
         .state('d', { url: '/d/:id' });
-    }),
+    })
   );
 
   it(
@@ -71,7 +71,7 @@ describe('includedByState filter', function() {
       $state.go('a');
       $q.flush();
       expect($parse('"a" | includedByState')($rootScope)).toBe(true);
-    }),
+    })
   );
 
   it(
@@ -80,7 +80,7 @@ describe('includedByState filter', function() {
       $state.go('a.b');
       $q.flush();
       expect($parse('"a" | includedByState')($rootScope)).toBe(true);
-    }),
+    })
   );
 
   it(
@@ -89,7 +89,7 @@ describe('includedByState filter', function() {
       $state.go('c');
       $q.flush();
       expect($parse('"a" | includedByState')($rootScope)).toBe(false);
-    }),
+    })
   );
 
   it(
@@ -98,7 +98,7 @@ describe('includedByState filter', function() {
       $state.go('d', { id: 123 });
       $q.flush();
       expect($parse('"d" | includedByState:{ id: 123 }')($rootScope)).toBe(true);
-    }),
+    })
   );
 
   it(
@@ -107,6 +107,6 @@ describe('includedByState filter', function() {
       $state.go('d', { id: 2377 });
       $q.flush();
       expect($parse('"d" | includedByState:{ id: 123 }')($rootScope)).toBe(false);
-    }),
+    })
   );
 });

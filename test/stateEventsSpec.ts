@@ -16,7 +16,7 @@ describe('UI-Router v0.2.x $state events', function() {
     module('ui.router.state.events', function($stateEventsProvider, $exceptionHandlerProvider) {
       $stateEventsProvider.enable();
       decorateExceptionHandler($exceptionHandlerProvider);
-    }),
+    })
   );
 
   let log, logEvents, logEnterExit;
@@ -70,7 +70,7 @@ describe('UI-Router v0.2.x $state events', function() {
         .state('DD', DD)
         .state('E', E)
         .state('F', F);
-    }),
+    })
   );
 
   beforeEach(
@@ -82,7 +82,7 @@ describe('UI-Router v0.2.x $state events', function() {
       $rootScope.$on('$stateChangeSuccess', eventLogger);
       $rootScope.$on('$stateChangeError', eventLogger);
       $rootScope.$on('$stateNotFound', eventLogger);
-    }),
+    })
   );
 
   function $get(what) {
@@ -122,7 +122,7 @@ describe('UI-Router v0.2.x $state events', function() {
         $q.flush();
         expect(called).toBeTruthy();
         expect($state.current).toBe(D);
-      }),
+      })
     );
 
     it(
@@ -140,7 +140,7 @@ describe('UI-Router v0.2.x $state events', function() {
         expect(called).toBeTruthy();
         expect($state.current).toBe(A);
         expect(resolvedError(promise)).toBeTruthy();
-      }),
+      })
     );
 
     it(
@@ -166,7 +166,7 @@ describe('UI-Router v0.2.x $state events', function() {
         expect(message).toEqual("No such state 'never_defined'");
         expect(called).toBeTruthy();
         expect($state.current).toBe(E);
-      }),
+      })
     );
 
     it(
@@ -183,7 +183,7 @@ describe('UI-Router v0.2.x $state events', function() {
 
         const err = "Could not resolve '^.Z' from state 'DD'";
         expect(error).toBe(err);
-      }),
+      })
     );
 
     it(
@@ -209,7 +209,7 @@ describe('UI-Router v0.2.x $state events', function() {
 
         expect(called).toBeTruthy();
         expect($state.current.name).toEqual(A.name);
-      }),
+      })
     );
 
     it(
@@ -226,7 +226,7 @@ describe('UI-Router v0.2.x $state events', function() {
         expect(called).toBeTruthy();
         expect($state.current).toBe(A);
         expect(resolvedError(promise)).toBeTruthy();
-      }),
+      })
     );
 
     it(
@@ -244,7 +244,7 @@ describe('UI-Router v0.2.x $state events', function() {
         expect(called).toBeTruthy();
         expect($state.current).toBe(D);
         expect(obj($state.params)).toEqual({ x: '1', y: '2' });
-      }),
+      })
     );
 
     it(
@@ -261,7 +261,7 @@ describe('UI-Router v0.2.x $state events', function() {
         expect(called).toBeTruthy();
         expect($state.current.name).toEqual('DDD');
         expect(obj($state.params)).toEqual({ x: 1, y: 2, z: 3, w: 4 });
-      }),
+      })
     );
 
     it(
@@ -281,7 +281,7 @@ describe('UI-Router v0.2.x $state events', function() {
         expect(called).toBeTruthy();
         expect($state.current.name).toEqual('AA');
         expect(obj($state.params)).toEqual({ a: 1 });
-      }),
+      })
     );
 
     it(
@@ -302,7 +302,7 @@ describe('UI-Router v0.2.x $state events', function() {
         expect(called).toBeTruthy();
         expect($state.current).toEqual(B);
         expect(obj($state.params)).toEqual({});
-      }),
+      })
     );
 
     it(
@@ -324,7 +324,7 @@ describe('UI-Router v0.2.x $state events', function() {
         $q.flush();
         expect(called).toBeTruthy();
         expect($state.current).toBe(D);
-      }),
+      })
     );
 
     it(
@@ -342,7 +342,7 @@ describe('UI-Router v0.2.x $state events', function() {
 
         expect(called).toBeFalsy();
         expect($state.current).toBe(D);
-      }),
+      })
     );
 
     it(
@@ -360,7 +360,7 @@ describe('UI-Router v0.2.x $state events', function() {
         expect(called).toBeFalsy();
         expect($state.params.i).toBe('1');
         expect($state.current).toBe(E);
-      }),
+      })
     );
 
     it(
@@ -380,7 +380,7 @@ describe('UI-Router v0.2.x $state events', function() {
         expect($state.current).toBe(A);
         expect(resolvedError(superseded)).toBeTruthy();
         expect(log).toBe('$stateChangeStart(F,A);');
-      }),
+      })
     );
 
     it(
@@ -399,7 +399,7 @@ describe('UI-Router v0.2.x $state events', function() {
         expect($state.current).toBe(C);
         expect(resolvedError(superseded)).toBeTruthy();
         expect(log).toBe('$stateChangeStart(F,A);' + '$stateChangeStart(C,A);' + '$stateChangeSuccess(C,A);');
-      }),
+      })
     );
   });
 });

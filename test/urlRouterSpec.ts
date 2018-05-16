@@ -65,7 +65,7 @@ describe('UrlRouter', function() {
         $rootScope.$broadcast('$locationChangeSuccess');
 
         expect(log).toEqual(['/foo']);
-      }),
+      })
     );
   });
 
@@ -141,7 +141,7 @@ describe('UrlRouter', function() {
         scope.$emit('$locationChangeSuccess');
         expect(called).toBeTruthy();
         expect(location.path()).toBe('/baz');
-      }),
+      })
     );
 
     it(
@@ -158,7 +158,7 @@ describe('UrlRouter', function() {
         $timeout.flush();
         expect(called).toBeTruthy();
         expect(location.path()).toBe('/b4z');
-      }),
+      })
     );
 
     it('rule should return a deregistration function', function() {
@@ -212,7 +212,7 @@ describe('UrlRouter', function() {
           spyOn(router.locationService, 'url');
           $urlRouter.push($umf.compile('/hello/:name'), { name: 'world' });
           expect(router.locationService.url).toHaveBeenCalledWith('/hello/world', undefined);
-        }),
+        })
       );
 
       it(
@@ -221,7 +221,7 @@ describe('UrlRouter', function() {
           spyOn(router.locationService, 'url');
           $urlRouter.push($umf.compile('/hello/:name'), { name: 'world' }, { replace: true });
           expect(router.locationService.url).toHaveBeenCalledWith('/hello/world', true);
-        }),
+        })
       );
 
       it(
@@ -230,7 +230,7 @@ describe('UrlRouter', function() {
           spyOn(router.locationService, 'url');
           $urlRouter.push($umf.compile('/hello/:name', { params: { name: '' } }));
           expect(router.locationService.url).toHaveBeenCalledWith('/hello/', undefined);
-        }),
+        })
       );
 
       it(
@@ -239,7 +239,7 @@ describe('UrlRouter', function() {
           spyOn(router.locationService, 'url');
           $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
           expect(router.locationService.url).toHaveBeenCalledWith('', undefined);
-        }),
+        })
       );
 
       // Angular 1.2 doesn't seem to support $location.url("")
@@ -255,7 +255,7 @@ describe('UrlRouter', function() {
             $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
             expect(router.locationService.url).toHaveBeenCalledWith('', undefined);
             expect(router.locationService.url()).toBe('/');
-          }),
+          })
         );
 
         // Test #2 for https://github.com/angular-ui/ui-router/issues/3563
@@ -269,7 +269,7 @@ describe('UrlRouter', function() {
             $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
             expect(router.locationService.url).toHaveBeenCalledWith('', undefined);
             expect(router.locationService.url()).toBe('/');
-          }),
+          })
         );
       }
 
@@ -289,7 +289,7 @@ describe('UrlRouter', function() {
           $urlRouter.push($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' });
           expect($location.url()).toBe('/hello/world#frag');
           expect($location.hash()).toBe('frag');
-        }),
+        })
       );
 
       it(
@@ -305,7 +305,7 @@ describe('UrlRouter', function() {
           $urlRouter.update();
 
           expect($location.url()).toBe('/old');
-        }),
+        })
       );
 
       it(
@@ -321,7 +321,7 @@ describe('UrlRouter', function() {
           $urlRouter.update();
 
           expect($location.url()).toBe('/old?param=foo');
-        }),
+        })
       );
     });
 
@@ -334,7 +334,7 @@ describe('UrlRouter', function() {
 
           expect($urlRouter.href(matcher, { param: 1138 })).toBe('#/foo/1138');
           expect($urlRouter.href(matcher, { param: 5 })).toBeNull();
-        }),
+        })
       );
 
       it(
@@ -345,7 +345,7 @@ describe('UrlRouter', function() {
           });
 
           expect($urlRouter.href($umf.compile('/hello'))).toBe('#/hello');
-        }),
+        })
       );
 
       it(
@@ -355,16 +355,16 @@ describe('UrlRouter', function() {
           $lp.html5Mode(false);
           expect(html5Compat($lp.html5Mode())).toBe(false);
           expect($urlRouter.href($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' })).toBe(
-            '#/hello/world#frag',
+            '#/hello/world#frag'
           );
 
           // html5mode enabled
           $lp.html5Mode(true);
           expect(html5Compat($lp.html5Mode())).toBe(true);
           expect($urlRouter.href($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' })).toBe(
-            '/hello/world#frag',
+            '/hello/world#frag'
           );
-        }),
+        })
       );
 
       it(
@@ -374,9 +374,9 @@ describe('UrlRouter', function() {
           $s['history'] = false;
           expect(html5Compat($lp.html5Mode())).toBe(true);
           expect($urlRouter.href($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' })).toBe(
-            '#/hello/world#frag',
+            '#/hello/world#frag'
           );
-        }),
+        })
       );
     });
   });

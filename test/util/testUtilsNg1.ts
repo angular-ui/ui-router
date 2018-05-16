@@ -24,7 +24,7 @@ angular.module('ngMock').config(function($provide, $locationProvider) {
           },
           function(error) {
             promise.$$resolved = { success: false, error: error };
-          },
+          }
         );
 
         // We need to expose() any then()ed promises recursively

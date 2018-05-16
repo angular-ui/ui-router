@@ -77,7 +77,7 @@ function $uiRouterProvider($locationProvider: ILocationProvider) {
   router.viewService._pluginapi._viewConfigFactory('ng1', getNg1ViewConfigFactory());
 
   const ng1LocationService = (router.locationService = router.locationConfig = new Ng1LocationServices(
-    $locationProvider,
+    $locationProvider
   ));
 
   Ng1LocationServices.monkeyPatchPathParameterType(router);
@@ -92,7 +92,7 @@ function $uiRouterProvider($locationProvider: ILocationProvider) {
     $sniffer: any,
     $rootScope: ng.IScope,
     $http: IHttpService,
-    $templateCache: ITemplateCacheService,
+    $templateCache: ITemplateCacheService
   ) {
     ng1LocationService._runtimeServices($rootScope, $location, $sniffer, $browser);
     delete router['router'];

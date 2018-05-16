@@ -41,7 +41,7 @@ describe('uiStateRef', function() {
         .state('contacts.item.detail', {
           template: '<div class="title">Detail</div> | <a ui-sref="^" class="item-parent2">Item</a>',
         });
-    }),
+    })
   );
 
   beforeEach(
@@ -55,7 +55,7 @@ describe('uiStateRef', function() {
           // Behave as Angular >=1.1.5 and do nothing in such case.
         }
       };
-    }),
+    })
   );
 
   function triggerClick(el, options?) {
@@ -67,7 +67,7 @@ describe('uiStateRef', function() {
         altKey: false,
         button: 0,
       },
-      options || {},
+      options || {}
     );
 
     const e = document.createEvent('MouseEvents');
@@ -86,7 +86,7 @@ describe('uiStateRef', function() {
       options.shiftKey, // shiftKeyArg of type boolean, Specifies whether or not shift key was depressed during the Event.
       options.metaKey, // metaKeyArg of type boolean, Specifies whether or not meta key was depressed during the Event.
       options.button, // buttonArg of type unsigned short, Specifies the Event's mouse button.
-      null, // relatedTargetArg of type EventTarget
+      null // relatedTargetArg of type EventTarget
     );
     el[0].dispatchEvent(e);
   }
@@ -123,7 +123,7 @@ describe('uiStateRef', function() {
         }
 
         expect(el.attr('href')).toBe('#/contacts/6');
-      }),
+      })
     );
   });
 
@@ -164,7 +164,7 @@ describe('uiStateRef', function() {
         $compile(el)($rootScope);
         $rootScope.$digest();
         expect(el.attr('href')).toBe('#/contacts/3');
-      }),
+      })
     );
 
     it(
@@ -178,7 +178,7 @@ describe('uiStateRef', function() {
 
         expect($state.current.name).toEqual('contacts.item.detail');
         expect(obj($stateParams)).toEqualData({ id: 5 });
-      }),
+      })
     );
 
     if (/PhantomJS/.exec(navigator.userAgent)) {
@@ -199,7 +199,7 @@ describe('uiStateRef', function() {
 
           expect($state.current.name).toEqual('contacts.item.detail');
           expect(obj($stateParams)).toEqualData({ id: 5 });
-        }),
+        })
       );
 
       it(
@@ -215,7 +215,7 @@ describe('uiStateRef', function() {
 
           expect($state.current.name).toEqual('top');
           expect(obj($stateParams)).toEqualData({});
-        }),
+        })
       );
 
       it(
@@ -230,7 +230,7 @@ describe('uiStateRef', function() {
 
           expect($state.current.name).toEqual('top');
           expect(obj($stateParams)).toEqualData({});
-        }),
+        })
       );
 
       it(
@@ -245,7 +245,7 @@ describe('uiStateRef', function() {
 
           expect($state.current.name).toEqual('top');
           expect(obj($stateParams)).toEqualData({});
-        }),
+        })
       );
 
       it(
@@ -260,7 +260,7 @@ describe('uiStateRef', function() {
 
           expect($state.current.name).toEqual('top');
           expect(obj($stateParams)).toEqualData({});
-        }),
+        })
       );
 
       it(
@@ -275,7 +275,7 @@ describe('uiStateRef', function() {
 
           expect($state.current.name).toEqual('top');
           expect(obj($stateParams)).toEqualData({});
-        }),
+        })
       );
     }
 
@@ -295,7 +295,7 @@ describe('uiStateRef', function() {
 
         expect($state.current.name).toEqual('top');
         expect(obj($stateParams)).toEqualData({});
-      }),
+      })
     );
 
     // Test for #1031
@@ -336,7 +336,7 @@ describe('uiStateRef', function() {
 
         expect($state.current.name).toBe('other.detail');
         expect($state.params).toEqualValues({ id: 'ghi' });
-      }),
+      })
     );
 
     it(
@@ -352,7 +352,7 @@ describe('uiStateRef', function() {
         $compile(el)($rootScope);
         $rootScope.$digest();
         expect(el.attr('href')).toBe('#/contacts/3');
-      }),
+      })
     );
 
     it(
@@ -368,7 +368,7 @@ describe('uiStateRef', function() {
         $rootScope.urlParams.id = 2;
         $rootScope.$digest();
         expect(angular.element(template[0].querySelector('a')).attr('href')).toBe('#/contacts/2');
-      }),
+      })
     );
   });
 
@@ -403,7 +403,7 @@ describe('uiStateRef', function() {
 
         expect($state.current.name).toEqual('top');
         expect(obj($stateParams)).toEqualData({});
-      }),
+      })
     );
   });
 
@@ -414,13 +414,13 @@ describe('uiStateRef', function() {
       inject(function($rootScope, $compile, _$state_) {
         $state = _$state_;
         el = angular.element(
-          '<a ui-sref-active="active" ui-sref-active-eq="activeeq" ui-state="state" ui-state-params="params">state</a>',
+          '<a ui-sref-active="active" ui-sref-active-eq="activeeq" ui-state="state" ui-state-params="params">state</a>'
         );
         scope = $rootScope;
         angular.extend(scope, { state: 'contacts', params: {} });
         template = $compile(el)(scope);
         scope.$digest();
-      }),
+      })
     );
 
     it('sets the correct initial href', function() {
@@ -476,7 +476,7 @@ describe('uiStateRef', function() {
         tick();
         expect(template[0].className).toContain('active');
         expect(template[0].className).not.toContain('activeeq');
-      }),
+      })
     );
 
     it('updates to a new href when it points to a new state', function() {
@@ -525,7 +525,7 @@ describe('uiStateRef', function() {
 
         expect($state.current.name).toBe('other.detail');
         expect($state.params).toEqualValues({ id: 'ghi' });
-      }),
+      })
     );
 
     it('retains the old href if the new points to a non-state', function() {
@@ -542,7 +542,7 @@ describe('uiStateRef', function() {
         scope.params = { id: 10 };
         scope.$digest();
         expect(angular.element(template[0]).attr('href')).toBe('#/contacts/10');
-      }),
+      })
     );
 
     it(
@@ -556,7 +556,7 @@ describe('uiStateRef', function() {
         scope.params.id = 22;
         scope.$digest();
         expect(angular.element(template[0]).attr('href')).toBe('#/contacts/22');
-      }),
+      })
     );
 
     it(
@@ -575,7 +575,7 @@ describe('uiStateRef', function() {
         scope.exprvar = 'state2';
         scope.$digest();
         expect(angular.element(template[0]).attr('href')).toBe('#/other/10');
-      }),
+      })
     );
 
     if (angular.version.minor >= 3) {
@@ -595,7 +595,7 @@ describe('uiStateRef', function() {
 
           scope.$digest();
           expect(angular.element(template[0]).attr('href')).toBe('#/contacts/10');
-        }),
+        })
       );
     }
 
@@ -619,7 +619,7 @@ describe('uiStateRef', function() {
 
         expect(transitionOptions.reload).toEqual(true);
         expect(transitionOptions.absolute).toBeUndefined();
-      }),
+      })
     );
 
     describe('option event', function() {
@@ -638,7 +638,7 @@ describe('uiStateRef', function() {
           $timeout.flush();
 
           expect($state.current.name).toBe('contacts');
-        }),
+        })
       );
 
       it(
@@ -656,7 +656,7 @@ describe('uiStateRef', function() {
           $timeout.flush();
 
           expect($state.current.name).toEqual('contacts');
-        }),
+        })
       );
 
       it(
@@ -665,7 +665,7 @@ describe('uiStateRef', function() {
           expect($state.current.name).toEqual('top');
 
           el = angular.element(
-            '<input type="text" ui-state="state" ui-state-opts="{ events: [\'change\', \'blur\'] }">',
+            '<input type="text" ui-state="state" ui-state-opts="{ events: [\'change\', \'blur\'] }">'
           );
 
           scope.state = 'contacts';
@@ -684,7 +684,7 @@ describe('uiStateRef', function() {
           triggerHTMLEvent('blur');
           $timeout.flush();
           expect($state.current.name).toEqual('contacts');
-        }),
+        })
       );
 
       it(
@@ -710,7 +710,7 @@ describe('uiStateRef', function() {
           triggerMouseEvent('mousedown');
           $timeout.flush();
           expect($state.current.name).toEqual('contacts');
-        }),
+        })
       );
     });
   });
@@ -727,7 +727,7 @@ describe('uiStateRef', function() {
 
         $compile(el)(scope);
         scope.$digest();
-      }),
+      })
     );
 
     it('should generate the correct action', function() {
@@ -746,7 +746,7 @@ describe('uiStateRef', function() {
         $compile(el)(scope);
         template = $compile(angular.element('<div><ui-view></ui-view><div>'))(scope);
         scope.$digest();
-      }),
+      })
     );
 
     it(
@@ -758,7 +758,7 @@ describe('uiStateRef', function() {
 
         expect($state.$current.name).toBe('contacts.item.detail');
         expect(obj($state.params)).toEqualData({ id: 5 });
-      }),
+      })
     );
 
     it(
@@ -793,7 +793,7 @@ describe('uiStateRef', function() {
         $timeout.flush();
         $q.flush();
         expect($state.$current.name).toBe('contacts');
-      }),
+      })
     );
   });
 
@@ -811,7 +811,7 @@ describe('uiStateRef', function() {
         $timeout.flush();
 
         expect($state.current.name).toEqual('contacts');
-      }),
+      })
     );
 
     it(
@@ -827,14 +827,14 @@ describe('uiStateRef', function() {
         $timeout.flush();
 
         expect($state.current.name).toEqual('contacts');
-      }),
+      })
     );
 
     it(
       'should bind multiple HTML events',
       inject(function($rootScope, $compile, $state, $timeout) {
         el = angular.element(
-          '<input type="text" ui-sref="contacts" ui-sref-opts="{ events: [\'change\', \'blur\'] }">',
+          '<input type="text" ui-sref="contacts" ui-sref-opts="{ events: [\'change\', \'blur\'] }">'
         );
         $compile(el)($rootScope);
         $rootScope.$digest();
@@ -853,7 +853,7 @@ describe('uiStateRef', function() {
         triggerHTMLEvent('blur');
         $timeout.flush();
         expect($state.current.name).toEqual('contacts');
-      }),
+      })
     );
 
     it(
@@ -877,7 +877,7 @@ describe('uiStateRef', function() {
         triggerMouseEvent('mousedown');
         $timeout.flush();
         expect($state.current.name).toEqual('contacts');
-      }),
+      })
     );
   });
 });
@@ -923,7 +923,7 @@ describe('uiSrefActive', function() {
           url: '/arrayparam?{foo:int}&bar',
           template: '<div></div>',
         });
-    }),
+    })
   );
 
   beforeEach(
@@ -937,14 +937,14 @@ describe('uiSrefActive', function() {
           // Behave as Angular >=1.1.5 and do nothing in such case.
         }
       };
-    }),
+    })
   );
 
   it(
     'should update class for sibling uiSref',
     inject(function($rootScope, $q, $compile, $state) {
       el = angular.element(
-        '<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active="active">Contacts</a><a ui-sref="contacts.item({ id: 2 })" ui-sref-active="active">Contacts</a></div>',
+        '<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active="active">Contacts</a><a ui-sref="contacts.item({ id: 2 })" ui-sref-active="active">Contacts</a></div>'
       );
       template = $compile(el)($rootScope);
       $rootScope.$digest();
@@ -959,14 +959,14 @@ describe('uiSrefActive', function() {
       $q.flush();
       timeoutFlush();
       expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
-    }),
+    })
   );
 
   it(
     "should match state's parameters",
     inject(function($rootScope, $q, $compile, $state) {
       el = angular.element(
-        '<div><a ui-sref="contacts.item.detail({ foo: \'bar\' })" ui-sref-active="active">Contacts</a></div>',
+        '<div><a ui-sref="contacts.item.detail({ foo: \'bar\' })" ui-sref-active="active">Contacts</a></div>'
       );
       template = $compile(el)($rootScope);
       $rootScope.$digest();
@@ -981,7 +981,7 @@ describe('uiSrefActive', function() {
       $q.flush();
       timeoutFlush();
       expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
-    }),
+    })
   );
 
   // Test for #2696
@@ -1008,7 +1008,7 @@ describe('uiSrefActive', function() {
       $q.flush();
       timeoutFlush();
       expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
-    }),
+    })
   );
 
   // Test for #3154
@@ -1016,7 +1016,7 @@ describe('uiSrefActive', function() {
     'should compare ui-sref-active-eq using typed parameters',
     inject(function($rootScope, $q, $compile, $state) {
       el = angular.element(
-        '<div><a ui-sref="arrayparam({ foo: [1,2,3] })" ui-sref-active-eq="active">foo 123</a></div>',
+        '<div><a ui-sref="arrayparam({ foo: [1,2,3] })" ui-sref-active-eq="active">foo 123</a></div>'
       );
       template = $compile(el)($rootScope);
       $rootScope.$digest();
@@ -1037,14 +1037,14 @@ describe('uiSrefActive', function() {
       $q.flush();
       timeoutFlush();
       expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
-    }),
+    })
   );
 
   it(
     'should update in response to ui-sref param expression changes',
     inject(function($rootScope, $q, $compile, $state) {
       el = angular.element(
-        '<div><a ui-sref="contacts.item.detail({ foo: fooId })" ui-sref-active="active">Contacts</a></div>',
+        '<div><a ui-sref="contacts.item.detail({ foo: fooId })" ui-sref-active="active">Contacts</a></div>'
       );
       template = $compile(el)($rootScope);
       $rootScope.fooId = 'bar';
@@ -1060,14 +1060,14 @@ describe('uiSrefActive', function() {
       $q.flush();
       timeoutFlush();
       expect(angular.element(template[0].querySelector('a')).attr('class')).toBeFalsy();
-    }),
+    })
   );
 
   it(
     'should match on child states',
     inject(function($rootScope, $q, $compile, $state) {
       template = $compile('<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active="active">Contacts</a></div>')(
-        $rootScope,
+        $rootScope
       );
       $rootScope.$digest();
       const a = angular.element(template[0].getElementsByTagName('a')[0]);
@@ -1083,14 +1083,14 @@ describe('uiSrefActive', function() {
       timeoutFlush();
       expect($state.params.id).toBe('4');
       expect(a.attr('class')).not.toMatch(/active/);
-    }),
+    })
   );
 
   it(
     'should NOT match on child states when active-equals is used',
     inject(function($rootScope, $q, $compile, $state) {
       template = $compile('<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active-eq="active">Contacts</a></div>')(
-        $rootScope,
+        $rootScope
       );
       $rootScope.$digest();
       const a = angular.element(template[0].getElementsByTagName('a')[0]);
@@ -1104,14 +1104,14 @@ describe('uiSrefActive', function() {
       $q.flush();
       timeoutFlush();
       expect(a.attr('class')).not.toMatch(/active/);
-    }),
+    })
   );
 
   it(
     'should match on child states when active-equals and active-equals-eq is used',
     inject(function($rootScope, $q, $compile, $state, $timeout) {
       template = $compile(
-        '<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active="active" ui-sref-active-eq="active-eq">Contacts</a></div>',
+        '<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active="active" ui-sref-active-eq="active-eq">Contacts</a></div>'
       )($rootScope);
       $rootScope.$digest();
       const a = angular.element(template[0].getElementsByTagName('a')[0]);
@@ -1127,7 +1127,7 @@ describe('uiSrefActive', function() {
       timeoutFlush();
       expect(a.attr('class')).toMatch(/active/);
       expect(a.attr('class')).not.toMatch(/active-eq/);
-    }),
+    })
   );
 
   it(
@@ -1151,14 +1151,14 @@ describe('uiSrefActive', function() {
       $q.flush();
       timeoutFlush();
       expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('ng-scope');
-    }),
+    })
   );
 
   it(
     'should match on any child state refs',
     inject(function($rootScope, $q, $compile, $state) {
       el = angular.element(
-        '<div ui-sref-active="active"><a ui-sref="contacts.item({ id: 1 })">Contacts</a><a ui-sref="contacts.item({ id: 2 })">Contacts</a></div>',
+        '<div ui-sref-active="active"><a ui-sref="contacts.item({ id: 1 })">Contacts</a><a ui-sref="contacts.item({ id: 2 })">Contacts</a></div>'
       );
       template = $compile(el)($rootScope);
       $rootScope.$digest();
@@ -1174,7 +1174,7 @@ describe('uiSrefActive', function() {
       $q.flush();
       timeoutFlush();
       expect(angular.element(template[0]).attr('class')).toBe('ng-scope active');
-    }),
+    })
   );
 
   it(
@@ -1200,7 +1200,7 @@ describe('uiSrefActive', function() {
       $q.flush();
       timeoutFlush();
       expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
-    }),
+    })
   );
 
   it(
@@ -1226,14 +1226,14 @@ describe('uiSrefActive', function() {
       $q.flush();
       timeoutFlush();
       expect(angular.element(template[0].querySelector('a')).attr('class')).toBe('active');
-    }),
+    })
   );
 
   it(
     'should allow multiple classes to be supplied',
     inject(function($rootScope, $q, $compile, $state) {
       template = $compile(
-        '<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active="active also-active">Contacts</a></div>',
+        '<div><a ui-sref="contacts.item({ id: 1 })" ui-sref-active="active also-active">Contacts</a></div>'
       )($rootScope);
       $rootScope.$digest();
       const a = angular.element(template[0].getElementsByTagName('a')[0]);
@@ -1242,7 +1242,7 @@ describe('uiSrefActive', function() {
       $q.flush();
       timeoutFlush();
       expect(a.attr('class')).toMatch(/active also-active/);
-    }),
+    })
   );
 
   it(
@@ -1267,7 +1267,7 @@ describe('uiSrefActive', function() {
         },
       });
       template = $compile(
-        '<div ui-sref-active="active"><a ui-sref="contacts.lazy.s1">Lazy</a></div><div ui-sref-active="active"><a ui-sref="contacts.lazy.s2"></a></div>',
+        '<div ui-sref-active="active"><a ui-sref="contacts.lazy.s1">Lazy</a></div><div ui-sref-active="active"><a ui-sref="contacts.lazy.s2"></a></div>'
       )($rootScope);
       $rootScope.$digest();
       $state.transitionTo('contacts.lazy.s1');
@@ -1275,7 +1275,7 @@ describe('uiSrefActive', function() {
       timeoutFlush();
       expect(template.eq(0).hasClass('active')).toBeTruthy();
       expect(template.eq(1).hasClass('active')).toBeFalsy();
-    }),
+    })
   );
 
   describe('ng-{class,style} interface', function() {
@@ -1283,7 +1283,7 @@ describe('uiSrefActive', function() {
       'should match on abstract states that are included by the current state',
       inject(function($rootScope, $compile, $state, $q) {
         el = $compile(
-          '<div ui-sref-active="{active: \'admin.*\'}"><a ui-sref-active="active" ui-sref="admin.roles">Roles</a></div>',
+          '<div ui-sref-active="{active: \'admin.*\'}"><a ui-sref-active="active" ui-sref="admin.roles">Roles</a></div>'
         )($rootScope);
         $state.transitionTo('admin.roles');
         $q.flush();
@@ -1292,7 +1292,7 @@ describe('uiSrefActive', function() {
         expect(abstractParent.className).toMatch(/active/);
         const child = el[0].querySelector('a');
         expect(child.className).toMatch(/active/);
-      }),
+      })
     );
 
     it(
@@ -1303,14 +1303,14 @@ describe('uiSrefActive', function() {
         $q.flush();
         timeoutFlush();
         expect(el[0].className).toMatch(/active/);
-      }),
+      })
     );
 
     it(
       'should shadow the state provided by ui-sref',
       inject(function($compile, $rootScope, $state, $q) {
         el = $compile('<div ui-sref-active="{active: \'admin.roles({page: 1})\'}"><a ui-sref="admin.roles"></a></div>')(
-          $rootScope,
+          $rootScope
         );
         $state.transitionTo('admin.roles');
         $q.flush();
@@ -1320,14 +1320,14 @@ describe('uiSrefActive', function() {
         $q.flush();
         timeoutFlush();
         expect(el[0].className).toMatch(/active/);
-      }),
+      })
     );
 
     it(
       'should support multiple <className, stateOrName> pairs',
       inject(function($compile, $rootScope, $state, $q) {
         el = $compile("<div ui-sref-active=\"{contacts: 'contacts.**', admin: 'admin.roles({page: 1})'}\"></div>")(
-          $rootScope,
+          $rootScope
         );
         $state.transitionTo('contacts');
         $q.flush();
@@ -1339,7 +1339,7 @@ describe('uiSrefActive', function() {
         timeoutFlush();
         expect(el[0].className).toMatch(/admin/);
         expect(el[0].className).not.toMatch(/contacts/);
-      }),
+      })
     );
 
     it(
@@ -1352,7 +1352,7 @@ describe('uiSrefActive', function() {
         $rootScope.$digest();
         timeoutFlush();
         expect(el.hasClass('active')).toBeTruthy();
-      }),
+      })
     );
 
     it(
@@ -1377,7 +1377,7 @@ describe('uiSrefActive', function() {
           },
         });
         template = $compile(
-          '<div ui-sref-active="{ active: \'contacts.lazy.s1\' }"><a ui-sref="contacts.lazy.s1">Lazy</a></div><div ui-sref-active="{ active: \'contacts.lazy.s2\' }"></div>',
+          '<div ui-sref-active="{ active: \'contacts.lazy.s1\' }"><a ui-sref="contacts.lazy.s1">Lazy</a></div><div ui-sref-active="{ active: \'contacts.lazy.s2\' }"></div>'
         )($rootScope);
         $rootScope.$digest();
         $state.transitionTo('contacts.lazy.s1');
@@ -1385,7 +1385,7 @@ describe('uiSrefActive', function() {
         timeoutFlush();
         expect(template.eq(0).hasClass('active')).toBeTruthy();
         expect(template.eq(1).hasClass('active')).toBeFalsy();
-      }),
+      })
     );
   });
 
@@ -1394,7 +1394,7 @@ describe('uiSrefActive', function() {
       'should match on abstract states that are included by the current state',
       inject(function($rootScope, $compile, $state, $q) {
         el = $compile(
-          '<div ui-sref-active="{active: [\'randomState.**\', \'admin.roles\']}"><a ui-sref-active="active" ui-sref="admin.roles">Roles</a></div>',
+          '<div ui-sref-active="{active: [\'randomState.**\', \'admin.roles\']}"><a ui-sref-active="active" ui-sref="admin.roles">Roles</a></div>'
         )($rootScope);
         $state.transitionTo('admin.roles');
         $q.flush();
@@ -1403,7 +1403,7 @@ describe('uiSrefActive', function() {
         expect(abstractParent.className).toMatch(/active/);
         const child = el[0].querySelector('a');
         expect(child.className).toMatch(/active/);
-      }),
+      })
     );
 
     it(
@@ -1414,14 +1414,14 @@ describe('uiSrefActive', function() {
         $q.flush();
         timeoutFlush();
         expect(el[0].className).toMatch(/active/);
-      }),
+      })
     );
 
     it(
       'should support multiple <className, stateOrName> pairs',
       inject(function($compile, $rootScope, $state, $q) {
         el = $compile(
-          "<div ui-sref-active=\"{contacts: ['contacts.item', 'contacts.item.detail'], admin: 'admin.roles({page: 1})'}\"></div>",
+          "<div ui-sref-active=\"{contacts: ['contacts.item', 'contacts.item.detail'], admin: 'admin.roles({page: 1})'}\"></div>"
         )($rootScope);
         $state.transitionTo('contacts.item.detail', { id: 1, foo: 'bar' });
         $q.flush();
@@ -1433,7 +1433,7 @@ describe('uiSrefActive', function() {
         timeoutFlush();
         expect(el[0].className).toMatch(/admin/);
         expect(el[0].className).not.toMatch(/contacts/);
-      }),
+      })
     );
 
     it(
@@ -1446,7 +1446,7 @@ describe('uiSrefActive', function() {
         $rootScope.$digest();
         timeoutFlush();
         expect(el.hasClass('active')).toBeTruthy();
-      }),
+      })
     );
   });
 });

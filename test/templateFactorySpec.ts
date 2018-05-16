@@ -12,7 +12,7 @@ describe('templateFactory', function() {
     'exists',
     inject(function($templateFactory) {
       expect($templateFactory).toBeDefined();
-    }),
+    })
   );
 
   if (angular.version.minor >= 3) {
@@ -24,7 +24,7 @@ describe('templateFactory', function() {
           $httpBackend.expectGET('views/view.html').respond(200, 'template!');
           $templateFactory.fromUrl('views/view.html');
           $httpBackend.flush();
-        }),
+        })
       );
 
       it(
@@ -37,7 +37,7 @@ describe('templateFactory', function() {
             error = e.message;
           }
           expect(error).toMatch(/sce:insecurl/);
-        }),
+        })
       );
 
       it(
@@ -46,7 +46,7 @@ describe('templateFactory', function() {
           $httpBackend.expectGET('http://evil.com/views/view.html').respond(200, 'template!');
           $templateFactory.fromUrl($sce.trustAsResourceUrl('http://evil.com/views/view.html'));
           $httpBackend.flush();
-        }),
+        })
       );
     });
   }
@@ -63,7 +63,7 @@ describe('templateFactory', function() {
         $httpBackend.expectGET('data:text/html,foo').respond(200, 'template!');
         $templateFactory.fromUrl('data:text/html,foo');
         $httpBackend.flush();
-      }),
+      })
     );
 
     // Behavior not kept in >1.2 with $templateRequest
@@ -77,7 +77,7 @@ describe('templateFactory', function() {
           .respond(200);
         $templateFactory.fromUrl('views/view.html');
         $httpBackend.flush();
-      }),
+      })
     );
   }
 
@@ -100,7 +100,7 @@ describe('templateFactory', function() {
         $httpBackend.expectGET('data:text/html,foo').respond(200, 'template!');
         $templateFactory.fromUrl('data:text/html,foo');
         $httpBackend.flush();
-      }),
+      })
     );
   });
 
@@ -122,7 +122,7 @@ describe('templateFactory', function() {
           router = $uiRouter;
           rootScope = $rootScope;
           el = $compile(angular.element('<div><ui-view></ui-view></div>'))($rootScope.$new());
-        }),
+        })
       );
 
       it('should not prefix the components dom element with anything', () => {

@@ -19,7 +19,7 @@ describe('state', function() {
       $locationProvider.html5Mode(false);
       $locationProvider.hashPrefix('');
       $uiRouter = $uiRouterProvider;
-    }),
+    })
   );
 
   let log, logEvents, logEnterExit;
@@ -210,7 +210,7 @@ describe('state', function() {
       $stateProvider.state('root.sub2', { url: '/2?param2' });
 
       $provide.value('AppInjectable', AppInjectable);
-    }),
+    })
   );
 
   beforeEach(
@@ -221,7 +221,7 @@ describe('state', function() {
       $injector = _$injector_;
       log = '';
       logEvents = logEnterExit = false;
-    }),
+    })
   );
 
   function $get(what) {
@@ -258,7 +258,7 @@ describe('state', function() {
         $transitions = _$transitions_;
         $q = _$q_;
         $location = _$location_;
-      }),
+      })
     );
 
     it(
@@ -267,7 +267,7 @@ describe('state', function() {
         const promise = $state.transitionTo(A, {});
         expect(angular.isFunction(promise.then)).toBeTruthy();
         expect(promise.transition.to()).toBe(A);
-      }),
+      })
     );
 
     // @todo this should fail:
@@ -279,7 +279,7 @@ describe('state', function() {
         $state.transitionTo('A', {});
         $q.flush();
         expect($state.current).toBe(A);
-      }),
+      })
     );
 
     describe('dynamic transitions', function() {
@@ -365,7 +365,7 @@ describe('state', function() {
           dynlog = '';
           expect(obj($stateParams)).toEqual({ path: 'p1', pathDyn: 'pd1', search: 's1', searchDyn: 'sd1' });
           expect($location.url()).toEqual('/dynstate/p1/pd1?search=s1&searchDyn=sd1');
-        }),
+        })
       );
 
       describe('[ transition.dynamic() ]:', function() {
@@ -673,7 +673,7 @@ describe('state', function() {
         $state.transitionTo('A', { w00t: 'hi mom!' });
         $q.flush();
         expect($state.current).toBe(A);
-      }),
+      })
     );
 
     it(
@@ -686,7 +686,7 @@ describe('state', function() {
         expect(resolvedValue(promise)).toBe(A);
         expect($state.current).toBe(A);
         expect(log).toBe('');
-      }),
+      })
     );
 
     it(
@@ -700,7 +700,7 @@ describe('state', function() {
         $q.flush();
         expect($state.current).toBe(C);
         expect(resolvedError(superseded)).toBeTruthy();
-      }),
+      })
     );
 
     it(
@@ -714,7 +714,7 @@ describe('state', function() {
         $q.flush();
         expect($state.current).toBe(A);
         expect(resolvedError(superseded)).toBeTruthy();
-      }),
+      })
     );
 
     it(
@@ -723,7 +723,7 @@ describe('state', function() {
         const superseded = $state.transitionTo('home.redirect');
         $q.flush();
         expect($state.current.name).toBe('about');
-      }),
+      })
     );
 
     it(
@@ -740,9 +740,9 @@ describe('state', function() {
         $state.transitionTo(A, {});
         $q.flush();
         expect(log).toBe(
-          'A.onExit;' + 'D.onEnter;' + 'D;' + 'DD.onEnter;' + 'DD;' + 'DD.onExit;' + 'D.onExit;' + 'A.onEnter;',
+          'A.onExit;' + 'D.onEnter;' + 'D;' + 'DD.onEnter;' + 'DD;' + 'DD.onExit;' + 'D.onExit;' + 'A.onEnter;'
         );
-      }),
+      })
     );
 
     // test for #3081
@@ -781,7 +781,7 @@ describe('state', function() {
         $state.transitionTo('about.sidebar');
         $q.flush();
         expect($state.current.name).toEqual('about.sidebar');
-      }),
+      })
     );
 
     it(
@@ -797,7 +797,7 @@ describe('state', function() {
         });
         $q.flush();
         expect(actual.detail).toEqual(err);
-      }),
+      })
     );
 
     it(
@@ -806,7 +806,7 @@ describe('state', function() {
         $state.transitionTo('dynamicTemplate', { type: 'Acme' });
         $q.flush();
         expect(template).toEqual('AcmeFooTemplate');
-      }),
+      })
     );
 
     it(
@@ -815,7 +815,7 @@ describe('state', function() {
         $state.transitionTo('dynamicController', { type: 'Acme' });
         $q.flush();
         expect(ctrlName).toEqual('AcmeController');
-      }),
+      })
     );
 
     it(
@@ -836,7 +836,7 @@ describe('state', function() {
         $q.flush();
         expect($location.url()).toBe('/front/world#frag');
         expect($location.hash()).toBe('frag');
-      }),
+      })
     );
 
     it(
@@ -856,7 +856,7 @@ describe('state', function() {
         $q.flush();
         expect($location.hash()).toBe('blarg');
         expect(transitionCount).toBe(2);
-      }),
+      })
     );
 
     it(
@@ -867,7 +867,7 @@ describe('state', function() {
         $state.transitionTo('about');
         $q.flush();
         expect(log).toBe('home => about');
-      }),
+      })
     );
   });
 
@@ -911,7 +911,7 @@ describe('state', function() {
         $state.go('^.sidebar');
         $q.flush();
         expect($state.$current.name).toBe('about.sidebar');
-      }),
+      })
     );
 
     it(
@@ -929,7 +929,7 @@ describe('state', function() {
         $state.go('^.^.sidebar');
         $q.flush();
         expect($state.$current.name).toBe('about.sidebar');
-      }),
+      })
     );
   });
 
@@ -947,7 +947,7 @@ describe('state', function() {
         $q.flush();
         expect(angular.isFunction(promise.then)).toBeTruthy();
         expect(promise.transition.to()).toBe(A);
-      }),
+      })
     );
 
     it(
@@ -964,7 +964,7 @@ describe('state', function() {
         $q.flush();
         $timeout.flush();
         expect(log).toBe('Success!Success!');
-      }),
+      })
     );
 
     it(
@@ -980,7 +980,7 @@ describe('state', function() {
         $q.flush();
         $timeout.flush();
         expect(log).toBe('Success!controller;Success!controller;');
-      }),
+      })
     );
 
     it(
@@ -1005,7 +1005,7 @@ describe('state', function() {
         $state.reload('logA.logB.logC');
         $q.flush();
         expect(log).toBe('logC;');
-      }),
+      })
     );
 
     it(
@@ -1020,7 +1020,7 @@ describe('state', function() {
         $state.reload(false);
         $q.flush();
         expect(log).toBe('');
-      }),
+      })
     );
 
     it(
@@ -1035,7 +1035,7 @@ describe('state', function() {
         $state.reload(true);
         $q.flush();
         expect(log).toBe('logA;logB;logC;');
-      }),
+      })
     );
 
     it(
@@ -1051,7 +1051,7 @@ describe('state', function() {
         $state.reload($state.current);
         $q.flush();
         expect(log).toBe('logC;');
-      }),
+      })
     );
 
     it(
@@ -1065,7 +1065,7 @@ describe('state', function() {
         expect(function() {
           $state.reload('logInvalid');
         }).toThrowError(Error, "No such reload state 'logInvalid'");
-      }),
+      })
     );
 
     it(
@@ -1084,7 +1084,7 @@ describe('state', function() {
         expect(function() {
           $state.reload({ name: 'invalidState' });
         }).toThrowError(Error, "No such reload state 'invalidState'");
-      }),
+      })
     );
   });
 
@@ -1098,14 +1098,14 @@ describe('state', function() {
         expect($state.is(A, null)).toBe(true);
         expect($state.is('A')).toBe(true);
         expect($state.is(B)).toBe(false);
-      }),
+      })
     );
 
     it(
       'should return undefined when queried state does not exist',
       inject(function($state) {
         expect($state.is('Z')).toBeUndefined();
-      }),
+      })
     );
 
     it(
@@ -1117,7 +1117,7 @@ describe('state', function() {
         expect($state.is(D, { x: 'foo', y: 'bar' })).toBe(true);
         expect($state.is('D', { x: 'foo', y: 'bar' })).toBe(true);
         expect($state.is(D, { x: 'bar', y: 'foo' })).toBe(false);
-      }),
+      })
     );
 
     it(
@@ -1136,7 +1136,7 @@ describe('state', function() {
 
         options.relative = $state.get('about.person.item');
         expect($state.is('^', undefined, options)).toBe(true);
-      }),
+      })
     );
   });
 
@@ -1149,7 +1149,7 @@ describe('state', function() {
         expect($state.includes(A)).toBe(true);
         expect($state.includes('A')).toBe(true);
         expect($state.includes(B)).toBe(false);
-      }),
+      })
     );
 
     it(
@@ -1160,14 +1160,14 @@ describe('state', function() {
         expect($state.includes('about')).toBe(true);
         expect($state.includes('about.person')).toBe(true);
         expect($state.includes('about.sidebar')).toBe(false);
-      }),
+      })
     );
 
     it(
       'should return undefined when queried state does not exist',
       inject(function($state) {
         expect($state.includes('Z')).toBeUndefined();
-      }),
+      })
     );
 
     it(
@@ -1179,7 +1179,7 @@ describe('state', function() {
         expect($state.includes(D, { y: 'bar' })).toBe(true);
         expect($state.includes('D', { x: 'foo' })).toBe(true);
         expect($state.includes(D, { y: 'foo' })).toBe(false);
-      }),
+      })
     );
 
     it(
@@ -1189,7 +1189,7 @@ describe('state', function() {
         $q.flush();
         expect($state.includes('about.person', { person: 'bob' })).toBe(true);
         expect($state.includes('about.person', { person: 'steve' })).toBe(false);
-      }),
+      })
     );
 
     it(
@@ -1209,7 +1209,7 @@ describe('state', function() {
         expect($state.includes('*.about.*')).toBe(false);
         expect($state.includes('about.*.*', { person: 'bob' })).toBe(true);
         expect($state.includes('about.*.*', { person: 'shawn' })).toBe(false);
-      }),
+      })
     );
 
     it(
@@ -1225,7 +1225,7 @@ describe('state', function() {
 
         expect($state.includes('.person', { person: 'bob' }, { relative: $state.get('about') })).toBe(true);
         expect($state.includes('.person', { person: 'steve' }, { relative: $state.get('about') })).toBe(false);
-      }),
+      })
     );
   });
 
@@ -1234,7 +1234,7 @@ describe('state', function() {
       'is always defined',
       inject(function($state) {
         expect($state.current).toBeDefined();
-      }),
+      })
     );
 
     it(
@@ -1244,7 +1244,7 @@ describe('state', function() {
         expect($state.current).not.toBe(A);
         $q.flush();
         expect($state.current).toBe(A);
-      }),
+      })
     );
   });
 
@@ -1253,7 +1253,7 @@ describe('state', function() {
       'is always defined',
       inject(function($state) {
         expect($state.$current).toBeDefined();
-      }),
+      })
     );
 
     it(
@@ -1261,7 +1261,7 @@ describe('state', function() {
       inject(function($state) {
         initStateTo(A);
         expect($state.$current.data).toBe(A.data); // 'data' is reserved for app use
-      }),
+      })
     );
   });
 
@@ -1271,7 +1271,7 @@ describe('state', function() {
       inject(function($state) {
         expect(obj($state.params)).toBeDefined();
         expect(angular.isObject($state.params)).toBe(true);
-      }),
+      })
     );
 
     it(
@@ -1279,7 +1279,7 @@ describe('state', function() {
       inject(function($state, $q) {
         initStateTo(D, { x: 'x value', z: 'invalid value' });
         expect(obj($state.params)).toEqual({ x: 'x value', y: null });
-      }),
+      })
     );
   });
 
@@ -1289,14 +1289,14 @@ describe('state', function() {
       inject(function($state) {
         expect($state.href('A')).toBeNull();
         expect($state.href('about.sidebar', null, { lossy: false })).toBeNull();
-      }),
+      })
     );
 
     it(
       'generates a parent state URL when lossy is true',
       inject(function($state) {
         expect($state.href('about.sidebar', null, { lossy: true })).toEqual('#/about');
-      }),
+      })
     );
 
     it(
@@ -1305,7 +1305,7 @@ describe('state', function() {
         expect($state.href('home')).toEqual('#/');
         expect($state.href('about', {})).toEqual('#/about');
         expect($state.href('about', { foo: 'bar' })).toEqual('#/about');
-      }),
+      })
     );
 
     it(
@@ -1313,7 +1313,7 @@ describe('state', function() {
       inject(function($state) {
         expect($state.href('about.person', { person: 'bob' })).toEqual('#/about/bob');
         expect($state.href('about.person.item', { person: 'bob', id: null })).toEqual('#/about/bob/');
-      }),
+      })
     );
 
     it(
@@ -1323,7 +1323,7 @@ describe('state', function() {
         expect($state.href('root', {}, {})).toEqual('#/root?param1=1');
         expect($state.href('root', {}, { inherit: false })).toEqual('#/root');
         expect($state.href('root', {}, { inherit: true })).toEqual('#/root?param1=1');
-      }),
+      })
     );
 
     it(
@@ -1332,7 +1332,7 @@ describe('state', function() {
         expect($state.href('about.sidebar', null, { absolute: true })).toEqual('http://server/#/about');
         locationProvider.html5Mode(true);
         expect($state.href('about.sidebar', null, { absolute: true })).toEqual('http://server/about');
-      }),
+      })
     );
 
     it(
@@ -1340,14 +1340,14 @@ describe('state', function() {
       inject(function($state) {
         locationProvider.hashPrefix('!');
         expect($state.href('home')).toEqual('#!/');
-      }),
+      })
     );
 
     it(
       'generates urls with unsquashable default params',
       inject(function($state) {
         expect($state.href('ISS2101')).toEqual('#/2101/qux');
-      }),
+      })
     );
 
     describe('when $browser.baseHref() exists', function() {
@@ -1356,21 +1356,21 @@ describe('state', function() {
           spyOn($uiRouter.locationConfig, 'baseHref').and.callFake(function() {
             return '/base/';
           });
-        }),
+        })
       );
 
       it(
         'does not prepend relative urls',
         inject(function($state) {
           expect($state.href('home')).toEqual('#/');
-        }),
+        })
       );
 
       it(
         'prepends absolute urls',
         inject(function($state) {
           expect($state.href('home', null, { absolute: true })).toEqual('http://server/base/#/');
-        }),
+        })
       );
 
       it(
@@ -1379,7 +1379,7 @@ describe('state', function() {
           locationProvider.html5Mode(true);
           expect($state.href('home')).toEqual('/base/');
           expect($state.href('home', null, { absolute: true })).toEqual('http://server/base/');
-        }),
+        })
       );
     });
   });
@@ -1392,7 +1392,7 @@ describe('state', function() {
         expect($state.get('home.item').url).toBe('front/:id');
         expect($state.get('A')).toBe(A);
         expect($state.get('Z')).toBeNull();
-      }),
+      })
     );
 
     it(
@@ -1447,9 +1447,9 @@ describe('state', function() {
             .map(function(state) {
               return state.name;
             })
-            .sort(),
+            .sort()
         ).toEqual(names.sort());
-      }),
+      })
     );
 
     it(
@@ -1464,7 +1464,7 @@ describe('state', function() {
         const item = $state.get('.person.item', about);
         expect(item.url).toBe('/:id');
         expect($state.get('^.^', item).url).toBe('/about');
-      }),
+      })
     );
 
     it(
@@ -1473,7 +1473,7 @@ describe('state', function() {
         expect($state.get(null)).toBeNull();
         expect($state.get(false)).toBeNull();
         expect($state.get(undefined)).toBeNull();
-      }),
+      })
     );
   });
 
@@ -1490,7 +1490,7 @@ describe('state', function() {
         expect($state.current.name).toBe('OPT');
         expect(obj($state.params)).toEqual({ param: '100' });
         expect(obj(stateParams)).toEqual({ param: '100' });
-      }),
+      })
     );
 
     it(
@@ -1500,7 +1500,7 @@ describe('state', function() {
         $q.flush();
         expect($state.current.name).toBe('D');
         expect(obj($state.params)).toEqual({ x: null, y: null });
-      }),
+      })
     );
 
     it(
@@ -1510,7 +1510,7 @@ describe('state', function() {
         $q.flush();
         expect($state.current.name).toBe('F');
         expect(obj($state.params)).toEqual({ a: '', b: false, c: 0, d: undefined, e: -1 });
-      }),
+      })
     );
 
     it(
@@ -1520,7 +1520,7 @@ describe('state', function() {
         $q.flush();
         expect($state.current.name).toBe('D');
         expect(obj($state.params)).toEqual({ x: 100, y: { foo: 'bar' } });
-      }),
+      })
     );
 
     it(
@@ -1535,7 +1535,7 @@ describe('state', function() {
         expect($state.current.name).toBe('OPT');
         expect(obj($state.params)).toEqual({ param: '100' });
         expect(count).toEqual(1);
-      }),
+      })
     );
 
     it(
@@ -1559,7 +1559,7 @@ describe('state', function() {
         expect($state.current.name).toBe('OPT.OPT2');
         expect(obj($state.params)).toEqual({ param: '100', param2: '200', param3: '300', param4: '400' });
         expect(count).toEqual(2);
-      }),
+      })
     );
   });
 
@@ -1588,7 +1588,7 @@ describe('state', function() {
         expect($state.current.name).toBe('OPT');
         expect(obj($state.params)).toEqual({ param: '100' });
         expect(count).toEqual(1);
-      }),
+      })
     );
   });
 
@@ -1607,7 +1607,7 @@ describe('state', function() {
         $rootScope.$apply();
         expect(obj($state.params)).toEqual({ person: 'larry' });
         expect($state.current.name).toBe('about.person');
-      }),
+      })
     );
 
     it(
@@ -1621,7 +1621,7 @@ describe('state', function() {
         expect($state.current.name).toBe('about.person');
         expect($location.path()).toBe('/about/bob');
         expect($location.hash()).toBe('frag');
-      }),
+      })
     );
 
     it(
@@ -1636,7 +1636,7 @@ describe('state', function() {
         $rootScope.$apply();
         expect($state.current.name).toBe('second');
         expect($location.path()).toBe('/second');
-      }),
+      })
     );
 
     it(
@@ -1646,7 +1646,7 @@ describe('state', function() {
         $rootScope.$broadcast('$locationChangeSuccess');
         $rootScope.$apply();
         expect($state.current.name).toBe('');
-      }),
+      })
     );
 
     // Tests for issue #2339
@@ -1736,7 +1736,7 @@ describe('state', function() {
           'p3[]': ['a'],
           p4: null,
         },
-        defaults,
+        defaults
       );
 
       beforeEach(function() {
@@ -1781,14 +1781,14 @@ describe('state', function() {
             expect($location.url()).toBe(url);
           }
           checkStateUrl = _check_;
-        }),
+        })
       );
 
       it(
         'should initialize parameters without a hacky empty test',
         inject(function($urlMatcherFactory, $state) {
           new UrlMatcher('', null, null, null);
-        }),
+        })
       );
 
       it(
@@ -1807,7 +1807,7 @@ describe('state', function() {
           $rootScope.$broadcast('$locationChangeSuccess');
           $rootScope.$apply();
           expect($state.current.name).toBe('about');
-        }),
+        })
       );
 
       it(
@@ -1835,7 +1835,7 @@ describe('state', function() {
           $state.go('badParam2', { param: '1234' }); // must be 5 digits
           $rootScope.$apply();
           expect($state.current.name).toBe('about');
-        }),
+        })
       );
 
       // test for https://github.com/ui-router/core/issues/74
@@ -1850,7 +1850,7 @@ describe('state', function() {
 
           expect(errorhandler).not.toHaveBeenCalled();
           expect($state.params.nonurl && $state.params.nonurl.errorscope).toBe($rootScope);
-        }),
+        })
       );
 
       it('should map default param values to/from the $location.url() and $stateParams', function() {
@@ -1869,7 +1869,7 @@ describe('state', function() {
           'types.substate',
           '/types/defaultValue/2014-11-15/sub/a/%7B%22baz%22:%22qux%22%7D',
           params,
-          substateDefaults,
+          substateDefaults
         );
       });
 
@@ -1879,7 +1879,7 @@ describe('state', function() {
           'types.substate',
           '/types/foo/2014-11-15/sub/a/%7B%22baz%22:%22qux%22%7D',
           params,
-          substateDefaults,
+          substateDefaults
         );
       });
 
@@ -1904,7 +1904,7 @@ describe('state', function() {
           'types.substate',
           '/types/foo/2014-11-15/sub/a/%7B%22baz%22:%22qux%22%7D?p5=1',
           params,
-          substateDefaults,
+          substateDefaults
         );
       });
 
@@ -1923,7 +1923,7 @@ describe('state', function() {
           $state.go('URLLESS', { myparam: '1' });
           $q.flush(); // string "1" decodes to 1
           expect($stateParams.myparam).toBe(1);
-        }),
+        })
       );
 
       it(
@@ -1938,7 +1938,7 @@ describe('state', function() {
           $state.go('URLLESS');
           $q.flush(); // Missing required parameter; transition fails
           expect($state.current.name).toBe('A');
-        }),
+        })
       );
 
       it(
@@ -1953,7 +1953,7 @@ describe('state', function() {
           $state.go('URLLESS', { myparam: 'somestring' });
           $q.flush(); // string "somestring" is not an int
           expect($state.current.name).toBe('A');
-        }),
+        })
       );
     });
 
@@ -1968,7 +1968,7 @@ describe('state', function() {
         $rootScope.$apply();
 
         expect($state.current.name).toBe('about');
-      }),
+      })
     );
 
     it(
@@ -1986,7 +1986,7 @@ describe('state', function() {
         $rootScope.$apply();
 
         expect($location.path()).toBe('/resolve-fail');
-      }),
+      })
     );
 
     it(
@@ -1999,7 +1999,7 @@ describe('state', function() {
 
         expect($uiRouter.locationService.url).toHaveBeenCalled();
         expect($uiRouter.locationService.url.calls.argsFor(0)[1]).toBe(true);
-      }),
+      })
     );
 
     it(
@@ -2011,7 +2011,7 @@ describe('state', function() {
         $q.flush();
 
         expect($location.replace).not.toHaveBeenCalled();
-      }),
+      })
     );
   });
 
@@ -2023,7 +2023,7 @@ describe('state', function() {
         expect($state.current.name).toEqual('H');
         expect($state.current.data.propA).toEqual(H.data.propA);
         expect($state.current.data.propB).toEqual(H.data.propB);
-      }),
+      })
     );
 
     it(
@@ -2033,7 +2033,7 @@ describe('state', function() {
         expect($state.current.name).toEqual('HH');
         expect($state.current.data.propA).toEqual(H.data.propA);
         expect($state.current.data.propB).toEqual(H.data.propB);
-      }),
+      })
     );
 
     it(
@@ -2046,7 +2046,7 @@ describe('state', function() {
         expect($state.current.data.hasOwnProperty('propB')).toBe(false);
         expect($state.current.data.propB).toEqual(HH.data.propB);
         expect($state.current.data.propC).toEqual(HHH.data.propC);
-      }),
+      })
     );
   });
 
@@ -2059,7 +2059,7 @@ describe('state', function() {
         $q.flush();
         expect($state.current.name).toEqual('root.sub1');
         expect(obj($stateParams)).toEqual({ param1: '1', param2: '2' });
-      }),
+      })
     );
 
     it(
@@ -2075,7 +2075,7 @@ describe('state', function() {
         expect($state.current.name).toEqual('root.sub2');
 
         expect(obj($stateParams)).toEqual({ param1: '1', param2: undefined });
-      }),
+      })
     );
   });
 
@@ -2086,7 +2086,7 @@ describe('state', function() {
         expect($state.href('about.person', { person: 'bob' })).toEqual('#/about/bob');
         locationProvider.html5Mode(true);
         expect($state.href('about.person', { person: 'bob' })).toEqual('/about/bob');
-      }),
+      })
     );
   });
 
@@ -2098,7 +2098,7 @@ describe('state', function() {
         $q.flush();
         expect($state.$current.name).toBe('A');
         expect($state.$current.toString()).toBe('A');
-      }),
+      })
     );
 
     it(
@@ -2107,7 +2107,7 @@ describe('state', function() {
         $state.transitionTo(DD);
         $q.flush();
         expect($state.$current.includes).toEqual({ '': true, D: true, DD: true });
-      }),
+      })
     );
   });
 
@@ -2119,7 +2119,7 @@ describe('state', function() {
         $state.transitionTo('about.sidebar.item', { item: 'foo' });
         $q.flush();
         expect(obj(templateParams)).toEqual({ item: 'foo' });
-      }),
+      })
     );
   });
 
@@ -2128,7 +2128,7 @@ describe('state', function() {
       'should return built-in decorators',
       inject(function($state) {
         expect($stateProvider.decorator('parent')({ parent: A }).self.name).toBe('A');
-      }),
+      })
     );
 
     it(
@@ -2142,7 +2142,7 @@ describe('state', function() {
         $state.transitionTo('AA');
         $q.flush();
         expect($state.current.data).toEqual({ baz: 'true', foo: 'bar' });
-      }),
+      })
     );
 
     it(
@@ -2158,7 +2158,7 @@ describe('state', function() {
         $state.transitionTo('decoratorTest');
         $q.flush();
         expect($state.$current.custom()).toBe("Custom functionality for state 'decoratorTest'");
-      }),
+      })
     );
 
     it(
@@ -2191,7 +2191,7 @@ describe('state', function() {
 
         expect($state.$current.views['viewA@'].templateProvider()).toBe('Template for viewA@');
         expect($state.$current.views['viewB@'].templateProvider()).toBe('Template for viewB@');
-      }),
+      })
     );
 
     it(
@@ -2218,7 +2218,7 @@ describe('state', function() {
         expect($state.$current.parent.name).toBe('A');
         expect(d.d1).toBe(true);
         expect(d.d2).toBe(true);
-      }),
+      })
     );
 
     it(
@@ -2245,7 +2245,7 @@ describe('state', function() {
         expect($state.$current.data.x).toBeUndefined();
         expect(d.d1).toBe(false);
         expect(d.d2).toBe(true);
-      }),
+      })
     );
 
     it(
@@ -2272,7 +2272,7 @@ describe('state', function() {
         expect($state.$current.data).toEqualData({ x: 1, y: 2, z: 3 });
         expect(d.d1).toBe(true);
         expect(d.d2).toBe(true);
-      }),
+      })
     );
   });
 });
@@ -2299,7 +2299,7 @@ describe('state queue', function() {
       expect(
         list.map(function(state) {
           return state.name;
-        }),
+        })
       ).toEqual(expectedStates);
     });
   });
@@ -2312,7 +2312,7 @@ describe('state queue', function() {
       expect(
         list.map(function(state) {
           return state.name;
-        }),
+        })
       ).toEqual(expectedStates);
     });
   });
@@ -2324,7 +2324,7 @@ describe('Targeted Views', function() {
     module('ui.router', function(_$provide_, _$controllerProvider_, _$stateProvider_) {
       $stateProvider = _$stateProvider_;
       states.forEach($stateProvider.state.bind($stateProvider));
-    }),
+    })
   );
 
   beforeEach(
@@ -2336,7 +2336,7 @@ describe('Targeted Views', function() {
       $state = _$state_;
       elem = angular.element('<div>');
       elem.append($compile('<div><ui-view></ui-view></div>')(scope));
-    }),
+    })
   );
 
   states = [
@@ -2410,7 +2410,7 @@ describe('Targeted Views', function() {
         $state.go('A.a.i');
         $q.flush();
         expect(elem[0].querySelector('#Aa_default').textContent).toBe('asdf');
-      }),
+      })
     );
 
     it(
@@ -2419,7 +2419,7 @@ describe('Targeted Views', function() {
         $state.go('A.a.i');
         $q.flush();
         expect(elem[0].querySelector('#Aa_named2').textContent).toBe('A.a.i');
-      }),
+      })
     );
 
     it(
@@ -2428,7 +2428,7 @@ describe('Targeted Views', function() {
         $state.go('A.a.i.1');
         $q.flush();
         expect(elem[0].querySelector('#named_A').textContent).toBe('A.a.i.1');
-      }),
+      })
     );
 
     it(
@@ -2437,7 +2437,7 @@ describe('Targeted Views', function() {
         $state.go('A.a.i.2');
         $q.flush();
         expect(elem[0].textContent).toBe('rooted!');
-      }),
+      })
     );
 
     it(
@@ -2446,7 +2446,7 @@ describe('Targeted Views', function() {
         $state.go('A.a.i.3');
         $q.flush();
         expect(elem[0].querySelector('#named_A').textContent).toBe('fhqwhgads');
-      }),
+      })
     );
   });
 
@@ -2457,7 +2457,7 @@ describe('Targeted Views', function() {
         $state.go('A.b.i');
         $q.flush();
         expect(elem[0].querySelector('#Ab_default').textContent).toBe('asdf');
-      }),
+      })
     );
 
     it(
@@ -2466,7 +2466,7 @@ describe('Targeted Views', function() {
         $state.go('A.b.i');
         $q.flush();
         expect(elem[0].querySelector('#Ab_named2').textContent).toBe('A.b.i');
-      }),
+      })
     );
 
     it(
@@ -2475,7 +2475,7 @@ describe('Targeted Views', function() {
         $state.go('A.b.i.1');
         $q.flush();
         expect(elem[0].querySelector('#named_A').textContent).toBe('A.b.i.1');
-      }),
+      })
     );
 
     it(
@@ -2484,7 +2484,7 @@ describe('Targeted Views', function() {
         $state.go('A.b.i.2');
         $q.flush();
         expect(elem[0].textContent).toBe('rooted!');
-      }),
+      })
     );
 
     // Test for https://github.com/ui-router/core/issues/25
@@ -2494,7 +2494,7 @@ describe('Targeted Views', function() {
         $state.go('B');
         $q.flush();
         expect(elem[0].textContent).toBe('Targeted view on own state');
-      }),
+      })
     );
   });
 });
@@ -2505,7 +2505,7 @@ describe('.onInvalid()', function() {
     module('ui.router', function(_$provide_, _$controllerProvider_, _$stateProvider_) {
       $stateProvider = _$stateProvider_;
       $stateProvider.state('second', { template: 'foo' });
-    }),
+    })
   );
 
   it(
@@ -2521,7 +2521,7 @@ describe('.onInvalid()', function() {
       $q.flush();
       expect(ref).not.toBeNull();
       expect(ref.valid()).toBeFalsy();
-    }),
+    })
   );
 
   it(
@@ -2534,7 +2534,7 @@ describe('.onInvalid()', function() {
       $state.go('invalid');
       $q.flush();
       expect($state.current.name).toBe('second');
-    }),
+    })
   );
 });
 
@@ -2547,7 +2547,7 @@ describe('exceptions in onEnter', function() {
           throw new Error('negative onEnter');
         },
       });
-    }),
+    })
   );
 
   // Test for #2772
@@ -2569,7 +2569,7 @@ describe('exceptions in onEnter', function() {
 
       expect(called).toBeTruthy();
       expect($state.current.name).toEqual('A');
-    }),
+    })
   );
 });
 
@@ -2580,7 +2580,7 @@ describe('$stateParams', function() {
     'should start empty',
     inject(function($stateParams) {
       expect($stateParams.foo).toBeUndefined();
-    }),
+    })
   );
 
   it(
@@ -2588,14 +2588,14 @@ describe('$stateParams', function() {
     inject(function($stateParams) {
       $stateParams.foo = 'bar';
       expect($stateParams.foo).toBeDefined();
-    }),
+    })
   );
 
   it(
     'should be cleared between tests',
     inject(function($stateParams) {
       expect($stateParams.foo).toBeUndefined();
-    }),
+    })
   );
 });
 
@@ -2604,7 +2604,7 @@ describe('otherwise and state redirects', function() {
   beforeEach(
     module('ui.router.state.events', function($stateEventsProvider) {
       $stateEventsProvider.enable();
-    }),
+    })
   );
 
   beforeEach(
@@ -2613,7 +2613,7 @@ describe('otherwise and state redirects', function() {
       $stateProvider
         .state('home', { url: '/home', template: 'home' })
         .state('loginPage', { url: '/login', templateUrl: 'login.html' });
-    }),
+    })
   );
 
   beforeEach(
@@ -2624,7 +2624,7 @@ describe('otherwise and state redirects', function() {
           $state.go('loginPage', { redirectUrl: toState.name });
         }
       });
-    }),
+    })
   );
 
   it(
@@ -2641,7 +2641,7 @@ describe('otherwise and state redirects', function() {
         $httpBackend.flush();
       }).not.toThrow();
       expect($state.current.name).toBe('loginPage');
-    }),
+    })
   );
 });
 
@@ -2667,14 +2667,14 @@ describe('transition hook', function() {
         })
         .state('home.foo', { url: '/foo', template: 'foo' })
         .state('loginPage', { url: '/login', template: 'login' });
-    }),
+    })
   );
 
   beforeEach(
     inject(function($compile, $rootScope) {
       const $scope = $rootScope.$new();
       $compile('<div><ui-view></ui-view></div>')($scope);
-    }),
+    })
   );
 
   // Test for #2455
@@ -2687,7 +2687,7 @@ describe('transition hook', function() {
       $q.flush();
       expect($state.current.name).toBe('loginPage');
       expect($location.path()).toBe('/login');
-    }),
+    })
   );
 
   // Test for #2537
@@ -2715,7 +2715,7 @@ describe('transition hook', function() {
 
       expect($state.current.name).toBe('home');
       expect(log).toBe('homeCtrl;homeCtrl;');
-    }),
+    })
   );
 
   // Test for #2539
@@ -2743,7 +2743,7 @@ describe('transition hook', function() {
       $q.flush();
       expect($state.current.name).toBe('home');
       expect(resolvelog).toBe('fooResolve;fooResolve;');
-    }),
+    })
   );
 
   // Test for #2611
@@ -2759,6 +2759,6 @@ describe('transition hook', function() {
       $q.flush();
       expect($state.current.name).toBe('home');
       expect($location.path()).toBe('/home');
-    }),
+    })
   );
 });
