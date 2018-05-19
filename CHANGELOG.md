@@ -1,3 +1,10 @@
+## 1.0.18 (2018-05-19)
+[Compare `@uirouter/angularjs` versions 1.0.17 and 1.0.18](https://github.com/angular-ui/ui-router/compare/1.0.17...1.0.18)
+
+### Bug Fixes
+
+* **bundles:** Do not run prettier against release/* bundles when publishing to bower ([9b420fa](https://github.com/angular-ui/ui-router/commit/9b420fa))
+
 ## 1.0.17 (2018-05-13)
 [Compare `@uirouter/angularjs` versions 1.0.16 and 1.0.17](https://github.com/angular-ui/ui-router/compare/1.0.16...1.0.17)
 
