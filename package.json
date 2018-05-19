@@ -26,7 +26,7 @@
     "debug": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1 --browsers=Chrome",
     "docs": "generate_docs",
     "docs:publish": "generate_docs && publish_docs",
-    "release": "release --deps @uirouter/core && node ./scripts/bower_release.js",
+    "release": "release --deps @uirouter/core && node ./scripts/npm_angular_ui_router_release.js && node ./scripts/bower_release.js",
     "prepublishOnly": "npm run build",
     "artifacts": "artifact_tagging",
     "precommit": "pretty-quick --staged"
