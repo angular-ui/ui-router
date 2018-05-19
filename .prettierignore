@@ -4,3 +4,4 @@ CHANGELOG.md
 test/**/angular.js
 test/**/angular-mocks.js
 test/**/angular-animate.js
+release/**
