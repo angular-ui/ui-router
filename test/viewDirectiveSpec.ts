@@ -1,6 +1,7 @@
 import * as angular from 'angular';
-import './util/matchers';
+import { ICompileService, IRootScopeService } from 'angular';
 import { extend } from '@uirouter/core';
+import './util/matchers';
 
 declare let inject, jasmine;
 
@@ -1061,7 +1062,12 @@ describe('angular 1.5+ style .component()', function() {
       });
 
       app.component('dynamicComponent', {
-        template: 'dynamicComponent',
+        template: 'dynamicComponent {{ $ctrl.param }}',
+        controller: function() {
+          this.uiOnParamsChanged = function(params) {
+            this.param = params.param;
+          };
+        },
       });
     }
   });
@@ -1796,8 +1802,60 @@ describe('angular 1.5+ style .component()', function() {
         const directiveEl = el[0].querySelector('div ui-view dynamic-component');
         expect(directiveEl).toBeDefined();
         expect($state.current.name).toBe('dynamicComponent');
-        expect(el.text()).toBe('dynamicComponent');
+        expect(el.text().trim()).toBe('dynamicComponent');
       });
     }
   });
+
+  if (angular.version.minor >= 5) {
+    describe('uiOnParamsChanged()', () => {
+      let param;
+
+      beforeEach(inject(($rootScope: IRootScopeService, $compile: ICompileService) => {
+        param = null;
+
+        $stateProvider.state('dynamic', {
+          url: '/dynamic/:param',
+          component: 'dynamicComponent',
+          params: { param: { dynamic: true } },
+        });
+
+        $stateProvider.state('dynamic2', {
+          url: '/dynamic2/:param',
+          componentProvider: () => 'dynamicComponent',
+          params: { param: { dynamic: true } },
+        });
+      }));
+
+      it('should not be called on the initial transition', () => {
+        const $state = svcs.$state,
+          $q = svcs.$q;
+        $state.go('dynamic', { param: 'abc' });
+        $q.flush();
+        expect(el.text().trim()).toBe('dynamicComponent');
+      });
+
+      it('should be called when dynamic parameters change', () => {
+        const $state = svcs.$state,
+          $q = svcs.$q;
+        $state.go('dynamic', { param: 'abc' });
+        $q.flush();
+        $state.go('dynamic', { param: 'def' });
+        $q.flush();
+
+        expect(el.text().trim()).toBe('dynamicComponent def');
+      });
+
+      it('should work with componentProvider', () => {
+        const $state = svcs.$state,
+          $q = svcs.$q;
+        $state.go('dynamic2', { param: 'abc' });
+        $q.flush();
+        $state.go('dynamic2', { param: 'def' });
+        $q.flush();
+
+        expect(el.text().trim()).toBe('dynamicComponent def');
+      });
+    });
+  }
 });
