@@ -410,9 +410,8 @@ function $ViewDirectiveFill(
         scope[resolveAs] = locals;
 
         if (controller) {
-          const controllerInstance = <Ng1Controller>$controller(
-            controller,
-            extend({}, locals, { $scope: scope, $element: $element })
+          const controllerInstance = <Ng1Controller>(
+            $controller(controller, extend({}, locals, { $scope: scope, $element: $element }))
           );
           if (controllerAs) {
             scope[controllerAs] = controllerInstance;

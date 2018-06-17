@@ -36,9 +36,22 @@ describe('UI-Router services', () => {
     })
   );
 
-  beforeEach(
-    inject(function(
-      _$uiRouter_,
+  beforeEach(inject(function(
+    _$uiRouter_,
+    $urlMatcherFactory,
+    $urlRouter,
+    $stateRegistry,
+    $uiRouterGlobals,
+    $transitions,
+    $state,
+    $stateParams,
+    $templateFactory,
+    $view,
+    $trace
+  ) {
+    $uiRouter = _$uiRouter_;
+
+    services = {
       $urlMatcherFactory,
       $urlRouter,
       $stateRegistry,
@@ -48,24 +61,9 @@ describe('UI-Router services', () => {
       $stateParams,
       $templateFactory,
       $view,
-      $trace
-    ) {
-      $uiRouter = _$uiRouter_;
-
-      services = {
-        $urlMatcherFactory,
-        $urlRouter,
-        $stateRegistry,
-        $uiRouterGlobals,
-        $transitions,
-        $state,
-        $stateParams,
-        $templateFactory,
-        $view,
-        $trace,
-      };
-    })
-  );
+      $trace,
+    };
+  }));
 
   it('Should expose ui-router providers from the UIRouter instance', () => {
     expect(providers.$urlMatcherFactoryProvider).toBe($uiRouterProvider.urlMatcherFactory);

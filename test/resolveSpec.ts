@@ -215,63 +215,55 @@ function makePath(names: string[]): PathNode[] {
 }
 
 describe('Resolvables system:', function() {
-  beforeEach(
-    inject(function($transitions, $injector) {
-      emptyPath = [];
-      asyncCount = 0;
-    })
-  );
+  beforeEach(inject(function($transitions, $injector) {
+    emptyPath = [];
+    asyncCount = 0;
+  }));
 
   describe('strictDi support', function() {
     let originalStrictDi: boolean;
     let supportsStrictDi = false;
 
-    beforeEach(
-      inject(function($injector) {
-        // not all angular versions support strictDi mode.
-        // here, we detect the feature
-        try {
-          $injector.annotate(() => {}, true);
-        } catch (e) {
-          supportsStrictDi = true;
-        }
+    beforeEach(inject(function($injector) {
+      // not all angular versions support strictDi mode.
+      // here, we detect the feature
+      try {
+        $injector.annotate(() => {}, true);
+      } catch (e) {
+        supportsStrictDi = true;
+      }
 
-        if (supportsStrictDi) {
-          originalStrictDi = $injector.strictDi;
-          $injector.strictDi = true;
-        }
-      })
-    );
+      if (supportsStrictDi) {
+        originalStrictDi = $injector.strictDi;
+        $injector.strictDi = true;
+      }
+    }));
 
-    afterEach(
-      inject(function($injector) {
-        if (supportsStrictDi) {
-          $injector.strictDi = originalStrictDi;
-        }
-      })
-    );
+    afterEach(inject(function($injector) {
+      if (supportsStrictDi) {
+        $injector.strictDi = originalStrictDi;
+      }
+    }));
 
-    it(
-      'should throw when creating a resolvable with an unannotated fn and strictDi mode on',
-      inject(function($injector) {
-        if (supportsStrictDi) {
-          expect(() => {
-            makePath(['P']);
-          }).toThrowError(/strictdi/);
-        }
-      })
-    );
+    it('should throw when creating a resolvable with an unannotated fn and strictDi mode on', inject(function(
+      $injector
+    ) {
+      if (supportsStrictDi) {
+        expect(() => {
+          makePath(['P']);
+        }).toThrowError(/strictdi/);
+      }
+    }));
 
-    it(
-      'should not throw when creating a resolvable with an annotated fn and strictDi mode on',
-      inject(function($injector) {
-        if (supportsStrictDi) {
-          expect(() => {
-            makePath(['PAnnotated']);
-          }).not.toThrowError(/strictdi/);
-        }
-      })
-    );
+    it('should not throw when creating a resolvable with an annotated fn and strictDi mode on', inject(function(
+      $injector
+    ) {
+      if (supportsStrictDi) {
+        expect(() => {
+          makePath(['PAnnotated']);
+        }).not.toThrowError(/strictdi/);
+      }
+    }));
   });
 });
 
@@ -288,12 +280,10 @@ describe('$resolve', function() {
     })
   );
 
-  beforeEach(
-    inject(function($resolve, $q) {
-      $r = $resolve;
-      tick = $q.flush;
-    })
-  );
+  beforeEach(inject(function($resolve, $q) {
+    $r = $resolve;
+    tick = $q.flush;
+  }));
 
   describe('.resolve()', function() {
     it('calls injectable functions and returns a promise', function() {
@@ -309,19 +299,16 @@ describe('$resolve', function() {
       expect(fun.calls.mostRecent().args[0]).toBe($r);
     });
 
-    it(
-      'resolves promises returned from the functions',
-      inject(function($q) {
-        const d = $q.defer();
-        const fun = jasmine.createSpy('fun').and.returnValue(d.promise);
-        const r = $r.resolve({ fun: ['$resolve', fun] });
-        tick();
-        expect(r).not.toBeResolved();
-        d.resolve('async');
-        tick();
-        expect(resolvedValue(r)).toEqual({ fun: 'async' });
-      })
-    );
+    it('resolves promises returned from the functions', inject(function($q) {
+      const d = $q.defer();
+      const fun = jasmine.createSpy('fun').and.returnValue(d.promise);
+      const r = $r.resolve({ fun: ['$resolve', fun] });
+      tick();
+      expect(r).not.toBeResolved();
+      d.resolve('async');
+      tick();
+      expect(resolvedValue(r)).toEqual({ fun: 'async' });
+    }));
 
     it('resolves dependencies between functions', function() {
       const a = jasmine.createSpy('a');
@@ -333,44 +320,41 @@ describe('$resolve', function() {
       expect(b).toHaveBeenCalled();
     });
 
-    it(
-      'resolves dependencies between functions that return promises',
-      inject(function($q) {
-        const ad = $q.defer(),
-          a = jasmine.createSpy('a');
-        a.and.returnValue(ad.promise);
-        const bd = $q.defer(),
-          b = jasmine.createSpy('b');
-        b.and.returnValue(bd.promise);
-        const cd = $q.defer(),
-          c = jasmine.createSpy('c');
-        c.and.returnValue(cd.promise);
+    it('resolves dependencies between functions that return promises', inject(function($q) {
+      const ad = $q.defer(),
+        a = jasmine.createSpy('a');
+      a.and.returnValue(ad.promise);
+      const bd = $q.defer(),
+        b = jasmine.createSpy('b');
+      b.and.returnValue(bd.promise);
+      const cd = $q.defer(),
+        c = jasmine.createSpy('c');
+      c.and.returnValue(cd.promise);
 
-        const r = $r.resolve({ a: ['b', 'c', a], b: ['c', b], c: [c] });
-        tick();
-        expect(r).not.toBeResolved();
-        expect(a).not.toHaveBeenCalled();
-        expect(b).not.toHaveBeenCalled();
-        expect(c).toHaveBeenCalled();
-        cd.resolve('cc');
-        tick();
-        expect(r).not.toBeResolved();
-        expect(a).not.toHaveBeenCalled();
-        expect(b).toHaveBeenCalled();
-        expect(b.calls.mostRecent().args).toEqual(['cc']);
-        bd.resolve('bb');
-        tick();
-        expect(r).not.toBeResolved();
-        expect(a).toHaveBeenCalled();
-        expect(a.calls.mostRecent().args).toEqual(['bb', 'cc']);
-        ad.resolve('aa');
-        tick();
-        expect(resolvedValue(r)).toEqual({ a: 'aa', b: 'bb', c: 'cc' });
-        expect(a.calls.count()).toBe(1);
-        expect(b.calls.count()).toBe(1);
-        expect(c.calls.count()).toBe(1);
-      })
-    );
+      const r = $r.resolve({ a: ['b', 'c', a], b: ['c', b], c: [c] });
+      tick();
+      expect(r).not.toBeResolved();
+      expect(a).not.toHaveBeenCalled();
+      expect(b).not.toHaveBeenCalled();
+      expect(c).toHaveBeenCalled();
+      cd.resolve('cc');
+      tick();
+      expect(r).not.toBeResolved();
+      expect(a).not.toHaveBeenCalled();
+      expect(b).toHaveBeenCalled();
+      expect(b.calls.mostRecent().args).toEqual(['cc']);
+      bd.resolve('bb');
+      tick();
+      expect(r).not.toBeResolved();
+      expect(a).toHaveBeenCalled();
+      expect(a.calls.mostRecent().args).toEqual(['bb', 'cc']);
+      ad.resolve('aa');
+      tick();
+      expect(resolvedValue(r)).toEqual({ a: 'aa', b: 'bb', c: 'cc' });
+      expect(a.calls.count()).toBe(1);
+      expect(b.calls.count()).toBe(1);
+      expect(c.calls.count()).toBe(1);
+    }));
 
     // TODO: Reimplement cycle detection
     xit('refuses cyclic dependencies', function() {
@@ -453,71 +437,65 @@ describe('$resolve', function() {
       expect(b.calls.mostRecent().args).toEqual(['aa']);
     });
 
-    it(
-      'allow access to ancestor resolves in descendent resolve blocks',
-      inject(function($q) {
-        const gPromise = $q.defer(),
-          gInjectable = jasmine.createSpy('gInjectable').and.returnValue(gPromise.promise),
-          pPromise = $q.defer(),
-          pInjectable = jasmine.createSpy('pInjectable').and.returnValue(pPromise.promise);
+    it('allow access to ancestor resolves in descendent resolve blocks', inject(function($q) {
+      const gPromise = $q.defer(),
+        gInjectable = jasmine.createSpy('gInjectable').and.returnValue(gPromise.promise),
+        pPromise = $q.defer(),
+        pInjectable = jasmine.createSpy('pInjectable').and.returnValue(pPromise.promise);
 
-        const g = $r.resolve({ gP: [gInjectable] });
+      const g = $r.resolve({ gP: [gInjectable] });
 
-        gPromise.resolve('grandparent');
-        tick();
+      gPromise.resolve('grandparent');
+      tick();
 
-        const s = jasmine.createSpy('s');
-        const p = $r.resolve({ p: [pInjectable] }, {}, g);
-        const c = $r.resolve({ c: ['p', 'gP', s] }, {}, p);
+      const s = jasmine.createSpy('s');
+      const p = $r.resolve({ p: [pInjectable] }, {}, g);
+      const c = $r.resolve({ c: ['p', 'gP', s] }, {}, p);
 
-        pPromise.resolve('parent');
-        tick();
+      pPromise.resolve('parent');
+      tick();
 
-        expect(s).toHaveBeenCalled();
-        expect(s.calls.mostRecent().args).toEqual(['parent', 'grandparent']);
-      })
-    );
+      expect(s).toHaveBeenCalled();
+      expect(s.calls.mostRecent().args).toEqual(['parent', 'grandparent']);
+    }));
 
     // test for #1353
-    it(
-      'allow parent resolve to override grandparent resolve',
-      inject(function($q) {
-        const gPromise = $q.defer(),
-          gInjectable = jasmine.createSpy('gInjectable').and.returnValue(gPromise.promise);
+    it('allow parent resolve to override grandparent resolve', inject(function($q) {
+      const gPromise = $q.defer(),
+        gInjectable = jasmine.createSpy('gInjectable').and.returnValue(gPromise.promise);
 
-        const g = $r.resolve({
+      const g = $r.resolve({
+        item: [
+          function() {
+            return 'grandparent';
+          },
+        ],
+      });
+      gPromise.resolve('grandparent');
+      tick();
+
+      const p = $r.resolve(
+        {
           item: [
             function() {
-              return 'grandparent';
+              return 'parent';
             },
           ],
-        });
-        gPromise.resolve('grandparent');
-        tick();
+        },
+        {},
+        g
+      );
+      const s = jasmine.createSpy('s');
+      const c = $r.resolve({ c: [s] }, {}, p);
+      let item;
+      c.then(function(vals) {
+        item = vals.item;
+      });
+      tick();
 
-        const p = $r.resolve(
-          {
-            item: [
-              function() {
-                return 'parent';
-              },
-            ],
-          },
-          {},
-          g
-        );
-        const s = jasmine.createSpy('s');
-        const c = $r.resolve({ c: [s] }, {}, p);
-        let item;
-        c.then(function(vals) {
-          item = vals.item;
-        });
-        tick();
-
-        expect(s).toHaveBeenCalled();
-        expect(item).toBe('parent');
-      })
-    );
+      expect(s).toHaveBeenCalled();
+      expect(item).toBe('parent');
+    }));
 
     it('allows a function to override a parent value of the same name', function() {
       const r = $r.resolve({
@@ -544,58 +522,52 @@ describe('$resolve', function() {
       expect(resolvedValue(s)).toEqual({ a: 'a:(B)', b: '(B)', c: 'c:(B)' });
     });
 
-    it(
-      'allows a function to override a parent value of the same name with a promise',
-      inject(function($q) {
-        const r = $r.resolve({
-          b: function() {
-            return 'B';
+    it('allows a function to override a parent value of the same name with a promise', inject(function($q) {
+      const r = $r.resolve({
+        b: function() {
+          return 'B';
+        },
+      });
+      let superb,
+        bd = $q.defer();
+      const s = $r.resolve(
+        {
+          a: function(b) {
+            return 'a:' + b;
           },
-        });
-        let superb,
-          bd = $q.defer();
-        const s = $r.resolve(
-          {
-            a: function(b) {
-              return 'a:' + b;
-            },
-            b: function(b) {
-              superb = b;
-              return bd.promise;
-            },
-            c: function(b) {
-              return 'c:' + b;
-            },
+          b: function(b) {
+            superb = b;
+            return bd.promise;
           },
-          {},
-          r
-        );
-        tick();
-        bd.resolve('(' + superb + ')');
-        tick();
-        expect(resolvedValue(s)).toEqual({ a: 'a:(B)', b: '(B)', c: 'c:(B)' });
-      })
-    );
+          c: function(b) {
+            return 'c:' + b;
+          },
+        },
+        {},
+        r
+      );
+      tick();
+      bd.resolve('(' + superb + ')');
+      tick();
+      expect(resolvedValue(s)).toEqual({ a: 'a:(B)', b: '(B)', c: 'c:(B)' });
+    }));
 
-    it(
-      'it only resolves after the parent resolves',
-      inject(function($q) {
-        const bd = $q.defer(),
-          b = jasmine.createSpy('b').and.returnValue(bd.promise);
-        const cd = $q.defer(),
-          c = jasmine.createSpy('c').and.returnValue(cd.promise);
-        const r = $r.resolve({ c: [c] });
-        const s = $r.resolve({ b: [b] }, {}, r);
-        bd.resolve('bbb');
-        tick();
-        expect(r).not.toBeResolved();
-        expect(s).not.toBeResolved();
-        cd.resolve('ccc');
-        tick();
-        expect(resolvedValue(r)).toEqual({ c: 'ccc' });
-        expect(resolvedValue(s)).toEqual({ b: 'bbb', c: 'ccc' });
-      })
-    );
+    it('it only resolves after the parent resolves', inject(function($q) {
+      const bd = $q.defer(),
+        b = jasmine.createSpy('b').and.returnValue(bd.promise);
+      const cd = $q.defer(),
+        c = jasmine.createSpy('c').and.returnValue(cd.promise);
+      const r = $r.resolve({ c: [c] });
+      const s = $r.resolve({ b: [b] }, {}, r);
+      bd.resolve('bbb');
+      tick();
+      expect(r).not.toBeResolved();
+      expect(s).not.toBeResolved();
+      cd.resolve('ccc');
+      tick();
+      expect(resolvedValue(r)).toEqual({ c: 'ccc' });
+      expect(resolvedValue(s)).toEqual({ b: 'bbb', c: 'ccc' });
+    }));
 
     it('rejects missing dependencies but does not fail synchronously', function() {
       const r = $r.resolve({ fun: function(invalid) {} });
@@ -651,45 +623,39 @@ describe('$resolve', function() {
     });
 
     // TODO: Resolvables don't do this; the $resolve service used to.  Possibly reimplement this short-circuit.
-    xit(
-      'does not invoke any more functions after a failure',
-      inject(function($q) {
-        const ad = $q.defer(),
-          a = jasmine.createSpy('a').and.returnValue(ad.promise);
-        const cd = $q.defer(),
-          c = jasmine.createSpy('c').and.returnValue(cd.promise);
-        const dd = $q.defer(),
-          d = jasmine.createSpy('d').and.returnValue(dd.promise);
-        const r = $r.resolve({ a: ['c', a], c: [c], d: [d] });
-        dd.reject('dontlikeit');
-        tick();
-        expect(resolvedError(r)).toBeDefined();
-        cd.resolve('ccc');
-        tick();
-        expect(a).not.toHaveBeenCalled();
-      })
-    );
+    xit('does not invoke any more functions after a failure', inject(function($q) {
+      const ad = $q.defer(),
+        a = jasmine.createSpy('a').and.returnValue(ad.promise);
+      const cd = $q.defer(),
+        c = jasmine.createSpy('c').and.returnValue(cd.promise);
+      const dd = $q.defer(),
+        d = jasmine.createSpy('d').and.returnValue(dd.promise);
+      const r = $r.resolve({ a: ['c', a], c: [c], d: [d] });
+      dd.reject('dontlikeit');
+      tick();
+      expect(resolvedError(r)).toBeDefined();
+      cd.resolve('ccc');
+      tick();
+      expect(a).not.toHaveBeenCalled();
+    }));
 
-    it(
-      'does not invoke any more functions after a parent failure',
-      inject(function($q) {
-        const ad = $q.defer(),
-          a = jasmine.createSpy('a').and.returnValue(ad.promise);
-        const cd = $q.defer(),
-          c = jasmine.createSpy('c').and.returnValue(cd.promise);
-        const dd = $q.defer(),
-          d = jasmine.createSpy('d').and.returnValue(dd.promise);
-        const r = $r.resolve({ c: [c], d: [d] });
-        const s = $r.resolve({ a: ['c', a] }, r);
-        dd.reject('dontlikeit');
-        tick();
-        expect(resolvedError(r)).toBeDefined();
-        expect(resolvedError(s)).toBeDefined();
-        cd.resolve('ccc');
-        tick();
-        expect(a).not.toHaveBeenCalled();
-      })
-    );
+    it('does not invoke any more functions after a parent failure', inject(function($q) {
+      const ad = $q.defer(),
+        a = jasmine.createSpy('a').and.returnValue(ad.promise);
+      const cd = $q.defer(),
+        c = jasmine.createSpy('c').and.returnValue(cd.promise);
+      const dd = $q.defer(),
+        d = jasmine.createSpy('d').and.returnValue(dd.promise);
+      const r = $r.resolve({ c: [c], d: [d] });
+      const s = $r.resolve({ a: ['c', a] }, r);
+      dd.reject('dontlikeit');
+      tick();
+      expect(resolvedError(r)).toBeDefined();
+      expect(resolvedError(s)).toBeDefined();
+      cd.resolve('ccc');
+      tick();
+      expect(a).not.toHaveBeenCalled();
+    }));
   });
 });
 
@@ -728,16 +694,14 @@ describe('Integration: Resolvables system', () => {
   beforeEach(module('test'));
 
   let router: UIRouter, $state, $rootScope, $transitions, $trace, $q;
-  beforeEach(
-    inject((_$uiRouter_, _$state_, _$rootScope_, _$transitions_, _$trace_, _$q_) => {
-      router = _$uiRouter_;
-      $state = _$state_;
-      $rootScope = _$rootScope_;
-      $transitions = _$transitions_;
-      $trace = _$trace_;
-      $q = _$q_;
-    })
-  );
+  beforeEach(inject((_$uiRouter_, _$state_, _$rootScope_, _$transitions_, _$trace_, _$q_) => {
+    router = _$uiRouter_;
+    $state = _$state_;
+    $rootScope = _$rootScope_;
+    $transitions = _$transitions_;
+    $trace = _$trace_;
+    $q = _$q_;
+  }));
 
   it('should not re-resolve data, when redirecting to a child', () => {
     $transitions.onStart({ to: 'J' }, $transition$ => {
@@ -778,15 +742,55 @@ describe('Integration: Resolvables system', () => {
     expect(injectedData).toBe('foodata');
   });
 
-  it(
-    'should inject a promise for NOWAIT resolve into a controller',
-    inject(function($compile, $rootScope) {
+  it('should inject a promise for NOWAIT resolve into a controller', inject(function($compile, $rootScope) {
+    const scope = $rootScope.$new();
+    const el = $compile('<div><ui-view></ui-view></div>')(scope);
+
+    const deferWait = $q.defer();
+    const deferNowait = $q.defer();
+    let onEnterNowait;
+
+    router.stateProvider.state({
+      name: 'policies',
+      resolve: [
+        { token: 'nowait', resolveFn: () => deferNowait.promise, policy: { async: 'NOWAIT' } },
+        { token: 'wait', resolveFn: () => deferWait.promise },
+      ],
+      onEnter: function(nowait) {
+        onEnterNowait = nowait;
+      },
+      controller: function($scope, wait, nowait) {
+        $scope.wait = wait;
+        nowait.then(result => ($scope.nowait = result));
+      },
+      template: '{{ wait }}-{{ nowait }}',
+    });
+
+    $state.go('policies');
+    $q.flush();
+
+    expect($state.current.name).toBe('');
+
+    deferWait.resolve('wait for this');
+    $q.flush();
+
+    expect($state.current.name).toBe('policies');
+    expect(el.text()).toBe('wait for this-');
+    expect(typeof onEnterNowait.then).toBe('function');
+
+    deferNowait.resolve('dont wait for this');
+    $q.flush();
+
+    expect(el.text()).toBe('wait for this-dont wait for this');
+  }));
+
+  if (angular.version.minor >= 5) {
+    it('should bind a promise for NOWAIT resolve onto a component controller', inject(function($compile, $rootScope) {
       const scope = $rootScope.$new();
       const el = $compile('<div><ui-view></ui-view></div>')(scope);
 
       const deferWait = $q.defer();
       const deferNowait = $q.defer();
-      let onEnterNowait;
 
       router.stateProvider.state({
         name: 'policies',
@@ -794,14 +798,7 @@ describe('Integration: Resolvables system', () => {
           { token: 'nowait', resolveFn: () => deferNowait.promise, policy: { async: 'NOWAIT' } },
           { token: 'wait', resolveFn: () => deferWait.promise },
         ],
-        onEnter: function(nowait) {
-          onEnterNowait = nowait;
-        },
-        controller: function($scope, wait, nowait) {
-          $scope.wait = wait;
-          nowait.then(result => ($scope.nowait = result));
-        },
-        template: '{{ wait }}-{{ nowait }}',
+        component: 'nowait',
       });
 
       $state.go('policies');
@@ -814,50 +811,11 @@ describe('Integration: Resolvables system', () => {
 
       expect($state.current.name).toBe('policies');
       expect(el.text()).toBe('wait for this-');
-      expect(typeof onEnterNowait.then).toBe('function');
 
       deferNowait.resolve('dont wait for this');
       $q.flush();
 
       expect(el.text()).toBe('wait for this-dont wait for this');
-    })
-  );
-
-  if (angular.version.minor >= 5) {
-    it(
-      'should bind a promise for NOWAIT resolve onto a component controller',
-      inject(function($compile, $rootScope) {
-        const scope = $rootScope.$new();
-        const el = $compile('<div><ui-view></ui-view></div>')(scope);
-
-        const deferWait = $q.defer();
-        const deferNowait = $q.defer();
-
-        router.stateProvider.state({
-          name: 'policies',
-          resolve: [
-            { token: 'nowait', resolveFn: () => deferNowait.promise, policy: { async: 'NOWAIT' } },
-            { token: 'wait', resolveFn: () => deferWait.promise },
-          ],
-          component: 'nowait',
-        });
-
-        $state.go('policies');
-        $q.flush();
-
-        expect($state.current.name).toBe('');
-
-        deferWait.resolve('wait for this');
-        $q.flush();
-
-        expect($state.current.name).toBe('policies');
-        expect(el.text()).toBe('wait for this-');
-
-        deferNowait.resolve('dont wait for this');
-        $q.flush();
-
-        expect(el.text()).toBe('wait for this-dont wait for this');
-      })
-    );
+    }));
   }
 });

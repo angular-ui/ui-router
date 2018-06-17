@@ -41,13 +41,13 @@ import { Ng1LocationServices } from './locationServices';
 import { UrlRouterProvider } from './urlRouterProvider';
 import IInjectorService = angular.auto.IInjectorService; // tslint:disable-line
 
-angular.module("ui.router.angular1", []);
-const mod_init  = angular.module('ui.router.init',   ['ng']);
-const mod_util  = angular.module('ui.router.util',   ['ui.router.init']);
-const mod_rtr   = angular.module('ui.router.router', ['ui.router.util']);
-const mod_state = angular.module('ui.router.state',  ['ui.router.router', 'ui.router.util', 'ui.router.angular1']);
-const mod_main  = angular.module('ui.router',        ['ui.router.init', 'ui.router.state', 'ui.router.angular1']);
-const mod_cmpt  = angular.module('ui.router.compat', ['ui.router']); // tslint:disable-line
+angular.module('ui.router.angular1', []);
+const mod_init = angular.module('ui.router.init', ['ng']);
+const mod_util = angular.module('ui.router.util', ['ui.router.init']);
+const mod_rtr = angular.module('ui.router.router', ['ui.router.util']);
+const mod_state = angular.module('ui.router.state', ['ui.router.router', 'ui.router.util', 'ui.router.angular1']);
+const mod_main = angular.module('ui.router', ['ui.router.init', 'ui.router.state', 'ui.router.angular1']);
+const mod_cmpt = angular.module('ui.router.compat', ['ui.router']); // tslint:disable-line
 
 declare module '@uirouter/core/lib/router' {
   interface UIRouter {

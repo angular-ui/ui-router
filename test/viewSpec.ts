@@ -26,21 +26,19 @@ describe('view', function() {
     return (_states[built.name] = built);
   });
 
-  beforeEach(
-    inject(function($rootScope, _$compile_, _$injector_) {
-      scope = $rootScope.$new();
-      $compile = _$compile_;
-      $injector = _$injector_;
-      elem = angular.element('<div>');
+  beforeEach(inject(function($rootScope, _$compile_, _$injector_) {
+    scope = $rootScope.$new();
+    $compile = _$compile_;
+    $injector = _$injector_;
+    elem = angular.element('<div>');
 
-      states = {};
-      const matcher = new StateMatcher(states);
-      const stateBuilder = new StateBuilder(matcher, $urlMatcherFactoryProvider);
-      stateBuilder.builder('views', ng1ViewsBuilder);
-      register = registerState(states, stateBuilder);
-      root = register({ name: '' });
-    })
-  );
+    states = {};
+    const matcher = new StateMatcher(states);
+    const stateBuilder = new StateBuilder(matcher, $urlMatcherFactoryProvider);
+    stateBuilder.builder('views', ng1ViewsBuilder);
+    register = registerState(states, stateBuilder);
+    root = register({ name: '' });
+  }));
 
   describe('controller handling', function() {
     let state, path: PathNode[], ctrlExpression;
@@ -68,17 +66,14 @@ describe('view', function() {
       PathUtils.applyViewConfigs($view, path, _states);
     });
 
-    it(
-      'uses the controllerProvider to get controller dynamically',
-      inject(function($view, $q) {
-        $controllerProvider.register('AcmeFooController', function($scope, foo) {});
-        elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+    it('uses the controllerProvider to get controller dynamically', inject(function($view, $q) {
+      $controllerProvider.register('AcmeFooController', function($scope, foo) {});
+      elem.append($compile('<div><ui-view></ui-view></div>')(scope));
 
-        const view = tail(path).views[0];
-        view.load();
-        $q.flush();
-        expect(ctrlExpression).toEqual('FooController as foo');
-      })
-    );
+      const view = tail(path).views[0];
+      view.load();
+      $q.flush();
+      expect(ctrlExpression).toEqual('FooController as foo');
+    }));
   });
 });

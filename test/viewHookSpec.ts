@@ -54,14 +54,12 @@ describe('view hooks', () => {
 
   beforeEach(angular['mock'].module('viewhooks', 'ui.router'));
 
-  beforeEach(
-    inject((_$state_, _$q_, _$timeout_, $compile, $rootScope) => {
-      $state = _$state_;
-      $q = _$q_;
-      $timeout = _$timeout_;
-      $compile('<div><ui-view></ui-view></div>')($rootScope.$new());
-    })
-  );
+  beforeEach(inject((_$state_, _$q_, _$timeout_, $compile, $rootScope) => {
+    $state = _$state_;
+    $q = _$q_;
+    $timeout = _$timeout_;
+    $compile('<div><ui-view></ui-view></div>')($rootScope.$new());
+  }));
 
   describe('uiCanExit', () => {
     beforeEach(() => {
@@ -132,63 +130,54 @@ describe('view hooks', () => {
       expect($state.current.name).toBe('baz');
     });
 
-    it(
-      'can cancel the transition by returning a rejected promise',
-      inject(($q, $state) => {
-        ctrl.prototype.uiCanExit = function() {
-          log += 'canexit;';
-          return $q.reject('nope');
-        };
-        initial();
+    it('can cancel the transition by returning a rejected promise', inject(($q, $state) => {
+      ctrl.prototype.uiCanExit = function() {
+        log += 'canexit;';
+        return $q.reject('nope');
+      };
+      initial();
 
-        $state.defaultErrorHandler(function() {});
-        $state.go('bar');
-        $q.flush();
-        $timeout.flush();
-        expect(log).toBe('canexit;');
-        expect($state.current.name).toBe('foo');
-      })
-    );
+      $state.defaultErrorHandler(function() {});
+      $state.go('bar');
+      $q.flush();
+      $timeout.flush();
+      expect(log).toBe('canexit;');
+      expect($state.current.name).toBe('foo');
+    }));
 
-    it(
-      'can wait for a promise and then reject the transition',
-      inject($timeout => {
-        $state.defaultErrorHandler(function() {});
-        ctrl.prototype.uiCanExit = function() {
-          log += 'canexit;';
-          return $timeout(() => {
-            log += 'delay;';
-            return false;
-          }, 1000);
-        };
-        initial();
+    it('can wait for a promise and then reject the transition', inject($timeout => {
+      $state.defaultErrorHandler(function() {});
+      ctrl.prototype.uiCanExit = function() {
+        log += 'canexit;';
+        return $timeout(() => {
+          log += 'delay;';
+          return false;
+        }, 1000);
+      };
+      initial();
 
-        $state.go('bar');
-        $q.flush();
-        $timeout.flush();
-        expect(log).toBe('canexit;delay;');
-        expect($state.current.name).toBe('foo');
-      })
-    );
+      $state.go('bar');
+      $q.flush();
+      $timeout.flush();
+      expect(log).toBe('canexit;delay;');
+      expect($state.current.name).toBe('foo');
+    }));
 
-    it(
-      'can wait for a promise and then allow the transition',
-      inject($timeout => {
-        ctrl.prototype.uiCanExit = function() {
-          log += 'canexit;';
-          return $timeout(() => {
-            log += 'delay;';
-          }, 1000);
-        };
-        initial();
+    it('can wait for a promise and then allow the transition', inject($timeout => {
+      ctrl.prototype.uiCanExit = function() {
+        log += 'canexit;';
+        return $timeout(() => {
+          log += 'delay;';
+        }, 1000);
+      };
+      initial();
 
-        $state.go('bar');
-        $q.flush();
-        $timeout.flush();
-        expect(log).toBe('canexit;delay;');
-        expect($state.current.name).toBe('bar');
-      })
-    );
+      $state.go('bar');
+      $q.flush();
+      $timeout.flush();
+      expect(log).toBe('canexit;delay;');
+      expect($state.current.name).toBe('bar');
+    }));
 
     it("has 'this' bound to the controller", () => {
       ctrl.prototype.uiCanExit = function() {

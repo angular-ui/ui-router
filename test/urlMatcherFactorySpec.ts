@@ -12,13 +12,11 @@ describe('UrlMatcher', function() {
   let $umf: UrlMatcherFactory;
   let $url: UrlService;
 
-  beforeEach(
-    inject(function($uiRouter, $urlMatcherFactory, $urlService) {
-      router = $uiRouter;
-      $umf = $urlMatcherFactory;
-      $url = $urlService;
-    })
-  );
+  beforeEach(inject(function($uiRouter, $urlMatcherFactory, $urlService) {
+    router = $uiRouter;
+    $umf = $urlMatcherFactory;
+    $url = $urlService;
+  }));
 
   describe('provider', function() {
     it('should factory matchers with correct configuration', function() {
@@ -494,21 +492,18 @@ describe('UrlMatcher', function() {
       expect(m.format({ param1: ['bar', 'baz'] })).toBe('/foo/bar%2Cbaz'); // coerced to string
     });
 
-    it(
-      'should be split on - in url and wrapped in an array if array: true',
-      inject(function($location) {
-        const m = $umf.compile('/foo/:param1', { params: { param1: { array: true } } });
+    it('should be split on - in url and wrapped in an array if array: true', inject(function($location) {
+      const m = $umf.compile('/foo/:param1', { params: { param1: { array: true } } });
 
-        expect(m.exec('/foo/')).toEqual({ param1: undefined });
-        expect(m.exec('/foo/bar')).toEqual({ param1: ['bar'] });
-        $url.url('/foo/bar-baz');
-        expect(m.exec($location.url())).toEqual({ param1: ['bar', 'baz'] });
+      expect(m.exec('/foo/')).toEqual({ param1: undefined });
+      expect(m.exec('/foo/bar')).toEqual({ param1: ['bar'] });
+      $url.url('/foo/bar-baz');
+      expect(m.exec($location.url())).toEqual({ param1: ['bar', 'baz'] });
 
-        expect(m.format({ param1: [] })).toEqual('/foo/');
-        expect(m.format({ param1: ['bar'] })).toEqual('/foo/bar');
-        expect(m.format({ param1: ['bar', 'baz'] })).toEqual('/foo/bar-baz');
-      })
-    );
+      expect(m.format({ param1: [] })).toEqual('/foo/');
+      expect(m.format({ param1: ['bar'] })).toEqual('/foo/bar');
+      expect(m.format({ param1: ['bar', 'baz'] })).toEqual('/foo/bar-baz');
+    }));
 
     it('should behave similar to multi-value query params', function() {
       const m = $umf.compile('/foo/:param1[]');
@@ -598,34 +593,27 @@ describe('urlMatcherFactoryProvider', function() {
       })
     );
 
-    it(
-      'should handle arrays properly with config-time custom type definitions',
-      inject(function($stateParams) {
-        const m = $umf.compile('/test?{foo:myType}');
-        expect(m.exec('/test', { foo: '1' })).toEqual({ foo: { status: 'decoded' } });
-        expect(m.exec('/test', { foo: ['1', '2'] })).toEqual({ foo: [{ status: 'decoded' }, { status: 'decoded' }] });
-      })
-    );
+    it('should handle arrays properly with config-time custom type definitions', inject(function($stateParams) {
+      const m = $umf.compile('/test?{foo:myType}');
+      expect(m.exec('/test', { foo: '1' })).toEqual({ foo: { status: 'decoded' } });
+      expect(m.exec('/test', { foo: ['1', '2'] })).toEqual({ foo: [{ status: 'decoded' }, { status: 'decoded' }] });
+    }));
   });
 
   // TODO: Fix object pollution between tests for urlMatcherConfig
-  afterEach(
-    inject(function($urlMatcherFactory) {
-      $urlMatcherFactory.caseInsensitive(false);
-    })
-  );
+  afterEach(inject(function($urlMatcherFactory) {
+    $urlMatcherFactory.caseInsensitive(false);
+  }));
 });
 
 describe('urlMatcherFactory', function() {
   let $umf: UrlMatcherFactory;
   let $url: UrlService;
 
-  beforeEach(
-    inject(function($urlMatcherFactory, $urlService) {
-      $umf = $urlMatcherFactory;
-      $url = $urlService;
-    })
-  );
+  beforeEach(inject(function($urlMatcherFactory, $urlService) {
+    $umf = $urlMatcherFactory;
+    $url = $urlService;
+  }));
 
   it('compiles patterns', function() {
     const matcher = $umf.compile('/hello/world');
@@ -670,44 +658,38 @@ describe('urlMatcherFactory', function() {
       }).toThrowError("A type named 'myType2' has already been defined.");
     });
 
-    it(
-      'should accept injected function definitions',
-      inject(function($stateParams) {
-        $umf.type(
-          'myType3',
-          {} as any,
-          function($stateParams) {
+    it('should accept injected function definitions', inject(function($stateParams) {
+      $umf.type(
+        'myType3',
+        {} as any,
+        function($stateParams) {
+          return {
+            decode: function() {
+              return $stateParams;
+            },
+          };
+        } as any
+      );
+      expect($umf.type('myType3').decode()).toBe($stateParams);
+    }));
+
+    it('should accept annotated function definitions', inject(function($stateParams) {
+      $umf.type(
+        'myAnnotatedType',
+        {} as any,
+        [
+          '$stateParams',
+          function(s) {
             return {
               decode: function() {
-                return $stateParams;
+                return s;
               },
             };
-          } as any
-        );
-        expect($umf.type('myType3').decode()).toBe($stateParams);
-      })
-    );
-
-    it(
-      'should accept annotated function definitions',
-      inject(function($stateParams) {
-        $umf.type(
-          'myAnnotatedType',
-          {} as any,
-          [
-            '$stateParams',
-            function(s) {
-              return {
-                decode: function() {
-                  return s;
-                },
-              };
-            },
-          ] as any
-        );
-        expect($umf.type('myAnnotatedType').decode()).toBe($stateParams);
-      })
-    );
+          },
+        ] as any
+      );
+      expect($umf.type('myAnnotatedType').decode()).toBe($stateParams);
+    }));
 
     it('should match built-in types', function() {
       const m = $umf.compile('/{foo:int}/{flag:bool}');
@@ -945,22 +927,19 @@ describe('urlMatcherFactory', function() {
         expect(m.exec('/foo').bar).toBe('Value from bar()');
       });
 
-      it(
-        'should allow injectable functions',
-        inject(function($stateParams) {
-          const m = $umf.compile('/users/{user:json}', {
-            params: {
-              user: function($stateParams) {
-                return $stateParams.user;
-              },
+      it('should allow injectable functions', inject(function($stateParams) {
+        const m = $umf.compile('/users/{user:json}', {
+          params: {
+            user: function($stateParams) {
+              return $stateParams.user;
             },
-          });
-          const user = { name: 'Bob' };
+          },
+        });
+        const user = { name: 'Bob' };
 
-          $stateParams.user = user;
-          expect(m.exec('/users/').user).toBe(user);
-        })
-      );
+        $stateParams.user = user;
+        expect(m.exec('/users/').user).toBe(user);
+      }));
 
       xit('should match when used as prefix', function() {
         const m = $umf.compile('/{lang:[a-z]{2}}/foo', {
@@ -986,67 +965,55 @@ describe('urlMatcherFactory', function() {
           });
         }
 
-        it(
-          ': true should squash the default value and one slash',
-          inject(function($stateParams) {
-            const m = getMatcher(true);
+        it(': true should squash the default value and one slash', inject(function($stateParams) {
+          const m = getMatcher(true);
 
-            const defaultParams = { userid: 'loggedinuser', galleryid: 'favorites', photoid: '123' };
-            expect(m.exec('/user/gallery/photo/123')).toEqual(defaultParams);
-            expect(m.exec('/user//gallery//photo/123')).toEqual(defaultParams);
-            expect(m.format(defaultParams)).toBe('/user/gallery/photo/123');
+          const defaultParams = { userid: 'loggedinuser', galleryid: 'favorites', photoid: '123' };
+          expect(m.exec('/user/gallery/photo/123')).toEqual(defaultParams);
+          expect(m.exec('/user//gallery//photo/123')).toEqual(defaultParams);
+          expect(m.format(defaultParams)).toBe('/user/gallery/photo/123');
 
-            const nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987' };
-            expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
-            expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
-          })
-        );
+          const nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987' };
+          expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
+          expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
+        }));
 
-        it(
-          ': false should not squash default values',
-          inject(function($stateParams) {
-            const m = getMatcher(false);
+        it(': false should not squash default values', inject(function($stateParams) {
+          const m = getMatcher(false);
 
-            const defaultParams = { userid: 'loggedinuser', galleryid: 'favorites', photoid: '123' };
-            expect(m.exec('/user/loggedinuser/gallery/favorites/photo/123')).toEqual(defaultParams);
-            expect(m.format(defaultParams)).toBe('/user/loggedinuser/gallery/favorites/photo/123');
+          const defaultParams = { userid: 'loggedinuser', galleryid: 'favorites', photoid: '123' };
+          expect(m.exec('/user/loggedinuser/gallery/favorites/photo/123')).toEqual(defaultParams);
+          expect(m.format(defaultParams)).toBe('/user/loggedinuser/gallery/favorites/photo/123');
 
-            const nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987' };
-            expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
-            expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
-          })
-        );
+          const nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987' };
+          expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
+          expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
+        }));
 
-        it(
-          ": '' should squash the default value to an empty string",
-          inject(function($stateParams) {
-            const m = getMatcher('');
+        it(": '' should squash the default value to an empty string", inject(function($stateParams) {
+          const m = getMatcher('');
 
-            const defaultParams = { userid: 'loggedinuser', galleryid: 'favorites', photoid: '123' };
-            expect(m.exec('/user//gallery//photo/123')).toEqual(defaultParams);
-            expect(m.format(defaultParams)).toBe('/user//gallery//photo/123');
+          const defaultParams = { userid: 'loggedinuser', galleryid: 'favorites', photoid: '123' };
+          expect(m.exec('/user//gallery//photo/123')).toEqual(defaultParams);
+          expect(m.format(defaultParams)).toBe('/user//gallery//photo/123');
 
-            const nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987' };
-            expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
-            expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
-          })
-        );
+          const nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987' };
+          expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
+          expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
+        }));
 
-        it(
-          ": '~' should squash the default value and replace it with '~'",
-          inject(function($stateParams) {
-            const m = getMatcher('~');
+        it(": '~' should squash the default value and replace it with '~'", inject(function($stateParams) {
+          const m = getMatcher('~');
 
-            const defaultParams = { userid: 'loggedinuser', galleryid: 'favorites', photoid: '123' };
-            expect(m.exec('/user//gallery//photo/123')).toEqual(defaultParams);
-            expect(m.exec('/user/~/gallery/~/photo/123')).toEqual(defaultParams);
-            expect(m.format(defaultParams)).toBe('/user/~/gallery/~/photo/123');
+          const defaultParams = { userid: 'loggedinuser', galleryid: 'favorites', photoid: '123' };
+          expect(m.exec('/user//gallery//photo/123')).toEqual(defaultParams);
+          expect(m.exec('/user/~/gallery/~/photo/123')).toEqual(defaultParams);
+          expect(m.format(defaultParams)).toBe('/user/~/gallery/~/photo/123');
 
-            const nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987' };
-            expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
-            expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
-          })
-        );
+          const nonDefaultParams = { userid: 'otheruser', galleryid: 'travel', photoid: '987' };
+          expect(m.exec('/user/otheruser/gallery/travel/photo/987')).toEqual(nonDefaultParams);
+          expect(m.format(nonDefaultParams)).toBe('/user/otheruser/gallery/travel/photo/987');
+        }));
       });
     });
   });

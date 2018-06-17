@@ -46,27 +46,24 @@ describe('UrlRouter', function() {
       }).toThrowError("'rule' must be a string or function");
     });
 
-    it(
-      'should allow location changes to be deferred',
-      inject(function($urlRouter, $location, $rootScope) {
-        const log = [];
+    it('should allow location changes to be deferred', inject(function($urlRouter, $location, $rootScope) {
+      const log = [];
 
-        $urp.rule(function($injector, $location) {
-          log.push($location.path());
-          return null;
-        });
+      $urp.rule(function($injector, $location) {
+        log.push($location.path());
+        return null;
+      });
 
-        $location.path('/foo');
-        $rootScope.$broadcast('$locationChangeSuccess');
+      $location.path('/foo');
+      $rootScope.$broadcast('$locationChangeSuccess');
 
-        expect(log).toEqual([]);
+      expect(log).toEqual([]);
 
-        $urlRouter.listen();
-        $rootScope.$broadcast('$locationChangeSuccess');
+      $urlRouter.listen();
+      $rootScope.$broadcast('$locationChangeSuccess');
 
-        expect(log).toEqual(['/foo']);
-      })
-    );
+      expect(log).toEqual(['/foo']);
+    }));
   });
 
   describe('service', function() {
@@ -129,37 +126,31 @@ describe('UrlRouter', function() {
       expect(location.path()).toBe('/lastrule');
     });
 
-    it(
-      'can be cancelled by preventDefault() in $locationChangeSuccess',
-      inject(function() {
-        let called;
-        location.path('/baz');
-        scope.$on('$locationChangeSuccess', function(ev) {
-          ev.preventDefault();
-          called = true;
-        });
-        scope.$emit('$locationChangeSuccess');
-        expect(called).toBeTruthy();
-        expect(location.path()).toBe('/baz');
-      })
-    );
+    it('can be cancelled by preventDefault() in $locationChangeSuccess', inject(function() {
+      let called;
+      location.path('/baz');
+      scope.$on('$locationChangeSuccess', function(ev) {
+        ev.preventDefault();
+        called = true;
+      });
+      scope.$emit('$locationChangeSuccess');
+      expect(called).toBeTruthy();
+      expect(location.path()).toBe('/baz');
+    }));
 
-    it(
-      'can be deferred and updated in $locationChangeSuccess',
-      inject(function($urlRouter, $timeout) {
-        let called;
-        location.path('/baz');
-        scope.$on('$locationChangeSuccess', function(ev) {
-          ev.preventDefault();
-          called = true;
-          $timeout(() => $urlRouter.sync(), 2000);
-        });
-        scope.$emit('$locationChangeSuccess');
-        $timeout.flush();
-        expect(called).toBeTruthy();
-        expect(location.path()).toBe('/b4z');
-      })
-    );
+    it('can be deferred and updated in $locationChangeSuccess', inject(function($urlRouter, $timeout) {
+      let called;
+      location.path('/baz');
+      scope.$on('$locationChangeSuccess', function(ev) {
+        ev.preventDefault();
+        called = true;
+        $timeout(() => $urlRouter.sync(), 2000);
+      });
+      scope.$emit('$locationChangeSuccess');
+      $timeout.flush();
+      expect(called).toBeTruthy();
+      expect(location.path()).toBe('/b4z');
+    }));
 
     it('rule should return a deregistration function', function() {
       let count = 0,
@@ -206,178 +197,139 @@ describe('UrlRouter', function() {
     });
 
     describe('location updates', function() {
-      it(
-        'can push location changes',
-        inject(function($urlRouter) {
-          spyOn(router.locationService, 'url');
-          $urlRouter.push($umf.compile('/hello/:name'), { name: 'world' });
-          expect(router.locationService.url).toHaveBeenCalledWith('/hello/world', undefined);
-        })
-      );
+      it('can push location changes', inject(function($urlRouter) {
+        spyOn(router.locationService, 'url');
+        $urlRouter.push($umf.compile('/hello/:name'), { name: 'world' });
+        expect(router.locationService.url).toHaveBeenCalledWith('/hello/world', undefined);
+      }));
 
-      it(
-        'can push a replacement location',
-        inject(function($urlRouter, $location) {
-          spyOn(router.locationService, 'url');
-          $urlRouter.push($umf.compile('/hello/:name'), { name: 'world' }, { replace: true });
-          expect(router.locationService.url).toHaveBeenCalledWith('/hello/world', true);
-        })
-      );
+      it('can push a replacement location', inject(function($urlRouter, $location) {
+        spyOn(router.locationService, 'url');
+        $urlRouter.push($umf.compile('/hello/:name'), { name: 'world' }, { replace: true });
+        expect(router.locationService.url).toHaveBeenCalledWith('/hello/world', true);
+      }));
 
-      it(
-        'can push location changes with no parameters',
-        inject(function($urlRouter, $location) {
-          spyOn(router.locationService, 'url');
-          $urlRouter.push($umf.compile('/hello/:name', { params: { name: '' } }));
-          expect(router.locationService.url).toHaveBeenCalledWith('/hello/', undefined);
-        })
-      );
+      it('can push location changes with no parameters', inject(function($urlRouter, $location) {
+        spyOn(router.locationService, 'url');
+        $urlRouter.push($umf.compile('/hello/:name', { params: { name: '' } }));
+        expect(router.locationService.url).toHaveBeenCalledWith('/hello/', undefined);
+      }));
 
-      it(
-        'can push an empty url',
-        inject(function($urlRouter, $location) {
-          spyOn(router.locationService, 'url');
-          $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
-          expect(router.locationService.url).toHaveBeenCalledWith('', undefined);
-        })
-      );
+      it('can push an empty url', inject(function($urlRouter, $location) {
+        spyOn(router.locationService, 'url');
+        $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
+        expect(router.locationService.url).toHaveBeenCalledWith('', undefined);
+      }));
 
       // Angular 1.2 doesn't seem to support $location.url("")
       if (angular.version.minor >= 3) {
         // Test for https://github.com/angular-ui/ui-router/issues/3563
-        it(
-          'updates url after an empty url is pushed',
-          inject(function($urlRouter, $location) {
-            $lp.html5Mode(false);
-            spyOn(router.locationService, 'url').and.callThrough();
-            $urlRouter.push($umf.compile('/foobar'));
-            expect(router.locationService.url).toHaveBeenCalledWith('/foobar', undefined);
-            $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
-            expect(router.locationService.url).toHaveBeenCalledWith('', undefined);
-            expect(router.locationService.url()).toBe('/');
-          })
-        );
+        it('updates url after an empty url is pushed', inject(function($urlRouter, $location) {
+          $lp.html5Mode(false);
+          spyOn(router.locationService, 'url').and.callThrough();
+          $urlRouter.push($umf.compile('/foobar'));
+          expect(router.locationService.url).toHaveBeenCalledWith('/foobar', undefined);
+          $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
+          expect(router.locationService.url).toHaveBeenCalledWith('', undefined);
+          expect(router.locationService.url()).toBe('/');
+        }));
 
         // Test #2 for https://github.com/angular-ui/ui-router/issues/3563
-        it(
-          'updates html5mode url after an empty url is pushed',
-          inject(function($urlRouter, $location) {
-            $lp.html5Mode(true);
-            spyOn(router.locationService, 'url').and.callThrough();
-            $urlRouter.push($umf.compile('/foobar'));
-            expect(router.locationService.url).toHaveBeenCalledWith('/foobar', undefined);
-            $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
-            expect(router.locationService.url).toHaveBeenCalledWith('', undefined);
-            expect(router.locationService.url()).toBe('/');
-          })
-        );
+        it('updates html5mode url after an empty url is pushed', inject(function($urlRouter, $location) {
+          $lp.html5Mode(true);
+          spyOn(router.locationService, 'url').and.callThrough();
+          $urlRouter.push($umf.compile('/foobar'));
+          expect(router.locationService.url).toHaveBeenCalledWith('/foobar', undefined);
+          $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
+          expect(router.locationService.url).toHaveBeenCalledWith('', undefined);
+          expect(router.locationService.url()).toBe('/');
+        }));
       }
 
-      it(
-        'can push location changes that include a #fragment',
-        inject(function($urlRouter, $location) {
-          // html5mode disabled
-          $lp.html5Mode(false);
-          expect(html5Compat($lp.html5Mode())).toBe(false);
-          $urlRouter.push($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' });
-          expect($location.url()).toBe('/hello/world#frag');
-          expect($location.hash()).toBe('frag');
+      it('can push location changes that include a #fragment', inject(function($urlRouter, $location) {
+        // html5mode disabled
+        $lp.html5Mode(false);
+        expect(html5Compat($lp.html5Mode())).toBe(false);
+        $urlRouter.push($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' });
+        expect($location.url()).toBe('/hello/world#frag');
+        expect($location.hash()).toBe('frag');
 
-          // html5mode enabled
-          $lp.html5Mode(true);
-          expect(html5Compat($lp.html5Mode())).toBe(true);
-          $urlRouter.push($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' });
-          expect($location.url()).toBe('/hello/world#frag');
-          expect($location.hash()).toBe('frag');
-        })
-      );
+        // html5mode enabled
+        $lp.html5Mode(true);
+        expect(html5Compat($lp.html5Mode())).toBe(true);
+        $urlRouter.push($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' });
+        expect($location.url()).toBe('/hello/world#frag');
+        expect($location.hash()).toBe('frag');
+      }));
 
-      it(
-        'can read and sync a copy of location URL',
-        inject(function($urlRouter, $location) {
-          $location.url('/old');
+      it('can read and sync a copy of location URL', inject(function($urlRouter, $location) {
+        $location.url('/old');
 
-          spyOn(router.locationService, 'url').and.callThrough();
-          $urlRouter.update(true);
-          expect(router.locationService.url).toHaveBeenCalled();
+        spyOn(router.locationService, 'url').and.callThrough();
+        $urlRouter.update(true);
+        expect(router.locationService.url).toHaveBeenCalled();
 
-          $location.url('/new');
-          $urlRouter.update();
+        $location.url('/new');
+        $urlRouter.update();
 
-          expect($location.url()).toBe('/old');
-        })
-      );
+        expect($location.url()).toBe('/old');
+      }));
 
-      it(
-        'can read and sync a copy of location URL including query params',
-        inject(function($urlRouter, $location) {
-          $location.url('/old?param=foo');
+      it('can read and sync a copy of location URL including query params', inject(function($urlRouter, $location) {
+        $location.url('/old?param=foo');
 
-          spyOn(router.locationService, 'url').and.callThrough();
-          $urlRouter.update(true);
-          expect(router.locationService.url).toHaveBeenCalled();
+        spyOn(router.locationService, 'url').and.callThrough();
+        $urlRouter.update(true);
+        expect(router.locationService.url).toHaveBeenCalled();
 
-          $location.url('/new?param=bar');
-          $urlRouter.update();
+        $location.url('/new?param=bar');
+        $urlRouter.update();
 
-          expect($location.url()).toBe('/old?param=foo');
-        })
-      );
+        expect($location.url()).toBe('/old?param=foo');
+      }));
     });
 
     describe('URL generation', function() {
-      it(
-        'should return null when UrlMatcher rejects parameters',
-        inject(function($urlRouter) {
-          $umf.type('custom', <any>{ is: val => val === 1138 });
-          const matcher = $umf.compile('/foo/{param:custom}');
+      it('should return null when UrlMatcher rejects parameters', inject(function($urlRouter) {
+        $umf.type('custom', <any>{ is: val => val === 1138 });
+        const matcher = $umf.compile('/foo/{param:custom}');
 
-          expect($urlRouter.href(matcher, { param: 1138 })).toBe('#/foo/1138');
-          expect($urlRouter.href(matcher, { param: 5 })).toBeNull();
-        })
-      );
+        expect($urlRouter.href(matcher, { param: 1138 })).toBe('#/foo/1138');
+        expect($urlRouter.href(matcher, { param: 5 })).toBeNull();
+      }));
 
-      it(
-        'should handle the new html5Mode object config from Angular 1.3',
-        inject(function($urlRouter) {
-          $lp.html5Mode({
-            enabled: false,
-          });
+      it('should handle the new html5Mode object config from Angular 1.3', inject(function($urlRouter) {
+        $lp.html5Mode({
+          enabled: false,
+        });
 
-          expect($urlRouter.href($umf.compile('/hello'))).toBe('#/hello');
-        })
-      );
+        expect($urlRouter.href($umf.compile('/hello'))).toBe('#/hello');
+      }));
 
-      it(
-        'should return URLs with #fragments',
-        inject(function($urlRouter) {
-          // html5mode disabled
-          $lp.html5Mode(false);
-          expect(html5Compat($lp.html5Mode())).toBe(false);
-          expect($urlRouter.href($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' })).toBe(
-            '#/hello/world#frag'
-          );
+      it('should return URLs with #fragments', inject(function($urlRouter) {
+        // html5mode disabled
+        $lp.html5Mode(false);
+        expect(html5Compat($lp.html5Mode())).toBe(false);
+        expect($urlRouter.href($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' })).toBe(
+          '#/hello/world#frag'
+        );
 
-          // html5mode enabled
-          $lp.html5Mode(true);
-          expect(html5Compat($lp.html5Mode())).toBe(true);
-          expect($urlRouter.href($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' })).toBe(
-            '/hello/world#frag'
-          );
-        })
-      );
+        // html5mode enabled
+        $lp.html5Mode(true);
+        expect(html5Compat($lp.html5Mode())).toBe(true);
+        expect($urlRouter.href($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' })).toBe('/hello/world#frag');
+      }));
 
-      it(
-        'should return URLs with #fragments when html5Mode is true & browser does not support pushState',
-        inject(function($urlRouter) {
-          $lp.html5Mode(true);
-          $s['history'] = false;
-          expect(html5Compat($lp.html5Mode())).toBe(true);
-          expect($urlRouter.href($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' })).toBe(
-            '#/hello/world#frag'
-          );
-        })
-      );
+      it('should return URLs with #fragments when html5Mode is true & browser does not support pushState', inject(function(
+        $urlRouter
+      ) {
+        $lp.html5Mode(true);
+        $s['history'] = false;
+        expect(html5Compat($lp.html5Mode())).toBe(true);
+        expect($urlRouter.href($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' })).toBe(
+          '#/hello/world#frag'
+        );
+      }));
     });
   });
 });
