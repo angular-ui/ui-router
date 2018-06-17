@@ -430,9 +430,8 @@ function $ViewDirectiveFill(
         }
 
         // Wait for the component to appear in the DOM
-        if (isString(cfg.viewDecl.component)) {
-          const cmp = cfg.viewDecl.component;
-          const kebobName = kebobString(cmp);
+        if (isString(cfg.component)) {
+          const kebobName = kebobString(cfg.component);
           const tagRegexp = new RegExp(`^(x-|data-)?${kebobName}$`, 'i');
 
           const getComponentController = () => {
@@ -440,7 +439,7 @@ function $ViewDirectiveFill(
               .call($element[0].children)
               .filter((el: Element) => el && el.tagName && tagRegexp.exec(el.tagName));
 
-            return directiveEl && angular.element(directiveEl).data(`$${cmp}Controller`);
+            return directiveEl && angular.element(directiveEl).data(`$${cfg.component}Controller`);
           };
 
           const deregisterWatch = scope.$watch(getComponentController, function(ctrlInstance) {
