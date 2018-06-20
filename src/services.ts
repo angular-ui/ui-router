@@ -118,6 +118,15 @@ function runBlock($injector: IInjectorService, $q: IQService, $uiRouter: UIRoute
   services.$injector = $injector;
   services.$q = <any>$q;
 
+  // https://github.com/angular-ui/ui-router/issues/3678
+  if (!$injector.hasOwnProperty('strictDi')) {
+    try {
+      $injector.invoke(function(checkStrictDi) {});
+    } catch (error) {
+      $injector.strictDi = !!/strict mode/.exec(error && error.toString());
+    }
+  }
+
   // The $injector is now available.
   // Find any resolvables that had dependency annotation deferred
   $uiRouter.stateRegistry
