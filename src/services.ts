@@ -85,16 +85,17 @@ function $uiRouterProvider($locationProvider: ILocationProvider) {
   // backwards compat: also expose router instance as $uiRouterProvider.router
   router['router'] = router;
   router['$get'] = $get;
-  $get.$inject = ['$location', '$browser', '$sniffer', '$rootScope', '$http', '$templateCache'];
+  $get.$inject = ['$location', '$browser', '$window', '$sniffer', '$rootScope', '$http', '$templateCache'];
   function $get(
     $location: ILocationService,
     $browser: any,
+    $window: any,
     $sniffer: any,
     $rootScope: ng.IScope,
     $http: IHttpService,
     $templateCache: ITemplateCacheService
   ) {
-    ng1LocationService._runtimeServices($rootScope, $location, $sniffer, $browser);
+    ng1LocationService._runtimeServices($rootScope, $location, $sniffer, $browser, $window);
     delete router['router'];
     delete router['$get'];
     return router;

@@ -1211,11 +1211,40 @@ describe('state', function() {
       expect($state.href('root', {}, { inherit: true })).toEqual('#/root?param1=1');
     }));
 
-    it('generates absolute url when absolute is true', inject(function($state) {
-      expect($state.href('about.sidebar', null, { absolute: true })).toEqual('http://server/#/about');
-      locationProvider.html5Mode(true);
-      expect($state.href('about.sidebar', null, { absolute: true })).toEqual('http://server/about');
-    }));
+    describe('generates an absolute url', () => {
+      describe('when html5mode is false', () => {
+        it('and absolute is true', inject(function($state, $window) {
+          const pathname = $window.location.pathname;
+          $window.history.replaceState(null, '', '/');
+          expect($window.location.pathname).toBe('/');
+          expect($state.href('about.sidebar', null, { absolute: true })).toEqual('http://server/#/about');
+          $window.history.replaceState(null, '', pathname);
+        }));
+
+        it('and absolute is true and a base tag is present', inject(function($state, $window, $browser) {
+          spyOn($browser, 'baseHref').and.returnValue('/nested/path');
+          expect($state.href('about.sidebar', null, { absolute: true })).toEqual('http://server/nested/path#/about');
+        }));
+
+        it('and absolute is true and the app is served from a nested document root', inject(function(
+          $state,
+          $window,
+          $browser
+        ) {
+          const pathname = $window.location.pathname;
+          $window.history.replaceState(null, 'nested path', '/nested/path');
+          expect($window.location.pathname).toBe('/nested/path');
+          spyOn($browser, 'baseHref').and.returnValue(null);
+          expect($state.href('about.sidebar', null, { absolute: true })).toEqual('http://server/nested/path#/about');
+          $window.history.replaceState(null, '', pathname);
+        }));
+      });
+
+      it('when html5Mode is true', inject(function($state) {
+        locationProvider.html5Mode(true);
+        expect($state.href('about.sidebar', null, { absolute: true })).toEqual('http://server/about');
+      }));
+    });
 
     it('respects $locationProvider.hashPrefix()', inject(function($state) {
       locationProvider.hashPrefix('!');

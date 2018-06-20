@@ -4,7 +4,7 @@
  */ /** */
 import { LocationConfig, LocationServices, UIRouter, ParamType, isDefined } from '@uirouter/core';
 import { val, createProxyFunctions, removeFrom, isObject } from '@uirouter/core';
-import { ILocationService, ILocationProvider } from 'angular';
+import { ILocationService, ILocationProvider, IWindowService } from 'angular';
 
 /**
  * Implements UI-Router LocationServices and LocationConfig using Angular 1's $location service
@@ -12,7 +12,9 @@ import { ILocationService, ILocationProvider } from 'angular';
 export class Ng1LocationServices implements LocationConfig, LocationServices {
   private $locationProvider: ILocationProvider;
   private $location: ILocationService;
-  private $sniffer;
+  private $sniffer: any;
+  private $browser: any;
+  private $window: IWindowService;
 
   path;
   search;
@@ -21,7 +23,8 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
   port;
   protocol;
   host;
-  baseHref;
+
+  private _baseHref: string;
 
   // .onChange() registry
   private _urlListeners: Function[] = [];
@@ -67,6 +70,10 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
     return html5Mode && this.$sniffer.history;
   }
 
+  baseHref() {
+    return this._baseHref || (this._baseHref = this.$browser.baseHref() || this.$window.location.pathname);
+  }
+
   url(newUrl?: string, replace = false, state?) {
     if (isDefined(newUrl)) this.$location.url(newUrl);
     if (replace) this.$location.replace();
@@ -74,20 +81,19 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
     return this.$location.url();
   }
 
-  _runtimeServices($rootScope, $location: ILocationService, $sniffer, $browser) {
+  _runtimeServices($rootScope, $location: ILocationService, $sniffer, $browser, $window: IWindowService) {
     this.$location = $location;
     this.$sniffer = $sniffer;
+    this.$browser = $browser;
+    this.$window = $window;
 
     // Bind $locationChangeSuccess to the listeners registered in LocationService.onChange
     $rootScope.$on('$locationChangeSuccess', evt => this._urlListeners.forEach(fn => fn(evt)));
     const _loc = val($location);
-    const _browser = val($browser);
 
     // Bind these LocationService functions to $location
     createProxyFunctions(_loc, this, _loc, ['replace', 'path', 'search', 'hash']);
     // Bind these LocationConfig functions to $location
     createProxyFunctions(_loc, this, _loc, ['port', 'protocol', 'host']);
-    // Bind these LocationConfig functions to $browser
-    createProxyFunctions(_browser, this, _browser, ['baseHref']);
   }
 }
