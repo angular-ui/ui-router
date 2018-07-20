@@ -72,7 +72,7 @@
   "jsnext:main": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@uirouter/core": "5.0.19"
+    "@uirouter/core": "5.0.20"
   },
   "peerDependencies": {
     "angular": ">=1.2.0"
@@ -80,10 +80,10 @@
   "devDependencies": {
     "@types/angular": "=1.6.25",
     "@types/angular-animate": "^1.5.10",
-    "@types/angular-mocks": "^1.5.11",
+    "@types/angular-mocks": "^1.6.1",
     "@types/jasmine": "^2.8.8",
     "@types/jquery": "^3.3.4",
-    "@uirouter/publish-scripts": "^2.3.19",
+    "@uirouter/publish-scripts": "^2.3.20",
     "dts-downlevel": "^0.3.0",
     "fork-ts-checker-webpack-plugin": "^0.4.3",
     "husky": "^0.14.3",
@@ -99,7 +99,7 @@
     "lodash": "^4.17.10",
     "prettier": "^1.13.7",
     "pretty-quick": "^1.6.0",
-    "rollup": "^0.62.0",
+    "rollup": "^0.63.4",
     "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup-plugin-uglify": "^4.0.0",

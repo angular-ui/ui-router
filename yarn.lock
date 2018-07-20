@@ -22,9 +22,9 @@
   dependencies:
     "@types/angular" "*"
 
-"@types/angular-mocks@^1.5.11":
-  version "1.5.11"
-  resolved "https://registry.yarnpkg.com/@types/angular-mocks/-/angular-mocks-1.5.11.tgz#d5bbefbf742f2196071bda0fe051878b6f4fd72c"
+"@types/angular-mocks@^1.6.1":
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/@types/angular-mocks/-/angular-mocks-1.6.1.tgz#2501b54e6b76392b03cd38df650a3a021ef2773e"
   dependencies:
     "@types/angular" "*"
 
@@ -93,13 +93,13 @@
     "@types/glob" "*"
     "@types/node" "*"
 
-"@uirouter/core@5.0.19":
-  version "5.0.19"
-  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.19.tgz#fe2888190393a8c92584c354e65ab8322c1b0db4"
+"@uirouter/core@5.0.20":
+  version "5.0.20"
+  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.20.tgz#9c27d8d14d50358040840fd00e9d38c36be1adc5"
 
-"@uirouter/publish-scripts@^2.3.19":
-  version "2.3.19"
-  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.3.19.tgz#22cc4058c32120811ebb425f8f0ce0ca8d4ac2ad"
+"@uirouter/publish-scripts@^2.3.20":
+  version "2.3.20"
+  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.3.20.tgz#a3d57e5f134b0d05df3b2382f3cfcf6491ede786"
   dependencies:
     conventional-changelog "^2.0.1"
     conventional-changelog-ui-router-core "^1.4.2"
@@ -5139,9 +5139,9 @@ rollup-pluginutils@^2.0.1:
     estree-walker "^0.3.0"
     micromatch "^2.3.11"
 
-rollup@^0.62.0:
-  version "0.62.0"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.62.0.tgz#4ca8b3c9582195dc9341ff8a1375f58319b95bfc"
+rollup@^0.63.4:
+  version "0.63.4"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.63.4.tgz#cb58bf6c2a6c38542cae250684c962799ad7c00c"
   dependencies:
     "@types/estree" "0.0.39"
     "@types/node" "*"
