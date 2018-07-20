@@ -1,3 +1,28 @@
+## 1.0.19 (2018-07-20)
+[Compare `@uirouter/angularjs` versions 1.0.18 and 1.0.19](https://github.com/angular-ui/ui-router/compare/1.0.18...1.0.19)
+
+### Bug Fixes
+
+* **npm:** Publish to the old angular-ui-router npm package too ([8fc3bb2](https://github.com/angular-ui/ui-router/commit/8fc3bb2))
+* **resolve:** Detect and honor strictDi in angularjs versions 1.3 and 1.4 ([1368c18](https://github.com/angular-ui/ui-router/commit/1368c18)), closes [#3678](https://github.com/angular-ui/ui-router/issues/3678)
+* **state:** When creating absolute hrefs in hashbang mode, include the location.pathname ([cd426e5](https://github.com/angular-ui/ui-router/commit/cd426e5)), closes [#3710](https://github.com/angular-ui/ui-router/issues/3710)
+* **uiview:** Allow uiOnParamsChanged to work with states that have a componentProvider ([fe91bd3](https://github.com/angular-ui/ui-router/commit/fe91bd3)), closes [#3707](https://github.com/angular-ui/ui-router/issues/3707)
+
+
+### Updated `@uirouter/core` from 5.0.19 to 5.0.20
+[Compare `@uirouter/core` versions 5.0.19 and 5.0.20](https://github.com/ui-router/core/compare/5.0.19...5.0.20)
+
+### Bug Fixes
+
+* **params:** When creating an array parameter from a custom type, copy the `raw` property ([b6dd738](https://github.com/ui-router/core/commit/b6dd738)), closes [#178](https://github.com/ui-router/core/issues/178)
+
+
+### Features
+
+* **dynamic:** Support dynamic flag on a state declaration ([3cd5a2a](https://github.com/ui-router/core/commit/3cd5a2a))
+* **transition:** Added transition.paramsChanged() to get added/deleted/changed parameter values for a transition ([10b7fde](https://github.com/ui-router/core/commit/10b7fde))
+* **view:** Add _pluginapi._registeredUIView() to get a ui-view by id ([6533b51](https://github.com/ui-router/core/commit/6533b51))
+
 ## 1.0.18 (2018-05-19)
 [Compare `@uirouter/angularjs` versions 1.0.17 and 1.0.18](https://github.com/angular-ui/ui-router/compare/1.0.17...1.0.18)
 
