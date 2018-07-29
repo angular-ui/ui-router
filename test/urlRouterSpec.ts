@@ -198,27 +198,31 @@ describe('UrlRouter', function() {
 
     describe('location updates', function() {
       it('can push location changes', inject(function($urlRouter) {
-        spyOn(router.locationService, 'url');
+        const spy = spyOn(router.locationService, 'url');
         $urlRouter.push($umf.compile('/hello/:name'), { name: 'world' });
-        expect(router.locationService.url).toHaveBeenCalledWith('/hello/world', undefined);
+        expect(spy).toHaveBeenCalled();
+        expect(spy.calls.mostRecent().args[0]).toBe('/hello/world');
       }));
 
       it('can push a replacement location', inject(function($urlRouter, $location) {
-        spyOn(router.locationService, 'url');
+        const spy = spyOn(router.locationService, 'url');
         $urlRouter.push($umf.compile('/hello/:name'), { name: 'world' }, { replace: true });
-        expect(router.locationService.url).toHaveBeenCalledWith('/hello/world', true);
+        expect(spy).toHaveBeenCalled();
+        expect(spy.calls.mostRecent().args.slice(0, 2)).toEqual(['/hello/world', true]);
       }));
 
       it('can push location changes with no parameters', inject(function($urlRouter, $location) {
-        spyOn(router.locationService, 'url');
-        $urlRouter.push($umf.compile('/hello/:name', { params: { name: '' } }));
-        expect(router.locationService.url).toHaveBeenCalledWith('/hello/', undefined);
+        const spy = spyOn(router.locationService, 'url');
+        $urlRouter.push($umf.compile('/hello/:name', { state: { params: { name: '' } } }));
+        expect(spy).toHaveBeenCalled();
+        expect(spy.calls.mostRecent().args[0]).toBe('/hello/');
       }));
 
       it('can push an empty url', inject(function($urlRouter, $location) {
-        spyOn(router.locationService, 'url');
-        $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
-        expect(router.locationService.url).toHaveBeenCalledWith('', undefined);
+        const spy = spyOn(router.locationService, 'url');
+        $urlRouter.push($umf.compile('/{id}', { state: { params: { id: { squash: true, value: null } } } }));
+        expect(spy).toHaveBeenCalled();
+        expect(spy.calls.mostRecent().args[0]).toBe('');
       }));
 
       // Angular 1.2 doesn't seem to support $location.url("")
@@ -226,22 +230,22 @@ describe('UrlRouter', function() {
         // Test for https://github.com/angular-ui/ui-router/issues/3563
         it('updates url after an empty url is pushed', inject(function($urlRouter, $location) {
           $lp.html5Mode(false);
-          spyOn(router.locationService, 'url').and.callThrough();
+          const spy = spyOn(router.locationService, 'url').and.callThrough();
           $urlRouter.push($umf.compile('/foobar'));
-          expect(router.locationService.url).toHaveBeenCalledWith('/foobar', undefined);
-          $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
-          expect(router.locationService.url).toHaveBeenCalledWith('', undefined);
+          expect(spy.calls.mostRecent().args[0]).toBe('/foobar');
+          $urlRouter.push($umf.compile('/{id}', { state: { params: { id: { squash: true, value: null } } } }));
+          expect(spy.calls.mostRecent().args[0]).toBe('');
           expect(router.locationService.url()).toBe('/');
         }));
 
         // Test #2 for https://github.com/angular-ui/ui-router/issues/3563
         it('updates html5mode url after an empty url is pushed', inject(function($urlRouter, $location) {
           $lp.html5Mode(true);
-          spyOn(router.locationService, 'url').and.callThrough();
+          const spy = spyOn(router.locationService, 'url').and.callThrough();
           $urlRouter.push($umf.compile('/foobar'));
-          expect(router.locationService.url).toHaveBeenCalledWith('/foobar', undefined);
-          $urlRouter.push($umf.compile('/{id}', { params: { id: { squash: true, value: null } } }));
-          expect(router.locationService.url).toHaveBeenCalledWith('', undefined);
+          expect(spy.calls.mostRecent().args[0]).toBe('/foobar');
+          $urlRouter.push($umf.compile('/{id}', { state: { params: { id: { squash: true, value: null } } } }));
+          expect(spy.calls.mostRecent().args[0]).toBe('');
           expect(router.locationService.url()).toBe('/');
         }));
       }
