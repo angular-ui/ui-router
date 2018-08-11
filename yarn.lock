@@ -93,9 +93,9 @@
     "@types/glob" "*"
     "@types/node" "*"
 
-"@uirouter/core@5.0.20":
-  version "5.0.20"
-  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.20.tgz#9c27d8d14d50358040840fd00e9d38c36be1adc5"
+"@uirouter/core@5.0.21":
+  version "5.0.21"
+  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.21.tgz#b6c4c311e9416a1e8ce76b072e042a60224d1b3a"
 
 "@uirouter/publish-scripts@^2.3.20":
   version "2.3.20"
