@@ -1,13 +1,13 @@
 /** @module url */ /** */
 import {
   UIRouter,
-  UrlRouter,
   LocationServices,
   $InjectorLike,
   BaseUrlRule,
   UrlRuleHandlerFn,
   UrlMatcher,
   IInjectable,
+  UrlRouter,
 } from '@uirouter/core';
 import { services, isString, isFunction, isArray, identity } from '@uirouter/core';
 
@@ -30,25 +30,19 @@ export interface RawNg1RuleFunction {
  * @deprecated
  */
 export class UrlRouterProvider {
-  /** @hidden */ _router: UIRouter;
-  /** @hidden */ _urlRouter: UrlRouter;
-
   static injectableHandler(router: UIRouter, handler): UrlRuleHandlerFn {
     return match => services.$injector.invoke(handler, null, { $match: match, $stateParams: router.globals.params });
   }
 
   /** @hidden */
-  constructor(router: UIRouter) {
-    this._router = router;
-    this._urlRouter = router.urlRouter;
-  }
+  constructor(/** @hidden */ private router: UIRouter) {}
 
   /** @hidden */
-  $get() {
-    const urlRouter = this._urlRouter;
-    urlRouter.update(true);
-    if (!urlRouter.interceptDeferred) urlRouter.listen();
-    return urlRouter;
+  $get(): UrlRouter {
+    const urlService = this.router.urlService;
+    this.router.urlRouter.update(true);
+    if (!urlService.interceptDeferred) urlService.listen();
+    return this.router.urlRouter;
   }
 
   /**
@@ -85,10 +79,10 @@ export class UrlRouterProvider {
   rule(ruleFn: RawNg1RuleFunction): UrlRouterProvider {
     if (!isFunction(ruleFn)) throw new Error("'rule' must be a function");
 
-    const match = () => ruleFn(services.$injector, this._router.locationService);
+    const match = () => ruleFn(services.$injector, this.router.locationService);
 
     const rule = new BaseUrlRule(match, identity);
-    this._urlRouter.rule(rule);
+    this.router.urlService.rules.rule(rule);
     return this;
   }
 
@@ -119,12 +113,11 @@ export class UrlRouterProvider {
    * @return {object} `$urlRouterProvider` - `$urlRouterProvider` instance
    */
   otherwise(rule: string | RawNg1RuleFunction): UrlRouterProvider {
-    const urlRouter = this._urlRouter;
-
+    const urlRules = this.router.urlService.rules;
     if (isString(rule)) {
-      urlRouter.otherwise(rule);
+      urlRules.otherwise(rule);
     } else if (isFunction(rule)) {
-      urlRouter.otherwise(() => rule(services.$injector, this._router.locationService));
+      urlRules.otherwise(() => rule(services.$injector, this.router.locationService));
     } else {
       throw new Error("'rule' must be a string or function");
     }
@@ -172,10 +165,10 @@ export class UrlRouterProvider {
    */
   when(what: RegExp | UrlMatcher | string, handler: string | IInjectable) {
     if (isArray(handler) || isFunction(handler)) {
-      handler = UrlRouterProvider.injectableHandler(this._router, handler);
+      handler = UrlRouterProvider.injectableHandler(this.router, handler);
     }
 
-    this._urlRouter.when(what, handler as any);
+    this.router.urlService.rules.when(what, handler as any);
     return this;
   }
 
@@ -210,6 +203,6 @@ export class UrlRouterProvider {
    *        Passing no parameter is equivalent to `true`.
    */
   deferIntercept(defer?: boolean) {
-    this._urlRouter.deferIntercept(defer);
+    this.router.urlService.deferIntercept(defer);
   }
 }

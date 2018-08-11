@@ -294,7 +294,7 @@ describe('UrlRouter', function() {
     });
 
     describe('URL generation', function() {
-      it('should return null when UrlMatcher rejects parameters', inject(function($urlRouter) {
+      it('should return null when UrlMatcher rejects parameters', inject(function($urlRouter: UrlRouter) {
         $umf.type('custom', <any>{ is: val => val === 1138 });
         const matcher = $umf.compile('/foo/{param:custom}');
 
@@ -302,7 +302,7 @@ describe('UrlRouter', function() {
         expect($urlRouter.href(matcher, { param: 5 })).toBeNull();
       }));
 
-      it('should handle the new html5Mode object config from Angular 1.3', inject(function($urlRouter) {
+      it('should handle the new html5Mode object config from Angular 1.3', inject(function($urlRouter: UrlRouter) {
         $lp.html5Mode({
           enabled: false,
         });
@@ -310,7 +310,7 @@ describe('UrlRouter', function() {
         expect($urlRouter.href($umf.compile('/hello'))).toBe('#/hello');
       }));
 
-      it('should return URLs with #fragments', inject(function($urlRouter) {
+      it('should return URLs with #fragments', inject(function($urlRouter: UrlRouter) {
         // html5mode disabled
         $lp.html5Mode(false);
         expect(html5Compat($lp.html5Mode())).toBe(false);
@@ -325,7 +325,7 @@ describe('UrlRouter', function() {
       }));
 
       it('should return URLs with #fragments when html5Mode is true & browser does not support pushState', inject(function(
-        $urlRouter
+        $urlRouter: UrlRouter
       ) {
         $lp.html5Mode(true);
         $s['history'] = false;
