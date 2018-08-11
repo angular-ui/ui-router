@@ -4,10 +4,8 @@
  * These are the directives included in UI-Router for Angular 1.
  * These directives are used in templates to create viewports and link/navigate to states.
  *
- * @ng1api
- * @preferred
- * @module directives
- */ /** for typedoc */
+ * @preferred @publicapi @module directives
+ */ /** */
 import { ng as angular } from '../angular';
 import { IAugmentedJQuery, ITimeoutService, IScope, IInterpolateService } from 'angular';
 

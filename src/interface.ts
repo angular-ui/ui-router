@@ -1,7 +1,4 @@
-/**
- * @ng1api
- * @module ng1
- */ /** */
+/** @publicapi @module ng1 */ /** */
 import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult } from '@uirouter/core';
 
 /**

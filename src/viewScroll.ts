@@ -1,4 +1,4 @@
-/** @module ng1 */ /** */
+/** @publicapi @module ng1 */ /** */
 import { ng as angular } from './angular';
 import { IServiceProviderFactory } from 'angular';
 import IAnchorScrollService = angular.IAnchorScrollService;

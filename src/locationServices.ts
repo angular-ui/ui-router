@@ -1,13 +1,11 @@
-/**
- * @internalapi
- * @module ng1
- */ /** */
+/** @publicapi @module ng1 */ /** */
 import { LocationConfig, LocationServices, UIRouter, ParamType, isDefined } from '@uirouter/core';
 import { val, createProxyFunctions, removeFrom, isObject } from '@uirouter/core';
 import { ILocationService, ILocationProvider, IWindowService } from 'angular';
 
 /**
  * Implements UI-Router LocationServices and LocationConfig using Angular 1's $location service
+ * @internalapi
  */
 export class Ng1LocationServices implements LocationConfig, LocationServices {
   private $locationProvider: ILocationProvider;

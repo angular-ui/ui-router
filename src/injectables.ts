@@ -46,9 +46,7 @@
  * - [[$stateParams]]: State param values for pending Transition (deprecated)
  * - Any resolve data defined using [[Ng1StateDeclaration.resolve]]
  *
- * @ng1api
- * @preferred
- * @module injectables
+ * @preferred @publicapi @module injectables
  */ /** */
 /* tslint:disable:prefer-const */
 import { StateProvider } from './stateProvider';

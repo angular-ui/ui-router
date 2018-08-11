@@ -25,8 +25,8 @@
       "name": "@uirouter/angularjs",
       "theme": "node_modules/ui-router-typedoc-themes/bin/default",
       "out": "_doc",
-      "internal-aliases": "internal,coreapi,ng1api",
-      "external-aliases": "internalapi,external",
+      "internal-aliases": "internal,publicapi,publicapi",
+      "external-aliases": "external,internalapi",
       "navigation-label-globals": "@uirouter/angularjs"
     }
   }

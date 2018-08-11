@@ -16,7 +16,7 @@
  * angular.module("myApplication", ['ui.router', 'ui.router.state.events']
  * ```
  *
- * @module ng1_state_events
+ * @publicapi @module ng1_state_events
  */ /** */
 import { ng as angular } from '../angular';
 import { IScope, IAngularEvent, IServiceProviderFactory } from 'angular';

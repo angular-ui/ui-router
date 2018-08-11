@@ -1,5 +1,4 @@
-/** @module view */
-/** for typedoc */
+/** @publicapi @module view */ /** */
 import { ng as angular } from './angular';
 import { IAugmentedJQuery } from 'angular';
 import {

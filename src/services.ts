@@ -6,10 +6,8 @@
  *
  * The optional [[$resolve]] service is also documented here.
  *
- * @module ng1
- * @preferred
- */
-/** for typedoc */
+ * @preferred @publicapi @module ng1
+ */ /** */
 import { ng as angular } from './angular';
 import {
   IRootScopeService,

@@ -1,4 +1,4 @@
-/** @module ng1 */ /** for typedoc */
+/** @publicapi @module ng1 */ /** */
 import {
   val,
   isObject,

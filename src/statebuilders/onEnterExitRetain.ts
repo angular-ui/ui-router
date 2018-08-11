@@ -1,4 +1,4 @@
-/** @module ng1 */ /** */
+/** @publicapi @module ng1 */ /** */
 import {
   StateObject,
   TransitionStateHookFn,
@@ -18,6 +18,8 @@ import { Ng1StateDeclaration } from '../interface';
  *
  * When the [[StateBuilder]] builds a [[StateObject]] object from a raw [[StateDeclaration]], this builder
  * ensures that those hooks are injectable for @uirouter/angularjs (ng1).
+ *
+ * @internalapi
  */
 export const getStateHookBuilder = (hookName: 'onEnter' | 'onExit' | 'onRetain') =>
   function stateHookBuilder(stateObject: StateObject, parentFn: BuilderFunction): TransitionStateHookFn {

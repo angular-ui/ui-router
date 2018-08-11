@@ -1,4 +1,4 @@
-/** @module ng1 */ /** */
+/** @publicapi @module ng1 */ /** */
 import { ng as angular } from '../angular';
 import {
   StateObject,
@@ -24,6 +24,7 @@ import { Ng1ViewDeclaration } from '../interface';
 import { TemplateFactory } from '../templateFactory';
 import IInjectorService = angular.auto.IInjectorService;
 
+/** @internalapi */
 export function getNg1ViewConfigFactory(): ViewConfigFactory {
   let templateFactory: TemplateFactory = null;
   return (path, view) => {
@@ -32,6 +33,7 @@ export function getNg1ViewConfigFactory(): ViewConfigFactory {
   };
 }
 
+/** @internalapi */
 const hasAnyKey = (keys, obj) => keys.reduce((acc, key) => acc || isDefined(obj[key]), false);
 
 /**
@@ -42,6 +44,8 @@ const hasAnyKey = (keys, obj) => keys.reduce((acc, key) => acc || isDefined(obj[
  *
  * If no `views: {}` property exists on the [[StateDeclaration]], then it creates the `views` object
  * and applies the state-level configuration to a view named `$default`.
+ *
+ * @internalapi
  */
 export function ng1ViewsBuilder(state: StateObject) {
   // Do not process root state
@@ -98,7 +102,10 @@ export function ng1ViewsBuilder(state: StateObject) {
   return views;
 }
 
+/** @hidden */
 let id = 0;
+
+/** @internalapi */
 export class Ng1ViewConfig implements ViewConfig {
   $id = id++;
   loaded = false;

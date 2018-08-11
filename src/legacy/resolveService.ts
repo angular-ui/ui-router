@@ -1,4 +1,4 @@
-/** @module ng1 */ /** */
+/** @publicapi @module ng1 */ /** */
 import { StateObject, PathNode, ResolveContext, Obj, mapObj, resolvablesBuilder } from '@uirouter/core';
 import * as angular from 'angular';
 

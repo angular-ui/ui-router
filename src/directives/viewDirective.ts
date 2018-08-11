@@ -1,8 +1,4 @@
-/**
- * @ng1api
- * @module directives
- */
-
+/** @publicapi @module directives */ /** */
 import {
   $QLike,
   ActiveUIView,

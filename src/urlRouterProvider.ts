@@ -1,4 +1,4 @@
-/** @module url */ /** */
+/** @publicapi @module url */ /** */
 import {
   UIRouter,
   LocationServices,
@@ -27,6 +27,7 @@ export interface RawNg1RuleFunction {
  *
  * This provider remains for backwards compatibility.
  *
+ * @internalapi
  * @deprecated
  */
 export class UrlRouterProvider {
