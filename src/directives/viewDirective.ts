@@ -398,7 +398,7 @@ function $ViewDirectiveFill(
         trace.traceUIViewFill(data.$uiView, $element.html());
 
         const link = $compile($element.contents() as any);
-        const controller = cfg.controller;
+        const controller = cfg.controller as angular.IControllerService;
         const controllerAs: string = getControllerAs(cfg);
         const resolveAs: string = getResolveAs(cfg);
         const locals = resolveCtx && getLocals(resolveCtx);

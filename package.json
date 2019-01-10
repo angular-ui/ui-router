@@ -78,11 +78,11 @@
     "angular": ">=1.2.0"
   },
   "devDependencies": {
-    "@types/angular": "=1.6.25",
+    "@types/angular": "1.6.53",
     "@types/angular-animate": "^1.5.10",
-    "@types/angular-mocks": "^1.6.1",
+    "@types/angular-mocks": "^1.7.0",
     "@types/jasmine": "^3.3.5",
-    "@types/jquery": "^3.3.6",
+    "@types/jquery": "^3.3.29",
     "@uirouter/publish-scripts": "^2.3.24",
     "dts-downlevel": "^0.3.0",
     "fork-ts-checker-webpack-plugin": "^0.5.2",

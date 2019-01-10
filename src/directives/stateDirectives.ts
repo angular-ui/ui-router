@@ -143,7 +143,7 @@ function bindEvents(element: IAugmentedJQuery, scope: IScope, hookFn: EventHandl
   scope.$on('$destroy', function() {
     const off = element.off ? 'off' : 'unbind';
     for (const event of events) {
-      element[off](event, hookFn);
+      element[off](event, hookFn as any);
     }
   });
 }

@@ -22,15 +22,21 @@
   dependencies:
     "@types/angular" "*"
 
-"@types/angular-mocks@^1.6.1":
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/@types/angular-mocks/-/angular-mocks-1.6.1.tgz#2501b54e6b76392b03cd38df650a3a021ef2773e"
+"@types/angular-mocks@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@types/angular-mocks/-/angular-mocks-1.7.0.tgz#310d999a3c47c10ecd8eef466b5861df84799429"
+  integrity sha512-MeT5vxWBx4Ny5/sNZJjpZdv4K2KGwqQYiRQQZctan1TTaNyiVlFRYbcmheolhM4KKbTWmoxTVeuvGzniTDg1kw==
   dependencies:
     "@types/angular" "*"
 
-"@types/angular@*", "@types/angular@=1.6.25":
+"@types/angular@*":
   version "1.6.25"
   resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.6.25.tgz#d403e94b40e06af3d9b76da5031795a9b929d08a"
+
+"@types/angular@1.6.53":
+  version "1.6.53"
+  resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.6.53.tgz#0c73ce13ff245e0b9ad23bf0091f3de572d4de87"
+  integrity sha512-46op53S8hnDl9o6VOmMAXBv3laK8i2OyXOfriDwe6VRfh8wVFilIniLaNsz2pPpAM4oUwsBYFt7ZThe+IMnIeA==
 
 "@types/estree@0.0.39":
   version "0.0.39"
@@ -67,9 +73,12 @@
   resolved "https://registry.yarnpkg.com/@types/jasmine/-/jasmine-3.3.5.tgz#3738ffbf34dffae9ecaac4503d7d969744f0e1d7"
   integrity sha512-LJtc52O1PNUffMvH6Q3fS0BOhQWYlkh3SVu/Jc4GoPgJkUytk5Y6YPbw+6lZK2mWWvG62BtVyOFw0ih7r8STsw==
 
-"@types/jquery@^3.3.6":
-  version "3.3.6"
-  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.3.6.tgz#5932ead926307ca21e5b36808257f7c926b06565"
+"@types/jquery@^3.3.29":
+  version "3.3.29"
+  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.3.29.tgz#680a2219ce3c9250483722fccf5570d1e2d08abd"
+  integrity sha512-FhJvBninYD36v3k6c+bVk1DSZwh7B5Dpb/Pyk3HKVsiohn0nhbefZZ+3JXbWQhFyt0MxSl2jRDdGQPHeOHFXrQ==
+  dependencies:
+    "@types/sizzle" "*"
 
 "@types/lodash@^4.14.110":
   version "4.14.116"
@@ -93,6 +102,11 @@
   dependencies:
     "@types/glob" "*"
     "@types/node" "*"
+
+"@types/sizzle@*":
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.2.tgz#a811b8c18e2babab7d542b3365887ae2e4d9de47"
+  integrity sha512-7EJYyKTL7tFR8+gDbB6Wwz/arpGa0Mywk1TJbNzKzHtzbwVmY4HR9WqS5VV7dsBUKQmPNr192jHr/VpBluj/hg==
 
 "@uirouter/core@5.0.21":
   version "5.0.21"
