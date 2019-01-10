@@ -70,14 +70,14 @@ export class TemplateFactory implements TemplateFactoryProvider {
     return isDefined(config.template)
       ? asTemplate(this.fromString(config.template, params))
       : isDefined(config.templateUrl)
-        ? asTemplate(this.fromUrl(config.templateUrl, params))
-        : isDefined(config.templateProvider)
-          ? asTemplate(this.fromProvider(config.templateProvider, params, context))
-          : isDefined(config.component)
-            ? asComponent(config.component)
-            : isDefined(config.componentProvider)
-              ? asComponent(this.fromComponentProvider(config.componentProvider, params, context))
-              : asTemplate(defaultTemplate);
+      ? asTemplate(this.fromUrl(config.templateUrl, params))
+      : isDefined(config.templateProvider)
+      ? asTemplate(this.fromProvider(config.templateProvider, params, context))
+      : isDefined(config.component)
+      ? asComponent(config.component)
+      : isDefined(config.componentProvider)
+      ? asComponent(this.fromComponentProvider(config.componentProvider, params, context))
+      : asTemplate(defaultTemplate);
   }
 
   /**

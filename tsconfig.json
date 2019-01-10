@@ -5,7 +5,7 @@
     "moduleResolution": "node",
     "module": "commonjs",
     "target": "es5",
-    "lib": [ "es6", "dom" ],
+    "lib": ["es6", "dom"],
     "allowSyntheticDefaultImports": true,
     "outDir": "lib",
     "declaration": true,
@@ -13,9 +13,5 @@
     "sourceMap": true,
     "inlineSources": true
   },
-  "files": [
-    "src/index.ts",
-    "src/legacy/stateEvents.ts",
-    "src/legacy/resolveService.ts"
-  ]
+  "files": ["src/index.ts", "src/legacy/stateEvents.ts", "src/legacy/resolveService.ts"]
 }

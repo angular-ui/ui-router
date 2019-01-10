@@ -5,13 +5,11 @@
     "moduleResolution": "node",
     "module": "commonjs",
     "target": "es5",
-    "lib": [ "es6", "dom" ],
+    "lib": ["es6", "dom"],
     "allowSyntheticDefaultImports": true,
     "outDir": "../.testlib",
     "declaration": false,
     "sourceMap": false
   },
-  "include": [
-    "*.ts"
-  ]
+  "include": ["*.ts"]
 }
