@@ -28,8 +28,7 @@
     "docs:publish": "generate_docs && publish_docs",
     "release": "release --deps @uirouter/core && node ./scripts/npm_angular_ui_router_release.js && node ./scripts/bower_release.js",
     "prepublishOnly": "npm run build",
-    "artifacts": "artifact_tagging",
-    "precommit": "pretty-quick --staged"
+    "artifacts": "artifact_tagging"
   },
   "homepage": "https://ui-router.github.io",
   "contributors": [
@@ -87,7 +86,7 @@
     "@uirouter/publish-scripts": "^2.3.21",
     "dts-downlevel": "^0.3.0",
     "fork-ts-checker-webpack-plugin": "^0.4.9",
-    "husky": "^0.14.3",
+    "husky": "^1.3.1",
     "jasmine-core": "^3.3.0",
     "karma": "^3.1.4",
     "karma-chrome-launcher": "^2.2.0",
@@ -108,5 +107,10 @@
     "tslint-eslint-rules": "^5.4.0",
     "typescript": "^3.0.3",
     "webpack": "^4.19.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
   }
 }
