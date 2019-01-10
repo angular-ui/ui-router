@@ -338,7 +338,7 @@ export let $stateNotFound: IAngularEvent;
 
   angular
     .module('ui.router.state.events', ['ui.router.state'])
-    .provider('$stateEvents', <IServiceProviderFactory>$StateEventsProvider)
+    .provider('$stateEvents', ($StateEventsProvider as any) as IServiceProviderFactory)
     .run([
       '$stateEvents',
       function($stateEvents: any) {
