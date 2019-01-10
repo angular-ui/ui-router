@@ -98,9 +98,10 @@
   version "5.0.21"
   resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.21.tgz#b6c4c311e9416a1e8ce76b072e042a60224d1b3a"
 
-"@uirouter/publish-scripts@^2.3.21":
-  version "2.3.21"
-  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.3.21.tgz#5a86da78720b195e41e05a2d11fb4658b1b14d13"
+"@uirouter/publish-scripts@^2.3.24":
+  version "2.3.24"
+  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.3.24.tgz#0793589552a58df2dc41d7775efc500f770aa2f0"
+  integrity sha512-hUSg31QpD/eRJ4Qix99xu3aa/Zu5qoRSSJjRPyvp35o5GUSGowg9QmlcJaFE1M3X4vdImR2HqpgrnRFgobIRdg==
   dependencies:
     conventional-changelog "^2.0.3"
     conventional-changelog-ui-router-core "^1.4.2"
