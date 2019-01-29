@@ -32,7 +32,6 @@ import {
   UIRouter,
 } from '@uirouter/core';
 import { UIViewData } from './viewDirective';
-import EventHandler = JQuery.EventHandler;
 
 /** @hidden Used for typedoc */
 export interface ng1_directive {} // tslint:disable-line:class-name
@@ -124,7 +123,7 @@ function defaultOpts(el: IAugmentedJQuery, $state: StateService) {
 }
 
 /** @hidden */
-function bindEvents(element: IAugmentedJQuery, scope: IScope, hookFn: EventHandler<any>, uiStateOpts: any): void {
+function bindEvents(element: IAugmentedJQuery, scope: IScope, hookFn: EventListener, uiStateOpts: any): void {
   let events;
 
   if (uiStateOpts) {
