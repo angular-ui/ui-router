@@ -437,6 +437,25 @@ describe('uiView', function () {
     expect($onInit).toHaveBeenCalled();
   }));
 
+  it('should call the existing $onDestroy when $scope destroy', inject(function ($state, $q) {
+    var $onDestroy = jasmine.createSpy();
+    $stateProvider.state('onDestroy', {
+      controller: function () {
+        this.$onDestroy = $onDestroy;
+      },
+      template: "hi",
+      controllerAs: "vm"
+    });
+    $stateProvider.state('onExit', {
+      template: "end"
+    });
+    elem.append($compile('<div><ui-view></ui-view></div>')(scope));
+    $state.transitionTo('onDestroy');
+    $state.transitionTo('onExit');
+    $q.flush();
+
+    expect($onDestroy).toHaveBeenCalled();
+  }));
   describe('play nicely with other directives', function() {
     // related to issue #857
     it('should work with ngIf', inject(function ($state, $q, $compile) {

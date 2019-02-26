@@ -344,7 +344,11 @@ function $ViewDirectiveFill (  $compile,   $controller,   $state,   $interpolate
           if (isFunction(controller.$onInit)) controller.$onInit();
           $element.data('$ngControllerController', controller);
           $element.children().data('$ngControllerController', controller);
-          if (isFunction(controller.$onDestroy)) controller.$onDestroy();
+          if (isFunction(controller.$onDestroy)) {
+              scope.$on('$destroy', function callOnDestroyHook() {
+                  controller.$onDestroy();
+              });
+          }
         }
 
         link(scope);
