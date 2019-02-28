@@ -437,21 +437,18 @@ describe('uiView', function () {
     expect($onInit).toHaveBeenCalled();
   }));
 
-  it('should call the existing $onDestroy when $scope destroy', inject(function ($state, $q) {
+  it('should call the existing $onDestroy method when $scope destroy', inject(function ($state, $q) {
     var $onDestroy = jasmine.createSpy();
     $stateProvider.state('onDestroy', {
       controller: function () {
         this.$onDestroy = $onDestroy;
       },
-      template: "hi",
-      controllerAs: "vm"
-    });
-    $stateProvider.state('onExit', {
-      template: "end"
+      template: "hi"
     });
     elem.append($compile('<div><ui-view></ui-view></div>')(scope));
     $state.transitionTo('onDestroy');
-    $state.transitionTo('onExit');
+    $q.flush();
+    $state.transitionTo(aState);
     $q.flush();
 
     expect($onDestroy).toHaveBeenCalled();
