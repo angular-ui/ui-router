@@ -100,7 +100,7 @@ export interface _Ng1StateDeclaration extends StateDeclaration {
  *   views: {
  *     $default: {
  *       template: '<h1>foo</h1>',
- *       controller: 'FooController
+ *       controller: 'FooController'
  *     }
  *   }
  * }
@@ -113,7 +113,7 @@ export interface _Ng1StateDeclaration extends StateDeclaration {
  * var state = {
  *   name: 'foo',
  *   url: '/foo',
- *   controller: 'FooController, // invalid because views: exists
+ *   controller: 'FooController', // invalid because views: exists
  *   views: {
  *     header: {
  *       template: '<h1>header</h1>'
