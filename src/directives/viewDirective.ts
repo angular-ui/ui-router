@@ -465,7 +465,7 @@ function registerControllerCallbacks(
   cfg: Ng1ViewConfig
 ) {
   // Call $onInit() ASAP
-  if (isFunction(controllerInstance.$onInit) && !(cfg.viewDecl.component && hasComponentImpl)) {
+  if (isFunction(controllerInstance.$onInit) && !((cfg.viewDecl.component || cfg.viewDecl.componentProvider) && hasComponentImpl)) {
     controllerInstance.$onInit();
   }
 
