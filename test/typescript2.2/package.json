@@ -8,7 +8,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@types/angular": "1.5.14",
+    "@types/angular": "1.6.36",
     "@types/jquery": "2",
     "@uirouter/angularjs": "latest",
     "typescript": "2.2"
