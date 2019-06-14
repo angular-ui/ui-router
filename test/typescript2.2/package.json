@@ -9,7 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "@types/angular": "1.6.36",
-    "@types/jquery": "2",
+    "@types/jquery": "2.0.51",
     "@uirouter/angularjs": "latest",
     "typescript": "2.2"
   },
