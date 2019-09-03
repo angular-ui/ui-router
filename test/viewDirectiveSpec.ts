@@ -1334,6 +1334,28 @@ describe('angular 1.5+ style .component()', function() {
         expect(log).toBe('onInit;');
       });
 
+      it('should only call $onInit() once with componentProvider', function() {
+        $stateProvider.state('route2cmp', {
+          componentProvider: () => 'ngComponent',
+          resolve: {
+            data: function() {
+              return 'DATA!';
+            },
+          },
+        });
+
+        const $state = svcs.$state,
+          $httpBackend = svcs.$httpBackend,
+          $q = svcs.$q;
+
+        $httpBackend.expectGET('/comp_tpl.html').respond('-{{ $ctrl.data }}-');
+        $state.transitionTo('route2cmp');
+        $q.flush();
+        $httpBackend.flush();
+
+        expect(log).toBe('onInit;');
+      });
+
       it('should supply resolve data to "<", "=", "@" bindings', function() {
         $stateProvider.state('bindingtypes', {
           component: 'bindingTypes',
