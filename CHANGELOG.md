@@ -1,3 +1,35 @@
+## 1.0.23 (2019-10-02)
+[Compare `@uirouter/angularjs` versions 1.0.22 and 1.0.23](https://github.com/angular-ui/ui-router/compare/1.0.22...1.0.23)
+
+### Bug Fixes
+
+* **stateFilters:** Export each function individually ([978b882](https://github.com/angular-ui/ui-router/commit/978b882))
+* **travis:** Fix travis build ([dc0f58a](https://github.com/angular-ui/ui-router/commit/dc0f58a))
+* **types:** Remove [@types/jquery](https://github.com/types/jquery) from devDependencies, upgrade [@types/angular](https://github.com/types/angular) ([b12bc84](https://github.com/angular-ui/ui-router/commit/b12bc84))
+* **viewDirective:** add check for componentProvider, avoid extra trigger for $onInit (fixing [#3735](https://github.com/angular-ui/ui-router/issues/3735)) ([#3779](https://github.com/angular-ui/ui-router/issues/3779)) ([c3e87ad](https://github.com/angular-ui/ui-router/commit/c3e87ad))
+
+
+---
+
+
+### Updated `@uirouter/core` from 5.0.23 to 6.0.1
+[Compare `@uirouter/core` versions 5.0.23 and 6.0.1](https://github.com/ui-router/core/compare/5.0.23...6.0.1)
+
+### Bug Fixes
+
+* **resolve:** remove unnecessary generics from CustomAsyncPolicy ([#452](https://github.com/ui-router/core/issues/452)) ([61f4ee9](https://github.com/ui-router/core/commit/61f4ee9))
+* **travis:** use service: xvfb instead of launching it manually.  install libgconf debian package ([ac1ef4b](https://github.com/ui-router/core/commit/ac1ef4b))
+
+
+### Features
+
+* **resolve:** Remove RXWAIT async policy in favour of allowing user defined async policy function ([#366](https://github.com/ui-router/core/issues/366)) ([0ad87f6](https://github.com/ui-router/core/commit/0ad87f6))
+
+
+### BREAKING CHANGES
+
+* **resolve:** RXWAIT async policy has been removed, but it never worked in the first place
+
 ## 1.0.22 (2019-01-29)
 [Compare `@uirouter/angularjs` versions 1.0.21 and 1.0.22](https://github.com/angular-ui/ui-router/compare/1.0.21...1.0.22)
 
