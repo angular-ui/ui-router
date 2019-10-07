@@ -74,10 +74,10 @@
   resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-6.0.1.tgz#93b02a5d178a7ab7313f34b7b3f019a000d23396"
   integrity sha512-mHCutiHtDDRKYmrJ92XPKDoSb2bgqaDyUpHdF4hUE+riwgkCvGdBjL8u+VDTcV3slBAk6B0LBIOIajjWkkObbQ==
 
-"@uirouter/publish-scripts@^2.3.30":
-  version "2.3.30"
-  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.3.30.tgz#d436cf94cffe95ad510e4ea5e9967aba759ae411"
-  integrity sha512-DNkfmQjLpCGQIwvZts6auABF7fa/+t0ZHqHp21RsP6v+AfszEhXuYjQ1+mfkXeLulxjmW0Kax4dcjZ0fzfIrMw==
+"@uirouter/publish-scripts@^2.3.31":
+  version "2.3.31"
+  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.3.31.tgz#bd0a42ebe188ae7f5a2ad64e3380ce074a16a4ec"
+  integrity sha512-mDkFXsCoK9DyAJuk3+ybiNV1ED14aZoX1YZGd/etNjmZ7qzJuwIXTUb4fSAT7B3NUK/NfR+iPNymoeyL7Sdgrw==
   dependencies:
     conventional-changelog "^3.1.10"
     conventional-changelog-ui-router-core "^1.4.2"
