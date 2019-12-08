@@ -84,10 +84,10 @@
   resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-6.0.1.tgz#93b02a5d178a7ab7313f34b7b3f019a000d23396"
   integrity sha512-mHCutiHtDDRKYmrJ92XPKDoSb2bgqaDyUpHdF4hUE+riwgkCvGdBjL8u+VDTcV3slBAk6B0LBIOIajjWkkObbQ==
 
-"@uirouter/publish-scripts@^2.3.40":
-  version "2.3.40"
-  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.3.40.tgz#5a98b361afd5b0995bb3983279239b38bfef7236"
-  integrity sha512-CRPJ66jE2G+X7FgH2YYQo+cFIOzzkxrOb2wp9lD2gEiii02Ya8dTsb3gvjp4I7BYO7V1Ob8/NsB5twVRyOnAQQ==
+"@uirouter/publish-scripts@^2.3.42":
+  version "2.3.42"
+  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.3.42.tgz#790ed9f39d40e51bac1441625c66625aedb13f78"
+  integrity sha512-QLPDiXkn35SFl9nzKexRiObN2/nGZFjiaImBQ3anx0Y7iG/HMzHw4pE082FqXZMQfmULEiuNhBQVCVC7ybCB6w==
   dependencies:
     check-peer-dependencies "1.0.7"
     conventional-changelog "^3.1.15"
