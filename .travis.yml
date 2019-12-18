@@ -4,8 +4,7 @@ services:
   - xvfb
 before_install:
   - sudo apt-get install libgconf-2-4
-  - export PATH=$HOME/.yarn/bin:$PATH
-  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.5.1
+  - npm install -g yarn
 script:
   - if [ "x${CORE_BRANCH}x" != "xx" ]; then npx publish_yalc_package .downstream_cache/core https://github.com/ui-router/core.git && yalc add @uirouter/core ; fi
   - tsc &&
@@ -27,4 +26,3 @@ git:
 cache:
   directories:
     - node_modules
-    - '.downstream_cache'
