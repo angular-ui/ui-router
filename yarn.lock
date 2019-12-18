@@ -32,15 +32,10 @@
   dependencies:
     "@types/angular" "*"
 
-"@types/angular@*":
-  version "1.6.54"
-  resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.6.54.tgz#f9d5a03e4da7b021a6dabe5d63e899ed4567a5bd"
-  integrity sha512-xA1FuozWXeRQ7FClUbvk8ePL+dydBeDoCWRPFTHU5+8uvVtIIfLGiHA8CMkwsbddFCYnTDVbLxG85a/HBx7LtA==
-
-"@types/angular@1.6.56":
-  version "1.6.56"
-  resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.6.56.tgz#20124077bd44061e018c7283c0bb83f4b00322dd"
-  integrity sha512-HxtqilvklZ7i6XOaiP7uIJIrFXEVEhfbSY45nfv2DeBRngncI58Y4ZOUMiUkcT8sqgLL1ablmbfylChUg7A3GA==
+"@types/angular@*", "@types/angular@1.6.57":
+  version "1.6.57"
+  resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.6.57.tgz#d8beefa0ee1aeb1ef277fbaf63bf694321dd7f5d"
+  integrity sha512-Pbp8Clanwb/nurGuLUYhKp7eeaEjwyI3MHb3ggjPHYPxysypzEin6UFcrcDv5xhu433axlwQ5BYU9svmcICoAQ==
 
 "@types/color-name@^1.1.1":
   version "1.1.1"

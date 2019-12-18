@@ -78,7 +78,7 @@
     "angular": ">=1.2.0"
   },
   "devDependencies": {
-    "@types/angular": "1.6.56",
+    "@types/angular": "1.6.57",
     "@types/angular-animate": "^1.5.10",
     "@types/angular-mocks": "^1.7.0",
     "@types/jasmine": "^3.4.4",
