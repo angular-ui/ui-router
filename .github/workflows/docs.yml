@@ -1,4 +1,4 @@
-name: Run Tests
+name: Docs are generatable
 
 on: [push]
 
@@ -21,6 +21,6 @@ jobs:
       - name: install, build, test
         run: |
           yarn
-          yarn test
+          yarn docs
         env:
           CI: true

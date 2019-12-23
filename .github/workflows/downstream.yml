@@ -1,4 +1,4 @@
-name: Run Tests
+name: Downstream tests
 
 on: [push]
 
@@ -21,6 +21,6 @@ jobs:
       - name: install, build, test
         run: |
           yarn
-          yarn test
+          yarn test:downstream
         env:
           CI: true
