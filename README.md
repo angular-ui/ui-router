@@ -1,7 +1,4 @@
-# AngularUI Router &nbsp;[![Build Status](https://github.com/angular-ui/ui-router/workflows/CI:%20UIRouter%20for%20AngularJS/badge.svg
-)](https://github.com/angular-ui/ui-router/actions?query=workflow%3A%22CI%3A+UIRouter+for+AngularJS%22)
-
-[![Greenkeeper badge](https://badges.greenkeeper.io/angular-ui/ui-router.svg)](https://greenkeeper.io/)
+# AngularUI Router &nbsp;[![Build Status](https://github.com/angular-ui/ui-router/workflows/CI:%20UIRouter%20for%20AngularJS/badge.svg)](https://github.com/angular-ui/ui-router/actions?query=workflow%3A%22CI%3A+UIRouter+for+AngularJS%22)
 
 **Note: this is the Angular 1.x source for UI-Router version 1.x.  If you are looking for the source for UI-Router 
 version 0.x, it can be found [here](https://github.com/angular-ui/ui-router/tree/legacy)**
