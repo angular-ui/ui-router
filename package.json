@@ -21,7 +21,7 @@
     "test:ng14": "karma start --ngversion 1.4",
     "test:ng15": "karma start --ngversion 1.5",
     "test:ng16": "karma start --ngversion 1.6",
-    "test:downstream": "npm run build && test_downstream_projects",
+    "test:downstream": "test_downstream_projects",
     "watch": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1",
     "debug": "karma start --singleRun=false --autoWatch=true --autoWatchInterval=1 --browsers=Chrome",
     "docs": "generate_docs",
