@@ -1,9 +1,10 @@
-# AngularUI Router &nbsp;[![Build Status](https://travis-ci.org/angular-ui/ui-router.svg?branch=master)](https://travis-ci.org/angular-ui/ui-router)
+# AngularUI Router &nbsp;[![Build Status](https://github.com/angular-ui/ui-router/workflows/CI:%20UIRouter%20for%20AngularJS/badge.svg
+)](https://github.com/angular-ui/ui-router/actions?query=workflow%3A%22CI%3A+UIRouter+for+AngularJS%22)
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/angular-ui/ui-router.svg)](https://greenkeeper.io/)
 
-**Note: this is the Angular 1.x source for UI-Router version 1.0.  If you are looking for the source for UI-Router 
-version 0.2.x, it can be found [here](https://github.com/angular-ui/ui-router/tree/legacy)**
+**Note: this is the Angular 1.x source for UI-Router version 1.x.  If you are looking for the source for UI-Router 
+version 0.x, it can be found [here](https://github.com/angular-ui/ui-router/tree/legacy)**
 
 ---
 
@@ -13,7 +14,7 @@ version 0.2.x, it can be found [here](https://github.com/angular-ui/ui-router/tr
 **[Tutorials](https://ui-router.github.io/tutorials/)** |
 **[API Docs](https://ui-router.github.io/docs/latest/)** |
 **[Download stable](http://unpkg.com/@uirouter/angularjs@latest/release/angular-ui-router.js)** (or **[Minified](http://unpkg.com/@uirouter/angularjs@latest/release/angular-ui-router.min.js)**) **|**
-**[Guide](https://github.com/angular-ui/ui-router/wiki) |**
+**[Guide](https://ui-router.github.io/guide/) |**
 **[Sample App](http://ui-router.github.io/resources/sampleapp/) |**
 **[FAQ](https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions) |**
 **[Report an Issue](https://github.com/angular-ui/ui-router/blob/master/CONTRIBUTING.md#report-an-issue) |**
