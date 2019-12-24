@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   test:
-    name: Run Unit Tests
+    name: Unit Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -14,7 +14,7 @@ jobs:
         run: yarn test
 
   docs:
-    name: Verify that docs can be generated
+    name: Docs can be generated
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,7 +24,7 @@ jobs:
         run: yarn docs
 
   test_downstream:
-    name: Verify that downstream projects still work
+    name: Downstream projects still work
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
