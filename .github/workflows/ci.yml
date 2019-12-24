@@ -1,0 +1,39 @@
+name: 'CI: UIRouter for AngularJS'
+
+on: [push]
+
+jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: yarn install --pure-lockfile
+      - name: Run Tests
+        run: yarn test
+
+  docs:
+    name: Verify that docs can be generated
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: yarn install --pure-lockfile
+      - name: Generate Docs
+        run: yarn docs
+
+  test_downstream:
+    name: Verify that downstream projects still work
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Prepare to Test Downstream Projects
+        run: |
+          npm config set scripts-prepend-node-path auto
+          git config --global user.email uirouter@github.actions
+          git config --global user.name uirouter_github_actions
+      - name: Install Dependencies
+        run: yarn install --pure-lockfile
+      - name: Test Downstream Projects
+        run: yarn test:downstream
