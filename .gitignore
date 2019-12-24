@@ -18,3 +18,9 @@ _doc
 lib
 lib-esm
 release
+
+# do not ignore github
+!.github
+!.npmrc
+!.npmignore
+!.prettier*
