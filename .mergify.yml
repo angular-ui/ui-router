@@ -1,0 +1,23 @@
+pull_request_rules:
+  - name: Automatically squash and merge on CI success
+    conditions:
+      - status-success=Unit Tests
+      - status-success=Docs can be generated
+      - status-success=Downstream projects still work
+      - 'label=ready to squash and merge'
+    actions:
+      delete_head_branch: {}
+      merge:
+        method: squash
+        strict: smart
+  - name: Automatically rebase and merge on CI success
+    conditions:
+      - status-success=Unit Tests
+      - status-success=Docs can be generated
+      - status-success=Downstream projects still work
+      - 'label=ready to rebase and merge'
+    actions:
+      delete_head_branch: {}
+      merge:
+        method: rebase
+        strict: smart
