@@ -1,3 +1,28 @@
+## 1.0.24 (2019-12-30)
+[Compare `@uirouter/angularjs` versions 1.0.23 and 1.0.24](https://github.com/angular-ui/ui-router/compare/1.0.23...1.0.24)
+
+
+---
+
+
+### Updated `@uirouter/core` from 6.0.1 to 6.0.3
+
+
+Changelog for `@uirouter/core`:
+
+
+[Compare `@uirouter/core` versions 6.0.1 and 6.0.3](https://github.com/ui-router/core/compare/6.0.1...6.0.3)
+
+### Bug Fixes
+
+* **hof:** Rewrite curry from scratch ([fc324c6](https://github.com/ui-router/core/commit/fc324c6)), closes [#350](https://github.com/ui-router/core/issues/350)
+* **IE9:** Add safeConsole so IE9 doesn't break ([9c8579d](https://github.com/ui-router/core/commit/9c8579d))
+
+
+### Features
+
+* **stateService:** add transition option 'supercede' so transition can be ignored if one is pending ([6e5a56f](https://github.com/ui-router/core/commit/6e5a56f))
+
 ## 1.0.23 (2019-10-02)
 [Compare `@uirouter/angularjs` versions 1.0.22 and 1.0.23](https://github.com/angular-ui/ui-router/compare/1.0.22...1.0.23)
 
