@@ -104,7 +104,7 @@
     "ts-loader": "^6.2.1",
     "tslint": "^5.20.1",
     "tslint-eslint-rules": "^5.4.0",
-    "typescript": "^3.7.4",
+    "typescript": "^3.6.4",
     "webpack": "^4.41.5"
   },
   "husky": {
