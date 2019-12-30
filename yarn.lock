@@ -74,10 +74,10 @@
   dependencies:
     "@types/node" "*"
 
-"@uirouter/core@6.0.2":
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-6.0.2.tgz#7dcc9268190440a06f181dc1a9bf55399c09eadf"
-  integrity sha512-xFkLfSdrFgASGDgBNwP/b0SW+/9NzJADwd4OWePfmuFPVUbVK7FGR2pEfmx31Mm4UoCr01RbHK/waGiZc3e2sQ==
+"@uirouter/core@6.0.3":
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-6.0.3.tgz#1de7a3451039e1274e7f595de2be92421c26b09c"
+  integrity sha512-ftAQw9czKUSgLFC3LwOeJP97PDQ6naHcEK0NrbWw3X/r49oQJBMRFAsz9oEKqPFPD2vUDqkvG18BZXglLp8k+Q==
 
 "@uirouter/publish-scripts@^2.3.44":
   version "2.3.44"

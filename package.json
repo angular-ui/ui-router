@@ -72,7 +72,7 @@
   "module": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@uirouter/core": "6.0.2"
+    "@uirouter/core": "6.0.3"
   },
   "peerDependencies": {
     "angular": ">=1.2.0"
