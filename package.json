@@ -72,7 +72,7 @@
   "module": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@uirouter/core": "6.0.1"
+    "@uirouter/core": "6.0.3"
   },
   "peerDependencies": {
     "angular": ">=1.2.0"
@@ -81,11 +81,11 @@
     "@types/angular": "1.6.57",
     "@types/angular-animate": "^1.5.10",
     "@types/angular-mocks": "^1.7.0",
-    "@types/jasmine": "^3.4.4",
-    "@uirouter/publish-scripts": "^2.3.42",
+    "@types/jasmine": "^3.5.0",
+    "@uirouter/publish-scripts": "^2.3.44",
     "dts-downlevel": "^0.3.0",
-    "fork-ts-checker-webpack-plugin": "^2.0.0",
-    "husky": "^3.0.9",
+    "fork-ts-checker-webpack-plugin": "^3.1.1",
+    "husky": "^3.1.0",
     "jasmine-core": "^3.5.0",
     "karma": "^4.4.1",
     "karma-chrome-launcher": "^3.1.0",
@@ -95,17 +95,17 @@
     "karma-super-dots-reporter": "^0.2.0",
     "karma-webpack": "^4.0.2",
     "lodash": "^4.17.15",
-    "prettier": "^1.18.2",
-    "pretty-quick": "^2.0.0",
-    "rollup": "^1.25.2",
+    "prettier": "^1.19.1",
+    "pretty-quick": "^2.0.1",
+    "rollup": "^1.27.14",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-sourcemaps": "^0.4.2",
-    "rollup-plugin-uglify": "^6.0.3",
+    "rollup-plugin-uglify": "^6.0.4",
     "ts-loader": "^6.2.1",
-    "tslint": "^5.20.0",
+    "tslint": "^5.20.1",
     "tslint-eslint-rules": "^5.4.0",
     "typescript": "^3.6.4",
-    "webpack": "^4.41.2"
+    "webpack": "^4.41.5"
   },
   "husky": {
     "hooks": {
