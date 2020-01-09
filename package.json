@@ -71,10 +71,8 @@
   "jsnext:main": "lib-esm/index.js",
   "module": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
-  "dependencies": {
-    "@uirouter/core": "6.0.3"
-  },
   "peerDependencies": {
+    "@uirouter/core": "^6.0.1",
     "angular": ">=1.2.0"
   },
   "devDependencies": {
@@ -82,6 +80,7 @@
     "@types/angular-animate": "^1.5.10",
     "@types/angular-mocks": "^1.7.0",
     "@types/jasmine": "^3.5.0",
+    "@uirouter/core": "^6.0.1",
     "@uirouter/publish-scripts": "^2.3.44",
     "dts-downlevel": "^0.3.0",
     "fork-ts-checker-webpack-plugin": "^3.1.1",
