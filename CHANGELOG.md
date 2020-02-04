@@ -1,3 +1,22 @@
+## 1.0.25 (2020-02-04)
+[Compare `@uirouter/angularjs` versions 1.0.24 and 1.0.25](https://github.com/angular-ui/ui-router/compare/1.0.24...1.0.25)
+
+
+---
+
+
+### Updated `@uirouter/core` from 6.0.3 to 6.0.4
+
+
+Changelog for `@uirouter/core`:
+
+
+[Compare `@uirouter/core` versions 6.0.3 and 6.0.4](https://github.com/ui-router/core/compare/6.0.3...6.0.4)
+
+### Bug Fixes
+
+* **safeConsole:** check if document is defined to avoid issues in node environments ([da29d88](https://github.com/ui-router/core/commit/da29d88))
+
 ## 1.0.24 (2019-12-30)
 [Compare `@uirouter/angularjs` versions 1.0.23 and 1.0.24](https://github.com/angular-ui/ui-router/compare/1.0.23...1.0.24)
 
