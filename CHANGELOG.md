@@ -1,3 +1,27 @@
+## 1.0.26 (2020-04-29)
+[Compare `@uirouter/angularjs` versions 1.0.25 and 1.0.26](https://github.com/angular-ui/ui-router/compare/1.0.25...1.0.26)
+
+
+---
+
+
+### Updated `@uirouter/core` from 6.0.4 to 6.0.5
+
+
+Changelog for `@uirouter/core`:
+
+
+[Compare `@uirouter/core` versions 6.0.4 and 6.0.5](https://github.com/ui-router/core/compare/6.0.4...6.0.5)
+
+### Bug Fixes
+
+* **TargetState:** make isDef check more thorough ([e657cfe](https://github.com/ui-router/core/commit/e657cfe))
+
+
+### Features
+
+* **urlRuleFactory:** Add support for StateDeclarations in UrlRuleFactory.fromState() ([539d33a](https://github.com/ui-router/core/commit/539d33a))
+
 ## 1.0.25 (2020-02-04)
 [Compare `@uirouter/angularjs` versions 1.0.24 and 1.0.25](https://github.com/angular-ui/ui-router/compare/1.0.24...1.0.25)
 
