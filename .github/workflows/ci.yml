@@ -1,39 +1,27 @@
-name: 'CI: UIRouter for AngularJS'
+name: 'CI'
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
+  ci:
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - run: true
+
   test:
-    name: Unit Tests
+    name: yarn ${{ matrix.yarncmd }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        yarncmd: ['test', 'test:downstream', 'docs']
     steps:
       - uses: actions/checkout@v2
       - name: Install Dependencies
         run: yarn install --pure-lockfile
-      - name: Run Tests
-        run: yarn test
-
-  docs:
-    name: Docs can be generated
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install Dependencies
-        run: yarn install --pure-lockfile
-      - name: Generate Docs
-        run: yarn docs
-
-  test_downstream:
-    name: Downstream projects still work
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Prepare to Test Downstream Projects
-        run: |
-          npm config set scripts-prepend-node-path auto
-          git config --global user.email uirouter@github.actions
-          git config --global user.name uirouter_github_actions
-      - name: Install Dependencies
-        run: yarn install --pure-lockfile
-      - name: Test Downstream Projects
-        run: yarn test:downstream
+      - name: Run yarn ${{ matrix.yarncmd }}
+        run: yarn ${{ matrix.yarncmd }}
