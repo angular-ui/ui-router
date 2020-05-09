@@ -21,6 +21,11 @@ jobs:
         yarncmd: ['test', 'test:downstream', 'docs']
     steps:
       - uses: actions/checkout@v2
+      - name: Configure Environment
+        run: |
+          npm config set scripts-prepend-node-path auto
+          git config --global user.email uirouter@github.actions
+          git config --global user.name uirouter_github_actions
       - name: Install Dependencies
         run: yarn install --pure-lockfile
       - name: Run yarn ${{ matrix.yarncmd }}
