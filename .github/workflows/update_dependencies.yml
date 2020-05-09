@@ -12,7 +12,7 @@ jobs:
       matrix:
         excludes: ['']
         deptype: ['dependencies', 'devDependencies']
-        latest: [true]
+        latest: [false]
     steps:
       - uses: actions/checkout@v2
       - run: |
