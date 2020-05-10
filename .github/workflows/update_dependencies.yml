@@ -2,7 +2,7 @@
 name: Weekly Dependency Bumps
 on:
   schedule:
-    - cron: '18 22 * * 6'
+    - cron: '0 20 * * 7'
 
 jobs:
   upgrade-dependencies:
