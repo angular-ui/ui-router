@@ -1,6 +1,8 @@
 # This workflow requires a personal access token for uirouterbot
 name: Weekly Dependency Bumps
 on:
+  repository_dispatch:
+    types: [update_dependencies]
   schedule:
     - cron: '0 20 * * 0'
 
