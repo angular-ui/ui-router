@@ -82,7 +82,7 @@
     "@types/angular-animate": "^1.5.10",
     "@types/angular-mocks": "^1.7.0",
     "@types/jasmine": "^3.5.10",
-    "@uirouter/publish-scripts": "^2.3.45",
+    "@uirouter/publish-scripts": "^2.3.48",
     "dts-downlevel": "^0.3.0",
     "fork-ts-checker-webpack-plugin": "^4.1.3",
     "husky": "^4.2.5",
