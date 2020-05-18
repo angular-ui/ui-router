@@ -26,7 +26,7 @@ jobs:
         id: upgrade
         uses: ui-router/publish-scripts/actions/upgrade@actions-upgrade-v1.0.3
         with:
-          exclude: ${{ matrix.excludes }}
+          excludes: ${{ matrix.excludes }}
           deptype: ${{ matrix.deptype }}
           latest: ${{ matrix.latest }}
       - name: Create Pull Request
