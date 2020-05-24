@@ -185,14 +185,14 @@ uiView = [
   ) {
     function getRenderer(attrs: Obj, scope: IScope) {
       return {
-        enter: function(element: JQuery, target: any, cb: Function) {
+        enter: function (element: JQuery, target: any, cb: Function) {
           if (angular.version.minor > 2) {
             $animate.enter(element, null, target).then(cb);
           } else {
             $animate.enter(element, null, target, cb);
           }
         },
-        leave: function(element: JQuery, cb: Function) {
+        leave: function (element: JQuery, cb: Function) {
           if (angular.version.minor > 2) {
             $animate.leave(element).then(cb);
           } else {
@@ -217,8 +217,8 @@ uiView = [
       terminal: true,
       priority: 400,
       transclude: 'element',
-      compile: function(tElement: JQuery, tAttrs: Obj, $transclude: ITranscludeFunction) {
-        return function(scope: IScope, $element: IAugmentedJQuery, attrs: Obj) {
+      compile: function (tElement: JQuery, tAttrs: Obj, $transclude: ITranscludeFunction) {
+        return function (scope: IScope, $element: IAugmentedJQuery, attrs: Obj) {
           const onloadExp = attrs['onload'] || '',
             autoScrollExp = attrs['autoscroll'],
             renderer = getRenderer(attrs, scope),
@@ -264,7 +264,7 @@ uiView = [
           updateView();
 
           unregister = $view.registerUIView(activeUIView);
-          scope.$on('$destroy', function() {
+          scope.$on('$destroy', function () {
             trace.traceUIViewEvent('Destroying/Unregistering', activeUIView);
             unregister();
           });
@@ -285,7 +285,7 @@ uiView = [
             if (currentEl) {
               const _viewData = currentEl.data('$uiViewAnim');
               trace.traceUIViewEvent('Animate out', _viewData);
-              renderer.leave(currentEl, function() {
+              renderer.leave(currentEl, function () {
                 _viewData.$$animLeave.resolve();
                 previousEl = null;
               });
@@ -325,7 +325,7 @@ uiView = [
              */
             newScope.$emit('$viewContentLoading', name);
 
-            const cloned = $transclude(newScope, function(clone) {
+            const cloned = $transclude(newScope, function (clone) {
               clone.data('$uiViewAnim', $uiViewAnim);
               clone.data('$uiView', $uiViewData);
               renderer.enter(clone, $element, function onUIViewEnter() {
@@ -380,11 +380,11 @@ function $ViewDirectiveFill(
   return {
     restrict: 'ECA',
     priority: -400,
-    compile: function(tElement: JQuery) {
+    compile: function (tElement: JQuery) {
       const initial = tElement.html();
       tElement.empty();
 
-      return function(scope: IScope, $element: JQuery) {
+      return function (scope: IScope, $element: JQuery) {
         const data: UIViewData = $element.data('$uiView');
         if (!data) {
           $element.html(initial);
@@ -438,7 +438,7 @@ function $ViewDirectiveFill(
             return directiveEl && angular.element(directiveEl).data(`$${cfg.component}Controller`);
           };
 
-          const deregisterWatch = scope.$watch(getComponentController, function(ctrlInstance) {
+          const deregisterWatch = scope.$watch(getComponentController, function (ctrlInstance) {
             if (!ctrlInstance) return;
             registerControllerCallbacks($q, $transitions, ctrlInstance, scope, cfg);
             deregisterWatch();
@@ -465,7 +465,10 @@ function registerControllerCallbacks(
   cfg: Ng1ViewConfig
 ) {
   // Call $onInit() ASAP
-  if (isFunction(controllerInstance.$onInit) && !((cfg.viewDecl.component || cfg.viewDecl.componentProvider) && hasComponentImpl)) {
+  if (
+    isFunction(controllerInstance.$onInit) &&
+    !((cfg.viewDecl.component || cfg.viewDecl.componentProvider) && hasComponentImpl)
+  ) {
     controllerInstance.$onInit();
   }
 
@@ -487,14 +490,8 @@ function registerControllerCallbacks(
       const toParams = $transition$.params('to') as TypedMap<any>;
       const fromParams = $transition$.params<TypedMap<any>>('from') as TypedMap<any>;
       const getNodeSchema = (node: PathNode) => node.paramSchema;
-      const toSchema: Param[] = $transition$
-        .treeChanges('to')
-        .map(getNodeSchema)
-        .reduce(unnestR, []);
-      const fromSchema: Param[] = $transition$
-        .treeChanges('from')
-        .map(getNodeSchema)
-        .reduce(unnestR, []);
+      const toSchema: Param[] = $transition$.treeChanges('to').map(getNodeSchema).reduce(unnestR, []);
+      const fromSchema: Param[] = $transition$.treeChanges('from').map(getNodeSchema).reduce(unnestR, []);
 
       // Find the to params that have different values than the from params
       const changedToParams = toSchema.filter((param: Param) => {
@@ -504,7 +501,7 @@ function registerControllerCallbacks(
 
       // Only trigger callback if a to param has changed or is new
       if (changedToParams.length) {
-        const changedKeys: string[] = changedToParams.map(x => x.id);
+        const changedKeys: string[] = changedToParams.map((x) => x.id);
         // Filter the params to only changed/new to params.  `$transition$.params()` may be used to get all params.
         const newValues = filter(toParams, (val, key) => changedKeys.indexOf(key) !== -1);
         controllerInstance.uiOnParamsChanged(newValues, $transition$);
@@ -529,7 +526,7 @@ function registerControllerCallbacks(
 
       if (!prevTruthyAnswer(trans)) {
         promise = $q.when(controllerInstance.uiCanExit(trans));
-        promise.then(val => (ids[id] = val !== false));
+        promise.then((val) => (ids[id] = val !== false));
       }
       return promise;
     };

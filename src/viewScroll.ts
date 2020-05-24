@@ -18,21 +18,21 @@ export interface UIViewScrollProvider {
 function $ViewScrollProvider() {
   let useAnchorScroll = false;
 
-  this.useAnchorScroll = function() {
+  this.useAnchorScroll = function () {
     useAnchorScroll = true;
   };
 
   this.$get = [
     '$anchorScroll',
     '$timeout',
-    function($anchorScroll: IAnchorScrollService, $timeout: ITimeoutService): Function {
+    function ($anchorScroll: IAnchorScrollService, $timeout: ITimeoutService): Function {
       if (useAnchorScroll) {
         return $anchorScroll;
       }
 
-      return function($element: JQuery) {
+      return function ($element: JQuery) {
         return $timeout(
-          function() {
+          function () {
             $element[0].scrollIntoView();
           },
           0,

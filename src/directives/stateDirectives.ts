@@ -90,13 +90,13 @@ function clickHook(
   type: TypeInfo,
   getDef: () => Def
 ) {
-  return function(e: JQueryMouseEventObject) {
+  return function (e: JQueryMouseEventObject) {
     const button = e.which || e.button,
       target = getDef();
 
     if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || el.attr('target'))) {
       // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
-      const transition = $timeout(function() {
+      const transition = $timeout(function () {
         if (!el.attr('disabled')) {
           $state.go(target.uiState, target.uiStateParams, target.uiStateOpts);
         }
@@ -106,7 +106,7 @@ function clickHook(
       // if the state has no URL, ignore one preventDefault from the <a> directive.
       let ignorePreventDefaultCount = type.isAnchor && !target.href ? 1 : 0;
 
-      e.preventDefault = function() {
+      e.preventDefault = function () {
         if (ignorePreventDefaultCount-- <= 0) $timeout.cancel(transition);
       };
     }
@@ -139,7 +139,7 @@ function bindEvents(element: IAugmentedJQuery, scope: IScope, hookFn: EventListe
     element[on](event, hookFn);
   }
 
-  scope.$on('$destroy', function() {
+  scope.$on('$destroy', function () {
     const off = element.off ? 'off' : 'unbind';
     for (const event of events) {
       element[off](event, hookFn as any);
@@ -290,7 +290,7 @@ uiSrefDirective = [
     return {
       restrict: 'A',
       require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
-      link: function(scope: IScope, element: IAugmentedJQuery, attrs: any, uiSrefActive: any) {
+      link: function (scope: IScope, element: IAugmentedJQuery, attrs: any, uiSrefActive: any) {
         const type = getTypeInfo(element);
         const active = uiSrefActive[1] || uiSrefActive[0];
         let unlinkInfoFn: Function = null;
@@ -313,7 +313,7 @@ uiSrefDirective = [
         if (ref.paramExpr) {
           scope.$watch(
             ref.paramExpr,
-            function(val) {
+            function (val) {
               rawDef.uiStateParams = extend({}, val);
               update();
             },
@@ -429,7 +429,7 @@ uiStateDirective = [
     return {
       restrict: 'A',
       require: ['?^uiSrefActive', '?^uiSrefActiveEq'],
-      link: function(scope: IScope, element: IAugmentedJQuery, attrs: any, uiSrefActive: any) {
+      link: function (scope: IScope, element: IAugmentedJQuery, attrs: any, uiSrefActive: any) {
         const type = getTypeInfo(element);
         const active = uiSrefActive[1] || uiSrefActive[0];
         let unlinkInfoFn: Function = null;
@@ -448,14 +448,14 @@ uiStateDirective = [
           if (def.href != null) attrs.$set(type.attr, def.href);
         }
 
-        inputAttrs.forEach(field => {
+        inputAttrs.forEach((field) => {
           rawDef[field] = attrs[field] ? scope.$eval(attrs[field]) : null;
 
-          attrs.$observe(field, expr => {
+          attrs.$observe(field, (expr) => {
             watchDeregFns[field]();
             watchDeregFns[field] = scope.$watch(
               expr,
-              newval => {
+              (newval) => {
                 rawDef[field] = newval;
                 update();
               },
@@ -587,7 +587,7 @@ uiSrefActiveDirective = [
         '$scope',
         '$element',
         '$attrs',
-        function($scope: IScope, $element: IAugmentedJQuery, $attrs: any) {
+        function ($scope: IScope, $element: IAugmentedJQuery, $attrs: any) {
           let states: StateData[] = [];
           let activeEqClass: string;
           let uiSrefActive: any;
@@ -607,7 +607,7 @@ uiSrefActiveDirective = [
           setStatesFromDefinitionObject(uiSrefActive);
 
           // Allow uiSref to communicate with uiSrefActive[Equals]
-          this.$$addStateInfo = function(newState: string, newParams: Obj) {
+          this.$$addStateInfo = function (newState: string, newParams: Obj) {
             // we already got an explicit state provided by ui-sref-active, so we
             // shadow the one that comes from ui-sref
             if (isObject(uiSrefActive) && states.length > 0) {
@@ -644,9 +644,9 @@ uiSrefActiveDirective = [
           function setStatesFromDefinitionObject(statesDefinition: object) {
             if (isObject(statesDefinition)) {
               states = [];
-              forEach(statesDefinition, function(stateOrName: StateOrName | Array<StateOrName>, activeClass: string) {
+              forEach(statesDefinition, function (stateOrName: StateOrName | Array<StateOrName>, activeClass: string) {
                 // Helper function to abstract adding state.
-                const addStateForClass = function(stateOrName: string, activeClass: string) {
+                const addStateForClass = function (stateOrName: string, activeClass: string) {
                   const ref = parseStateRef(stateOrName);
                   addState(ref.state, $scope.$eval(ref.paramExpr), activeClass);
                 };
@@ -656,7 +656,7 @@ uiSrefActiveDirective = [
                   addStateForClass(stateOrName as string, activeClass);
                 } else if (isArray(stateOrName)) {
                   // If state is an array, iterate over it and add each array item individually.
-                  forEach(stateOrName, function(stateOrName: string) {
+                  forEach(stateOrName, function (stateOrName: string) {
                     addStateForClass(stateOrName, activeClass);
                   });
                 }
@@ -682,26 +682,24 @@ uiSrefActiveDirective = [
 
           // Update route state
           function update() {
-            const splitClasses = str => str.split(/\s/).filter(identity);
+            const splitClasses = (str) => str.split(/\s/).filter(identity);
             const getClasses = (stateList: StateData[]) =>
               stateList
-                .map(x => x.activeClass)
+                .map((x) => x.activeClass)
                 .map(splitClasses)
                 .reduce(unnestR, []);
 
-            const allClasses = getClasses(states)
-              .concat(splitClasses(activeEqClass))
-              .reduce(uniqR, []);
-            const fuzzyClasses = getClasses(states.filter(x => $state.includes(x.state.name, x.params)));
-            const exactlyMatchesAny = !!states.filter(x => $state.is(x.state.name, x.params)).length;
+            const allClasses = getClasses(states).concat(splitClasses(activeEqClass)).reduce(uniqR, []);
+            const fuzzyClasses = getClasses(states.filter((x) => $state.includes(x.state.name, x.params)));
+            const exactlyMatchesAny = !!states.filter((x) => $state.is(x.state.name, x.params)).length;
             const exactClasses = exactlyMatchesAny ? splitClasses(activeEqClass) : [];
 
             const addClasses = fuzzyClasses.concat(exactClasses).reduce(uniqR, []);
-            const removeClasses = allClasses.filter(cls => !inArray(addClasses, cls));
+            const removeClasses = allClasses.filter((cls) => !inArray(addClasses, cls));
 
             $scope.$evalAsync(() => {
-              addClasses.forEach(className => $element.addClass(className));
-              removeClasses.forEach(className => $element.removeClass(className));
+              addClasses.forEach((className) => $element.addClass(className));
+              removeClasses.forEach((className) => $element.removeClass(className));
             });
           }
 

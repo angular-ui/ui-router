@@ -159,7 +159,7 @@ export let $stateChangeError: IAngularEvent;
  */
 export let $stateNotFound: IAngularEvent;
 
-(function() {
+(function () {
   const { isFunction, isString } = angular;
 
   function applyPairs(memo: Obj, keyValTuple: any[]) {
@@ -216,7 +216,7 @@ export let $stateNotFound: IAngularEvent;
       const successOpts = { priority: 9999 };
       $transition$.onSuccess(
         {},
-        function() {
+        function () {
           $rootScope.$broadcast(
             '$stateChangeSuccess',
             $transition$.to(),
@@ -232,7 +232,7 @@ export let $stateNotFound: IAngularEvent;
     }
 
     if (enabledEvents.$stateChangeError) {
-      $transition$.promise['catch'](function(error) {
+      $transition$.promise['catch'](function (error) {
         if (error && (error.type === 2 /* RejectType.SUPERSEDED */ || error.type === 3) /* RejectType.ABORTED */)
           return;
 
@@ -294,7 +294,7 @@ export let $stateNotFound: IAngularEvent;
 
     let runtime = false;
     const allEvents = ['$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError'];
-    const enabledStateEvents = <IEventsToggle>allEvents.map(e => [e, true]).reduce(applyPairs, {});
+    const enabledStateEvents = <IEventsToggle>allEvents.map((e) => [e, true]).reduce(applyPairs, {});
 
     function assertNotRuntime() {
       if (runtime) throw new Error('Cannot enable events at runtime (use $stateEventsProvider');
@@ -304,20 +304,20 @@ export let $stateNotFound: IAngularEvent;
      * Enables the deprecated UI-Router 0.2.x State Events
      * [ '$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError' ]
      */
-    this.enable = function(...events: string[]) {
+    this.enable = function (...events: string[]) {
       assertNotRuntime();
       if (!events || !events.length) events = allEvents;
-      events.forEach(event => (enabledStateEvents[event] = true));
+      events.forEach((event) => (enabledStateEvents[event] = true));
     };
 
     /**
      * Disables the deprecated UI-Router 0.2.x State Events
      * [ '$stateChangeStart', '$stateNotFound', '$stateChangeSuccess', '$stateChangeError' ]
      */
-    this.disable = function(...events: string[]) {
+    this.disable = function (...events: string[]) {
       assertNotRuntime();
       if (!events || !events.length) events = allEvents;
-      events.forEach(event => delete enabledStateEvents[event]);
+      events.forEach((event) => delete enabledStateEvents[event]);
     };
 
     this.enabled = () => enabledStateEvents;
@@ -341,7 +341,7 @@ export let $stateNotFound: IAngularEvent;
     .provider('$stateEvents', ($StateEventsProvider as any) as IServiceProviderFactory)
     .run([
       '$stateEvents',
-      function($stateEvents: any) {
+      function ($stateEvents: any) {
         /* Invokes $get() */
       },
     ]);

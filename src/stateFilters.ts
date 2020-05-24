@@ -15,7 +15,7 @@ import { Obj, StateService, StateOrName } from '@uirouter/core';
  */
 $IsStateFilter.$inject = ['$state'];
 function $IsStateFilter($state: StateService) {
-  const isFilter: any = function(state: StateOrName, params: Obj, options?: { relative?: StateOrName }) {
+  const isFilter: any = function (state: StateOrName, params: Obj, options?: { relative?: StateOrName }) {
     return $state.is(state, params, options);
   };
   isFilter.$stateful = true;
@@ -34,16 +34,13 @@ function $IsStateFilter($state: StateService) {
  */
 $IncludedByStateFilter.$inject = ['$state'];
 function $IncludedByStateFilter($state: StateService) {
-  const includesFilter: any = function(state: StateOrName, params: Obj, options: { relative?: StateOrName }) {
+  const includesFilter: any = function (state: StateOrName, params: Obj, options: { relative?: StateOrName }) {
     return $state.includes(state, params, options);
   };
   includesFilter.$stateful = true;
   return includesFilter;
 }
 
-angular
-  .module('ui.router.state')
-  .filter('isState', $IsStateFilter)
-  .filter('includedByState', $IncludedByStateFilter);
+angular.module('ui.router.state').filter('isState', $IsStateFilter).filter('includedByState', $IncludedByStateFilter);
 
 export { $IsStateFilter, $IncludedByStateFilter };

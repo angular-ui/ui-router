@@ -32,7 +32,7 @@ export interface RawNg1RuleFunction {
  */
 export class UrlRouterProvider {
   static injectableHandler(router: UIRouter, handler): UrlRuleHandlerFn {
-    return match => services.$injector.invoke(handler, null, { $match: match, $stateParams: router.globals.params });
+    return (match) => services.$injector.invoke(handler, null, { $match: match, $stateParams: router.globals.params });
   }
 
   /** @hidden */
