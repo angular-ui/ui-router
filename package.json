@@ -83,7 +83,7 @@
     "@types/angular-animate": "^1.5.10",
     "@types/angular-mocks": "^1.7.0",
     "@types/jest": "^25.2.3",
-    "@uirouter/publish-scripts": "^2.3.48",
+    "@uirouter/publish-scripts": "2.3.45",
     "dts-downlevel": "^0.3.0",
     "husky": "^4.2.5",
     "jest": "^26.0.1",
