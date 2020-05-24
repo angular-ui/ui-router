@@ -2,8 +2,7 @@ import * as angular from 'angular';
 import { extend, forEach, StateDeclaration, UrlMatcher } from '@uirouter/core';
 import { obj, resolvedError, resolvedValue, html5Compat, decorateExceptionHandler } from './util/testUtilsNg1';
 import { Ng1StateDeclaration } from '../src';
-import './util/matchers';
-
+import '../src/legacy/stateEvents';
 declare var inject;
 
 const module = angular['mock'].module;
@@ -1007,7 +1006,7 @@ describe('state', function () {
 
       expect(function () {
         $state.reload('logInvalid');
-      }).toThrowError(Error, "No such reload state 'logInvalid'");
+      }).toThrowError("No such reload state 'logInvalid'");
     }));
 
     it('should throw an exception for invalid reload state object', inject(function (
@@ -1025,11 +1024,11 @@ describe('state', function () {
       const invalidObject = { foo: 'bar' };
       expect(function () {
         $state.reload(invalidObject);
-      }).toThrowError(Error, 'Invalid reload state object');
+      }).toThrowError('Invalid reload state object');
 
       expect(function () {
         $state.reload({ name: 'invalidState' });
-      }).toThrowError(Error, "No such reload state 'invalidState'");
+      }).toThrowError("No such reload state 'invalidState'");
     }));
   });
 
@@ -1624,7 +1623,7 @@ describe('state', function () {
           $q.flush();
 
           expect($state.current.name).toBe(state.name || state); // allow object
-          expect(obj($state.params)).toEqualData(extend({}, defaults, params, nonurlparams));
+          expect(obj($state.params)).toEqual(extend({}, defaults, params, nonurlparams));
           expect($location.url()).toBe(url);
 
           initStateTo(A);
@@ -1634,7 +1633,7 @@ describe('state', function () {
           $q.flush();
 
           expect($state.current.name).toBe(state.name || state); // allow object
-          expect(obj($state.params)).toEqualData(extend({}, defaults, params));
+          expect(obj($state.params)).toEqual(extend({}, defaults, params));
           expect($location.url()).toBe(url);
         }
         checkStateUrl = _check_;
@@ -2073,7 +2072,7 @@ describe('state', function () {
       $q.flush();
 
       expect($state.$current.name).toBe('test');
-      expect($state.$current.data).toEqualData({ x: 1, y: 2, z: 3 });
+      expect($state.$current.data).toEqual({ x: 1, y: 2, z: 3 });
       expect(d.d1).toBe(true);
       expect(d.d2).toBe(true);
     }));

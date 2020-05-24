@@ -1,6 +1,5 @@
 import * as angular from 'angular';
 import { ILocationService, ILocationProvider } from 'angular';
-import './util/matchers';
 import { html5Compat } from './util/testUtilsNg1';
 import { UrlRule, UrlMatcher, UrlMatcherFactory, UrlRouter, StateService, UIRouter } from '../src/index';
 import { UrlRouterProvider } from '../src/urlRouterProvider';
@@ -153,15 +152,16 @@ describe('UrlRouter', function () {
     }));
 
     it('rule should return a deregistration function', function () {
-      let count = 0,
-        rule: UrlRule = {
-          match: () => count++,
-          handler: (match) => match,
-          matchPriority: () => 0,
-          $id: 0,
-          priority: 0,
-          type: 'RAW',
-        };
+      let count = 0;
+      let rule: UrlRule = {
+        match: () => count++,
+        handler: (match) => match,
+        matchPriority: () => 0,
+        $id: 0,
+        priority: 0,
+        _group: 0,
+        type: 'RAW',
+      };
       const dereg = $ur.rule(rule as any);
 
       $ur.sync();
@@ -175,15 +175,16 @@ describe('UrlRouter', function () {
     });
 
     it('removeRule should remove a previously registered rule', function () {
-      let count = 0,
-        rule = {
-          match: () => count++,
-          handler: (match) => match,
-          matchPriority: () => 0,
-          $id: 0,
-          priority: 0,
-          type: 'RAW',
-        };
+      let count = 0;
+      let rule: UrlRule = {
+        match: () => count++,
+        handler: (match) => match,
+        matchPriority: () => 0,
+        $id: 0,
+        priority: 0,
+        _group: 0,
+        type: 'RAW',
+      };
       $ur.rule(rule as any);
 
       $ur.sync();

@@ -1,5 +1,4 @@
 import * as angular from 'angular';
-import './util/matchers';
 import { obj } from './util/testUtilsNg1';
 
 declare var inject;
@@ -171,7 +170,7 @@ describe('uiStateRef', function () {
       $q.flush();
 
       expect($state.current.name).toEqual('contacts.item.detail');
-      expect(obj($stateParams)).toEqualData({ id: 5 });
+      expect(obj($stateParams)).toEqual({ id: 5 });
     }));
 
     if (/PhantomJS/.exec(navigator.userAgent)) {
@@ -193,12 +192,12 @@ describe('uiStateRef', function () {
         $q.flush();
 
         expect($state.current.name).toEqual('contacts.item.detail');
-        expect(obj($stateParams)).toEqualData({ id: 5 });
+        expect(obj($stateParams)).toEqual({ id: 5 });
       }));
 
       it('should not transition states when ctrl-clicked', inject(function ($state, $stateParams, $q) {
         expect($state.$current.name).toEqual('top');
-        expect(obj($stateParams)).toEqualData({});
+        expect(obj($stateParams)).toEqual({});
 
         triggerClick(el, { ctrlKey: true });
 
@@ -206,43 +205,43 @@ describe('uiStateRef', function () {
         $q.flush();
 
         expect($state.current.name).toEqual('top');
-        expect(obj($stateParams)).toEqualData({});
+        expect(obj($stateParams)).toEqual({});
       }));
 
       it('should not transition states when meta-clicked', inject(function ($state, $stateParams, $q) {
         expect($state.$current.name).toEqual('top');
-        expect(obj($stateParams)).toEqualData({});
+        expect(obj($stateParams)).toEqual({});
 
         triggerClick(el, { metaKey: true });
         timeoutFlush();
         $q.flush();
 
         expect($state.current.name).toEqual('top');
-        expect(obj($stateParams)).toEqualData({});
+        expect(obj($stateParams)).toEqual({});
       }));
 
       it('should not transition states when shift-clicked', inject(function ($state, $stateParams, $q) {
         expect($state.$current.name).toEqual('top');
-        expect(obj($stateParams)).toEqualData({});
+        expect(obj($stateParams)).toEqual({});
 
         triggerClick(el, { shiftKey: true });
         timeoutFlush();
         $q.flush();
 
         expect($state.current.name).toEqual('top');
-        expect(obj($stateParams)).toEqualData({});
+        expect(obj($stateParams)).toEqual({});
       }));
 
       it('should not transition states when middle-clicked', inject(function ($state, $stateParams, $q) {
         expect($state.$current.name).toEqual('top');
-        expect(obj($stateParams)).toEqualData({});
+        expect(obj($stateParams)).toEqual({});
 
         triggerClick(el, { button: 1 });
         timeoutFlush();
         $q.flush();
 
         expect($state.current.name).toEqual('top');
-        expect(obj($stateParams)).toEqualData({});
+        expect(obj($stateParams)).toEqual({});
       }));
 
       it('should not transition states when element has target specified', inject(function ($state, $stateParams, $q) {
@@ -254,7 +253,7 @@ describe('uiStateRef', function () {
         $q.flush();
 
         expect($state.current.name).toEqual('top');
-        expect(obj($stateParams)).toEqualData({});
+        expect(obj($stateParams)).toEqual({});
       }));
     }
 
@@ -264,7 +263,7 @@ describe('uiStateRef', function () {
       $q
     ) {
       expect($state.$current.name).toEqual('top');
-      expect(obj($stateParams)).toEqualData({});
+      expect(obj($stateParams)).toEqual({});
 
       el.bind('click', function (e) {
         e.preventDefault();
@@ -275,7 +274,7 @@ describe('uiStateRef', function () {
       $q.flush();
 
       expect($state.current.name).toEqual('top');
-      expect(obj($stateParams)).toEqualData({});
+      expect(obj($stateParams)).toEqual({});
     }));
 
     // Test for #1031
@@ -289,7 +288,7 @@ describe('uiStateRef', function () {
       $rootScope.$digest();
 
       expect($state.current.name).toBe('other');
-      expect($state.params).toEqualValues({ id: 'abc' });
+      expect($state.params).toEqual(expect.objectContaining({ id: 'abc' }));
       expect(el.attr('href')).toBe('#/other/def');
 
       triggerClick(el);
@@ -297,14 +296,14 @@ describe('uiStateRef', function () {
       $q.flush();
 
       expect($state.current.name).toBe('other');
-      expect($state.params).toEqualValues({ id: 'def' });
+      expect($state.params).toEqual(expect.objectContaining({ id: 'def' }));
 
       $rootScope.$index = 'ghi';
       $state.go('other.detail');
       $rootScope.$digest();
 
       expect($state.current.name).toBe('other.detail');
-      expect($state.params).toEqualValues({ id: 'def' });
+      expect($state.params).toEqual(expect.objectContaining({ id: 'def' }));
 
       expect(el.attr('href')).toBe('#/other/ghi/detail');
 
@@ -313,7 +312,7 @@ describe('uiStateRef', function () {
       $q.flush();
 
       expect($state.current.name).toBe('other.detail');
-      expect($state.params).toEqualValues({ id: 'ghi' });
+      expect($state.params).toEqual(expect.objectContaining({ id: 'ghi' }));
     }));
 
     it('should allow multi-line attribute values when passing params to current state', inject(function (
@@ -380,7 +379,7 @@ describe('uiStateRef', function () {
       $q.flush();
 
       expect($state.current.name).toEqual('top');
-      expect(obj($stateParams)).toEqualData({});
+      expect(obj($stateParams)).toEqual({});
     }));
   });
 
@@ -475,7 +474,7 @@ describe('uiStateRef', function () {
       $rootScope.$digest();
 
       expect($state.current.name).toBe('other');
-      expect($state.params).toEqualValues({ id: 'abc' });
+      expect($state.params).toEqual(expect.objectContaining({ id: 'abc' }));
       expect(el.attr('href')).toBe('#/other/def');
 
       triggerClick(el);
@@ -483,14 +482,14 @@ describe('uiStateRef', function () {
       $q.flush();
 
       expect($state.current.name).toBe('other');
-      expect($state.params).toEqualValues({ id: 'def' });
+      expect($state.params).toEqual(expect.objectContaining({ id: 'def' }));
 
       $rootScope.$index = 'ghi';
       $state.go('other.detail');
       $rootScope.$digest();
 
       expect($state.current.name).toBe('other.detail');
-      expect($state.params).toEqualValues({ id: 'def' });
+      expect($state.params).toEqual(expect.objectContaining({ id: 'def' }));
 
       expect(el.attr('href')).toBe('#/other/ghi/detail');
 
@@ -499,7 +498,7 @@ describe('uiStateRef', function () {
       $q.flush();
 
       expect($state.current.name).toBe('other.detail');
-      expect($state.params).toEqualValues({ id: 'ghi' });
+      expect($state.params).toEqual(expect.objectContaining({ id: 'ghi' }));
     }));
 
     it('retains the old href if the new points to a non-state', function () {
@@ -696,7 +695,7 @@ describe('uiStateRef', function () {
       $q.flush();
 
       expect($state.$current.name).toBe('contacts.item.detail');
-      expect(obj($state.params)).toEqualData({ id: 5 });
+      expect(obj($state.params)).toEqual({ id: 5 });
     }));
 
     it('should resolve states from parent uiView', inject(function ($state, $stateParams, $q, $timeout) {
