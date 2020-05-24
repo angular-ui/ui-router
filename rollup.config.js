@@ -31,10 +31,10 @@ const uglifyOpts = { output: {} };
 // retain multiline comment with @license
 uglifyOpts.output.comments = (node, comment) => comment.type === 'comment2' && /@license/i.test(comment.value);
 
-const onwarn = warning => {
+const onwarn = (warning) => {
   // Suppress this error message... https://github.com/rollup/rollup/wiki/Troubleshooting#this-is-undefined
   const ignores = ['THIS_IS_UNDEFINED'];
-  if (!ignores.some(code => code === warning.code)) {
+  if (!ignores.some((code) => code === warning.code)) {
     console.error(warning.message);
   }
 };

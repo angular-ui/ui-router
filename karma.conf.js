@@ -24,14 +24,14 @@ function karmaServedFiles(ngVersion) {
     ];
   }
 
-  var angularFiles = angular(ngVersion).map(function(pattern) {
+  var angularFiles = angular(ngVersion).map(function (pattern) {
     return { watched: false, included: true, nocache: true, pattern: pattern };
   });
 
   return angularFiles.concat('test/index.js');
 }
 
-module.exports = function(config) {
+module.exports = function (config) {
   var ngVersion = config.ngversion || DEFAULT_NG_VERSION;
 
   config.set({
