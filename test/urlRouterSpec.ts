@@ -9,7 +9,7 @@ declare var inject;
 
 const module = angular['mock'].module;
 
-describe('UrlRouter', function() {
+describe('UrlRouter', function () {
   let router: UIRouter;
   let $urp: UrlRouterProvider,
     $lp: ILocationProvider,
@@ -20,9 +20,9 @@ describe('UrlRouter', function() {
     match,
     scope;
 
-  describe('provider', function() {
-    beforeEach(function() {
-      angular.module('ui.router.router.test', []).config(function($uiRouterProvider) {
+  describe('provider', function () {
+    beforeEach(function () {
+      angular.module('ui.router.router.test', []).config(function ($uiRouterProvider) {
         router = $uiRouterProvider;
         $umf = router.urlMatcherFactory;
         $urp = router.urlRouterProvider;
@@ -31,25 +31,25 @@ describe('UrlRouter', function() {
 
       module('ui.router.router', 'ui.router.router.test');
 
-      inject(function($rootScope, $location) {
+      inject(function ($rootScope, $location) {
         scope = $rootScope.$new();
         location = $location;
       });
     });
 
-    it('should throw on non-function rules', function() {
-      expect(function() {
+    it('should throw on non-function rules', function () {
+      expect(function () {
         $urp.rule(null);
       }).toThrowError("'rule' must be a function");
-      expect(function() {
+      expect(function () {
         $urp.otherwise(null);
       }).toThrowError("'rule' must be a string or function");
     });
 
-    it('should allow location changes to be deferred', inject(function($urlRouter, $location, $rootScope) {
+    it('should allow location changes to be deferred', inject(function ($urlRouter, $location, $rootScope) {
       const log = [];
 
-      $urp.rule(function($injector, $location) {
+      $urp.rule(function ($injector, $location) {
         log.push($location.path());
         return null;
       });
@@ -66,9 +66,9 @@ describe('UrlRouter', function() {
     }));
   });
 
-  describe('service', function() {
-    beforeEach(function() {
-      angular.module('ui.router.router.test', []).config(function($uiRouterProvider, $locationProvider) {
+  describe('service', function () {
+    beforeEach(function () {
+      angular.module('ui.router.router.test', []).config(function ($uiRouterProvider, $locationProvider) {
         router = $uiRouterProvider;
         $umf = router.urlMatcherFactory;
         $urp = router.urlRouterProvider;
@@ -76,22 +76,22 @@ describe('UrlRouter', function() {
         $locationProvider.hashPrefix('');
 
         $urp
-          .rule(function($injector, $location) {
+          .rule(function ($injector, $location) {
             const path = $location.path();
             if (!/baz/.test(path)) return;
             return path.replace('baz', 'b4z');
           })
-          .when('/foo/:param', function($match) {
+          .when('/foo/:param', function ($match) {
             match = ['/foo/:param', $match];
           })
-          .when('/bar', function($match) {
+          .when('/bar', function ($match) {
             match = ['/bar', $match];
           });
       });
 
       module('ui.router.router', 'ui.router.router.test');
 
-      inject(function($rootScope, $location, $injector) {
+      inject(function ($rootScope, $location, $injector) {
         scope = $rootScope.$new();
         location = $location;
         $ur = $injector.invoke($urp['$get'], $urp);
@@ -100,7 +100,7 @@ describe('UrlRouter', function() {
       });
     });
 
-    it('should execute rewrite rules', function() {
+    it('should execute rewrite rules', function () {
       location.path('/foo');
       scope.$emit('$locationChangeSuccess');
       expect(location.path()).toBe('/foo');
@@ -110,14 +110,14 @@ describe('UrlRouter', function() {
       expect(location.path()).toBe('/b4z');
     });
 
-    it('should keep otherwise last', function() {
+    it('should keep otherwise last', function () {
       $urp.otherwise('/otherwise');
 
       location.path('/lastrule');
       scope.$emit('$locationChangeSuccess');
       expect(location.path()).toBe('/otherwise');
 
-      $urp.when('/lastrule', function($match) {
+      $urp.when('/lastrule', function ($match) {
         match = ['/lastrule', $match];
       });
 
@@ -126,10 +126,10 @@ describe('UrlRouter', function() {
       expect(location.path()).toBe('/lastrule');
     });
 
-    it('can be cancelled by preventDefault() in $locationChangeSuccess', inject(function() {
+    it('can be cancelled by preventDefault() in $locationChangeSuccess', inject(function () {
       let called;
       location.path('/baz');
-      scope.$on('$locationChangeSuccess', function(ev) {
+      scope.$on('$locationChangeSuccess', function (ev) {
         ev.preventDefault();
         called = true;
       });
@@ -138,10 +138,10 @@ describe('UrlRouter', function() {
       expect(location.path()).toBe('/baz');
     }));
 
-    it('can be deferred and updated in $locationChangeSuccess', inject(function($urlRouter, $timeout) {
+    it('can be deferred and updated in $locationChangeSuccess', inject(function ($urlRouter, $timeout) {
       let called;
       location.path('/baz');
-      scope.$on('$locationChangeSuccess', function(ev) {
+      scope.$on('$locationChangeSuccess', function (ev) {
         ev.preventDefault();
         called = true;
         $timeout(() => $urlRouter.sync(), 2000);
@@ -152,11 +152,11 @@ describe('UrlRouter', function() {
       expect(location.path()).toBe('/b4z');
     }));
 
-    it('rule should return a deregistration function', function() {
+    it('rule should return a deregistration function', function () {
       let count = 0,
         rule: UrlRule = {
           match: () => count++,
-          handler: match => match,
+          handler: (match) => match,
           matchPriority: () => 0,
           $id: 0,
           priority: 0,
@@ -174,11 +174,11 @@ describe('UrlRouter', function() {
       expect(count).toBe(2);
     });
 
-    it('removeRule should remove a previously registered rule', function() {
+    it('removeRule should remove a previously registered rule', function () {
       let count = 0,
         rule = {
           match: () => count++,
-          handler: match => match,
+          handler: (match) => match,
           matchPriority: () => 0,
           $id: 0,
           priority: 0,
@@ -196,29 +196,29 @@ describe('UrlRouter', function() {
       expect(count).toBe(2);
     });
 
-    describe('location updates', function() {
-      it('can push location changes', inject(function($urlRouter) {
+    describe('location updates', function () {
+      it('can push location changes', inject(function ($urlRouter) {
         const spy = spyOn(router.locationService, 'url');
         $urlRouter.push($umf.compile('/hello/:name'), { name: 'world' });
         expect(spy).toHaveBeenCalled();
         expect(spy.calls.mostRecent().args[0]).toBe('/hello/world');
       }));
 
-      it('can push a replacement location', inject(function($urlRouter, $location) {
+      it('can push a replacement location', inject(function ($urlRouter, $location) {
         const spy = spyOn(router.locationService, 'url');
         $urlRouter.push($umf.compile('/hello/:name'), { name: 'world' }, { replace: true });
         expect(spy).toHaveBeenCalled();
         expect(spy.calls.mostRecent().args.slice(0, 2)).toEqual(['/hello/world', true]);
       }));
 
-      it('can push location changes with no parameters', inject(function($urlRouter, $location) {
+      it('can push location changes with no parameters', inject(function ($urlRouter, $location) {
         const spy = spyOn(router.locationService, 'url');
         $urlRouter.push($umf.compile('/hello/:name', { state: { params: { name: '' } } }));
         expect(spy).toHaveBeenCalled();
         expect(spy.calls.mostRecent().args[0]).toBe('/hello/');
       }));
 
-      it('can push an empty url', inject(function($urlRouter, $location) {
+      it('can push an empty url', inject(function ($urlRouter, $location) {
         const spy = spyOn(router.locationService, 'url');
         $urlRouter.push($umf.compile('/{id}', { state: { params: { id: { squash: true, value: null } } } }));
         expect(spy).toHaveBeenCalled();
@@ -228,7 +228,7 @@ describe('UrlRouter', function() {
       // Angular 1.2 doesn't seem to support $location.url("")
       if (angular.version.minor >= 3) {
         // Test for https://github.com/angular-ui/ui-router/issues/3563
-        it('updates url after an empty url is pushed', inject(function($urlRouter, $location) {
+        it('updates url after an empty url is pushed', inject(function ($urlRouter, $location) {
           $lp.html5Mode(false);
           const spy = spyOn(router.locationService, 'url').and.callThrough();
           $urlRouter.push($umf.compile('/foobar'));
@@ -239,7 +239,7 @@ describe('UrlRouter', function() {
         }));
 
         // Test #2 for https://github.com/angular-ui/ui-router/issues/3563
-        it('updates html5mode url after an empty url is pushed', inject(function($urlRouter, $location) {
+        it('updates html5mode url after an empty url is pushed', inject(function ($urlRouter, $location) {
           $lp.html5Mode(true);
           const spy = spyOn(router.locationService, 'url').and.callThrough();
           $urlRouter.push($umf.compile('/foobar'));
@@ -250,7 +250,7 @@ describe('UrlRouter', function() {
         }));
       }
 
-      it('can push location changes that include a #fragment', inject(function($urlRouter, $location) {
+      it('can push location changes that include a #fragment', inject(function ($urlRouter, $location) {
         // html5mode disabled
         $lp.html5Mode(false);
         expect(html5Compat($lp.html5Mode())).toBe(false);
@@ -266,7 +266,7 @@ describe('UrlRouter', function() {
         expect($location.hash()).toBe('frag');
       }));
 
-      it('can read and sync a copy of location URL', inject(function($urlRouter, $location) {
+      it('can read and sync a copy of location URL', inject(function ($urlRouter, $location) {
         $location.url('/old');
 
         spyOn(router.locationService, 'url').and.callThrough();
@@ -279,7 +279,7 @@ describe('UrlRouter', function() {
         expect($location.url()).toBe('/old');
       }));
 
-      it('can read and sync a copy of location URL including query params', inject(function($urlRouter, $location) {
+      it('can read and sync a copy of location URL including query params', inject(function ($urlRouter, $location) {
         $location.url('/old?param=foo');
 
         spyOn(router.locationService, 'url').and.callThrough();
@@ -293,16 +293,16 @@ describe('UrlRouter', function() {
       }));
     });
 
-    describe('URL generation', function() {
-      it('should return null when UrlMatcher rejects parameters', inject(function($urlRouter: UrlRouter) {
-        $umf.type('custom', <any>{ is: val => val === 1138 });
+    describe('URL generation', function () {
+      it('should return null when UrlMatcher rejects parameters', inject(function ($urlRouter: UrlRouter) {
+        $umf.type('custom', <any>{ is: (val) => val === 1138 });
         const matcher = $umf.compile('/foo/{param:custom}');
 
         expect($urlRouter.href(matcher, { param: 1138 })).toBe('#/foo/1138');
         expect($urlRouter.href(matcher, { param: 5 })).toBeNull();
       }));
 
-      it('should handle the new html5Mode object config from Angular 1.3', inject(function($urlRouter: UrlRouter) {
+      it('should handle the new html5Mode object config from Angular 1.3', inject(function ($urlRouter: UrlRouter) {
         $lp.html5Mode({
           enabled: false,
         });
@@ -310,7 +310,7 @@ describe('UrlRouter', function() {
         expect($urlRouter.href($umf.compile('/hello'))).toBe('#/hello');
       }));
 
-      it('should return URLs with #fragments', inject(function($urlRouter: UrlRouter) {
+      it('should return URLs with #fragments', inject(function ($urlRouter: UrlRouter) {
         // html5mode disabled
         $lp.html5Mode(false);
         expect(html5Compat($lp.html5Mode())).toBe(false);
@@ -324,7 +324,7 @@ describe('UrlRouter', function() {
         expect($urlRouter.href($umf.compile('/hello/:name'), { name: 'world', '#': 'frag' })).toBe('/hello/world#frag');
       }));
 
-      it('should return URLs with #fragments when html5Mode is true & browser does not support pushState', inject(function(
+      it('should return URLs with #fragments when html5Mode is true & browser does not support pushState', inject(function (
         $urlRouter: UrlRouter
       ) {
         $lp.html5Mode(true);

@@ -5,18 +5,15 @@ declare var inject;
 
 const module = angular['mock'].module;
 
-describe('isState filter', function() {
+describe('isState filter', function () {
   beforeEach(module('ui.router'));
   beforeEach(
-    module(function($stateProvider) {
-      $stateProvider
-        .state('a', { url: '/' })
-        .state('a.b', { url: '/b' })
-        .state('with-param', { url: '/with/:param' });
+    module(function ($stateProvider) {
+      $stateProvider.state('a', { url: '/' }).state('a.b', { url: '/b' }).state('with-param', { url: '/with/:param' });
     })
   );
 
-  it('should return true if the current state exactly matches the input state', inject(function(
+  it('should return true if the current state exactly matches the input state', inject(function (
     $parse,
     $state,
     $q,
@@ -27,7 +24,7 @@ describe('isState filter', function() {
     expect($parse('"a" | isState')($rootScope)).toBe(true);
   }));
 
-  it('should return false if the current state does not exactly match the input state', inject(function(
+  it('should return false if the current state does not exactly match the input state', inject(function (
     $parse,
     $q,
     $state,
@@ -38,7 +35,7 @@ describe('isState filter', function() {
     expect($parse('"a" | isState')($rootScope)).toBe(false);
   }));
 
-  it('should return true if the current state and param matches the input state', inject(function(
+  it('should return true if the current state and param matches the input state', inject(function (
     $parse,
     $state,
     $q,
@@ -49,7 +46,7 @@ describe('isState filter', function() {
     expect($parse('"with-param" | isState: {param: "a"}')($rootScope)).toBe(true);
   }));
 
-  it('should return false if the current state and param does not match the input state', inject(function(
+  it('should return false if the current state and param does not match the input state', inject(function (
     $parse,
     $state,
     $q,
@@ -61,10 +58,10 @@ describe('isState filter', function() {
   }));
 });
 
-describe('includedByState filter', function() {
+describe('includedByState filter', function () {
   beforeEach(module('ui.router'));
   beforeEach(
-    module(function($stateProvider) {
+    module(function ($stateProvider) {
       $stateProvider
         .state('a', { url: '/' })
         .state('a.b', { url: '/b' })
@@ -73,7 +70,7 @@ describe('includedByState filter', function() {
     })
   );
 
-  it('should return true if the current state exactly matches the input state', inject(function(
+  it('should return true if the current state exactly matches the input state', inject(function (
     $parse,
     $state,
     $q,
@@ -84,7 +81,7 @@ describe('includedByState filter', function() {
     expect($parse('"a" | includedByState')($rootScope)).toBe(true);
   }));
 
-  it('should return true if the current state includes the input state', inject(function(
+  it('should return true if the current state includes the input state', inject(function (
     $parse,
     $state,
     $q,
@@ -95,7 +92,7 @@ describe('includedByState filter', function() {
     expect($parse('"a" | includedByState')($rootScope)).toBe(true);
   }));
 
-  it('should return false if the current state does not include input state', inject(function(
+  it('should return false if the current state does not include input state', inject(function (
     $parse,
     $state,
     $q,
@@ -106,7 +103,7 @@ describe('includedByState filter', function() {
     expect($parse('"a" | includedByState')($rootScope)).toBe(false);
   }));
 
-  it('should return true if the current state include input state and params', inject(function(
+  it('should return true if the current state include input state and params', inject(function (
     $parse,
     $state,
     $q,
@@ -117,7 +114,7 @@ describe('includedByState filter', function() {
     expect($parse('"d" | includedByState:{ id: 123 }')($rootScope)).toBe(true);
   }));
 
-  it('should return false if the current state does not include input state and params', inject(function(
+  it('should return false if the current state does not include input state and params', inject(function (
     $parse,
     $state,
     $q,

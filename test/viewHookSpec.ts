@@ -20,7 +20,7 @@ describe('view hooks', () => {
     restrict: 'E',
     scope: { cmpdata: '=' },
     bindToController: true,
-    controller: function() {},
+    controller: function () {},
     controllerAs: '$ctrl',
     template: '{{$ctrl.cmpdata}}',
   };
@@ -30,7 +30,7 @@ describe('view hooks', () => {
   });
 
   beforeEach(
-    angular['mock'].module($stateProvider => {
+    angular['mock'].module(($stateProvider) => {
       ctrl = function controller() {
         this.data = 'DATA';
       };
@@ -75,8 +75,8 @@ describe('view hooks', () => {
     };
 
     it("can cancel a transition that would exit the view's state by returning false", () => {
-      $state.defaultErrorHandler(function() {});
-      ctrl.prototype.uiCanExit = function() {
+      $state.defaultErrorHandler(function () {});
+      ctrl.prototype.uiCanExit = function () {
         log += 'canexit;';
         return false;
       };
@@ -90,7 +90,7 @@ describe('view hooks', () => {
     });
 
     it('can allow the transition by returning true', () => {
-      ctrl.prototype.uiCanExit = function() {
+      ctrl.prototype.uiCanExit = function () {
         log += 'canexit;';
         return true;
       };
@@ -104,7 +104,7 @@ describe('view hooks', () => {
     });
 
     it('can allow the transition by returning nothing', () => {
-      ctrl.prototype.uiCanExit = function() {
+      ctrl.prototype.uiCanExit = function () {
         log += 'canexit;';
       };
       initial();
@@ -117,7 +117,7 @@ describe('view hooks', () => {
     });
 
     it('can redirect the transition', () => {
-      ctrl.prototype.uiCanExit = function(trans) {
+      ctrl.prototype.uiCanExit = function (trans) {
         log += 'canexit;';
         return trans.router.stateService.target('baz');
       };
@@ -131,13 +131,13 @@ describe('view hooks', () => {
     });
 
     it('can cancel the transition by returning a rejected promise', inject(($q, $state) => {
-      ctrl.prototype.uiCanExit = function() {
+      ctrl.prototype.uiCanExit = function () {
         log += 'canexit;';
         return $q.reject('nope');
       };
       initial();
 
-      $state.defaultErrorHandler(function() {});
+      $state.defaultErrorHandler(function () {});
       $state.go('bar');
       $q.flush();
       $timeout.flush();
@@ -145,9 +145,9 @@ describe('view hooks', () => {
       expect($state.current.name).toBe('foo');
     }));
 
-    it('can wait for a promise and then reject the transition', inject($timeout => {
-      $state.defaultErrorHandler(function() {});
-      ctrl.prototype.uiCanExit = function() {
+    it('can wait for a promise and then reject the transition', inject(($timeout) => {
+      $state.defaultErrorHandler(function () {});
+      ctrl.prototype.uiCanExit = function () {
         log += 'canexit;';
         return $timeout(() => {
           log += 'delay;';
@@ -163,8 +163,8 @@ describe('view hooks', () => {
       expect($state.current.name).toBe('foo');
     }));
 
-    it('can wait for a promise and then allow the transition', inject($timeout => {
-      ctrl.prototype.uiCanExit = function() {
+    it('can wait for a promise and then allow the transition', inject(($timeout) => {
+      ctrl.prototype.uiCanExit = function () {
         log += 'canexit;';
         return $timeout(() => {
           log += 'delay;';
@@ -180,7 +180,7 @@ describe('view hooks', () => {
     }));
 
     it("has 'this' bound to the controller", () => {
-      ctrl.prototype.uiCanExit = function() {
+      ctrl.prototype.uiCanExit = function () {
         log += this.data;
       };
       initial();
@@ -194,7 +194,7 @@ describe('view hooks', () => {
 
     it('receives the new Transition as the first argument', () => {
       const _state = $state;
-      ctrl.prototype.uiCanExit = function(trans) {
+      ctrl.prototype.uiCanExit = function (trans) {
         log += 'canexit;';
         expect(typeof trans.treeChanges).toBe('function');
         expect(trans.injector().get('$state')).toBe(_state);
@@ -210,7 +210,7 @@ describe('view hooks', () => {
 
     // Test for https://github.com/angular-ui/ui-router/issues/3308
     it('should trigger once when answered truthy even if redirected', () => {
-      ctrl.prototype.uiCanExit = function() {
+      ctrl.prototype.uiCanExit = function () {
         log += 'canexit;';
         return true;
       };
@@ -225,7 +225,7 @@ describe('view hooks', () => {
 
     // Test for https://github.com/angular-ui/ui-router/issues/3308
     it('should trigger only once if returns a redirect', () => {
-      ctrl.prototype.uiCanExit = function() {
+      ctrl.prototype.uiCanExit = function () {
         log += 'canexit;';
         return $state.target('bar');
       };

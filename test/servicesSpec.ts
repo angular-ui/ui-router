@@ -11,7 +11,7 @@ describe('UI-Router services', () => {
   let services;
 
   beforeEach(
-    module('ui.router', function(
+    module('ui.router', function (
       _$uiRouterProvider_,
       $urlMatcherFactoryProvider,
       $urlRouterProvider,
@@ -36,7 +36,7 @@ describe('UI-Router services', () => {
     })
   );
 
-  beforeEach(inject(function(
+  beforeEach(inject(function (
     _$uiRouter_,
     $urlMatcherFactory,
     $urlRouter,
