@@ -28,37 +28,37 @@ function getStates() {
   return {
     A: {
       resolve: {
-        _A: function() {
+        _A: function () {
           return 'A';
         },
-        _A2: function() {
+        _A2: function () {
           return 'A2';
         },
       },
       B: {
         resolve: {
-          _B: function() {
+          _B: function () {
             return 'B';
           },
-          _B2: function() {
+          _B2: function () {
             return 'B2';
           },
         },
         C: {
           resolve: {
-            _C: function(_A, _B) {
+            _C: function (_A, _B) {
               return _A + _B + 'C';
             },
-            _C2: function() {
+            _C2: function () {
               return 'C2';
             },
           },
           D: {
             resolve: {
-              _D: function(_D2) {
+              _D: function (_D2) {
                 return 'D1' + _D2;
               },
-              _D2: function() {
+              _D2: function () {
                 return 'D2';
               },
             },
@@ -67,16 +67,16 @@ function getStates() {
       },
       E: {
         resolve: {
-          _E: function() {
+          _E: function () {
             return 'E';
           },
         },
         F: {
           resolve: {
-            _E: function() {
+            _E: function () {
               return '_E';
             },
-            _F: function(_E) {
+            _F: function (_E) {
               return _E + 'F';
             },
           },
@@ -84,16 +84,16 @@ function getStates() {
       },
       G: {
         resolve: {
-          _G: function() {
+          _G: function () {
             return 'G';
           },
         },
         H: {
           resolve: {
-            _G: function(_G) {
+            _G: function (_G) {
               return _G + '_G';
             },
-            _H: function(_G) {
+            _H: function (_G) {
               return _G + 'H';
             },
           },
@@ -101,7 +101,7 @@ function getStates() {
       },
       I: {
         resolve: {
-          _I: function(_I) {
+          _I: function (_I) {
             return 'I';
           },
         },
@@ -109,32 +109,32 @@ function getStates() {
     },
     J: {
       resolve: {
-        _J: function() {
+        _J: function () {
           counts['_J']++;
           return 'J';
         },
-        _J2: function(_J) {
+        _J2: function (_J) {
           counts['_J2']++;
           return _J + 'J2';
         },
       },
       K: {
         resolve: {
-          _K: function(_J2) {
+          _K: function (_J2) {
             counts['_K']++;
             return _J2 + 'K';
           },
         },
         L: {
           resolve: {
-            _L: function(_K) {
+            _L: function (_K) {
               counts['_L']++;
               return _K + 'L';
             },
           },
           M: {
             resolve: {
-              _M: function(_L) {
+              _M: function (_L) {
                 counts['_M']++;
                 return _L + 'M';
               },
@@ -145,23 +145,23 @@ function getStates() {
     },
     O: {
       resolve: {
-        _O: function(_O2) {
+        _O: function (_O2) {
           return _O2 + 'O';
         },
-        _O2: function(_O) {
+        _O2: function (_O) {
           return _O + 'O2';
         },
       },
     },
     P: {
       resolve: {
-        $state: function($state) {
+        $state: function ($state) {
           return $state;
         },
       },
       Q: {
         resolve: {
-          _Q: function($state) {
+          _Q: function ($state) {
             counts._Q++;
             vals._Q = $state;
             return 'foo';
@@ -173,7 +173,7 @@ function getStates() {
       resolve: {
         $state: [
           '$state',
-          function($state) {
+          function ($state) {
             return $state;
           },
         ],
@@ -182,7 +182,7 @@ function getStates() {
   };
 }
 
-beforeEach(function() {
+beforeEach(function () {
   counts = { _J: 0, _J2: 0, _K: 0, _L: 0, _M: 0, _Q: 0 };
   vals = { _Q: null };
   expectCounts = angular.copy(counts);
@@ -201,7 +201,7 @@ beforeEach(function() {
     thisState.params = {};
     thisState.data = { children: [] };
 
-    angular.forEach(substates, function(value, key) {
+    angular.forEach(substates, function (value, key) {
       thisState.data.children.push(loadStates(thisState, value, key));
     });
     thisState = StateObject.create(thisState);
@@ -211,20 +211,20 @@ beforeEach(function() {
 });
 
 function makePath(names: string[]): PathNode[] {
-  return names.map(name => new PathNode(statesMap[name]));
+  return names.map((name) => new PathNode(statesMap[name]));
 }
 
-describe('Resolvables system:', function() {
-  beforeEach(inject(function($transitions, $injector) {
+describe('Resolvables system:', function () {
+  beforeEach(inject(function ($transitions, $injector) {
     emptyPath = [];
     asyncCount = 0;
   }));
 
-  describe('strictDi support', function() {
+  describe('strictDi support', function () {
     let originalStrictDi: boolean;
     let supportsStrictDi = false;
 
-    beforeEach(inject(function($injector) {
+    beforeEach(inject(function ($injector) {
       // not all angular versions support strictDi mode.
       // here, we detect the feature
       try {
@@ -239,13 +239,13 @@ describe('Resolvables system:', function() {
       }
     }));
 
-    afterEach(inject(function($injector) {
+    afterEach(inject(function ($injector) {
       if (supportsStrictDi) {
         $injector.strictDi = originalStrictDi;
       }
     }));
 
-    it('should throw when creating a resolvable with an unannotated fn and strictDi mode on', inject(function(
+    it('should throw when creating a resolvable with an unannotated fn and strictDi mode on', inject(function (
       $injector
     ) {
       if (supportsStrictDi) {
@@ -255,7 +255,7 @@ describe('Resolvables system:', function() {
       }
     }));
 
-    it('should not throw when creating a resolvable with an annotated fn and strictDi mode on', inject(function(
+    it('should not throw when creating a resolvable with an annotated fn and strictDi mode on', inject(function (
       $injector
     ) {
       if (supportsStrictDi) {
@@ -267,26 +267,26 @@ describe('Resolvables system:', function() {
   });
 });
 
-describe('$resolve', function() {
+describe('$resolve', function () {
   let $r, tick;
 
   beforeEach(module('ui.router'));
   beforeEach(
-    module(function($provide, $exceptionHandlerProvider) {
+    module(function ($provide, $exceptionHandlerProvider) {
       $exceptionHandlerProvider.mode('log'); // Don't rethrow from a promise
-      $provide.factory('Foo', function() {
+      $provide.factory('Foo', function () {
         return 'Working';
       });
     })
   );
 
-  beforeEach(inject(function($resolve, $q) {
+  beforeEach(inject(function ($resolve, $q) {
     $r = $resolve;
     tick = $q.flush;
   }));
 
-  describe('.resolve()', function() {
-    it('calls injectable functions and returns a promise', function() {
+  describe('.resolve()', function () {
+    it('calls injectable functions and returns a promise', function () {
       const fun: Spy = jasmine.createSpy('fun');
       fun.and.returnValue(42);
       const r = $r.resolve({ fun: ['$resolve', fun] });
@@ -299,7 +299,7 @@ describe('$resolve', function() {
       expect(fun.calls.mostRecent().args[0]).toBe($r);
     });
 
-    it('resolves promises returned from the functions', inject(function($q) {
+    it('resolves promises returned from the functions', inject(function ($q) {
       const d = $q.defer();
       const fun = jasmine.createSpy('fun').and.returnValue(d.promise);
       const r = $r.resolve({ fun: ['$resolve', fun] });
@@ -310,7 +310,7 @@ describe('$resolve', function() {
       expect(resolvedValue(r)).toEqual({ fun: 'async' });
     }));
 
-    it('resolves dependencies between functions', function() {
+    it('resolves dependencies between functions', function () {
       const a = jasmine.createSpy('a');
       const b = jasmine.createSpy('b').and.returnValue('bb');
       const r = $r.resolve({ a: ['b', a], b: [b] });
@@ -320,7 +320,7 @@ describe('$resolve', function() {
       expect(b).toHaveBeenCalled();
     });
 
-    it('resolves dependencies between functions that return promises', inject(function($q) {
+    it('resolves dependencies between functions that return promises', inject(function ($q) {
       const ad = $q.defer(),
         a = jasmine.createSpy('a');
       a.and.returnValue(ad.promise);
@@ -357,11 +357,11 @@ describe('$resolve', function() {
     }));
 
     // TODO: Reimplement cycle detection
-    xit('refuses cyclic dependencies', function() {
+    xit('refuses cyclic dependencies', function () {
       const a = jasmine.createSpy('a');
       const b = jasmine.createSpy('b');
       expect(
-        caught(function() {
+        caught(function () {
           $r.resolve({ a: ['b', a], b: ['a', b] });
         })
       ).toMatch(/cyclic/i);
@@ -369,9 +369,9 @@ describe('$resolve', function() {
       expect(b).not.toHaveBeenCalled();
     });
 
-    it('allows a function to depend on an injector value of the same name', function() {
+    it('allows a function to depend on an injector value of the same name', function () {
       const r = $r.resolve({
-        $resolve: function($resolve) {
+        $resolve: function ($resolve) {
           return $resolve === $r;
         },
       });
@@ -379,7 +379,7 @@ describe('$resolve', function() {
       expect(resolvedValue(r)).toEqual({ $resolve: true });
     });
 
-    it('allows locals to be passed that override the injector', function() {
+    it('allows locals to be passed that override the injector', function () {
       const fun = jasmine.createSpy('fun');
       $r.resolve({ fun: ['$resolve', fun] }, { $resolve: 42 });
       tick();
@@ -387,7 +387,7 @@ describe('$resolve', function() {
       expect(fun.calls.mostRecent().args[0]).toBe(42);
     });
 
-    it('does not call injectables overridden by a local', function() {
+    it('does not call injectables overridden by a local', function () {
       const fun = jasmine.createSpy('fun').and.returnValue('function');
       const r = $r.resolve({ fun: [fun] }, { fun: 'local' });
       tick();
@@ -395,22 +395,22 @@ describe('$resolve', function() {
       expect(resolvedValue(r)).toEqual({ fun: 'local' });
     });
 
-    it('includes locals in the returned values', function() {
+    it('includes locals in the returned values', function () {
       const locals = { foo: 'hi', bar: 'mom' };
       const r = $r.resolve({}, locals);
       tick();
       expect(resolvedValue(r)).toEqual(locals);
     });
 
-    it('allows inheritance from a parent resolve()', function() {
+    it('allows inheritance from a parent resolve()', function () {
       const r = $r.resolve({
-        fun: function() {
+        fun: function () {
           return true;
         },
       });
       const s = $r.resolve(
         {
-          games: function() {
+          games: function () {
             return true;
           },
         },
@@ -422,10 +422,10 @@ describe('$resolve', function() {
       expect(resolvedValue(s)).toEqual({ fun: true, games: true });
     });
 
-    it('resolves dependencies from a parent resolve()', function() {
+    it('resolves dependencies from a parent resolve()', function () {
       const r = $r.resolve({
         a: [
-          function() {
+          function () {
             return 'aa';
           },
         ],
@@ -437,7 +437,7 @@ describe('$resolve', function() {
       expect(b.calls.mostRecent().args).toEqual(['aa']);
     });
 
-    it('allow access to ancestor resolves in descendent resolve blocks', inject(function($q) {
+    it('allow access to ancestor resolves in descendent resolve blocks', inject(function ($q) {
       const gPromise = $q.defer(),
         gInjectable = jasmine.createSpy('gInjectable').and.returnValue(gPromise.promise),
         pPromise = $q.defer(),
@@ -460,13 +460,13 @@ describe('$resolve', function() {
     }));
 
     // test for #1353
-    it('allow parent resolve to override grandparent resolve', inject(function($q) {
+    it('allow parent resolve to override grandparent resolve', inject(function ($q) {
       const gPromise = $q.defer(),
         gInjectable = jasmine.createSpy('gInjectable').and.returnValue(gPromise.promise);
 
       const g = $r.resolve({
         item: [
-          function() {
+          function () {
             return 'grandparent';
           },
         ],
@@ -477,7 +477,7 @@ describe('$resolve', function() {
       const p = $r.resolve(
         {
           item: [
-            function() {
+            function () {
               return 'parent';
             },
           ],
@@ -488,7 +488,7 @@ describe('$resolve', function() {
       const s = jasmine.createSpy('s');
       const c = $r.resolve({ c: [s] }, {}, p);
       let item;
-      c.then(function(vals) {
+      c.then(function (vals) {
         item = vals.item;
       });
       tick();
@@ -497,21 +497,21 @@ describe('$resolve', function() {
       expect(item).toBe('parent');
     }));
 
-    it('allows a function to override a parent value of the same name', function() {
+    it('allows a function to override a parent value of the same name', function () {
       const r = $r.resolve({
-        b: function() {
+        b: function () {
           return 'B';
         },
       });
       const s = $r.resolve(
         {
-          a: function(b) {
+          a: function (b) {
             return 'a:' + b;
           },
-          b: function(b) {
+          b: function (b) {
             return '(' + b + ')';
           },
-          c: function(b) {
+          c: function (b) {
             return 'c:' + b;
           },
         },
@@ -522,9 +522,9 @@ describe('$resolve', function() {
       expect(resolvedValue(s)).toEqual({ a: 'a:(B)', b: '(B)', c: 'c:(B)' });
     });
 
-    it('allows a function to override a parent value of the same name with a promise', inject(function($q) {
+    it('allows a function to override a parent value of the same name with a promise', inject(function ($q) {
       const r = $r.resolve({
-        b: function() {
+        b: function () {
           return 'B';
         },
       });
@@ -532,14 +532,14 @@ describe('$resolve', function() {
         bd = $q.defer();
       const s = $r.resolve(
         {
-          a: function(b) {
+          a: function (b) {
             return 'a:' + b;
           },
-          b: function(b) {
+          b: function (b) {
             superb = b;
             return bd.promise;
           },
-          c: function(b) {
+          c: function (b) {
             return 'c:' + b;
           },
         },
@@ -552,7 +552,7 @@ describe('$resolve', function() {
       expect(resolvedValue(s)).toEqual({ a: 'a:(B)', b: '(B)', c: 'c:(B)' });
     }));
 
-    it('it only resolves after the parent resolves', inject(function($q) {
+    it('it only resolves after the parent resolves', inject(function ($q) {
       const bd = $q.defer(),
         b = jasmine.createSpy('b').and.returnValue(bd.promise);
       const cd = $q.defer(),
@@ -569,16 +569,16 @@ describe('$resolve', function() {
       expect(resolvedValue(s)).toEqual({ b: 'bbb', c: 'ccc' });
     }));
 
-    it('rejects missing dependencies but does not fail synchronously', function() {
-      const r = $r.resolve({ fun: function(invalid) {} });
+    it('rejects missing dependencies but does not fail synchronously', function () {
+      const r = $r.resolve({ fun: function (invalid) {} });
       expect(r).not.toBeResolved();
       tick();
       expect(resolvedError(r)).toMatch(/unknown provider/i);
     });
 
-    it('propagates exceptions thrown by the functions as a rejection', function() {
+    it('propagates exceptions thrown by the functions as a rejection', function () {
       const r = $r.resolve({
-        fun: function() {
+        fun: function () {
           throw 'i want cake';
         },
       });
@@ -587,16 +587,16 @@ describe('$resolve', function() {
       expect(resolvedError(r)).toBe('i want cake');
     });
 
-    it('propagates errors from a parent resolve', function() {
+    it('propagates errors from a parent resolve', function () {
       const error = ['the cake is a lie'];
       const r = $r.resolve({
-        foo: function() {
+        foo: function () {
           throw error;
         },
       });
       const s = $r.resolve(
         {
-          bar: function() {
+          bar: function () {
             42;
           },
         },
@@ -607,9 +607,9 @@ describe('$resolve', function() {
       expect(resolvedError(s)).toBe(error);
     });
 
-    it('does not invoke any functions if the parent resolve has already failed', function() {
+    it('does not invoke any functions if the parent resolve has already failed', function () {
       const r = $r.resolve({
-        foo: function() {
+        foo: function () {
           throw 'oops';
         },
       });
@@ -623,7 +623,7 @@ describe('$resolve', function() {
     });
 
     // TODO: Resolvables don't do this; the $resolve service used to.  Possibly reimplement this short-circuit.
-    xit('does not invoke any more functions after a failure', inject(function($q) {
+    xit('does not invoke any more functions after a failure', inject(function ($q) {
       const ad = $q.defer(),
         a = jasmine.createSpy('a').and.returnValue(ad.promise);
       const cd = $q.defer(),
@@ -639,7 +639,7 @@ describe('$resolve', function() {
       expect(a).not.toHaveBeenCalled();
     }));
 
-    it('does not invoke any more functions after a parent failure', inject(function($q) {
+    it('does not invoke any more functions after a parent failure', inject(function ($q) {
       const ad = $q.defer(),
         a = jasmine.createSpy('a').and.returnValue(ad.promise);
       const cd = $q.defer(),
@@ -662,15 +662,15 @@ describe('$resolve', function() {
 // Integration tests
 describe('Integration: Resolvables system', () => {
   beforeEach(
-    module(function() {
+    module(function () {
       const app = angular.module('test', ['ui.router']);
       if (angular.version.minor >= 5) {
         app.component('nowait', {
           bindings: { wait: '<', nowait: '<' },
           template: '{{ $ctrl.wait }}-{{ $ctrl.data }}',
-          controller: function() {
+          controller: function () {
             this.$onInit = () => {
-              this.nowait.then(result => (this.data = result));
+              this.nowait.then((result) => (this.data = result));
             };
           },
         });
@@ -679,7 +679,7 @@ describe('Integration: Resolvables system', () => {
   );
 
   beforeEach(
-    module(function($stateProvider) {
+    module(function ($stateProvider) {
       const copy = {};
       forEach(statesMap, (stateDef, name) => {
         copy[name] = stateDef;
@@ -704,9 +704,9 @@ describe('Integration: Resolvables system', () => {
   }));
 
   it('should not re-resolve data, when redirecting to a child', () => {
-    $transitions.onStart({ to: 'J' }, $transition$ => {
+    $transitions.onStart({ to: 'J' }, ($transition$) => {
       const ctx = new ResolveContext($transition$.treeChanges().to);
-      return invokeLater(function(_J) {}, ctx).then(function() {
+      return invokeLater(function (_J) {}, ctx).then(function () {
         expect(counts._J).toEqualData(1);
         return $state.target('K');
       });
@@ -725,7 +725,7 @@ describe('Integration: Resolvables system', () => {
       resolve: {
         myresolve: () => 'foodata',
       },
-      onEnter: myresolve => (injectedData = myresolve),
+      onEnter: (myresolve) => (injectedData = myresolve),
     });
 
     router.stateRegistry.register({
@@ -742,7 +742,7 @@ describe('Integration: Resolvables system', () => {
     expect(injectedData).toBe('foodata');
   });
 
-  it('should inject a promise for NOWAIT resolve into a controller', inject(function($compile, $rootScope) {
+  it('should inject a promise for NOWAIT resolve into a controller', inject(function ($compile, $rootScope) {
     const scope = $rootScope.$new();
     const el = $compile('<div><ui-view></ui-view></div>')(scope);
 
@@ -756,12 +756,12 @@ describe('Integration: Resolvables system', () => {
         { token: 'nowait', resolveFn: () => deferNowait.promise, policy: { async: 'NOWAIT' } },
         { token: 'wait', resolveFn: () => deferWait.promise },
       ],
-      onEnter: function(nowait) {
+      onEnter: function (nowait) {
         onEnterNowait = nowait;
       },
-      controller: function($scope, wait, nowait) {
+      controller: function ($scope, wait, nowait) {
         $scope.wait = wait;
-        nowait.then(result => ($scope.nowait = result));
+        nowait.then((result) => ($scope.nowait = result));
       },
       template: '{{ wait }}-{{ nowait }}',
     });
@@ -785,7 +785,7 @@ describe('Integration: Resolvables system', () => {
   }));
 
   if (angular.version.minor >= 5) {
-    it('should bind a promise for NOWAIT resolve onto a component controller', inject(function($compile, $rootScope) {
+    it('should bind a promise for NOWAIT resolve onto a component controller', inject(function ($compile, $rootScope) {
       const scope = $rootScope.$new();
       const el = $compile('<div><ui-view></ui-view></div>')(scope);
 
