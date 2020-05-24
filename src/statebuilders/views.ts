@@ -65,14 +65,14 @@ export function ng1ViewsBuilder(state: StateObject) {
       `State '${state.name}' has a 'views' object. ` +
         `It cannot also have "view properties" at the state level.  ` +
         `Move the following properties into a view (in the 'views' object): ` +
-        ` ${allViewKeys.filter(key => isDefined(state[key])).join(', ')}`
+        ` ${allViewKeys.filter((key) => isDefined(state[key])).join(', ')}`
     );
   }
 
   const views: { [key: string]: Ng1ViewDeclaration } = {},
     viewsObject = state.views || { $default: pick(state, allViewKeys) };
 
-  forEach(viewsObject, function(config: Ng1ViewDeclaration, name: string) {
+  forEach(viewsObject, function (config: Ng1ViewDeclaration, name: string) {
     // Account for views: { "": { template... } }
     name = name || '$default';
     // Account for views: { header: "headerComponent" }
@@ -126,7 +126,7 @@ export class Ng1ViewConfig implements ViewConfig {
       controller: $q.when(this.getController(context)),
     };
 
-    return $q.all(promises).then(results => {
+    return $q.all(promises).then((results) => {
       trace.traceViewServiceEvent('Loaded', this);
       this.controller = results.controller;
       extend(this, results.template); // Either { template: "tpl" } or { component: "cmpName" }

@@ -43,10 +43,10 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
     const pathType: ParamType = router.urlMatcherFactory.type('path');
 
     pathType.encode = (x: any) =>
-      x != null ? x.toString().replace(/(~|\/)/g, m => ({ '~': '~~', '/': '~2F' }[m])) : x;
+      x != null ? x.toString().replace(/(~|\/)/g, (m) => ({ '~': '~~', '/': '~2F' }[m])) : x;
 
     pathType.decode = (x: string) =>
-      x != null ? x.toString().replace(/(~~|~2F)/g, m => ({ '~~': '~', '~2F': '/' }[m])) : x;
+      x != null ? x.toString().replace(/(~~|~2F)/g, (m) => ({ '~~': '~', '~2F': '/' }[m])) : x;
   }
 
   dispose() {}
@@ -86,7 +86,7 @@ export class Ng1LocationServices implements LocationConfig, LocationServices {
     this.$window = $window;
 
     // Bind $locationChangeSuccess to the listeners registered in LocationService.onChange
-    $rootScope.$on('$locationChangeSuccess', evt => this._urlListeners.forEach(fn => fn(evt)));
+    $rootScope.$on('$locationChangeSuccess', (evt) => this._urlListeners.forEach((fn) => fn(evt)));
     const _loc = val($location);
 
     // Bind these LocationService functions to $location

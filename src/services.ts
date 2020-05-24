@@ -101,9 +101,9 @@ function $uiRouterProvider($locationProvider: ILocationProvider) {
   return router;
 }
 
-const getProviderFor = serviceName => [
+const getProviderFor = (serviceName) => [
   '$uiRouterProvider',
-  $urp => {
+  ($urp) => {
     const service = $urp.router[serviceName];
     service['$get'] = () => service;
     return service;
@@ -119,7 +119,7 @@ function runBlock($injector: IInjectorService, $q: IQService, $uiRouter: UIRoute
   // https://github.com/angular-ui/ui-router/issues/3678
   if (!$injector.hasOwnProperty('strictDi')) {
     try {
-      $injector.invoke(function(checkStrictDi) {});
+      $injector.invoke(function (checkStrictDi) {});
     } catch (error) {
       $injector.strictDi = !!/strict mode/.exec(error && error.toString());
     }
@@ -129,10 +129,10 @@ function runBlock($injector: IInjectorService, $q: IQService, $uiRouter: UIRoute
   // Find any resolvables that had dependency annotation deferred
   $uiRouter.stateRegistry
     .get()
-    .map(x => x.$$state().resolvables)
+    .map((x) => x.$$state().resolvables)
     .reduce(unnestR, [])
-    .filter(x => x.deps === 'deferred')
-    .forEach(resolvable => (resolvable.deps = $injector.annotate(resolvable.resolveFn, $injector.strictDi)));
+    .filter((x) => x.deps === 'deferred')
+    .forEach((resolvable) => (resolvable.deps = $injector.annotate(resolvable.resolveFn, $injector.strictDi)));
 }
 
 // $urlRouter service and $urlRouterProvider
@@ -144,7 +144,7 @@ const getStateProvider = () => extend(router.stateProvider, { $get: () => router
 
 watchDigests.$inject = ['$rootScope'];
 export function watchDigests($rootScope: IRootScopeService) {
-  $rootScope.$watch(function() {
+  $rootScope.$watch(function () {
     trace.approximateDigests++;
   });
 }
@@ -164,16 +164,16 @@ mod_main.factory('$view', () => router.viewService);
 mod_main.service('$trace', () => trace);
 
 mod_main.run(watchDigests);
-mod_util.run(['$urlMatcherFactory', function($urlMatcherFactory: UrlMatcherFactory) {}]);
-mod_state.run(['$state', function($state: StateService) {}]);
-mod_rtr.run(['$urlRouter', function($urlRouter: UrlRouter) {}]);
+mod_util.run(['$urlMatcherFactory', function ($urlMatcherFactory: UrlMatcherFactory) {}]);
+mod_state.run(['$state', function ($state: StateService) {}]);
+mod_rtr.run(['$urlRouter', function ($urlRouter: UrlRouter) {}]);
 mod_init.run(runBlock);
 
 /** @hidden TODO: find a place to move this */
 export const getLocals = (ctx: ResolveContext): TypedMap<any> => {
   const tokens = ctx.getTokens().filter(isString);
 
-  const tuples = tokens.map(key => {
+  const tuples = tokens.map((key) => {
     const resolvable = ctx.getResolvable(key);
     const waitPolicy = ctx.getPolicy(resolvable).async;
     return [key, waitPolicy === 'NOWAIT' ? resolvable.promise : resolvable.data];

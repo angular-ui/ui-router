@@ -64,8 +64,8 @@ export class TemplateFactory implements TemplateFactoryProvider {
   ): Promise<{ template?: string; component?: string }> {
     const defaultTemplate = '<ui-view></ui-view>';
 
-    const asTemplate = result => services.$q.when(result).then(str => ({ template: str }));
-    const asComponent = result => services.$q.when(result).then(str => ({ component: str }));
+    const asTemplate = (result) => services.$q.when(result).then((str) => ({ template: str }));
+    const asComponent = (result) => services.$q.when(result).then((str) => ({ component: str }));
 
     return isDefined(config.template)
       ? asTemplate(this.fromString(config.template, params))
@@ -109,7 +109,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
     if (this._useHttp) {
       return this.$http
         .get(url, { cache: this.$templateCache, headers: { Accept: 'text/html' } })
-        .then(function(response) {
+        .then(function (response) {
           return response.data;
         });
     }
@@ -200,9 +200,7 @@ export class TemplateFactory implements TemplateFactoryProvider {
       return `${attrName}='${prefix}$resolve.${resolveName}'`;
     };
 
-    const attrs = getComponentBindings(component)
-      .map(attributeTpl)
-      .join(' ');
+    const attrs = getComponentBindings(component).map(attributeTpl).join(' ');
     const kebobName = kebob(component);
     return `<${kebobName} ${attrs}></${kebobName}>`;
   }
@@ -232,8 +230,8 @@ interface BindingTuple {
 const scopeBindings = (bindingsObj: Obj) =>
   Object.keys(bindingsObj || {})
     // [ 'input', [ '=foo', '=', 'foo' ] ]
-    .map(key => [key, /^([=<@&])[?]?(.*)/.exec(bindingsObj[key])])
+    .map((key) => [key, /^([=<@&])[?]?(.*)/.exec(bindingsObj[key])])
     // skip malformed values
-    .filter(tuple => isDefined(tuple) && isArray(tuple[1]))
+    .filter((tuple) => isDefined(tuple) && isArray(tuple[1]))
     // { name: ('foo' || 'input'), type: '=' }
-    .map(tuple => ({ name: tuple[1][2] || tuple[0], type: tuple[1][1] } as BindingTuple));
+    .map((tuple) => ({ name: tuple[1][2] || tuple[0], type: tuple[1][1] } as BindingTuple));

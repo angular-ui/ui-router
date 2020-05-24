@@ -50,7 +50,7 @@ const $resolve = {
     context.addResolvables(resolvablesBuilder(<any>{ resolve: invocables }), node.state);
 
     const resolveData = (parentLocals: Obj) => {
-      const rewrap = (_locals: Obj) => resolvablesBuilder(<any>{ resolve: mapObj(_locals, local => () => local) });
+      const rewrap = (_locals: Obj) => resolvablesBuilder(<any>{ resolve: mapObj(_locals, (local) => () => local) });
       context.addResolvables(rewrap(parentLocals), parentNode.state);
       context.addResolvables(rewrap(locals), node.state);
 
@@ -58,7 +58,7 @@ const $resolve = {
         acc[tuple.token] = tuple.value;
         return acc;
       };
-      return context.resolvePath().then(results => results.reduce(tuples2ObjR, {}));
+      return context.resolvePath().then((results) => results.reduce(tuples2ObjR, {}));
     };
 
     return parent ? parent.then(resolveData) : resolveData({});
