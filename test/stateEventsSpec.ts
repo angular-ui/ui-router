@@ -1,8 +1,6 @@
 import * as angular from 'angular';
 import { StateDeclaration } from '@uirouter/core';
 import { resolvedError, obj, decorateExceptionHandler } from './util/testUtilsNg1';
-import './util/matchers';
-
 import '../src/legacy/stateEvents';
 
 declare var inject;

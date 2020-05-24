@@ -1,6 +1,4 @@
 import * as angular from 'angular';
-import './util/matchers';
-
 declare var inject;
 
 const module = angular['mock'].module;

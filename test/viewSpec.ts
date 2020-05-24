@@ -1,5 +1,4 @@
 import * as angular from 'angular';
-import './util/matchers';
 import { tail, curry, PathNode, PathUtils, ViewService, StateMatcher, StateBuilder, StateObject } from '@uirouter/core';
 import { ng1ViewsBuilder, getNg1ViewConfigFactory } from '../src/statebuilders/views';
 import { Ng1StateDeclaration } from '../src/interface';
@@ -58,7 +57,7 @@ describe('view', function () {
       };
 
       state = register(stateDeclaration);
-      const $view = new ViewService();
+      const $view = new ViewService(null);
       $view._pluginapi._viewConfigFactory('ng1', getNg1ViewConfigFactory());
 
       const _states = [root, state];

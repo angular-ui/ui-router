@@ -1,11 +1,10 @@
+import { IPromise } from 'angular';
 import * as angular from 'angular';
-import './util/matchers';
 import './util/testUtilsNg1';
 
 declare var inject;
 import Spy = jasmine.Spy;
-import './util/matchers';
-import { resolvedValue, resolvedError, caught } from './util/testUtilsNg1';
+import { resolvedValue, resolvedError, caught, testablePromise } from './util/testUtilsNg1';
 import { ResolveContext, StateObject, PathNode, omit, pick, inherit, forEach } from '@uirouter/core';
 import { UIRouter, Resolvable, services, StateDeclaration } from '@uirouter/core';
 import '../src/legacy/resolveService';
@@ -214,6 +213,10 @@ function makePath(names: string[]): PathNode[] {
   return names.map((name) => new PathNode(statesMap[name]));
 }
 
+function isResolved(promise: IPromise<any>) {
+  return !!testablePromise(promise).$$resolved;
+}
+
 describe('Resolvables system:', function () {
   beforeEach(inject(function ($transitions, $injector) {
     emptyPath = [];
@@ -290,7 +293,7 @@ describe('$resolve', function () {
       const fun: Spy = jasmine.createSpy('fun');
       fun.and.returnValue(42);
       const r = $r.resolve({ fun: ['$resolve', fun] });
-      expect(r).not.toBeResolved();
+      expect(isResolved(r)).toBe(false);
       tick();
       expect(resolvedValue(r)).toEqual({ fun: 42 });
       expect(fun).toHaveBeenCalled();
@@ -304,7 +307,7 @@ describe('$resolve', function () {
       const fun = jasmine.createSpy('fun').and.returnValue(d.promise);
       const r = $r.resolve({ fun: ['$resolve', fun] });
       tick();
-      expect(r).not.toBeResolved();
+      expect(isResolved(r)).toBe(false);
       d.resolve('async');
       tick();
       expect(resolvedValue(r)).toEqual({ fun: 'async' });
@@ -333,19 +336,19 @@ describe('$resolve', function () {
 
       const r = $r.resolve({ a: ['b', 'c', a], b: ['c', b], c: [c] });
       tick();
-      expect(r).not.toBeResolved();
+      expect(isResolved(r)).toBe(false);
       expect(a).not.toHaveBeenCalled();
       expect(b).not.toHaveBeenCalled();
       expect(c).toHaveBeenCalled();
       cd.resolve('cc');
       tick();
-      expect(r).not.toBeResolved();
+      expect(isResolved(r)).toBe(false);
       expect(a).not.toHaveBeenCalled();
       expect(b).toHaveBeenCalled();
       expect(b.calls.mostRecent().args).toEqual(['cc']);
       bd.resolve('bb');
       tick();
-      expect(r).not.toBeResolved();
+      expect(isResolved(r)).toBe(false);
       expect(a).toHaveBeenCalled();
       expect(a.calls.mostRecent().args).toEqual(['bb', 'cc']);
       ad.resolve('aa');
@@ -418,7 +421,7 @@ describe('$resolve', function () {
         r
       );
       tick();
-      expect(r).toBeResolved();
+      expect(isResolved(r)).toBe(true);
       expect(resolvedValue(s)).toEqual({ fun: true, games: true });
     });
 
@@ -561,8 +564,8 @@ describe('$resolve', function () {
       const s = $r.resolve({ b: [b] }, {}, r);
       bd.resolve('bbb');
       tick();
-      expect(r).not.toBeResolved();
-      expect(s).not.toBeResolved();
+      expect(isResolved(r)).toBe(false);
+      expect(isResolved(s)).toBe(false);
       cd.resolve('ccc');
       tick();
       expect(resolvedValue(r)).toEqual({ c: 'ccc' });
@@ -571,9 +574,9 @@ describe('$resolve', function () {
 
     it('rejects missing dependencies but does not fail synchronously', function () {
       const r = $r.resolve({ fun: function (invalid) {} });
-      expect(r).not.toBeResolved();
+      expect(isResolved(r)).toBe(false);
       tick();
-      expect(resolvedError(r)).toMatch(/unknown provider/i);
+      expect(resolvedError(r).toString()).toMatch(/unknown provider/i);
     });
 
     it('propagates exceptions thrown by the functions as a rejection', function () {
@@ -582,7 +585,7 @@ describe('$resolve', function () {
           throw 'i want cake';
         },
       });
-      expect(r).not.toBeResolved();
+      expect(isResolved(r)).toBe(false);
       tick();
       expect(resolvedError(r)).toBe('i want cake');
     });
@@ -614,7 +617,7 @@ describe('$resolve', function () {
         },
       });
       tick();
-      expect(r).toBeResolved();
+      expect(isResolved(r)).toBe(true);
       const a = jasmine.createSpy('a');
       const s = $r.resolve({ a: [a] }, {}, r);
       tick();
@@ -707,14 +710,14 @@ describe('Integration: Resolvables system', () => {
     $transitions.onStart({ to: 'J' }, ($transition$) => {
       const ctx = new ResolveContext($transition$.treeChanges().to);
       return invokeLater(function (_J) {}, ctx).then(function () {
-        expect(counts._J).toEqualData(1);
+        expect(counts._J).toEqual(1);
         return $state.target('K');
       });
     });
     $state.go('J');
     $rootScope.$digest();
     expect($state.current.name).toBe('K');
-    expect(counts._J).toEqualData(1);
+    expect(counts._J).toEqual(1);
   });
 
   // Test for https://github.com/angular-ui/ui-router/issues/3546

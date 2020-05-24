@@ -1,8 +1,6 @@
 import * as angular from 'angular';
 import { ICompileService, IRootScopeService } from 'angular';
 import { extend } from '@uirouter/core';
-import './util/matchers';
-
 declare let inject, jasmine;
 
 const module = angular.mock.module;
@@ -523,20 +521,22 @@ describe('uiView', function () {
     }));
 
     it('should work with ngClass', inject(function ($state, $q, $compile) {
+      const classes = (elem) => Array.prototype.slice.call(elem[0].classList);
+
       scope.showClass = false;
       elem.append($compile('<div><ui-view ng-class="{\'someClass\': showClass}"></ui-view></div>')(scope));
 
-      expect(elem.find('ui-view')).not.toHaveClass('someClass');
+      expect(classes(elem.find('ui-view'))).not.toContain('someClass');
 
       scope.showClass = true;
       scope.$digest();
 
-      expect(elem.find('ui-view')).toHaveClass('someClass');
+      expect(classes(elem.find('ui-view'))).toContain('someClass');
 
       scope.showClass = false;
       scope.$digest();
 
-      expect(elem.find('ui-view')).not.toHaveClass('someClass');
+      expect(classes(elem.find('ui-view'))).not.toContain('someClass');
     }));
 
     describe('working with ngRepeat', function () {

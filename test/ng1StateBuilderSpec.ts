@@ -21,19 +21,21 @@ describe('Ng1 StateBuilder', function () {
     const config = { url: '/foo', templateUrl: '/foo.html', controller: 'FooController', parent: parent };
     const built = builder.builder('views')(config);
 
-    expect(built.$default).not.toEqualData(config);
-    expect(built.$default).toEqualData({
-      templateUrl: '/foo.html',
-      controller: 'FooController',
-      resolveAs: '$resolve',
-    });
+    expect(built.$default).not.toEqual(config);
+    expect(built.$default).toEqual(
+      expect.objectContaining({
+        templateUrl: '/foo.html',
+        controller: 'FooController',
+        resolveAs: '$resolve',
+      })
+    );
   });
 
   it('It should use the views object to build views, when defined', function () {
     const config = { a: { foo: 'bar', controller: 'FooController' } };
     const builtViews = builder.builder('views')({ parent: parent, views: config });
-    expect(builtViews.a.foo).toEqualData(config.a.foo);
-    expect(builtViews.a.controller).toEqualData(config.a.controller);
+    expect(builtViews.a.foo).toEqual(config.a.foo);
+    expect(builtViews.a.controller).toEqual(config.a.controller);
   });
 
   it('should not allow a view config with both component and template keys', inject(function ($injector) {
