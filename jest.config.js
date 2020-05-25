@@ -1,4 +1,6 @@
-const NG = process.env.NG || '1.6';
+const NG = process.env.NG || '1.7';
+
+console.log(`Testing with AngularJS ${NG}`);
 
 module.exports = {
   preset: 'ts-jest',
