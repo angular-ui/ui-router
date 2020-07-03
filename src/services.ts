@@ -74,6 +74,9 @@ function $uiRouterProvider($locationProvider: ILocationProvider) {
 
   router.viewService._pluginapi._viewConfigFactory('ng1', getNg1ViewConfigFactory());
 
+  // Disable decoding of params by UrlMatcherFactory because $location already handles this
+  router.urlService.config._decodeParams = false;
+
   const ng1LocationService = (router.locationService = router.locationConfig = new Ng1LocationServices(
     $locationProvider
   ));

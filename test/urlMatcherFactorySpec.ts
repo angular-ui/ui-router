@@ -631,6 +631,7 @@ describe('urlMatcherFactory', function () {
       validates: angular.noop,
       parameters: angular.noop,
       parameter: angular.noop,
+      _getDecodedParamValue: angular.noop,
     };
     expect($umf.isMatcher(custom)).toBe(true);
   });
