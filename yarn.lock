@@ -1673,12 +1673,14 @@ dot-prop@^3.0.0:
   dependencies:
     is-obj "^1.0.0"
 
-dts-downlevel@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/dts-downlevel/-/dts-downlevel-0.3.0.tgz#74af735427dbf8a9860ea692da02f9082167a1a5"
-  integrity sha1-dK9zVCfb+KmGDqaS2gL5CCFnoaU=
+dts-downlevel@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/dts-downlevel/-/dts-downlevel-0.4.0.tgz#9dc601cce76ba91dd98eef3613d7aef1c0fbd80a"
+  integrity sha512-Ervdkvsvcpzd7DUpQkkNBRw+CRZeYHpdd2vmqcE/R+Q1XDkzbkZXIt1jMQF0lUk/Eod2+MFKUdnNB7Wu0X/d1A==
   dependencies:
     replace-in-file "^2.5.0"
+    semver "^7.3.2"
+    yargs "^15.3.1"
 
 ecc-jsbn@~0.1.1:
   version "0.1.2"
@@ -5365,10 +5367,10 @@ typescript@3.7.x:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.7.5.tgz#0692e21f65fd4108b9330238aac11dd2e177a1ae"
   integrity sha512-/P5lkRXkWHNAbcJIiHPfRoKqyd7bsyCma1hZNUGfn20qm64T6ZBlrzprymeu918H+mB/0rIg2gGK/BXkhhYgBw==
 
-typescript@^3.6.4:
-  version "3.7.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.7.4.tgz#1743a5ec5fef6a1fa9f3e4708e33c81c73876c19"
-  integrity sha512-A25xv5XCtarLwXpcDNZzCGvW2D1S3/bACratYBx2sax8PefsFhlYmkQicKHvpYflFS8if4zne5zT5kpJ7pzuvw==
+typescript@^3.9.7:
+  version "3.9.7"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.7.tgz#98d600a5ebdc38f40cb277522f12dc800e9e25fa"
+  integrity sha512-BLbiRkiBzAwsjut4x/dsibSTB6yWpwT5qWmC2OfuCg3GgVQCSgMs4vEctYPhsaGtd0AeuuHMkjZ2h2WG8MSzRw==
 
 uglify-js@^3.1.4, uglify-js@^3.4.9:
   version "3.6.0"

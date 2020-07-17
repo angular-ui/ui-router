@@ -85,7 +85,7 @@
     "@types/angular-mocks": "^1.7.0",
     "@types/jest": "^25.2.3",
     "@uirouter/publish-scripts": "2.3.45",
-    "dts-downlevel": "^0.3.0",
+    "dts-downlevel": "^0.4.0",
     "husky": "^4.2.5",
     "jest": "^26.0.1",
     "lodash": "^4.17.15",
@@ -98,7 +98,7 @@
     "ts-jest": "^26.0.0",
     "tslint": "^6.1.2",
     "tslint-eslint-rules": "^5.4.0",
-    "typescript": "^3.6.4"
+    "typescript": "^3.9.7"
   },
   "husky": {
     "hooks": {
