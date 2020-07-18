@@ -28,5 +28,7 @@ jobs:
           git config --global user.name uirouter_github_actions
       - name: Install Dependencies
         run: yarn install --pure-lockfile
+      - name: Check Peer Dependencies
+        run: npx check-peer-dependencies
       - name: Run yarn ${{ matrix.yarncmd }}
         run: yarn ${{ matrix.yarncmd }}
