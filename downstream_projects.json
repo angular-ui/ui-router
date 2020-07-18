@@ -1,8 +1,23 @@
 {
-  "sample-app-angularjs": "https://github.com/ui-router/sample-app-angularjs.git",
-  "typescript2.2": "./test/typescript2.2",
-  "typescript2.3": "./test/typescript2.3",
-  "typescript2.4": "./test/typescript2.4",
-  "typescript2.5": "./test/typescript2.5",
-  "typescript2.6": "./test/typescript2.6"
+  "typescript": {
+    "typescript2.2": "./test/typescript/2.2",
+    "typescript2.3": "./test/typescript/2.3",
+    "typescript2.4": "./test/typescript/2.4",
+    "typescript2.5": "./test/typescript/2.5",
+    "typescript2.6": "./test/typescript/2.6",
+    "typescript2.8": "./test/typescript/2.8",
+    "typescript2.7": "./test/typescript/2.7",
+    "typescript2.9": "./test/typescript/2.9",
+    "typescript3.0": "./test/typescript/3.0",
+    "typescript3.1": "./test/typescript/3.1",
+    "typescript3.2": "./test/typescript/3.2",
+    "typescript3.3": "./test/typescript/3.3",
+    "typescript3.4": "./test/typescript/3.4",
+    "typescript3.5": "./test/typescript/3.5",
+    "typescript3.6": "./test/typescript/3.6",
+    "typescript3.7": "./test/typescript/3.7",
+    "typescript3.8": "./test/typescript/3.8",
+    "typescript3.9": "./test/typescript/3.9"
+  },
+  "sample-app-angularjs": "https://github.com/ui-router/sample-app-angularjs.git"
 }

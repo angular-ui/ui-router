@@ -1,0 +1,11 @@
+{
+  "description": "Test against Typescript 2.8",
+  "scripts": {
+    "test": "tsc"
+  },
+  "dependencies": {
+    "@types/angular": "latest",
+    "@uirouter/angularjs": "latest",
+    "typescript": "2.8"
+  }
+}
