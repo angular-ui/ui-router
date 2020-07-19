@@ -1,5 +1,5 @@
 /** @publicapi @module ng1 */ /** */
-import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult } from '@uirouter/core';
+import { StateDeclaration, _ViewDeclaration, IInjectable, Transition, HookResult, StateRegistry } from '@uirouter/core';
 
 /**
  * The signature for Angular 1 State Transition Hooks.
@@ -740,6 +740,6 @@ export interface TemplateFactoryProvider {
 
 declare module '@uirouter/core/lib/state/stateRegistry' {
   interface StateRegistry {
-    register(state: Ng1StateDeclaration);
+    register(state: Ng1StateDeclaration | { new (): Ng1StateDeclaration });
   }
 }
