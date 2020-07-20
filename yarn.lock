@@ -659,10 +659,10 @@
   resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-6.0.6.tgz#4bea0ca88790a939d8e84ba05a31b96f50d9abe8"
   integrity sha512-+i1iNaPQRp1JoEnxi4EsTX30bSvkWtPEenENWdvdIzX615Q3WCWwnbW9DtrwX9gSD5qmWEaQEtGMU0uF3qJ+1g==
 
-"@uirouter/publish-scripts@2.5.2":
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.5.2.tgz#d17c228851a18df56b0df2b1533c7d5cb177c078"
-  integrity sha512-LV3K5Dh5kJtySF55rRgvJmtvcJRkNnYHmpRoGkXdrPFzRC+eog+C7qGvIRW8aVz/ZF2Kls9Yq6bk7lMBIR5Snw==
+"@uirouter/publish-scripts@2.5.3":
+  version "2.5.3"
+  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.5.3.tgz#569e562e77b2704b56eb2098d1f9add035503e58"
+  integrity sha512-ZY/edN6IKfW0gfwx2b+E9K5nBuc/3gGjoeBhNX3q1IH+ntrdR7nxq009IwT556Ti8GpE/78H65RZqk9R/lwiGQ==
   dependencies:
     check-peer-dependencies "^2.0.2"
     conventional-changelog "^3.1.21"
