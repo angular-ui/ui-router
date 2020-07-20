@@ -84,7 +84,7 @@
     "@types/angular-animate": "^1.5.10",
     "@types/angular-mocks": "^1.7.0",
     "@types/jest": "^25.2.3",
-    "@uirouter/publish-scripts": "2.3.45",
+    "@uirouter/publish-scripts": "2.5.2",
     "dts-downlevel": "^0.4.0",
     "husky": "^4.2.5",
     "jest": "^26.0.1",
@@ -104,5 +104,40 @@
     "hooks": {
       "pre-commit": "pretty-quick --staged"
     }
+  },
+  "docgen": {
+    "publishDir": "_ng1_docs",
+    "navigation": {
+      "": [
+        "UIRouter"
+      ],
+      "Services": [
+        "StateService",
+        "StateRegistry",
+        "TransitionService",
+        "UrlService",
+        "UrlConfig",
+        "UrlRules"
+      ],
+      "Interfaces": [
+        "Ng1StateDeclaration"
+      ],
+      "Components": [
+        "uiView",
+        "UISref",
+        "UISrefActive"
+      ],
+      "Other": [
+        "Transition",
+        "Trace"
+      ]
+    },
+    "include": [
+      {
+        "pkg": "@uirouter/core",
+        "repo": "https://github.com/ui-router/core",
+        "branch": "master"
+      }
+    ]
   }
 }
