@@ -1,5 +1,5 @@
 import nodeResolve from 'rollup-plugin-node-resolve';
-import { uglify } from 'rollup-plugin-uglify';
+import { terser } from 'rollup-plugin-terser';
 import sourcemaps from 'rollup-plugin-sourcemaps';
 
 const MINIFY = process.env.MINIFY;
@@ -27,9 +27,9 @@ banner += `
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */`;
 
-const uglifyOpts = { output: {} };
+const terserOpts = { output: {} };
 // retain multiline comment with @license
-uglifyOpts.output.comments = (node, comment) => comment.type === 'comment2' && /@license/i.test(comment.value);
+terserOpts.output.comments = (node, comment) => comment.type === 'comment2' && /@license/i.test(comment.value);
 
 const onwarn = (warning) => {
   // Suppress this error message... https://github.com/rollup/rollup/wiki/Troubleshooting#this-is-undefined
@@ -41,7 +41,7 @@ const onwarn = (warning) => {
 
 const plugins = [nodeResolve({ jsnext: true }), sourcemaps()];
 
-if (MINIFY) plugins.push(uglify(uglifyOpts));
+if (MINIFY) plugins.push(terser(terserOpts));
 
 const extension = MINIFY ? '.min.js' : '.js';
 
