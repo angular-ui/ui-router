@@ -1,3 +1,26 @@
+## 1.0.27 (2020-07-21)
+[Compare `@uirouter/angularjs` versions 1.0.26 and 1.0.27](https://github.com/angular-ui/ui-router/compare/1.0.26...1.0.27)
+
+### Bug Fixes
+
+* make augmented StateRegistry.register overload better match the signature in core ([db4e63f](https://github.com/angular-ui/ui-router/commit/db4e63f))
+
+
+---
+
+### Updated `@uirouter/core` from 6.0.5 to 6.0.6
+
+
+Changelog for `@uirouter/core`:
+
+
+[Compare `@uirouter/core` versions 6.0.5 and 6.0.6](https://github.com/ui-router/core/compare/6.0.5...6.0.6)
+
+### Bug Fixes
+
+* **params:** Bi-directionally en/decode path and search params. ([#618](https://github.com/ui-router/core/issues/618)) ([89e99cd](https://github.com/ui-router/core/commit/89e99cd))
+
+
 ## 1.0.26 (2020-04-29)
 [Compare `@uirouter/angularjs` versions 1.0.25 and 1.0.26](https://github.com/angular-ui/ui-router/compare/1.0.25...1.0.26)
 
