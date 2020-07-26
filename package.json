@@ -9,6 +9,7 @@
     "fixmaps:lib": "tweak_sourcemap_paths -a --include 'lib/**/*.js.map' 'lib-esm/**/*.js.map'",
     "fixmaps:bundle": "tweak_sourcemap_paths -a --include 'release/**/*.js.map'",
     "build": "npm run clean && npm run compile && npm run bundle && npm run fixmaps:lib && npm run fixmaps:bundle",
+    "lint": "eslint src/**/*.ts",
     "package": "npm run build",
     "bundle": "npm run bundle_router && npm run bundle_monolithic_router && npm run bundle_events && npm run bundle_resolve",
     "bundle_monolithic_router": "rollup -c --environment ROUTER,MONOLITHIC  && rollup -c --environment ROUTER,MINIFY,MONOLITHIC",
