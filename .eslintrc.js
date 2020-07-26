@@ -12,82 +12,9 @@ https://github.com/typescript-eslint/tslint-to-eslint-config/blob/master/docs/FA
 Happy linting! 💖
 */
 module.exports = {
-  env: {
-    browser: true,
-  },
-  extends: ['prettier', 'prettier/@typescript-eslint'],
+  env: { browser: true },
   parser: '@typescript-eslint/parser',
-  parserOptions: {
-    project: 'tsconfig.json',
-    sourceType: 'module',
-  },
-  plugins: ['@typescript-eslint', '@typescript-eslint/tslint'],
-  rules: {
-    '@typescript-eslint/dot-notation': 'off',
-    '@typescript-eslint/explicit-member-accessibility': [
-      'off',
-      {
-        accessibility: 'explicit',
-      },
-    ],
-    '@typescript-eslint/member-ordering': 'error',
-    '@typescript-eslint/no-empty-function': 'off',
-    '@typescript-eslint/no-inferrable-types': 'error',
-    '@typescript-eslint/no-unused-expressions': [
-      'error',
-      {
-        allowShortCircuit: true,
-      },
-    ],
-    '@typescript-eslint/no-unused-vars': 'error',
-    '@typescript-eslint/no-use-before-define': 'error',
-    eqeqeq: ['error', 'smart'],
-    'guard-for-in': 'error',
-    'id-blacklist': [
-      'error',
-      'any',
-      'Number',
-      'number',
-      'String',
-      'string',
-      'Boolean',
-      'boolean',
-      'Undefined',
-      'undefined',
-    ],
-    'id-match': 'error',
-    'no-bitwise': 'error',
-    'no-caller': 'error',
-    'no-cond-assign': 'error',
-    'no-debugger': 'error',
-    'no-empty': 'off',
-    'no-eval': 'error',
-    'no-fallthrough': 'error',
-    'no-new-wrappers': 'error',
-    'no-redeclare': 'error',
-    'no-shadow': [
-      'error',
-      {
-        hoist: 'all',
-      },
-    ],
-    'no-trailing-spaces': 'error',
-    'no-underscore-dangle': 'error',
-    'no-unused-labels': 'error',
-    'no-var': 'error',
-    'prefer-const': [
-      'error',
-      {
-        destructuring: 'all',
-      },
-    ],
-    radix: 'error',
-    'spaced-comment': [
-      'error',
-      'always',
-      {
-        markers: ['/'],
-      },
-    ],
-  },
+  plugins: ['@typescript-eslint'],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier', 'prettier/@typescript-eslint'],
+  rules: {},
 };
