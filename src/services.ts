@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * # Angular 1 types
  *
@@ -119,7 +121,7 @@ function runBlock($injector: IInjectorService, $q: IQService, $uiRouter: UIRoute
   services.$q = <any>$q;
 
   // https://github.com/angular-ui/ui-router/issues/3678
-  if (!$injector.hasOwnProperty('strictDi')) {
+  if (!Object.prototype.hasOwnProperty.call($injector, 'strictDi')) {
     try {
       $injector.invoke(function (checkStrictDi) {});
     } catch (error) {
