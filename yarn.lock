@@ -735,10 +735,10 @@
   dependencies:
     eslint-visitor-keys "^1.1.0"
 
-"@uirouter/core@6.0.7":
-  version "6.0.7"
-  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-6.0.7.tgz#a66743dceb13a56d8908474ff891d63e5d5a2b01"
-  integrity sha512-KUTJxL+6q0PiBnFx4/Z+Hsyg0pSGiaW5yZQeJmUxknecjpTbnXkLU8H2EqRn9N2B+qDRa7Jg8RcgeNDPY72O1w==
+"@uirouter/core@v7beta":
+  version "7.0.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-7.0.0-beta.1.tgz#294c9a9f82f203ca396763b470093daeef3a8d52"
+  integrity sha512-jdRQscId7iHWnuSw9xvWNnTDM8QORqP1J5ovtDPtKEW3m0+SfCcKJqQWV6AyXXBFhUIzF+0JmQ8YOoVxDFSBPw==
 
 "@uirouter/publish-scripts@2.5.5":
   version "2.5.5"

@@ -21,6 +21,7 @@ import {
   Transition,
   TransitionService,
   TypedMap,
+  UIViewPortalRenderCommand,
   unnestR,
   ViewService,
 } from '@uirouter/core';
@@ -213,7 +214,6 @@ uiView = [
     };
 
     const directive = {
-      count: 0,
       restrict: 'ECA',
       terminal: true,
       priority: 400,
@@ -228,43 +228,48 @@ uiView = [
 
           let previousEl: JQuery, currentEl: JQuery, currentScope: IScope, viewConfig: Ng1ViewConfig;
 
+          const uiViewId = $view.registerView('ng1', inherited.$uiView.id, name, renderContentIntoUIViewPortal);
+
+          scope.$on('$destroy', function () {
+            trace.traceUIViewEvent('Destroying/Unregistering', activeUIView);
+            $view.deregisterView(uiViewId);
+          });
+
           const activeUIView: ActiveUIView = {
             $type: 'ng1',
-            id: directive.count++, // Global sequential ID for ui-view tags added to DOM
+            id: uiViewId, // filled in later
             name: name, // ui-view name (<div ui-view="name"></div>
             fqn: inherited.$uiView.fqn ? inherited.$uiView.fqn + '.' + name : name, // fully qualified name, describes location in DOM
             config: null, // The ViewConfig loaded (from a state.views definition)
-            configUpdated: configUpdatedCallback, // Called when the matching ViewConfig changes
-            get creationContext() {
-              // The context in which this ui-view "tag" was created
-              const fromParentTagConfig = parse('$cfg.viewDecl.$context')(inherited);
-              // Allow <ui-view name="foo"><ui-view name="bar"></ui-view></ui-view>
-              // See https://github.com/angular-ui/ui-router/issues/3355
-              const fromParentTag = parse('$uiView.creationContext')(inherited);
-              return fromParentTagConfig || fromParentTag;
-            },
+            configUpdated: undefined, // unused in core
+            creationContext: undefined, // unused in core
+            // configUpdated: configUpdatedCallback, // Called when the matching ViewConfig changes
+            // get creationContext() {
+            // The context in which this ui-view "tag" was created
+            // const fromParentTagConfig = parse('$cfg.viewDecl.$context')(inherited);
+            // Allow <ui-view name="foo"><ui-view name="bar"></ui-view></ui-view>
+            // See https://github.com/angular-ui/ui-router/issues/3355
+            // const fromParentTag = parse('$uiView.creationContext')(inherited);
+            // return fromParentTagConfig || fromParentTag;
+            // },
           };
 
           trace.traceUIViewEvent('Linking', activeUIView);
 
-          function configUpdatedCallback(config?: Ng1ViewConfig) {
-            if (config && !(config instanceof Ng1ViewConfig)) return;
-            if (configsEqual(viewConfig, config)) return;
-            trace.traceUIViewConfigUpdated(activeUIView, config && config.viewDecl && config.viewDecl.$context);
+          function renderContentIntoUIViewPortal(renderCommand: UIViewPortalRenderCommand) {
+            if (renderCommand.command === 'RENDER_DEFAULT_CONTENT') {
+              viewConfig = undefined;
+            } else if (renderCommand.command === 'RENDER_ROUTED_VIEW') {
+              viewConfig = renderCommand.routedViewConfig as Ng1ViewConfig;
+            } else if (renderCommand.command === 'RENDER_INTEROP_DIV') {
+            }
 
-            viewConfig = config;
-            updateView(config);
+            updateView(viewConfig);
           }
 
           $element.data('$uiView', { $uiView: activeUIView });
 
           updateView();
-
-          const unregister = $view.registerUIView(activeUIView);
-          scope.$on('$destroy', function () {
-            trace.traceUIViewEvent('Destroying/Unregistering', activeUIView);
-            unregister();
-          });
 
           function cleanupLastView() {
             if (previousEl) {
