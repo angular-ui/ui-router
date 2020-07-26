@@ -3,7 +3,7 @@
   "description": "State-based routing for AngularJS 1.x",
   "version": "1.0.27",
   "scripts": {
-    "clean": "shx rm -rf lib lib-esm _doc build release *.log .downstream_cache",
+    "clean": "shx rm -rf lib lib-esm _doc build release *.log",
     "compile": "tsc && tsc -m es6 --outDir lib-esm && npm run fixdts",
     "fixdts": "dts-downlevel 'lib/**/*.d.ts' 'lib-esm/**/*.d.ts'",
     "fixmaps:lib": "tweak_sourcemap_paths -a --include 'lib/**/*.js.map' 'lib-esm/**/*.js.map'",
