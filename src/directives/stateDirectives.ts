@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-empty-interface */
+/* eslint-disable prefer-const */
 /**
  * # Angular 1 Directives
  *
@@ -38,11 +40,10 @@ export interface ng1_directive {}
 
 /** @hidden */
 function parseStateRef(ref: string) {
-  let parsed;
   const paramsOnly = ref.match(/^\s*({[^}]*})\s*$/);
   if (paramsOnly) ref = '(' + paramsOnly[1] + ')';
 
-  parsed = ref.replace(/\n/g, ' ').match(/^\s*([^(]*?)\s*(\((.*)\))?\s*$/);
+  const parsed = ref.replace(/\n/g, ' ').match(/^\s*([^(]*?)\s*(\((.*)\))?\s*$/);
   if (!parsed || parsed.length !== 4) throw new Error("Invalid state ref '" + ref + "'");
   return { state: parsed[1] || null, paramExpr: parsed[3] || null };
 }
@@ -640,7 +641,7 @@ uiSrefActiveDirective = [
             setStatesFromDefinitionObject(uiSrefActive);
           }
 
-          function setStatesFromDefinitionObject(statesDefinition: object) {
+          function setStatesFromDefinitionObject(statesDefinition: Obj) {
             if (isObject(statesDefinition)) {
               states = [];
               forEach(statesDefinition, function (stateOrName: StateOrName | Array<StateOrName>, activeClass: string) {

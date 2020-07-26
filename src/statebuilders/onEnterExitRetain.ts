@@ -7,7 +7,6 @@ import {
   services,
   ResolveContext,
   extend,
-  BuilderFunction,
 } from '@uirouter/core';
 import { getLocals } from '../services';
 import { Ng1StateDeclaration } from '../interface';
@@ -22,7 +21,7 @@ import { Ng1StateDeclaration } from '../interface';
  * @internalapi
  */
 export const getStateHookBuilder = (hookName: 'onEnter' | 'onExit' | 'onRetain') =>
-  function stateHookBuilder(stateObject: StateObject, parentFn: BuilderFunction): TransitionStateHookFn {
+  function stateHookBuilder(stateObject: StateObject): TransitionStateHookFn {
     const hook = stateObject[hookName];
     const pathname = hookName === 'onExit' ? 'from' : 'to';
 

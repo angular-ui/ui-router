@@ -24,7 +24,7 @@ import {
   unnestR,
   ViewService,
 } from '@uirouter/core';
-import { IAugmentedJQuery, IInterpolateService, IScope, ITimeoutService, ITranscludeFunction } from 'angular';
+import { IAugmentedJQuery, IInterpolateService, IScope, ITranscludeFunction } from 'angular';
 import { ng as angular } from '../angular';
 import { Ng1Controller, Ng1StateDeclaration } from '../interface';
 import { getLocals } from '../services';
@@ -170,6 +170,7 @@ export type UIViewAnimData = {
  * ```
  */
 export let uiView: ng1_directive;
+// eslint-disable-next-line prefer-const
 uiView = [
   '$view',
   '$animate',
@@ -183,7 +184,7 @@ uiView = [
     $interpolate: IInterpolateService,
     $q: $QLike
   ) {
-    function getRenderer(attrs: Obj, scope: IScope) {
+    function getRenderer() {
       return {
         enter: function (element: JQuery, target: any, cb: Function) {
           if (angular.version.minor > 2) {
@@ -221,15 +222,11 @@ uiView = [
         return function (scope: IScope, $element: IAugmentedJQuery, attrs: Obj) {
           const onloadExp = attrs['onload'] || '',
             autoScrollExp = attrs['autoscroll'],
-            renderer = getRenderer(attrs, scope),
+            renderer = getRenderer(),
             inherited = $element.inheritedData('$uiView') || rootData,
             name = $interpolate(attrs['uiView'] || attrs['name'] || '')(scope) || '$default';
 
-          let previousEl: JQuery,
-            currentEl: JQuery,
-            currentScope: IScope,
-            viewConfig: Ng1ViewConfig,
-            unregister: Function;
+          let previousEl: JQuery, currentEl: JQuery, currentScope: IScope, viewConfig: Ng1ViewConfig;
 
           const activeUIView: ActiveUIView = {
             $type: 'ng1',
@@ -263,7 +260,7 @@ uiView = [
 
           updateView();
 
-          unregister = $view.registerUIView(activeUIView);
+          const unregister = $view.registerUIView(activeUIView);
           scope.$on('$destroy', function () {
             trace.traceUIViewEvent('Destroying/Unregistering', activeUIView);
             unregister();
@@ -363,7 +360,7 @@ uiView = [
   },
 ];
 
-$ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view', '$q', '$timeout'];
+$ViewDirectiveFill.$inject = ['$compile', '$controller', '$transitions', '$view', '$q'];
 
 /** @hidden */
 function $ViewDirectiveFill(
@@ -371,8 +368,7 @@ function $ViewDirectiveFill(
   $controller: angular.IControllerService,
   $transitions: TransitionService,
   $view: ViewService,
-  $q: angular.IQService,
-  $timeout: ITimeoutService
+  $q: angular.IQService
 ) {
   const getControllerAs = parse('viewDecl.controllerAs');
   const getResolveAs = parse('viewDecl.resolveAs');

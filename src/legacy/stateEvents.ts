@@ -341,6 +341,7 @@ export let $stateNotFound: IAngularEvent;
     .provider('$stateEvents', ($StateEventsProvider as any) as IServiceProviderFactory)
     .run([
       '$stateEvents',
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       function ($stateEvents: any) {
         /* Invokes $get() */
       },

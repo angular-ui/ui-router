@@ -1,5 +1,4 @@
 /** @publicapi @module ng1 */ /** */
-import { ng as angular } from '../angular';
 import {
   StateObject,
   pick,
@@ -22,7 +21,6 @@ import {
 } from '@uirouter/core';
 import { Ng1ViewDeclaration } from '../interface';
 import { TemplateFactory } from '../templateFactory';
-import IInjectorService = angular.auto.IInjectorService;
 
 /** @internalapi */
 export function getNg1ViewConfigFactory(): ViewConfigFactory {
