@@ -85,7 +85,6 @@
     "@types/angular-mocks": "^1.7.0",
     "@types/jest": "^26.0.5",
     "@typescript-eslint/eslint-plugin": "^3.7.0",
-    "@typescript-eslint/eslint-plugin-tslint": "^3.7.0",
     "@typescript-eslint/parser": "^3.7.0",
     "@uirouter/publish-scripts": "2.5.3",
     "angular": "1.8.0",
@@ -104,8 +103,6 @@
     "rollup-plugin-sourcemaps": "^0.6.2",
     "rollup-plugin-terser": "^6.1.0",
     "ts-jest": "^26.0.0",
-    "tslint": "5.20.1",
-    "tslint-eslint-rules": "^5.4.0",
     "typescript": "^3.9.7",
     "utf-8-validate": "5.0.2"
   },
@@ -134,7 +131,7 @@
       "Components": [
         "uiView",
         "UISref",
-        "UISrefActive"
+        "UISrefActive","uiStateDirective"
       ],
       "Other": [
         "Transition",

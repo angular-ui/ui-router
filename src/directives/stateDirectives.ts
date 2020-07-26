@@ -34,7 +34,7 @@ import {
 import { UIViewData } from './viewDirective';
 
 /** @hidden Used for typedoc */
-export interface ng1_directive {} // tslint:disable-line:class-name
+export interface ng1_directive {}
 
 /** @hidden */
 function parseStateRef(ref: string) {
@@ -294,7 +294,6 @@ uiSrefDirective = [
         const type = getTypeInfo(element);
         const active = uiSrefActive[1] || uiSrefActive[0];
         let unlinkInfoFn: Function = null;
-        let hookFn;
 
         const rawDef = {} as Def;
         const getDef = () => processedDef($state, element, rawDef);
@@ -328,7 +327,7 @@ uiSrefDirective = [
         scope.$on('$destroy', <any>$uiRouter.transitionService.onSuccess({}, update));
 
         if (!type.clickable) return;
-        hookFn = clickHook(element, $state, $timeout, type, getDef);
+        const hookFn = clickHook(element, $state, $timeout, type, getDef);
         bindEvents(element, scope, hookFn, rawDef.uiStateOpts);
       },
     };

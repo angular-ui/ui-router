@@ -31,7 +31,7 @@ export interface RawNg1RuleFunction {
  * @deprecated
  */
 export class UrlRouterProvider {
-  static injectableHandler(router: UIRouter, handler): UrlRuleHandlerFn {
+  static injectableHandler(router: UIRouter, handler: IInjectable): UrlRuleHandlerFn {
     return (match) => services.$injector.invoke(handler, null, { $match: match, $stateParams: router.globals.params });
   }
 
@@ -164,7 +164,7 @@ export class UrlRouterProvider {
    *
    * Note: the handler may also invoke arbitrary code, such as `$state.go()`
    */
-  when(what: RegExp | UrlMatcher | string, handler: string | IInjectable) {
+  when(what: RegExp | UrlMatcher | string, handler: string | IInjectable): this {
     if (isArray(handler) || isFunction(handler)) {
       handler = UrlRouterProvider.injectableHandler(this.router, handler);
     }
@@ -203,7 +203,7 @@ export class UrlRouterProvider {
    * @param defer Indicates whether to defer location change interception.
    *        Passing no parameter is equivalent to `true`.
    */
-  deferIntercept(defer?: boolean) {
+  deferIntercept(defer?: boolean): void {
     this.router.urlService.deferIntercept(defer);
   }
 }
