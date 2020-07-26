@@ -50,7 +50,6 @@ export interface Ng1StateTransitionHook {
  *
  * Used to reset [[StateDeclaration]] typings to `any` so the [[Ng1StateDeclaration]] interface can then narrow them */
 export interface _Ng1StateDeclaration extends StateDeclaration {
-  // tslint:disable-line:class-name
   onExit?: any;
   onRetain?: any;
   onEnter?: any;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * # Angular 1 injectable services
  *
@@ -48,7 +49,6 @@
  *
  * @preferred @publicapi @module injectables
  */ /** */
-/* tslint:disable:prefer-const */
 import { StateProvider } from './stateProvider';
 import {
   StateService,
