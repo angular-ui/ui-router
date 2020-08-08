@@ -736,9 +736,9 @@
     eslint-visitor-keys "^1.1.0"
 
 "@uirouter/core@v7beta":
-  version "7.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-7.0.0-beta.1.tgz#294c9a9f82f203ca396763b470093daeef3a8d52"
-  integrity sha512-jdRQscId7iHWnuSw9xvWNnTDM8QORqP1J5ovtDPtKEW3m0+SfCcKJqQWV6AyXXBFhUIzF+0JmQ8YOoVxDFSBPw==
+  version "7.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-7.0.0-beta.2.tgz#99669b70ef2b27066cc46f167caa1de1a505dcb9"
+  integrity sha512-ScY+H1n6lyEP5f78CTZlvc8eT5U5NRac0CAZQhy77ExLE4+zg0djyczsHR+omgNfAUndnSx4tqo+DbgjXZfUlw==
 
 "@uirouter/publish-scripts@2.5.5":
   version "2.5.5"

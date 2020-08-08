@@ -226,18 +226,11 @@ uiView = [
             inherited = $element.inheritedData('$uiView') || rootData,
             name = $interpolate(attrs['uiView'] || attrs['name'] || '')(scope) || '$default';
 
-          let previousEl: JQuery, currentEl: JQuery, currentScope: IScope, viewConfig: Ng1ViewConfig;
-
-          const uiViewId = $view.registerView('ng1', inherited.$uiView.id, name, renderContentIntoUIViewPortal);
-
-          scope.$on('$destroy', function () {
-            trace.traceUIViewEvent('Destroying/Unregistering', activeUIView);
-            $view.deregisterView(uiViewId);
-          });
+          let previousEl: JQuery, currentEl: JQuery, currentScope: IScope;
 
           const activeUIView: ActiveUIView = {
             $type: 'ng1',
-            id: uiViewId, // filled in later
+            id: null, // filled in later
             name: name, // ui-view name (<div ui-view="name"></div>
             fqn: inherited.$uiView.fqn ? inherited.$uiView.fqn + '.' + name : name, // fully qualified name, describes location in DOM
             config: null, // The ViewConfig loaded (from a state.views definition)
@@ -255,21 +248,14 @@ uiView = [
           };
 
           trace.traceUIViewEvent('Linking', activeUIView);
+          const uiViewId = $view.registerView('ng1', inherited.$uiView.id, name, renderContentIntoUIViewPortal);
 
-          function renderContentIntoUIViewPortal(renderCommand: UIViewPortalRenderCommand) {
-            if (renderCommand.command === 'RENDER_DEFAULT_CONTENT') {
-              viewConfig = undefined;
-            } else if (renderCommand.command === 'RENDER_ROUTED_VIEW') {
-              viewConfig = renderCommand.routedViewConfig as Ng1ViewConfig;
-            } else if (renderCommand.command === 'RENDER_INTEROP_DIV') {
-            }
-
-            updateView(viewConfig);
-          }
+          scope.$on('$destroy', function () {
+            trace.traceUIViewEvent('Destroying/Unregistering', activeUIView);
+            $view.deregisterView(uiViewId);
+          });
 
           $element.data('$uiView', { $uiView: activeUIView });
-
-          updateView();
 
           function cleanupLastView() {
             if (previousEl) {
@@ -297,13 +283,25 @@ uiView = [
             }
           }
 
-          function updateView(config?: Ng1ViewConfig) {
+          function renderContentIntoUIViewPortal(renderCommand: UIViewPortalRenderCommand) {
+            if (isString(activeUIView) && activeUIView.id !== renderCommand.id) {
+              throw new Error(
+                `Received a render command for wrong UIView. Render command id: ${renderCommand.id}, but this UIView id: ${activeUIView.id}`
+              );
+            }
+
+            activeUIView.id = renderCommand.id;
+            const viewConfig =
+              renderCommand.command === 'RENDER_ROUTED_VIEW'
+                ? (renderCommand.routedViewConfig as Ng1ViewConfig)
+                : undefined;
+
             const newScope = scope.$new();
             const animEnter = $q.defer(),
               animLeave = $q.defer();
 
             const $uiViewData: UIViewData = {
-              $cfg: config,
+              $cfg: viewConfig,
               $uiView: activeUIView,
             };
 
@@ -354,7 +352,7 @@ uiView = [
              *
              * @param {Object} event Event object.
              */
-            currentScope.$emit('$viewContentLoaded', config || viewConfig);
+            currentScope.$emit('$viewContentLoaded', viewConfig);
             currentScope.$eval(onloadExp);
           }
         };
