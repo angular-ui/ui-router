@@ -34,8 +34,9 @@ import { ng1_directive } from './stateDirectives';
 
 /** @hidden */
 export type UIViewData = {
-  $cfg: Ng1ViewConfig;
-  $uiView: ActiveUIView;
+  $renderCommand: UIViewPortalRenderCommand;
+  $cfg: Ng1ViewConfig; // for backwards compat
+  $uiView: ActiveUIView; // for backwards compat
 };
 
 /** @hidden */
@@ -301,6 +302,7 @@ uiView = [
               animLeave = $q.defer();
 
             const $uiViewData: UIViewData = {
+              $renderCommand: renderCommand,
               $cfg: viewConfig,
               $uiView: activeUIView,
             };
@@ -384,17 +386,22 @@ function $ViewDirectiveFill(
       tElement.empty();
 
       return function (scope: IScope, $element: JQuery) {
-        const data: UIViewData = $element.data('$uiView');
-        if (!data) {
+        const data: UIViewData = $element.data('$uiView') || {};
+        const { $renderCommand, $uiView } = data;
+        if (!$renderCommand || $renderCommand.command === 'RENDER_DEFAULT_CONTENT') {
           $element.html(initial);
           $compile($element.contents() as any)(scope);
           return;
+        } else if ($renderCommand.command === 'RENDER_INTEROP_DIV') {
+          $element.html('<div></div>');
+          $renderCommand.giveDiv($element.find('div')[0]);
+          return;
         }
 
-        const cfg: Ng1ViewConfig = data.$cfg || <any>{ viewDecl: {}, getTemplate: noop };
+        const cfg: Ng1ViewConfig = $renderCommand.routedViewConfig || ({ viewDecl: {}, getTemplate: noop } as any);
         const resolveCtx: ResolveContext = cfg.path && new ResolveContext(cfg.path);
         $element.html(cfg.getTemplate($element, resolveCtx) || initial);
-        trace.traceUIViewFill(data.$uiView, $element.html());
+        trace.traceUIViewFill($uiView, $element.html());
 
         const link = $compile($element.contents() as any);
         const controller = cfg.controller as angular.IControllerService;
