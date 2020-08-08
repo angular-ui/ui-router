@@ -232,6 +232,18 @@ describe('uiStateRef', function () {
         expect(obj($stateParams)).toEqual({});
       }));
 
+      it('should not transition states when alt-clicked', inject(function ($state, $stateParams, $q) {
+        expect($state.$current.name).toEqual('top');
+        expect(obj($stateParams)).toEqual({});
+
+        triggerClick(el, { altKey: true });
+        timeoutFlush();
+        $q.flush();
+
+        expect($state.current.name).toEqual('top');
+        expect(obj($stateParams)).toEqual({});
+      }));
+
       it('should not transition states when middle-clicked', inject(function ($state, $stateParams, $q) {
         expect($state.$current.name).toEqual('top');
         expect(obj($stateParams)).toEqual({});
