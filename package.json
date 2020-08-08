@@ -129,11 +129,11 @@
       "Interfaces": [
         "Ng1StateDeclaration"
       ],
-      "Components": [
-        "uiView",
-        "UISref",
-        "UISrefActive",
-        "uiStateDirective"
+      "Directives": [
+        { "name": "uiView", "kindString": "Variable" },
+        { "name": "uiSref", "kindString": "Variable" },
+        { "name": "uiSrefActive", "kindString": "Variable" },
+        { "name": "uiState", "kindString": "Variable" }
       ],
       "Other": [
         "Transition",
