@@ -1,3 +1,10 @@
+## 1.0.28 (2020-08-08)
+[Compare `@uirouter/angularjs` versions 1.0.27 and 1.0.28](https://github.com/angular-ui/ui-router/compare/1.0.27...1.0.28)
+
+### Bug Fixes
+
+* should not transition states when alt-clicked ([8080adb](https://github.com/angular-ui/ui-router/commit/8080adb))
+
 ## 1.0.27 (2020-07-21)
 [Compare `@uirouter/angularjs` versions 1.0.26 and 1.0.27](https://github.com/angular-ui/ui-router/compare/1.0.26...1.0.27)
 
