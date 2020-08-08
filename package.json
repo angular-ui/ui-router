@@ -144,7 +144,7 @@
       {
         "pkg": "@uirouter/core",
         "repo": "https://github.com/ui-router/core",
-        "branch": "master"
+        "branch": "v7"
       }
     ]
   }
