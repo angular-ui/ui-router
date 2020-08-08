@@ -95,7 +95,7 @@ function clickHook(
     const button = e.which || e.button,
       target = getDef();
 
-    if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || el.attr('target'))) {
+    if (!(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || el.attr('target'))) {
       // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
       const transition = $timeout(function () {
         if (!el.attr('disabled')) {
