@@ -1,3 +1,24 @@
+## 1.0.29 (2020-12-21)
+[Compare `@uirouter/angularjs` versions 1.0.28 and 1.0.29](https://github.com/angular-ui/ui-router/compare/1.0.28...1.0.29)
+
+
+---
+
+
+### Updated `@uirouter/core` from 6.0.6 to 6.0.7
+
+
+Changelog for `@uirouter/core`:
+
+
+[Compare `@uirouter/core` versions 6.0.6 and 6.0.7](https://github.com/ui-router/core/compare/6.0.6...6.0.7)
+
+### Bug Fixes
+
+* **array:** Fix decoding of array-type query parameters ([44ebfae](https://github.com/ui-router/core/commit/44ebfae))
+
+- Note: this fix does not affect angularjs
+
 ## 1.0.28 (2020-08-08)
 [Compare `@uirouter/angularjs` versions 1.0.27 and 1.0.28](https://github.com/angular-ui/ui-router/compare/1.0.27...1.0.28)
 
