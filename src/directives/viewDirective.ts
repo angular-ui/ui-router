@@ -205,10 +205,6 @@ uiView = [
       };
     }
 
-    function configsEqual(config1: Ng1ViewConfig, config2: Ng1ViewConfig) {
-      return config1 === config2;
-    }
-
     const rootData = {
       $cfg: { viewDecl: { $context: $view._pluginapi._rootViewContext() } },
       $uiView: {},
