@@ -735,17 +735,17 @@
   dependencies:
     eslint-visitor-keys "^1.1.0"
 
-"@uirouter/core@6.0.6":
-  version "6.0.6"
-  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-6.0.6.tgz#4bea0ca88790a939d8e84ba05a31b96f50d9abe8"
-  integrity sha512-+i1iNaPQRp1JoEnxi4EsTX30bSvkWtPEenENWdvdIzX615Q3WCWwnbW9DtrwX9gSD5qmWEaQEtGMU0uF3qJ+1g==
+"@uirouter/core@6.0.7":
+  version "6.0.7"
+  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-6.0.7.tgz#a66743dceb13a56d8908474ff891d63e5d5a2b01"
+  integrity sha512-KUTJxL+6q0PiBnFx4/Z+Hsyg0pSGiaW5yZQeJmUxknecjpTbnXkLU8H2EqRn9N2B+qDRa7Jg8RcgeNDPY72O1w==
 
-"@uirouter/publish-scripts@2.5.3":
-  version "2.5.3"
-  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.5.3.tgz#569e562e77b2704b56eb2098d1f9add035503e58"
-  integrity sha512-ZY/edN6IKfW0gfwx2b+E9K5nBuc/3gGjoeBhNX3q1IH+ntrdR7nxq009IwT556Ti8GpE/78H65RZqk9R/lwiGQ==
+"@uirouter/publish-scripts@2.5.4":
+  version "2.5.4"
+  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.5.4.tgz#facc20b7f3ef4cd6def05805c077edfb3b1bb935"
+  integrity sha512-zHFHH1V890JF2b6HYPdr2PvJEGyZoL4HxqrZ6dPaJRFP65chbbnWzo0+JXE7QkwPWQrG+TQU30/Golg+ekRuiQ==
   dependencies:
-    check-peer-dependencies "^2.0.2"
+    check-peer-dependencies "^2.0.6"
     conventional-changelog "^3.1.21"
     conventional-changelog-ui-router-core "^1.4.2"
     find-parent-dir "^0.3.0"
@@ -1309,10 +1309,10 @@ char-regex@^1.0.2:
   resolved "https://registry.yarnpkg.com/char-regex/-/char-regex-1.0.2.tgz#d744358226217f981ed58f479b1d6bcc29545dcf"
   integrity sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==
 
-check-peer-dependencies@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/check-peer-dependencies/-/check-peer-dependencies-2.0.2.tgz#f41ee03da90e9caa42b0d35b95d29ba5ec0d8f50"
-  integrity sha512-2ONozVlLrkoTtlHBNFBNDQn4pjzecvwD8NlkpiPxVcvio9YulTdORzEr4kzrm1k2M3oZ2B7uNCzoe8w/FM/6Cg==
+check-peer-dependencies@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/check-peer-dependencies/-/check-peer-dependencies-2.0.6.tgz#e407e6f3433eac6138765474a114c96a787d7c04"
+  integrity sha512-q++3UFY2vgZEcUlHSDLR6JmBispEf6az90wNFSfM3hiD+DuZUd0mD+eYGSQMTUVvvEZkaS+B71utvsKYiBPemg==
   dependencies:
     resolve "^1.14.1"
     semver "^7.1.1"
