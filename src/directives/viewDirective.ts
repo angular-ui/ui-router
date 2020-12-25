@@ -1,7 +1,6 @@
 /** @publicapi @module directives */ /** */
 import {
   $QLike,
-  ActiveUIView,
   extend,
   filter,
   HookRegOptions,
@@ -23,8 +22,11 @@ import {
   TypedMap,
   UIViewPortalRenderCommand,
   unnestR,
+  ViewConfig,
+  ViewContext,
   ViewService,
 } from '@uirouter/core';
+import { UIViewPortalRegistration } from '@uirouter/core/lib/view/interface';
 import { IAugmentedJQuery, IInterpolateService, IScope, ITranscludeFunction } from 'angular';
 import { ng as angular } from '../angular';
 import { Ng1Controller, Ng1StateDeclaration } from '../interface';
@@ -172,6 +174,26 @@ export type UIViewAnimData = {
  * ```
  */
 export let uiView: ng1_directive;
+
+// No longer exported from @uirouter/core
+// for backwards compat only
+export interface ActiveUIView {
+  /** type of framework, e.g., "ng1" or "ng2" */
+  $type: string;
+  /** An auto-incremented id */
+  id: number | string;
+  /** The ui-view short name */
+  name: string;
+  /** The ui-view's fully qualified name */
+  fqn: string;
+  /** The ViewConfig that is currently loaded into the ui-view */
+  config: ViewConfig;
+  /** The state context in which the ui-view tag was created. */
+  creationContext: ViewContext;
+  /** A callback that should apply a ViewConfig (or clear the ui-view, if config is undefined) */
+  configUpdated: (config: ViewConfig) => void;
+}
+
 // eslint-disable-next-line prefer-const
 uiView = [
   '$view',
@@ -244,14 +266,22 @@ uiView = [
             // },
           };
 
-          trace.traceUIViewEvent('Linking', activeUIView);
-          const uiViewId = $view.registerView('ng1', inherited.$uiView.id, name, renderContentIntoUIViewPortal);
+          const uiViewId = $view._pluginapi._registerView(
+            'ng1',
+            inherited.$uiView.id,
+            name,
+            renderContentIntoUIViewPortal
+          );
+          // as any: trace requires the internal interface, hmmm... this isn't good
+          const registration = $view._pluginapi._registeredUIView(uiViewId) as any;
+          trace.traceUIViewEvent('Linking', registration);
 
           scope.$on('$destroy', function () {
-            trace.traceUIViewEvent('Destroying/Unregistering', activeUIView);
-            $view.deregisterView(uiViewId);
+            trace.traceUIViewEvent('Destroying/Unregistering', registration);
+            $view._pluginapi._deregisterView(uiViewId);
           });
 
+          // backwards compat
           $element.data('$uiView', { $uiView: activeUIView });
 
           function cleanupLastView() {
@@ -262,7 +292,7 @@ uiView = [
             }
 
             if (currentScope) {
-              trace.traceUIViewEvent('Destroying scope', activeUIView);
+              trace.traceUIViewEvent('Destroying scope', registration);
               currentScope.$destroy();
               currentScope = null;
             }
@@ -281,16 +311,17 @@ uiView = [
           }
 
           function renderContentIntoUIViewPortal(renderCommand: UIViewPortalRenderCommand) {
-            if (isString(activeUIView) && activeUIView.id !== renderCommand.id) {
+            const renderCmdViewId = renderCommand.uiViewPortalRegistration.id;
+            if (isString(activeUIView.id) && activeUIView.id !== renderCmdViewId) {
               throw new Error(
-                `Received a render command for wrong UIView. Render command id: ${renderCommand.id}, but this UIView id: ${activeUIView.id}`
+                `Received a render command for wrong UIView. Render command id: ${renderCmdViewId}, but this UIView id: ${activeUIView.id}`
               );
             }
 
-            activeUIView.id = renderCommand.id;
+            activeUIView.id = renderCmdViewId;
             const viewConfig =
-              renderCommand.command === 'RENDER_ROUTED_VIEW'
-                ? (renderCommand.routedViewConfig as Ng1ViewConfig)
+              renderCommand.portalContentType === 'RENDER_ROUTED_VIEW'
+                ? (renderCommand.uiViewPortalRegistration.viewConfig as Ng1ViewConfig)
                 : undefined;
 
             const newScope = scope.$new();
@@ -384,20 +415,22 @@ function $ViewDirectiveFill(
       return function (scope: IScope, $element: JQuery) {
         const data: UIViewData = $element.data('$uiView') || {};
         const { $renderCommand, $uiView } = data;
-        if (!$renderCommand || $renderCommand.command === 'RENDER_DEFAULT_CONTENT') {
+        if (!$renderCommand || $renderCommand.portalContentType === 'RENDER_DEFAULT_CONTENT') {
           $element.html(initial);
           $compile($element.contents() as any)(scope);
           return;
-        } else if ($renderCommand.command === 'RENDER_INTEROP_DIV') {
+        } else if ($renderCommand.portalContentType === 'RENDER_INTEROP_DIV') {
           $element.html('<div></div>');
           $renderCommand.giveDiv($element.find('div')[0]);
           return;
         }
 
-        const cfg: Ng1ViewConfig = $renderCommand.routedViewConfig || ({ viewDecl: {}, getTemplate: noop } as any);
+        const { uiViewPortalRegistration } = $renderCommand;
+        const { viewConfig } = uiViewPortalRegistration;
+        const cfg: Ng1ViewConfig = viewConfig || ({ viewDecl: {}, getTemplate: noop } as any);
         const resolveCtx: ResolveContext = cfg.path && new ResolveContext(cfg.path);
         $element.html(cfg.getTemplate($element, resolveCtx) || initial);
-        trace.traceUIViewFill($uiView, $element.html());
+        trace.traceUIViewFill(uiViewPortalRegistration as any, $element.html());
 
         const link = $compile($element.contents() as any);
         const controller = cfg.controller as angular.IControllerService;
