@@ -87,7 +87,7 @@
     "@types/jest": "^26.0.5",
     "@typescript-eslint/eslint-plugin": "^3.7.0",
     "@typescript-eslint/parser": "^3.7.0",
-    "@uirouter/publish-scripts": "2.5.4",
+    "@uirouter/publish-scripts": "2.5.5",
     "angular": "1.8.0",
     "bufferutil": "4.0.1",
     "canvas": "2.6.1",
