@@ -8,6 +8,7 @@ module.exports = {
   roots: ['src', 'test'],
   testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)', '**/?*Spec.[jt]s'],
   setupFilesAfterEnv: ['./test/jest.init.ts'],
+  coverageReporters: ['json-summary', 'lcov', 'text', 'clover'],
   moduleNameMapper: {
     '^angular$': '<rootDir>/test/angular/jest-angular.js',
     '^jest-angular-import$': `<rootDir>/test/angular/${NG}/angular.js`,

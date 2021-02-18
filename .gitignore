@@ -18,6 +18,7 @@ _doc
 lib
 lib-esm
 release
+coverage/
 
 # do not ignore github
 !.github
