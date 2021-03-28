@@ -146,13 +146,6 @@ const getUrlRouterProvider = (uiRouter: UIRouter) => (uiRouter.urlRouterProvider
 // $urlRouter service and $urlRouterProvider
 const getStateProvider = () => extend(router.stateProvider, { $get: () => router.stateService });
 
-watchDigests.$inject = ['$rootScope'];
-export function watchDigests($rootScope: IRootScopeService) {
-  $rootScope.$watch(function () {
-    trace.approximateDigests++;
-  });
-}
-
 mod_init.provider('$uiRouter', <any>$uiRouterProvider);
 mod_rtr.provider('$urlRouter', ['$uiRouterProvider', getUrlRouterProvider]);
 mod_util.provider('$urlService', getProviderFor('urlService'));
@@ -167,7 +160,6 @@ mod_state.factory('$stateParams', ['$uiRouter', ($uiRouter: UIRouter) => $uiRout
 mod_main.factory('$view', () => router.viewService);
 mod_main.service('$trace', () => trace);
 
-mod_main.run(watchDigests);
 mod_util.run(['$urlMatcherFactory', function ($urlMatcherFactory: UrlMatcherFactory) {}]);
 mod_state.run(['$state', function ($state: StateService) {}]);
 mod_rtr.run(['$urlRouter', function ($urlRouter: UrlRouter) {}]);
