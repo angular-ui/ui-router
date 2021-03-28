@@ -1,6 +1,7 @@
 /** @publicapi @module directives */ /** */
 import {
   $QLike,
+  Category,
   extend,
   filter,
   HookRegOptions,
@@ -8,6 +9,7 @@ import {
   isFunction,
   isString,
   kebobString,
+  maxLength,
   noop,
   Obj,
   Param,
@@ -272,12 +274,14 @@ uiView = [
             name,
             renderContentIntoUIViewPortal
           );
-          // as any: trace requires the internal interface, hmmm... this isn't good
-          const registration = $view._pluginapi._registeredUIView(uiViewId) as any;
-          trace.traceUIViewEvent('Linking', registration);
+
+          const traceUiViewEvent = (message: string, extra?: string) =>
+            $view._pluginapi._traceUIViewEvent(uiViewId, message, extra);
+
+          traceUiViewEvent('Linking');
 
           scope.$on('$destroy', function () {
-            trace.traceUIViewEvent('Destroying/Unregistering', registration);
+            traceUiViewEvent('Destroying/Unregistering');
             $view._pluginapi._deregisterView(uiViewId);
           });
 
@@ -286,20 +290,20 @@ uiView = [
 
           function cleanupLastView() {
             if (previousEl) {
-              trace.traceUIViewEvent('Removing (previous) el', previousEl.data('$uiView'));
+              traceUiViewEvent('Removing (previous) el', previousEl.data('$uiView'));
               previousEl.remove();
               previousEl = null;
             }
 
             if (currentScope) {
-              trace.traceUIViewEvent('Destroying scope', registration);
+              traceUiViewEvent('Destroying scope');
               currentScope.$destroy();
               currentScope = null;
             }
 
             if (currentEl) {
               const _viewData = currentEl.data('$uiViewAnim');
-              trace.traceUIViewEvent('Animate out', _viewData);
+              traceUiViewEvent('Animate out', _viewData);
               renderer.leave(currentEl, function () {
                 _viewData.$$animLeave.resolve();
                 previousEl = null;
@@ -430,7 +434,10 @@ function $ViewDirectiveFill(
         const cfg: Ng1ViewConfig = viewConfig || ({ viewDecl: {}, getTemplate: noop } as any);
         const resolveCtx: ResolveContext = cfg.path && new ResolveContext(cfg.path);
         $element.html(cfg.getTemplate($element, resolveCtx) || initial);
-        trace.traceUIViewFill(uiViewPortalRegistration as any, $element.html());
+
+        if (trace.enabled(Category.UIVIEW)) {
+          $view._pluginapi._traceUIViewEvent($uiView.id as string, 'Fill', ` with: ${maxLength(200, $element.html())}`);
+        }
 
         const link = $compile($element.contents() as any);
         const controller = cfg.controller as angular.IControllerService;
