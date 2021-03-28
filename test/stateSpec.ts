@@ -928,6 +928,7 @@ describe('state', function () {
       $rootScope,
       $compile
     ) {
+      debugger;
       $compile('<div> <div ui-view/></div>')($rootScope);
       $state.transitionTo('logA.logB.logC');
       $q.flush();

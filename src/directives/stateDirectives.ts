@@ -281,8 +281,8 @@ function bindEvents(element: IAugmentedJQuery, scope: IScope, hookFn: EventListe
  * - Unlike the parameter values expression, the state name is not `$watch`ed (for performance reasons).
  * If you need to dynamically update the state being linked to, use the fully dynamic [[uiState]] directive.
  */
-let uiSrefDirective: ng1_directive;
-uiSrefDirective = [
+export let uiSref: ng1_directive;
+uiSref = [
   '$uiRouter',
   '$timeout',
   function $StateRefDirective($uiRouter: UIRouter, $timeout: ITimeoutService) {
@@ -419,8 +419,8 @@ uiSrefDirective = [
  * - A middle-click, right-click, or ctrl-click is handled (natively) by the browser to open the href in a new window, for example.
  * ```
  */
-let uiStateDirective: ng1_directive;
-uiStateDirective = [
+export let uiState: ng1_directive;
+uiState = [
   '$uiRouter',
   '$timeout',
   function $StateRefDynamicDirective($uiRouter: UIRouter, $timeout: ITimeoutService) {
@@ -569,8 +569,8 @@ uiStateDirective = [
  *
  * - Multiple classes may be specified in a space-separated format: `ui-sref-active='class1 class2 class3'`
  */
-let uiSrefActiveDirective: ng1_directive;
-uiSrefActiveDirective = [
+export let uiSrefActive: ng1_directive;
+uiSrefActive = [
   '$state',
   '$stateParams',
   '$interpolate',
@@ -726,7 +726,7 @@ interface StateData {
 
 angular
   .module('ui.router.state')
-  .directive('uiSref', uiSrefDirective)
-  .directive('uiSrefActive', uiSrefActiveDirective)
-  .directive('uiSrefActiveEq', uiSrefActiveDirective)
-  .directive('uiState', uiStateDirective);
+  .directive('uiSref', uiSref)
+  .directive('uiSrefActive', uiSrefActive)
+  .directive('uiSrefActiveEq', uiSrefActive)
+  .directive('uiState', uiState);
