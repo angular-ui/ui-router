@@ -75,7 +75,7 @@
   "module": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "@uirouter/core": "6.0.7"
+    "@uirouter/core": "v7beta"
   },
   "peerDependencies": {
     "angular": ">=1.2.0"
@@ -126,11 +126,11 @@
       "Interfaces": [
         "Ng1StateDeclaration"
       ],
-      "Components": [
-        "uiView",
-        "UISref",
-        "UISrefActive",
-        "uiStateDirective"
+      "Directives": [
+        { "name": "uiView", "kindString": "Variable" },
+        { "name": "uiSref", "kindString": "Variable" },
+        { "name": "uiSrefActive", "kindString": "Variable" },
+        { "name": "uiState", "kindString": "Variable" }
       ],
       "Other": [
         "Transition",
@@ -141,7 +141,7 @@
       {
         "pkg": "@uirouter/core",
         "repo": "https://github.com/ui-router/core",
-        "branch": "master"
+        "branch": "v7"
       }
     ]
   }

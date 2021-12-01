@@ -1,7 +1,7 @@
 /** @publicapi @module directives */ /** */
 import {
   $QLike,
-  ActiveUIView,
+  Category,
   extend,
   filter,
   HookRegOptions,
@@ -9,6 +9,7 @@ import {
   isFunction,
   isString,
   kebobString,
+  maxLength,
   noop,
   Obj,
   Param,
@@ -21,9 +22,13 @@ import {
   Transition,
   TransitionService,
   TypedMap,
+  UIViewPortalRenderCommand,
   unnestR,
+  ViewConfig,
+  ViewContext,
   ViewService,
 } from '@uirouter/core';
+import { UIViewPortalRegistration } from '@uirouter/core/lib/view/interface';
 import { IAugmentedJQuery, IInterpolateService, IScope, ITranscludeFunction } from 'angular';
 import { ng as angular } from '../angular';
 import { Ng1Controller, Ng1StateDeclaration } from '../interface';
@@ -33,8 +38,9 @@ import { ng1_directive } from './stateDirectives';
 
 /** @hidden */
 export type UIViewData = {
-  $cfg: Ng1ViewConfig;
-  $uiView: ActiveUIView;
+  $renderCommand: UIViewPortalRenderCommand;
+  $cfg: Ng1ViewConfig; // for backwards compat
+  $uiView: ActiveUIView; // for backwards compat
 };
 
 /** @hidden */
@@ -170,6 +176,26 @@ export type UIViewAnimData = {
  * ```
  */
 export let uiView: ng1_directive;
+
+// No longer exported from @uirouter/core
+// for backwards compat only
+export interface ActiveUIView {
+  /** type of framework, e.g., "ng1" or "ng2" */
+  $type: string;
+  /** An auto-incremented id */
+  id: number | string;
+  /** The ui-view short name */
+  name: string;
+  /** The ui-view's fully qualified name */
+  fqn: string;
+  /** The ViewConfig that is currently loaded into the ui-view */
+  config: ViewConfig;
+  /** The state context in which the ui-view tag was created. */
+  creationContext: ViewContext;
+  /** A callback that should apply a ViewConfig (or clear the ui-view, if config is undefined) */
+  configUpdated: (config: ViewConfig) => void;
+}
+
 // eslint-disable-next-line prefer-const
 uiView = [
   '$view',
@@ -203,17 +229,12 @@ uiView = [
       };
     }
 
-    function configsEqual(config1: Ng1ViewConfig, config2: Ng1ViewConfig) {
-      return config1 === config2;
-    }
-
     const rootData = {
       $cfg: { viewDecl: { $context: $view._pluginapi._rootViewContext() } },
       $uiView: {},
     };
 
     const directive = {
-      count: 0,
       restrict: 'ECA',
       terminal: true,
       priority: 400,
@@ -226,62 +247,63 @@ uiView = [
             inherited = $element.inheritedData('$uiView') || rootData,
             name = $interpolate(attrs['uiView'] || attrs['name'] || '')(scope) || '$default';
 
-          let previousEl: JQuery, currentEl: JQuery, currentScope: IScope, viewConfig: Ng1ViewConfig;
+          let previousEl: JQuery, currentEl: JQuery, currentScope: IScope;
 
           const activeUIView: ActiveUIView = {
             $type: 'ng1',
-            id: directive.count++, // Global sequential ID for ui-view tags added to DOM
+            id: null, // filled in later
             name: name, // ui-view name (<div ui-view="name"></div>
             fqn: inherited.$uiView.fqn ? inherited.$uiView.fqn + '.' + name : name, // fully qualified name, describes location in DOM
             config: null, // The ViewConfig loaded (from a state.views definition)
-            configUpdated: configUpdatedCallback, // Called when the matching ViewConfig changes
-            get creationContext() {
-              // The context in which this ui-view "tag" was created
-              const fromParentTagConfig = parse('$cfg.viewDecl.$context')(inherited);
-              // Allow <ui-view name="foo"><ui-view name="bar"></ui-view></ui-view>
-              // See https://github.com/angular-ui/ui-router/issues/3355
-              const fromParentTag = parse('$uiView.creationContext')(inherited);
-              return fromParentTagConfig || fromParentTag;
-            },
+            configUpdated: undefined, // unused in core
+            creationContext: undefined, // unused in core
+            // configUpdated: configUpdatedCallback, // Called when the matching ViewConfig changes
+            // get creationContext() {
+            // The context in which this ui-view "tag" was created
+            // const fromParentTagConfig = parse('$cfg.viewDecl.$context')(inherited);
+            // Allow <ui-view name="foo"><ui-view name="bar"></ui-view></ui-view>
+            // See https://github.com/angular-ui/ui-router/issues/3355
+            // const fromParentTag = parse('$uiView.creationContext')(inherited);
+            // return fromParentTagConfig || fromParentTag;
+            // },
           };
 
-          trace.traceUIViewEvent('Linking', activeUIView);
+          const uiViewId = $view._pluginapi._registerView(
+            'ng1',
+            inherited.$uiView.id,
+            name,
+            renderContentIntoUIViewPortal
+          );
 
-          function configUpdatedCallback(config?: Ng1ViewConfig) {
-            if (config && !(config instanceof Ng1ViewConfig)) return;
-            if (configsEqual(viewConfig, config)) return;
-            trace.traceUIViewConfigUpdated(activeUIView, config && config.viewDecl && config.viewDecl.$context);
+          const traceUiViewEvent = (message: string, extra?: string) =>
+            $view._pluginapi._traceUIViewEvent(uiViewId, message, extra);
 
-            viewConfig = config;
-            updateView(config);
-          }
+          traceUiViewEvent('Linking');
 
-          $element.data('$uiView', { $uiView: activeUIView });
-
-          updateView();
-
-          const unregister = $view.registerUIView(activeUIView);
           scope.$on('$destroy', function () {
-            trace.traceUIViewEvent('Destroying/Unregistering', activeUIView);
-            unregister();
+            traceUiViewEvent('Destroying/Unregistering');
+            $view._pluginapi._deregisterView(uiViewId);
           });
+
+          // backwards compat
+          $element.data('$uiView', { $uiView: activeUIView });
 
           function cleanupLastView() {
             if (previousEl) {
-              trace.traceUIViewEvent('Removing (previous) el', previousEl.data('$uiView'));
+              traceUiViewEvent('Removing (previous) el', previousEl.data('$uiView'));
               previousEl.remove();
               previousEl = null;
             }
 
             if (currentScope) {
-              trace.traceUIViewEvent('Destroying scope', activeUIView);
+              traceUiViewEvent('Destroying scope');
               currentScope.$destroy();
               currentScope = null;
             }
 
             if (currentEl) {
               const _viewData = currentEl.data('$uiViewAnim');
-              trace.traceUIViewEvent('Animate out', _viewData);
+              traceUiViewEvent('Animate out', _viewData);
               renderer.leave(currentEl, function () {
                 _viewData.$$animLeave.resolve();
                 previousEl = null;
@@ -292,13 +314,27 @@ uiView = [
             }
           }
 
-          function updateView(config?: Ng1ViewConfig) {
+          function renderContentIntoUIViewPortal(renderCommand: UIViewPortalRenderCommand) {
+            const renderCmdViewId = renderCommand.uiViewPortalRegistration.id;
+            if (isString(activeUIView.id) && activeUIView.id !== renderCmdViewId) {
+              throw new Error(
+                `Received a render command for wrong UIView. Render command id: ${renderCmdViewId}, but this UIView id: ${activeUIView.id}`
+              );
+            }
+
+            activeUIView.id = renderCmdViewId;
+            const viewConfig =
+              renderCommand.portalContentType === 'RENDER_ROUTED_VIEW'
+                ? (renderCommand.uiViewPortalRegistration.viewConfig as Ng1ViewConfig)
+                : undefined;
+
             const newScope = scope.$new();
             const animEnter = $q.defer(),
               animLeave = $q.defer();
 
             const $uiViewData: UIViewData = {
-              $cfg: config,
+              $renderCommand: renderCommand,
+              $cfg: viewConfig,
               $uiView: activeUIView,
             };
 
@@ -349,7 +385,7 @@ uiView = [
              *
              * @param {Object} event Event object.
              */
-            currentScope.$emit('$viewContentLoaded', config || viewConfig);
+            currentScope.$emit('$viewContentLoaded', viewConfig);
             currentScope.$eval(onloadExp);
           }
         };
@@ -381,17 +417,27 @@ function $ViewDirectiveFill(
       tElement.empty();
 
       return function (scope: IScope, $element: JQuery) {
-        const data: UIViewData = $element.data('$uiView');
-        if (!data) {
+        const data: UIViewData = $element.data('$uiView') || {};
+        const { $renderCommand, $uiView } = data;
+        if (!$renderCommand || $renderCommand.portalContentType === 'RENDER_DEFAULT_CONTENT') {
           $element.html(initial);
           $compile($element.contents() as any)(scope);
           return;
+        } else if ($renderCommand.portalContentType === 'RENDER_INTEROP_DIV') {
+          $element.html('<div></div>');
+          $renderCommand.giveDiv($element.find('div')[0]);
+          return;
         }
 
-        const cfg: Ng1ViewConfig = data.$cfg || <any>{ viewDecl: {}, getTemplate: noop };
+        const { uiViewPortalRegistration } = $renderCommand;
+        const { viewConfig } = uiViewPortalRegistration;
+        const cfg: Ng1ViewConfig = viewConfig || ({ viewDecl: {}, getTemplate: noop } as any);
         const resolveCtx: ResolveContext = cfg.path && new ResolveContext(cfg.path);
         $element.html(cfg.getTemplate($element, resolveCtx) || initial);
-        trace.traceUIViewFill(data.$uiView, $element.html());
+
+        if (trace.enabled(Category.UIVIEW)) {
+          $view._pluginapi._traceUIViewEvent($uiView.id as string, 'Fill', ` with: ${maxLength(200, $element.html())}`);
+        }
 
         const link = $compile($element.contents() as any);
         const controller = cfg.controller as angular.IControllerService;
