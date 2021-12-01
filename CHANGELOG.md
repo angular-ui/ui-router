@@ -1,3 +1,18 @@
+## 1.0.30 (2021-12-01)
+[Compare `@uirouter/angularjs` versions 1.0.29 and 1.0.30](https://github.com/angular-ui/ui-router/compare/1.0.29...1.0.30)
+
+
+---
+
+
+### Updated `@uirouter/core` from 6.0.7 to 6.0.8
+
+
+Changelog for `@uirouter/core`:
+
+
+[Compare `@uirouter/core` versions 6.0.7 and 6.0.8](https://github.com/ui-router/core/compare/6.0.7...6.0.8)
+
 ## 1.0.29 (2020-12-21)
 [Compare `@uirouter/angularjs` versions 1.0.28 and 1.0.29](https://github.com/angular-ui/ui-router/compare/1.0.28...1.0.29)
 
