@@ -1,3 +1,27 @@
+# 1.1.0 (2023-04-16)
+[Compare `@uirouter/angularjs` versions 1.0.30 and 1.1.0](https://github.com/angular-ui/ui-router/compare/1.0.30...1.1.0)
+
+### Features
+
+* **package:** move [@uirouter](https://github.com/uirouter)/core to peerDeps as per other uirouter packages ([#3850](https://github.com/angular-ui/ui-router/issues/3850)) ([6dd057c](https://github.com/angular-ui/ui-router/commit/6dd057c))
+
+
+---
+
+
+### Updated `@uirouter/core` from 6.0.8 to 6.1.0
+
+
+Changelog for `@uirouter/core`:
+
+
+[Compare `@uirouter/core` versions 6.0.8 and 6.1.0](https://github.com/ui-router/core/compare/6.0.8...6.1.0)
+
+### Bug Fixes
+
+* **angular-compiler:** remove index.metadata.json from uirouter core, ([37b5ebe](https://github.com/ui-router/core/commit/37b5ebe))
+* **stateService:** make sure `$state.href` (and by extension `uiSref`) handle `inherit: false` ([#834](https://github.com/ui-router/core/issues/834)) ([12cd951](https://github.com/ui-router/core/commit/12cd951)), closes [/github.com/ui-router/core/pull/834#issuecomment-1379019917](https://github.com//github.com/ui-router/core/pull/834/issues/issuecomment-1379019917) [/github.com/ui-router/core/pull/834#issuecomment-1379195131](https://github.com//github.com/ui-router/core/pull/834/issues/issuecomment-1379195131)
+
 ## 1.0.30 (2021-12-01)
 [Compare `@uirouter/angularjs` versions 1.0.29 and 1.0.30](https://github.com/angular-ui/ui-router/compare/1.0.29...1.0.30)
 
