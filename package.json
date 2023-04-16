@@ -74,11 +74,9 @@
   "jsnext:main": "lib-esm/index.js",
   "module": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
-  "dependencies": {
-    "@uirouter/core": "6.0.8"
-  },
   "peerDependencies": {
-    "angular": ">=1.2.0"
+    "angular": ">=1.2.0",
+    "@uirouter/core": "^6.0.8"
   },
   "devDependencies": {
     "@types/angular": "1.6.57",
@@ -87,7 +85,8 @@
     "@types/jest": "^26.0.5",
     "@typescript-eslint/eslint-plugin": "^3.7.0",
     "@typescript-eslint/parser": "^3.7.0",
-    "@uirouter/publish-scripts": "2.5.5",
+    "@uirouter/publish-scripts": "^2.6.0",
+    "@uirouter/core": "^6.1.0",
     "angular": "1.8.0",
     "dts-downlevel": "^0.4.0",
     "eslint": "^7.5.0",
