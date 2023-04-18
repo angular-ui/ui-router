@@ -85,7 +85,7 @@
     "@types/jest": "^26.0.5",
     "@typescript-eslint/eslint-plugin": "^3.7.0",
     "@typescript-eslint/parser": "^3.7.0",
-    "@uirouter/publish-scripts": "^2.6.1",
+    "@uirouter/publish-scripts": "^2.6.2",
     "@uirouter/core": "^6.1.0",
     "angular": "1.8.0",
     "dts-downlevel": "^0.4.0",
