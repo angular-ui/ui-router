@@ -1,3 +1,26 @@
+## 1.1.1 (2024-07-15)
+[Compare `@uirouter/angularjs` versions 1.1.0 and 1.1.1](https://github.com/angular-ui/ui-router/compare/1.1.0...1.1.1)
+
+### Features
+
+* update uirouter core ([#3859](https://github.com/angular-ui/ui-router/issues/3859)) ([275c595](https://github.com/angular-ui/ui-router/commit/275c595))
+
+
+---
+
+
+### Updated `@uirouter/core` from 6.1.0 to 6.1.1
+
+
+Changelog for `@uirouter/core`:
+
+
+[Compare `@uirouter/core` versions 6.1.0 and 6.1.1](https://github.com/ui-router/core/compare/6.1.0...6.1.1)
+
+### Bug Fixes
+
+* **stateParams:** $inherit is not affected by enumerable prototype custom methods ([#841](https://github.com/ui-router/core/issues/841)) ([9c94c2a](https://github.com/ui-router/core/commit/9c94c2a))
+
 # 1.1.0 (2023-04-16)
 [Compare `@uirouter/angularjs` versions 1.0.30 and 1.1.0](https://github.com/angular-ui/ui-router/compare/1.0.30...1.1.0)
 
