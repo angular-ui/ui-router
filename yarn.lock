@@ -735,17 +735,17 @@
   dependencies:
     eslint-visitor-keys "^1.1.0"
 
-"@uirouter/core@^6.1.0":
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-6.1.0.tgz#ca90ae476c85805e7d70add461e91738ae383bd5"
-  integrity sha512-WFYh5NPAqRX4L2qlI4k62tgR6pxoqOBSW1CM1uBWCau4mAmgasYd5etJ9RoSJrSnCpCQ2km2Jltf0n5ql684MQ==
+"@uirouter/core@^6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-6.1.1.tgz#cf13cb481a248415a757f2db29998213b744ef17"
+  integrity sha512-vA+OolBOe0R8dbFk5mgaj30LzYzOoGhMJzj356KVQcx+wKdZHUs0dnMPuuHbKe/CEbErTgFA3MfRAW96qVc2hA==
 
-"@uirouter/publish-scripts@^2.6.2":
-  version "2.6.2"
-  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.6.2.tgz#f73128ef5b6f2d1f84657a20f92aeb87cccda2c8"
-  integrity sha512-hDJIVW50bTl/zCl/HAqwWMUn6aSjmly3wudGG1HY5WqpZj5DFqR/G77qMdWy87hditZdSYY+Vzb7KVW+ePl34A==
+"@uirouter/publish-scripts@^2.6.3":
+  version "2.6.3"
+  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.6.3.tgz#7ac4d21dd51579f5a07a7eb291f410904454c020"
+  integrity sha512-C1griZ9sFDrGwnGxtS1QxT4UZbwOU/5zrO+SLSBe9hjvgY2ID6vadgrkMdKZriZ7XYXv+k7dLmijpPf/Jjg1Pg==
   dependencies:
-    check-peer-dependencies "^4.1.0"
+    check-peer-dependencies "^4.3.0"
     conventional-changelog "^3.1.24"
     conventional-changelog-ui-router-core "^1.4.2"
     find-parent-dir "^0.3.1"
@@ -1283,10 +1283,10 @@ char-regex@^1.0.2:
   resolved "https://registry.yarnpkg.com/char-regex/-/char-regex-1.0.2.tgz#d744358226217f981ed58f479b1d6bcc29545dcf"
   integrity sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==
 
-check-peer-dependencies@^4.1.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/check-peer-dependencies/-/check-peer-dependencies-4.2.0.tgz#64caa7a4202ebcb570d9a55ddcbd4f2738f81993"
-  integrity sha512-IYLKCFvmOcc+yXvte3JRH0dwAueuMSRTZZqyvjstb3ENZ0Jdov7VHvHVHvnQNBDUwjotwUmuiQy9elYkpIcL3g==
+check-peer-dependencies@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/check-peer-dependencies/-/check-peer-dependencies-4.3.0.tgz#0fec2f5dcf9ee14a28093a908cfb94bf86bace86"
+  integrity sha512-4JPrBFzI+D8Cw36Fvdnxnz7SmbigoXg0N0Pxk1KViOcuNWRqOvJOoI7D96uSMqiU0EKr9R3xg/h3ixJW0vzhfQ==
   dependencies:
     resolve "^1.19.0"
     semver "^7.3.4"
