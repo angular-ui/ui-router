@@ -76,7 +76,7 @@
   "typings": "lib/index.d.ts",
   "peerDependencies": {
     "angular": ">=1.2.0",
-    "@uirouter/core": "^6.0.8"
+    "@uirouter/core": "^6.1.1"
   },
   "devDependencies": {
     "@types/angular": "1.6.57",
@@ -85,8 +85,8 @@
     "@types/jest": "^26.0.5",
     "@typescript-eslint/eslint-plugin": "^3.7.0",
     "@typescript-eslint/parser": "^3.7.0",
-    "@uirouter/publish-scripts": "^2.6.2",
-    "@uirouter/core": "^6.1.0",
+    "@uirouter/publish-scripts": "^2.6.3",
+    "@uirouter/core": "^6.1.1",
     "angular": "1.8.0",
     "dts-downlevel": "^0.4.0",
     "eslint": "^7.5.0",
@@ -143,5 +143,6 @@
         "branch": "master"
       }
     ]
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }
