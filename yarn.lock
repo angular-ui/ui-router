@@ -740,12 +740,12 @@
   resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-6.1.1.tgz#cf13cb481a248415a757f2db29998213b744ef17"
   integrity sha512-vA+OolBOe0R8dbFk5mgaj30LzYzOoGhMJzj356KVQcx+wKdZHUs0dnMPuuHbKe/CEbErTgFA3MfRAW96qVc2hA==
 
-"@uirouter/publish-scripts@^2.6.3":
-  version "2.6.3"
-  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.6.3.tgz#7ac4d21dd51579f5a07a7eb291f410904454c020"
-  integrity sha512-C1griZ9sFDrGwnGxtS1QxT4UZbwOU/5zrO+SLSBe9hjvgY2ID6vadgrkMdKZriZ7XYXv+k7dLmijpPf/Jjg1Pg==
+"@uirouter/publish-scripts@^2.6.4":
+  version "2.6.4"
+  resolved "https://registry.yarnpkg.com/@uirouter/publish-scripts/-/publish-scripts-2.6.4.tgz#f515cd7f83b9fe81a042060ac8db77d92d6e56fd"
+  integrity sha512-ZdisSi41/Q0jAnzIV4cdkNZkkXbmHZfjMDYGGZ0+jT6avNwaaj8k1LLCfx8DS81duPcHOR6w3Vf49GvWLGGfrA==
   dependencies:
-    check-peer-dependencies "^4.3.0"
+    check-peer-dependencies "^4.3.2"
     conventional-changelog "^3.1.24"
     conventional-changelog-ui-router-core "^1.4.2"
     find-parent-dir "^0.3.1"
@@ -1283,10 +1283,10 @@ char-regex@^1.0.2:
   resolved "https://registry.yarnpkg.com/char-regex/-/char-regex-1.0.2.tgz#d744358226217f981ed58f479b1d6bcc29545dcf"
   integrity sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==
 
-check-peer-dependencies@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/check-peer-dependencies/-/check-peer-dependencies-4.3.0.tgz#0fec2f5dcf9ee14a28093a908cfb94bf86bace86"
-  integrity sha512-4JPrBFzI+D8Cw36Fvdnxnz7SmbigoXg0N0Pxk1KViOcuNWRqOvJOoI7D96uSMqiU0EKr9R3xg/h3ixJW0vzhfQ==
+check-peer-dependencies@^4.3.2:
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/check-peer-dependencies/-/check-peer-dependencies-4.3.2.tgz#85257b88b514668de91ee1bf6056aa8bb25bfda5"
+  integrity sha512-MkJuQ+csd94YVu648yTrREVgzn0B0s6OkgsqQqpO4ETE/J0vvGVv57JHSbqLSsFlCreyjIHiZ9PTLO/DAnR5nQ==
   dependencies:
     resolve "^1.19.0"
     semver "^7.3.4"
