@@ -75,7 +75,7 @@
   "module": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
   "peerDependencies": {
-    "@uirouter/core": "^6.1.1",
+    "@uirouter/core": "^6.1.2",
     "angular": ">=1.2.0"
   },
   "devDependencies": {
@@ -85,7 +85,7 @@
     "@types/jest": "^26.0.5",
     "@typescript-eslint/eslint-plugin": "^3.7.0",
     "@typescript-eslint/parser": "^3.7.0",
-    "@uirouter/core": "^6.1.1",
+    "@uirouter/core": "^6.1.2",
     "@uirouter/publish-scripts": "^2.6.4",
     "angular": "1.8.0",
     "dts-downlevel": "^0.4.0",
