@@ -1,3 +1,22 @@
+## 1.1.2 (2025-12-31)
+[Compare `@uirouter/angularjs` versions 1.1.1 and 1.1.2](https://github.com/angular-ui/ui-router/compare/1.1.1...1.1.2)
+
+
+---
+
+
+### Updated `@uirouter/core` from 6.1.1 to 6.1.2
+
+
+Changelog for `@uirouter/core`:
+
+
+[Compare `@uirouter/core` versions 6.1.1 and 6.1.2](https://github.com/ui-router/core/compare/6.1.1...6.1.2)
+
+### Bug Fixes
+
+* **urlMatcher:** Fix potential ReDoS, thanks to www.HeroDevs.com ([0db52a1](https://github.com/ui-router/core/commit/0db52a1))
+
 ## 1.1.1 (2024-07-15)
 [Compare `@uirouter/angularjs` versions 1.1.0 and 1.1.1](https://github.com/angular-ui/ui-router/compare/1.1.0...1.1.1)
 
