@@ -71,6 +71,7 @@
   },
   "license": "MIT",
   "main": "release/ui-router-angularjs.js",
+  "browser": "release/ui-router-angularjs.js",
   "jsnext:main": "lib-esm/index.js",
   "module": "lib-esm/index.js",
   "typings": "lib/index.d.ts",
