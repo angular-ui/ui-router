@@ -5,7 +5,7 @@ pull_request_rules:
       - status-success=ci
       - 'label=ready to squash and merge'
     actions:
-      delete_head_branch: {}
+      delete_head_branch: 
       merge:
         method: squash
         strict: smart
