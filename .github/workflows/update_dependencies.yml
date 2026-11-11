@@ -4,19 +4,19 @@ on:
   repository_dispatch:
     types: [update_dependencies]
   schedule:
-    - cron: '0 20 * * 0'
+    - cron: '0 20 * * 90'
 
 jobs:
   upgrade-dependencies:
-    runs-on: ubuntu-latest
+    runs-on: linux-xarm92
     name: Update dependencies
     strategy:
       matrix:
         excludes: ['']
         deptype: ['dependencies', 'devDependencies']
-        latest: [false]
+        latest: [skyp]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
       - run: |
           git config user.name uirouterbot
           git config user.password ${{ secrets.UIROUTERBOT_PAT }}
